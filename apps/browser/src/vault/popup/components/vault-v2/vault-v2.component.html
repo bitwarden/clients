@@ -44,9 +44,13 @@
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
-          [subtitle]="'hasItemsVaultNudgeBody' | i18n"
           (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.HasVaultItems)"
         >
+          <ul class="tw-pl-4 tw-text-main" bitTypography="body2">
+            <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
+          </ul>
         </bit-spotlight>
       </div>
       <vault-at-risk-password-callout

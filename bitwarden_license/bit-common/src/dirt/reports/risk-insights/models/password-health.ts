@@ -31,6 +31,7 @@ export type ApplicationHealthReportDetail = {
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
   atRiskMemberDetails: MemberDetailsFlat[];
+  cipher: CipherView;
 };
 
 export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
@@ -48,6 +49,7 @@ export type CipherHealthReportUriDetail = {
   exposedPasswordDetail: ExposedPasswordDetail;
   cipherMembers: MemberDetailsFlat[];
   trimmedUri: string;
+  cipher: CipherView;
 };
 
 /**
@@ -149,6 +151,8 @@ export interface PasswordHealthReportApplicationsRequest {
   url: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DrawerType {
   None = 0,
   AppAtRiskMembers = 1,

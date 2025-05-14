@@ -1,4 +1,4 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ setSectionTitle }}</h2>
   </bit-section-header>
@@ -33,6 +33,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-number"
+        [toggled]="revealCardNumber"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardNumberVisible)"
       ></button>
       <button
@@ -76,6 +77,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-code"
+        [toggled]="revealCardCode"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardCodeVisible)"
       ></button>
       <button
@@ -91,4 +93,4 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>

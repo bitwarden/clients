@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo Bitwarden"
   },
   "extName": {
     "message": "Pengelola Sandi Bitwarden",
@@ -887,7 +887,7 @@
     "message": "Ikuti langkah-langkah di bawah untuk menyelesaikan log masuk."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Ikuti langkah-langkah berikut untuk menyelesaikan kegiatan masuk dengan kunci keamanan Anda."
   },
   "restartRegistration": {
     "message": "Mulai ulang pendaftaran"
@@ -1063,7 +1063,7 @@
     "message": "Iya, Simpan Sekarang"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "Lihat $ITEMNAME$, buka di jendela baru",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1072,14 +1072,14 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Sunting sebelum menyimpan",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Pemberitahuan baru"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Pemberitahuan baru",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1089,7 +1089,7 @@
     }
   },
   "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ saved to Bitwarden.",
+    "message": "$ITEMNAME$ disimpan ke Bitwarden.",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1098,7 +1098,7 @@
     "description": "Shown to user after item is saved."
   },
   "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ updated in Bitwarden.",
+    "message": "$ITEMNAME$ diperbarui di Bitwarden.",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1115,11 +1115,11 @@
     "description": "Button text for updating an existing login entry."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Simpan log masuk",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Perbarui log masuk yang sudah ada",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1131,7 +1131,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "Bagus! Anda telah mengambil langkah-langkah untuk membuat Anda dan $ORGANIZATION$ lebih aman.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1140,7 +1140,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "Terima kasih telah membuat $ORGANIZATION$ menjadi lebih aman. Anda memiliki $TASK_COUNT$ kata sandi lagi untuk diperbarui.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1152,7 +1152,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Ubah kata sandi selanjutnya",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -2355,7 +2355,7 @@
     "message": "Kebijakan Privasi"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Kata sandi baru Anda tidak boleh sama dengan kata sandi Anda yang sekarang."
   },
   "hintEqualsPassword": {
     "message": "Petunjuk kata sandi Anda tidak boleh sama dengan kata sandi Anda."
@@ -2552,10 +2552,10 @@
     "message": "Ubah lebih cepat kata sandi yang berrisiko"
   },
   "changeAtRiskPasswordsFasterDesc": {
-    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+    "message": "Perbarui pengaturan Anda sehingga Anda dapat dengan cepat mengisi otomatis kata sandi Anda dan menghasilkan kata sandi baru"
   },
   "reviewAtRiskLogins": {
-    "message": "Review at-risk logins"
+    "message": "Tinjau ulang info masuk yang berpotensi bahaya"
   },
   "reviewAtRiskPasswords": {
     "message": "Tinjau kata sandi yang berrisiko"
@@ -2565,30 +2565,30 @@
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Illustration of a list of logins that are at-risk."
+    "message": "Gambaran daftar info masuk yang berpotensi bahaya."
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "Hasilkan kata sandi yang kuat dan unik dengan cepat dengan menu isi otomatis Bitwarden pada situs yang berpotensi bahaya.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+    "message": "Gambaran dari menu isi otomatis Bitwarden yang menampilkan kata sandi yang dihasilkan."
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "Perbarui di Bitwarden"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "Bitwarden akan meminta Anda untuk memperbarui kata sandi di pengelola sandi.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+    "message": "Gambaran dari pemberitahuan Bitwarden yang meminta pengguna untuk memperbarui info masuk."
   },
   "turnOnAutofill": {
-    "message": "Turn on autofill"
+    "message": "Nyalakan isi otomatis"
   },
   "turnedOnAutofill": {
-    "message": "Turned on autofill"
+    "message": "Telah menyalakan isi otomatis"
   },
   "dismiss": {
     "message": "Tutup"
@@ -3038,7 +3038,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Hanya benda-benda brankas satuan termasuk lampiran yang terhubung dengan $EMAIL$ yang akan diekspor. Benda brankas organisasi tidak akan disertakan",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3068,7 +3068,7 @@
     "message": "Bitwarden tidak bisa mendekripsi butir brankas yang tercantum di bawah."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Hubungi layanan pelanggan",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -3565,28 +3565,28 @@
     "message": "Perangkat dipercaya"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Percayai organisasi"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Percayai"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Jangan percayai"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Organisasi tidak tepercaya"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Demi keamanan akun Anda, hanya konfirmasi jika Anda telah memberikan akses darurat ke pengguna ini dan sidik jari mereka cocok dengan apa yang ditampilkan pada akun mereka"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Demi keamanan akun Anda, hanya lanjutkan apabila Anda adalah anggota dari organisasi ini, pemulihan akun telah aktif, dan sidik jari yang ditampilkan berikut cocok dengan sidik jari organisasi."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Organisasi ini memiliki kebijakan perusahaan yang akan mendaftarkan Anda pada pemulihan akun. Pendaftaran ini akan membolehkan pengelola organisasi untuk mengubah kata sandi Anda. Hanya lanjutkan jika Anda mengenali organisasi ini dan frasa sidik jari yang ditampilkan berikut cocok dengan sidik jari organisasi."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Percayai pengguna"
   },
   "sendsNoItemsTitle": {
     "message": "Tidak ada Send yang aktif",
@@ -4328,7 +4328,7 @@
     }
   },
   "viewItemTitleWithField": {
-    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "message": "Lihat benda - $ITEMNAME$ - $FIELD$",
     "description": "Title for a link that opens a view for an item.",
     "placeholders": {
       "itemname": {
@@ -4352,7 +4352,7 @@
     }
   },
   "autofillTitleWithField": {
-    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "message": "Isi otomatis - $ITEMNAME$ - $FIELD$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4511,6 +4511,27 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Unduh Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Unduh Bitwarden"
+  },
+  "getTheMobileApp": {
+    "message": "Dapatkan aplikasi ponsel"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Akses kata sandi Anda di perjalanan dengan aplikasi ponsel Bitwarden."
+  },
+  "getTheDesktopApp": {
+    "message": "Dapatkan aplikasi desktop"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Akses brankas Anda tanpa sebuah peramban, kemudian atur buka dengan biometrik untuk mempercepat membuka di aplikasi desktop dan ekstensi peramban."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Unduh dari bitwarden.com sekarang"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Apakah Anda yakin ingin menghapus lampiran ini selamanya?"
@@ -4756,10 +4777,10 @@
     }
   },
   "reorderWebsiteUriButton": {
-    "message": "Reorder website URI. Use arrow key to move item up or down."
+    "message": "Urutkan URI situs web. Gunakan tombol panah untuk memindahkan benda ke atas atau ke bawah."
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ dipindah ke atas, terletak di $INDEX$ dari $LENGTH$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4776,13 +4797,13 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Pilih koleksi untuk ditetapkan"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 benda akan dipindahkan selamanya ke organisasi terpilih. Anda tidak akan lagi memiliki benda ini."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ benda akan dipindahkan selamanya ke organisasi terpilih. Anda tidak akan lagi memiliki benda-benda tersebut.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4791,7 +4812,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 benda akan dipindahkan selamanya ke $ORG$. Anda tidak akan lagi memiliki benda ini.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4800,7 +4821,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ benda akan dipindahkan selamanya ke $ORG$. Anda tidak akan lagi memiliki benda-benda tersebut.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Pemberitahuan penting"
-  },
-  "setupTwoStepLogin": {
-    "message": "Siapkan log masuk dua langkah"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden akan mengirim suatu kode ke akun surel Anda untuk memverifikasi log masuk dari perangkat baru sejak Februari 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Anda dapat menyiapkan log masuk dua langkah sebagai cara alternatif untuk melindungi akun Anda atau mengubah surel Anda ke yang bisa Anda akses."
-  },
-  "remindMeLater": {
-    "message": "Ingatkan saya nanti"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Apakah Anda punya akses yang handal ke surel Anda, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Tidak"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ya, saya dapat mengakses surel saya secara handla"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Nyalakan log masuk dua langkah"
-  },
-  "changeAcctEmail": {
-    "message": "Ubah surel akun"
-  },
   "extensionWidth": {
     "message": "Lebar ekstensi"
   },
@@ -5276,31 +5261,50 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Situs web",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "agar info masuk ini muncul sebagai saran pengisian otomatis.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Pembayaran daring yang lancar"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Dengan kartu, isi otomatis dengan mudah formulir pembayaran secara aman dan akurat."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Sederhanakan pembuatan akun"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Dengan identitas, isi otomatis dengan cepat formulir pendaftaran atau kontrak yang panjang."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Menjaga data sensitif Anda tetap aman"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Dengan catatan, simpan secara aman data sensitif seperti rincian perbankan atau asuransi."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Akses SSH yang ramah pengembang"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Simpan kunci-kunci Anda dan sambungkan dengan agen SSH untuk otentikasi yang cepat dan terenkripsi.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Pelajari lebih lanjut tentang agen SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

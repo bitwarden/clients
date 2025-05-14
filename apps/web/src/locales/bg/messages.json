@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Вашата настояща организация има политика, която не позволява да участвате в повече от една организация. Моля свържете се с администратора на организацията или се впишете с друг Bitwarden потребител."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Членовете, които не са собственици или администратори и са членове на други организации ще бъдат премахнати от тази организация."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "На членовете, които не отговарят на това условие, ще бъдат отнети правомощията, докато не напуснат всички останали организации. Администраторите не подлежат на това ограничение, така че те ще могат да възстановяват правомощията на членовете, след като отговорят на условието."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Уникална фраза:"
-  },
-  "removeUsers": {
-    "message": "Премахване на потребителите"
-  },
-  "revokeUsers": {
-    "message": "Отнемане на достъпа на потребители"
-  },
-  "restoreUsers": {
-    "message": "Възстановяване на достъпа на потребители"
   },
   "error": {
     "message": "Грешка"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Свързването на домейн позволява на членовете да пропускат полето за идентификатор за еднократно удостоверяване по време на вписване чрез този метод."
   },
-  "verifyDomain": {
-    "message": "Потвърждаване на домейна"
-  },
-  "reverifyDomain": {
-    "message": "Повторно потвърждаване на домейна"
-  },
   "copyDnsTxtRecord": {
     "message": "Копирайте записа TXT от DNS"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Копирайте и поставете записа TXT в системата на своя доставчик на DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде потвърден."
-  },
-  "automaticDomainVerification": {
-    "message": "Автоматично потвърждаване на домейн"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Битуорден ще се опита да потвърди домейна 3 пъти през първите 72 часа. Ако той не може да бъде потвърден, проверете записа за DNS в сървъра си и направете потвърждаването ръчно. Домейнът ще бъде премахнат от организацията Ви след 7 дни, ако не бъде потвърден."
-  },
-  "invalidDomainNameMessage": {
-    "message": "Неправилен формат. Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде потвърден."
   },
   "removeDomain": {
     "message": "Премахване на домейна"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Домейнът е запазен"
   },
-  "domainVerified": {
-    "message": "Домейнът е потвърден"
-  },
   "duplicateDomainError": {
     "message": "Не може да заявите един и същ домейн повече от веднъж."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "Домейнът $DOMAIN$ не е потвърден. Проверете записа в DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Потвърден"
-  },
-  "domainStatusUnverified": {
-    "message": "Непотвърден"
   },
   "domainNameTh": {
     "message": "Име"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "Премахнат е домейн $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "Домейнът $DOMAIN$ е потвърден",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "Домейнът $DOMAIN$ не е потвърден",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Управление на плащанията от Портала за доставчици"
   },
+  "continueSettingUp": {
+    "message": "Продължете настройването на Битуорден"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Продължете настройването на безплатния пробен период на Буторден"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Продължете настройването на Управителя на пароли Битуорден"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на пароли на Буторден"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Продължете настройването на Управлелието на тайни в Битуорден"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на тайни на Буторден"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "removeMembers": {
     "message": "Премахване на членовете"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"
   },
-  "newLoginNudgeBody": {
-    "message": "Добавете уеб сайт, за да може тези данни за вписване да се появяват като предложение за автоматично попълване."
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Безпроблемни плащания"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Улеснен достъп за разработчици чрез SSH"
   },
-  "newSshNudgeBody": {
-    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване."
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Повторно пускане"

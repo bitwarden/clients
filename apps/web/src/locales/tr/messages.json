@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Mevcut kuruluşunuzun birden fazla kuruluşa katılmanıza izin vermeyen bir ilkesi var. Lütfen kuruluş yöneticilerinizle iletişime geçin veya farklı bir Bitwarden hesabı açın."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Sahip veya yönetici olmayan ve zaten başka bir kuruluşun üyesi olan kuruluş üyeleri kuruluşunuzdan kaldırılır."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Parmak izi ifadesi:"
-  },
-  "removeUsers": {
-    "message": "Kullanıcıları kaldır"
-  },
-  "revokeUsers": {
-    "message": "Kullanıcıları iptal et"
-  },
-  "restoreUsers": {
-    "message": "Kullanıcıları geri yükle"
   },
   "error": {
     "message": "Hata"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Bir alan adının bağlanması, üyelerin SSO ile Oturum Açma sırasında SSO tanımlayıcı alanını atlamalarına olanak tanır."
   },
-  "verifyDomain": {
-    "message": "Alan adını doğrula"
-  },
-  "reverifyDomain": {
-    "message": "Alan adını yeniden doğrula"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT kaydını kopyala"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT kaydını kopyalayıp DNS sağlayıcınıza yapıştırın."
-  },
-  "domainNameInputHint": {
-    "message": "Örnek: mydomain.com. Alt alan adlarının doğrulanması için ayrı kayıtlar gerekir."
-  },
-  "automaticDomainVerification": {
-    "message": "Otomatik Alan Adı Doğrulaması"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden, ilk 72 saat içinde etki alanını 3 kez doğrulamaya çalışacak. Alan doğrulanamıyorsa barındırıcınızdaki DNS kaydını kontrol edin ve manuel olarak doğrulayın. Alan adı, doğrulanmamışsa kuruluşunuzdan 7 gün içinde kaldırılacaktır"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Giriş geçerli bir format değil. Biçim: mydomain.com. Alt alan adlarının doğrulanması için ayrı girişler gerekir."
   },
   "removeDomain": {
     "message": "Alan adını kaldır"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Alan adı kaydedildi"
   },
-  "domainVerified": {
-    "message": "Alan adı doğrulandı"
-  },
   "duplicateDomainError": {
     "message": "Aynı etki alanını iki kez talep edemezsiniz."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ doğrulanmadı. DNS kaydınızı kontrol edin.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Doğrulandı"
-  },
-  "domainStatusUnverified": {
-    "message": "Doğrulanmadı"
   },
   "domainNameTh": {
     "message": "İsim"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ alan adı kaldırıldı",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulandı",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulanmadı",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Bitwarden’ı kurmaya devam et"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continue setting up your free trial of Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Bitwarden Parola Yöneticisi’ni kurmaya devam et"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Bitwarden Secrets Manager’ı kurmaya devam et"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Önemli uyarı"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra hatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "Remove members"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Bu hesabın otomatik doldurma önerisi olarak görünmesi için bir",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web sitesi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "ekleyin.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Kesintisiz çevrimiçi alışveriş"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Yeniden başlat"

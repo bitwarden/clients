@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
   },
-  "singleOrgPolicyWarning": {
-    "message": "不是所有者或管理员并且已是其他组织的成员的组织成员将从您的组织中移除。"
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "不符合要求的成员将被置于已撤销状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "指纹短语："
-  },
-  "removeUsers": {
-    "message": "移除用户"
-  },
-  "revokeUsers": {
-    "message": "撤销用户"
-  },
-  "restoreUsers": {
-    "message": "恢复用户"
   },
   "error": {
     "message": "错误"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "连接域名允许成员在使用 SSO 登录时跳过 SSO 标识符字段。"
   },
-  "verifyDomain": {
-    "message": "验证域名"
-  },
-  "reverifyDomain": {
-    "message": "重新验证域名"
-  },
   "copyDnsTxtRecord": {
     "message": "复制 DNS TXT 记录"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "复制并粘贴 TXT 记录到您的 DNS 提供商。"
-  },
-  "domainNameInputHint": {
-    "message": "示例：mydomain.com。子域名需要单独的条目进行验证。"
-  },
-  "automaticDomainVerification": {
-    "message": "自动域名验证"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden 将在最初的 72 小时内尝试验证域名 3 次。如果此域名无法验证，请检查您主机中的 DNS 记录并手动验证。如果此域名在 7 天内未验证，它将被从您的组织中移除。"
-  },
-  "invalidDomainNameMessage": {
-    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行验证。"
   },
   "removeDomain": {
     "message": "移除域名"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "域名已保存"
   },
-  "domainVerified": {
-    "message": "域名已验证"
-  },
   "duplicateDomainError": {
     "message": "您不能两次声明同一个域名。"
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ 无法验证。请检查您的 DNS 记录。",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "已验证"
-  },
-  "domainStatusUnverified": {
-    "message": "未验证"
   },
   "domainNameTh": {
     "message": "域名"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "移除了域名 $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ 已验证",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "从提供商门户管理账单"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "继续设置您的免费试用版 Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "removeMembers": {
     "message": "移除成员"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  "newLoginNudgeBodyOne": {
+    "message": "包含一个",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "网站",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "因此此登录将显示为自动填充建议。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "无缝在线结账"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "重新启动"

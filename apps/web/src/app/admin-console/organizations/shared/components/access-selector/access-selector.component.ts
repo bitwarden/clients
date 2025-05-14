@@ -26,6 +26,8 @@ import {
   Permission,
 } from "./access-selector.models";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PermissionMode {
   /**
    * No permission controls or column present. No permission values are emitted.

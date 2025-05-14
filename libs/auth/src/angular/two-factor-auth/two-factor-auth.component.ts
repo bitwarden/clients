@@ -335,7 +335,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     try {
       this.formPromise = this.loginStrategyService.logInTwoFactor(
         new TokenTwoFactorRequest(this.selectedProviderType, tokenValue, rememberValue),
-        "", // TODO: PM-15162 - deprecate captchaResponse
       );
       const authResult: AuthResult = await this.formPromise;
       this.logService.info("Successfully submitted two factor token");
