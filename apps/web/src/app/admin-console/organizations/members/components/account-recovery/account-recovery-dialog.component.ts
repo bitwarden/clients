@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit, ViewChild } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { Component, Inject, ViewChild } from "@angular/core";
+import { switchMap } from "rxjs";
 
 import {
   InputPasswordComponent,
@@ -79,7 +79,7 @@ type AccountRecoveryDialogResultType =
     InputPasswordComponent,
   ],
 })
-export class AccountRecoveryDialogComponent implements OnInit {
+export class AccountRecoveryDialogComponent {
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent!: InputPasswordComponent;
 
@@ -87,6 +87,11 @@ export class AccountRecoveryDialogComponent implements OnInit {
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   receivedPasswordInputResult = false;
   submitting = false;
+
+  masterPasswordPolicyOptions$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+  );
 
   get loggedOutWarningName() {
     return this.dialogData.name != null ? this.dialogData.name : this.i18nService.t("thisUser");
@@ -102,14 +107,6 @@ export class AccountRecoveryDialogComponent implements OnInit {
     private resetPasswordService: OrganizationUserResetPasswordService,
     private toastService: ToastService,
   ) {}
-
-  async ngOnInit() {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(userId),
-    );
-  }
 
   handlePrimaryButtonClick = async () => {
     try {
