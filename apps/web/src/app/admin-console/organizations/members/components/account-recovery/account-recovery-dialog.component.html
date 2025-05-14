@@ -7,7 +7,7 @@
     <auth-input-password
       [flow]="inputPasswordFlow"
       [message]="'resetPasswordMasterPasswordPolicyInEffect'"
-      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
       (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
     ></auth-input-password>
   </ng-container>
