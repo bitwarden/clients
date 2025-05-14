@@ -132,11 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
             const tdeEnabled = await firstValueFrom(
               this.userDecryptionOptionsService
                 .userDecryptionOptionsById$(msg.userId)
-                .pipe(
-                  map(
-                    (decryptionOptions) => decryptionOptions?.trustedDeviceOption != null ?? false,
-                  ),
-                ),
+                .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
             );
 
             const everHadUserKey = await firstValueFrom(this.keyService.everHadUserKey$);
