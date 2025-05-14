@@ -13,6 +13,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   ButtonModule,
   CalloutModule,
@@ -45,12 +46,12 @@ export type AccountRecoveryDialogData = {
   /**
    * The `organizationUserId` for the user
    */
-  id: string;
+  organizationUserId: string;
 
   /**
    * The organization's `organizationId`
    */
-  organizationId: string;
+  organizationId: OrganizationId;
 };
 
 export const AccountRecoveryDialogResultTypes = {
@@ -133,7 +134,7 @@ export class AccountRecoveryDialogComponent implements OnInit {
       await this.resetPasswordService.resetMasterPassword(
         passwordInputResult.newPassword,
         this.dialogData.email,
-        this.dialogData.id,
+        this.dialogData.organizationUserId,
         this.dialogData.organizationId,
       );
 
