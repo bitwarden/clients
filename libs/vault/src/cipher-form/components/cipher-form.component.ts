@@ -277,7 +277,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     }
 
     // `id` is null when a cipher is being added
-    if (this.updatedCipherView.id === null) {
+    if (this.updatedCipherView.id === null && cachedCipher.id === null) {
       this.updatedCipherView = cachedCipher;
     }
   }
