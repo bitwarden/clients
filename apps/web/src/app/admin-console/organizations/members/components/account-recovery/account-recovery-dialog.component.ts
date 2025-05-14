@@ -52,9 +52,12 @@ export type AccountRecoveryDialogData = {
   organizationId: string;
 };
 
-export enum AccountRecoveryDialogResult {
-  Ok = "ok",
-}
+export const AccountRecoveryDialogResultTypes = {
+  Ok: "ok",
+} as const;
+
+type AccountRecoveryDialogResultType =
+  (typeof AccountRecoveryDialogResultTypes)[keyof typeof AccountRecoveryDialogResultTypes];
 
 /**
  * Used in a dialog for initiating the account recovery process against a
@@ -81,7 +84,7 @@ export class AccountRecoveryDialogComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected dialogData: AccountRecoveryDialogData,
     private accountService: AccountService,
-    private dialogRef: DialogRef<AccountRecoveryDialogResult>,
+    private dialogRef: DialogRef<AccountRecoveryDialogResultType>,
     private i18nService: I18nService,
     private logService: LogService,
     private policyService: PolicyService,
@@ -119,7 +122,7 @@ export class AccountRecoveryDialogComponent implements OnInit {
       this.logService.error(e);
     }
 
-    this.dialogRef.close(AccountRecoveryDialogResult.Ok);
+    this.dialogRef.close(AccountRecoveryDialogResultTypes.Ok);
   }
 
   /**
@@ -131,7 +134,7 @@ export class AccountRecoveryDialogComponent implements OnInit {
     dialogService: DialogService,
     dialogConfig: DialogConfig<AccountRecoveryDialogData>,
   ) => {
-    return dialogService.open<AccountRecoveryDialogResult>(
+    return dialogService.open<AccountRecoveryDialogResultType>(
       AccountRecoveryDialogComponent,
       dialogConfig,
     );
