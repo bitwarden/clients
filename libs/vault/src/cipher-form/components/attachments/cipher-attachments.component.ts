@@ -137,9 +137,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     this.organization = await this.getOrganization();
     this.cipherDomain = await this.getCipher(this.cipherId);
 
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
 
     // Update the initial state of the submit button
     if (this.submitBtn) {
@@ -210,9 +208,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
       );
 
       // re-decrypt the cipher to update the attachments
-      this.cipher = await this.cipherDomain.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, this.activeUserId),
-      );
+      this.cipher = await this.cipherService.decrypt(this.cipherDomain, this.activeUserId);
 
       // Reset reactive form and input element
       this.fileInput.nativeElement.value = "";
