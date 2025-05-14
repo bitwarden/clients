@@ -10,10 +10,10 @@
       {{ "sponsoredFamiliesEligible" | i18n }}
     </p>
     <div bitTypography="body1">
-      {{ "sponsoredFamiliesInclude" | i18n }}:
+      {{ "sponsoredFamiliesIncludeMessage" | i18n }}:
       <ul class="tw-list-outside">
         <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
-        <li>{{ "sponsoredFamiliesSharedCollections" | i18n }}</li>
+        <li>{{ "sponsoredFamiliesSharedCollectionsForFamilyMembers" | i18n }}</li>
       </ul>
     </div>
     <form [formGroup]="sponsorshipForm" [bitSubmit]="submit" *ngIf="anyOrgsAvailable$ | async">

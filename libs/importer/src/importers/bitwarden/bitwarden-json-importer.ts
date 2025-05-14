@@ -72,7 +72,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         keyForDecryption = await this.keyService.getUserKeyWithLegacySupport();
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
-      const encKeyValidationDecrypt = await this.encryptService.decryptToUtf8(
+      const encKeyValidationDecrypt = await this.encryptService.decryptString(
         encKeyValidation,
         keyForDecryption,
       );
@@ -118,9 +118,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const view = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
+      const view = await this.cipherService.decrypt(cipher, activeUserId);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);
     }

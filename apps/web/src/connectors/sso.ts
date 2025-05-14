@@ -2,10 +2,6 @@
 // @ts-strict-ignore
 import { getQsParam } from "./common";
 
-// FIXME: Remove when updating file. Eslint update
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-require("./sso.scss");
-
 window.addEventListener("load", () => {
   const code = getQsParam("code");
   const state = getQsParam("state");
@@ -20,7 +16,7 @@ window.addEventListener("load", () => {
   }
 });
 
-function initiateWebAppSso(code: string, state: string) {
+export function initiateWebAppSso(code: string, state: string) {
   // If we've initiated SSO from somewhere other than the SSO component on the web app, the SSO component will add
   // a _returnUri to the state variable. Here we're extracting that URI and sending the user there instead of to the SSO component.
   const returnUri = extractFromRegex(state, "(?<=_returnUri=')(.*)(?=')");
@@ -31,7 +27,7 @@ function initiateWebAppSso(code: string, state: string) {
   }
 }
 
-function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
+export function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
   window.postMessage({ command: "authResult", code, state, lastpass }, window.location.origin);
   const handOffMessage = ("; " + document.cookie)
     .split("; ssoHandOffMessage=")

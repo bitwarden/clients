@@ -45,6 +45,7 @@ import { DialogService } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -63,6 +64,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   localeOptions: any[];
   themeOptions: any[];
   clearClipboardOptions: any[];
+  sshAgentPromptBehaviorOptions: any[];
   supportsBiometric: boolean;
   private timerId: any;
   showAlwaysShowDock = false;
@@ -126,6 +128,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
+    sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     theme: [null as Theme | null],
@@ -211,6 +214,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       { name: this.i18nService.t("oneMinute"), value: 60 },
       { name: this.i18nService.t("twoMinutes"), value: 120 },
       { name: this.i18nService.t("fiveMinutes"), value: 300 },
+    ];
+    this.sshAgentPromptBehaviorOptions = [
+      {
+        name: this.i18nService.t("sshAgentPromptBehaviorAlways"),
+        value: SshAgentPromptType.Always,
+      },
+      { name: this.i18nService.t("sshAgentPromptBehaviorNever"), value: SshAgentPromptType.Never },
+      {
+        name: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
+        value: SshAgentPromptType.RememberUntilLock,
+      },
     ];
   }
 
@@ -312,6 +326,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.hardwareAcceleration$,
       ),
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
+      sshAgentPromptBehavior: await firstValueFrom(
+        this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
@@ -779,8 +796,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveSshAgent() {
-    this.logService.debug("Saving Ssh Agent settings", this.form.value.enableSshAgent);
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  async saveSshAgentPromptBehavior() {
+    await this.desktopSettingsService.setSshAgentPromptBehavior(
+      this.form.value.sshAgentPromptBehavior,
+    );
   }
 
   async savePreventScreenshots() {

@@ -5,17 +5,19 @@ import { Theme } from "@bitwarden/common/platform/enums";
 
 import { border, themes, typography, spacing } from "../constants/styles";
 
+export type BadgeButtonProps = {
+  buttonAction: (e: Event) => void;
+  buttonText: string;
+  disabled?: boolean;
+  theme: Theme;
+};
+
 export function BadgeButton({
   buttonAction,
   buttonText,
   disabled = false,
   theme,
-}: {
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-  disabled?: boolean;
-  theme: Theme;
-}) {
+}: BadgeButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (!disabled) {
       buttonAction(event);

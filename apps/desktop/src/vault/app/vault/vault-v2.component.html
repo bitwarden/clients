@@ -6,7 +6,6 @@
     (onCipherClicked)="viewCipher($event)"
     (onCipherRightClicked)="viewCipherMenu($event)"
     (onAddCipher)="addCipher($event)"
-    (onAddCipherOptions)="addCipherOptions()"
   >
   </app-vault-items-v2>
   <div class="details" *ngIf="!!action">
@@ -20,6 +19,7 @@
       (onClone)="cloneCipher($event)"
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
+      [isSubmitting]="isSubmitting"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">
@@ -32,6 +32,7 @@
             formId="cipherForm"
             [config]="config"
             (cipherSaved)="savedCipher($event)"
+            [beforeSubmit]="onSubmit"
             [submitBtn]="footer?.submitBtn"
           >
             <bit-item slot="attachment-button">
