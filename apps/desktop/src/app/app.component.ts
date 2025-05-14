@@ -11,7 +11,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  lastValueFrom,
+  map,
+  Subject,
+  switchMap,
+  takeUntil,
+  timeout,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
