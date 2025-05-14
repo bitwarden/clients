@@ -20,9 +20,14 @@ export class SdkPasswordRandomizer
     CredentialGenerator<PasswordGenerationOptions>
 {
   /** Instantiates the password randomizer
-   *  @param randomizer data source for random data
+   *  @param client access to SDK client to call upon password/passphrase generation
    */
-  constructor(private client: BitwardenClient) {}
+  constructor(private client: BitwardenClient) {
+    this.currentTime = Date.now;
+  }
+
+  /** Gets the current datetime in epoch time */
+  currentTime: () => number;
 
   generate(
     request: GenerateRequest,
@@ -42,7 +47,7 @@ export class SdkPasswordRandomizer
       return new GeneratedCredential(
         password,
         Type.password,
-        Date.now(),
+        this.currentTime(),
         request.source,
         request.website,
       );
@@ -54,7 +59,7 @@ export class SdkPasswordRandomizer
       return new GeneratedCredential(
         passphrase,
         Type.password,
-        Date.now(),
+        this.currentTime(),
         request.source,
         request.website,
       );
