@@ -1097,6 +1097,10 @@
     "message": "updated in Bitwarden.",
     "description": "Shown to user after item is updated."
   },
+  "selectItemAriaLabel": {
+    "message": "Select $1, $2",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name."
+  },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
     "description": "Button text for saving login details as a new entry."

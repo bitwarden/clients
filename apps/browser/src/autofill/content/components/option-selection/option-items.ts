@@ -41,7 +41,12 @@ export function OptionItems({
       ${label ? html`<div class=${optionsLabelStyles({ theme })}>${label}</div>` : nothing}
       <div class=${optionsWrapper({ isSafari, theme })}>
         ${options.map((option) =>
-          OptionItem({ ...option, theme, handleSelection: () => handleOptionSelection(option) }),
+          OptionItem({
+            ...option,
+            theme,
+            contextLabel: label,
+            handleSelection: () => handleOptionSelection(option),
+          }),
         )}
       </div>
     </div>
