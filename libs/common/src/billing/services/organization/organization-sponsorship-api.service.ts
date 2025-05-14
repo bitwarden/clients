@@ -16,7 +16,10 @@ export class OrganizationSponsorshipApiService
   ): Promise<ListResponse<OrganizationSponsorshipInvitesResponse>> {
     const r = await this.apiService.send(
       "GET",
-      "/organization/sponsorship/" + sponsoredOrgId + "/sponsored",
+      "/organization/sponsorship/" +
+        (this.platformUtilsService.isSelfHost() ? "self-hosted/" : "") +
+        sponsoredOrgId +
+        "/sponsored",
       null,
       true,
       true,
