@@ -1090,7 +1090,6 @@
   },
   "notificationLoginSaveConfirmation": {
     "message": "saved to Bitwarden.",
-
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
