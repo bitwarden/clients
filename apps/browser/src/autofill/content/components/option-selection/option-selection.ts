@@ -96,8 +96,8 @@ export class OptionSelection extends LitElement {
   };
 
   private handleFocusOut = (event: FocusEvent) => {
-    const relatedTarget = event.relatedTarget as Node | null;
-    if (!this.contains(relatedTarget)) {
+    const relatedTarget = event.relatedTarget;
+    if (!(relatedTarget instanceof Node) || !this.contains(relatedTarget)) {
       this.showMenu = false;
       if (OptionSelection.currentOpenInstance === this) {
         OptionSelection.currentOpenInstance = null;
