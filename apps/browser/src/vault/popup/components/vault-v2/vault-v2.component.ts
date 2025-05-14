@@ -34,8 +34,8 @@ import {
   DecryptionFailureDialogComponent,
   SpotlightComponent,
   VaultIcons,
-  VaultNudgesService,
-  VaultNudgeType,
+  NudgesService,
+  NudgeType,
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -96,17 +96,15 @@ enum VaultState {
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
-  VaultNudgeType = VaultNudgeType;
+  VaultNudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, userId),
-    ),
+    switchMap((userId) => this.vaultNudgesService.showNudge$(NudgeType.EmptyVaultNudge, userId)),
     map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
   );
   showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) => this.vaultNudgesService.showNudge$(VaultNudgeType.HasVaultItems, userId)),
+    switchMap((userId) => this.vaultNudgesService.showNudge$(NudgeType.HasVaultItems, userId)),
     map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
   );
 
@@ -159,7 +157,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
-    private vaultNudgesService: VaultNudgesService,
+    private vaultNudgesService: NudgesService,
     private router: Router,
     private i18nService: I18nService,
   ) {
@@ -229,7 +227,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async dismissVaultNudgeSpotlight(type: VaultNudgeType) {
+  async dismissVaultNudgeSpotlight(type: NudgeType) {
     await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 

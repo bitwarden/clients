@@ -55,7 +55,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { SpotlightComponent, NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -109,7 +109,7 @@ export class AutofillComponent implements OnInit {
     filter((account): account is Account => account !== null),
     switchMap((account) =>
       this.vaultNudgesService
-        .showNudge$(VaultNudgeType.AutofillNudge, account.id)
+        .showNudge$(NudgeType.AutofillNudge, account.id)
         .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed)),
     ),
   );
@@ -155,7 +155,7 @@ export class AutofillComponent implements OnInit {
     private configService: ConfigService,
     private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
-    private vaultNudgesService: VaultNudgesService,
+    private vaultNudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {
@@ -344,7 +344,7 @@ export class AutofillComponent implements OnInit {
 
   async dismissSpotlight() {
     await this.vaultNudgesService.dismissNudge(
-      VaultNudgeType.AutofillNudge,
+      NudgeType.AutofillNudge,
       await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
   }

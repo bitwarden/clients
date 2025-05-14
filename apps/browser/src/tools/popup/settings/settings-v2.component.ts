@@ -17,7 +17,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BadgeComponent, ItemModule } from "@bitwarden/components";
-import { NudgeStatus, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { NudgeStatus, NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
@@ -42,7 +42,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class SettingsV2Component implements OnInit {
-  VaultNudgeType = VaultNudgeType;
+  VaultNudgeType = NudgeType;
   activeUserId: UserId | null = null;
   protected isBrowserAutofillSettingOverridden = false;
 
@@ -53,13 +53,13 @@ export class SettingsV2Component implements OnInit {
 
   downloadBitwardenNudgeStatus$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.DownloadBitwarden, account.id),
+      this.vaultNudgesService.showNudge$(NudgeType.DownloadBitwarden, account.id),
     ),
   );
 
   showVaultBadge$: Observable<NudgeStatus> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, account.id),
+      this.vaultNudgesService.showNudge$(NudgeType.EmptyVaultNudge, account.id),
     ),
   );
 
@@ -68,7 +68,7 @@ export class SettingsV2Component implements OnInit {
     this.authenticatedAccount$,
   ]).pipe(
     switchMap(([defaultBrowserAutofillDisabled, account]) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.AutofillNudge, account.id).pipe(
+      this.vaultNudgesService.showNudge$(NudgeType.AutofillNudge, account.id).pipe(
         map((nudgeStatus) => {
           return !defaultBrowserAutofillDisabled && nudgeStatus.hasBadgeDismissed === false;
         }),
@@ -81,7 +81,7 @@ export class SettingsV2Component implements OnInit {
   );
 
   constructor(
-    private readonly vaultNudgesService: VaultNudgesService,
+    private readonly vaultNudgesService: NudgesService,
     private readonly accountService: AccountService,
     private readonly autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private readonly configService: ConfigService,
@@ -94,7 +94,7 @@ export class SettingsV2Component implements OnInit {
       );
   }
 
-  async dismissBadge(type: VaultNudgeType) {
+  async dismissBadge(type: NudgeType) {
     if (!(await firstValueFrom(this.showVaultBadge$)).hasBadgeDismissed) {
       const account = await firstValueFrom(this.authenticatedAccount$);
       await this.vaultNudgesService.dismissNudge(type, account.id as UserId, true);

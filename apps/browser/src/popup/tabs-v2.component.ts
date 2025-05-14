@@ -6,7 +6,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Icons } from "@bitwarden/components";
-import { VaultNudgesService } from "@bitwarden/vault";
+import { NudgesService } from "@bitwarden/vault";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
@@ -53,7 +53,7 @@ export class TabsV2Component {
     }),
   );
   constructor(
-    private vaultNudgesService: VaultNudgesService,
+    private vaultNudgesService: NudgesService,
     private accountService: AccountService,
     private readonly configService: ConfigService,
   ) {}
