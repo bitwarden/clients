@@ -354,12 +354,15 @@ export class RiskInsightsReportService {
         : newUriDetail.cipherMembers,
       atRiskMemberDetails: existingUriDetail ? existingUriDetail.atRiskMemberDetails : [],
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
+      atRiskCipherIds: existingUriDetail ? existingUriDetail.atRiskCipherIds : [],
       atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
       cipher: newUriDetail.cipher,
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
       reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1;
+      reportDetail.atRiskCipherIds.push(newUriDetail.cipherId);
+
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
         reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
