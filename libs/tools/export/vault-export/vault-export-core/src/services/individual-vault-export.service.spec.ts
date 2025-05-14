@@ -379,6 +379,45 @@ describe("VaultExportService", () => {
       const attachment = await zip.file("attachments/mock-id/mock-file-name")?.async("blob");
       expect(attachment).toBeDefined();
     });
+
+    it("For each cipher attachment create a dedicated folder with the attachmentId as the name to put the attachment in", async () => {
+      const cipherData = new CipherData();
+      cipherData.id = "mock-id";
+      const cipherView = new CipherView(new Cipher(cipherData));
+      // Create 1st attachment with the same filename for the cipher
+      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView.id = "id-of-file-1";
+      attachmentView.fileName = "mock-file-name.txt";
+      // Create 2nd attachment with the same filename for the cipher
+      const attachmentView2 = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView2.id = "id-of-file-2";
+      attachmentView2.fileName = "mock-file-name.txt";
+      cipherView.attachments = [attachmentView, attachmentView2];
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const exportedVault = await exportService.getExport("zip");
+
+      expect(exportedVault.type).toBe("application/zip");
+      const exportZip = exportedVault as ExportedVaultAsBlob;
+      const zip = await JSZip.loadAsync(exportZip.data);
+      const attachment = await zip
+        .file("attachments/mock-id/id-of-file-1/mock-file-name.txt")
+        ?.async("blob");
+      expect(attachment).toBeDefined();
+      const attachment2 = await zip
+        .file("attachments/mock-id/id-of-file-2/mock-file-name.txt")
+        ?.async("blob");
+      expect(attachment2).toBeDefined();
+    });
   });
 
   describe("password protected export", () => {
