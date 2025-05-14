@@ -614,7 +614,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * @param params
    */
   static open(dialogService: DialogService, params: VaultItemDialogParams) {
-    return dialogService.open<VaultItemDialogResult, VaultItemDialogParams>(
+    return dialogService.openDrawer<VaultItemDialogResult, VaultItemDialogParams>(
       VaultItemDialogComponent,
       {
         data: params,
