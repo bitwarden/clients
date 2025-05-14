@@ -46,10 +46,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -64,6 +67,10 @@ import { GroupApiService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
+import {
+  AccountRecoveryDialogComponent,
+  AccountRecoveryDialogResultTypes,
+} from "./components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
@@ -134,6 +141,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -719,18 +727,38 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async resetPassword(user: OrganizationUserView) {
-    const dialogRef = ResetPasswordComponent.open(this.dialogService, {
-      data: {
-        name: this.userNamePipe.transform(user),
-        email: user != null ? user.email : null,
-        organizationId: this.organization.id,
-        id: user != null ? user.id : null,
-      },
-    });
+    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
 
-    const result = await lastValueFrom(dialogRef.closed);
-    if (result === ResetPasswordDialogResult.Ok) {
-      await this.load();
+    if (changePasswordRefactorFlag) {
+      const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user != null ? user.email : null,
+          organizationId: this.organization.id as OrganizationId,
+          organizationUserId: user != null ? user.id : null,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AccountRecoveryDialogResultTypes.Ok) {
+        await this.load();
+      }
+    } else {
+      const dialogRef = ResetPasswordComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user != null ? user.email : null,
+          organizationId: this.organization.id,
+          id: user != null ? user.id : null,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === ResetPasswordDialogResult.Ok) {
+        await this.load();
+      }
     }
   }
 
