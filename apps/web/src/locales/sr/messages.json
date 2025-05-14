@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Ваша тренутна организација има смернице које не дозвољавају да се придружите више организација. Молимо контактирајте администраторе своје организације или се пријавите са другим Bitwarden налога."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Чланови организације који нису власници или администратори и који су већ чланови друге организације биће уклоњени из ваше организације."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Уклони кориснике"
-  },
-  "revokeUsers": {
-    "message": "Опозови кориснике"
-  },
-  "restoreUsers": {
-    "message": "Врати кориснике"
   },
   "error": {
     "message": "Грешка"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Повезивање домена омогућава члановима да прескоче SSO идентификацију при пријављивање са SSO."
   },
-  "verifyDomain": {
-    "message": "Потврди домен"
-  },
-  "reverifyDomain": {
-    "message": "Поново верификујте домен"
-  },
   "copyDnsTxtRecord": {
     "message": "Копирати DNS TXT запис"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Копирајте и налепите TXT запис у DNS провајдер."
-  },
-  "domainNameInputHint": {
-    "message": "Пример: mydomain.com. Под-домени захтевају посебне уносе да би били верификовани."
-  },
-  "automaticDomainVerification": {
-    "message": "Аутоматска верификација домена"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden ће покушати да верификује домен 3 пута током прва 72 сата. Ако домен не може да се верификује, проверите DNS запис у вашен хосту и верификујте ручно. Домен ће бити уклоњен из ваше организације за 7 дана ако не буде верификован"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Унос није важећи формат. Формат: mydomain.com. Под-домени захтевају посебне уносе за проверу."
   },
   "removeDomain": {
     "message": "Уклони домен"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Домен сачуван"
   },
-  "domainVerified": {
-    "message": "Домен верификован"
-  },
   "duplicateDomainError": {
     "message": "Не можете два пута тражити исти домен."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ није проверен. Проверите ваш DNS запис.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Проверено"
-  },
-  "domainStatusUnverified": {
-    "message": "Није потврђен"
   },
   "domainNameTh": {
     "message": "Име"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "Домен $DOMAIN$ уклоњен",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ проверен",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ није проверен",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Управљајте наплатом из Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden-а"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden менаџер лозинки"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden Secrets Manager"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Важно обавештење"
-  },
-  "setupTwoStepLogin": {
-    "message": "Поставити дво-степенску пријаву"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden ће послати кôд на имејл вашег налога за верификовање пријављивања са нових уређаја почевши од фебруара 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да подесите пријаву у два корака као алтернативни начин да заштитите свој налог или да промените свој имејл у један који можете да приступите."
-  },
-  "remindMeLater": {
-    "message": "Подсети ме касније"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Да ли имате поуздан приступ својим имејлом, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, ненам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, могу поуздано да приступим овим имејлом"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Упалити дво-степенску пријаву"
-  },
-  "changeAcctEmail": {
-    "message": "Променити имејл налога"
-  },
   "removeMembers": {
     "message": "Уклони чланове"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Уштедите време са ауто-пуњењем"
   },
-  "newLoginNudgeBody": {
-    "message": "Укључите веб страницу тако да се ова пријава појављује као предлог за ауто-пуњење."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Лако онлајн плачање"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Лак SSH приступ"
   },
-  "newSshNudgeBody": {
-    "message": "Чувајте кључеве и повежите се са SSH агент за брзу, шифровану аутентификацију."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Поново покрени"

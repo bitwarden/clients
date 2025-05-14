@@ -18,6 +18,8 @@ type ManageClientSubscriptionDialogParams = {
   provider: Provider;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ManageClientSubscriptionDialogResultType {
   Closed = "closed",
   Submitted = "submitted",

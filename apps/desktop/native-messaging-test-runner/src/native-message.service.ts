@@ -220,7 +220,7 @@ export default class NativeMessageService {
 
     const sharedKey = await this.getSharedKeyForKey(key);
 
-    return this.encryptService.encrypt(commandDataString, sharedKey);
+    return this.encryptService.encryptString(commandDataString, sharedKey);
   }
 
   private async decryptResponsePayload(
@@ -228,11 +228,7 @@ export default class NativeMessageService {
     key: string,
   ): Promise<DecryptedCommandData> {
     const sharedKey = await this.getSharedKeyForKey(key);
-    const decrypted = await this.encryptService.decryptToUtf8(
-      payload,
-      sharedKey,
-      "native-messaging-session",
-    );
+    const decrypted = await this.encryptService.decryptString(payload, sharedKey);
 
     return JSON.parse(decrypted);
   }

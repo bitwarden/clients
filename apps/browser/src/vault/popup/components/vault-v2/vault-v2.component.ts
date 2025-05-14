@@ -19,10 +19,17 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogService,
+  Icons,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
   SpotlightComponent,
@@ -55,6 +62,8 @@ import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum VaultState {
   Empty,
   NoResults,
@@ -84,6 +93,7 @@ enum VaultState {
     NewSettingsCalloutComponent,
     SpotlightComponent,
     RouterModule,
+    TypographyModule,
   ],
   providers: [VaultPageService],
 })
@@ -156,6 +166,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private vaultNudgesService: VaultNudgesService,
     private router: Router,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

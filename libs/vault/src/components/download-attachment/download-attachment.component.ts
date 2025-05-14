@@ -39,7 +39,7 @@ export class DownloadAttachmentComponent {
   // Required for fetching attachment data when viewed from cipher via emergency access
   @Input() emergencyAccessId?: EmergencyAccessId;
 
-  /** When accessing from the admin console, we will want to call the admin endpoint */
+  /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
   @Input() admin?: boolean = false;
 
   /** The organization key if the cipher is associated with one */
@@ -102,7 +102,7 @@ export class DownloadAttachmentComponent {
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
       const key = this.attachment.key != null ? this.attachment.key : this.orgKey;
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, key);
       this.fileDownloadService.download({
         fileName: this.attachment.fileName,
         blobData: decBuf,

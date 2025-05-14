@@ -26,6 +26,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
+  IconButtonModule,
   Icons,
   NoItemsModule,
   SearchModule,
@@ -53,6 +54,7 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     NoItemsModule,
     SharedModule,
     AppTableRowScrollableComponent,
+    IconButtonModule,
   ],
 })
 export class AllApplicationsComponent implements OnInit {
@@ -160,7 +162,7 @@ export class AllApplicationsComponent implements OnInit {
       this.toastService.showToast({
         variant: "success",
         title: "",
-        message: this.i18nService.t("appsMarkedAsCritical"),
+        message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
       });
     } finally {
       this.selectedUrls.clear();

@@ -19,6 +19,8 @@ import { PendingWebauthnLoginCredentialView } from "../../../core/views/pending-
 import { CreatePasskeyFailedIcon } from "./create-passkey-failed.icon";
 import { CreatePasskeyIcon } from "./create-passkey.icon";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CreateCredentialDialogResult {
   Success,
 }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { of, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -9,6 +9,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
+  AutofillNudgeService,
+  DownloadBitwardenNudgeService,
   NewItemNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
@@ -21,12 +23,16 @@ export type NudgeStatus = {
 /**
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VaultNudgeType {
   /** Nudge to show when user has no items in their vault
    * Add future nudges here
    */
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
+  AutofillNudge = "autofill-nudge",
+  DownloadBitwarden = "download-bitwarden",
   newLoginItemStatus = "new-login-item-status",
   newCardItemStatus = "new-card-item-status",
   newIdentityItemStatus = "new-identity-item-status",
@@ -52,9 +58,11 @@ export class VaultNudgesService {
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
-  private customNudgeServices: any = {
+  private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
     [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
+    [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
     [VaultNudgeType.newLoginItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newCardItemStatus]: this.newItemNudgeService,
     [VaultNudgeType.newIdentityItemStatus]: this.newItemNudgeService,
@@ -100,5 +108,27 @@ export class VaultNudgesService {
       ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
       : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
     await this.getNudgeService(nudge).setNudgeStatus(nudge, dismissedStatus, userId);
+  }
+
+  /**
+   * Check if there are any active badges for the user to show Berry notification in Tabs
+   * @param userId
+   */
+  hasActiveBadges$(userId: UserId): Observable<boolean> {
+    // Add more nudge types here if they have the settings badge feature
+    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge, VaultNudgeType.DownloadBitwarden];
+
+    const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
+      return this.getNudgeService(nudge)
+        .nudgeStatus$(nudge, userId)
+        .pipe(
+          map((status) => !status?.hasBadgeDismissed),
+          shareReplay({ refCount: false, bufferSize: 1 }),
+        );
+    });
+
+    return combineLatest(nudgeTypesWithBadge$).pipe(
+      map((results) => results.some((result) => result === true)),
+    );
   }
 }
