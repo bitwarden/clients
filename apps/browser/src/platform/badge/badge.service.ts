@@ -1,21 +1,34 @@
-import { BrowserApi } from "../browser/browser-api";
-
+import { BadgeBrowserApi } from "./badge-browser-api";
+import { DefaultBadgeState } from "./consts";
+import { BadgeStatePriority } from "./priority";
 import { BadgeState } from "./state";
 
 export class BadgeService {
-  private badgeAction: typeof chrome.action | typeof chrome.browserAction;
-  private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
-  private win: Window & typeof globalThis;
+  private states: Record<string, { priority: BadgeStatePriority; state: BadgeState }> = {};
 
-  constructor(win: Window & typeof globalThis) {
-    this.badgeAction = BrowserApi.getBrowserAction();
-    this.sidebarAction = BrowserApi.getSidebarAction(self);
-    this.win = win;
+  constructor() {}
 
-    (win as any).badgeService = this;
+  async setState(name: string, priority: BadgeStatePriority, state: BadgeState) {
+    this.states[name] = { priority, state };
+
+    await BadgeBrowserApi.setState(this.calculateState());
   }
 
-  async setState(name: string, state: BadgeState) {}
-
   async clearState(name: string) {}
+
+  private calculateState(): BadgeState {
+    const states = Object.values(this.states).sort((a, b) => a.priority - b.priority);
+
+    const mergedState = states
+      .map((s) => s.state)
+      .reduce(
+        (acc, state) => ({
+          ...acc,
+          ...state,
+        }),
+        DefaultBadgeState,
+      );
+
+    return mergedState;
+  }
 }

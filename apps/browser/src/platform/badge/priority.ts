@@ -1,6 +1,6 @@
 export const BadgeStatePriority = {
   Low: 0,
-  Medium: 100,
+  Default: 100,
   High: 200,
 } as const;
 
