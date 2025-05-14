@@ -229,7 +229,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     }
 
     if (entryField.tagName === "password") {
-      cipher.login.password = decodeURI(entryField.textContent);
+      cipher.login.password = entryField.textContent;
       return true;
     }
 
