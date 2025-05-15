@@ -27,7 +27,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -345,12 +345,11 @@ export class GetCommand extends DownloadCommand {
       return Response.multipleResults(attachments.map((a) => a.id));
     }
 
-    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$(account.id),
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
     if (!canAccessPremium) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const originalCipher = await this.cipherService.get(cipher.id, activeUserId);
       if (originalCipher == null || originalCipher.organizationId == null) {
         return Response.error("Premium status is required to use this feature.");
@@ -374,11 +373,20 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const key =
-      attachments[0].key != null
-        ? attachments[0].key
-        : await this.keyService.getOrgKey(cipher.organizationId);
-    return await this.saveAttachmentToFile(url, key, attachments[0].fileName, options.output);
+    const decryptBufferFn = (resp: globalThis.Response) =>
+      this.cipherService.getDecryptedAttachmentBuffer(
+        cipher.id as CipherId,
+        attachments[0],
+        resp,
+        activeUserId,
+      );
+
+    return await this.saveAttachmentToFile(
+      url,
+      attachments[0].fileName,
+      decryptBufferFn,
+      options.output,
+    );
   }
 
   private async getFolder(id: string) {
