@@ -32,12 +32,12 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 })
 export class DownloadBitwardenComponent implements OnInit {
   constructor(
-    private vaultNudgeService: NudgesService,
+    private nudgesService: NudgesService,
     private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.vaultNudgeService.dismissNudge(NudgeType.DownloadBitwarden, userId);
+    await this.nudgesService.dismissNudge(NudgeType.DownloadBitwarden, userId);
   }
 }
