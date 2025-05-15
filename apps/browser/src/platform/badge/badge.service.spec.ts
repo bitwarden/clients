@@ -40,9 +40,8 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
   });
 
-  // This relies on the the state provider to auto-emit
+  // This relies on the state provider to auto-emit
   it("sets default values on startup", async () => {
-    // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
     expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
   });
 
