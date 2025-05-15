@@ -88,6 +88,7 @@ type OrganizationTasks = {
 @Component({
   selector: "sm-overview",
   templateUrl: "./overview.component.html",
+  standalone: false,
 })
 export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();

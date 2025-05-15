@@ -26,6 +26,7 @@ type ComponentData = {
 @Component({
   selector: "app-subscription-status",
   templateUrl: "subscription-status.component.html",
+  standalone: false,
 })
 export class SubscriptionStatusComponent {
   @Input({ required: true }) organizationSubscriptionResponse: OrganizationSubscriptionResponse;

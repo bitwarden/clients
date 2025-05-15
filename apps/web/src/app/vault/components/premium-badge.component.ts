@@ -9,6 +9,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
       {{ "premium" | i18n }}
     </button>
   `,
+  standalone: false,
 })
 export class PremiumBadgeComponent {
   constructor(private messagingService: MessagingService) {}

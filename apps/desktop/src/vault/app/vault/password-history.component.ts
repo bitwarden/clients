@@ -10,6 +10,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-password-history",
   templateUrl: "password-history.component.html",
+  standalone: false,
 })
 export class PasswordHistoryComponent extends BasePasswordHistoryComponent {
   constructor(
