@@ -519,10 +519,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // See: https://github.com/angular/angular/issues/13063
 
     try {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       if (!enabled || !this.supportsBiometric) {
         this.form.controls.biometric.setValue(false, { emitEvent: false });
         await this.biometricStateService.setBiometricUnlockEnabled(false);
-        await this.keyService.refreshAdditionalKeys();
+        await this.keyService.refreshAdditionalKeys(userId);
         return;
       }
 
@@ -558,7 +559,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.biometricStateService.setRequirePasswordOnStart(true);
         await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
       }
-      await this.keyService.refreshAdditionalKeys();
+      await this.keyService.refreshAdditionalKeys(userId);
 
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -598,7 +599,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       await this.biometricStateService.setRequirePasswordOnStart(false);
     }
     await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-    await this.keyService.refreshAdditionalKeys();
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.keyService.refreshAdditionalKeys(userId);
   }
 
   async saveFavicons() {
