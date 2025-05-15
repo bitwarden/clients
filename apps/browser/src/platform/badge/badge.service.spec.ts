@@ -91,4 +91,51 @@ describe("BadgeService", () => {
       icon: "icon",
     } satisfies BadgeState);
   });
+
+  it("removes override when a previously high-priority state is cleared", async () => {
+    await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    });
+    await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      text: "override",
+    });
+    await badgeService.clearState("state-2");
+
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(1, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(2, {
+      text: "override",
+      backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(3, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+  });
+
+  it("sets default values when all states have been cleared", async () => {
+    await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    });
+    await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      text: "override",
+    });
+    await badgeService.setState("state-3", BadgeStatePriority.High, {
+      backgroundColor: "#aaa",
+    });
+    await badgeService.clearState("state-1");
+    await badgeService.clearState("state-2");
+    await badgeService.clearState("state-3");
+
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(6, DefaultBadgeState);
+  });
 });

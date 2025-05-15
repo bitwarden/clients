@@ -14,7 +14,11 @@ export class BadgeService {
     await BadgeBrowserApi.setState(this.calculateState());
   }
 
-  async clearState(name: string) {}
+  async clearState(name: string) {
+    delete this.states[name];
+
+    await BadgeBrowserApi.setState(this.calculateState());
+  }
 
   private calculateState(): BadgeState {
     const states = Object.values(this.states).sort((a, b) => a.priority - b.priority);
