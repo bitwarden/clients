@@ -9,7 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -20,7 +20,7 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
   private pinService = inject(PinServiceAbstraction);
   private vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Failed to load profile date:");
