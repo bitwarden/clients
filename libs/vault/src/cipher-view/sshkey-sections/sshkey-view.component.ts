@@ -14,8 +14,6 @@ import {
   IconButtonModule,
 } from "@bitwarden/components";
 
-import { OrgIconDirective } from "../../components/org-icon.directive";
-
 @Component({
   selector: "app-sshkey-view",
   templateUrl: "sshkey-view.component.html",
@@ -27,7 +25,6 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
-    OrgIconDirective,
     FormFieldModule,
     IconButtonModule,
   ],
