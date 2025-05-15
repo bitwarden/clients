@@ -19,10 +19,17 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ButtonModule, DialogService, Icons, NoItemsModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogService,
+  Icons,
+  NoItemsModule,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
   SpotlightComponent,
@@ -49,12 +56,12 @@ import {
   NewItemDropdownV2Component,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown-v2.component";
-import { NewSettingsCalloutComponent } from "./new-settings-callout/new-settings-callout.component";
 import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component";
-import { VaultPageService } from "./vault-page.service";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum VaultState {
   Empty,
   NoResults,
@@ -81,11 +88,10 @@ enum VaultState {
     ScrollingModule,
     VaultHeaderV2Component,
     AtRiskPasswordCalloutComponent,
-    NewSettingsCalloutComponent,
     SpotlightComponent,
     RouterModule,
+    TypographyModule,
   ],
-  providers: [VaultPageService],
 })
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
@@ -142,7 +148,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   protected noResultsIcon = Icons.NoResults;
 
   protected VaultStateEnum = VaultState;
-  protected showNewCustomizationSettingsCallout = false;
 
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
@@ -156,6 +161,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private vaultNudgesService: VaultNudgesService,
     private router: Router,
+    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

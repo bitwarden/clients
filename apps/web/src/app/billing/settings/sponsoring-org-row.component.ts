@@ -109,7 +109,7 @@ export class SponsoringOrgRowComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
     this.toastService.showToast({
       variant: "success",
       title: null,

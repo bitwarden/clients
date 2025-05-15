@@ -28,7 +28,10 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
-        const vaultHasContents = !(ciphers == null || ciphers.length === 0);
+        const filteredCiphers = ciphers?.filter((cipher) => {
+          return cipher.deletedDate == null;
+        });
+        const vaultHasContents = !(filteredCiphers == null || filteredCiphers.length === 0);
         if (orgs == null || orgs.length === 0) {
           return nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed
             ? of(nudgeStatus)

@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { CardComponent, TypographyModule } from "@bitwarden/components";
+import { CardComponent, LinkModule, TypographyModule } from "@bitwarden/components";
 import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -27,6 +27,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     CardComponent,
     TypographyModule,
     CurrentAccountComponent,
+    LinkModule,
   ],
 })
 export class DownloadBitwardenComponent implements OnInit {

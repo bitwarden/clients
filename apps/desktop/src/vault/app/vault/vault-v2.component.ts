@@ -514,6 +514,9 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = cipher.id;
     this.cipher = cipher;
     await this.buildFormConfig("edit");
+    if (!cipher.edit && this.config) {
+      this.config.mode = "partial-edit";
+    }
     this.action = "edit";
     await this.go().catch(() => {});
   }

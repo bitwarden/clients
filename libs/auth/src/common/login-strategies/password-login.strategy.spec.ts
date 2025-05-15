@@ -184,7 +184,6 @@ describe("PasswordLoginStrategy", () => {
           provider: null,
           token: null,
         }),
-        captchaResponse: undefined,
       }),
     );
   });
@@ -260,14 +259,11 @@ describe("PasswordLoginStrategy", () => {
     apiService.postIdentityToken.mockResolvedValueOnce(
       identityTokenResponseFactory(masterPasswordPolicy),
     );
-    await passwordLoginStrategy.logInTwoFactor(
-      {
-        provider: TwoFactorProviderType.Authenticator,
-        token: "123456",
-        remember: false,
-      },
-      "",
-    );
+    await passwordLoginStrategy.logInTwoFactor({
+      provider: TwoFactorProviderType.Authenticator,
+      token: "123456",
+      remember: false,
+    });
 
     // Second login attempt should save the force password reset options
     expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
