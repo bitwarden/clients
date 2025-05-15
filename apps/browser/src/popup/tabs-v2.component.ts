@@ -18,7 +18,7 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
 export class TabsV2Component {
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
-    .pipe(switchMap((userId) => this.vaultNudgesService.hasActiveBadges$(userId)));
+    .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
   protected navButtons$: Observable<NavButton[]> = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
     this.hasActiveBadges$,
@@ -54,7 +54,7 @@ export class TabsV2Component {
     }),
   );
   constructor(
-    private vaultNudgesService: NudgesService,
+    private nudgesService: NudgesService,
     private accountService: AccountService,
     private readonly configService: ConfigService,
   ) {}
