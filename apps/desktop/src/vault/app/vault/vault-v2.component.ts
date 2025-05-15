@@ -538,6 +538,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
     this.addType = type || this.activeFilter.cipherType;
     this.cipher = new CipherView();
+    this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
     this.prefillCipherFromFilter();

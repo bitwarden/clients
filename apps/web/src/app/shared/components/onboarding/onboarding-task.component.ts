@@ -8,6 +8,7 @@ import { Component, Input } from "@angular/core";
   host: {
     class: "tw-max-w-max",
   },
+  standalone: false,
 })
 export class OnboardingTaskComponent {
   @Input()
