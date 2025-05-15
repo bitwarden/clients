@@ -130,6 +130,10 @@ export class DefaultCollectionService implements CollectionService {
 
     orgKeys ??= await firstValueFrom(this.keyService.activeUserOrgKeys$);
 
+    if (orgKeys == null) {
+      return [];
+    }
+
     const promises: Promise<any>[] = [];
     collections.forEach((collection) => {
       promises.push(
