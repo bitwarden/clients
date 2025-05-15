@@ -1116,6 +1116,10 @@
     "message": "Update login",
     "description": "Button text for updating an existing login entry."
   },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
   "saveLogin": {
     "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
