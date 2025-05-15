@@ -6,7 +6,7 @@
   </popup-header>
 
   <bit-spotlight
-    *ngIf="(accountSecurityNudgeStatus$ | async)?.hasSpotlightDismissed === false"
+    *ngIf="showAccountSecurityNudge$ | async"
     [title]="'unlockVault' | i18n"
     [subtitle]="'unlockVaultDesc' | i18n"
     (onDismiss)="dismissAccountSecurityNudge()"

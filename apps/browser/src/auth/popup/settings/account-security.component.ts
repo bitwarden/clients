@@ -64,12 +64,7 @@ import {
   BiometricStateService,
   BiometricsStatus,
 } from "@bitwarden/key-management";
-import {
-  NudgeStatus,
-  SpotlightComponent,
-  VaultNudgesService,
-  VaultNudgeType,
-} from "@bitwarden/vault";
+import { SpotlightComponent, NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -127,11 +122,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     enableAutoBiometricsPrompt: true,
   });
 
-  protected accountSecurityNudgeStatus$: Observable<NudgeStatus> =
+  protected showAccountSecurityNudge$: Observable<boolean> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.vaultNudgesService.showNudge$(VaultNudgeType.AccountSecurity, userId),
+        this.vaultNudgesService.showNudgeSpotlight$(NudgeType.AccountSecurity, userId),
       ),
     );
 
@@ -157,7 +152,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
-    private vaultNudgesService: VaultNudgesService,
+    private vaultNudgesService: NudgesService,
   ) {}
 
   async ngOnInit() {
@@ -423,7 +418,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     if (!activeAccount) {
       return;
     }
-    await this.vaultNudgesService.dismissNudge(VaultNudgeType.AccountSecurity, activeAccount.id);
+    await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
   }
 
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {
@@ -482,7 +477,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         title: null,
         message: this.i18nService.t("unlockPinSet"),
       });
-      await this.vaultNudgesService.dismissNudge(VaultNudgeType.AccountSecurity, userId);
+      await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
     } else {
       await this.vaultTimeoutSettingsService.clear();
     }

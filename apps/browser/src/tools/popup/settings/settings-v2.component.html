@@ -13,7 +13,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "accountSecurity" | i18n }}</p>
           <span
-            *ngIf="(accountSecurityNudgeStatus$ | async)?.hasBadgeDismissed === false"
+            *ngIf="showAccountSecurityNudge$ | async"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
@@ -91,7 +91,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
           <span
-            *ngIf="downloadBitwardenNudgeStatus$ | async"
+            *ngIf="showDownloadBitwardenNudge$ | async"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
