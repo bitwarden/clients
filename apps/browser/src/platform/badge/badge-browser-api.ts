@@ -1,3 +1,5 @@
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { BrowserApi } from "../browser/browser-api";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
@@ -15,10 +17,15 @@ export class BadgeBrowserApi {
 
   async setState(state: RawBadgeState): Promise<void> {
     await this.setIcon(state.icon);
+    await this.setText(state.text);
   }
 
   private setIcon(icon: IconPaths) {
     return Promise.all([this.setActionIcon(icon), this.setSidebarActionIcon(icon)]);
+  }
+
+  private setText(text: string) {
+    return Promise.all([this.setActionText(text), this.setSideBarText(text)]);
   }
 
   private async setActionIcon(path: IconPaths) {
@@ -51,6 +58,22 @@ export class BadgeBrowserApi {
       );
     } else {
       await this.sidebarAction.setIcon({ path });
+    }
+  }
+
+  private async setActionText(text: string) {
+    if (this.badgeAction?.setBadgeText) {
+      await this.badgeAction.setBadgeText({ text });
+    }
+  }
+
+  private async setSideBarText(text: string) {
+    if (this.isOperaSidebar(this.sidebarAction)) {
+      this.sidebarAction.setBadgeText({ text });
+    } else if (this.sidebarAction) {
+      // Firefox
+      const title = `Bitwarden${Utils.isNullOrEmpty(text) ? "" : ` [${text}]`}`;
+      await this.sidebarAction.setTitle({ title });
     }
   }
 

@@ -1,7 +1,7 @@
 import { RawBadgeState } from "./badge-browser-api";
 
 export const DefaultBadgeState: RawBadgeState = {
-  text: "DefaultText",
+  text: "",
   backgroundColor: "DefaultBackgroundColor",
   icon: {
     19: "DefaultIcon19",
