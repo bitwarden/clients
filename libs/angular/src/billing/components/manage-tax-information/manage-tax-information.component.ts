@@ -11,6 +11,7 @@ import { CountryListItem, TaxInformation } from "@bitwarden/common/billing/model
 @Component({
   selector: "app-manage-tax-information",
   templateUrl: "./manage-tax-information.component.html",
+  standalone: false,
 })
 export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   @Input() startWith: TaxInformation;

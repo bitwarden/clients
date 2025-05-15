@@ -41,6 +41,7 @@ type BulkStatusDialogData = {
 @Component({
   selector: "app-bulk-status",
   templateUrl: "bulk-status.component.html",
+  standalone: false,
 })
 export class BulkStatusComponent implements OnInit {
   users: BulkStatusEntry[];

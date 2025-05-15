@@ -14,5 +14,6 @@ export class TwoFactorAuthenticationPolicy extends BasePolicy {
 @Component({
   selector: "policy-two-factor-authentication",
   templateUrl: "two-factor-authentication.component.html",
+  standalone: false,
 })
 export class TwoFactorAuthenticationPolicyComponent extends BasePolicyComponent {}

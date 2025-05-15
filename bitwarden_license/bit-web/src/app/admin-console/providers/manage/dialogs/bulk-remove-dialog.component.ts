@@ -19,6 +19,7 @@ type BulkRemoveDialogParams = {
 @Component({
   templateUrl:
     "../../../../../../../../apps/web/src/app/admin-console/organizations/members/components/bulk/bulk-remove-dialog.component.html",
+  standalone: false,
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {
   providerId: string;

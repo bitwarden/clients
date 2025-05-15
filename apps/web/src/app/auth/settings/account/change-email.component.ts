@@ -17,6 +17,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
+  standalone: false,
 })
 export class ChangeEmailComponent implements OnInit {
   tokenSent = false;
