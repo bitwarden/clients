@@ -236,6 +236,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
@@ -414,6 +415,7 @@ export default class MainBackground {
   ipcService: IpcService;
 
   badgeService: BadgeService;
+  authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1338,6 +1340,11 @@ export default class MainBackground {
     );
 
     this.badgeService = new BadgeService(this.stateProvider, new BadgeBrowserApi());
+    this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
+      this.badgeService,
+      this.accountService,
+      this.authService,
+    );
   }
 
   async bootstrap() {
