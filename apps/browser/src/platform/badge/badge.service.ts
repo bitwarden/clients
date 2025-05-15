@@ -1,12 +1,45 @@
+import { filter, mergeMap } from "rxjs";
+
+import {
+  BADGE_MEMORY,
+  GlobalState,
+  KeyDefinition,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
+
 import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
 
-export class BadgeService {
-  private states: Record<string, { priority: BadgeStatePriority; state: BadgeState }> = {};
+interface StateSetting {
+  priority: BadgeStatePriority;
+  state: BadgeState;
+}
 
-  constructor(private badgeApi: BadgeBrowserApi) {}
+const BADGE_STATES = new KeyDefinition(BADGE_MEMORY, "badgeStates", {
+  deserializer: (value: Record<string, StateSetting>) => value ?? {},
+});
+
+export class BadgeService {
+  private states: GlobalState<Record<string, StateSetting>>;
+
+  constructor(
+    private stateProvider: StateProvider,
+    private badgeApi: BadgeBrowserApi,
+  ) {
+    this.states = this.stateProvider.getGlobal(BADGE_STATES);
+
+    this.states.state$
+      .pipe(
+        filter((states) => states != undefined),
+        mergeMap(async (states) => {
+          const state = this.calculateState(states);
+          await this.badgeApi.setState(state);
+        }),
+      )
+      .subscribe();
+  }
 
   /**
    * Inform badge service of a new state that the badge should reflect.
@@ -21,9 +54,7 @@ export class BadgeService {
    * @param state The state to set.
    */
   async setState(name: string, priority: BadgeStatePriority, state: BadgeState) {
-    this.states[name] = { priority, state };
-
-    await this.badgeApi.setState(this.calculateState());
+    await this.states.update((s) => ({ ...s, [name]: { priority, state } }));
   }
 
   /**
@@ -35,15 +66,17 @@ export class BadgeService {
    * @param name The name of the state to clear.
    */
   async clearState(name: string) {
-    delete this.states[name];
-
-    await this.badgeApi.setState(this.calculateState());
+    await this.states.update((s) => {
+      const newStates = { ...s };
+      delete newStates[name];
+      return newStates;
+    });
   }
 
-  private calculateState(): RawBadgeState {
-    const states = Object.values(this.states).sort((a, b) => a.priority - b.priority);
+  private calculateState(states: Record<string, StateSetting>): RawBadgeState {
+    const stateValues = Object.values(states).sort((a, b) => a.priority - b.priority);
 
-    const mergedState = states
+    const mergedState = stateValues
       .map((s) => s.state)
       .reduce<RawBadgeState>((acc, state) => {
         const merged: BadgeState = {

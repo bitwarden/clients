@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
+
 import { BadgeBrowserApi } from "./badge-browser-api";
 import { BadgeService } from "./badge.service";
 import { DefaultBadgeState } from "./consts";
@@ -8,11 +10,13 @@ import { BadgeState, IconPaths, Unset } from "./state";
 
 describe("BadgeService", () => {
   let badgeApi: MockProxy<BadgeBrowserApi>;
+  let stateProvider: FakeStateProvider;
   let badgeService!: BadgeService;
 
   beforeEach(() => {
     badgeApi = mock<BadgeBrowserApi>();
-    badgeService = new BadgeService(badgeApi);
+    stateProvider = new FakeStateProvider(new FakeAccountService({}));
+    badgeService = new BadgeService(stateProvider, badgeApi);
   });
 
   it("sets provided state when no other state has been set", async () => {

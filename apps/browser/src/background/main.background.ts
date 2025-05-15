@@ -1337,7 +1337,7 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.badgeService = new BadgeService(new BadgeBrowserApi());
+    this.badgeService = new BadgeService(this.stateProvider, new BadgeBrowserApi());
   }
 
   async bootstrap() {
