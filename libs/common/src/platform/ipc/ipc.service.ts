@@ -25,11 +25,11 @@ export abstract class IpcService {
     this._client = client;
     this._messages$ = new Observable<IncomingMessage>((subscriber) => {
       let isSubscribed = true;
-
       const receiveLoop = async () => {
+        const subscription = await this.client.subscribe();
         while (isSubscribed) {
           try {
-            const message = await this.client.receive();
+            const message = await subscription.receive();
             subscriber.next(message);
           } catch (error) {
             subscriber.error(error);

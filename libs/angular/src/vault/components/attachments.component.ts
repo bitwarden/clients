@@ -9,13 +9,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -56,6 +56,7 @@ export class AttachmentsComponent implements OnInit {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -88,9 +89,7 @@ export class AttachmentsComponent implements OnInit {
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       this.formPromise = this.saveCipherAttachment(files[0], activeUserId);
       this.cipherDomain = await this.formPromise;
-      this.cipher = await this.cipherDomain.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
-      );
+      this.cipher = await this.cipherService.decrypt(this.cipherDomain, activeUserId);
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -130,9 +129,7 @@ export class AttachmentsComponent implements OnInit {
       const updatedCipher = await this.deletePromises[attachment.id];
 
       const cipher = new Cipher(updatedCipher);
-      this.cipher = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
+      this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
@@ -197,12 +194,14 @@ export class AttachmentsComponent implements OnInit {
     }
 
     try {
-      const encBuf = await EncArrayBuffer.fromResponse(response);
-      const key =
-        attachment.key != null
-          ? attachment.key
-          : await this.keyService.getOrgKey(this.cipher.organizationId);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+        this.cipherDomain.id as CipherId,
+        attachment,
+        response,
+        activeUserId,
+      );
+
       this.fileDownloadService.download({
         fileName: attachment.fileName,
         blobData: decBuf,
@@ -228,9 +227,7 @@ export class AttachmentsComponent implements OnInit {
   protected async init() {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.cipherDomain = await this.loadCipher(activeUserId);
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(this.cipherDomain, activeUserId);
 
     const canAccessPremium = await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
@@ -276,15 +273,17 @@ export class AttachmentsComponent implements OnInit {
 
         try {
           // 2. Resave
-          const encBuf = await EncArrayBuffer.fromResponse(response);
-          const key =
-            attachment.key != null
-              ? attachment.key
-              : await this.keyService.getOrgKey(this.cipher.organizationId);
-          const decBuf = await this.encryptService.decryptToBytes(encBuf, key);
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
+
+          const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
+            this.cipherDomain.id as CipherId,
+            attachment,
+            response,
+            activeUserId,
+          );
+
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
             attachment.fileName,
@@ -292,9 +291,7 @@ export class AttachmentsComponent implements OnInit {
             activeUserId,
             admin,
           );
-          this.cipher = await this.cipherDomain.decrypt(
-            await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
-          );
+          this.cipher = await this.cipherService.decrypt(this.cipherDomain, activeUserId);
 
           // 3. Delete old
           this.deletePromises[attachment.id] = this.deleteCipherAttachment(
@@ -343,7 +340,12 @@ export class AttachmentsComponent implements OnInit {
   }
 
   protected deleteCipherAttachment(attachmentId: string, userId: UserId) {
-    return this.cipherService.deleteAttachmentWithServer(this.cipher.id, attachmentId, userId);
+    return this.cipherService.deleteAttachmentWithServer(
+      this.cipher.id,
+      attachmentId,
+      userId,
+      false,
+    );
   }
 
   protected async reupload(attachment: AttachmentView) {

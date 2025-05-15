@@ -195,18 +195,11 @@ export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerRepro
   web: "disk-local",
 });
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const NEW_DEVICE_VERIFICATION_NOTICE = new StateDefinition(
-  "newDeviceVerificationNotice",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
 export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
-export const VAULT_NUDGES_DISK = new StateDefinition("vaultNudges", "disk");
+export const VAULT_NUDGES_DISK = new StateDefinition("vaultNudges", "disk", { web: "disk-local" });
 export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
