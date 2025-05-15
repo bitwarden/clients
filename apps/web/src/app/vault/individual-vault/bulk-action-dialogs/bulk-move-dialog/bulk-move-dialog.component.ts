@@ -47,6 +47,7 @@ export const openBulkMoveDialog = (
 
 @Component({
   templateUrl: "bulk-move-dialog.component.html",
+  standalone: false,
 })
 export class BulkMoveDialogComponent implements OnInit {
   cipherIds: string[] = [];

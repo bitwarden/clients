@@ -24,6 +24,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-org-manage-scim",
   templateUrl: "scim.component.html",
+  standalone: false,
 })
 export class ScimComponent implements OnInit {
   loading = true;

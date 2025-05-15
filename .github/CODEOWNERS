@@ -185,5 +185,8 @@ apps/web/src/locales/en/messages.json
 **/entrypoint.sh
 
 ## Overrides
-# tsconfig files are potentially dangerous and will be reviewed by platform to prevent misconfigurations
+# For the time being platform owns tsconfig and jest config
+# These overrides will be removed after Nx is implemented
+# To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
 **/tsconfig.json @bitwarden/team-platform-dev
+**/jest.config.js @bitwarden/team-platform-dev

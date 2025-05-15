@@ -155,12 +155,9 @@ export class OrganizationVaultExportService
               .forEach(async (c) => {
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
-                  this.cipherService
-                    .getKeyForCipherKeyDecryption(cipher, activeUserId)
-                    .then((key) => cipher.decrypt(key))
-                    .then((decCipher) => {
-                      decCiphers.push(decCipher);
-                    }),
+                  this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
+                    decCiphers.push(decCipher);
+                  }),
                 );
               });
           }

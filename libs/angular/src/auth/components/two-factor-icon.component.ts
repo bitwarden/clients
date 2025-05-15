@@ -10,6 +10,7 @@ import { WebAuthnIcon } from "../icons/webauthn.icon";
 @Component({
   selector: "auth-two-factor-icon",
   templateUrl: "./two-factor-icon.component.html",
+  standalone: false,
 })
 export class TwoFactorIconComponent {
   @Input() provider: any;

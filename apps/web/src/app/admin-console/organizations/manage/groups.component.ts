@@ -75,6 +75,7 @@ const groupsFilter = (filter: string) => {
 
 @Component({
   templateUrl: "groups.component.html",
+  standalone: false,
 })
 export class GroupsComponent {
   loading = true;

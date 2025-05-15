@@ -13,6 +13,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
+  standalone: false,
 })
 export class EnvironmentSelectorComponent implements OnInit {
   constructor(

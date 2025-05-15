@@ -50,6 +50,7 @@ export enum PolicyEditDialogResult {
 @Component({
   selector: "app-policy-edit",
   templateUrl: "policy-edit.component.html",
+  standalone: false,
 })
 export class PolicyEditComponent implements AfterViewInit {
   @ViewChild("policyForm", { read: ViewContainerRef, static: true })

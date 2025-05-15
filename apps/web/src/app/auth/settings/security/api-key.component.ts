@@ -23,6 +23,7 @@ export type ApiKeyDialogData = {
 @Component({
   selector: "app-api-key",
   templateUrl: "api-key.component.html",
+  standalone: false,
 })
 export class ApiKeyComponent {
   clientId: string;

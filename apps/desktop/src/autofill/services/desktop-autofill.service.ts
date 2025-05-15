@@ -199,9 +199,7 @@ export class DesktopAutofillService implements OnDestroy {
             return;
           }
 
-          const decrypted = await cipher.decrypt(
-            await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-          );
+          const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
 
           const fido2Credential = decrypted.login.fido2Credentials?.[0];
           if (!fido2Credential) {
