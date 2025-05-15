@@ -70,6 +70,9 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
     private ariaLive: LiveAnnouncer,
   ) {}
 
+  /** exports algorithm symbols to the template */
+  protected readonly Algorithm = Algorithm;
+
   /** Binds the component to a specific user's settings. When this input is not provided,
    * the form binds to the active user
    */

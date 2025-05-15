@@ -84,6 +84,7 @@ export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestro
     private ariaLive: LiveAnnouncer,
   ) {}
 
+  /** exports algorithm symbols to the template */
   protected readonly Algorithm = Algorithm;
 
   /** Binds the component to a specific user's settings. When this input is not provided,

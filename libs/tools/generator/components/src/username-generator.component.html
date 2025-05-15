@@ -69,12 +69,12 @@
         [account]="account$ | async"
       />
       <tools-subaddress-settings
-        *ngIf="(showAlgorithm$ | async)?.id === 'subaddress'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.plusAddress"
         [account]="account$ | async"
         (onUpdated)="generate('subaddress settings')"
       />
       <tools-username-settings
-        *ngIf="(showAlgorithm$ | async)?.id === 'username'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.username"
         [account]="account$ | async"
         (onUpdated)="generate('username settings')"
       />
