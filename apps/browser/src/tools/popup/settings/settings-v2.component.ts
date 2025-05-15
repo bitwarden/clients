@@ -42,7 +42,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class SettingsV2Component implements OnInit {
-  VaultNudgeType = NudgeType;
+  NudgeType = NudgeType;
   activeUserId: UserId | null = null;
   protected isBrowserAutofillSettingOverridden = false;
 
@@ -95,7 +95,7 @@ export class SettingsV2Component implements OnInit {
   }
 
   async dismissBadge(type: NudgeType) {
-    if (!(await firstValueFrom(this.showVaultBadge$))) {
+    if (await firstValueFrom(this.showVaultBadge$)) {
       const account = await firstValueFrom(this.authenticatedAccount$);
       await this.nudgesService.dismissNudge(type, account.id as UserId, true);
     }

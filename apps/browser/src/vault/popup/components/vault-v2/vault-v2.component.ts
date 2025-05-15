@@ -96,7 +96,7 @@ enum VaultState {
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
-  VaultNudgeType = NudgeType;
+  NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
