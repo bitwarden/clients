@@ -106,6 +106,7 @@ export enum MemberDialogResult {
 
 @Component({
   templateUrl: "member-dialog.component.html",
+  standalone: false,
 })
 export class MemberDialogComponent implements OnDestroy {
   loading = true;

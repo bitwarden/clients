@@ -55,6 +55,7 @@ export enum PermissionMode {
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class AccessSelectorComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

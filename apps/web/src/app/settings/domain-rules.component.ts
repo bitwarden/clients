@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 @Component({
   selector: "app-domain-rules",
   templateUrl: "domain-rules.component.html",
+  standalone: false,
 })
 export class DomainRulesComponent implements OnInit {
   loading = true;

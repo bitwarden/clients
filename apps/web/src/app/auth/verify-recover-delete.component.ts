@@ -14,6 +14,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-verify-recover-delete",
   templateUrl: "verify-recover-delete.component.html",
+  standalone: false,
 })
 export class VerifyRecoverDeleteComponent implements OnInit {
   email: string;

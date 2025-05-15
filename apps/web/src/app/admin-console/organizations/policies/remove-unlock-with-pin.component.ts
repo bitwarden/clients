@@ -14,5 +14,6 @@ export class RemoveUnlockWithPinPolicy extends BasePolicy {
 @Component({
   selector: "remove-unlock-with-pin",
   templateUrl: "remove-unlock-with-pin.component.html",
+  standalone: false,
 })
 export class RemoveUnlockWithPinPolicyComponent extends BasePolicyComponent {}

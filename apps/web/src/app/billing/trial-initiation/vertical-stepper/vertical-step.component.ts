@@ -5,6 +5,7 @@ import { Component, Input } from "@angular/core";
   selector: "app-vertical-step",
   templateUrl: "vertical-step.component.html",
   providers: [{ provide: CdkStep, useExisting: VerticalStep }],
+  standalone: false,
 })
 export class VerticalStep extends CdkStep {
   @Input() subLabel = "";
