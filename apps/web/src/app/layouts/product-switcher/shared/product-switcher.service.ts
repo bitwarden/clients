@@ -242,6 +242,7 @@ export class ProductSwitcherService {
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(getUserId),
         );
+        // Don't display orgs if the user has a single org policy
         if (
           !(await firstValueFrom(
             this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, activeUserId),
