@@ -16,6 +16,7 @@ import { KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
 @Component({
   selector: "app-change-kdf-confirmation",
   templateUrl: "change-kdf-confirmation.component.html",
+  standalone: false,
 })
 export class ChangeKdfConfirmationComponent {
   kdfConfig: KdfConfig;

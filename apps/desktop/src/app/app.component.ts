@@ -93,6 +93,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
     <bit-toast-container></bit-toast-container>
   `,
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;

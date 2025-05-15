@@ -32,8 +32,7 @@ type ItemPermission = CollectionPermission | "NoAccess";
 @Component({
   selector: "app-vault-items",
   templateUrl: "vault-items.component.html",
-  // TODO: Improve change detection, see: https://bitwarden.atlassian.net/browse/TDL-220
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class VaultItemsComponent {
   protected RowHeight = RowHeight;

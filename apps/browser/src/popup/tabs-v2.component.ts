@@ -13,6 +13,7 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
 @Component({
   selector: "app-tabs-v2",
   templateUrl: "./tabs-v2.component.html",
+  standalone: false,
 })
 export class TabsV2Component {
   private hasActiveBadges$ = this.accountService.activeAccount$

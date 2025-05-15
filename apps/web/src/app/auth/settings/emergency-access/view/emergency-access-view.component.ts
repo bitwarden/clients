@@ -15,6 +15,7 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
   selector: "emergency-access-view",
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
+  standalone: false,
 })
 export class EmergencyAccessViewComponent implements OnInit {
   id: EmergencyAccessId | null = null;
