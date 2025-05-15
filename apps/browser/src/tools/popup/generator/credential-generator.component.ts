@@ -9,7 +9,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ItemModule, TypographyModule } from "@bitwarden/components";
 import { GeneratorModule } from "@bitwarden/generator-components";
-import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { SpotlightComponent, NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -38,22 +38,22 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   ],
 })
 export class CredentialGeneratorComponent {
-  protected readonly VaultNudgeType = VaultNudgeType;
+  protected readonly NudgeType = NudgeType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected showGeneratorSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
-      this.vaultNudgesService.showNudgeSpotlight$(VaultNudgeType.GeneratorNudgeStatus, userId),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.GeneratorNudgeStatus, userId),
     ),
   );
 
   constructor(
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
     private accountService: AccountService,
   ) {}
 
-  async dismissGeneratorSpotlight(type: VaultNudgeType) {
+  async dismissGeneratorSpotlight(type: NudgeType) {
     const activeUserId = await firstValueFrom(this.activeUserId$);
 
-    await this.vaultNudgesService.dismissNudge(type, activeUserId as UserId);
+    await this.nudgesService.dismissNudge(type, activeUserId as UserId);
   }
 }

@@ -19,7 +19,7 @@ import {
   SendListItemsContainerComponent,
   SendSearchComponent,
 } from "@bitwarden/send-ui";
-import { VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -65,7 +65,7 @@ export class SendV2Component implements OnDestroy {
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   protected showSendSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
-      this.vaultNudgesService.showNudgeSpotlight$(VaultNudgeType.SendNudgeStatus, userId),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.SendNudgeStatus, userId),
     ),
   );
 
@@ -76,7 +76,7 @@ export class SendV2Component implements OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
