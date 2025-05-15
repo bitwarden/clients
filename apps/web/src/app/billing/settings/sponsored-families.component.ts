@@ -36,6 +36,7 @@ interface RequestSponsorshipForm {
 @Component({
   selector: "app-sponsored-families",
   templateUrl: "sponsored-families.component.html",
+  standalone: false,
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;

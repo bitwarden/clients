@@ -35,6 +35,7 @@ import { UnsecuredWebsitesReportComponent as BaseUnsecuredWebsitesReportComponen
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
+  standalone: false,
 })
 export class UnsecuredWebsitesReportComponent
   extends BaseUnsecuredWebsitesReportComponent

@@ -24,6 +24,7 @@ import {
 @Component({
   selector: "tools-subaddress-settings",
   templateUrl: "subaddress-settings.component.html",
+  standalone: false,
 })
 export class SubaddressSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component

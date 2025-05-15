@@ -36,7 +36,7 @@ import {
   CipherFormGenerationService,
   NudgeStatus,
   PasswordRepromptService,
-  VaultNudgesService,
+  NudgesService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -144,7 +144,7 @@ export default {
       ],
       providers: [
         {
-          provide: VaultNudgesService,
+          provide: NudgesService,
           useValue: {
             showNudge$: new BehaviorSubject({
               hasBadgeDismissed: true,

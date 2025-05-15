@@ -42,6 +42,7 @@ import {
 @Component({
   selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
+  standalone: false,
 })
 export class EmergencyAccessComponent implements OnInit {
   loaded = false;

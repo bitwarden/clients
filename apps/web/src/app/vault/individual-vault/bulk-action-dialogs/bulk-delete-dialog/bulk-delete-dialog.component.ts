@@ -53,6 +53,7 @@ export const openBulkDeleteDialog = (
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];

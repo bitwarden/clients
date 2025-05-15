@@ -13,6 +13,7 @@ import { ApiKeyComponent } from "./api-key.component";
 @Component({
   selector: "app-security-keys",
   templateUrl: "security-keys.component.html",
+  standalone: false,
 })
 export class SecurityKeysComponent implements OnInit {
   showChangeKdf = true;
