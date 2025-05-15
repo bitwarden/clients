@@ -260,6 +260,8 @@ import { InlineMenuFieldQualificationService } from "../autofill/services/inline
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
+import { BadgeBrowserApi } from "../platform/badge/badge-browser-api";
+import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
@@ -411,6 +413,8 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
+
+  badgeService: BadgeService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1334,6 +1338,8 @@ export default class MainBackground {
       this.authService,
       this.logService,
     );
+
+    this.badgeService = new BadgeService(new BadgeBrowserApi());
   }
 
   async bootstrap() {

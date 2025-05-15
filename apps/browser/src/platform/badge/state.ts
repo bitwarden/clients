@@ -26,5 +26,10 @@ export interface BadgeState {
    * If this is set to `undefined`, a lower priority state may be used.
    * If no lower priority state is set, the default icon will be used.
    */
-  icon?: string | Unset;
+  icon?: Unset | IconPaths;
 }
+
+export type IconPaths = {
+  19: string;
+  38: string;
+};

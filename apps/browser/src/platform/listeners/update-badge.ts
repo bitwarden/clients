@@ -41,6 +41,10 @@ export class UpdateBadge {
   }
 
   async run(opts?: { tabId?: number; windowId?: number }): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log("UpdateBadge.run");
+    return;
+
     const authStatus = await this.authService.getAuthStatus();
 
     await this.setBadgeBackgroundColor();

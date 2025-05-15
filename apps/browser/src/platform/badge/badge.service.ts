@@ -1,4 +1,4 @@
-import { BadgeBrowserApi } from "./badge-browser-api";
+import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState } from "./state";
@@ -6,7 +6,7 @@ import { BadgeState } from "./state";
 export class BadgeService {
   private states: Record<string, { priority: BadgeStatePriority; state: BadgeState }> = {};
 
-  constructor() {}
+  constructor(private badgeApi: BadgeBrowserApi) {}
 
   /**
    * Inform badge service of a new state that the badge should reflect.
@@ -23,7 +23,7 @@ export class BadgeService {
   async setState(name: string, priority: BadgeStatePriority, state: BadgeState) {
     this.states[name] = { priority, state };
 
-    await BadgeBrowserApi.setState(this.calculateState());
+    await this.badgeApi.setState(this.calculateState());
   }
 
   /**
@@ -37,10 +37,10 @@ export class BadgeService {
   async clearState(name: string) {
     delete this.states[name];
 
-    await BadgeBrowserApi.setState(this.calculateState());
+    await this.badgeApi.setState(this.calculateState());
   }
 
-  private calculateState(): BadgeState {
+  private calculateState(): RawBadgeState {
     const states = Object.values(this.states).sort((a, b) => a.priority - b.priority);
 
     const mergedState = states
@@ -53,6 +53,6 @@ export class BadgeService {
         DefaultBadgeState,
       );
 
-    return mergedState;
+    return mergedState as RawBadgeState;
   }
 }
