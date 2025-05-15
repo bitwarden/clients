@@ -32,7 +32,7 @@ export class WindowMain {
   session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 730;
+  readonly defaultHeight = 745;
 
   constructor(
     private biometricStateService: BiometricStateService,
