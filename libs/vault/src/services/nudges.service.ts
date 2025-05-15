@@ -3,7 +3,7 @@ import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { UserKeyDefinition, VAULT_NUDGES_DISK } from "@bitwarden/common/platform/state";
+import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import {
@@ -25,7 +25,7 @@ export type NudgeStatus = {
  */
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VaultNudgeType {
+export enum NudgeType {
   /** Nudge to show when user has no items in their vault
    * Add future nudges here
    */
@@ -42,9 +42,9 @@ export enum VaultNudgeType {
   SendNudgeStatus = "send-nudge-status",
 }
 
-export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
-  Partial<Record<VaultNudgeType, NudgeStatus>>
->(VAULT_NUDGES_DISK, "vaultNudgeDismissed", {
+export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
+  Partial<Record<NudgeType, NudgeStatus>>
+>(NUDGES_DISK, "vaultNudgeDismissed", {
   deserializer: (nudge) => nudge,
   clearOn: [], // Do not clear dismissals
 });
@@ -52,7 +52,7 @@ export const VAULT_NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
 @Injectable({
   providedIn: "root",
 })
-export class VaultNudgesService {
+export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
 
   /**
@@ -60,16 +60,16 @@ export class VaultNudgesService {
    * Each nudge type can have its own service to determine when to show the nudge
    * @private
    */
-  private customNudgeServices: Partial<Record<VaultNudgeType, SingleNudgeService>> = {
-    [VaultNudgeType.HasVaultItems]: inject(HasItemsNudgeService),
-    [VaultNudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
-    [VaultNudgeType.AutofillNudge]: inject(AutofillNudgeService),
-    [VaultNudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
-    [VaultNudgeType.NewLoginItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.NewCardItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.NewNoteItemStatus]: this.newItemNudgeService,
-    [VaultNudgeType.NewSshItemStatus]: this.newItemNudgeService,
+  private customNudgeServices: Partial<Record<NudgeType, SingleNudgeService>> = {
+    [NudgeType.HasVaultItems]: inject(HasItemsNudgeService),
+    [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
+    [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
+    [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,
+    [NudgeType.NewCardItemStatus]: this.newItemNudgeService,
+    [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
+    [NudgeType.NewNoteItemStatus]: this.newItemNudgeService,
+    [NudgeType.NewSshItemStatus]: this.newItemNudgeService,
   };
 
   /**
@@ -80,11 +80,16 @@ export class VaultNudgesService {
   private defaultNudgeService = inject(DefaultSingleNudgeService);
   private configService = inject(ConfigService);
 
-  private getNudgeService(nudge: VaultNudgeType): SingleNudgeService {
+  private getNudgeService(nudge: NudgeType): SingleNudgeService {
     return this.customNudgeServices[nudge] ?? this.defaultNudgeService;
   }
 
-  showNudgeSpotlight$(nudge: VaultNudgeType, userId: UserId): Observable<boolean> {
+  /**
+   * Check if a nudge Spotlight should be shown to the user
+   * @param nudge
+   * @param userId
+   */
+  showNudgeSpotlight$(nudge: NudgeType, userId: UserId): Observable<boolean> {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
@@ -97,7 +102,12 @@ export class VaultNudgesService {
     );
   }
 
-  showNudgeBadge$(nudge: VaultNudgeType, userId: UserId): Observable<boolean> {
+  /**
+   * Check if a nudge Badge should be shown to the user
+   * @param nudge
+   * @param userId
+   */
+  showNudgeBadge$(nudge: NudgeType, userId: UserId): Observable<boolean> {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
@@ -115,7 +125,7 @@ export class VaultNudgesService {
    * @param nudge
    * @param userId
    */
-  showNudge$(nudge: VaultNudgeType, userId: UserId) {
+  showNudgeStatus$(nudge: NudgeType, userId: UserId) {
     return this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge).pipe(
       switchMap((hasVaultNudgeFlag) => {
         if (!hasVaultNudgeFlag) {
@@ -131,7 +141,7 @@ export class VaultNudgesService {
    * @param nudge
    * @param userId
    */
-  async dismissNudge(nudge: VaultNudgeType, userId: UserId, onlyBadge: boolean = false) {
+  async dismissNudge(nudge: NudgeType, userId: UserId, onlyBadge: boolean = false) {
     const dismissedStatus = onlyBadge
       ? { hasBadgeDismissed: true, hasSpotlightDismissed: false }
       : { hasBadgeDismissed: true, hasSpotlightDismissed: true };
@@ -144,7 +154,7 @@ export class VaultNudgesService {
    */
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
-    const nudgeTypes = [VaultNudgeType.EmptyVaultNudge, VaultNudgeType.DownloadBitwarden];
+    const nudgeTypes = [NudgeType.EmptyVaultNudge, NudgeType.DownloadBitwarden];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)
