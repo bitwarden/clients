@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import type { autofill } from "desktop_native/napi";
 import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -55,7 +54,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  containsExcludedCiphers: boolean = false;
   readonly Icons = { BitwardenShield };
 
   constructor(
@@ -75,6 +73,10 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
+    const rpid = await this.session.getRpId();
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpid),
+    );
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
@@ -99,32 +101,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async ngOnDestroy() {
     await this.accountService.setShowHeader(true);
-  }
-
-  /* Check that a credential is a valid Fido2 credential for the URL and not be in the bin. */
-  invalidFido2Credential(cipher: CipherView) {
-    return !cipher.login || !cipher.login.hasUris || cipher.deletedDate;
-  }
-
-  /*
-   * Determines whether a cipher contains a FIDO2 credential that is eligible for registration.
-   * If the userHandle values are both empty they are not eligible, so ignore them.
-   * */
-  eligibleFido2Credential(
-    cipher: CipherView,
-    lastRegistrationRequest: autofill.PasskeyRegistrationRequest,
-  ) {
-    return (
-      cipher.login.fido2Credentials.some((passkey) => {
-        const passkeyUserHandle = Fido2Utils.stringToBuffer(passkey.userHandle) || new Uint8Array();
-        const lastRegistrationUserHandle = new Uint8Array(lastRegistrationRequest.userHandle);
-        if (passkeyUserHandle.length > 0 || lastRegistrationUserHandle.length > 0) {
-          return compareCredentialIds(passkeyUserHandle, lastRegistrationUserHandle);
-        }
-
-        return false;
-      }) && !this.invalidFido2Credential(cipher)
-    );
   }
 
   async addPasskeyToCipher(cipher: CipherView) {
