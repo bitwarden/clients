@@ -132,6 +132,7 @@ export const mockI18n = {
   saveFailure: "Error saving",
   saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
   saveLogin: "Save login",
+  selectItemAriaLabel: "Select $ITEMTYPE$, $ITEMNAME$",
   typeLogin: "Login",
   updateLoginAction: "Update login",
   updateLogin: "Update existing login",
