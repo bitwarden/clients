@@ -13,7 +13,7 @@ import {
   PasswordGenerationOptions,
 } from "../types";
 
-/** Generation algorithms that produce randomized secrets */
+/** Generation algorithms that produce randomized secrets by calling on functionality from the SDK */
 export class SdkPasswordRandomizer
   implements
     CredentialGenerator<PassphraseGenerationOptions>,
@@ -21,13 +21,12 @@ export class SdkPasswordRandomizer
 {
   /** Instantiates the password randomizer
    *  @param client access to SDK client to call upon password/passphrase generation
+   *  @param currentTime gets the current datetime in epoch time
    */
-  constructor(private client: BitwardenClient) {
-    this.currentTime = Date.now;
-  }
-
-  /** Gets the current datetime in epoch time */
-  currentTime: () => number;
+  constructor(
+    private client: BitwardenClient,
+    private currentTime: () => number,
+  ) {}
 
   generate(
     request: GenerateRequest,
@@ -70,7 +69,6 @@ export class SdkPasswordRandomizer
 }
 
 function convertPasswordRequest(settings: PasswordGenerationOptions): PasswordGeneratorRequest {
-  //return settings as PassphraseGeneratorRequest;
   return {
     lowercase: settings.lowercase!,
     uppercase: settings.uppercase!,
