@@ -103,6 +103,10 @@ export const mockTasks = [
 
 export const mockI18n = {
   appName: "Bitwarden",
+  atRiskPassword: "At-risk password",
+  atRiskNavigatePrompt: "Navigate",
+  atRiskChangePrompt: "Change",
+  changePassword: "Change password",
   close: "Close",
   collection: "Collection",
   folder: "Folder",

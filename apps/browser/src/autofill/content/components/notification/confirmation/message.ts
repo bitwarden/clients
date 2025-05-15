@@ -90,7 +90,7 @@ const baseTextStyles = css`
   font-size: 16px;
 `;
 
-const notificationConfirmationMessageStyles = (theme: Theme) => css`
+export const notificationConfirmationMessageStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
   color: ${themes[theme].text.main};
@@ -113,7 +113,7 @@ const itemNameStyles = (theme: Theme) => css`
   vertical-align: bottom;
 `;
 
-const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
+export const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   ${baseTextStyles}
 
   color: ${themes[theme].primary[600]};
@@ -121,7 +121,7 @@ const notificationConfirmationButtonTextStyles = (theme: Theme) => css`
   cursor: pointer;
 `;
 
-const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
+export const AdditionalMessageStyles = ({ theme }: { theme: Theme }) => css`
   ${typography.body2}
 
   font-size: 14px;

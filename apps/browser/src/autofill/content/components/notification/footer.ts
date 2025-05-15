@@ -21,6 +21,7 @@ export type NotificationFooterProps = {
   personalVaultIsAllowed: boolean;
   theme: Theme;
   handleSaveAction: (e: Event) => void;
+  passwordChangeUri?: string;
 };
 
 export function NotificationFooter({
@@ -37,7 +38,7 @@ export function NotificationFooter({
   const primaryButtonText = i18n.saveAction;
 
   return html`
-    <div class=${notificationFooterStyles({ isChangeNotification })}>
+    <div class=${[displayFlex, notificationFooterStyles({ isChangeNotification })]}>
       ${!isChangeNotification
         ? NotificationButtonRow({
             collections,
@@ -56,12 +57,15 @@ export function NotificationFooter({
   `;
 }
 
-const notificationFooterStyles = ({
+export const displayFlex = css`
+  display: flex;
+`;
+
+export const notificationFooterStyles = ({
   isChangeNotification,
 }: {
   isChangeNotification: boolean;
 }) => css`
-  display: flex;
   padding: ${spacing[2]} ${spacing[4]} ${isChangeNotification ? spacing[1] : spacing[4]}
     ${spacing[4]};
 

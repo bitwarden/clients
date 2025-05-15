@@ -93,7 +93,7 @@ export function NotificationConfirmationContainer({
   `;
 }
 
-const notificationContainerStyles = (theme: Theme) => css`
+export const notificationContainerStyles = (theme: Theme) => css`
   position: absolute;
   right: 20px;
   border: 1px solid ${themes[theme].secondary["300"]};
