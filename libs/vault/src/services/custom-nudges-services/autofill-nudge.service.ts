@@ -7,7 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -21,7 +21,7 @@ export class AutofillNudgeService extends DefaultSingleNudgeService {
   vaultProfileService = inject(VaultProfileService);
   logService = inject(LogService);
 
-  nudgeStatus$(_: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(_: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Error getting profile creation date");
@@ -32,7 +32,7 @@ export class AutofillNudgeService extends DefaultSingleNudgeService {
 
     return combineLatest([
       profileDate$,
-      this.getNudgeStatus$(VaultNudgeType.AutofillNudge, userId),
+      this.getNudgeStatus$(NudgeType.AutofillNudge, userId),
       of(Date.now() - THIRTY_DAYS_MS),
     ]).pipe(
       map(([profileCreationDate, status, profileCutoff]) => {
