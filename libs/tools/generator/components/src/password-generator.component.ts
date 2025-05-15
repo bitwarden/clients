@@ -294,6 +294,9 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   /** Lists the credential types supported by the component. */
   protected passwordOptions$ = new BehaviorSubject<Option<CredentialAlgorithm>[]>([]);
 
+  /** Determines when the password/passphrase selector is visible. */
+  protected showCredentialTypes$ = this.passwordOptions$.pipe(map((options) => options.length > 1));
+
   /** tracks the currently selected credential type */
   protected maybeAlgorithm$ = new ReplaySubject<AlgorithmMetadata>(1);
 
