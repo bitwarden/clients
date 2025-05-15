@@ -26,6 +26,7 @@ export interface ServiceAccountOperation {
 
 @Component({
   templateUrl: "./service-account-dialog.component.html",
+  standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(

@@ -36,6 +36,7 @@ export const openManageClientSubscriptionDialog = (
 
 @Component({
   templateUrl: "./manage-client-subscription-dialog.component.html",
+  standalone: false,
 })
 export class ManageClientSubscriptionDialogComponent implements OnInit {
   protected loading = true;

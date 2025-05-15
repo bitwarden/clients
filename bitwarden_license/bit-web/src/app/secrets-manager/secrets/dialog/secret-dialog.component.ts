@@ -69,6 +69,7 @@ export interface SecretOperation {
 
 @Component({
   templateUrl: "./secret-dialog.component.html",
+  standalone: false,
 })
 export class SecretDialogComponent implements OnInit, OnDestroy {
   loading = true;

@@ -153,4 +153,21 @@ describe("Attachment", () => {
       expect(Attachment.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkAttachment", () => {
+    it("should map to SDK Attachment", () => {
+      const attachment = new Attachment(data);
+
+      const sdkAttachment = attachment.toSdkAttachment();
+
+      expect(sdkAttachment).toEqual({
+        id: "id",
+        url: "url",
+        size: "1100",
+        sizeName: "1.1 KB",
+        fileName: "fileName",
+        key: "key",
+      });
+    });
+  });
 });

@@ -27,6 +27,7 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
+  atRiskCipherIds: string[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];

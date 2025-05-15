@@ -15,6 +15,7 @@ export class SendOptionsPolicy extends BasePolicy {
 @Component({
   selector: "policy-send-options",
   templateUrl: "send-options.component.html",
+  standalone: false,
 })
 export class SendOptionsPolicyComponent extends BasePolicyComponent {
   data = this.formBuilder.group({
