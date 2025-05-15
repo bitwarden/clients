@@ -66,6 +66,7 @@ const NONE_SELECTED = "none";
 @Component({
   selector: "tools-username-generator",
   templateUrl: "username-generator.component.html",
+  standalone: false,
 })
 export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the username generator

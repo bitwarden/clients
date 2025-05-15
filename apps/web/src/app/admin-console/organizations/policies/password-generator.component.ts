@@ -21,6 +21,7 @@ export class PasswordGeneratorPolicy extends BasePolicy {
 @Component({
   selector: "policy-password-generator",
   templateUrl: "password-generator.component.html",
+  standalone: false,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyComponent {
   // these properties forward the application default settings to the UI

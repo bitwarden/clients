@@ -4,14 +4,14 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  FormControl,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { Observable, filter, firstValueFrom, map, switchMap } from "rxjs";
+import { filter, firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -55,7 +55,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { SpotlightComponent, VaultNudgesService, VaultNudgeType } from "@bitwarden/vault";
+import { NudgesService, NudgeType, SpotlightComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -108,9 +108,7 @@ export class AutofillComponent implements OnInit {
   protected showSpotlightNudge$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
     switchMap((account) =>
-      this.vaultNudgesService
-        .showNudge$(VaultNudgeType.AutofillNudge, account.id)
-        .pipe(map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed)),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.AutofillNudge, account.id),
     ),
   );
 
@@ -155,7 +153,7 @@ export class AutofillComponent implements OnInit {
     private configService: ConfigService,
     private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {
@@ -343,8 +341,8 @@ export class AutofillComponent implements OnInit {
   }
 
   async dismissSpotlight() {
-    await this.vaultNudgesService.dismissNudge(
-      VaultNudgeType.AutofillNudge,
+    await this.nudgesService.dismissNudge(
+      NudgeType.AutofillNudge,
       await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
     );
   }

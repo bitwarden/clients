@@ -1097,9 +1097,6 @@
   "addNewItem": {
     "message": "New item"
   },
-  "addNewFolder": {
-    "message": "New folder"
-  },
   "view": {
     "message": "View"
   },
@@ -3720,6 +3717,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

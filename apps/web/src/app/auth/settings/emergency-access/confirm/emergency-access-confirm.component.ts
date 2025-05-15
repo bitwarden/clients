@@ -26,6 +26,7 @@ type EmergencyAccessConfirmDialogData = {
 @Component({
   selector: "emergency-access-confirm",
   templateUrl: "emergency-access-confirm.component.html",
+  standalone: false,
 })
 export class EmergencyAccessConfirmComponent implements OnInit {
   loading = true;
