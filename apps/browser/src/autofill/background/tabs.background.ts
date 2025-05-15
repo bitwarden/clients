@@ -1,4 +1,5 @@
 import MainBackground from "../../background/main.background";
+import { AutofillBadgeUpdaterService } from "../services/autofill-badge-updater.service";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
 import NotificationBackground from "./notification.background";
@@ -8,6 +9,7 @@ export default class TabsBackground {
     private main: MainBackground,
     private notificationBackground: NotificationBackground,
     private overlayBackground: OverlayBackground,
+    private badgeUpdater: AutofillBadgeUpdaterService,
   ) {}
 
   private focusedWindowId: number = -1;
@@ -102,7 +104,7 @@ export default class TabsBackground {
     this.main.onUpdatedRan = true;
 
     await this.notificationBackground.checkNotificationQueue(tab);
-    await this.main.refreshBadge();
+    await this.badgeUpdater.refresh();
     await this.main.refreshMenu();
     this.main.messagingService.send("tabChanged");
   };
@@ -122,7 +124,7 @@ export default class TabsBackground {
    */
   private updateCurrentTabData = async () => {
     await Promise.all([
-      this.main.refreshBadge(),
+      this.badgeUpdater.refresh(),
       this.main.refreshMenu(),
       this.overlayBackground.updateOverlayCiphers(false),
     ]);

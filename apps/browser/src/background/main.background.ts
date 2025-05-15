@@ -256,6 +256,7 @@ import {
   BrowserFido2UserInterfaceService,
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
@@ -416,6 +417,7 @@ export default class MainBackground {
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
+  autofillBadgeUpdaterService: AutofillBadgeUpdaterService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1750,10 +1752,18 @@ export default class MainBackground {
       (password) => this.addPasswordToHistory(password),
     );
 
+    this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
+      this.badgeService,
+      this.accountService,
+      this.cipherService,
+      this.badgeSettingsService,
+    );
+
     this.tabsBackground = new TabsBackground(
       this,
       this.notificationBackground,
       this.overlayBackground,
+      this.autofillBadgeUpdaterService,
     );
 
     await this.overlayBackground.init();
