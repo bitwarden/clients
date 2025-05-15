@@ -19,10 +19,16 @@ import {
 
 import { PopupViewCacheService } from "./popup-view-cache.service";
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export class EmptyComponent {}
 
-@Component({ template: "" })
+@Component({
+  template: "",
+  standalone: false,
+})
 export class TestComponent {
   private viewCacheService = inject(PopupViewCacheService);
 

@@ -67,6 +67,7 @@ const NONE_SELECTED = "none";
 @Component({
   selector: "tools-credential-generator",
   templateUrl: "credential-generator.component.html",
+  standalone: false,
 })
 export class CredentialGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroyed = new Subject<void>();

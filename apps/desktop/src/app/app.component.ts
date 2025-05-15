@@ -11,7 +11,16 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { filter, firstValueFrom, map, Subject, switchMap, takeUntil, timeout } from "rxjs";
+import {
+  filter,
+  firstValueFrom,
+  lastValueFrom,
+  map,
+  Subject,
+  switchMap,
+  takeUntil,
+  timeout,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -56,11 +65,11 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
-import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
@@ -78,7 +87,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
     <ng-template #passwordHistory></ng-template>
-    <ng-template #appFolderAddEdit></ng-template>
     <ng-template #exportVault></ng-template>
     <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
@@ -93,6 +101,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
     <bit-toast-container></bit-toast-container>
   `,
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
@@ -101,8 +110,6 @@ export class AppComponent implements OnInit, OnDestroy {
   passwordHistoryRef: ViewContainerRef;
   @ViewChild("exportVault", { read: ViewContainerRef, static: true })
   exportVaultModalRef: ViewContainerRef;
-  @ViewChild("appFolderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef;
   @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
   generatorModalRef: ViewContainerRef;
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
@@ -464,25 +471,11 @@ export class AppComponent implements OnInit, OnDestroy {
   async addFolder() {
     this.modalService.closeAll();
 
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => (comp.folderId = null),
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSavedFolder.subscribe(async () => {
-      this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.syncService.fullSync(false);
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService);
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === AddEditFolderDialogResult.Created) {
+      await this.syncService.fullSync(false);
+    }
   }
 
   async openGenerator() {

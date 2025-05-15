@@ -5,5 +5,6 @@ import { SetPasswordComponent as BaseSetPasswordComponent } from "@bitwarden/ang
 @Component({
   selector: "app-set-password",
   templateUrl: "set-password.component.html",
+  standalone: false,
 })
 export class SetPasswordComponent extends BaseSetPasswordComponent {}

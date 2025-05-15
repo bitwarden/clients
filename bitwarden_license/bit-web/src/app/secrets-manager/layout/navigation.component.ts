@@ -34,6 +34,7 @@ import { CountService } from "../shared/counts/count.service";
 @Component({
   selector: "sm-navigation",
   templateUrl: "./navigation.component.html",
+  standalone: false,
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   protected readonly logo = SecretsManagerLogo;

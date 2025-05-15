@@ -20,6 +20,7 @@ export class BulkOperationStatus {
 
 @Component({
   templateUrl: "./bulk-status-dialog.component.html",
+  standalone: false,
 })
 export class BulkStatusDialogComponent implements OnInit {
   constructor(

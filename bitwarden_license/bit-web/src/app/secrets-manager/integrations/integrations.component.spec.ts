@@ -19,12 +19,14 @@ import { IntegrationsComponent } from "./integrations.component";
 @Component({
   selector: "app-header",
   template: "<div></div>",
+  standalone: false,
 })
 class MockHeaderComponent {}
 
 @Component({
   selector: "sm-new-menu",
   template: "<div></div>",
+  standalone: false,
 })
 class MockNewMenuComponent {}
 

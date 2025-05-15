@@ -7,6 +7,7 @@ import { ProductType } from "@bitwarden/common/billing/enums";
 @Component({
   selector: "app-trial-confirmation-details",
   templateUrl: "confirmation-details.component.html",
+  standalone: false,
 })
 export class ConfirmationDetailsComponent {
   @Input() email: string;

@@ -41,6 +41,7 @@ export const openManageClientNameDialog = (
 
 @Component({
   templateUrl: "manage-client-name-dialog.component.html",
+  standalone: false,
 })
 export class ManageClientNameDialogComponent {
   protected ResultType = ManageClientNameDialogResultType;
