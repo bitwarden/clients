@@ -1,3 +1,5 @@
+import { PasswordHistoryView as SdkPasswordHistoryView } from "@bitwarden/sdk-internal";
+
 import { PasswordHistoryView } from "./password-history.view";
 
 describe("PasswordHistoryView", () => {
@@ -9,5 +11,26 @@ describe("PasswordHistoryView", () => {
     });
 
     expect(actual.lastUsedDate).toEqual(lastUsedDate);
+  });
+
+  describe("fromSdkPasswordHistoryView", () => {
+    it("should return undefined when the input is null", () => {
+      const result = PasswordHistoryView.fromSdkPasswordHistoryView(null as unknown as any);
+      expect(result).toBeUndefined();
+    });
+
+    it("should return a PasswordHistoryView from an SdkPasswordHistoryView", () => {
+      const sdkPasswordHistoryView = {
+        password: "password",
+        lastUsedDate: "2023-10-01T00:00:00Z",
+      } as SdkPasswordHistoryView;
+
+      const result = PasswordHistoryView.fromSdkPasswordHistoryView(sdkPasswordHistoryView);
+
+      expect(result).toMatchObject({
+        password: "password",
+        lastUsedDate: new Date("2023-10-01T00:00:00Z"),
+      });
+    });
   });
 });

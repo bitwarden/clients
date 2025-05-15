@@ -38,6 +38,7 @@ import { OrganizationOptionsComponent } from "./organization-options.component";
 @Component({
   selector: "app-vault-filter",
   templateUrl: "vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent implements OnInit, OnDestroy {
   filters?: VaultFilterList;

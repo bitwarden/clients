@@ -2,12 +2,16 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 import * as rxjs from "rxjs";
 
+import { makeSymmetricCryptoKey } from "../../../../spec";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
+import { EncString } from "../../../platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { MasterKey } from "../../../types/key";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 
 import { MasterPasswordService } from "./master-password.service";
@@ -27,6 +31,14 @@ describe("MasterPasswordService", () => {
     update: jest.fn().mockResolvedValue(null),
   };
 
+  const testUserKey: SymmetricCryptoKey = makeSymmetricCryptoKey(64, 1);
+  const testMasterKey: MasterKey = makeSymmetricCryptoKey(32, 2);
+  const testStretchedMasterKey: SymmetricCryptoKey = makeSymmetricCryptoKey(64, 3);
+  const testMasterKeyEncryptedKey =
+    "0.gbauOANURUHqvhLTDnva1A==|nSW+fPumiuTaDB/s12+JO88uemV6rhwRSR+YR1ZzGr5j6Ei3/h+XEli2Unpz652NlZ9NTuRpHxeOqkYYJtp7J+lPMoclgteXuAzUu9kqlRc=";
+  const testStretchedMasterKeyEncryptedKey =
+    "2.gbauOANURUHqvhLTDnva1A==|nSW+fPumiuTaDB/s12+JO88uemV6rhwRSR+YR1ZzGr5j6Ei3/h+XEli2Unpz652NlZ9NTuRpHxeOqkYYJtp7J+lPMoclgteXuAzUu9kqlRc=|DeUFkhIwgkGdZA08bDnDqMMNmZk21D+H5g8IostPKAY=";
+
   beforeEach(() => {
     stateProvider = mock<StateProvider>();
     stateService = mock<StateService>();
@@ -45,6 +57,9 @@ describe("MasterPasswordService", () => {
       encryptService,
       logService,
     );
+
+    encryptService.unwrapSymmetricKey.mockResolvedValue(makeSymmetricCryptoKey(64, 1));
+    keyGenerationService.stretchKey.mockResolvedValue(makeSymmetricCryptoKey(64, 3));
   });
 
   describe("setForceSetPasswordReason", () => {
@@ -99,6 +114,43 @@ describe("MasterPasswordService", () => {
       await sut.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
       expect(mockUserState.update).toHaveBeenCalled();
+    });
+  });
+  describe("decryptUserKeyWithMasterKey", () => {
+    it("decrypts a userkey wrapped in AES256-CBC", async () => {
+      encryptService.unwrapSymmetricKey.mockResolvedValue(testUserKey);
+      await sut.decryptUserKeyWithMasterKey(
+        testMasterKey,
+        userId,
+        new EncString(testMasterKeyEncryptedKey),
+      );
+      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
+        new EncString(testMasterKeyEncryptedKey),
+        testMasterKey,
+      );
+    });
+    it("decrypts a userkey wrapped in AES256-CBC-HMAC", async () => {
+      encryptService.unwrapSymmetricKey.mockResolvedValue(testUserKey);
+      keyGenerationService.stretchKey.mockResolvedValue(testStretchedMasterKey);
+      await sut.decryptUserKeyWithMasterKey(
+        testMasterKey,
+        userId,
+        new EncString(testStretchedMasterKeyEncryptedKey),
+      );
+      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
+        new EncString(testStretchedMasterKeyEncryptedKey),
+        testStretchedMasterKey,
+      );
+      expect(keyGenerationService.stretchKey).toHaveBeenCalledWith(testMasterKey);
+    });
+    it("returns null if failed to decrypt", async () => {
+      encryptService.unwrapSymmetricKey.mockResolvedValue(null);
+      const result = await sut.decryptUserKeyWithMasterKey(
+        testMasterKey,
+        userId,
+        new EncString(testStretchedMasterKeyEncryptedKey),
+      );
+      expect(result).toBeNull();
     });
   });
 });

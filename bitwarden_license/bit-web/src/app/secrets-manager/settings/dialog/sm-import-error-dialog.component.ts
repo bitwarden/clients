@@ -12,6 +12,7 @@ export interface SecretsManagerImportErrorDialogOperation {
 
 @Component({
   templateUrl: "./sm-import-error-dialog.component.html",
+  standalone: false,
 })
 export class SecretsManagerImportErrorDialogComponent {
   errorLines: SecretsManagerImportErrorLine[];
