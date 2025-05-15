@@ -1,4 +1,12 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import {
+  Markdown,
+  Meta,
+  Canvas,
+  Primary,
+  Controls,
+  Title,
+  Description,
+} from "@storybook/addon-docs";
 
 import * as stories from "./button.stories";
 
@@ -8,10 +16,7 @@ import * as stories from "./button.stories";
 import { ButtonModule } from "@bitwarden/components";
 ```
 
-# Button
-
-Buttons are interactive elements that can be triggered using a mouse, keyboard, or touch. They are
-used to indicate actions that can be performed by a user such as submitting a form.
+<Title />
 
 <Primary />
 
@@ -30,7 +35,7 @@ takes:
 
 ### Groups
 
-Groups of buttons should be seperated by a `0.5` rem gap. Usually acomplished by using the
+Groups of buttons should be seperated by a `0.5` rem gap. Usually accomplished by using the
 `tw-gap-2` class in the button group container.
 
 Groups within page content, dialog footers or forms should have the `primary` call to action placed
@@ -43,24 +48,24 @@ There are 3 main styles for the button: Primary, Secondary, and Danger.
 
 ### Primary
 
-<Canvas of={stories.Primary} />
-
 Use the primary button styling for all Primary call to actions. An action is "primary" if it relates
 to the main purpose of a page. There should never be 2 primary styled buttons next to each other.
 
-### Secondary
+<Canvas of={stories.Primary} />
 
-<Canvas of={stories.Secondary} />
+### Secondary
 
 The secondary styling should be used for secondary calls to action. An action is "secondary" if it
 relates indirectly to the purpose of a page. There may be multiple secondary buttons next to each
 other; however, generally there should only be 1 or 2 calls to action per page.
 
+<Canvas of={stories.Secondary} />
+
 ### Danger
 
-<Canvas of={stories.Danger} />
+Use the danger styling only in settings when the user may preform a permanent destructive action.
 
-Use the danger styling only in settings when the user may preform a permanent action.
+<Canvas of={stories.Danger} />
 
 ## Disabled UI
 
