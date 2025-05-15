@@ -34,7 +34,7 @@ const sdkPassword: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
-      return new SdkPasswordRandomizer(new BitwardenClient()); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(new BitwardenClient(), Date.now); // @TODO hook up a real SDK client
     },
   },
   profiles: {
