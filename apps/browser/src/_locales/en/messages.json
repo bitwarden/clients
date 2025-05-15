@@ -1090,7 +1090,7 @@
   },
   "notificationLoginSaveConfirmation": {
     "message": "saved to Bitwarden.",
-   
+
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
@@ -2184,6 +2184,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
