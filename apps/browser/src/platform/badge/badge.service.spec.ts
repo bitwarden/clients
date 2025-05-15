@@ -40,7 +40,9 @@ describe("BadgeService", () => {
 
   it("merges states when multiple same-priority states have been set", async () => {
     await badgeService.setState("state-1", BadgeStatePriority.Default, { text: "text" });
-    await badgeService.setState("state-2", BadgeStatePriority.Default, { backgroundColor: "#fff" });
+    await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      backgroundColor: "#fff",
+    });
     await badgeService.setState("state-3", BadgeStatePriority.Default, {
       icon: "icon",
     });
@@ -58,6 +60,34 @@ describe("BadgeService", () => {
     expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(3, {
       text: "text",
       backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+  });
+
+  it("overrides previous lower-priority state when higher-priority state is set", async () => {
+    await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    });
+    await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      text: "override",
+    });
+    await badgeService.setState("state-3", BadgeStatePriority.High, { backgroundColor: "#aaa" });
+
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(1, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(2, {
+      text: "override",
+      backgroundColor: "#fff",
+      icon: "icon",
+    } satisfies BadgeState);
+    expect(BadgeBrowserApi.setState).toHaveBeenNthCalledWith(3, {
+      text: "override",
+      backgroundColor: "#aaa",
       icon: "icon",
     } satisfies BadgeState);
   });
