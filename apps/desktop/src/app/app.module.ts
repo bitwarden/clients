@@ -11,7 +11,6 @@ import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe"
 import { CalloutModule, DialogModule } from "@bitwarden/components";
 import { AssignCollectionsComponent } from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -61,7 +60,6 @@ import { SharedModule } from "./shared/shared.module";
     VaultV2Component,
   ],
   declarations: [
-    AccessibilityCookieComponent,
     AccountSwitcherComponent,
     AddEditComponent,
     AddEditCustomFieldsComponent,

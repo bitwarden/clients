@@ -22,6 +22,8 @@ export interface AdjustStorageDialogParams {
   organizationId?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AdjustStorageDialogResultType {
   Submitted = "submitted",
   Closed = "closed",
@@ -29,6 +31,7 @@ export enum AdjustStorageDialogResultType {
 
 @Component({
   templateUrl: "./adjust-storage-dialog.component.html",
+  standalone: false,
 })
 export class AdjustStorageDialogComponent {
   protected formGroup = new FormGroup({

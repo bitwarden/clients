@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -88,11 +88,9 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
-  @ViewChild("resetPasswordTemplate", { read: ViewContainerRef, static: true })
-  resetPasswordModalRef: ViewContainerRef;
-
   userType = OrganizationUserType;
   userStatusType = OrganizationUserStatusType;
   memberTab = MemberDialogTab;

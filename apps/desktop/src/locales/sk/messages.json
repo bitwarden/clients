@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "Agent SSH je služba určená pre vývojárov, ktorá vám umožňuje podpisovať požiadavky SSH priamo z vášho trezora Bitwarden."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Pri používaní agenta SSH žiadať o autorizáciu"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Vyberte, ako spracovať požiadavky na autorizáciu agenta SSH."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Zapamätať si autorizácie SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Vždy"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Nikdy"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Pamätať si počas odomknutého trezora"
+  },
   "premiumRequired": {
     "message": "Vyžaduje prémiový účet"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Pridať pole"
+  },
+  "editField": {
+    "message": "Upraviť pole"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
   },
   "fieldType": {
     "message": "Typ poľa"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Súbor sa uložil do zariadenia. Spravujte stiahnuté súbory zo zariadenia."
   },
-  "importantNotice": {
-    "message": "Dôležité upozornenie"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastaviť dvojstupňové prihlásenie"
-  },
-  "itemDetails": {
-    "message": "Podrobnosti o položke"
-  },
-  "itemName": {
-    "message": "Názov položky"
-  },
-  "loginCredentials": {
-    "message": "Prihlasovacie údaje"
-  },
-  "additionalOptions": {
-    "message": "Ďalšie možnosti"
-  },
-  "itemHistory": {
-    "message": "História položky"
-  },
-  "lastEdited": {
-    "message": "Posledná úprava"
-  },
-  "upload": {
-    "message": "Nahrať"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
-  },
-  "remindMeLater": {
-    "message": "Pripomenúť neskôr"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nie, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám zaručený prístup k e-mailu"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnúť dvojstupňové prihlásenie"
-  },
-  "changeAcctEmail": {
-    "message": "Zmeniť e-mail účtu"
-  },
   "allowScreenshots": {
     "message": "Povoliť snímanie obrazovky"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Ušetrite čas s automatickým vypĺňaním"
   },
-  "newLoginNudgeBody": {
-    "message": "Zadajte webovú stránku, aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie."
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrnúť",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webstránku",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Bezproblémová online registrácia"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Prístup SSH vhodný pre vývojárov"
   },
-  "newSshNudgeBody": {
-    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie."
+  "newSshNudgeBodyOne": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Viac informácií o agentovi SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

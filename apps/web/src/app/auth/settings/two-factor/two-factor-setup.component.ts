@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   first,
   firstValueFrom,
@@ -12,7 +12,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -52,9 +51,6 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
   imports: [ItemModule, LooseComponentsModule, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
-  @ViewChild("yubikeyTemplate", { read: ViewContainerRef, static: true })
-  yubikeyModalRef: ViewContainerRef;
-
   organizationId: string;
   organization: Organization;
   providers: any[] = [];
@@ -62,7 +58,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   recoveryCodeWarningMessage: string;
   showPolicyWarning = false;
   loading = true;
-  modal: ModalRef;
   formPromise: Promise<any>;
 
   tabbedHeader = true;
@@ -283,9 +278,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   protected updateStatus(enabled: boolean, type: TwoFactorProviderType) {
-    if (!enabled && this.modal != null) {
-      this.modal.close();
-    }
     this.providers.forEach((p) => {
       if (p.type === type && enabled !== undefined) {
         p.enabled = enabled;

@@ -6,6 +6,7 @@
       icon="bwi-filter"
       *ngIf="organization.useRiskInsights"
       [text]="'accessIntelligence' | i18n"
+      route="access-intelligence"
     >
       <bit-nav-item
         [text]="'riskInsights' | i18n"
@@ -13,7 +14,7 @@
       ></bit-nav-item>
     </bit-nav-group>
     <bit-nav-item
-      icon="bwi-collection"
+      icon="bwi-collection-shared"
       [text]="'collections' | i18n"
       route="vault"
       *ngIf="canShowVaultTab(organization)"

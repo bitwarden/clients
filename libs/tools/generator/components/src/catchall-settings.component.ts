@@ -24,6 +24,7 @@ import {
 @Component({
   selector: "tools-catchall-settings",
   templateUrl: "catchall-settings.component.html",
+  standalone: false,
 })
 export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
   /** Instantiates the component
