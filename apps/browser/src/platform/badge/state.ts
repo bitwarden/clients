@@ -1,7 +1,7 @@
 export const Unset = Symbol("Unset badge state");
 export type Unset = typeof Unset;
 
-export interface BadgeState {
+export type BadgeState = {
   /**
    * The text to display in the badge.
    * If this is set to `Unset`, any text set by a lower priority state will be cleared.
@@ -27,7 +27,7 @@ export interface BadgeState {
    * If no lower priority state is set, the default icon will be used.
    */
   icon?: Unset | IconPaths;
-}
+};
 
 export type IconPaths = {
   19: string;

@@ -1,6 +1,6 @@
-import { BadgeState } from "./state";
+import { RawBadgeState } from "./badge-browser-api";
 
-export const DefaultBadgeState: BadgeState = {
+export const DefaultBadgeState: RawBadgeState = {
   text: "DefaultText",
   backgroundColor: "DefaultBackgroundColor",
   icon: {

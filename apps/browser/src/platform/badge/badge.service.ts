@@ -1,7 +1,7 @@
 import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
-import { BadgeState } from "./state";
+import { BadgeState, Unset } from "./state";
 
 export class BadgeService {
   private states: Record<string, { priority: BadgeStatePriority; state: BadgeState }> = {};
@@ -45,14 +45,24 @@ export class BadgeService {
 
     const mergedState = states
       .map((s) => s.state)
-      .reduce(
-        (acc, state) => ({
+      .reduce<RawBadgeState>((acc, state) => {
+        const merged: BadgeState = {
           ...acc,
           ...state,
-        }),
-        DefaultBadgeState,
-      );
+        };
 
-    return mergedState as RawBadgeState;
+        for (const key in merged) {
+          if (merged[key as keyof BadgeState] === Unset) {
+            delete merged[key as keyof BadgeState];
+          }
+        }
+
+        return merged as RawBadgeState;
+      }, DefaultBadgeState);
+
+    return {
+      ...DefaultBadgeState,
+      ...mergedState,
+    };
   }
 }

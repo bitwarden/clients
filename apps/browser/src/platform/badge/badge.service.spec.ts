@@ -4,7 +4,7 @@ import { BadgeBrowserApi } from "./badge-browser-api";
 import { BadgeService } from "./badge.service";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
-import { BadgeState, IconPaths } from "./state";
+import { BadgeState, IconPaths, Unset } from "./state";
 
 describe("BadgeService", () => {
   let badgeApi: MockProxy<BadgeBrowserApi>;
@@ -135,6 +135,48 @@ describe("BadgeService", () => {
     await badgeService.clearState("state-3");
 
     expect(badgeApi.setState).toHaveBeenNthCalledWith(6, DefaultBadgeState);
+  });
+
+  it("sets default value high-priority state contains Unset", async () => {
+    await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: icon("icon"),
+    });
+    await badgeService.setState("state-3", BadgeStatePriority.High, {
+      icon: Unset,
+    });
+
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(1, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: icon("icon"),
+    } satisfies BadgeState);
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: DefaultBadgeState.icon,
+    } satisfies BadgeState);
+  });
+
+  it("ignores medium-priority Unset when high-priority contains a value", async () => {
+    await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: icon("icon"),
+    });
+    await badgeService.setState("state-3", BadgeStatePriority.Default, {
+      icon: Unset,
+    });
+    await badgeService.setState("state-3", BadgeStatePriority.High, {
+      icon: icon("override"),
+    });
+
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+      text: "text",
+      backgroundColor: "#fff",
+      icon: icon("override"),
+    } satisfies BadgeState);
   });
 });
 
