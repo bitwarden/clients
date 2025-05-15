@@ -112,7 +112,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
-  pm14939FeatureFlagEnabled = false;
+  extensionLoginApprovalFlagEnabled = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -226,8 +226,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    // Check the extension approval feature flag
-    this.pm14939FeatureFlagEnabled = await this.configService.getFeatureFlag(
+    this.extensionLoginApprovalFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM14939_ExtensionApproval,
     );
 

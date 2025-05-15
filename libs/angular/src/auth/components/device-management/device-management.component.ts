@@ -34,7 +34,6 @@ import { DeviceManagementTableComponent } from "./device-management-table.compon
   ],
 })
 export class DeviceManagementComponent implements OnInit {
-  protected asyncActionLoading = false;
   protected currentDevice?: DeviceView;
   protected devices?: DeviceView[];
   protected initializing = true;

@@ -14,12 +14,6 @@
     <bit-popover [title]="'whatIsADevice' | i18n" #infoPopover>
       <p>{{ "aDeviceIs" | i18n }}</p>
     </bit-popover>
-
-    <i
-      *ngIf="asyncActionLoading"
-      class="bwi bwi-spinner bwi-spin tw-flex tw-items-center tw-size-4"
-      aria-hidden="true"
-    ></i>
   </div>
 
   <p>
