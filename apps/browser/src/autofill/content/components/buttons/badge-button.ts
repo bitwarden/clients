@@ -65,5 +65,9 @@ const badgeButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Them
       background-color: ${themes[theme].primary["600"]};
       color: ${themes[theme].text.contrast};
     }
+    :focus {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 2px;
+    }
   `}
 `;
