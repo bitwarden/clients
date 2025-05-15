@@ -16,8 +16,11 @@ export class BadgeBrowserApi {
   private sidebarAction = BrowserApi.getSidebarAction(self);
 
   async setState(state: RawBadgeState): Promise<void> {
-    await this.setIcon(state.icon);
-    await this.setText(state.text);
+    await Promise.all([
+      this.setIcon(state.icon),
+      this.setText(state.text),
+      this.setBackgroundColor(state.backgroundColor),
+    ]);
   }
 
   private setIcon(icon: IconPaths) {
@@ -74,6 +77,15 @@ export class BadgeBrowserApi {
       // Firefox
       const title = `Bitwarden${Utils.isNullOrEmpty(text) ? "" : ` [${text}]`}`;
       await this.sidebarAction.setTitle({ title });
+    }
+  }
+
+  private async setBackgroundColor(color: string) {
+    if (this.badgeAction?.setBadgeBackgroundColor) {
+      await this.badgeAction.setBadgeBackgroundColor({ color });
+    }
+    if (this.isOperaSidebar(this.sidebarAction)) {
+      this.sidebarAction.setBadgeBackgroundColor({ color });
     }
   }
 
