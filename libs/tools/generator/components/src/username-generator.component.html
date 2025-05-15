@@ -59,7 +59,7 @@
         </bit-form-field>
       </form>
       <tools-catchall-settings
-        *ngIf="(showAlgorithm$ | async)?.id === 'catchall'"
+        *ngIf="(showAlgorithm$ | async)?.id === Algorithm.catchall"
         [account]="account$ | async"
         (onUpdated)="generate('catchall settings')"
       />
