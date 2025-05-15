@@ -1,4 +1,4 @@
-import { filter, mergeMap } from "rxjs";
+import { mergeMap } from "rxjs";
 
 import {
   BADGE_MEMORY,
@@ -32,9 +32,8 @@ export class BadgeService {
 
     this.states.state$
       .pipe(
-        filter((states) => states != undefined),
         mergeMap(async (states) => {
-          const state = this.calculateState(states);
+          const state = this.calculateState(states ?? {});
           await this.badgeApi.setState(state);
         }),
       )

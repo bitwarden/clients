@@ -40,6 +40,12 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
   });
 
+  // This relies on the the state provider to auto-emit
+  it("sets default values on startup", async () => {
+    // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
+    expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
+  });
+
   it("merges states when multiple same-priority states have been set", async () => {
     await badgeService.setState("state-1", BadgeStatePriority.Default, { text: "text" });
     await badgeService.setState("state-2", BadgeStatePriority.Default, {
@@ -49,17 +55,17 @@ describe("BadgeService", () => {
       icon: icon("icon"),
     });
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(1, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: DefaultBadgeState.backgroundColor,
       icon: DefaultBadgeState.icon,
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "text",
       backgroundColor: "#fff",
       icon: DefaultBadgeState.icon,
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("icon"),
@@ -77,17 +83,17 @@ describe("BadgeService", () => {
     });
     await badgeService.setState("state-3", BadgeStatePriority.High, { backgroundColor: "#aaa" });
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(1, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("icon"),
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "override",
       backgroundColor: "#fff",
       icon: icon("icon"),
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "override",
       backgroundColor: "#aaa",
       icon: icon("icon"),
@@ -105,17 +111,17 @@ describe("BadgeService", () => {
     });
     await badgeService.clearState("state-2");
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(1, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("icon"),
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "override",
       backgroundColor: "#fff",
       icon: icon("icon"),
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("icon"),
@@ -138,7 +144,7 @@ describe("BadgeService", () => {
     await badgeService.clearState("state-2");
     await badgeService.clearState("state-3");
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(6, DefaultBadgeState);
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(7, DefaultBadgeState);
   });
 
   it("sets default value high-priority state contains Unset", async () => {
@@ -151,12 +157,12 @@ describe("BadgeService", () => {
       icon: Unset,
     });
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(1, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("icon"),
     } satisfies BadgeState);
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "text",
       backgroundColor: "#fff",
       icon: DefaultBadgeState.icon,
@@ -176,7 +182,7 @@ describe("BadgeService", () => {
       icon: icon("override"),
     });
 
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+    expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
       icon: icon("override"),
