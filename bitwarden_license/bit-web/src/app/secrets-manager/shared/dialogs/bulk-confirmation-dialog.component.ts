@@ -25,6 +25,7 @@ export enum BulkConfirmationResult {
 @Component({
   selector: "sm-bulk-confirmation-dialog",
   templateUrl: "./bulk-confirmation-dialog.component.html",
+  standalone: false,
 })
 export class BulkConfirmationDialogComponent implements OnInit {
   constructor(

@@ -37,6 +37,7 @@ import { DialogService } from "@bitwarden/components";
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
+  standalone: false,
 })
 export class PreferencesComponent implements OnInit, OnDestroy {
   // For use in template

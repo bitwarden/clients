@@ -8,6 +8,7 @@ import { AccessTokenView } from "../models/view/access-token.view";
 @Component({
   selector: "sm-access-list",
   templateUrl: "./access-list.component.html",
+  standalone: false,
 })
 export class AccessListComponent {
   @Input()

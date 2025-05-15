@@ -7,6 +7,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 @Component({
   selector: "app-frontend-layout",
   templateUrl: "frontend-layout.component.html",
+  standalone: false,
 })
 export class FrontendLayoutComponent implements OnInit, OnDestroy {
   version: string;
