@@ -26,6 +26,7 @@ import {
 @Component({
   selector: "app-provider-subscription",
   templateUrl: "./provider-subscription.component.html",
+  standalone: false,
 })
 export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   private providerId: string;

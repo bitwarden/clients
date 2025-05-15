@@ -11,6 +11,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class TrueFalseValueDirective implements ControlValueAccessor {
   @Input() trueValue: boolean | string = true;

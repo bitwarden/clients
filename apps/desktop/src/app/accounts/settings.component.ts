@@ -54,6 +54,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
+  standalone: false,
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template

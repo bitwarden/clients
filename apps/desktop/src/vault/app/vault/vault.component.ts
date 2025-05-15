@@ -57,6 +57,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
 @Component({
   selector: "app-vault",
   templateUrl: "vault.component.html",
+  standalone: false,
 })
 export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild(ViewComponent) viewComponent: ViewComponent;

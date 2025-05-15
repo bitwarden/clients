@@ -9,6 +9,7 @@ import { VerticalStep } from "./vertical-step.component";
   selector: "app-vertical-stepper",
   templateUrl: "vertical-stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: VerticalStepperComponent }],
+  standalone: false,
 })
 export class VerticalStepperComponent extends CdkStepper {
   readonly steps: QueryList<VerticalStep>;

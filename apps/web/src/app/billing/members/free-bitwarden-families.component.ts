@@ -24,6 +24,7 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
+  standalone: false,
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
   loading = signal<boolean>(true);
