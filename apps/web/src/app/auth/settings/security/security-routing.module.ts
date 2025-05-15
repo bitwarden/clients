@@ -8,7 +8,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ChangePasswordComponent } from "../change-password.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
 
-import { DeviceManagementComponent as DeviceManagementComponentOld } from "./device-management.component";
+import { DeviceManagementOldComponent } from "./device-management-old.component";
 import { SecurityKeysComponent } from "./security-keys.component";
 import { SecurityComponent } from "./security.component";
 
@@ -35,7 +35,7 @@ export const routes: Routes = [
         data: { titleId: "keys" },
       },
       ...featureFlaggedRoute({
-        defaultComponent: DeviceManagementComponentOld,
+        defaultComponent: DeviceManagementOldComponent,
         flaggedComponent: DeviceManagementComponent,
         featureFlag: FeatureFlag.PM14939_ExtensionApproval,
         routeOptions: {
