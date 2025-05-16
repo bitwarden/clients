@@ -57,6 +57,7 @@ export interface EnvironmentSelectorRouteData {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
+  standalone: false,
 })
 export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   @Output() onOpenSelfHostedSettings = new EventEmitter<void>();

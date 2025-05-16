@@ -27,6 +27,7 @@ export enum AddExistingOrganizationDialogResultType {
 
 @Component({
   templateUrl: "./add-existing-organization-dialog.component.html",
+  standalone: false,
 })
 export class AddExistingOrganizationDialogComponent implements OnInit {
   protected loading: boolean = true;

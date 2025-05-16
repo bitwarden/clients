@@ -6,6 +6,7 @@ import { Subscription } from "rxjs";
 
 @Directive({
   selector: "[appA11yInvalid]",
+  standalone: false,
 })
 export class A11yInvalidDirective implements OnDestroy, OnInit {
   private sub: Subscription;
