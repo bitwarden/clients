@@ -88,7 +88,6 @@ export class WebauthnUtils {
       getClientExtensionResults: () => ({
         credProps: result.extensions.credProps,
       }),
-      toJSON: () => Fido2Utils.createResultToJson(result),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.
@@ -135,7 +134,6 @@ export class WebauthnUtils {
       } as AuthenticatorAssertionResponse,
       getClientExtensionResults: () => ({}),
       authenticatorAttachment: "platform",
-      toJSON: () => Fido2Utils.getResultToJson(result),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.
