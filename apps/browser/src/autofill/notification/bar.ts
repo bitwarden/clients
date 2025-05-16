@@ -119,19 +119,16 @@ const findElementById = <ElementType extends HTMLElement>(
  * @returns The localized header message string, or undefined if the type is not recognized.
  */
 export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
-  const message = (() => {
-    switch (type) {
-      case NotificationTypes.Add:
-        return i18n.saveLogin;
-      case NotificationTypes.Change:
-        return i18n.updateLogin;
-      case NotificationTypes.Unlock:
-        return i18n.unlockToSave;
-      default:
-        return undefined;
-    }
-  })();
-  return message;
+  switch (type) {
+    case NotificationTypes.Add:
+      return i18n.saveLogin;
+    case NotificationTypes.Change:
+      return i18n.updateLogin;
+    case NotificationTypes.Unlock:
+      return i18n.unlockToSave;
+    default:
+      return undefined;
+  }
 }
 
 /**
@@ -182,10 +179,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const resolvedType = isVaultLocked
     ? NotificationTypes.Unlock
     : (notificationBarIframeInitData.type as NotificationType);
-  const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
-  appendHeaderMessageToTitle(headerMessage);
 
   if (useComponentBar) {
+    const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
+    appendHeaderMessageToTitle(headerMessage);
+
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
