@@ -6,7 +6,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { CollectionView, OrgView } from "../content/components/common-types";
+import { CollectionView, I18n, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
@@ -114,6 +114,39 @@ const findElementById = <ElementType extends HTMLElement>(
 };
 
 /**
+ * Returns the localized header message for the notification bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
+  const message = (() => {
+    switch (type) {
+      case NotificationTypes.Add:
+        return i18n.saveLogin;
+      case NotificationTypes.Change:
+        return i18n.updateLogin;
+      case NotificationTypes.Unlock:
+        return i18n.unlockToSave;
+      default:
+        return undefined;
+    }
+  })();
+  return message;
+}
+
+/**
+ * Appends the header message to the document title.
+ * If the header message is already present, it avoids duplication.
+ */
+export function appendHeaderMessageToTitle(headerMessage?: string) {
+  if (!headerMessage) {
+    return;
+  }
+  const baseTitle = document.title.split(" - ")[0];
+  document.title = `${baseTitle} - ${headerMessage}`;
+}
+
+/**
  * Sets the text content of an element identified by ID within a template's content.
  *
  * @param template - The template whose content will be searched for the element.
@@ -146,6 +179,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
+  const resolvedType = isVaultLocked
+    ? NotificationTypes.Unlock
+    : (notificationBarIframeInitData.type as NotificationType);
+  const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
+  appendHeaderMessageToTitle(headerMessage);
 
   if (useComponentBar) {
     document.body.innerHTML = "";
@@ -156,7 +194,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
-          type: NotificationTypes.Unlock,
+          headerMessage,
+          type: resolvedType,
           theme: resolvedTheme,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
@@ -199,7 +238,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
-          type: notificationBarIframeInitData.type as NotificationType,
+          headerMessage,
+          type: resolvedType,
           theme: resolvedTheme,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,

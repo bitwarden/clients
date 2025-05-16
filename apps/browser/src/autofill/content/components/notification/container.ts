@@ -27,6 +27,7 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   ciphers?: NotificationCipherData[];
   collections?: CollectionView[];
   folders?: FolderView[];
+  headerMessage?: string;
   i18n: I18n;
   organizations?: OrgView[];
   personalVaultIsAllowed?: boolean;
@@ -40,13 +41,13 @@ export function NotificationContainer({
   ciphers,
   collections,
   folders,
+  headerMessage,
   i18n,
   organizations,
   personalVaultIsAllowed = true,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
-  const headerMessage = getHeaderMessage(i18n, type);
   const showBody = type !== NotificationTypes.Unlock;
 
   return html`
@@ -98,16 +99,3 @@ const notificationContainerStyles = (theme: Theme) => css`
     padding-right: ${spacing["3"]};
   }
 `;
-
-function getHeaderMessage(i18n: I18n, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveLogin;
-    case NotificationTypes.Change:
-      return i18n.updateLogin;
-    case NotificationTypes.Unlock:
-      return i18n.unlockToSave;
-    default:
-      return undefined;
-  }
-}
