@@ -5,6 +5,5 @@ module.exports = {
   ...sharedConfig,
   testMatch: ["**/+(*.)+(spec).+(mjs)"],
   displayName: "libs/eslint tests",
-  preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.mjs"],
 };
