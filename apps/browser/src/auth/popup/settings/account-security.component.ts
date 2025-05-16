@@ -494,13 +494,23 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.keyService.refreshAdditionalKeys();
+      try {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.keyService.refreshAdditionalKeys(userId);
 
-      const successful = await this.trySetupBiometrics();
-      this.form.controls.biometric.setValue(successful);
-      await this.biometricStateService.setBiometricUnlockEnabled(successful);
-      if (!successful) {
-        await this.biometricStateService.setFingerprintValidated(false);
+        const successful = await this.trySetupBiometrics();
+        this.form.controls.biometric.setValue(successful);
+        await this.biometricStateService.setBiometricUnlockEnabled(successful);
+        if (!successful) {
+          await this.biometricStateService.setFingerprintValidated(false);
+        }
+      } catch (error) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorEnableBiometricTitle"),
+          message: error?.message,
+        });
+        this.form.controls.biometric.setValue(false);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);
