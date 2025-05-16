@@ -379,7 +379,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.form.controls.pin.valueChanges
       .pipe(
         concatMap(async (value) => {
-          await this.updatePin(value);
+          await this.updatePinHandler(value);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -389,7 +389,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.form.controls.biometric.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.updateBiometric(enabled);
+          await this.updateBiometricHandler(enabled);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -485,6 +485,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   }
 
+  private async updatePinHandler(value: boolean) {
+    try {
+      await this.updatePin(value);
+    } catch (error) {
+      this.logService.error("Error updating unlock with PIN: ", error);
+      this.form.controls.pin.setValue(!value, { emitEvent: false });
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        error?.message,
+      );
+    } finally {
+      this.messagingService.send("redrawMenu");
+    }
+  }
+
   async updatePin(value: boolean) {
     if (value) {
       const dialogRef = SetPinComponent.open(this.dialogService);
@@ -508,8 +524,22 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       await this.vaultTimeoutSettingsService.clear();
     }
+  }
 
-    this.messagingService.send("redrawMenu");
+  private async updateBiometricHandler(value: boolean) {
+    try {
+      await this.updateBiometric(value);
+    } catch (error) {
+      this.logService.error("Error updating unlock with biometrics: ", error);
+      this.form.controls.biometric.setValue(!value, { emitEvent: false });
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        error?.message,
+      );
+    } finally {
+      this.messagingService.send("redrawMenu");
+    }
   }
 
   async updateBiometric(enabled: boolean) {
@@ -518,62 +548,55 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // The bug should resolve itself once the angular issue is resolved.
     // See: https://github.com/angular/angular/issues/13063
 
-    try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      if (!enabled || !this.supportsBiometric) {
-        this.form.controls.biometric.setValue(false, { emitEvent: false });
-        await this.biometricStateService.setBiometricUnlockEnabled(false);
-        await this.keyService.refreshAdditionalKeys(userId);
-        return;
-      }
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    if (!enabled || !this.supportsBiometric) {
+      this.form.controls.biometric.setValue(false, { emitEvent: false });
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.keyService.refreshAdditionalKeys(activeUserId);
+      return;
+    }
 
-      const status = await this.biometricsService.getBiometricsStatus();
+    const status = await this.biometricsService.getBiometricsStatus();
 
-      if (status === BiometricsStatus.AutoSetupNeeded) {
-        await this.biometricsService.setupBiometrics();
-      } else if (status === BiometricsStatus.ManualSetupNeeded) {
-        const confirmed = await this.dialogService.openSimpleDialog({
-          title: { key: "biometricsManualSetupTitle" },
-          content: { key: "biometricsManualSetupDesc" },
-          type: "warning",
-        });
-        if (confirmed) {
-          this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
-        }
-        return;
+    if (status === BiometricsStatus.AutoSetupNeeded) {
+      await this.biometricsService.setupBiometrics();
+    } else if (status === BiometricsStatus.ManualSetupNeeded) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "biometricsManualSetupTitle" },
+        content: { key: "biometricsManualSetupDesc" },
+        type: "warning",
+      });
+      if (confirmed) {
+        this.platformUtilsService.launchUri("https://bitwarden.com/help/biometrics/");
       }
+      return;
+    }
 
-      await this.biometricStateService.setBiometricUnlockEnabled(true);
-      if (this.isWindows) {
-        // Recommended settings for Windows Hello
-        this.form.controls.requirePasswordOnStart.setValue(true);
-        this.form.controls.autoPromptBiometrics.setValue(false);
-        await this.biometricStateService.setPromptAutomatically(false);
-        await this.biometricStateService.setRequirePasswordOnStart(true);
-        await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-      } else if (this.isLinux) {
-        // Similar to Windows
-        this.form.controls.requirePasswordOnStart.setValue(true);
-        this.form.controls.autoPromptBiometrics.setValue(false);
-        await this.biometricStateService.setPromptAutomatically(false);
-        await this.biometricStateService.setRequirePasswordOnStart(true);
-        await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-      }
-      await this.keyService.refreshAdditionalKeys(userId);
+    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    if (this.isWindows) {
+      // Recommended settings for Windows Hello
+      this.form.controls.requirePasswordOnStart.setValue(true);
+      this.form.controls.autoPromptBiometrics.setValue(false);
+      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setRequirePasswordOnStart(true);
+      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+    } else if (this.isLinux) {
+      // Similar to Windows
+      this.form.controls.requirePasswordOnStart.setValue(true);
+      this.form.controls.autoPromptBiometrics.setValue(false);
+      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setRequirePasswordOnStart(true);
+      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+    }
+    await this.keyService.refreshAdditionalKeys(activeUserId);
 
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      // Validate the key is stored in case biometrics fail.
-      const biometricSet =
-        (await this.biometricsService.getBiometricsStatusForUser(activeUserId)) ===
-        BiometricsStatus.Available;
-      this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
-      if (!biometricSet) {
-        await this.biometricStateService.setBiometricUnlockEnabled(false);
-      }
-    } finally {
-      this.messagingService.send("redrawMenu");
+    // Validate the key is stored in case biometrics fail.
+    const biometricSet =
+      (await this.biometricsService.getBiometricsStatusForUser(activeUserId)) ===
+      BiometricsStatus.Available;
+    this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
+    if (!biometricSet) {
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
     }
   }
 
