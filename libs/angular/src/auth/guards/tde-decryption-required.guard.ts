@@ -5,8 +5,9 @@ import {
   RouterStateSnapshot,
   CanActivateFn,
 } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -24,12 +25,18 @@ export function tdeDecryptionRequiredGuard(): CanActivateFn {
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
+    const accountService = inject(AccountService);
     const logService = inject(LogService);
     const router = inject(Router);
 
+    const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (userId == null) {
+      return router.createUrlTree(["/"]);
+    }
+
     const authStatus = await authService.getAuthStatus();
     const tdeEnabled = await firstValueFrom(deviceTrustService.supportsDeviceTrust$);
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(userId));
 
     // We need to determine if we should bypass the decryption options and send the user to the vault.
     // The ONLY time that we want to send a user to the decryption options is when:
