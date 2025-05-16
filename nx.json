@@ -1,0 +1,10 @@
+{
+  "cacheDirectory": ".nx/cache",
+  "defaultBase": "main",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "production": ["!{projectRoot}/**/*.spec.ts"]
+  },
+  "parallel": 4,
+  "targetDefaults": {}
+}

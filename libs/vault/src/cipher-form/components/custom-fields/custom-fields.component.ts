@@ -116,6 +116,8 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Emits when a new custom field should be focused */
   private focusOnNewInput$ = new Subject<void>();
 
+  disallowHiddenField?: boolean;
+
   destroyed$: DestroyRef;
   FieldType = FieldType;
 
@@ -139,6 +141,13 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Fields form array, referenced via a getter to avoid type-casting in multiple places  */
   get fields(): FormArray {
     return this.customFieldsForm.controls.fields as FormArray;
+  }
+
+  canEdit(type: FieldType): boolean {
+    return (
+      !this.isPartialEdit &&
+      (type !== FieldType.Hidden || this.cipherFormContainer.originalCipherView?.viewPassword)
+    );
   }
 
   ngOnInit() {
@@ -210,6 +219,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Opens the add/edit custom field dialog */
   openAddEditCustomFieldDialog(editLabelConfig?: AddEditCustomFieldDialogData["editLabelConfig"]) {
+    const { cipherType, mode, originalCipher } = this.cipherFormContainer.config;
     this.dialogRef = this.dialogService.open<unknown, AddEditCustomFieldDialogData>(
       AddEditCustomFieldDialogComponent,
       {
@@ -217,8 +227,9 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
           addField: this.addField.bind(this),
           updateLabel: this.updateLabel.bind(this),
           removeField: this.removeField.bind(this),
-          cipherType: this.cipherFormContainer.config.cipherType,
+          cipherType,
           editLabelConfig,
+          disallowHiddenField: mode === "edit" && !originalCipher.viewPassword,
         },
       },
     );

@@ -33,6 +33,9 @@ export function OptionSelectionButton({
       class=${selectionButtonStyles({ disabled, toggledOn, theme })}
       title=${text}
       type="button"
+      aria-haspopup="menu"
+      aria-expanded=${toggledOn}
+      aria-controls="option-menu"
       @click=${handleButtonClick}
     >
       ${buttonIcon ?? nothing}
@@ -44,7 +47,7 @@ export function OptionSelectionButton({
   `;
 }
 
-const iconSize = "15px";
+const iconSize = "16px";
 
 const selectionButtonStyles = ({
   disabled,
@@ -94,7 +97,8 @@ const selectionButtonStyles = ({
 
   > svg {
     max-width: ${iconSize};
-    height: fit-content;
+    max-height: ${iconSize};
+    height: auto;
   }
 `;
 

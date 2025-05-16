@@ -12,6 +12,7 @@ import { FreeFamiliesSponsorshipPolicy } from "./billing/policies/free-families-
 @Component({
   selector: "app-root",
   templateUrl: "../../../../apps/web/src/app/app.component.html",
+  standalone: false,
 })
 export class AppComponent extends BaseAppComponent implements OnInit {
   ngOnInit() {

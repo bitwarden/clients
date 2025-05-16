@@ -19,6 +19,7 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 
 @Component({
   templateUrl: "./setup-business-unit.component.html",
+  standalone: false,
 })
 export class SetupBusinessUnitComponent extends BaseAcceptComponent {
   protected bitwardenLogo = BitwardenLogo;
@@ -84,10 +85,8 @@ export class SetupBusinessUnitComponent extends BaseAcceptComponent {
 
     const organizationKey = await firstValueFrom(organizationKey$);
 
-    const { encryptedString: encryptedOrganizationKey } = await this.encryptService.encrypt(
-      organizationKey.key,
-      providerKey,
-    );
+    const { encryptedString: encryptedOrganizationKey } =
+      await this.encryptService.wrapSymmetricKey(organizationKey, providerKey);
 
     if (!encryptedProviderKey || !encryptedOrganizationKey) {
       return await fail();

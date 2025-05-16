@@ -16,8 +16,27 @@ import { fromChromeEvent } from "../browser/from-chrome-event";
 
 const popupClosedPortName = "new_popup";
 
+export type ViewCacheOptions = {
+  /**
+   * Optional flag to persist the cached value between navigation events.
+   */
+  persistNavigation?: boolean;
+};
+
+export type ViewCacheState = {
+  /**
+   * The cached value
+   */
+  value: string; // JSON value
+
+  /**
+   * Options for managing/clearing the cache
+   */
+  options?: ViewCacheOptions;
+};
+
 /** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
-export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<string>(
+export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<ViewCacheState>(
   POPUP_VIEW_MEMORY,
   "popup-view-cache",
   {
@@ -36,9 +55,15 @@ export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
 export const SAVE_VIEW_CACHE_COMMAND = new CommandDefinition<{
   key: string;
   value: string;
+  options: ViewCacheOptions;
 }>("save-view-cache");
 
-export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition("clear-view-cache");
+export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition<{
+  /**
+   * Flag to indicate the clear request was triggered by a route change in popup.
+   */
+  routeChange: boolean;
+}>("clear-view-cache");
 
 export class PopupViewCacheBackgroundService {
   private popupViewCacheState = this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY);
@@ -61,10 +86,13 @@ export class PopupViewCacheBackgroundService {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
-        concatMap(async ({ key, value }) =>
+        concatMap(async ({ key, value, options }) =>
           this.popupViewCacheState.update((state) => ({
             ...state,
-            [key]: value,
+            [key]: {
+              value,
+              options,
+            },
           })),
         ),
       )
@@ -72,7 +100,19 @@ export class PopupViewCacheBackgroundService {
 
     this.messageListener
       .messages$(ClEAR_VIEW_CACHE_COMMAND)
-      .pipe(concatMap(() => this.popupViewCacheState.update(() => null)))
+      .pipe(
+        concatMap(({ routeChange }) =>
+          this.popupViewCacheState.update((state) => {
+            if (routeChange && state) {
+              // Only remove keys that are not marked with `persistNavigation`
+              return Object.fromEntries(
+                Object.entries(state).filter(([, { options }]) => options?.persistNavigation),
+              );
+            }
+            return null;
+          }),
+        ),
+      )
       .subscribe();
 
     // on popup closed, with 2 minute delay that is cancelled by re-opening the popup

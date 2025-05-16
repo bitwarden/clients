@@ -4,9 +4,10 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CardComponent, SearchModule } from "@bitwarden/components";
+import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
+import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/payment/payment.component";
 import { VerifyBankAccountComponent } from "@bitwarden/web-vault/app/billing/shared/verify-bank-account/verify-bank-account.component";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
@@ -29,7 +30,6 @@ import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { UserAddEditComponent } from "./manage/user-add-edit.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -53,6 +53,8 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     VerifyBankAccountComponent,
     CardComponent,
+    ScrollLayoutDirective,
+    PaymentComponent,
   ],
   declarations: [
     AcceptProviderComponent,
@@ -65,7 +67,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     MembersComponent,
     SetupComponent,
     SetupProviderComponent,
-    UserAddEditComponent,
     AddEditMemberDialogComponent,
     AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,

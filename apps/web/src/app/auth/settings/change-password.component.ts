@@ -32,6 +32,7 @@ import { UserKeyRotationService } from "../../key-management/key-rotation/user-k
 @Component({
   selector: "app-change-password",
   templateUrl: "change-password.component.html",
+  standalone: false,
 })
 export class ChangePasswordComponent
   extends BaseChangePasswordComponent
@@ -310,13 +311,16 @@ export class ChangePasswordComponent
     newMasterKey: MasterKey,
     newUserKey: [UserKey, EncString],
   ) {
-    const masterKey = await this.keyService.makeMasterKey(
-      this.currentMasterPassword,
-      await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
-      await this.kdfConfigService.getKdfConfig(),
+    const [userId, email] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
     );
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const masterKey = await this.keyService.makeMasterKey(
+      this.currentMasterPassword,
+      email,
+      await this.kdfConfigService.getKdfConfig(userId),
+    );
+
     const newLocalKeyHash = await this.keyService.hashMasterKey(
       this.masterPassword,
       newMasterKey,

@@ -2,6 +2,8 @@
  * This enum is used to determine if a user should be forced to initially set or reset their password
  * on login (server flag) or unlock via MP (client evaluation).
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ForceSetPasswordReason {
   /**
    * A password reset should not be forced.
@@ -31,4 +33,9 @@ export enum ForceSetPasswordReason {
    * Occurs when TDE is disabled and master password has to be set.
    */
   TdeOffboarding,
+
+  /**
+   * Occurs when a new SSO user is JIT provisioned and needs to set their master password.
+   */
+  SsoNewJitProvisionedUser,
 }

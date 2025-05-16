@@ -14,7 +14,6 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -39,8 +38,20 @@ export default {
         KitchenSinkTable,
         KitchenSinkToggleList,
       ],
+    }),
+    applicationConfig({
       providers: [
-        DialogService,
+        provideNoopAnimations(),
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
+              { path: "bitwarden", component: KitchenSinkMainComponent },
+              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+            ],
+            { useHash: true },
+          ),
+        ),
         {
           provide: I18nService,
           useFactory: () => {
@@ -58,21 +69,6 @@ export default {
         },
       ],
     }),
-    applicationConfig({
-      providers: [
-        provideNoopAnimations(),
-        importProvidersFrom(
-          RouterModule.forRoot(
-            [
-              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
-              { path: "bitwarden", component: KitchenSinkMainComponent },
-              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
-            ],
-            { useHash: true },
-          ),
-        ),
-      ],
-    }),
   ],
 } as Meta;
 
@@ -84,8 +80,13 @@ export const Default: Story = {
       props: args,
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
-          <bit-nav-group text="Password Managers" icon="bwi-collection" [open]="true">
-            <bit-nav-group text="Favorites" icon="bwi-collection" variant="tree" [open]="true">
+          <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
+            <bit-nav-group
+              text="Favorites"
+              icon="bwi-collection-shared"
+              variant="tree"
+              [open]="true"
+            >
               <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
               <bit-nav-divider></bit-nav-divider>
             </bit-nav-group>

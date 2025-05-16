@@ -145,7 +145,9 @@ export class UserKeyRotationService {
     const { privateKey, publicKey } = keyPair;
 
     const accountKeysRequest = new AccountKeysRequest(
-      (await this.encryptService.encrypt(privateKey, newUnencryptedUserKey)).encryptedString!,
+      (
+        await this.encryptService.wrapDecapsulationKey(privateKey, newUnencryptedUserKey)
+      ).encryptedString!,
       Utils.fromBufferToB64(publicKey),
     );
 
@@ -427,6 +429,6 @@ export class UserKeyRotationService {
     if (privateKey == null) {
       throw new Error("No private key found for user key rotation");
     }
-    return (await this.encryptService.encrypt(privateKey, newUserKey)).encryptedString;
+    return (await this.encryptService.wrapDecapsulationKey(privateKey, newUserKey)).encryptedString;
   }
 }

@@ -1,5 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { Observable, of, switchMap } from "rxjs";
+
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -20,7 +25,7 @@ import {
   PlanInformation,
   SubscriptionInformation,
 } from "../abstractions";
-import { PlanType } from "../enums";
+import { PlanType, ProductTierType } from "../enums";
 import { OrganizationNoPaymentMethodCreateRequest } from "../models/request/organization-no-payment-method-create-request";
 import { PaymentSourceResponse } from "../models/response/payment-source.response";
 
@@ -40,6 +45,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
+    private configService: ConfigService,
   ) {}
 
   async getPaymentSource(organizationId: string): Promise<PaymentSourceResponse> {
@@ -114,7 +120,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   private async makeOrganizationKeys(): Promise<OrganizationKeys> {
     const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>();
     const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
-    const encryptedCollectionName = await this.encryptService.encrypt(
+    const encryptedCollectionName = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       key,
     );
@@ -168,6 +174,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     const [paymentToken, paymentMethodType] = information.paymentMethod;
     request.paymentToken = paymentToken;
     request.paymentMethodType = paymentMethodType;
+    request.skipTrial = information.skipTrial;
 
     const billingInformation = information.billing;
     request.billingAddressPostalCode = billingInformation.postalCode;
@@ -219,5 +226,30 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     this.setPlanInformation(request, subscription.plan);
     this.setPaymentInformation(request, subscription.payment);
     await this.billingApiService.restartSubscription(organizationId, request);
+  }
+
+  isBreadcrumbingPoliciesEnabled$(organization: Organization): Observable<boolean> {
+    if (organization === null || organization === undefined) {
+      return of(false);
+    }
+
+    return this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs).pipe(
+      switchMap((featureFlagEnabled) => {
+        if (!featureFlagEnabled) {
+          return of(false);
+        }
+
+        if (organization.isProviderUser || !organization.canEditSubscription) {
+          return of(false);
+        }
+
+        const supportedProducts = [ProductTierType.Teams, ProductTierType.TeamsStarter];
+        const isSupportedProduct = supportedProducts.some(
+          (product) => product === organization.productTierType,
+        );
+
+        return of(isSupportedProduct);
+      }),
+    );
   }
 }

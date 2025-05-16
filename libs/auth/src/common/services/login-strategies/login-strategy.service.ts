@@ -242,10 +242,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return result;
   }
 
-  async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
+  async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     if (!(await this.isSessionValid())) {
       throw new Error(this.i18nService.t("sessionTimeout"));
     }
@@ -256,10 +253,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
 
     try {
-      const result = await strategy.logInTwoFactor(twoFactor, captchaResponse);
+      const result = await strategy.logInTwoFactor(twoFactor);
 
       // Only clear cache if 2FA token has been accepted, otherwise we need to be able to try again
-      if (result != null && !result.requiresTwoFactor && !result.requiresCaptcha) {
+      if (result != null && !result.requiresTwoFactor) {
         await this.clearCache();
       }
       return result;

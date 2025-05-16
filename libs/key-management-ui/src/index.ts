@@ -7,3 +7,4 @@ export { LockComponentService, UnlockOptions } from "./lock/services/lock-compon
 export { KeyRotationTrustInfoComponent } from "./key-rotation/key-rotation-trust-info.component";
 export { AccountRecoveryTrustComponent } from "./trust/account-recovery-trust.component";
 export { EmergencyAccessTrustComponent } from "./trust/emergency-access-trust.component";
+export { RemovePasswordComponent } from "./key-connector/remove-password.component";

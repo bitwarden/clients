@@ -157,7 +157,7 @@
     "message": "Код безопасности"
   },
   "identityName": {
-    "message": "Имя"
+    "message": "Название личности"
   },
   "company": {
     "message": "Компания"
@@ -236,6 +236,24 @@
   },
   "enableSshAgentHelp": {
     "message": "Агент SSH - это сервис, ориентированный на разработчиков, позволяющий подписывать запросы SSH непосредственно из вашего хранилища Bitwarden."
+  },
+  "sshAgentPromptBehavior": {
+    "message": "Запрашивать авторизацию при использовании агента SSH"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Выберите способ обработки запросов авторизации агентом SSH."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Запоминать авторизации SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Всегда"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Никогда"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Помнить до блокировки хранилища"
   },
   "premiumRequired": {
     "message": "Требуется Премиум"
@@ -393,6 +411,70 @@
   "authenticatorKeyTotp": {
     "message": "Ключ аутентификатора (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Ключ аутентификатора"
+  },
+  "autofillOptions": {
+    "message": "Параметры автозаполнения"
+  },
+  "websiteUri": {
+    "message": "Сайт (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Веб-сайт (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Сайт добавлен"
+  },
+  "addWebsite": {
+    "message": "Добавить сайт"
+  },
+  "deleteWebsite": {
+    "message": "Удалить сайт"
+  },
+  "owner": {
+    "message": "Владелец"
+  },
+  "addField": {
+    "message": "Добавить поле"
+  },
+  "editField": {
+    "message": "Изменить поле"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Вы уверены, что хотите навсегда удалить это вложение?"
+  },
+  "fieldType": {
+    "message": "Тип поля"
+  },
+  "fieldLabel": {
+    "message": "Метка поля"
+  },
+  "add": {
+    "message": "Добавить"
+  },
+  "textHelpText": {
+    "message": "Используйте текстовые поля для простых данных, таких как контрольные вопросы"
+  },
+  "hiddenHelpText": {
+    "message": "Используйте скрытые поля для конфиденциальных данных, таких как пароли"
+  },
+  "checkBoxHelpText": {
+    "message": "Используйте флажки, если вы хотите автоматически заполнить поле формы, например, email"
+  },
+  "linkedHelpText": {
+    "message": "Используйте связанное поле, если у вас возникли проблемы с автозаполнением для конкретного сайта."
+  },
+  "linkedLabelHelpText": {
+    "message": "Введите HTML-идентификатор поля, имя, aria-label, или плейсхолдер."
+  },
   "folder": {
     "message": "Папка"
   },
@@ -417,6 +499,9 @@
   "cfTypeLinked": {
     "message": "Связано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Флажок"
   },
   "linkedValue": {
     "message": "Связанное значение",
@@ -1915,6 +2000,58 @@
       }
     }
   },
+  "cardDetails": {
+    "message": "Реквизиты карты"
+  },
+  "cardBrandDetails": {
+    "message": "Реквизиты $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Узнайте больше об аутентификаторах"
+  },
+  "copyTOTP": {
+    "message": "Скопировать ключ аутентификатора (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Сделайте двухэтапную аутентификацию простой и удобной"
+  },
+  "totpHelper": {
+    "message": "Bitwarden может хранить и заполнять коды двухэтапной аутентификации. Скопируйте и вставьте ключ в это поле."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden может хранить и заполнять коды двухэтапной аутентификации. Выберите значок камеры, чтобы сделать скриншот QR-кода этого сайта, или скопируйте и вставьте ключ в это поле."
+  },
+  "premium": {
+    "message": "Премиум",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Бесплатные организации не могут использовать вложения"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 поле требует вашего внимания."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ полей требуют вашего внимания.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Истек срок действия карты"
+  },
+  "cardExpiredMessage": {
+    "message": "Если вы заменили карту, обновите информацию о ней"
+  },
   "verificationRequired": {
     "message": "Требуется верификация",
     "description": "Default title for the user verification dialog."
@@ -2083,6 +2220,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Импорт элементов в ваше личное хранилище отключен политикой организации."
+  },
+  "personalDetails": {
+    "message": "Личные данные"
+  },
+  "identification": {
+    "message": "Идентификация"
+  },
+  "contactInfo": {
+    "message": "Контактная информация"
   },
   "allSends": {
     "message": "Все Send’ы",
@@ -2517,6 +2663,9 @@
   },
   "generateEmail": {
     "message": "Сгенерировать email"
+  },
+  "usernameGenerator": {
+    "message": "Генератор имени пользователя"
   },
   "spinboxBoundariesHint": {
     "message": "Значение должно быть между $MIN$ и $MAX$.",
@@ -3042,6 +3191,30 @@
   "deviceTrusted": {
     "message": "Доверенное устройство"
   },
+  "trustOrganization": {
+    "message": "Доверенная организация"
+  },
+  "trust": {
+    "message": "Доверять"
+  },
+  "doNotTrust": {
+    "message": "Не доверять"
+  },
+  "organizationNotTrusted": {
+    "message": "Организации не доверяют"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта подтверждайте только в том случае, если вы предоставили этому пользователю экстренный доступ и его отпечаток совпадает с отображаемым в его аккаунте"
+  },
+  "orgTrustWarning": {
+    "message": "В целях обеспечения безопасности вашего аккаунта продолжайте только в том случае, если вы являетесь членом этой организации, у вас включено восстановление аккаунта, а отображаемый ниже отпечаток совпадает с отпечатком организации."
+  },
+  "orgTrustWarning1": {
+    "message": "В этой организации действует политика, которая позволит вам участвовать в восстановлении аккаунта. Регистрация позволит администраторам организации изменить ваш пароль. Продолжайте, только если вы знаете эту организацию и фраза отпечатков, показанная ниже, совпадает с отпечатками организации."
+  },
+  "trustUser": {
+    "message": "Доверенный пользователь"
+  },
   "inputRequired": {
     "message": "Необходимо ввести данные."
   },
@@ -3211,6 +3384,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следуйте указаниям ниже, чтобы завершить авторизацию."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Выполните следующие шаги, чтобы завершить авторизацию с помощью ключа безопасности."
   },
   "launchDuo": {
     "message": "Запустить Duo в браузере"
@@ -3436,6 +3612,17 @@
   "ssoError": {
     "message": "Не удалось найти свободные порты для авторизации SSO."
   },
+  "securePasswordGenerated": {
+    "message": "Безопасный пароль сгенерирован! Не забудьте также обновить свой пароль на сайте."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Использовать генератор",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "для создания надежного уникального пароля",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Биометрическая разблокировка недоступна, поскольку сначала требуется разблокировка с помощью PIN-кода или пароля."
   },
@@ -3508,42 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
   },
-  "importantNotice": {
-    "message": "Важное уведомление"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настроить двухэтапную аутентификацию"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ."
-  },
-  "remindMeLater": {
-    "message": "Напомнить позже"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Есть ли у вас надежный доступ к электронной почте $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Нет, не знаю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, я имею надежный доступ к своей электронной почте"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включить двухэтапную аутентификацию"
-  },
-  "changeAcctEmail": {
-    "message": "Изменить email аккаунта"
-  },
   "allowScreenshots": {
     "message": "Разрешить захват экрана"
   },
@@ -3567,5 +3718,54 @@
   },
   "move": {
     "message": "Переместить"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Экономьте время с помощью автозаполнения"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Включите",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "чтобы этот логин отображался в качестве предложения для автозаполнения.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Оформление заказа через интернет"
+  },
+  "newCardNudgeBody": {
+    "message": "С помощью карт можно легко и безопасно автоматически заполнять формы оплаты."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Упрощение создания аккаунтов"
+  },
+  "newIdentityNudgeBody": {
+    "message": "С помощью личностей можно быстро заполнять длинные регистрационные или контактные формы."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Храните ваши конфиденциальные данные в безопасности"
+  },
+  "newNoteNudgeBody": {
+    "message": "С помощью заметок можно надежно хранить конфиденциальные данные, например, банковские или страховые реквизиты."
+  },
+  "newSshNudgeTitle": {
+    "message": "Удобный для разработчиков SSH-доступ"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Храните свои ключи и подключайтесь с помощью агента SSH для быстрой и зашифрованной аутентификации.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Узнайте больше об агенте SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

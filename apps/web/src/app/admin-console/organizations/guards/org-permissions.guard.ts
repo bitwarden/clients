@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { inject } from "@angular/core";
+import { EnvironmentInjector, inject, runInInjectionContext } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
   CanActivateFn,
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, isObservable, Observable, switchMap } from "rxjs";
 
 import {
   canAccessOrgAdmin,
@@ -42,7 +42,9 @@ import { ToastService } from "@bitwarden/components";
  *    proceeds as expected.
  */
 export function organizationPermissionsGuard(
-  permissionsCallback?: (organization: Organization) => boolean,
+  permissionsCallback?: (
+    organization: Organization,
+  ) => boolean | Promise<boolean> | Observable<boolean>,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
@@ -51,6 +53,7 @@ export function organizationPermissionsGuard(
     const i18nService = inject(I18nService);
     const syncService = inject(SyncService);
     const accountService = inject(AccountService);
+    const environmentInjector = inject(EnvironmentInjector);
 
     // TODO: We need to fix issue once and for all.
     if ((await syncService.getLastSync()) == null) {
@@ -78,7 +81,22 @@ export function organizationPermissionsGuard(
       return router.createUrlTree(["/"]);
     }
 
-    const hasPermissions = permissionsCallback == null || permissionsCallback(org);
+    if (permissionsCallback == null) {
+      // No additional permission checks required, allow navigation
+      return true;
+    }
+
+    const callbackResult = runInInjectionContext(environmentInjector, () =>
+      permissionsCallback(org),
+    );
+
+    const hasPermissions = isObservable(callbackResult)
+      ? await firstValueFrom(callbackResult) // handles observables
+      : await Promise.resolve(callbackResult); // handles promises and boolean values
+
+    if (hasPermissions !== true && hasPermissions !== false) {
+      throw new Error("Permission callback did not resolve to a boolean.");
+    }
 
     if (!hasPermissions) {
       // Handle linkable ciphers for organizations the user only has view access to
