@@ -24,14 +24,14 @@ export abstract class DownloadCommand {
    * Fetches an attachment via the url, decrypts it's content and saves it to a file
    * @param url - url used to retrieve the attachment
    * @param fileName - filename used when written to disk
-   * @param decryptFn - Function used to decrypt the response
+   * @param decrypt - Function used to decrypt the response
    * @param output - If output is empty or `--raw` was passed to the initial command the content is output onto stdout
    * @returns Promise<FileResponse>
    */
   protected async saveAttachmentToFile(
     url: string,
     fileName: string,
-    decryptFn: (resp: globalThis.Response) => Promise<Uint8Array>,
+    decrypt: (resp: globalThis.Response) => Promise<Uint8Array>,
     output?: string,
   ) {
     const response = await this.apiService.nativeFetch(
@@ -44,7 +44,7 @@ export abstract class DownloadCommand {
     }
 
     try {
-      const decBuf = await decryptFn(response);
+      const decBuf = await decrypt(response);
       if (process.env.BW_SERVE === "true") {
         const res = new FileResponse(Buffer.from(decBuf), fileName);
         return Response.success(res);
