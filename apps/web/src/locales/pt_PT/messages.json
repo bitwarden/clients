@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Marcar a app como crítica"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marcadas como críticas"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Aplicações marcadas como críticas"
   },
   "application": {
     "message": "Aplicação"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  },
   "atRiskApplicationsDescription": {
     "message": "Estas aplicações têm palavras-passe fracas, expostas ou reutilizadas."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Não se trata de aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Estes membros estão a iniciar sessão no $APPNAME$ com palavras-passe fracas, expostas ou reutilizadas.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Não existem membros em risco para: $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

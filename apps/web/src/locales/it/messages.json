@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Contrassegna l'applicazione come critica"
   },
-  "appsMarkedAsCritical": {
-    "message": "Contrassegna le applicazioni selezionate come critiche"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Applicazione"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Questi membri accedono ad applicazioni con parole d'accesso deboli, esposte, o riutilizzate."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Queste applicazioni hanno parole d'accesso deboli, esposte o riutilizzate."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Questi membri stanno entrando in $APPNAME$ con parole d'accesso deboli, esposte, o riutilizzate.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

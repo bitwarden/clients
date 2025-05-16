@@ -11,7 +11,6 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CardComponent,
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -26,7 +25,6 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     CommonModule,
     JslibModule,
     CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     OrgIconDirective,
