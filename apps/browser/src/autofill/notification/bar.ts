@@ -40,7 +40,7 @@ globalThis.addEventListener("load", load);
 function load() {
   setupWindowMessageListener();
   sendPlatformMessage({ command: "notificationRefreshFlagValue" }, (flagValue) => {
-    useComponentBar = true;
+    useComponentBar = flagValue;
     applyNotificationBarStyle();
   });
 }
@@ -119,16 +119,19 @@ const findElementById = <ElementType extends HTMLElement>(
  * @returns The localized header message string, or undefined if the type is not recognized.
  */
 export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveLogin;
-    case NotificationTypes.Change:
-      return i18n.updateLogin;
-    case NotificationTypes.Unlock:
-      return i18n.unlockToSave;
-    default:
-      return undefined;
-  }
+  const message = (() => {
+    switch (type) {
+      case NotificationTypes.Add:
+        return i18n.saveLogin;
+      case NotificationTypes.Change:
+        return i18n.updateLogin;
+      case NotificationTypes.Unlock:
+        return i18n.unlockToSave;
+      default:
+        return undefined;
+    }
+  })();
+  return message;
 }
 
 /**
