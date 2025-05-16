@@ -22,6 +22,10 @@ export abstract class PlatformUtilsService {
   abstract isVivaldi(): boolean;
   abstract isSafari(): boolean;
   abstract isMacAppStore(): boolean;
+
+  /**
+   * Can only be called from the background service.
+   */
   abstract isViewOpen(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
   abstract getApplicationVersion(): Promise<string>;
@@ -45,4 +49,5 @@ export abstract class PlatformUtilsService {
   abstract readFromClipboard(): Promise<string>;
   abstract supportsSecureStorage(): boolean;
   abstract getAutofillKeyboardShortcut(): Promise<string>;
+  abstract openPopupToPath(url: string): Promise<void>;
 }
