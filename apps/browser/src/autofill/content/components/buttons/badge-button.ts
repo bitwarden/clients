@@ -8,15 +8,19 @@ import { border, themes, typography, spacing } from "../constants/styles";
 export type BadgeButtonProps = {
   buttonAction: (e: Event) => void;
   buttonText: string;
+  itemName: string;
   disabled?: boolean;
   theme: Theme;
+  username: string;
 };
 
 export function BadgeButton({
   buttonAction,
   buttonText,
   disabled = false,
+  itemName,
   theme,
+  username,
 }: BadgeButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (!disabled) {
@@ -28,6 +32,7 @@ export function BadgeButton({
     <button
       type="button"
       title=${buttonText}
+      aria-label=${[buttonText, `${itemName} ${username}`]}
       class=${badgeButtonStyles({ disabled, theme })}
       @click=${handleButtonClick}
     >
