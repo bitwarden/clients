@@ -25,6 +25,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
 })
 export class ChangeKdfComponent implements OnInit, OnDestroy {
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
+  currentlyActiveKdfConfig: KdfConfig;
   kdfOptions: any[] = [];
   private destroy$ = new Subject<void>();
 
@@ -58,6 +59,8 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
+    this.currentlyActiveKdfConfig = this.kdfConfig;
+    
     this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType);
     this.setFormControlValues(this.kdfConfig);
 
@@ -78,7 +81,11 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
 
     switch (newValue) {
       case KdfType.PBKDF2_SHA256:
-        config = new PBKDF2KdfConfig();
+        config =
+          this.currentlyActiveKdfConfig.kdfType === KdfType.PBKDF2_SHA256
+            ? this.currentlyActiveKdfConfig
+            : new PBKDF2KdfConfig();
+
         validators.iterations = [
           Validators.required,
           Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
@@ -86,7 +93,11 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
         ];
         break;
       case KdfType.Argon2id:
-        config = new Argon2KdfConfig();
+        config =
+          this.currentlyActiveKdfConfig.kdfType === KdfType.Argon2id
+            ? this.currentlyActiveKdfConfig
+            : new Argon2KdfConfig();
+
         validators.iterations = [
           Validators.required,
           Validators.min(Argon2KdfConfig.ITERATIONS.min),
