@@ -37,7 +37,7 @@ export function NotificationConfirmationBody({
   theme,
   handleOpenVault,
 }: NotificationConfirmationBodyProps) {
-  const IconComponent = tasksAreComplete ? Keyhole : !error ? Celebrate : Warning;
+  const IconComponent = error ? Warning : tasksAreComplete ? Celebrate : Keyhole;
 
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 
@@ -48,8 +48,7 @@ export function NotificationConfirmationBody({
         ? NotificationConfirmationMessage({
             buttonAria,
             buttonText,
-            error,
-            itemName,
+            itemName: error ? undefined : itemName,
             message: confirmationMessage,
             messageDetails,
             theme,

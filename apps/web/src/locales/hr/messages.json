@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Označi aplikacije kao kritične"
   },
-  "appsMarkedAsCritical": {
-    "message": "Aplikacije označene kao kritične"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Aplikacija"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ovi članovi se prijavljuju u aplikacije slabim, izloženim ili ponovno korištenim lozinkama."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ove aplikacije imaju slabe, izložene ili ponovno korištene lozinke."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ovi članovi se u $APPNAME$ prijavljuju slabim, izloženim ili ponovno korištenim lozinkama.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

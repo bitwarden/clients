@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Označit aplikaci jako kritickou"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikace označené jako kritické"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Žádní členové se nepřihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  },
   "atRiskApplicationsDescription": {
     "message": "Tyto aplikace mají slabá, odhalená nebo opakovaně používaná hesla."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Žádné aplikace, které mají slabá, odhalená nebo opakovaně používaná hesla."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Tito členové se přihlašují do $APPNAME$ se slabými, odhalenými nebo znovu použitými hesly.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Žádní ohrožení členové pro $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
