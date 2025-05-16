@@ -391,7 +391,7 @@ export class Utils {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string): boolean {
+  static isNullOrEmpty(str: string | null): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 
