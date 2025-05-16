@@ -36,6 +36,11 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
       this.browserCache = DeviceType.VivaldiBrowser;
     } else if (
       navigator.userAgent.indexOf(" Safari/") !== -1 &&
+      navigator.userAgent.indexOf("Ddg") !== -1
+    ) {
+      this.browserCache = DeviceType.DuckDuckGoBrowser;
+    } else if (
+      navigator.userAgent.indexOf(" Safari/") !== -1 &&
       navigator.userAgent.indexOf("Chrome") === -1
     ) {
       this.browserCache = DeviceType.SafariBrowser;
@@ -83,6 +88,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isDuckDuckGo(): boolean {
+    return this.getDevice() === DeviceType.DuckDuckGoBrowser;
+  }
+
   isMacAppStore(): boolean {
     return false;
   }
@@ -118,6 +127,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsSyncDomains(): boolean {
+    return false;
   }
 
   showToast(

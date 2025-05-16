@@ -21,6 +21,7 @@ export abstract class PlatformUtilsService {
   abstract isOpera(): boolean;
   abstract isVivaldi(): boolean;
   abstract isSafari(): boolean;
+  abstract isDuckDuckGo(): boolean;
   abstract isMacAppStore(): boolean;
   abstract isViewOpen(): Promise<boolean>;
   abstract launchUri(uri: string, options?: any): void;
@@ -28,6 +29,7 @@ export abstract class PlatformUtilsService {
   abstract getApplicationVersionNumber(): Promise<string>;
   abstract supportsWebAuthn(win: Window): boolean;
   abstract supportsDuo(): boolean;
+  abstract supportsSyncDomains(): boolean;
   /**
    * @deprecated use `@bitwarden/components/ToastService.showToast` instead
    *

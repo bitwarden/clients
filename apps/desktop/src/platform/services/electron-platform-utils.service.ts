@@ -55,6 +55,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return false;
   }
 
+  isDuckDuckGo(): boolean {
+    return false;
+  }
+
   isMacAppStore(): boolean {
     return ipc.platform.isMacAppStore;
   }
@@ -84,6 +88,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   supportsDuo(): boolean {
     return true;
+  }
+
+  supportsSyncDomains(): boolean {
+    return false;
   }
 
   showToast(
