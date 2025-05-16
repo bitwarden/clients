@@ -67,6 +67,7 @@ describe("Button", () => {
       <bit-toggle value="third">Third</bit-toggle>
     </bit-toggle-group>
   `,
+  standalone: false,
 })
 class TestApp {
   selected?: string;

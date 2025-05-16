@@ -76,7 +76,8 @@ class MockedButtonGroupComponent implements Partial<RadioGroupComponent> {
 
 @Component({
   selector: "test-app",
-  template: ` <bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
+  template: `<bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
+  standalone: false,
 })
 class TestApp {
   value?: string;
