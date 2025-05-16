@@ -7,7 +7,7 @@ import {
   DialogRef,
   DIALOG_SCROLL_STRATEGY,
 } from "@angular/cdk/dialog";
-import { ComponentType, Overlay, OverlayContainer, ScrollStrategy } from "@angular/cdk/overlay";
+import { ComponentType, GlobalPositionStrategy, Overlay, OverlayContainer, ScrollStrategy } from "@angular/cdk/overlay";
 import {
   Inject,
   Injectable,
@@ -96,9 +96,14 @@ export class DialogService extends Dialog implements OnDestroy {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, DialogRef<R, C>>,
   ): DialogRef<R, C> {
+    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+
     config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
+      positionStrategy: isSmallScreen
+        ? new GlobalPositionStrategy().bottom().centerHorizontally()
+        : new GlobalPositionStrategy().centerVertically().centerHorizontally(),
       ...config,
     };
 
