@@ -8,11 +8,12 @@ import { BehaviorSubject, debounceTime, firstValueFrom, lastValueFrom } from "rx
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
+import { BadgeModule, DialogService, SearchModule, TableDataSource } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import {
@@ -33,7 +34,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule],
+  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, BadgeModule],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
@@ -50,6 +51,13 @@ export class MemberAccessReportComponent implements OnInit {
   protected orgIsOnSecretsManagerStandalone: boolean;
   protected isLoading$ = new BehaviorSubject(true);
 
+  // Statistics for the cards
+  protected totalMembers = 0;
+  protected membersWithTwoStepLogin = 0;
+  protected membersWithAccountRecovery = 0;
+  protected totalPurchasedSeats = 0;
+  protected membersWithItems = 0;
+
   constructor(
     private route: ActivatedRoute,
     protected reportService: MemberAccessReportService,
@@ -57,6 +65,7 @@ export class MemberAccessReportComponent implements OnInit {
     protected dialogService: DialogService,
     protected userNamePipe: UserNamePipe,
     protected billingApiService: BillingApiServiceAbstraction,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
   ) {
     // Connect the search input to the table dataSource filter input
     this.searchControl.valueChanges
@@ -76,15 +85,25 @@ export class MemberAccessReportComponent implements OnInit {
 
     this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
 
+    // Get organization details to get seat information
+    const orgResponse = await this.organizationApiService.get(this.organizationId);
+    this.totalPurchasedSeats = orgResponse.seats || 0;
+
     await this.load();
 
     this.isLoading$.next(false);
   }
 
   async load() {
-    this.dataSource.data = await this.reportService.generateMemberAccessReportView(
-      this.organizationId,
-    );
+    const data = await this.reportService.generateMemberAccessReportView(this.organizationId);
+
+    this.dataSource.data = data;
+
+    // Calculate statistics for the cards
+    this.totalMembers = data.length;
+    this.membersWithTwoStepLogin = data.filter((member) => member.twoFactorEnabled).length;
+    this.membersWithAccountRecovery = data.filter((member) => member.accountRecoveryEnabled).length;
+    this.membersWithItems = data.filter((member) => member.itemsCount > 0).length;
   }
 
   exportReportAction = async (): Promise<void> => {

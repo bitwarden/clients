@@ -34,12 +34,50 @@
     <h2 bitTypography="h1">{{ "loading" | i18n }}</h2>
   </div>
 </ng-container>
+<div
+  class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-4 tw-mb-6"
+  *ngIf="!(isLoading$ | async)"
+>
+  <div class="tw-bg-background-alt tw-rounded-lg tw-p-4 tw-shadow-sm">
+    <div class="tw-text-muted tw-text-sm tw-mb-1">{{ "assignedSeats" | i18n }}</div>
+    <div class="tw-flex tw-items-baseline tw-gap-2">
+      <span class="tw-text-2xl tw-font-semibold">{{ totalMembers }}</span>
+      <span class="tw-text-muted">out of {{ totalPurchasedSeats }}</span>
+    </div>
+  </div>
+  <div class="tw-bg-background-alt tw-rounded-lg tw-p-4 tw-shadow-sm">
+    <div class="tw-text-muted tw-text-sm tw-mb-1">{{ "usersWithVaultItems" | i18n }}</div>
+    <div class="tw-flex tw-items-baseline tw-gap-2">
+      <span class="tw-text-2xl tw-font-semibold">{{ membersWithItems }}</span>
+      <span class="tw-text-muted">out of {{ totalMembers }}</span>
+    </div>
+  </div>
+  <div class="tw-bg-background-alt tw-rounded-lg tw-p-4 tw-shadow-sm">
+    <div class="tw-text-muted tw-text-sm tw-mb-1">{{ "twoStepLogin" | i18n }}</div>
+    <div class="tw-flex tw-items-baseline tw-gap-2">
+      <span class="tw-text-2xl tw-font-semibold">{{ membersWithTwoStepLogin }}</span>
+      <span class="tw-text-muted">out of {{ totalMembers }}</span>
+    </div>
+  </div>
+  <div class="tw-bg-background-alt tw-rounded-lg tw-p-4 tw-shadow-sm">
+    <div class="tw-text-muted tw-text-sm tw-mb-1">{{ "enrolledAccountRecovery" | i18n }}</div>
+    <div class="tw-flex tw-items-baseline tw-gap-2">
+      <span class="tw-text-2xl tw-font-semibold">{{ membersWithAccountRecovery }}</span>
+      <span class="tw-text-muted">out of {{ totalMembers }}</span>
+    </div>
+  </div>
+</div>
+
 <bit-table-scroll *ngIf="!(isLoading$ | async)" [dataSource]="dataSource" [rowSize]="53">
   <ng-container header>
     <th bitCell bitSortable="name" default>{{ "members" | i18n }}</th>
-    <th bitCell bitSortable="groupsCount" class="tw-w-[278px]">{{ "groups" | i18n }}</th>
-    <th bitCell bitSortable="collectionsCount" class="tw-w-[278px]">{{ "collections" | i18n }}</th>
-    <th bitCell bitSortable="itemsCount" class="tw-w-[278px]">{{ "items" | i18n }}</th>
+    <th bitCell bitSortable="twoFactorEnabled" class="tw-w-[200px]">{{ "twoStepLogin" | i18n }}</th>
+    <th bitCell bitSortable="accountRecoveryEnabled" class="tw-w-[200px]">
+      {{ "accountRecovery" | i18n }}
+    </th>
+    <th bitCell bitSortable="groupsCount" class="tw-w-[200px]">{{ "groups" | i18n }}</th>
+    <th bitCell bitSortable="collectionsCount" class="tw-w-[200px]">{{ "collections" | i18n }}</th>
+    <th bitCell bitSortable="itemsCount" class="tw-w-[150px]">{{ "items" | i18n }}</th>
   </ng-container>
   <ng-template bitRowDef let-row>
     <td bitCell>
@@ -56,8 +94,22 @@
         </div>
       </div>
     </td>
-    <td bitCell class="tw-text-muted tw-w-[278px]">{{ row.groupsCount }}</td>
-    <td bitCell class="tw-text-muted tw-w-[278px]">{{ row.collectionsCount }}</td>
-    <td bitCell class="tw-text-muted tw-w-[278px]">{{ row.itemsCount }}</td>
+    <td bitCell>
+      <span bitBadge [variant]="row.twoFactorEnabled ? 'success' : 'danger'" class="tw-text-xs">
+        {{ row.twoFactorEnabled ? ("on" | i18n) : ("off" | i18n) }}
+      </span>
+    </td>
+    <td bitCell>
+      <span
+        bitBadge
+        [variant]="row.accountRecoveryEnabled ? 'success' : 'danger'"
+        class="tw-text-xs"
+      >
+        {{ row.accountRecoveryEnabled ? ("on" | i18n) : ("off" | i18n) }}
+      </span>
+    </td>
+    <td bitCell class="tw-text-muted tw-w-[200px]">{{ row.groupsCount }}</td>
+    <td bitCell class="tw-text-muted tw-w-[200px]">{{ row.collectionsCount }}</td>
+    <td bitCell class="tw-text-muted tw-w-[150px]">{{ row.itemsCount }}</td>
   </ng-template>
 </bit-table-scroll>

@@ -9629,6 +9629,10 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Off"
   },
+  "usersWithVaultItems": {
+    "message": "Users with vault items",
+    "description": "Title for a card showing the number of organization members who have at least one vault item. Used in the Member Access Report."
+  },
   "higherKDFIterations": {
     "message": "Higher KDF iterations can help protect your master password from being brute forced by an attacker."
   },
