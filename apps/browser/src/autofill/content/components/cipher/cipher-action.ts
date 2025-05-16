@@ -11,7 +11,7 @@ export type CipherActionProps = {
   itemName: string;
   notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
   theme: Theme;
-  username: string;
+  username?: string;
 };
 
 export function CipherAction({

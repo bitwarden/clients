@@ -11,7 +11,7 @@ export type BadgeButtonProps = {
   itemName: string;
   disabled?: boolean;
   theme: Theme;
-  username: string;
+  username?: string;
 };
 
 export function BadgeButton({
