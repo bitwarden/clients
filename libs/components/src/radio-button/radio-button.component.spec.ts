@@ -71,7 +71,7 @@ describe("RadioButton", () => {
 
 class MockedButtonGroupComponent implements Partial<RadioGroupComponent> {
   onInputChange = jest.fn();
-  selected = null;
+  selected: unknown = null;
 }
 
 @Component({

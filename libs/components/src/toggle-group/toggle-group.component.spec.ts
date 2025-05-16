@@ -10,7 +10,7 @@ import { ToggleComponent } from "./toggle.component";
 describe("Button", () => {
   let fixture: ComponentFixture<TestApp>;
   let testAppComponent: TestApp;
-  let buttonElements: ToggleComponent[];
+  let buttonElements: ToggleComponent<unknown>[];
   let radioButtons: HTMLInputElement[];
 
   beforeEach(waitForAsync(() => {

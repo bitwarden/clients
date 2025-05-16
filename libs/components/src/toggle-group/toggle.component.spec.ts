@@ -63,7 +63,7 @@ describe("Button", () => {
 
 class MockedButtonGroupComponent implements Partial<ToggleGroupComponent> {
   onInputInteraction = jest.fn();
-  selected = null;
+  selected: unknown = null;
 }
 
 @Component({
