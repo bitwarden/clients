@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "重要なアプリとしてマーク"
   },
-  "appsMarkedAsCritical": {
-    "message": "重要なアプリとしてマークされました"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "アプリ"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "これらのメンバーは、脆弱な、または流出したか再利用されたパスワードでアプリにログインしています。"
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "これらのアプリで、脆弱な、または流出したか再利用されたパスワードを使用しています。"
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "これらのメンバーは、脆弱な、または流出したか再利用されたパスワードで $APPNAME$ にログインしています。",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
