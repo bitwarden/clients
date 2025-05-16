@@ -99,15 +99,28 @@ const notificationContainerStyles = (theme: Theme) => css`
   }
 `;
 
-function getHeaderMessage(i18n: I18n, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveLogin;
-    case NotificationTypes.Change:
-      return i18n.updateLogin;
-    case NotificationTypes.Unlock:
-      return i18n.unlockToSave;
-    default:
-      return undefined;
+export function getHeaderMessage(i18n: I18n, type?: NotificationType) {
+  const message = (() => {
+    switch (type) {
+      case NotificationTypes.Add:
+        return i18n.saveLogin;
+      case NotificationTypes.Change:
+        return i18n.updateLogin;
+      case NotificationTypes.Unlock:
+        return i18n.unlockToSave;
+      default:
+        return undefined;
+    }
+  })();
+
+  appendHeaderMessageToTitle(message);
+  return message;
+}
+
+export function appendHeaderMessageToTitle(headerMessage?: string) {
+  if (!headerMessage) {
+    return;
   }
+  const baseTitle = document.title.split(" - ")[0];
+  document.title = `${baseTitle} - ${headerMessage}`;
 }
