@@ -119,7 +119,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
     return this.apiService.getTwoFactorOrganizationProviders(this.organizationId);
   }
 
-  protected filterProvider(type: TwoFactorProviderType) {
+  protected filterProvider(type: TwoFactorProviderType): boolean {
     return type !== TwoFactorProviderType.OrganizationDuo;
   }
 }
