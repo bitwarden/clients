@@ -134,6 +134,7 @@ export const mockI18n = {
   saveLogin: "Save login",
   selectItemAriaLabel: "Select $ITEMTYPE$, $ITEMNAME$",
   typeLogin: "Login",
+  unlockToSave: "Unlock to save this login",
   updateLoginAction: "Update login",
   updateLogin: "Update existing login",
   vault: "Vault",
