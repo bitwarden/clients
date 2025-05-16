@@ -50,6 +50,8 @@ export type ResetPasswordDialogData = {
   organizationId: string;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ResetPasswordDialogResult {
   Ok = "ok",
 }
@@ -57,6 +59,7 @@ export enum ResetPasswordDialogResult {
 @Component({
   selector: "app-reset-password",
   templateUrl: "reset-password.component.html",
+  standalone: false,
 })
 /**
  * Used in a dialog for initiating the account recovery process against a

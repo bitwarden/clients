@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Anwendung als kritisch markieren"
   },
-  "appsMarkedAsCritical": {
-    "message": "Als kritisch markierte Anwendungen"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Anwendung"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Diese Mitglieder melden sich bei Anwendungen mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Diese Anwendungen haben schwache, kompromittierte oder wiederverwendete Passwörter."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Diese Mitglieder melden sich bei $APPNAME$ mit schwachen, kompromittierten oder wiederverwendeten Passwörtern an.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -519,7 +534,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Standard Übereinstimmungserkennung",
+    "message": "Standard-Übereinstimmungserkennung",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -9414,19 +9429,19 @@
     "message": "Rechnungen über das Anbieter-Portal verwalten"
   },
   "continueSettingUp": {
-    "message": "Setze die Einrichtung von Bitwarden fort"
+    "message": "Die Einrichtung von Bitwarden fortsetzen"
   },
   "continueSettingUpFreeTrial": {
     "message": "Setze die Einrichtung deiner kostenlosen Testversion von Bitwarden fort"
   },
   "continueSettingUpPasswordManager": {
-    "message": "Setze die Einrichtung des Bitwarden Passwort Managers fort"
+    "message": "Die Einrichtung des Bitwarden Passwort-Managers fortsetzen"
   },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Setze die Einrichtung deiner kostenlosen Testversion des Bitwarden Passwort Managers fort"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Setze die Einrichtung des Bitwarden Secrets Managers fort"
+    "message": "Die Einrichtung des Bitwarden Secrets-Managers fortsetzen"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Setze die Einrichtung deiner kostenlosen Testversion des Bitwarden Secrets Managers fort"

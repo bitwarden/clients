@@ -80,6 +80,7 @@ describe("CipherAttachmentsComponent", () => {
             get: cipherServiceGet,
             saveAttachmentWithServer,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
+            decrypt: jest.fn().mockResolvedValue(cipherView),
           },
         },
         {

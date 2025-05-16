@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Oznacz aplikację jako krytyczną"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikacje oznaczone jako krytyczne"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ci członkowie logują się do aplikacji ze słabymi, ujawnionymi lub ponownie używanymi hasłami."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Ci członkowie nie logują się do aplikacji ze słabymi, ujawnionymi lub ponownie używanymi hasłami."
+  },
   "atRiskApplicationsDescription": {
     "message": "Te aplikacje mają słabe, ujawnione lub ponownie użyte hasła."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Te aplikacje nie mają słabych, ujawnionych lub ponownie użytych haseł."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ci użytkownicy logują się do $APPNAME$ ze słabymi, ujawnionymi lub ponownie używanymi hasłami.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Nie ma członków ryzyka dla $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

@@ -9,6 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 @Component({
   templateUrl: "subscription.component.html",
+  standalone: false,
 })
 export class SubscriptionComponent implements OnInit {
   hasPremium$: Observable<boolean>;
