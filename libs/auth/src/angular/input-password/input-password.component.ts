@@ -51,31 +51,46 @@ import { PasswordInputResult } from "./password-input-result";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum InputPasswordFlow {
   /**
-   * Form elements displayed:
-   * - [Input] New password
-   * - [Input] New password confirm
-   * - [Input] New password hint
-   * - [Checkbox] Check for breaches
+   * Form Fields: `[newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
+   *
+   * Note: this flow does not receive an active account `userId` as an `@Input`
    */
-  AccountRegistration, // important: this flow does not involve an activeAccount/userId
+  SetInitialPasswordAccountRegistration,
+  /**
+   * Form Fields: `[newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
+   */
   SetInitialPasswordAuthedUser,
-  /*
-   * All form elements above, plus: [Input] Current password (as the first element in the UI)
+  /**
+   * Form Fields: `[currentPassword, newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches]`
    */
   ChangePassword,
   /**
-   * All form elements above, plus: [Checkbox] Rotate account encryption key (as the last element in the UI)
+   * Form Fields: `[currentPassword, newPassword, newPasswordConfirm, newPasswordHint, checkForBreaches, rotateUserKey]`
    */
   ChangePasswordWithOptionalUserKeyRotation,
+  /**
+   * This flow is used when a user changes the password for another user's account, such as:
+   * - Emergency Access Takeover
+   * - Account Recovery
+   *
+   * Since both of those processes use a dialog, the `InputPasswordComponent` will not display
+   * buttons for `ChangePasswordDelegation` because the dialog will have its own buttons.
+   *
+   * Form Fields: `[newPassword, newPasswordConfirm]`
+   *
+   * Note: this flow does not receive an active account `userId` or `email` as `@Input`s
+   */
+  ChangePasswordDelegation,
 }
 
 interface InputPasswordForm {
+  currentPassword?: FormControl<string>;
+
   newPassword: FormControl<string>;
   newPasswordConfirm: FormControl<string>;
-  newPasswordHint: FormControl<string>;
-  checkForBreaches: FormControl<boolean>;
+  newPasswordHint?: FormControl<string>;
 
-  currentPassword?: FormControl<string>;
+  checkForBreaches?: FormControl<boolean>;
   rotateUserKey?: FormControl<boolean>;
 }
 
@@ -90,11 +105,11 @@ interface InputPasswordForm {
     FormFieldModule,
     IconButtonModule,
     InputModule,
-    ReactiveFormsModule,
-    SharedModule,
+    JslibModule,
     PasswordCalloutComponent,
     PasswordStrengthV2Component,
-    JslibModule,
+    ReactiveFormsModule,
+    SharedModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
@@ -102,8 +117,8 @@ export class InputPasswordComponent implements OnInit {
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
 
   @Input({ required: true }) flow!: InputPasswordFlow;
-  @Input({ required: true, transform: (val: string) => val.trim().toLowerCase() }) email!: string;
 
+  @Input({ transform: (val: string) => val?.trim().toLowerCase() }) email?: string;
   @Input() userId?: UserId;
   @Input() loading = false;
   @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
@@ -131,11 +146,6 @@ export class InputPasswordComponent implements OnInit {
         Validators.minLength(this.minPasswordLength),
       ]),
       newPasswordConfirm: this.formBuilder.nonNullable.control("", Validators.required),
-      newPasswordHint: this.formBuilder.nonNullable.control("", [
-        Validators.minLength(this.minHintLength),
-        Validators.maxLength(this.maxHintLength),
-      ]),
-      checkForBreaches: this.formBuilder.nonNullable.control(true),
     },
     {
       validators: [
@@ -144,12 +154,6 @@ export class InputPasswordComponent implements OnInit {
           "newPassword",
           "newPasswordConfirm",
           this.i18nService.t("masterPassDoesntMatch"),
-        ),
-        compareInputs(
-          ValidationGoal.InputsShouldNotMatch,
-          "newPassword",
-          "newPasswordHint",
-          this.i18nService.t("hintEqualsPassword"),
         ),
       ],
     },
@@ -186,6 +190,27 @@ export class InputPasswordComponent implements OnInit {
   }
 
   private addFormFieldsIfNecessary() {
+    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+      this.formGroup.addControl(
+        "newPasswordHint",
+        this.formBuilder.nonNullable.control("", [
+          Validators.minLength(this.minHintLength),
+          Validators.maxLength(this.maxHintLength),
+        ]),
+      );
+
+      this.formGroup.addValidators([
+        compareInputs(
+          ValidationGoal.InputsShouldNotMatch,
+          "newPassword",
+          "newPasswordHint",
+          this.i18nService.t("hintEqualsPassword"),
+        ),
+      ]);
+
+      this.formGroup.addControl("checkForBreaches", this.formBuilder.nonNullable.control(true));
+    }
+
     if (
       this.flow === InputPasswordFlow.ChangePassword ||
       this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
@@ -226,8 +251,8 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  protected submit = async () => {
-    this.verifyFlowAndUserId();
+  submit = async () => {
+    this.verifyFlow();
 
     this.formGroup.markAllAsTouched();
 
@@ -236,17 +261,22 @@ export class InputPasswordComponent implements OnInit {
       return;
     }
 
+    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
+    const newPassword = this.formGroup.controls.newPassword.value;
+    const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
+    const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
+
+    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      await this.handleChangePasswordDelegationFlow(newPassword);
+      return;
+    }
+
     if (!this.email) {
       throw new Error("Email is required to create master key.");
     }
 
-    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
-    const newPassword = this.formGroup.controls.newPassword.value;
-    const newPasswordHint = this.formGroup.controls.newPasswordHint.value;
-    const checkForBreaches = this.formGroup.controls.checkForBreaches.value;
-
     // 1. Determine kdfConfig
-    if (this.flow === InputPasswordFlow.AccountRegistration) {
+    if (this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration) {
       this.kdfConfig = DEFAULT_KDF_CONFIG;
     } else {
       if (!this.userId) {
@@ -348,38 +378,66 @@ export class InputPasswordComponent implements OnInit {
   };
 
   /**
-   * This method prevents a dev from passing down the wrong `InputPasswordFlow`
-   * from the parent component or from failing to pass down a `userId` for flows
-   * that require it.
-   *
-   * We cannot mark the `userId` `@Input` as required because in an account registration
-   * flow we will not have an active account `userId` to pass down.
+   * We cannot mark the `userId` or `email` `@Input`s as required because some flows
+   * require them, and some do not. This method enforces that:
+   * - Certain flows MUST have a `userId` and/or `email` passed down
+   * - Certain flows must NOT have a `userId` and/or `email` passed down
    */
-  private verifyFlowAndUserId() {
-    /**
-     * There can be no active account (and thus no userId) in an account registration
-     * flow. If there is a userId, it means the dev passed down the wrong InputPasswordFlow
-     * from the parent component.
-     */
-    if (this.flow === InputPasswordFlow.AccountRegistration) {
+  private verifyFlow() {
+    /** UserId checks */
+
+    // These flows require that an active account userId must NOT be passed down
+    if (
+      this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration ||
+      this.flow === InputPasswordFlow.ChangePasswordDelegation
+    ) {
       if (this.userId) {
-        throw new Error(
-          "There can be no userId in an account registration flow. Please pass down the appropriate InputPasswordFlow from the parent component.",
-        );
+        throw new Error("There should be no active account userId passed down in a this flow.");
       }
     }
 
-    /**
-     * There MUST be an active account (and thus a userId) in all other flows.
-     * If no userId is passed down, it means the dev either:
-     *  (a) passed down the wrong InputPasswordFlow, or
-     *  (b) passed down the correct InputPasswordFlow but failed to pass down a userId
-     */
-    if (this.flow !== InputPasswordFlow.AccountRegistration) {
+    // All other flows require that an active account userId MUST be passed down
+    if (
+      this.flow !== InputPasswordFlow.SetInitialPasswordAccountRegistration &&
+      this.flow !== InputPasswordFlow.ChangePasswordDelegation
+    ) {
       if (!this.userId) {
-        throw new Error("The selected InputPasswordFlow requires that a userId be passed down");
+        throw new Error("This flow requires that an active account userId be passed down.");
       }
     }
+
+    /** Email checks */
+
+    // This flow requires that an email must NOT be passed down
+    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      if (this.email) {
+        throw new Error("There should be no email passed down in this flow.");
+      }
+    }
+
+    // All other flows require that an email MUST be passed down
+    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+      if (!this.email) {
+        throw new Error("This flow requires that an email be passed down.");
+      }
+    }
+  }
+
+  private async handleChangePasswordDelegationFlow(newPassword: string) {
+    const newPasswordVerified = await this.verifyNewPassword(
+      newPassword,
+      this.passwordStrengthScore,
+      false,
+    );
+    if (!newPasswordVerified) {
+      return;
+    }
+
+    const passwordInputResult: PasswordInputResult = {
+      newPassword,
+    };
+
+    this.onPasswordFormSubmit.emit(passwordInputResult);
   }
 
   /**
@@ -390,15 +448,18 @@ export class InputPasswordComponent implements OnInit {
     currentPassword: string,
     kdfConfig: KdfConfig,
   ): Promise<boolean> {
+    if (!this.email) {
+      throw new Error("Email is required to verify current password.");
+    }
+    if (!this.userId) {
+      throw new Error("userId is required to verify current password.");
+    }
+
     const currentMasterKey = await this.keyService.makeMasterKey(
       currentPassword,
       this.email,
       kdfConfig,
     );
-
-    if (!this.userId) {
-      throw new Error("userId not passed down");
-    }
 
     const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       currentMasterKey,
