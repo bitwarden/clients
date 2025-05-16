@@ -32,7 +32,7 @@ export function BadgeButton({
     <button
       type="button"
       title=${buttonText}
-      aria-label=${[buttonText, `${itemName} ${username}`]}
+      aria-label=${[buttonText, [itemName, username].filter(Boolean).join(" ")]}
       class=${badgeButtonStyles({ disabled, theme })}
       @click=${handleButtonClick}
     >
