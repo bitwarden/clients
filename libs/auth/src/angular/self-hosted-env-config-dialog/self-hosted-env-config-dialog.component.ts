@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -83,17 +81,17 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
     const dialogResult = await firstValueFrom(dialogRef.closed);
 
-    return dialogResult;
+    return dialogResult ?? false;
   }
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [null],
-      webVaultUrl: [null],
-      apiUrl: [null],
-      identityUrl: [null],
-      iconsUrl: [null],
-      notificationsUrl: [null],
+      baseUrl: [""],
+      webVaultUrl: [""],
+      apiUrl: [""],
+      identityUrl: [""],
+      iconsUrl: [""],
+      notificationsUrl: [""],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );

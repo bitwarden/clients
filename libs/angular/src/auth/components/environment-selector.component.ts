@@ -111,16 +111,16 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
     /**
      * Opens the self-hosted settings dialog when the self-hosted option is selected.
      */
-    if (
-      option === Region.SelfHosted &&
-      (await SelfHostedEnvConfigDialogComponent.open(this.dialogService))
-    ) {
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("environmentSaved"),
-      });
-
+    if (option === Region.SelfHosted) {
+      const dialogResult = await SelfHostedEnvConfigDialogComponent.open(this.dialogService);
+      if (dialogResult) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("environmentSaved"),
+        });
+      }
+      // Don't proceed to setEnvironment when the self-hosted dialog is cancelled
       return;
     }
 
