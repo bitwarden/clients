@@ -4,14 +4,13 @@ import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input, inject, viewChild } from "@angular/core";
+import { Component, HostBinding, HostListener, Input, inject, viewChild } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -19,11 +18,8 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
-  animations: [fadeIn],
   standalone: true,
-  host: {
-    "(keydown.esc)": "handleEsc($event)",
-  },
+  host: { "(keydown.esc)": "handleEsc($event)" },
   imports: [
     CommonModule,
     DialogTitleContainerDirective,
@@ -75,14 +71,25 @@ export class DialogComponent {
    */
   @Input() loading = false;
 
+  private animationClasses = ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+  private animationCompleted = false;
+
   @HostBinding("class") get classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
     return ["tw-flex", "tw-flex-col", "tw-w-screen"]
       .concat(
         this.width,
         this.dialogRef?.isDrawer
-          ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
-          : ["tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
+          ? ["tw-min-h-screen", "md:tw-w-[23rem]", "tw-animate-slide-down"]
+          : [
+              "md:tw-p-4",
+              "tw-w-screen",
+              "tw-max-h-screen",
+              "md:tw-max-h-[90vh]",
+              ...this.width,
+              // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
+              ...(this.animationCompleted ? [] : this.animationClasses),
+            ],
       )
       .flat();
   }
@@ -104,5 +111,10 @@ export class DialogComponent {
         return "md:tw-max-w-xl";
       }
     }
+  }
+
+  @HostListener("animationend")
+  onAnimationEnd() {
+    this.animationCompleted = true;
   }
 }
