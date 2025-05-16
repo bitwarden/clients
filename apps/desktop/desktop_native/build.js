@@ -45,6 +45,10 @@ function buildProxyBin(target, release = true) {
     }
 }
 
+function installTarget(target) {
+    child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
+}
+
 if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
@@ -54,6 +58,7 @@ if (!crossPlatform && !target) {
 
 if (target) {
     console.log(`Building for target: ${target} in ${mode} mode`);
+    installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
     return;
@@ -70,6 +75,7 @@ if (process.platform === "linux") {
 }
 
 platformTargets.forEach(([target, _]) => {
+    installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
 });

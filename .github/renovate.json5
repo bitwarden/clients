@@ -52,6 +52,12 @@
       addLabels: ["hold"],
     },
     {
+      // Enable support for Rust toolchain updates.
+      matchManagers: ["custom.regex"],
+      matchDepNames: ["rust"],
+      commitMessageTopic: "Rust",
+    },
+    {
       // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
       // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
       matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack"],
