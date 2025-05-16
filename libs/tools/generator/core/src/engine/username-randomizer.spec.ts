@@ -2,6 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
+import { Algorithm, Type } from "../metadata";
+
 import { Randomizer } from "./abstractions";
 import { UsernameRandomizer } from "./username-randomizer";
 
@@ -108,19 +110,19 @@ describe("UsernameRandomizer", () => {
       const username = new UsernameRandomizer(randomizer);
 
       const result = await username.generate(
-        {},
+        { algorithm: Algorithm.username },
         {
           wordIncludeNumber: true,
         },
       );
 
-      expect(result.category).toEqual("username");
+      expect(result.category).toEqual(Type.username);
     });
 
     it("throws when it cannot recognize the options type", async () => {
       const username = new UsernameRandomizer(randomizer);
 
-      const result = username.generate({}, {});
+      const result = username.generate({ algorithm: Algorithm.passphrase }, {});
 
       await expect(result).rejects.toBeInstanceOf(Error);
     });

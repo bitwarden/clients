@@ -5,3 +5,5 @@ export { PassphrasePolicyConstraints } from "./passphrase-policy-constraints";
 export { PasswordGeneratorOptionsEvaluator } from "./password-generator-options-evaluator";
 export { passphraseLeastPrivilege } from "./passphrase-least-privilege";
 export { passwordLeastPrivilege } from "./password-least-privilege";
+export { AvailableAlgorithmsConstraint } from "./available-algorithms-constraint";
+export { availableAlgorithms } from "./available-algorithms-policy";

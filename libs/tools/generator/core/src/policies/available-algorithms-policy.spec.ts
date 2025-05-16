@@ -2,15 +2,15 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyId } from "@bitwarden/common/types/guid";
 
-import { CredentialAlgorithms, PasswordAlgorithms } from "../data";
+import { Algorithm, Algorithms, AlgorithmsByType } from "../metadata";
 
 import { availableAlgorithms } from "./available-algorithms-policy";
 
-describe("availableAlgorithmsPolicy", () => {
+describe("availableAlgorithms_vNextPolicy", () => {
   it("returns all algorithms", () => {
     const result = availableAlgorithms([]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -30,7 +30,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     expect(result).toContain(override);
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== override)) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== override)) {
       expect(result).not.toContain(expected);
     }
   });
@@ -50,7 +50,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     expect(result).toContain(override);
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== override)) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== override)) {
       expect(result).not.toContain(expected);
     }
   });
@@ -79,7 +79,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     expect(result).toContain("password");
 
-    for (const expected of PasswordAlgorithms.filter((a) => a !== "password")) {
+    for (const expected of AlgorithmsByType[Algorithm.password].filter((a) => a !== "password")) {
       expect(result).not.toContain(expected);
     }
   });
@@ -97,7 +97,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -115,7 +115,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });
@@ -133,7 +133,7 @@ describe("availableAlgorithmsPolicy", () => {
 
     const result = availableAlgorithms([policy]);
 
-    for (const expected of CredentialAlgorithms) {
+    for (const expected of Algorithms) {
       expect(result).toContain(expected);
     }
   });

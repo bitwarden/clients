@@ -2,13 +2,18 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
 import { GeneratorStrategy } from "../abstractions";
-import { DefaultEffUsernameOptions, UsernameDigits } from "../data";
+import { DefaultEffUsernameOptions } from "../data";
 import { UsernameRandomizer } from "../engine";
 import { newDefaultEvaluator } from "../rx";
 import { EffUsernameGenerationOptions, NoPolicy } from "../types";
 import { observe$PerUserId, sharedStateByUserId } from "../util";
 
 import { EFF_USERNAME_SETTINGS } from "./storage";
+
+const UsernameDigits = Object.freeze({
+  enabled: 4,
+  disabled: 0,
+});
 
 /** Strategy for creating usernames from the EFF wordlist */
 export class EffUsernameGeneratorStrategy
