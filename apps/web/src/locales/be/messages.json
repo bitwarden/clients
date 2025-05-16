@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Пазначыць праграму як крытычную"
   },
-  "appsMarkedAsCritical": {
-    "message": "Праграмы пазначаныя як крытычныя"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Праграма"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Гэтыя ўдзельнікі ўваходзяць у праграму з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Гэтыя праграмы маюць ненадзейныя, скампраметаваныя або паўторна выкарыстаныя паролі."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Гэтыя ўдзельнікі ўваходзяць у праграму $APPNAME$ з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

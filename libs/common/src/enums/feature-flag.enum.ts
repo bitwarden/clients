@@ -18,6 +18,7 @@ export enum FeatureFlag {
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
 
   /* Auth */
+  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
   /* Autofill */
@@ -117,6 +118,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
   /* Billing */

@@ -53,6 +53,7 @@ export function NotificationContainer({
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
+        i18n,
         message: headerMessage,
         theme,
       })}
