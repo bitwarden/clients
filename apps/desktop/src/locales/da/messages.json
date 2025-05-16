@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Nyt emne"
   },
-  "addNewFolder": {
-    "message": "Ny mappe"
-  },
   "view": {
     "message": "Vis"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“Filadgangskode” og “Bekræft filadgangskode“ matcher ikke."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Indlæs tilgængelighedscookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrér som tilgængelighedsbruger på",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopiér og indsæt linket, der er sendt til din e-mail, nedenfor"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Indtast URL for at indlæse tilgængelighedscookie til hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL er obligatorisk",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ugyldig URL"
-  },
   "done": {
     "message": "Udført"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Tilgængelighedscookie gemt!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ingen tilgængelighedscookie gemt"
   },
   "warning": {
     "message": "ADVARSEL",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrisk oplåsning er p.t. utilgængelig grundet en ukendt årsag."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Godkend"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

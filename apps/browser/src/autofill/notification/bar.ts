@@ -19,6 +19,7 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
   NotificationType,
+  NotificationTypes,
 } from "./abstractions/notification-bar";
 
 const logService = new ConsoleLogService(false);
@@ -59,9 +60,7 @@ function getI18n() {
     collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
-    loginSaveConfirmation: chrome.i18n.getMessage("loginSaveConfirmation"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateConfirmation: chrome.i18n.getMessage("loginUpdatedConfirmation"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
@@ -74,6 +73,10 @@ function getI18n() {
     notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
     notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
+    notificationLoginSaveConfirmation: chrome.i18n.getMessage("notificationLoginSaveConfirmation"),
+    notificationLoginUpdatedConfirmation: chrome.i18n.getMessage(
+      "notificationLoginUpdatedConfirmation",
+    ),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
     notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
@@ -83,6 +86,7 @@ function getI18n() {
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
     saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
+    unlockToSave: chrome.i18n.getMessage("unlockToSave"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
     updateLogin: chrome.i18n.getMessage("updateLogin"),
     vault: chrome.i18n.getMessage("vault"),
@@ -147,6 +151,27 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
+
+    if (isVaultLocked) {
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          type: NotificationTypes.Unlock,
+          theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
+          handleCloseNotification,
+          handleSaveAction: (e) => {
+            sendSaveCipherMessage(true);
+
+            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
+          },
+          handleEditOrUpdateAction,
+          i18n,
+        }),
+        document.body,
+      );
+    }
+
     const orgId = selectedVaultSignal.get();
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>

@@ -107,9 +107,9 @@ export const mockI18n = {
   collection: "Collection",
   folder: "Folder",
   loginSaveSuccess: "Login saved",
-  loginSaveConfirmation: "$ITEMNAME$ saved to Bitwarden.",
+  notificationLoginSaveConfirmation: "saved to Bitwarden.",
   loginUpdateSuccess: "Login updated",
-  loginUpdatedConfirmation: "$ITEMNAME$ updated in Bitwarden.",
+  notificationLoginUpdatedConfirmation: "updated in Bitwarden.",
   loginUpdateTaskSuccess:
     "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
   loginUpdateTaskSuccessAdditional:
@@ -132,7 +132,9 @@ export const mockI18n = {
   saveFailure: "Error saving",
   saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
   saveLogin: "Save login",
+  selectItemAriaLabel: "Select $ITEMTYPE$, $ITEMNAME$",
   typeLogin: "Login",
+  unlockToSave: "Unlock to save this login",
   updateLoginAction: "Update login",
   updateLogin: "Update existing login",
   vault: "Vault",

@@ -18,6 +18,7 @@ import { CipherReportComponent } from "./cipher-report.component";
 @Component({
   selector: "app-unsecured-websites-report",
   templateUrl: "unsecured-websites-report.component.html",
+  standalone: false,
 })
 export class UnsecuredWebsitesReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;

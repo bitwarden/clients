@@ -37,6 +37,7 @@ import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
+  standalone: false,
 })
 export class OrganizationPaymentMethodComponent implements OnDestroy {
   organizationId: string;

@@ -354,11 +354,15 @@ export class RiskInsightsReportService {
         : newUriDetail.cipherMembers,
       atRiskMemberDetails: existingUriDetail ? existingUriDetail.atRiskMemberDetails : [],
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
+      atRiskCipherIds: existingUriDetail ? existingUriDetail.atRiskCipherIds : [],
       atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
+      cipher: newUriDetail.cipher,
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
       reportDetail.atRiskPasswordCount = reportDetail.atRiskPasswordCount + 1;
+      reportDetail.atRiskCipherIds.push(newUriDetail.cipherId);
+
       reportDetail.atRiskMemberDetails = this.getUniqueMembers(
         reportDetail.atRiskMemberDetails.concat(newUriDetail.cipherMembers),
       );
@@ -399,6 +403,7 @@ export class RiskInsightsReportService {
       exposedPasswordDetail: detail.exposedPasswordDetail,
       cipherMembers: detail.cipherMembers,
       trimmedUri: uri,
+      cipher: detail as CipherView,
     };
   }
 
@@ -428,7 +433,7 @@ export class RiskInsightsReportService {
     const cipherUris: string[] = [];
     const uris = cipher.login?.uris ?? [];
     uris.map((u: { uri: string }) => {
-      const uri = Utils.getHostname(u.uri).replace("www.", "");
+      const uri = Utils.getDomain(u.uri);
       if (!cipherUris.includes(uri)) {
         cipherUris.push(uri);
       }

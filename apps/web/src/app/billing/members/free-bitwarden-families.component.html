@@ -67,7 +67,9 @@
                         {{ "resendInvitation" | i18n }}
                       </button>
 
-                      <hr class="m-0" />
+                      <ng-container *ngIf="!isSelfHosted && !sponsoredFamily.validUntil">
+                        <hr class="tw-m-0" />
+                      </ng-container>
 
                       <button
                         type="button"

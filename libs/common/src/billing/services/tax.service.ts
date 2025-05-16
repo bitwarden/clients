@@ -1,3 +1,6 @@
+import { PreviewTaxAmountForOrganizationTrialRequest } from "@bitwarden/common/billing/models/request/tax";
+import { PreviewTaxAmountResponse } from "@bitwarden/common/billing/models/response/tax";
+
 import { ApiService } from "../../abstractions/api.service";
 import { TaxServiceAbstraction } from "../abstractions/tax.service.abstraction";
 import { CountryListItem } from "../models/domain";
@@ -299,5 +302,17 @@ export class TaxService implements TaxServiceAbstraction {
       true,
     );
     return new PreviewInvoiceResponse(response);
+  }
+
+  async previewTaxAmountForOrganizationTrial(
+    request: PreviewTaxAmountForOrganizationTrialRequest,
+  ): Promise<PreviewTaxAmountResponse> {
+    return await this.apiService.send(
+      "POST",
+      "/tax/preview-amount/organization-trial",
+      request,
+      true,
+      true,
+    );
   }
 }

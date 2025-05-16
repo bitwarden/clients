@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
 
-import { VaultNudgesService, VaultNudgeType } from "../../../services/vault-nudges.service";
+import { NudgesService, NudgeType } from "../../../services/nudges.service";
 
 import { NewItemNudgeComponent } from "./new-item-nudge.component";
 
@@ -18,19 +18,19 @@ describe("NewItemNudgeComponent", () => {
 
   let i18nService: MockProxy<I18nService>;
   let accountService: MockProxy<AccountService>;
-  let vaultNudgesService: MockProxy<VaultNudgesService>;
+  let nudgesService: MockProxy<NudgesService>;
 
   beforeEach(async () => {
     i18nService = mock<I18nService>({ t: (key: string) => key });
     accountService = mock<AccountService>();
-    vaultNudgesService = mock<VaultNudgesService>();
+    nudgesService = mock<NudgesService>();
 
     await TestBed.configureTestingModule({
       imports: [NewItemNudgeComponent, CommonModule],
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: accountService },
-        { provide: VaultNudgesService, useValue: vaultNudgesService },
+        { provide: NudgesService, useValue: nudgesService },
       ],
     }).compileComponents();
   });
@@ -58,7 +58,7 @@ describe("NewItemNudgeComponent", () => {
     expect(component.nudgeBody).toBe(
       "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
     );
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newLoginItemStatus);
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewLoginItemStatus);
   });
 
   it("should set nudge title and body for CipherType.Card type", async () => {
@@ -71,7 +71,7 @@ describe("NewItemNudgeComponent", () => {
     expect(component.showNewItemSpotlight).toBe(true);
     expect(component.nudgeTitle).toBe("newCardNudgeTitle");
     expect(component.nudgeBody).toBe("newCardNudgeBody");
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newCardItemStatus);
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewCardItemStatus);
   });
 
   it("should not show anything if spotlight has been dismissed", async () => {
@@ -82,22 +82,19 @@ describe("NewItemNudgeComponent", () => {
     await component.ngOnInit();
 
     expect(component.showNewItemSpotlight).toBe(false);
-    expect(component.dismissalNudgeType).toBe(VaultNudgeType.newIdentityItemStatus);
+    expect(component.dismissalNudgeType).toBe(NudgeType.NewIdentityItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {
     component.showNewItemSpotlight = true;
-    component.dismissalNudgeType = VaultNudgeType.newLoginItemStatus;
+    component.dismissalNudgeType = NudgeType.NewLoginItemStatus;
     component.activeUserId = "test-user-id" as UserId;
 
-    const dismissSpy = jest.spyOn(vaultNudgesService, "dismissNudge").mockResolvedValue();
+    const dismissSpy = jest.spyOn(nudgesService, "dismissNudge").mockResolvedValue();
 
     await component.dismissNewItemSpotlight();
 
     expect(component.showNewItemSpotlight).toBe(false);
-    expect(dismissSpy).toHaveBeenCalledWith(
-      VaultNudgeType.newLoginItemStatus,
-      component.activeUserId,
-    );
+    expect(dismissSpy).toHaveBeenCalledWith(NudgeType.NewLoginItemStatus, component.activeUserId);
   });
 });

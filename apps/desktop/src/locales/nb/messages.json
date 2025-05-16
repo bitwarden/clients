@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Legg til et nytt objekt"
   },
-  "addNewFolder": {
-    "message": "Legg til en ny mappe"
-  },
   "view": {
     "message": "Vis"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "«Filpassord» og «Bekreft filpassord» stemmer ikke overens."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Last inn tilgjengelighetsinformasjonskapsel"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrer deg som tilgjengelighetsbruker på",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopier og lim inn linken som er sendt til e-posten din nedenfor"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Skriv inn URL-adressen for å laste tilgjengelighets-informasjonskapsler for hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha Url er påkrevd",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ugyldig url"
-  },
   "done": {
     "message": "Ferdig"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Tilgjengelighets-informasjonskapsel lagret!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ingen tilgjengelighets-informasjonskapsel lagret"
   },
   "warning": {
     "message": "ADVARSEL",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Autoriser"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Flytt"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Spar tid med auto-utfylling"
