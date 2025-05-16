@@ -428,12 +428,6 @@ jobs:
       - name: Set up environmentF
         run: choco install checksum --no-progress
 
-      - name: Rust
-        shell: pwsh
-        run: |
-          rustup target install i686-pc-windows-msvc
-          rustup target install aarch64-pc-windows-msvc
-
       - name: Print environment
         run: |
           node --version
@@ -681,10 +675,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -889,10 +879,6 @@ jobs:
 
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
-
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
 
       - name: Print environment
         run: |
@@ -1136,10 +1122,6 @@ jobs:
 
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
-
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
 
       - name: Print environment
         run: |
