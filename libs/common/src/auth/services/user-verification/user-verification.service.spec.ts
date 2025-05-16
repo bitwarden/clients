@@ -2,12 +2,6 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import {
-  PinLockType,
-  PinServiceAbstraction,
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
-import {
   BiometricsService,
   BiometricsStatus,
   KdfConfig,
@@ -23,8 +17,11 @@ import { HashPurpose } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
+import { PinLockType, PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
 import { VerificationType } from "../../enums/verification-type";
+import { UserDecryptionOptions } from "../../models/domain/user-decryption-options";
 import { MasterPasswordPolicyResponse } from "../../models/response/master-password-policy.response";
 import { MasterPasswordVerification } from "../../types/verification";
 

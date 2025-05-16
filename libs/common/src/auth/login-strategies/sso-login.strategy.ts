@@ -15,10 +15,10 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { AuthRequestServiceAbstraction } from "../abstractions";
+import { AuthRequestServiceAbstraction } from "../abstractions/auth-request.service.abstraction";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
 
+import { CacheData } from "./cache-data";
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {

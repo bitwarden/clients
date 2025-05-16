@@ -1,4 +1,17 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { PasswordLoginStrategyData } from "@bitwarden/common/auth/login-strategies";
+import { AuthRequestLoginStrategyData } from "@bitwarden/common/auth/login-strategies/auth-request-login.strategy";
+import { SsoLoginStrategyData } from "@bitwarden/common/auth/login-strategies/sso-login.strategy";
+import { UserApiLoginStrategyData } from "@bitwarden/common/auth/login-strategies/user-api-login.strategy";
+import { WebAuthnLoginStrategyData } from "@bitwarden/common/auth/login-strategies/webauthn-login.strategy";
+import {
+  MockAuthenticatorAssertionResponse,
+  MockPublicKeyCredential,
+} from "@bitwarden/common/auth/login-strategies/webauthn-login.strategy.spec";
+import {
+  AuthRequestLoginCredentials,
+  WebAuthnLoginCredentials,
+} from "@bitwarden/common/auth/models/domain/login-credentials";
 import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
@@ -9,17 +22,6 @@ import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/se
 import { DeviceType } from "@bitwarden/common/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MasterKey, PrfKey, UserKey } from "@bitwarden/common/types/key";
-
-import { AuthRequestLoginStrategyData } from "../../login-strategies/auth-request-login.strategy";
-import { PasswordLoginStrategyData } from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
-import { UserApiLoginStrategyData } from "../../login-strategies/user-api-login.strategy";
-import { WebAuthnLoginStrategyData } from "../../login-strategies/webauthn-login.strategy";
-import {
-  MockAuthenticatorAssertionResponse,
-  MockPublicKeyCredential,
-} from "../../login-strategies/webauthn-login.strategy.spec";
-import { AuthRequestLoginCredentials, WebAuthnLoginCredentials } from "../../models";
 
 import { CACHE_KEY } from "./login-strategy.state";
 

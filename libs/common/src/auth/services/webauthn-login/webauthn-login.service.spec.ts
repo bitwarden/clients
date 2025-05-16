@@ -1,14 +1,14 @@
 import { mock } from "jest-mock-extended";
 
-import { LoginStrategyServiceAbstraction, WebAuthnLoginCredentials } from "@bitwarden/auth/common";
-
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { PrfKey } from "../../../types/key";
+import { LoginStrategyServiceAbstraction } from "../../abstractions/login-strategy.service";
 import { WebAuthnLoginApiServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "../../abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { AuthResult } from "../../models/domain/auth-result";
+import { WebAuthnLoginCredentials } from "../../models/domain/login-credentials";
 import { WebAuthnLoginCredentialAssertionOptionsView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
 import { WebAuthnLoginCredentialAssertionView } from "../../models/view/webauthn-login/webauthn-login-credential-assertion.view";
 

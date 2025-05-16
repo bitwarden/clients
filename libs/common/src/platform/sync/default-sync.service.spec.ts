@@ -2,11 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  LogoutReason,
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 
 import { Matrix } from "../../../spec/matrix";
@@ -18,7 +13,10 @@ import { Account, AccountService } from "../../auth/abstractions/account.service
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
+import { UserDecryptionOptionsServiceAbstraction } from "../../auth/abstractions/user-decryption-options.service.abstraction";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { UserDecryptionOptions } from "../../auth/models/domain/user-decryption-options";
+import { LogoutReason } from "../../auth/types/logout-reason.type";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";

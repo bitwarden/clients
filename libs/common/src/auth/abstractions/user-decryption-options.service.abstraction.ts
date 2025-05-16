@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { UserDecryptionOptions } from "../models";
+import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
 export abstract class UserDecryptionOptionsServiceAbstraction {
   /**

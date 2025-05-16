@@ -9,9 +9,6 @@ import {
 import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
 import { firstValueFrom } from "rxjs";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { AuthRequestServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { NotificationType } from "../../enums";
 import {
   AuthRequestPushNotification,
@@ -19,6 +16,7 @@ import {
 } from "../../models/response/notification.response";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { AnonymousHubService as AnonymousHubServiceAbstraction } from "../abstractions/anonymous-hub.service";
+import { AuthRequestServiceAbstraction } from "../abstractions/auth-request.service.abstraction";
 
 export class AnonymousHubService implements AnonymousHubServiceAbstraction {
   private anonHubConnection: HubConnection;

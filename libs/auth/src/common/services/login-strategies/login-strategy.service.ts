@@ -12,10 +12,41 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/common/auth/abstractions/login-strategy.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-decryption-options.service.abstraction";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import {
+  PasswordLoginStrategy,
+  PasswordLoginStrategyData,
+} from "@bitwarden/common/auth/login-strategies";
+import {
+  AuthRequestLoginStrategy,
+  AuthRequestLoginStrategyData,
+} from "@bitwarden/common/auth/login-strategies/auth-request-login.strategy";
+import { CacheData } from "@bitwarden/common/auth/login-strategies/cache-data";
+import { LoginStrategy } from "@bitwarden/common/auth/login-strategies/login.strategy";
+import {
+  SsoLoginStrategy,
+  SsoLoginStrategyData,
+} from "@bitwarden/common/auth/login-strategies/sso-login.strategy";
+import {
+  UserApiLoginStrategy,
+  UserApiLoginStrategyData,
+} from "@bitwarden/common/auth/login-strategies/user-api-login.strategy";
+import {
+  WebAuthnLoginStrategy,
+  WebAuthnLoginStrategyData,
+} from "@bitwarden/common/auth/login-strategies/webauthn-login.strategy";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import {
+  AuthRequestLoginCredentials,
+  PasswordLoginCredentials,
+  SsoLoginCredentials,
+  UserApiLoginCredentials,
+  WebAuthnLoginCredentials,
+} from "@bitwarden/common/auth/models/domain/login-credentials";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -45,38 +76,11 @@ import {
   KdfConfigService,
 } from "@bitwarden/key-management";
 
-import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
-import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
-import {
-  AuthRequestLoginStrategy,
-  AuthRequestLoginStrategyData,
-} from "../../login-strategies/auth-request-login.strategy";
-import { LoginStrategy } from "../../login-strategies/login.strategy";
-import {
-  PasswordLoginStrategy,
-  PasswordLoginStrategyData,
-} from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategy, SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
-import {
-  UserApiLoginStrategy,
-  UserApiLoginStrategyData,
-} from "../../login-strategies/user-api-login.strategy";
-import {
-  WebAuthnLoginStrategy,
-  WebAuthnLoginStrategyData,
-} from "../../login-strategies/webauthn-login.strategy";
-import {
-  UserApiLoginCredentials,
-  PasswordLoginCredentials,
-  SsoLoginCredentials,
-  AuthRequestLoginCredentials,
-  WebAuthnLoginCredentials,
-} from "../../models";
+import { AuthRequestServiceAbstraction } from "../../abstractions";
 
 import {
   AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
   CURRENT_LOGIN_STRATEGY_KEY,
-  CacheData,
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";

@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
-import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
-import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { AuthRequestPushNotification } from "../../models/response/notification.response";
+import { UserId } from "../../types/guid";
+import { MasterKey, UserKey } from "../../types/key";
+import { AdminAuthRequestStorable } from "../models/domain/admin-auth-req-storable";
+import { AuthRequestResponse } from "../models/response/auth-request.response";
 
 export abstract class AuthRequestServiceAbstraction {
   /** Emits an auth request id when an auth request has been approved. */

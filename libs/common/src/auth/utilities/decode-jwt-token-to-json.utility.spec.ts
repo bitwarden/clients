@@ -1,5 +1,5 @@
-import { DecodedAccessToken } from "@bitwarden/common/auth/services/token.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { Utils } from "../../platform/misc/utils";
+import { DecodedAccessToken } from "../services/token.service";
 
 import { decodeJwtTokenToJson } from "./decode-jwt-token-to-json.utility";
 

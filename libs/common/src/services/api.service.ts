@@ -8,7 +8,6 @@ import {
   CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -85,6 +84,7 @@ import {
   TwoFactorWebAuthnResponse,
 } from "../auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../auth/models/response/two-factor-yubi-key.response";
+import { LogoutReason } from "../auth/types/logout-reason.type";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { PaymentRequest } from "../billing/models/request/payment.request";
 import { TaxInfoUpdateRequest } from "../billing/models/request/tax-info-update.request";

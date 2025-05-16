@@ -18,10 +18,10 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
+import { LoginStrategyServiceAbstraction } from "../abstractions/login-strategy.service";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
 
+import { CacheData } from "./cache-data";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class PasswordLoginStrategyData implements LoginStrategyData {

@@ -3,16 +3,15 @@
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
-import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { DeviceTrustServiceAbstraction } from "../../key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { UserId } from "../../types/guid";
+import { AuthResult } from "../models/domain/auth-result";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
+import { PasswordTokenRequest } from "../models/request/identity-token/password-token.request";
+import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
+import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
+import { CacheData } from "./cache-data";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class AuthRequestLoginStrategyData implements LoginStrategyData {

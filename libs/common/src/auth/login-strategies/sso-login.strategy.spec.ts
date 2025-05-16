@@ -33,12 +33,10 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-import {
-  AuthRequestServiceAbstraction,
-  InternalUserDecryptionOptionsServiceAbstraction,
-} from "../abstractions";
-import { UserDecryptionOptions } from "../models";
+import { AuthRequestServiceAbstraction } from "../abstractions/auth-request.service.abstraction";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
+import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
 
 import { identityTokenResponseFactory } from "./login.strategy.spec";
 import { SsoLoginStrategy, SsoLoginStrategyData } from "./sso-login.strategy";

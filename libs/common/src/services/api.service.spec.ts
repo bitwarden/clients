@@ -1,9 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
-
 import { TokenService } from "../auth/abstractions/token.service";
+import { LogoutReason } from "../auth/types/logout-reason.type";
 import { DeviceType } from "../enums";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { ErrorResponse } from "../models/response/error.response";

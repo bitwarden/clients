@@ -11,8 +11,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
 
+import { CacheData } from "./cache-data";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {

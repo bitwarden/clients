@@ -18,6 +18,15 @@
       "@bitwarden/ui-common": ["../ui/common/src"]
     }
   },
-  "include": ["src", "spec"],
+  "include": [
+    "src",
+    "spec",
+    "../common/src/auth/types/logout-reason.type.ts",
+    "../common/src/auth/abstractions/login-strategy.service.ts",
+    "../common/src/auth/login-strategies",
+    "../common/src/auth/models/domain/login-credentials.ts",
+    "../common/src/auth/abstractions/auth-request.service.abstraction.ts",
+    "../common/src/auth/abstractions/login-success-handler.service.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

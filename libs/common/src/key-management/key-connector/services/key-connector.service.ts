@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -18,6 +17,7 @@ import { Organization } from "../../../admin-console/models/domain/organization"
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
+import { LogoutReason } from "../../../auth/types/logout-reason.type";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";

@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { PasswordLoginStrategyData } from "@bitwarden/common/auth/login-strategies";
+import { AuthRequestLoginStrategyData } from "@bitwarden/common/auth/login-strategies/auth-request-login.strategy";
+import { CacheData } from "@bitwarden/common/auth/login-strategies/cache-data";
+import { SsoLoginStrategyData } from "@bitwarden/common/auth/login-strategies/sso-login.strategy";
+import { UserApiLoginStrategyData } from "@bitwarden/common/auth/login-strategies/user-api-login.strategy";
+import { WebAuthnLoginStrategyData } from "@bitwarden/common/auth/login-strategies/webauthn-login.strategy";
 import { KeyDefinition, LOGIN_STRATEGY_MEMORY } from "@bitwarden/common/platform/state";
-
-import { AuthRequestLoginStrategyData } from "../../login-strategies/auth-request-login.strategy";
-import { PasswordLoginStrategyData } from "../../login-strategies/password-login.strategy";
-import { SsoLoginStrategyData } from "../../login-strategies/sso-login.strategy";
-import { UserApiLoginStrategyData } from "../../login-strategies/user-api-login.strategy";
-import { WebAuthnLoginStrategyData } from "../../login-strategies/webauthn-login.strategy";
 
 /**
  * The current login strategy in use.
@@ -45,14 +45,6 @@ export const AUTH_REQUEST_PUSH_NOTIFICATION_KEY = new KeyDefinition<string | nul
     deserializer: (data) => data,
   },
 );
-
-export type CacheData = {
-  password?: PasswordLoginStrategyData;
-  sso?: SsoLoginStrategyData;
-  userApiKey?: UserApiLoginStrategyData;
-  authRequest?: AuthRequestLoginStrategyData;
-  webAuthn?: WebAuthnLoginStrategyData;
-};
 
 /**
  * A cache for login strategies to use for data persistence through

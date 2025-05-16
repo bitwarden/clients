@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Observable, Subject } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/common/auth/types/logout-reason.type";
 import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";

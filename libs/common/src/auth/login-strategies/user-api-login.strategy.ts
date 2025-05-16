@@ -10,8 +10,8 @@ import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeo
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
 
+import { CacheData } from "./cache-data";
 import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {

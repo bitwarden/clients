@@ -9,7 +9,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
-import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -19,6 +18,7 @@ import { OrganizationAutoEnrollStatusResponse } from "@bitwarden/common/admin-co
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-decryption-options.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";

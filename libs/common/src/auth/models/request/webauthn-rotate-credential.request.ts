@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 
 // FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { RotateableKeySet } from "../../../../../auth/src/common/models";
+
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { RotateableKeySet } from "../domain/rotatable-key-set";
 
 export class WebauthnRotateCredentialRequest {
   id: string;

@@ -2,18 +2,17 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
-import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { MasterKey } from "@bitwarden/common/types/key";
-
+import { MasterKey } from "../../types/key";
+import { AuthenticationType } from "../enums/authentication-type";
+import { AuthResult } from "../models/domain/auth-result";
 import {
-  UserApiLoginCredentials,
+  AuthRequestLoginCredentials,
   PasswordLoginCredentials,
   SsoLoginCredentials,
-  AuthRequestLoginCredentials,
+  UserApiLoginCredentials,
   WebAuthnLoginCredentials,
 } from "../models/domain/login-credentials";
+import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
 
 export abstract class LoginStrategyServiceAbstraction {
   /**

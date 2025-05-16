@@ -1,9 +1,16 @@
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserId } from "@bitwarden/common/types/guid";
-import { PinKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
-import { PinLockType } from "../services";
+import { EncString } from "../../platform/models/domain/enc-string";
+import { UserId } from "../../types/guid";
+import { PinKey, UserKey } from "../../types/key";
+
+/**
+ * - DISABLED   : No PIN set.
+ * - PERSISTENT : PIN is set and persists through client reset.
+ * - EPHEMERAL  : PIN is set, but does NOT persist through client reset. This means that
+ *                after client reset the master password is required to unlock.
+ */
+export type PinLockType = "DISABLED" | "PERSISTENT" | "EPHEMERAL";
 
 /**
  * The PinService is used for PIN-based unlocks. Below is a very basic overview of the PIN flow:

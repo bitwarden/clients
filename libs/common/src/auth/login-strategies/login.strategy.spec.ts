@@ -1,52 +1,52 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
-import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
-import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ApiService } from "../../abstractions/api.service";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "../../key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+} from "../../key-management/vault-timeout";
+import { AppIdService } from "../../platform/abstractions/app-id.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { StateService } from "../../platform/abstractions/state.service";
+import { Utils } from "../../platform/misc/utils";
+import { Account, AccountProfile } from "../../platform/models/domain/account";
+import { EncString } from "../../platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
-  PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
-} from "@bitwarden/common/tools/password-strength";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-
-import { LoginStrategyServiceAbstraction } from "../abstractions";
+  PasswordStrengthServiceAbstraction,
+} from "../../tools/password-strength";
+import { CsprngArray } from "../../types/csprng";
+import { UserId } from "../../types/guid";
+import { MasterKey, UserKey } from "../../types/key";
+import { AccountService } from "../abstractions/account.service";
+import { LoginStrategyServiceAbstraction } from "../abstractions/login-strategy.service";
+import { TwoFactorService } from "../abstractions/two-factor.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
-import { PasswordLoginCredentials } from "../models";
+import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
+import { AuthResult } from "../models/domain/auth-result";
+import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";
+import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
+import { PasswordTokenRequest } from "../models/request/identity-token/password-token.request";
+import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
+import { IdentityDeviceVerificationResponse } from "../models/response/identity-device-verification.response";
+import { IdentityTokenResponse } from "../models/response/identity-token.response";
+import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
+import { MasterPasswordPolicyResponse } from "../models/response/master-password-policy.response";
+import { IUserDecryptionOptionsServerResponse } from "../models/response/user-decryption-options/user-decryption-options.response";
+import { TokenService } from "../services/token.service";
 
 import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-login.strategy";
 

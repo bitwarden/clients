@@ -3,17 +3,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, map, of } from "rxjs";
 
-import {
-  PinServiceAbstraction,
-  FakeUserDecryptionOptions as UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "../../../admin-console/models/domain/policy";
+import { PinServiceAbstraction } from "../../../auth/abstractions/pin.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "../../../auth/abstractions/user-decryption-options.service.abstraction";
 import { TokenService } from "../../../auth/services/token.service";
+import { FakeUserDecryptionOptions as UserDecryptionOptions } from "../../../auth/spec/fake-user-decryption-options";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";

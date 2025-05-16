@@ -1,4 +1,4 @@
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { Utils } from "../../platform/misc/utils";
 
 export function decodeJwtTokenToJson(jwtToken: string): any {
   if (jwtToken == null) {

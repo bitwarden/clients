@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
+import { PinServiceAbstraction } from "../../auth/abstractions/pin.service.abstraction";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import {
   VaultTimeoutAction,

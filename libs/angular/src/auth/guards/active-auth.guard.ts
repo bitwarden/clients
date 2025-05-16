@@ -2,7 +2,7 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/common/auth/abstractions/login-strategy.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 /**

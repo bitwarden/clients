@@ -10,13 +10,13 @@ import {
   switchMap,
 } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { PinServiceAbstraction } from "@bitwarden/common/auth/abstractions/pin.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -256,8 +256,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
     if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
+      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
     }
   }
 

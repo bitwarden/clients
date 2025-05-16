@@ -11,11 +11,10 @@ import {
   switchMap,
 } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
-
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogoutReason } from "../../../auth/types/logout-reason.type";
 import { NotificationType } from "../../../enums";
 import {
   NotificationResponse,

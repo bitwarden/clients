@@ -1,6 +1,6 @@
 import { merge, Observable, tap } from "rxjs";
 
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request.service.abstraction";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";

@@ -14,10 +14,6 @@ import {
   tap,
 } from "rxjs";
 
-import {
-  PinServiceAbstraction,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,7 +21,9 @@ import { PolicyType } from "../../../admin-console/enums";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { getFirstPolicy } from "../../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { PinServiceAbstraction } from "../../../auth/abstractions/pin.service.abstraction";
 import { TokenService } from "../../../auth/abstractions/token.service";
+import { UserDecryptionOptionsServiceAbstraction } from "../../../auth/abstractions/user-decryption-options.service.abstraction";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
