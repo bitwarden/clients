@@ -6,6 +6,7 @@ import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-s
 @Component({
   selector: "navigation-product-switcher",
   templateUrl: "./navigation-switcher.component.html",
+  standalone: false,
 })
 export class NavigationProductSwitcherComponent {
   constructor(private productSwitcherService: ProductSwitcherService) {}

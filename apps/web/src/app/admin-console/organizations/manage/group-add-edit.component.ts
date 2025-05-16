@@ -110,6 +110,7 @@ export const openGroupAddEditDialog = (
 @Component({
   selector: "app-group-add-edit",
   templateUrl: "group-add-edit.component.html",
+  standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
   private organization$ = this.accountService.activeAccount$.pipe(

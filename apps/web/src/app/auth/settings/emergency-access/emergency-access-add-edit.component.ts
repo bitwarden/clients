@@ -36,6 +36,7 @@ export enum EmergencyAccessAddEditDialogResult {
 @Component({
   selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
+  standalone: false,
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
   loading = true;

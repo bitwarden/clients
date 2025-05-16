@@ -1,6 +1,6 @@
 import { dialog, shell } from "electron";
 import log from "electron-log";
-import { autoUpdater } from "electron-updater";
+import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -15,12 +15,16 @@ export class UpdaterMain {
   private doingUpdateCheck = false;
   private doingUpdateCheckWithFeedback = false;
   private canUpdate = false;
+  private updateDownloaded: UpdateDownloadedEvent = null;
+  private originalRolloutFunction: VerifyUpdateSupport = null;
 
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
   ) {
     autoUpdater.logger = log;
+
+    this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
 
     const linuxCanUpdate = process.platform === "linux" && isAppImage();
     const windowsCanUpdate =
@@ -57,20 +61,16 @@ export class UpdaterMain {
         });
 
         if (result.response === 0) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          autoUpdater.downloadUpdate();
+          await autoUpdater.downloadUpdate();
         } else {
           this.reset();
         }
       }
     });
 
-    autoUpdater.on("update-not-available", () => {
+    autoUpdater.on("update-not-available", async () => {
       if (this.doingUpdateCheckWithFeedback && this.windowMain.win != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        dialog.showMessageBox(this.windowMain.win, {
+        await dialog.showMessageBox(this.windowMain.win, {
           message: this.i18nService.t("noUpdatesAvailable"),
           buttons: [this.i18nService.t("ok")],
           defaultId: 0,
@@ -86,22 +86,8 @@ export class UpdaterMain {
         return;
       }
 
-      const result = await dialog.showMessageBox(this.windowMain.win, {
-        type: "info",
-        title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
-        message: this.i18nService.t("restartToUpdate"),
-        detail: this.i18nService.t("restartToUpdateDesc", info.version),
-        buttons: [this.i18nService.t("restart"), this.i18nService.t("later")],
-        cancelId: 1,
-        defaultId: 0,
-        noLink: true,
-      });
-
-      if (result.response === 0) {
-        // Quit and install have a different window logic, setting `isQuitting` just to be safe.
-        this.windowMain.isQuitting = true;
-        autoUpdater.quitAndInstall(true, true);
-      }
+      this.updateDownloaded = info;
+      await this.promptRestartUpdate(info);
     });
 
     autoUpdater.on("error", (error) => {
@@ -117,15 +103,22 @@ export class UpdaterMain {
   }
 
   async checkForUpdate(withFeedback = false) {
-    if (this.doingUpdateCheck || isDev()) {
+    if (isDev()) {
+      return;
+    }
+
+    if (this.updateDownloaded && withFeedback) {
+      await this.promptRestartUpdate(this.updateDownloaded);
+      return;
+    }
+
+    if (this.doingUpdateCheck) {
       return;
     }
 
     if (!this.canUpdate) {
       if (withFeedback) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        shell.openExternal("https://github.com/bitwarden/clients/releases");
+        void shell.openExternal("https://github.com/bitwarden/clients/releases");
       }
 
       return;
@@ -134,6 +127,10 @@ export class UpdaterMain {
     this.doingUpdateCheckWithFeedback = withFeedback;
     if (withFeedback) {
       autoUpdater.autoDownload = false;
+
+      // If the user has explicitly checked for updates, we want to bypass
+      // the current staging rollout percentage
+      autoUpdater.isUserWithinRollout = (info) => true;
     }
 
     await autoUpdater.checkForUpdates();
@@ -141,7 +138,29 @@ export class UpdaterMain {
 
   private reset() {
     autoUpdater.autoDownload = true;
+    // Reset the rollout check to the default behavior
+    autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
     this.doingUpdateCheck = false;
+    this.updateDownloaded = null;
+  }
+
+  private async promptRestartUpdate(info: UpdateDownloadedEvent) {
+    const result = await dialog.showMessageBox(this.windowMain.win, {
+      type: "info",
+      title: this.i18nService.t("bitwarden") + " - " + this.i18nService.t("restartToUpdate"),
+      message: this.i18nService.t("restartToUpdate"),
+      detail: this.i18nService.t("restartToUpdateDesc", info.version),
+      buttons: [this.i18nService.t("restart"), this.i18nService.t("later")],
+      cancelId: 1,
+      defaultId: 0,
+      noLink: true,
+    });
+
+    if (result.response === 0) {
+      // Quit and install have a different window logic, setting `isQuitting` just to be safe.
+      this.windowMain.isQuitting = true;
+      autoUpdater.quitAndInstall(true, true);
+    }
   }
 
   private userDisabledUpdates(): boolean {

@@ -35,6 +35,7 @@ export enum AddEditMemberDialogResultType {
 
 @Component({
   templateUrl: "add-edit-member-dialog.component.html",
+  standalone: false,
 })
 export class AddEditMemberDialogComponent {
   editing = false;

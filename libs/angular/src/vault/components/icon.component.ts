@@ -19,6 +19,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
   selector: "app-vault-icon",
   templateUrl: "icon.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class IconComponent {
   /**
