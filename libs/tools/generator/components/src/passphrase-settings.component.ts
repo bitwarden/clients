@@ -118,6 +118,9 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
         this.wordSeparatorMaxLength = constraints.wordSeparator.maxLength;
         this.policyInEffect = constraints.policyInEffect;
 
+        this.numWordsMin = constraints.numWords.min;
+        this.numWordsMax = constraints.numWords.max;
+
         this.toggleEnabled(Controls.capitalize, !constraints.capitalize?.readonly);
         this.toggleEnabled(Controls.includeNumber, !constraints.includeNumber?.readonly);
       });
@@ -131,6 +134,12 @@ export class PassphraseSettingsComponent implements OnInit, OnChanges, OnDestroy
       )
       .subscribe(settings);
   }
+
+  /** attribute binding for numWords[min] */
+  protected numWordsMin: number;
+
+  /** attribute binding for numWords[max] */
+  protected numWordsMax: number;
 
   /** attribute binding for wordSeparator[maxlength] */
   protected wordSeparatorMaxLength: number;
