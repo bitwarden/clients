@@ -7,7 +7,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import {
   CardComponent,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
@@ -22,7 +21,6 @@ import {
     CommonModule,
     JslibModule,
     CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
