@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import {
   CdkVirtualScrollViewport,
-  CdkVirtualScrollableWindow,
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
 } from "@angular/cdk/scrolling";
@@ -56,7 +55,6 @@ export class BitRowDef {
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,
-    CdkVirtualScrollableWindow,
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     RowDirective,

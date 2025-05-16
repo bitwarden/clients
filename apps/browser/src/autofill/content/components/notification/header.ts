@@ -59,8 +59,8 @@ const notificationHeaderStyles = ({
   white-space: nowrap;
 
   ${standalone
-    ? css`
+    ? css``
+    : css`
         border-bottom: 0.5px solid ${themes[theme].secondary["300"]};
-      `
-    : css``}
+      `}
 `;
