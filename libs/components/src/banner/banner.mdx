@@ -1,4 +1,4 @@
-import { Meta, Controls, Canvas, Primary, Title, Description } from "@storybook/addon-docs";
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs";
 
 import * as stories from "./banner.stories";
 
@@ -47,5 +47,5 @@ Rarely used, but may be used to alert users over critical messages or very outda
 ## Accessibility
 
 Banners sets the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
-announce the content prior to the test of the page. This behaviour can be disabled by setting
+announce the content prior to the test of the page. This behavior can be disabled by setting
 `[useAlertRole]="false"`.
