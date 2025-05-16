@@ -71,12 +71,13 @@ describe("RadioButton", () => {
 
 class MockedButtonGroupComponent implements Partial<RadioGroupComponent> {
   onInputChange = jest.fn();
-  selected = null;
+  selected: unknown = null;
 }
 
 @Component({
   selector: "test-app",
-  template: ` <bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
+  template: `<bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
+  standalone: false,
 })
 class TestApp {
   value?: string;

@@ -30,6 +30,7 @@ interface Animal {
       <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
     </bit-layout>
   `,
+  standalone: false,
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -67,6 +68,7 @@ class StoryDialogComponent {
       </ng-container>
     </bit-dialog>
   `,
+  standalone: false,
 })
 class StoryDialogContentComponent {
   constructor(
