@@ -101,6 +101,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.submitted.emit(type);
   };
 
+  validate = () => {
+    if (!this.usingBankAccount) {
+      return true;
+    }
+
+    this.formGroup.controls.bankInformation.markAllAsTouched();
+    return this.formGroup.controls.bankInformation.valid;
+  };
+
   /**
    * Tokenize the payment method information entered by the user against one of our payment providers.
    *

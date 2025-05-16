@@ -14,7 +14,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -27,7 +26,6 @@ import {
     CommonModule,
     JslibModule,
     CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
