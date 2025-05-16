@@ -94,7 +94,6 @@ apps/web/src/app/core @bitwarden/team-platform-dev
 apps/web/src/app/shared @bitwarden/team-platform-dev
 apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 # Workflows
-# Any changes here should also be reflected in Renovate configuration
 .github/workflows/automatic-issue-responses.yml @bitwarden/team-platform-dev
 .github/workflows/automatic-pull-request-responses.yml @bitwarden/team-platform-dev
 .github/workflows/build-browser-target.yml @bitwarden/team-platform-dev
@@ -164,7 +163,6 @@ apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
 
 ## BRE team owns these workflows ##
-# Any changes here should also be reflected in Renovate configuration ##
 .github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre
 .github/workflows/deploy-web.yml @bitwarden/dept-bre
 .github/workflows/publish-cli.yml @bitwarden/dept-bre
