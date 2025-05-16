@@ -62,6 +62,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
+  RemoveCardItemTypePolicy = "pm-20650-remove-card-item-type-policy",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -114,6 +115,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
+  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
