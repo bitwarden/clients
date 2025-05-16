@@ -1040,9 +1040,7 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1296,9 +1294,7 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
