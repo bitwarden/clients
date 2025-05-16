@@ -82,7 +82,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
           <span
-            *ngIf="downloadBitwardenNudgeStatus$ | async"
+            *ngIf="showDownloadBitwardenNudge$ | async"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"

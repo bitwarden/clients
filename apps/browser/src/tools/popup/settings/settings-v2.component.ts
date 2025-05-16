@@ -51,7 +51,7 @@ export class SettingsV2Component implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  downloadBitwardenNudgeStatus$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.DownloadBitwarden, account.id),
     ),

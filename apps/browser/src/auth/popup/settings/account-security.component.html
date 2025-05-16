@@ -5,6 +5,13 @@
     </ng-container>
   </popup-header>
 
+  <bit-spotlight
+    *ngIf="showAccountSecurityNudge$ | async"
+    [title]="'unlockVault' | i18n"
+    [subtitle]="'unlockVaultDesc' | i18n"
+    (onDismiss)="dismissAccountSecurityNudge()"
+    class="tw-mb-6"
+  ></bit-spotlight>
   <div [formGroup]="form">
     <bit-section>
       <bit-section-header>
