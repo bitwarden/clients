@@ -23,7 +23,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   LinkModule,
@@ -47,7 +46,6 @@ type TotpCodeValues = {
   imports: [
     CommonModule,
     JslibModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,

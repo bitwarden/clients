@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Markér app som kritisk"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps markeret som kritiske"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Applikation"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Disse medlemmer logger ind på programmer med svage, udsatte eller genbrugte adgangskoder."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Disse applikationer har svage, udsatte eller genbrugte adgangskoder."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Disse medlemmer logger ind på $APPNAME$ med svage, udsatte eller genbrugte adgangskoder.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

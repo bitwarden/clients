@@ -41,7 +41,7 @@
       <a
         bit-item-content
         routerLink="/vault-settings"
-        (click)="dismissBadge(VaultNudgeType.EmptyVaultNudge)"
+        (click)="dismissBadge(NudgeType.EmptyVaultNudge)"
       >
         <i slot="start" class="bwi bwi-vault" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
@@ -51,7 +51,7 @@
             Will make this dynamic when more nudges are added
           -->
           <span
-            *ngIf="!(showVaultBadge$ | async)?.hasBadgeDismissed"
+            *ngIf="showVaultBadge$ | async"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
@@ -82,7 +82,7 @@
         <div class="tw-flex tw-items-center tw-justify-center">
           <p class="tw-pr-2">{{ "downloadBitwardenOnAllDevices" | i18n }}</p>
           <span
-            *ngIf="(downloadBitwardenNudgeStatus$ | async)?.hasBadgeDismissed === false"
+            *ngIf="downloadBitwardenNudgeStatus$ | async"
             bitBadge
             variant="notification"
             [attr.aria-label]="'nudgeBadgeAria' | i18n"
