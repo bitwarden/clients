@@ -30,7 +30,7 @@ export function tdeDecryptionRequiredGuard(): CanActivateFn {
     const router = inject(Router);
 
     const userId = await firstValueFrom(accountService.activeAccount$.pipe(map((a) => a?.id)));
-    if (userId === undefined) {
+    if (userId == null) {
       return router.createUrlTree(["/"]);
     }
 
