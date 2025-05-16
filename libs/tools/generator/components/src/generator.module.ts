@@ -22,6 +22,7 @@ import { CatchallSettingsComponent } from "./catchall-settings.component";
 import { CredentialGeneratorComponent } from "./credential-generator.component";
 import { ForwarderSettingsComponent } from "./forwarder-settings.component";
 import { GeneratorServicesModule } from "./generator-services.module";
+import { NudgeGeneratorSpotlightComponent } from "./nudge-generator-spotlight.component";
 import { PassphraseSettingsComponent } from "./passphrase-settings.component";
 import { PasswordGeneratorComponent } from "./password-generator.component";
 import { PasswordSettingsComponent } from "./password-settings.component";
@@ -48,6 +49,7 @@ import { UsernameSettingsComponent } from "./username-settings.component";
     SelectModule,
     ToggleGroupModule,
     TypographyModule,
+    NudgeGeneratorSpotlightComponent,
   ],
   declarations: [
     CatchallSettingsComponent,

@@ -1,0 +1,15 @@
+<div class="tw-mb-4" *ngIf="showGeneratorSpotlight$ | async">
+  <bit-spotlight
+    [title]="'generatorNudgeTitle' | i18n"
+    (onDismiss)="dismissGeneratorSpotlight(NudgeType.GeneratorNudgeStatus)"
+  >
+    <p
+      class="tw-text-main"
+      bitTypography="body2"
+      [attr.aria-label]="'generatorNudgeIconAria' | i18n"
+    >
+      {{ "generatorNudgeBodyOne" | i18n }} <i class="bwi bwi-generate"></i>
+      {{ "generatorNudgeBodyTwo" | i18n }}
+    </p>
+  </bit-spotlight>
+</div>
