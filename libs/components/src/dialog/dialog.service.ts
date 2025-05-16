@@ -5,7 +5,7 @@ import {
   DIALOG_DATA,
   DialogCloseOptions,
 } from "@angular/cdk/dialog";
-import { ComponentType, ScrollStrategy } from "@angular/cdk/overlay";
+import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal, Portal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -168,10 +168,15 @@ export class DialogService {
       dialogRef: ref,
     });
 
+    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+
     // Merge the custom config with the default config
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
+      positionStrategy: isSmallScreen
+        ? new GlobalPositionStrategy().bottom().centerHorizontally()
+        : new GlobalPositionStrategy().centerVertically().centerHorizontally(),
       injector,
       ...config,
     };

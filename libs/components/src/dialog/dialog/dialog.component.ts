@@ -20,7 +20,6 @@ import { BitIconButtonComponent } from "../../icon-button/icon-button.component"
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { fadeIn } from "../animations";
 import { DialogRef } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -28,7 +27,6 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
-  animations: [fadeIn],
   host: {
     "(keydown.esc)": "handleEsc($event)",
   },
@@ -88,9 +86,18 @@ export class DialogComponent {
    */
   readonly loading = input(false);
 
+  private animationClasses = ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+  private animationCompleted = false;
+
   @HostBinding("class") get classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
-    return ["tw-flex", "tw-flex-col", "tw-w-screen"]
+    return [
+      "tw-flex",
+      "tw-flex-col",
+      "tw-w-screen",
+      // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
+      ...(this.animationCompleted ? [] : this.animationClasses),
+    ]
       .concat(
         this.width,
         this.dialogRef?.isDrawer
@@ -119,5 +126,10 @@ export class DialogComponent {
         return "md:tw-max-w-xl";
       }
     }
+  }
+
+  @HostListener("animationend")
+  onAnimationEnd() {
+    this.animationCompleted = true;
   }
 }
