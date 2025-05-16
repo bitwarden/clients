@@ -85,7 +85,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
       map((options) => {
-        return options?.trustedDeviceOption != null ?? false;
+        return options?.trustedDeviceOption != null;
       }),
     );
   }
@@ -93,7 +93,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
     return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
       map((options) => {
-        return options?.trustedDeviceOption != null ?? false;
+        return options?.trustedDeviceOption != null;
       }),
     );
   }
