@@ -40,6 +40,7 @@ type EmergencyAccessTakeoverDialogData = {
 @Component({
   selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
+  standalone: false,
 })
 export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent

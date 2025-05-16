@@ -59,6 +59,7 @@ export enum ResetPasswordDialogResult {
 @Component({
   selector: "app-reset-password",
   templateUrl: "reset-password.component.html",
+  standalone: false,
 })
 /**
  * Used in a dialog for initiating the account recovery process against a

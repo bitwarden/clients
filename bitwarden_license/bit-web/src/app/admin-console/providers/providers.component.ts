@@ -10,6 +10,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-providers",
   templateUrl: "providers.component.html",
+  standalone: false,
 })
 export class ProvidersComponent implements OnInit {
   providers: Provider[];

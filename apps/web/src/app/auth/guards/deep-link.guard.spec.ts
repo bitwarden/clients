@@ -13,16 +13,19 @@ import { deepLinkGuard } from "./deep-link.guard";
 
 @Component({
   template: "",
+  standalone: false,
 })
 export class GuardedRouteTestComponent {}
 
 @Component({
   template: "",
+  standalone: false,
 })
 export class LockTestComponent {}
 
 @Component({
   template: "",
+  standalone: false,
 })
 export class RedirectTestComponent {}
 

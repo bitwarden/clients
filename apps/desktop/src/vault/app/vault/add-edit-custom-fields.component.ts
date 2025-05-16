@@ -7,6 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 @Component({
   selector: "app-vault-add-edit-custom-fields",
   templateUrl: "add-edit-custom-fields.component.html",
+  standalone: false,
 })
 export class AddEditCustomFieldsComponent extends BaseAddEditCustomFieldsComponent {
   constructor(i18nService: I18nService, eventCollectionService: EventCollectionService) {

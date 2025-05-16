@@ -23,6 +23,7 @@ import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/paymen
 @Component({
   selector: "provider-setup",
   templateUrl: "setup.component.html",
+  standalone: false,
 })
 export class SetupComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;

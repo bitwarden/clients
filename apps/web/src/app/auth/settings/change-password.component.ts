@@ -35,6 +35,7 @@ import { UserKeyRotationService } from "../../key-management/key-rotation/user-k
 @Component({
   selector: "app-change-password",
   templateUrl: "change-password.component.html",
+  standalone: false,
 })
 export class ChangePasswordComponent
   extends BaseChangePasswordComponent

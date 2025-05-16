@@ -17,6 +17,7 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
 @Component({
   selector: "app-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
 export class AccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

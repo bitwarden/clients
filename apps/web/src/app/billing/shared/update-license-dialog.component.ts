@@ -12,6 +12,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
 
 @Component({
   templateUrl: "update-license-dialog.component.html",
+  standalone: false,
 })
 export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   constructor(

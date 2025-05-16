@@ -11,6 +11,7 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   templateUrl: "delete-account-dialog.component.html",
+  standalone: false,
 })
 export class DeleteAccountDialogComponent {
   deleteForm = this.formBuilder.group({

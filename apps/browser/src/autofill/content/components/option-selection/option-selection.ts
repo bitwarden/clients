@@ -48,10 +48,18 @@ export class OptionSelection extends LitElement {
   @state()
   private selection?: Option;
 
-  private handleButtonClick = (event: Event) => {
+  private static currentOpenInstance: OptionSelection | null = null;
+
+  private handleButtonClick = async (event: Event) => {
     if (!this.disabled) {
-      // Menu is about to be shown
-      if (!this.showMenu) {
+      const isOpening = !this.showMenu;
+
+      if (isOpening) {
+        if (OptionSelection.currentOpenInstance && OptionSelection.currentOpenInstance !== this) {
+          OptionSelection.currentOpenInstance.showMenu = false;
+        }
+        OptionSelection.currentOpenInstance = this;
+
         this.menuTopOffset = this.offsetTop;
 
         // Distance from right edge of button to left edge of the viewport
@@ -71,9 +79,29 @@ export class OptionSelection extends LitElement {
           optionsMenuItemMaxWidth + optionItemIconWidth + 2 + 8 + 12 * 2;
 
         this.menuIsEndJustified = distanceFromViewportRightEdge < maxDifferenceThreshold;
+      } else {
+        if (OptionSelection.currentOpenInstance === this) {
+          OptionSelection.currentOpenInstance = null;
+        }
       }
 
-      this.showMenu = !this.showMenu;
+      this.showMenu = isOpening;
+
+      if (this.showMenu) {
+        await this.updateComplete;
+        const firstItem = this.querySelector('#option-menu [tabindex="0"]') as HTMLElement;
+        firstItem?.focus();
+      }
+    }
+  };
+
+  private handleFocusOut = (event: FocusEvent) => {
+    const relatedTarget = event.relatedTarget;
+    if (!(relatedTarget instanceof Node) || !this.contains(relatedTarget)) {
+      this.showMenu = false;
+      if (OptionSelection.currentOpenInstance === this) {
+        OptionSelection.currentOpenInstance = null;
+      }
     }
   };
 
@@ -95,7 +123,10 @@ export class OptionSelection extends LitElement {
     }
 
     return html`
-      <div class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}>
+      <div
+        class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}
+        @focusout=${this.handleFocusOut}
+      >
         ${OptionSelectionButton({
           disabled: this.disabled,
           icon: this.selection?.icon,
