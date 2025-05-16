@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 @Component({
   selector: "app-org-info",
   templateUrl: "organization-information.component.html",
+  standalone: false,
 })
 export class OrganizationInformationComponent implements OnInit {
   @Input() nameOnly = false;

@@ -10,6 +10,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-nested-checkbox",
   templateUrl: "nested-checkbox.component.html",
+  standalone: false,
 })
 export class NestedCheckboxComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

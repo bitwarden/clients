@@ -24,6 +24,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
     >
     </bit-avatar>
   </span>`,
+  standalone: false,
 })
 export class SelectableAvatarComponent {
   @Input() id: string;

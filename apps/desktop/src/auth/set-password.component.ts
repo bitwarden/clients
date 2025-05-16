@@ -28,6 +28,7 @@ const BroadcasterSubscriptionId = "SetPasswordComponent";
 @Component({
   selector: "app-set-password",
   templateUrl: "set-password.component.html",
+  standalone: false,
 })
 export class SetPasswordComponent extends BaseSetPasswordComponent implements OnInit, OnDestroy {
   constructor(
