@@ -21,24 +21,20 @@
   </p>
 </div>
 
-@if (initializing) {
-  <div class="tw-flex tw-justify-center tw-items-center tw-p-4">
-    <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
-  </div>
-} @else {
-  <!-- Table view: Hidden on small screens, visible from md breakpoint and up -->
-  <div class="tw-hidden md:tw-block">
-    <auth-device-management-table
-      [devices]="devices"
-      [currentDevice]="currentDevice"
-    ></auth-device-management-table>
-  </div>
+<div *ngIf="initializing" class="tw-flex tw-justify-center tw-items-center tw-p-4">
+  <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
+</div>
 
-  <!-- List view: Visible only on small screens, hidden from md breakpoint and up -->
-  <div class="md:tw-hidden">
-    <auth-device-management-item-group
-      [devices]="devices"
-      [currentDevice]="currentDevice"
-    ></auth-device-management-item-group>
-  </div>
-}
+<ng-container *ngIf="devices$ | async as devices">
+  <!-- Table View: displays on medium to large screens -->
+  <auth-device-management-table
+    ngClass="tw-hidden md:tw-block"
+    [devices]="devices"
+  ></auth-device-management-table>
+
+  <!-- List View: displays on small screens -->
+  <auth-device-management-item-group
+    ngClass="md:tw-hidden"
+    [devices]="devices"
+  ></auth-device-management-item-group>
+</ng-container>

@@ -1,12 +1,12 @@
 <bit-item-group>
-  <bit-item *ngFor="let device of devicesToDisplay">
+  <bit-item *ngFor="let device of devices">
     @if (device.pendingAuthRequest) {
       <button
         bit-item-content
         type="button"
         [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
-        (click)="managePendingAuthRequest(device.pendingAuthRequest)"
-        (keydown.enter)="managePendingAuthRequest(device.pendingAuthRequest)"
+        (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
+        (keydown.enter)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
       >
         <!-- Default Content -->
         <span>{{ device.displayName }}</span>
@@ -46,6 +46,7 @@
           } @else {
             <br />
           }
+
           <div>
             <span class="tw-font-semibold">{{ "firstLogin" | i18n }}: </span>
             <span>{{ device.firstLogin | date: "short" }}</span>

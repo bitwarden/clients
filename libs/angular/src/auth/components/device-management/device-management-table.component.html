@@ -1,16 +1,16 @@
-<bit-table-scroll [dataSource]="dataSource" [rowSize]="50">
+<bit-table-scroll [dataSource]="tableDataSource" [rowSize]="50">
   <!-- Table Header -->
   <ng-container header>
     <th
-      *ngFor="let col of columnConfig"
-      [class]="col.headerClass"
+      *ngFor="let column of columnConfig"
+      [class]="column.headerClass"
       bitCell
-      [bitSortable]="col.sortable ? col.name : null"
-      [default]="col.name === 'loginStatus' ? 'desc' : null"
+      [bitSortable]="column.sortable ? column.name : null"
+      [default]="column.name === 'loginStatus' ? 'desc' : null"
       scope="col"
       role="columnheader"
     >
-      {{ col.title }}
+      {{ column.title }}
     </th>
   </ng-container>
 
@@ -27,7 +27,7 @@
           bitLink
           href="#"
           appStopClick
-          (click)="managePendingAuthRequest(device.pendingAuthRequest)"
+          (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
         >
           {{ device.displayName }}
         </a>
