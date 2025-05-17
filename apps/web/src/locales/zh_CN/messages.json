@@ -2836,7 +2836,7 @@
     "message": "支付卡"
   },
   "paypalClickSubmit": {
-    "message": "点击 PayPal 按钮登录您的 PayPal 账户，然后点击下面的提交按钮继续。"
+    "message": "选择 PayPal 按钮登录您的 PayPal 账户，然后点击下面的「提交」按钮继续。"
   },
   "cancelSubscription": {
     "message": "取消订阅"
@@ -4548,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "您保存的任何已加密导出也将变为无效。"
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您已保存的所有账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -10610,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+  },
+  "clickPayWithPayPal": {
+    "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
   }
 }
