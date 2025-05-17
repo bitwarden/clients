@@ -74,7 +74,7 @@ export class AssignCollections {
     combineLatest([cipher$, this.collectionService.decryptedCollections$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
-        let availableCollections = collections.filter((c) => !c.readOnly);
+        let availableCollections = collections;
         const organizationId = (cipherView?.organizationId as OrganizationId) ?? null;
 
         // If the cipher is already a part of an organization,
