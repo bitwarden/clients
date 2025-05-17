@@ -3707,13 +3707,13 @@
     "message": "Presunúť"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nový priečinok"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Názov priečinka"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
   },
   "newLoginNudgeTitle": {
     "message": "Ušetrite čas s automatickým vypĺňaním"
