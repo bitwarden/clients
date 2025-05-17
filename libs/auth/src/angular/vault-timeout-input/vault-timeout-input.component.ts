@@ -14,7 +14,7 @@ import {
   ValidationErrors,
   Validator,
 } from "@angular/forms";
-import { filter, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, map, Observable, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -110,6 +110,7 @@ export class VaultTimeoutInputComponent
   });
 
   @Input() vaultTimeoutOptions: VaultTimeoutOption[];
+  @Input() disabled: boolean;
 
   vaultTimeoutPolicy: Policy;
   vaultTimeoutPolicyHours: number;
@@ -189,6 +190,12 @@ export class VaultTimeoutInputComponent
   }
 
   ngOnChanges() {
+    if (this.disabled) {
+      this.form.disable();
+    } else {
+      this.form.enable();
+    }
+
     if (
       !this.vaultTimeoutOptions.find((p) => p.value === VaultTimeoutInputComponent.CUSTOM_VALUE)
     ) {

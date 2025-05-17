@@ -57,6 +57,8 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
+import { NoopSyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/noop-synced-unlock.service";
 import {
   VaultTimeout,
   VaultTimeoutStringType,
@@ -104,6 +106,8 @@ import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
   BiometricsService,
+  SyncedUnlockStateServiceAbstraction,
+  DefaultSyncedUnlockStateService,
 } from "@bitwarden/key-management";
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
@@ -232,6 +236,16 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: WebBiometricsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SyncedUnlockStateServiceAbstraction,
+    useClass: DefaultSyncedUnlockStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SyncedUnlockService,
+    useClass: NoopSyncedUnlockService,
     deps: [],
   }),
   safeProvider({

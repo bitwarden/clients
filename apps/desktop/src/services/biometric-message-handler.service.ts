@@ -1,11 +1,12 @@
 import { Injectable, NgZone } from "@angular/core";
-import { combineLatest, concatMap, firstValueFrom, map } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -20,6 +21,7 @@ import {
   BiometricsService,
   BiometricsStatus,
   KeyService,
+  SyncedUnlockStateCommands,
 } from "@bitwarden/key-management";
 
 import { BrowserSyncVerificationDialogComponent } from "../app/components/browser-sync-verification-dialog.component";
@@ -89,6 +91,7 @@ export class BiometricMessageHandlerService {
     private authService: AuthService,
     private ngZone: NgZone,
     private i18nService: I18nService,
+    private vaultTimeoutService: VaultTimeoutService,
   ) {
     combineLatest([
       this.desktopSettingService.browserIntegrationEnabled$,
@@ -255,100 +258,59 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
-      // TODO: legacy, remove after 2025.3
-      case BiometricsCommands.IsAvailable: {
-        const available =
-          (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
-        return this.send(
+      case SyncedUnlockStateCommands.SendLockToDesktop: {
+        const userId = message.userId as UserId;
+        await this.send(
           {
-            command: BiometricsCommands.IsAvailable,
-            response: available ? "available" : "not available",
+            command: SyncedUnlockStateCommands.SendLockToDesktop,
+            messageId,
+            response: true,
           },
           appId,
         );
+        if (userId != null) {
+          await this.vaultTimeoutService.lock(userId);
+        }
+        break;
       }
-      // TODO: legacy, remove after 2025.3
-      case BiometricsCommands.Unlock: {
-        if (
-          await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)
-        ) {
-          await this.send({ command: "biometricUnlock", response: "not available" }, appId);
-          await this.dialogService.openSimpleDialog({
-            title: this.i18nService.t("updateBrowserOrDisableFingerprintDialogTitle"),
-            content: this.i18nService.t("updateBrowserOrDisableFingerprintDialogMessage"),
-            type: "warning",
-          });
-          return;
+      case SyncedUnlockStateCommands.GetUserKeyFromDesktop: {
+        if (!(await this.validateFingerprint(appId))) {
+          this.logService.info("[Native Messaging IPC] Fingerprint validation failed.");
         }
 
-        const isTemporarilyDisabled =
-          (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
-          !((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available);
-        if (isTemporarilyDisabled) {
-          return this.send({ command: "biometricUnlock", response: "not available" }, appId);
-        }
-
-        if (!((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available)) {
-          return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
-        }
-
-        const userId =
-          (message.userId as UserId) ??
-          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-
-        if (userId == null) {
-          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
-        }
-
-        const biometricUnlock =
-          message.userId == null
-            ? await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
-            : await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId);
-        if (!biometricUnlock) {
-          await this.send({ command: "biometricUnlock", response: "not enabled" }, appId);
-
-          return this.ngZone.run(() =>
-            this.dialogService.openSimpleDialog({
-              type: "warning",
-              title: { key: "biometricsNotEnabledTitle" },
-              content: { key: "biometricsNotEnabledDesc" },
-              cancelButtonText: null,
-              acceptButtonText: { key: "cancel" },
-            }),
-          );
-        }
-
-        try {
-          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
-
-          if (userKey != null) {
-            await this.send(
+        const userId = message.userId as UserId;
+        if (userId != null) {
+          const key = await this.keyService.getUserKey(userId);
+          if (key != null) {
+            return await this.send(
               {
-                command: "biometricUnlock",
-                response: "unlocked",
-                userKeyB64: userKey.keyB64,
+                command: SyncedUnlockStateCommands.GetUserKeyFromDesktop,
+                messageId,
+                response: key.keyB64,
               },
               appId,
             );
-
-            const currentlyActiveAccountId = (
-              await firstValueFrom(this.accountService.activeAccount$)
-            )?.id;
-            const isCurrentlyActiveAccountUnlocked =
-              (await this.authService.getAuthStatus(userId)) == AuthenticationStatus.Unlocked;
-
-            // prevent proc reloading an active account, when it is the same as the browser
-            if (currentlyActiveAccountId != message.userId || !isCurrentlyActiveAccountUnlocked) {
-              ipc.platform.reloadProcess();
-            }
-          } else {
-            await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
           }
-          // FIXME: Remove when updating file. Eslint update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-          await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
         }
+        break;
+      }
+      case SyncedUnlockStateCommands.GetUserStatusFromDesktop: {
+        const userId = message.userId as UserId;
+        if (userId != null) {
+          const status = await firstValueFrom(this.authService.authStatusFor$(userId));
+          return await this.send(
+            {
+              command: SyncedUnlockStateCommands.GetUserStatusFromDesktop,
+              messageId,
+              response: status,
+            },
+            appId,
+          );
+        }
+        break;
+      }
+      case SyncedUnlockStateCommands.FocusDesktopApp: {
+        this.messagingService.send("setFocus");
         break;
       }
       default:

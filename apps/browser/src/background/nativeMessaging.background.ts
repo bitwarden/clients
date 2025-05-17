@@ -1,4 +1,4 @@
-import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
+import { BehaviorSubject, concatMap, firstValueFrom, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -11,7 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { KeyService, BiometricStateService, BiometricsCommands } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -74,6 +74,7 @@ type SecureChannel = {
 export class NativeMessagingBackground {
   connected = false;
   private connecting: boolean = false;
+  private connected$ = new BehaviorSubject<boolean>(false);
   private port?: browser.runtime.Port | chrome.runtime.Port;
   private appId?: string;
 
@@ -81,8 +82,6 @@ export class NativeMessagingBackground {
 
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
-
-  isConnectedToOutdatedDesktopClient = true;
 
   constructor(
     private keyService: KeyService,
@@ -105,6 +104,22 @@ export class NativeMessagingBackground {
         }
       });
     }
+
+    timer(0, 5000)
+      .pipe(
+        concatMap(async () => {
+          if (!this.connected) {
+            if (await this.hasPermission()) {
+              await this.connect();
+            }
+          }
+        }),
+      )
+      .subscribe();
+  }
+
+  async hasPermission(): Promise<boolean> {
+    return await BrowserApi.permissionsGranted(["nativeMessaging"]);
   }
 
   async connect() {
@@ -130,6 +145,7 @@ export class NativeMessagingBackground {
           );
         }
         this.connected = true;
+        this.connected$.next(true);
         this.connecting = false;
         resolve();
       };
@@ -137,7 +153,6 @@ export class NativeMessagingBackground {
       // Safari has a bundled native component which is always available, no need to
       // check if the desktop app is running.
       if (this.platformUtilsService.isSafari()) {
-        this.isConnectedToOutdatedDesktopClient = false;
         connectedCallback();
       }
 
@@ -153,6 +168,7 @@ export class NativeMessagingBackground {
               reject(new Error("startDesktop"));
             }
             this.connected = false;
+            this.connected$.next(false);
             port.disconnect();
             // reject all
             for (const callback of this.callbacks.values()) {
@@ -188,15 +204,6 @@ export class NativeMessagingBackground {
 
             this.secureChannel.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.logService.info("[Native Messaging IPC] Secure channel established");
-
-            if ("messageId" in message) {
-              this.logService.info("[Native Messaging IPC] Non-legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = false;
-            } else {
-              this.logService.info("[Native Messaging IPC] Legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = true;
-            }
-
             this.secureChannel.setupResolve();
             break;
           }
@@ -211,6 +218,7 @@ export class NativeMessagingBackground {
 
             this.secureChannel = undefined;
             this.connected = false;
+            this.connected$.next(false);
 
             if (message.messageId != null) {
               if (this.callbacks.has(message.messageId)) {
@@ -274,6 +282,7 @@ export class NativeMessagingBackground {
 
         this.secureChannel = undefined;
         this.connected = false;
+        this.connected$.next(false);
 
         this.logService.error("NativeMessaging port disconnected because of error: " + error);
 
@@ -285,30 +294,6 @@ export class NativeMessagingBackground {
 
   async callCommand(message: Message): Promise<any> {
     const messageId = this.messageId++;
-
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      // TODO remove after 2025.3
-      // wait until there is no other callbacks, or timeout
-      const call = await firstValueFrom(
-        race(
-          from([false]).pipe(delay(5000)),
-          timer(0, 100).pipe(
-            filter(() => this.callbacks.size === 0),
-            map(() => true),
-          ),
-        ),
-      );
-      if (!call) {
-        this.logService.info(
-          `[Native Messaging IPC] Message of type ${message.command} did not get a response before timing out`,
-        );
-        return;
-      }
-    }
-
     const callback = new Promise((resolver, rejecter) => {
       this.callbacks.set(messageId, { resolver, rejecter });
     });
@@ -416,22 +401,6 @@ export class NativeMessagingBackground {
     }
 
     const messageId = message.messageId;
-
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      this.logService.info(
-        `[Native Messaging IPC] Received legacy message of type ${message.command}`,
-      );
-      const messageId: number | undefined = this.callbacks.keys().next().value;
-      if (messageId != null) {
-        const resolver = this.callbacks.get(messageId);
-        this.callbacks.delete(messageId);
-        resolver!.resolver(message);
-      }
-      return;
-    }
 
     if (this.callbacks.has(messageId)) {
       const callback = this.callbacks!.get(messageId)!;

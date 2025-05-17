@@ -2165,6 +2165,18 @@
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
     "message": "Too many invalid PIN entry attempts. Logging out."
   },
+  "syncUnlockWithDesktop": {
+    "message": "Unlock with desktop integration"
+  },
+  "lockScreenSynchronizedNote": {
+    "message": "This user's account is synchronized with the desktop app."
+  },
+  "lockScreenContinueInDesktop": {
+    "message": "Continue in desktop app"
+  },
+  "lockScreenDesktopNotRunning": {
+    "message": "This user's account is synchronized with the desktop app, but the desktop app is not running."
+  },
   "unlockWithBiometrics": {
     "message": "Unlock with biometrics"
   },

@@ -32,6 +32,7 @@ import {
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -54,6 +55,7 @@ import {
   BiometricsService,
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
+  SyncedUnlockStateServiceAbstraction,
 } from "@bitwarden/key-management";
 
 import {
@@ -134,6 +136,11 @@ export class LockComponent implements OnInit, OnDestroy {
 
   unlockingViaBiometrics = false;
 
+  unlockViaDesktop = false;
+  isDesktopOpen = false;
+  showLocalUnlockOptions = true;
+  desktopUnlockFormGroup: FormGroup = new FormGroup({});
+
   constructor(
     private accountService: AccountService,
     private pinService: PinServiceAbstraction,
@@ -157,6 +164,8 @@ export class LockComponent implements OnInit, OnDestroy {
     private userAsymmetricKeysRegenerationService: UserAsymmetricKeysRegenerationService,
 
     private biometricService: BiometricsService,
+    private syncedUnlockStateService: SyncedUnlockStateServiceAbstraction,
+    private syncedUnlockService: SyncedUnlockService,
 
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
@@ -180,6 +189,9 @@ export class LockComponent implements OnInit, OnDestroy {
       await this.desktopOnInit();
     } else if (this.clientType === ClientType.Browser) {
       this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+      if (await firstValueFrom(this.syncedUnlockStateService.syncedUnlockEnabled$)) {
+        this.showLocalUnlockOptions = false;
+      }
     }
   }
 
@@ -191,6 +203,35 @@ export class LockComponent implements OnInit, OnDestroy {
             this.unlockOptions = await firstValueFrom(
               this.lockComponentService.getAvailableUnlockOptions$(this.activeAccount.id),
             );
+            const userKey = await this.keyService.getUserKey(this.activeAccount.id);
+            if (userKey != null) {
+              await this.doContinue(false);
+            }
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+    interval(500)
+      .pipe(
+        switchMap(async () => {
+          try {
+            this.isDesktopOpen = await this.syncedUnlockService.isConnected();
+            this.showLocalUnlockOptions = !(this.isDesktopOpen && this.unlockViaDesktop);
+          } catch (e) {
+            this.logService.error(e);
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+    this.syncedUnlockStateService.syncedUnlockEnabled$
+      .pipe(
+        tap((enabled) => {
+          if (enabled) {
+            this.unlockViaDesktop = true;
+          } else {
+            this.unlockViaDesktop = false;
           }
         }),
         takeUntil(this.destroy$),
@@ -338,11 +379,18 @@ export class LockComponent implements OnInit, OnDestroy {
   // Note: this submit method is only used for unlock methods that require a form and user input.
   // For biometrics unlock, the method is called directly.
   submit = async (): Promise<void> => {
-    if (this.activeUnlockOption === UnlockOption.Pin) {
-      return await this.unlockViaPin();
-    }
+    if (
+      this.platformUtilsService.getClientType() === ClientType.Browser &&
+      !this.showLocalUnlockOptions
+    ) {
+      await this.syncedUnlockService.focusDesktopApp();
+    } else {
+      if (this.activeUnlockOption === UnlockOption.Pin) {
+        return await this.unlockViaPin();
+      }
 
-    await this.unlockViaMasterPassword();
+      await this.unlockViaMasterPassword();
+    }
   };
 
   async logOut() {
