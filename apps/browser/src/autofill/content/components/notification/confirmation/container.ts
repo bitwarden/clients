@@ -51,9 +51,9 @@ export function NotificationConfirmationContainer({
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
-  let tasksAreComplete: boolean = false;
+  let tasksAreComplete: boolean = true;
 
-  if (task) {
+  if (task && !error) {
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
@@ -85,7 +85,7 @@ export function NotificationConfirmationContainer({
         theme,
         handleOpenVault,
       })}
-      ${remainingTasksCount
+      ${!error && remainingTasksCount
         ? NotificationConfirmationFooter({
             i18n,
             theme,
