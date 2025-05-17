@@ -1,10 +1,5 @@
 {
-  "extends": "../shared/tsconfig",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/common/*": ["../common/src/*"]
-    }
-  },
+  "extends": "../../tsconfig.base",
   "include": ["src", "spec"],
   "exclude": ["node_modules", "dist"]
 }
