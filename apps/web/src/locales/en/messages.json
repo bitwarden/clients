@@ -4094,6 +4094,9 @@
   "reviewLoginRequest": {
     "message": "Review login request"
   },
+  "loginRequest": {
+    "message": "Login request"
+  },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
     "placeholders": {

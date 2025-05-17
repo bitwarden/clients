@@ -2,6 +2,7 @@
   <bit-item *ngFor="let device of devices">
     @if (device.pendingAuthRequest) {
       <button
+        class="tw-relative"
         bit-item-content
         type="button"
         [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
@@ -9,10 +10,10 @@
         (keydown.enter)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
       >
         <!-- Default Content -->
-        <span>{{ device.displayName }}</span>
+        <span class="tw-text-base">{{ device.displayName }}</span>
 
         <!-- Default Trailing Content -->
-        <span class="tw-flex tw-justify-end" slot="default-trailing">
+        <span class="tw-absolute tw-top-[6px] tw-right-3" slot="default-trailing">
           <span bitBadge variant="warning">
             {{ "requestPending" | i18n }}
           </span>
@@ -28,12 +29,16 @@
         </span>
       </button>
     } @else {
-      <bit-item-content>
+      <bit-item-content ngClass="tw-relative">
         <!-- Default Content -->
         <span class="tw-text-base">{{ device.displayName }}</span>
 
         <!-- Default Trailing Content -->
-        <div *ngIf="device.isCurrentDevice" class="tw-flex tw-justify-end" slot="default-trailing">
+        <div
+          *ngIf="device.isCurrentDevice"
+          class="tw-absolute tw-top-[6px] tw-right-3"
+          slot="default-trailing"
+        >
           <span bitBadge variant="primary">
             {{ "currentSession" | i18n }}
           </span>

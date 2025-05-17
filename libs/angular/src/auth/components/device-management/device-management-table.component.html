@@ -22,24 +22,26 @@
         <i [class]="device.icon" class="bwi-lg" aria-hidden="true"></i>
       </div>
 
-      @if (device.pendingAuthRequest) {
-        <a
-          bitLink
-          href="#"
-          appStopClick
-          (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
-        >
-          {{ device.displayName }}
-        </a>
-        <span class="tw-text-sm tw-text-muted tw-block">
-          {{ "needsApproval" | i18n }}
-        </span>
-      } @else {
-        <span>{{ device.displayName }}</span>
-        <span *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted tw-block">
-          {{ "trusted" | i18n }}
-        </span>
-      }
+      <div>
+        @if (device.pendingAuthRequest) {
+          <a
+            bitLink
+            href="#"
+            appStopClick
+            (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
+          >
+            {{ device.displayName }}
+          </a>
+          <div class="tw-text-sm tw-text-muted">
+            {{ "needsApproval" | i18n }}
+          </div>
+        } @else {
+          <span>{{ device.displayName }}</span>
+          <div *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted">
+            {{ "trusted" | i18n }}
+          </div>
+        }
+      </div>
     </td>
 
     <!-- Column: Login Status -->
