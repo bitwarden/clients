@@ -564,11 +564,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
   }
 
-  async clearPinKeys(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearPinKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear PIN keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
@@ -588,11 +586,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await this.keyGenerationService.createKey(512)) as CipherKey;
   }
 
-  async clearKeys(userId?: UserId): Promise<any> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.masterPasswordService.clearMasterKeyHash(userId);
