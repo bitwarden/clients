@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Nová položka, otvorí sa v novom okne",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Upraviť pred uložením",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ uložené do Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "uložené do Bitwardenu.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ aktualizované v Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "aktualizované v Bitwardene.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Vybrať $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Uložiť ako nové prihlasovacie údaje",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Aktualizovať prihlasovacie údaje",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Odomknúť na uloženie prihlasovacích údajov",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Uložiť prihlasovacie údaje",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Návrhy automatického vypĺňania"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Jednoduché vyhľadávanie návrhov na automatické vypĺňanie"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Vypnite nastavenia automatického vypĺňania v prehliadači, aby nedošlo ku konfliktu s Bitwardenom."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Vypnúť automatické vypĺňanie v $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Vypnúť automatické vypĺňanie"
   },
   "showInlineMenuLabel": {
     "message": "Zobraziť návrhy automatického vypĺňania v poliach formulára"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Akcia pri vypršaní časového limitu"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nové možnosti prispôsobenia"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Prispôsobte si trezor pomocou akcií rýchleho kopírovania, kompaktného režimu a ďalších možností!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Zobraziť všetky nastavenia vzhľadu"
   },
   "lock": {
     "message": "Uzamknúť",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Stiahnuť teraz z bitwarden.com"
   },
+  "getItOnGooglePlay": {
+    "message": "Získať z Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Stiahnuť z App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu."
   },
+  "nudgeBadgeAria": {
+    "message": "1 upozornenie"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Import existujúcich hesiel"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vitajte vo svojom trezore!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Automatické vypĺňanie položiek pre aktuálnu stránku\nObľúbené položky pre ľahký prístup\nVyhľadajte v trezore niečo iné"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Položky na automatické vypĺňanie pre aktuálnu stránku"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Obľúbené položky pre jednoduchý prístup"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Vyhľadajte v trezore niečo iné"
   },
   "newLoginNudgeTitle": {
     "message": "Ušetrite čas s automatickým vypĺňaním"
@@ -5306,5 +5340,8 @@
     "message": "Viac informácií o agentovi SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
   }
 }

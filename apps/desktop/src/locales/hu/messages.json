@@ -3707,13 +3707,13 @@
     "message": "Áthelyezés"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Új mappa"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Mappanév"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
   },
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"

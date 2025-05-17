@@ -22,7 +22,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -43,7 +42,6 @@ interface UriField {
   standalone: true,
   imports: [
     DragDropModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,
