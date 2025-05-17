@@ -1,13 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, Subject } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
-
 import { awaitAsync } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogoutReason } from "../../../auth/types/logout-reason.type";
 import { NotificationType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";

@@ -10,11 +10,9 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+
 // FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
+
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -28,8 +26,10 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
 import { TokenService } from "../../auth/abstractions/token.service";
+import { UserDecryptionOptionsServiceAbstraction } from "../../auth/abstractions/user-decryption-options.service.abstraction";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
+import { LogoutReason } from "../../auth/types/logout-reason.type";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";

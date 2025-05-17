@@ -3,6 +3,10 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  PinLockType,
+  PinServiceAbstraction,
+} from "@bitwarden/common/auth/abstractions/pin.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -17,16 +21,6 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { PinKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfig, KdfConfigService } from "@bitwarden/key-management";
-
-import { PinServiceAbstraction } from "../../abstractions/pin.service.abstraction";
-
-/**
- * - DISABLED   : No PIN set.
- * - PERSISTENT : PIN is set and persists through client reset.
- * - EPHEMERAL  : PIN is set, but does NOT persist through client reset. This means that
- *                after client reset the master password is required to unlock.
- */
-export type PinLockType = "DISABLED" | "PERSISTENT" | "EPHEMERAL";
 
 /**
  * The persistent (stored on disk) version of the UserKey, encrypted by the PinKey.

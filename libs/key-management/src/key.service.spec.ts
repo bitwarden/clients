@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
 
-import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
+import { PinServiceAbstraction } from "@bitwarden/common/auth/abstractions/pin.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";

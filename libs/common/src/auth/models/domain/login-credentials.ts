@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
-import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey, UserKey } from "../../../types/key";
+import { AuthenticationType } from "../../enums/authentication-type";
+import { WebAuthnLoginAssertionResponseRequest } from "../../services/webauthn-login/request/webauthn-login-assertion-response.request";
+import { TokenTwoFactorRequest } from "../request/identity-token/token-two-factor.request";
 
 export class PasswordLoginCredentials {
   readonly type = AuthenticationType.Password;

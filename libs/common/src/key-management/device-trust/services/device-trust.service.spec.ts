@@ -3,10 +3,6 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import {
-  UserDecryptionOptionsServiceAbstraction,
-  UserDecryptionOptions,
-} from "@bitwarden/auth/common";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -15,6 +11,8 @@ import { FakeActiveUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "../../../auth/abstractions/user-decryption-options.service.abstraction";
+import { UserDecryptionOptions } from "../../../auth/models/domain/user-decryption-options";
 import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
 import { DeviceType } from "../../../enums";

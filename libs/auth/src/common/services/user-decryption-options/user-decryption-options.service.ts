@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable, map } from "rxjs";
 
+import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-decryption-options.service.abstraction";
+import { UserDecryptionOptions } from "@bitwarden/common/auth/models/domain/user-decryption-options";
 import {
   ActiveUserState,
   StateProvider,
@@ -11,9 +13,6 @@ import {
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { UserId } from "@bitwarden/common/src/types/guid";
-
-import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
-import { UserDecryptionOptions } from "../../models";
 
 export const USER_DECRYPTION_OPTIONS = new UserKeyDefinition<UserDecryptionOptions>(
   USER_DECRYPTION_OPTIONS_DISK,

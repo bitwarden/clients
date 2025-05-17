@@ -3,8 +3,6 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
-
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
@@ -21,6 +19,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
+import { LogoutReason } from "../types/logout-reason.type";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
 import {

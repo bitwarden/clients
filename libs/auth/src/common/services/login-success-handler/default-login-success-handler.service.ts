@@ -1,8 +1,8 @@
+import { LoginSuccessHandlerService } from "@bitwarden/common/auth/abstractions/login-success-handler.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 
-import { LoginSuccessHandlerService } from "../../abstractions/login-success-handler.service";
 import { LoginEmailService } from "../login-email/login-email.service";
 
 export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerService {

@@ -1,11 +1,11 @@
+// To discourage creating new user decryption options, we don't expose a constructor.
+// These helpers are for testing purposes only.
+
 import {
   KeyConnectorUserDecryptionOption,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
-} from "../domain";
-
-// To discourage creating new user decryption options, we don't expose a constructor.
-// These helpers are for testing purposes only.
+} from "../models/domain/user-decryption-options";
 
 /** Testing helper for creating new instances of `UserDecryptionOptions` */
 export class FakeUserDecryptionOptions extends UserDecryptionOptions {

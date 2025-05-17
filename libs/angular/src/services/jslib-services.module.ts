@@ -33,21 +33,14 @@ import {
 import {
   AuthRequestApiService,
   AuthRequestService,
-  AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
   DefaultLoginSuccessHandlerService,
-  InternalUserDecryptionOptionsServiceAbstraction,
   LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
   LoginStrategyService,
-  LoginStrategyServiceAbstraction,
-  LoginSuccessHandlerService,
-  LogoutReason,
   PinService,
-  PinServiceAbstraction,
   UserDecryptionOptionsService,
-  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -88,15 +81,23 @@ import {
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
+import { AuthRequestServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/common/auth/abstractions/login-strategy.service";
+import { LoginSuccessHandlerService } from "@bitwarden/common/auth/abstractions/login-success-handler.service";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
+import { PinServiceAbstraction } from "@bitwarden/common/auth/abstractions/pin.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import {
+  InternalUserDecryptionOptionsServiceAbstraction,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/common/auth/abstractions/user-decryption-options.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
@@ -119,6 +120,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfKeyService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-key.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import { LogoutReason } from "@bitwarden/common/auth/types/logout-reason.type";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,

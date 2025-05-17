@@ -1,34 +1,34 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { ApiService } from "../../abstractions/api.service";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "../../key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { FakeMasterPasswordService } from "../../key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-
+} from "../../key-management/vault-timeout";
+import { AppIdService } from "../../platform/abstractions/app-id.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { StateService } from "../../platform/abstractions/state.service";
+import { Utils } from "../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../types/csprng";
+import { UserId } from "../../types/guid";
+import { MasterKey, UserKey } from "../../types/key";
+import { TokenService } from "../abstractions/token.service";
+import { TwoFactorService } from "../abstractions/two-factor.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
+import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
 import {
   AuthRequestLoginStrategy,

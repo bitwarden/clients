@@ -5,7 +5,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/common/auth/abstractions/login-strategy.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 

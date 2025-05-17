@@ -5,7 +5,10 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
+import {
+  LoginStrategyServiceAbstraction,
+  LoginSuccessHandlerService,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,8 +19,6 @@ import {
   IconButtonModule,
   LinkModule,
 } from "@bitwarden/components";
-
-import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).

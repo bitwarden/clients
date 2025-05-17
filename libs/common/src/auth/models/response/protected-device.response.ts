@@ -2,11 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { RotateableKeySet } from "@bitwarden/auth/common";
-
 import { DeviceType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { RotateableKeySet } from "../domain/rotatable-key-set";
 
 export class ProtectedDeviceResponse extends BaseResponse {
   constructor(response: Jsonify<ProtectedDeviceResponse>) {

@@ -5,6 +5,7 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthRequestServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request.service.abstraction";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -23,8 +24,6 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
-
-import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
 
 /**
  * Disk-local to maintain consistency between tabs. We don't want to

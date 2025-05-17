@@ -1,38 +1,5 @@
 import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { DeviceRequest } from "@bitwarden/common/auth/models/request/identity-token/device.request";
-import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
-import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
-import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
-import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
-import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
-import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
-import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ClientType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
-import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Account, AccountProfile } from "@bitwarden/common/platform/models/domain/account";
-import { UserId } from "@bitwarden/common/types/guid";
 import {
   KeyService,
   Argon2KdfConfig,
@@ -41,16 +8,50 @@ import {
   KdfType,
 } from "@bitwarden/key-management";
 
-import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
+import { ApiService } from "../../abstractions/api.service";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { ClientType } from "../../enums";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import {
-  UserApiLoginCredentials,
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "../../key-management/vault-timeout";
+import { KeysRequest } from "../../models/request/keys.request";
+import { AppIdService } from "../../platform/abstractions/app-id.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { StateService } from "../../platform/abstractions/state.service";
+import { Account, AccountProfile } from "../../platform/models/domain/account";
+import { UserId } from "../../types/guid";
+import { AccountService } from "../abstractions/account.service";
+import { TokenService } from "../abstractions/token.service";
+import { TwoFactorService } from "../abstractions/two-factor.service";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
+import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
+import { AuthResult } from "../models/domain/auth-result";
+import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";
+import {
+  AuthRequestLoginCredentials,
   PasswordLoginCredentials,
   SsoLoginCredentials,
-  AuthRequestLoginCredentials,
+  UserApiLoginCredentials,
   WebAuthnLoginCredentials,
 } from "../models/domain/login-credentials";
 import { UserDecryptionOptions } from "../models/domain/user-decryption-options";
-import { CacheData } from "../services/login-strategies/login-strategy.state";
+import { DeviceRequest } from "../models/request/identity-token/device.request";
+import { PasswordTokenRequest } from "../models/request/identity-token/password-token.request";
+import { SsoTokenRequest } from "../models/request/identity-token/sso-token.request";
+import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
+import { UserApiTokenRequest } from "../models/request/identity-token/user-api-token.request";
+import { WebAuthnLoginTokenRequest } from "../models/request/identity-token/webauthn-login-token.request";
+import { IdentityDeviceVerificationResponse } from "../models/response/identity-device-verification.response";
+import { IdentityTokenResponse } from "../models/response/identity-token.response";
+import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
+
+import { CacheData } from "./cache-data";
 
 type IdentityResponse =
   | IdentityTokenResponse

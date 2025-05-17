@@ -2,11 +2,12 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, Observable, Subject } from "rxjs";
 
-import { RotateableKeySet, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
 
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "../../../auth/abstractions/user-decryption-options.service.abstraction";
+import { RotateableKeySet } from "../../../auth/models/domain/rotatable-key-set";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import {
   DeviceKeysUpdateRequest,

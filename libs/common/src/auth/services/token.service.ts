@@ -3,8 +3,6 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
-import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
-
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeout,
@@ -28,6 +26,8 @@ import {
 import { UserId } from "../../types/guid";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
+import { LogoutReason } from "../types/logout-reason.type";
+import { decodeJwtTokenToJson } from "../utilities/decode-jwt-token-to-json.utility";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
 import {

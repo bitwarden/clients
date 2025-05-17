@@ -4,7 +4,7 @@ import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
+import { LoginSuccessHandlerService } from "@bitwarden/common/auth/abstractions/login-success-handler.service";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";

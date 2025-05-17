@@ -4,7 +4,6 @@ import { MockProxy, any, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
@@ -12,6 +11,7 @@ import { SearchService } from "../../../abstractions/search.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { LogoutReason } from "../../../auth/types/logout-reason.type";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
