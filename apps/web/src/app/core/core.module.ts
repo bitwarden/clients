@@ -10,6 +10,7 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/components/device-management/default-device-management-component.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -37,6 +38,7 @@ import {
   ChangePasswordService,
 } from "@bitwarden/auth/angular";
 import {
+  DeviceManagementComponentServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
@@ -385,6 +387,11 @@ const safeProviders: SafeProvider[] = [
       InternalMasterPasswordServiceAbstraction,
       UserKeyRotationService,
     ],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
   }),
 ];
 
