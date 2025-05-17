@@ -108,7 +108,7 @@ function displayHandoffMessage(client: string) {
   if (!content) {
     throw new Error("content element not found");
   }
-  content.className = "text-center";
+  content.className = "tw-text-center";
   content.innerHTML = "";
 
   const h1 = document.createElement("h1");
@@ -123,8 +123,8 @@ function displayHandoffMessage(client: string) {
       ? localeService.t("thisWindowWillCloseIn5Seconds")
       : localeService.t("youMayCloseThisWindow");
 
-  h1.className = "font-weight-semibold";
-  p.className = "mb-4";
+  h1.className = "tw-font-semibold";
+  p.className = "tw-mb-4";
 
   content.appendChild(h1);
   content.appendChild(p);
@@ -133,7 +133,8 @@ function displayHandoffMessage(client: string) {
   if (client == "web") {
     const button = document.createElement("button");
     button.textContent = localeService.t("close");
-    button.className = "bg-primary text-white border-0 rounded py-2 px-3";
+    button.className =
+      "tw-bg-primary-600 hover:tw-bg-primary-700 tw-text-contrast tw-px-4 tw-py-2 tw-rounded-md tw-transition tw-border-transparent tw-text-center focus:tw-outline-none";
 
     button.addEventListener("click", () => {
       window.close();
