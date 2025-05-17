@@ -42,6 +42,8 @@ export type FormCacheOptions<TFormGroup extends FormGroup> = BaseCacheOptions<
 /**
  * Cache for temporary component state
  *
+ * [Read more](./README.md)
+ *
  * #### Implementations
  * - browser extension popup: used to persist UI between popup open and close
  * - all other clients: noop

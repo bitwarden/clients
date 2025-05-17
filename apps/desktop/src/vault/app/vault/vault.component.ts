@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rxjs";
 import { filter, first, map, take } from "rxjs/operators";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -23,20 +23,24 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
@@ -45,7 +49,6 @@ import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
 import { CollectionsComponent } from "./collections.component";
 import { CredentialGeneratorDialogComponent } from "./credential-generator-dialog.component";
-import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { PasswordHistoryComponent } from "./password-history.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
@@ -57,6 +60,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
 @Component({
   selector: "app-vault",
   templateUrl: "vault.component.html",
+  standalone: false,
 })
 export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild(ViewComponent) viewComponent: ViewComponent;
@@ -72,8 +76,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("share", { read: ViewContainerRef, static: true }) shareModalRef: ViewContainerRef;
   @ViewChild("collections", { read: ViewContainerRef, static: true })
   collectionsModalRef: ViewContainerRef;
-  @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
-  folderAddEditModalRef: ViewContainerRef;
 
   action: string;
   cipherId: string = null;
@@ -115,9 +117,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private cipherService: CipherService,
+    private folderService: FolderService,
   ) {}
 
   async ngOnInit() {
@@ -705,32 +707,26 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editFolder(folderId: string) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => (comp.folderId = folderId),
+    const folderView = await firstValueFrom(
+      this.folderService.getDecrypted$(folderId, this.activeUserId),
     );
-    this.modal = modal;
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onSavedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
-    });
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    childComponent.onDeletedFolder.subscribe(async (folder: FolderView) => {
-      this.modal.close();
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
+    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
+      editFolderConfig: {
+        folder: {
+          ...folderView,
+        },
+      },
     });
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (
+      result === AddEditFolderDialogResult.Deleted ||
+      result === AddEditFolderDialogResult.Created
+    ) {
+      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
+    }
   }
 
   private dirtyInput(): boolean {

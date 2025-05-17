@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
   },
-  "appsMarkedAsCritical": {
-    "message": "Приложения, отбелязани като важни"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Приложение"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Няма членове, които се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  },
   "atRiskApplicationsDescription": {
     "message": "Тези приложения имат слаби, преизползвани или разобличени пароли."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Няма приложения със слаби, преизползвани или разобличени пароли."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Тези членове се вписват в $APPNAME$ със слаби, преизползвани или разобличени пароли.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Няма членове в риск за $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",

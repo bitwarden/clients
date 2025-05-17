@@ -30,6 +30,7 @@ import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class AccessPolicySelectorComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

@@ -47,11 +47,13 @@ export type InitiationPath =
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
+  standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
-  InputPasswordFlow = InputPasswordFlow;
+  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  initializing = true;
 
   /** Password Manager or Secrets Manager */
   product: ProductType;
@@ -202,6 +204,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
+
+    this.initializing = false;
   }
 
   ngOnDestroy(): void {

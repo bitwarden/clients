@@ -6,6 +6,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 @Component({
   selector: "app-vault-view-custom-fields",
   templateUrl: "view-custom-fields.component.html",
+  standalone: false,
 })
 export class ViewCustomFieldsComponent extends BaseViewCustomFieldsComponent {
   constructor(eventCollectionService: EventCollectionService) {
