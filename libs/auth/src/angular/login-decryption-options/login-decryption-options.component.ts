@@ -41,6 +41,8 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
   NewUser,
   ExistingUserUntrustedDevice,

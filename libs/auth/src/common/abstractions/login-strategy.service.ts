@@ -59,16 +59,11 @@ export abstract class LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ) => Promise<AuthResult>;
   /**
-   * Sends a token request to the server with the provided two factor token
-   * and captcha response. This uses data stored from {@link LoginStrategyServiceAbstraction.logIn},
-   * so that must be called first.
+   * Sends a token request to the server with the provided two factor token.
+   * This uses data stored from {@link LoginStrategyServiceAbstraction.logIn}, so that must be called first.
    * Returns an error if no session data is found.
    */
-  logInTwoFactor: (
-    twoFactor: TokenTwoFactorRequest,
-    // TODO: PM-15162 - deprecate captchaResponse
-    captchaResponse: string,
-  ) => Promise<AuthResult>;
+  logInTwoFactor: (twoFactor: TokenTwoFactorRequest) => Promise<AuthResult>;
   /**
    * Creates a master key from the provided master password and email.
    */

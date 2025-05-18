@@ -1,12 +1,6 @@
-<bit-dialog
-  dialogSize="large"
-  *ngIf="{ enabled: accountDeprovisioningEnabled$ | async } as accountDeprovisioning"
->
+<bit-dialog dialogSize="large">
   <ng-container bitDialogTitle>
-    <span *ngIf="accountDeprovisioning.enabled; else nonMemberTitle">{{ bulkMemberTitle }}</span>
-    <ng-template #nonMemberTitle>
-      {{ bulkTitle }}
-    </ng-template>
+    <span>{{ bulkTitle }}</span>
   </ng-container>
 
   <div bitDialogContent>
@@ -20,7 +14,7 @@
 
     <bit-callout
       type="danger"
-      *ngIf="nonCompliantMembers && accountDeprovisioning.enabled"
+      *ngIf="nonCompliantMembers"
       title="{{ 'nonCompliantMembersTitle' | i18n }}"
     >
       {{ "nonCompliantMembersError" | i18n }}
@@ -50,7 +44,7 @@
       <bit-table>
         <ng-container header>
           <tr>
-            <th bitCell>{{ (accountDeprovisioning.enabled ? "member" : "user") | i18n }}</th>
+            <th bitCell>{{ "member" | i18n }}</th>
             <th bitCell class="tw-w-1/2" *ngIf="this.showNoMasterPasswordWarning">
               {{ "details" | i18n }}
             </th>
@@ -82,7 +76,7 @@
         <ng-container header>
           <tr>
             <th bitCell class="tw-w-1/2">
-              {{ (accountDeprovisioning.enabled ? "member" : "user") | i18n }}
+              {{ "member" | i18n }}
             </th>
             <th bitCell class="tw-w-1/2">{{ "status" | i18n }}</th>
           </tr>
@@ -113,7 +107,7 @@
       [bitAction]="submit"
       buttonType="primary"
     >
-      {{ accountDeprovisioning.enabled ? bulkMemberTitle : bulkTitle }}
+      {{ bulkTitle }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
       {{ "close" | i18n }}

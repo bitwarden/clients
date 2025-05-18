@@ -17,6 +17,7 @@ export interface AccessTokenOperation {
 
 @Component({
   templateUrl: "./access-token-create-dialog.component.html",
+  standalone: false,
 })
 export class AccessTokenCreateDialogComponent implements OnInit {
   protected formGroup = new FormGroup({

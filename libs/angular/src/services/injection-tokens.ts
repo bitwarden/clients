@@ -13,6 +13,7 @@ import {
 import { Theme } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
+import { HttpOperations } from "@bitwarden/common/services/api.service";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // Re-export the SafeInjectionToken from ui-common
 export { SafeInjectionToken } from "@bitwarden/ui-common";
@@ -61,3 +62,5 @@ export const REFRESH_ACCESS_TOKEN_ERROR_CALLBACK = new SafeInjectionToken<() => 
 export const ENV_ADDITIONAL_REGIONS = new SafeInjectionToken<RegionConfig[]>(
   "ENV_ADDITIONAL_REGIONS",
 );
+
+export const HTTP_OPERATIONS = new SafeInjectionToken<HttpOperations>("HTTP_OPERATIONS");

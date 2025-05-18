@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
   },
-  "appsMarkedAsCritical": {
-    "message": "应用程序已标记为关键"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "标记为关键的应用程序"
   },
   "application": {
     "message": "应用程序"
@@ -138,13 +138,28 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到应用程序。"
+    "message": "这些成员正登录到具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
+  "atRiskMembersDescriptionNone": {
+    "message": "没有成员登录到具有弱的、暴露的或重复使用的密码的应用程序。"
   },
   "atRiskApplicationsDescription": {
     "message": "这些应用程序具有弱的、暴露的或重复使用的密码。"
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "没有具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ 中没有存在风险的成员。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -396,7 +411,7 @@
     "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "如果您的支付卡已续期，请更新该卡的信息。"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "expirationMonth": {
     "message": "过期月份"
@@ -1515,7 +1530,7 @@
     "message": "电子邮箱"
   },
   "emailDescV2": {
-    "message": "请输入发送到您的电子邮箱的代码。"
+    "message": "输入发送到您的电子邮箱的代码。"
   },
   "continue": {
     "message": "继续"
@@ -2727,7 +2742,7 @@
     }
   },
   "bitwardenFamiliesPlan": {
-    "message": "Bitwarden 家庭版计划。"
+    "message": "Bitwarden 家庭计划。"
   },
   "addons": {
     "message": "附加项目"
@@ -2821,7 +2836,7 @@
     "message": "支付卡"
   },
   "paypalClickSubmit": {
-    "message": "点击 PayPal 按钮登录您的 PayPal 账户，然后点击下面的提交按钮继续。"
+    "message": "选择 PayPal 按钮登录您的 PayPal 账户，然后点击下面的「提交」按钮继续。"
   },
   "cancelSubscription": {
     "message": "取消订阅"
@@ -3072,7 +3087,7 @@
     }
   },
   "planNameFamilies": {
-    "message": "家庭版"
+    "message": "家庭"
   },
   "planDescFamilies": {
     "message": "适用于个人使用，与家人和朋友共享。"
@@ -4067,7 +4082,7 @@
     "message": "更新浏览器"
   },
   "generatingYourRiskInsights": {
-    "message": "Generating your Risk Insights..."
+    "message": "正在生成您的风险洞察..."
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "您保存的任何已加密导出也将变为无效。"
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您已保存的所有账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
-  },
-  "singleOrgPolicyWarning": {
-    "message": "不是所有者或管理员并且已是其他组织的成员的组织成员将从您的组织中移除。"
   },
   "singleOrgPolicyMemberWarning": {
     "message": "不符合要求的成员将被置于已撤销状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
@@ -5886,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "指纹短语："
   },
-  "removeUsers": {
-    "message": "移除用户"
-  },
-  "revokeUsers": {
-    "message": "撤销用户"
-  },
-  "restoreUsers": {
-    "message": "恢复用户"
-  },
   "error": {
     "message": "错误"
   },
@@ -6303,13 +6306,13 @@
     "message": "赞助的家庭"
   },
   "noSponsoredFamiliesMessage": {
-    "message": "No sponsored families"
+    "message": "没有赞助的家庭"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "已赞助的非成员家庭计划将显示在这里"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
@@ -6318,16 +6321,16 @@
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesEligibleCard": {
-    "message": "立即兑换免费的 Bitwarden 家庭版计划，即使您不在工作中，也能确保您的数据安全。"
+    "message": "立即兑换免费的 Bitwarden 家庭计划，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "The Bitwarden for Families plan includes"
+    "message": "Bitwarden 家庭计划包含"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 个用户的高级访问权限"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
-    "message": "Shared collections for family members"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "适用于家庭成员的共享集合"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -6339,10 +6342,10 @@
     "message": "已兑换家庭计划的成员将在这里显示"
   },
   "membersWithSponsoredFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版计划。在这里，您可以看到已赞助了家庭组织的成员。"
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。在这里，您可以看到已赞助了家庭组织的成员。"
   },
   "organizationHasMemberMessage": {
-    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "message": "由于他们是您组织的成员，因此不能将赞助发送给 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6402,7 +6405,7 @@
     "message": "账户已兑换"
   },
   "revokeAccountMessage": {
-    "message": "Revoke account $NAME$",
+    "message": "撤销账户 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6898,7 +6901,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "创建一个强大且唯一的密码",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "service": {
@@ -7836,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "连接域名允许成员在使用 SSO 登录时跳过 SSO 标识符字段。"
   },
-  "verifyDomain": {
-    "message": "验证域名"
-  },
-  "reverifyDomain": {
-    "message": "重新验证域名"
-  },
   "copyDnsTxtRecord": {
     "message": "复制 DNS TXT 记录"
   },
@@ -7850,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "复制并粘贴 TXT 记录到您的 DNS 提供商。"
-  },
-  "domainNameInputHint": {
-    "message": "示例：mydomain.com。子域名需要单独的条目进行验证。"
-  },
-  "automaticDomainVerification": {
-    "message": "自动域名验证"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden 将在最初的 72 小时内尝试验证域名 3 次。如果此域名无法验证，请检查您主机中的 DNS 记录并手动验证。如果此域名在 7 天内未验证，它将被从您的组织中移除。"
-  },
-  "invalidDomainNameMessage": {
-    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行验证。"
   },
   "removeDomain": {
     "message": "移除域名"
@@ -7875,9 +7860,6 @@
   "domainSaved": {
     "message": "域名已保存"
   },
-  "domainVerified": {
-    "message": "域名已验证"
-  },
   "duplicateDomainError": {
     "message": "您不能两次声明同一个域名。"
   },
@@ -7889,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ 无法验证。请检查您的 DNS 记录。",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "已验证"
-  },
-  "domainStatusUnverified": {
-    "message": "未验证"
   },
   "domainNameTh": {
     "message": "域名"
@@ -7931,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "移除了域名 $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ 已验证",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "从提供商门户管理账单"
   },
+  "continueSettingUp": {
+    "message": "继续设置 Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "继续设置您的免费试用版 Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "继续设置 Bitwarden 密码管理器"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "继续设置 Bitwarden 机密管理器"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
@@ -10245,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "removeMembers": {
     "message": "移除成员"
   },
@@ -10396,11 +10318,17 @@
   "doNotTrust": {
     "message": "不信任"
   },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
   "emergencyAccessTrustWarning": {
     "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
   },
   "orgTrustWarning": {
     "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
   },
   "trustUser": {
     "message": "信任用户"
@@ -10629,39 +10557,61 @@
     "message": "新增业务单元"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "包含",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "网站",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "以便将此登录显示为自动填充建议。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "无缝在线结账"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "简化账户的创建"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "保持您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "重新启动"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+  },
+  "clickPayWithPayPal": {
+    "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
   }
 }

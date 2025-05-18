@@ -428,12 +428,6 @@ jobs:
       - name: Set up environmentF
         run: choco install checksum --no-progress
 
-      - name: Rust
-        shell: pwsh
-        run: |
-          rustup target install i686-pc-windows-msvc
-          rustup target install aarch64-pc-windows-msvc
-
       - name: Print environment
         run: |
           node --version
@@ -681,10 +675,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -890,10 +880,6 @@ jobs:
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
 
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
-
       - name: Print environment
         run: |
           node --version
@@ -1040,9 +1026,7 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
@@ -1138,10 +1122,6 @@ jobs:
 
       - name: Set up Node-gyp
         run: python3 -m pip install setuptools
-
-      - name: Rust
-        shell: pwsh
-        run: rustup target install aarch64-apple-darwin
 
       - name: Print environment
         run: |
@@ -1296,9 +1276,7 @@ jobs:
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
         working-directory: apps/desktop/desktop_native
-        run: |
-          rustup target add aarch64-apple-darwin
-          node build.js cross-platform
+        run: node build.js cross-platform
 
       - name: Build
         if: steps.build-cache.outputs.cache-hit != 'true'
