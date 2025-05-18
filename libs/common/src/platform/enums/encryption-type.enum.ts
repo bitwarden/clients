@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EncryptionType {
   AesCbc256_B64 = 0,
   // Type 1 was the unused and removed AesCbc128_HmacSha256_B64

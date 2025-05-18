@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Yeni element, yeni bir pəncərədə açılır",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Saxlamazdan əvvəl düzəliş et",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ Bitwarden-də saxlanıldı.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "\"Bitwarden\"də saxlanıldı.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ Bitwarden-də güncəlləndi.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "\"Bitwarden\"də güncəlləndi.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ seç",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Yeni giriş kimi saxla",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Giriş məlumatlarını güncəllə",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Bu girişi saxlamaq üçün kilidi açın",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Girişi saxla",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Avto-doldurma təklifləri"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Avto-doldurma təkliflərini asanlıqla tap"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Bitwarden ilə ziddiyyət yaranmaması üçün brauzerinizin avto-doldurma ayarlarını söndürün."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "$BROWSER$ avto-doldurma ayarını söndür",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Avto-doldurmanı söndür"
   },
   "showInlineMenuLabel": {
     "message": "Avto-doldurma təkliflərini form xanalarında göstər"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Vaxt bitmə əməliyyatı"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Yeni özəlləşdirmə seçimləri"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Cəld kopyalama fəaliyyəti, yığcam rejim və daha çoxu ilə seyf təcrübənizi özəlləşdirin!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Bütün Görünüş ayarlarına bax"
   },
   "lock": {
     "message": "Kilidlə",
@@ -3564,6 +3583,30 @@
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
   },
+  "trustOrganization": {
+    "message": "Təşkilata güvən"
+  },
+  "trust": {
+    "message": "Güvən"
+  },
+  "doNotTrust": {
+    "message": "Güvənmə"
+  },
+  "organizationNotTrusted": {
+    "message": "Təşkilata güvənilmir"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu istifadəçiyə fövqəladə hal müraciəti icazəsini verdiyinizi və onun barmaq izinin hesabında görünən barmaq izi ilə uyuşduğunu təsdiqləyin"
+  },
+  "orgTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu təşkilatın üzvüsünüzsə, hesab geri qaytarma fəaldırsa və aşağıda görünən barmaq izi təşkilatın barmaq izi ilə uyuşursa davam edin."
+  },
+  "orgTrustWarning1": {
+    "message": "Bu təşkilat, sahib olduğu Müəssisə siyasəti ilə sizi hesabın qaytarılması prosesinə yazdıracaq. Yazılma, təşkilat inzibatçılarının parolunuzu dəyişdirməsinə imkan verəcək. Yalnız bu təşkilatı tanıyırsınızsa və aşağıda görünən barmaq izi ifadəsi, təşkilatın barmaq izi ifadəsi ilə uyuşursa davam edin."
+  },
+  "trustUser": {
+    "message": "İstifadəçiyə güvən"
+  },
   "sendsNoItemsTitle": {
     "message": "Aktiv \"Send\" yoxdur",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4488,6 +4531,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden-i endir"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden-i bütün cihazlarda endir"
+  },
+  "getTheMobileApp": {
+    "message": "Mobil tətbiqi əldə et"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Bitwarden mobil tətbiqi ilə parollarınıza hər yerdən müraciət edin."
+  },
+  "getTheDesktopApp": {
+    "message": "Masaüstü tətbiqi əldə et"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Seyfinizə brauzer olmadan müraciət edin, sonra həm masaüstü tətbiqində, həm də brauzer uzantısında kilid açma prosesini sürətləndirmək üçün biometrik ilə kilid açma prosesini qurun."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "İndi bitwarden.com saytından endir"
+  },
+  "getItOnGooglePlay": {
+    "message": "Google Play-dən endir"
+  },
+  "downloadOnTheAppStore": {
+    "message": "App Store-dan endir"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu qoşmanı birdəfəlik silmək istədiyinizə əminsiniz?"
   },
@@ -5111,42 +5181,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "extensionWidth": {
     "message": "Uzantı eni"
   },
@@ -5201,6 +5235,12 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "settingsVaultOptions": {
+    "message": "Seyf seçimləri"
+  },
+  "emptyVaultDescription": {
+    "message": "Seyf, yalnız parollarızı yox, həm də daha çoxunu qoruyur. Giriş məlumatlarınızı, kimlikləri, kartları və notları burada güvənli şəkildə saxlayın."
+  },
   "introCarouselLabel": {
     "message": "Bitwarden-ə xoş gəlmisiniz"
   },
@@ -5227,5 +5267,81 @@
   },
   "secureDevicesBody": {
     "message": "Bitwarden mobil, brauzer və masaüstü tətbiqləri ilə limitsiz cihaz arasında limitsiz parol saxlayın."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 bildiriş"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Mövcud parolları daxilə köçür"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Giriş məlumatlarını əllə daxil etmədən daha tez daxilə köçürmək üçün \"Daxilə köçürücü\"nü istifadə edin."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "İndi daxilə köçür"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Seyfinizə xoş gəlmisiniz!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Hazırkı səhifə üçün elementləri avto-doldur"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Asan müraciət üçün elementləri sevimlilərə əlavə et"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Seyfinizdə başqa bir şey axtarın"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Avto-doldurma ilə vaxta qənaət edin"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bir veb sayt",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "daxil edin ki,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "bu giriş məlumatları avto-doldurma təklifi kimi görünsün.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Problemsiz onlayn ödəniş"
+  },
+  "newCardNudgeBody": {
+    "message": "Kartlarla, ödəniş xanalarını təhlükəsiz və doğru şəkildə avtomatik doldurun."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Hesab yaratmanı sadələşdirin"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Həssas datalarınızı güvənli şəkildə saxlayın"
+  },
+  "newNoteNudgeBody": {
+    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas dataları təhlükəsiz saxlayın."
+  },
+  "newSshNudgeTitle": {
+    "message": "Gəlişdirici dostu SSH müraciəti"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "SSH agenti barədə daha ətraflı",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
   }
 }

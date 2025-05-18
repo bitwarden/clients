@@ -477,7 +477,9 @@ describe("SendService", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
       encryptedKey = new EncString("Re-encrypted Send Key");
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
     });

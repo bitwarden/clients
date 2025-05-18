@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -147,5 +149,28 @@ export class Fido2Credential extends Domain {
       discoverable,
       creationDate,
     });
+  }
+
+  /**
+   *  Maps Fido2Credential to SDK format.
+   *
+   * @returns {SdkFido2Credential} The SDK Fido2Credential object.
+   */
+  toSdkFido2Credential(): SdkFido2Credential {
+    return {
+      credentialId: this.credentialId?.toJSON(),
+      keyType: this.keyType.toJSON(),
+      keyAlgorithm: this.keyAlgorithm.toJSON(),
+      keyCurve: this.keyCurve.toJSON(),
+      keyValue: this.keyValue.toJSON(),
+      rpId: this.rpId.toJSON(),
+      userHandle: this.userHandle?.toJSON(),
+      userName: this.userName?.toJSON(),
+      counter: this.counter.toJSON(),
+      rpName: this.rpName?.toJSON(),
+      userDisplayName: this.userDisplayName?.toJSON(),
+      discoverable: this.discoverable?.toJSON(),
+      creationDate: this.creationDate.toISOString(),
+    };
   }
 }

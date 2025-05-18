@@ -145,7 +145,7 @@ export class AcceptOrganizationInviteService {
 
     const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>();
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
-    const collection = await this.encryptService.encrypt(
+    const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       orgKey,
     );

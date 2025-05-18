@@ -58,7 +58,9 @@ describe("ORGANIZATIONS state", () => {
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
         useRiskInsights: false,
+        useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
+        isAdminInitiated: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

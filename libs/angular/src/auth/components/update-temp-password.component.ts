@@ -110,10 +110,11 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
   }
 
   async setupSubmitActions(): Promise<boolean> {
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    const [userId, email] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
     );
-    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+    this.email = email;
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     return true;
   }
 

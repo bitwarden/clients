@@ -88,5 +88,9 @@
       <i class="bwi bwi-sticky-note tw-mr-1" aria-hidden="true"></i>
       {{ "typeSecureNote" | i18n }}
     </button>
+    <button type="button" bitMenuItem (click)="addCipher(CipherType.SshKey)">
+      <i class="bwi bwi-key tw-mr-1" aria-hidden="true"></i>
+      {{ "typeSshKey" | i18n }}
+    </button>
   </bit-menu>
 </ng-template>

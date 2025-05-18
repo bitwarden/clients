@@ -20,6 +20,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "provider-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
