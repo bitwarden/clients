@@ -26,7 +26,10 @@ import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key
 import { PasswordInputResult } from "../input-password/password-input-result";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
-import { SetInitialPasswordCredentials } from "./set-initial-password.service.abstraction";
+import {
+  SetInitialPasswordCredentials,
+  SetInitialPasswordUserType,
+} from "./set-initial-password.service.abstraction";
 
 describe("DefaultSetInitialPasswordService", () => {
   let sut: DefaultSetInitialPasswordService;
@@ -73,7 +76,7 @@ describe("DefaultSetInitialPasswordService", () => {
   });
 
   describe("setPassword", () => {
-    let masterKey: MasterKey;
+    let newMasterKey: MasterKey;
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let protectedUserKey: [UserKey, EncString];
@@ -86,6 +89,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let orgId: string;
     let resetPasswordAutoEnroll: boolean;
     let userId: UserId;
+    let userType: SetInitialPasswordUserType;
     let passwordInputResult: PasswordInputResult;
     let credentials: SetInitialPasswordCredentials;
 
@@ -93,7 +97,7 @@ describe("DefaultSetInitialPasswordService", () => {
     let setPasswordRequest: SetPasswordRequest;
 
     beforeEach(() => {
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      newMasterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
       protectedUserKey = [userKey, userKeyEncString];
@@ -109,31 +113,35 @@ describe("DefaultSetInitialPasswordService", () => {
       orgId = "orgId";
       resetPasswordAutoEnroll = false;
       userId = "userId" as UserId;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER;
 
       passwordInputResult = {
-        masterKey: masterKey,
-        serverMasterKeyHash: "serverMasterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
-        hint: "hint",
+        newMasterKey: newMasterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
+        newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPassword: "password",
       };
 
       credentials = {
-        ...passwordInputResult,
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier,
         orgId,
         resetPasswordAutoEnroll,
-        userId,
       };
 
       userDecryptionOptionsSubject = new BehaviorSubject(null);
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
       setPasswordRequest = new SetPasswordRequest(
-        passwordInputResult.serverMasterKeyHash,
+        passwordInputResult.newServerMasterKeyHash,
         protectedUserKey[1].encryptedString,
-        passwordInputResult.hint,
+        passwordInputResult.newPasswordHint,
         orgSsoIdentifier,
         keysRequest,
         passwordInputResult.kdfConfig.kdfType,
@@ -186,7 +194,7 @@ describe("DefaultSetInitialPasswordService", () => {
       setupSetPasswordMocks();
 
       // Act
-      await sut.setPassword(credentials);
+      await sut.setInitialPassword(credentials, userType, userId);
 
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -197,7 +205,7 @@ describe("DefaultSetInitialPasswordService", () => {
       setupSetPasswordMocks(false);
 
       // Act
-      await sut.setPassword(credentials);
+      await sut.setInitialPassword(credentials, userType, userId);
 
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -211,12 +219,12 @@ describe("DefaultSetInitialPasswordService", () => {
       setupResetPasswordAutoEnrollMocks();
 
       // Act
-      await sut.setPassword(credentials);
+      await sut.setInitialPassword(credentials, userType, userId);
 
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(orgId);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.key, orgPublicKey);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(userKey, orgPublicKey);
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalled();
@@ -230,7 +238,7 @@ describe("DefaultSetInitialPasswordService", () => {
       setupResetPasswordAutoEnrollMocks(false);
 
       // Act and Assert
-      await expect(sut.setPassword(credentials)).rejects.toThrow();
+      await expect(sut.setInitialPassword(credentials, userType, userId)).rejects.toThrow();
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).not.toHaveBeenCalled();

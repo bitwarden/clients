@@ -3,7 +3,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -16,7 +15,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { CalloutComponent, DialogService, ToastService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
@@ -34,20 +34,21 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [CommonModule, InputPasswordComponent, JslibModule],
+  imports: [CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
 })
 export class SetInitialPasswordComponent implements OnInit {
-  protected InputPasswordFlow = InputPasswordFlow;
+  protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
+
   protected email: string;
   protected forceSetPasswordReason: ForceSetPasswordReason;
-  protected userType: SetInitialPasswordUserType;
+  protected initializing = true;
   protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
   protected orgId: string;
   protected orgSsoIdentifier: string;
   protected resetPasswordAutoEnroll: boolean;
   protected submitting = false;
-  protected syncLoading = true;
   protected userId: UserId;
+  protected userType: SetInitialPasswordUserType;
 
   constructor(
     private accountService: AccountService,
@@ -69,7 +70,6 @@ export class SetInitialPasswordComponent implements OnInit {
 
   async ngOnInit() {
     await this.syncService.fullSync(true);
-    this.syncLoading = false;
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     this.userId = activeAccount?.id;
@@ -80,6 +80,8 @@ export class SetInitialPasswordComponent implements OnInit {
     if (this.userType !== SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER) {
       await this.handleQueryParams();
     }
+
+    this.initializing = false;
   }
 
   private async determineUserType() {
@@ -148,11 +150,11 @@ export class SetInitialPasswordComponent implements OnInit {
     ) {
       try {
         const credentials: SetInitialPasswordCredentials = {
-          masterKey: passwordInputResult.masterKey,
-          serverMasterKeyHash: passwordInputResult.serverMasterKeyHash,
-          localMasterKeyHash: passwordInputResult.localMasterKeyHash,
+          newMasterKey: passwordInputResult.newMasterKey,
+          newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+          newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+          newPasswordHint: passwordInputResult.newPasswordHint,
           kdfConfig: passwordInputResult.kdfConfig,
-          hint: passwordInputResult.hint,
           orgSsoIdentifier: this.orgSsoIdentifier,
           orgId: this.orgId,
           resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,

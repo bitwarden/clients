@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -21,7 +19,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../input-password/password-input-result";
 
@@ -51,10 +49,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ): Promise<void> {
     const {
-      masterKey,
-      serverMasterKeyHash,
-      localMasterKeyHash,
-      hint,
+      newMasterKey,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
       orgId,
@@ -71,7 +69,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("userId and/or userType not found. Could not set password.");
     }
 
-    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(masterKey, userId);
+    const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
+      newMasterKey,
+      userId,
+    );
     if (masterKeyEncryptedUserKey == null) {
       throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
@@ -116,9 +117,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     const request = new SetPasswordRequest(
-      serverMasterKeyHash,
+      newServerMasterKeyHash,
       masterKeyEncryptedUserKey[1].encryptedString,
-      hint,
+      newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
       kdfConfig.kdfType, // kdfConfig is always DEFAULT_KDF_CONFIG (see InputPasswordComponent) TODO-rr-bw: clarify this comment
@@ -132,7 +133,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     // User now has a password so update account decryption options in state
     await this.updateAccountDecryptionProperties(
-      masterKey,
+      newMasterKey,
       kdfConfig,
       masterKeyEncryptedUserKey,
       userId,
@@ -149,24 +150,24 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(serverMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
     }
   }
 
   async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult, userId: UserId) {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      passwordInputResult.masterKey,
+      passwordInputResult.newMasterKey,
       userKey,
     );
 
     const request = new UpdateTdeOffboardingPasswordRequest();
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = passwordInputResult.serverMasterKeyHash;
-    request.masterPasswordHint = passwordInputResult.hint;
+    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+    request.masterPasswordHint = passwordInputResult.newPasswordHint;
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
@@ -192,7 +193,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
-    kdfConfig: PBKDF2KdfConfig,
+    kdfConfig: KdfConfig,
     masterKeyEncryptedUserKey: [UserKey, EncString],
     userId: UserId,
   ) {

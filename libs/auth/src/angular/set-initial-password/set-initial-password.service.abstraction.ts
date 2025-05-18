@@ -1,11 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../input-password/password-input-result";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SetInitialPasswordUserType {
   /**
    * A user being "just-in-time" (JIT) provisioned into a master-password-encryption org
@@ -27,11 +27,11 @@ export enum SetInitialPasswordUserType {
 }
 
 export interface SetInitialPasswordCredentials {
-  masterKey: MasterKey;
-  serverMasterKeyHash: string;
-  localMasterKeyHash: string;
-  kdfConfig: PBKDF2KdfConfig;
-  hint: string;
+  newMasterKey: MasterKey;
+  newServerMasterKeyHash: string;
+  newLocalMasterKeyHash: string;
+  newPasswordHint: string;
+  kdfConfig: KdfConfig;
   orgSsoIdentifier: string;
   orgId: string;
   resetPasswordAutoEnroll: boolean;
