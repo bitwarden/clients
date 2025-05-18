@@ -17,7 +17,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {
   tokenRequest: WebAuthnLoginTokenRequest;
-  captchaBypassToken?: string;
   credentials: WebAuthnLoginCredentials;
 
   static fromJSON(obj: Jsonify<WebAuthnLoginStrategyData>): WebAuthnLoginStrategyData {

@@ -1,12 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
@@ -21,6 +18,7 @@ type BulkDeleteDialogParams = {
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   organizationId: string;
@@ -35,7 +33,6 @@ export class BulkDeleteDialogComponent {
     @Inject(DIALOG_DATA) protected dialogParams: BulkDeleteDialogParams,
     protected i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
-    private configService: ConfigService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
   ) {
     this.organizationId = dialogParams.organizationId;
@@ -43,11 +40,7 @@ export class BulkDeleteDialogComponent {
   }
 
   async submit() {
-    if (
-      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioning))
-    ) {
-      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId);
-    }
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId);
 
     try {
       this.loading = true;

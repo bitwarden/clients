@@ -33,6 +33,9 @@ export function OptionSelectionButton({
       class=${selectionButtonStyles({ disabled, toggledOn, theme })}
       title=${text}
       type="button"
+      aria-haspopup="menu"
+      aria-expanded=${toggledOn}
+      aria-controls="option-menu"
       @click=${handleButtonClick}
     >
       ${buttonIcon ?? nothing}

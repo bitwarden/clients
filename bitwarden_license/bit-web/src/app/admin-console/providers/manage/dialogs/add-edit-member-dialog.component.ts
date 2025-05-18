@@ -25,6 +25,8 @@ export type AddEditMemberDialogParams = {
   };
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddEditMemberDialogResultType {
   Closed = "closed",
   Deleted = "deleted",
@@ -33,6 +35,7 @@ export enum AddEditMemberDialogResultType {
 
 @Component({
   templateUrl: "add-edit-member-dialog.component.html",
+  standalone: false,
 })
 export class AddEditMemberDialogComponent {
   editing = false;

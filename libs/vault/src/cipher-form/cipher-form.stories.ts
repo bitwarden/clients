@@ -13,7 +13,7 @@ import {
 import { BehaviorSubject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -36,7 +36,7 @@ import {
   CipherFormGenerationService,
   NudgeStatus,
   PasswordRepromptService,
-  VaultNudgesService,
+  NudgesService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -144,7 +144,7 @@ export default {
       ],
       providers: [
         {
-          provide: VaultNudgesService,
+          provide: NudgesService,
           useValue: {
             showNudge$: new BehaviorSubject({
               hasBadgeDismissed: true,

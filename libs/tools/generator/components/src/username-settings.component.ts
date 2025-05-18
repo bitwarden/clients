@@ -24,6 +24,7 @@ import {
 @Component({
   selector: "tools-username-settings",
   templateUrl: "username-settings.component.html",
+  standalone: false,
 })
 export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component

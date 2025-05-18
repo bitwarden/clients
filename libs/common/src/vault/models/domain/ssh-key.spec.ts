@@ -64,4 +64,17 @@ describe("Sshkey", () => {
       expect(SshKey.fromJSON(null)).toBeNull();
     });
   });
+
+  describe("toSdkSshKey", () => {
+    it("returns the correct SDK SshKey object", () => {
+      const sshKey = new SshKey(data);
+      const sdkSshKey = sshKey.toSdkSshKey();
+
+      expect(sdkSshKey).toEqual({
+        privateKey: "privateKey",
+        publicKey: "publicKey",
+        fingerprint: "keyFingerprint",
+      });
+    });
+  });
 });

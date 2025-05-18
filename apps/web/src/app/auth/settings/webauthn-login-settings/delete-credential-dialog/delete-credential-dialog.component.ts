@@ -26,6 +26,7 @@ export interface DeleteCredentialDialogParams {
 
 @Component({
   templateUrl: "delete-credential-dialog.component.html",
+  standalone: false,
 })
 export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

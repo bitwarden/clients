@@ -20,6 +20,7 @@ import { RowHeightClass } from "./vault-items.component";
 @Component({
   selector: "tr[appVaultCipherRow]",
   templateUrl: "vault-cipher-row.component.html",
+  standalone: false,
 })
 export class VaultCipherRowComponent implements OnInit {
   protected RowHeightClass = RowHeightClass;

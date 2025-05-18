@@ -22,5 +22,6 @@ import { UserVerificationComponent as BaseComponent } from "@bitwarden/angular/a
       transition(":enter", [style({ opacity: 0 }), animate("100ms", style({ opacity: 1 }))]),
     ]),
   ],
+  standalone: false,
 })
 export class UserVerificationComponent extends BaseComponent {}
