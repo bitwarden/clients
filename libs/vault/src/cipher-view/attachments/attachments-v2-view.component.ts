@@ -15,7 +15,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ItemModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -32,7 +31,6 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
     JslibModule,
     ItemModule,
     IconButtonModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     DownloadAttachmentComponent,
@@ -43,6 +41,8 @@ export class AttachmentsV2ViewComponent {
 
   // Required for fetching attachment data when viewed from cipher via emergency access
   @Input() emergencyAccessId?: EmergencyAccessId;
+
+  @Input() admin: boolean = false;
 
   canAccessPremium: boolean;
   orgKey: OrgKey;

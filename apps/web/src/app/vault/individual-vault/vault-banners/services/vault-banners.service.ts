@@ -17,6 +17,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PBKDF2KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VisibleVaultBanner {
   KDFSettings = "kdf-settings",
   OutdatedBrowser = "outdated-browser",

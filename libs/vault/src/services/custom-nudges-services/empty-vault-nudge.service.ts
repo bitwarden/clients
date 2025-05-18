@@ -7,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 /**
  * Custom Nudge Service Checking Nudge Status For Empty Vault
@@ -20,7 +20,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
@@ -28,13 +28,16 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
-        const emptyVault = ciphers == null || ciphers.length === 0;
+        const filteredCiphers = ciphers?.filter((cipher) => {
+          return cipher.deletedDate == null;
+        });
+        const vaultHasContents = !(filteredCiphers == null || filteredCiphers.length === 0);
         if (orgs == null || orgs.length === 0) {
           return nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed
             ? of(nudgeStatus)
             : of({
-                hasSpotlightDismissed: emptyVault,
-                hasBadgeDismissed: emptyVault,
+                hasSpotlightDismissed: vaultHasContents,
+                hasBadgeDismissed: vaultHasContents,
               });
         }
         const orgIds = new Set(orgs.map((org) => org.id));
@@ -55,8 +58,8 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
           return of(nudgeStatus);
         }
         return of({
-          hasSpotlightDismissed: emptyVault,
-          hasBadgeDismissed: emptyVault,
+          hasSpotlightDismissed: vaultHasContents,
+          hasBadgeDismissed: vaultHasContents,
         });
       }),
     );

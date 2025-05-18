@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Marquer l'application comme critique"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marquées comme critiques"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ces applications ont des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Il n'y a aucune application avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ces membres se connectent à $APPNAME$ avec des mots de passe faibles, exposés ou réutilisés.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Il n'y a pas de membre à risque pour $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Tous les exports chiffrés que vous avez enregistrés deviendront également invalides."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
   },
   "subscription": {
     "message": "Abonnement"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Votre organisation actuelle a une politique qui ne vous permet pas de rejoindre plus d'une organisation. Veuillez contacter les administrateurs de votre organisation ou vous inscrire à partir d'un compte Bitwarden différent."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Les membres de l'organisation qui ne sont pas propriétaires ou administrateurs et qui sont déjà membres d'une autre organisation seront supprimés de votre organisation."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Les membres non conformes seront placés en statut révoqué jusqu'à ce qu'ils quittent toutes les autres organisations. Les administrateurs sont exemptés et peuvent restaurer les membres une fois que la conformité est respectée."
@@ -5886,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Phrase d'empreinte :"
   },
-  "removeUsers": {
-    "message": "Supprimer les utilisateurs"
-  },
-  "revokeUsers": {
-    "message": "Révoquer les Utilisateurs"
-  },
-  "restoreUsers": {
-    "message": "Restaurer les Utilisateurs"
-  },
   "error": {
     "message": "Erreur"
   },
@@ -6303,13 +6306,13 @@
     "message": "Familles parrainées"
   },
   "noSponsoredFamiliesMessage": {
-    "message": "No sponsored families"
+    "message": "Aucune famille parrainée"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Les abonnements des familles non membres parrainées apparaîtront ici"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Les membres de votre organisation sont éligibles pour les Familles Gratuites de Bitwarden. Vous pouvez parrainer Familles Gratuites de Bitwarden pour les employés qui ne sont pas membres de votre organisation Bitwarden. Parrainer un non-membre nécessite une licence disponible au sein de votre organisation."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Lorsque vous supprimez un parrainage actif, une licence au sein de votre organisation sera disponible après la date de renouvellement de l'organisation parrainée."
@@ -6321,13 +6324,13 @@
     "message": "Obtenez votre abonnement Bitwarden Familles gratuit aujourd'hui pour garder vos données en sécurité même lorsque vous n'êtes pas au travail."
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "The Bitwarden for Families plan includes"
+    "message": "L'abonnement Bitwarden Familles inclut"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Accès Premium jusqu'à 6 utilisateurs"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
-    "message": "Shared collections for family members"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Collections partagées pour les membres de la famille"
   },
   "memberFamilies": {
     "message": "Familles de membre"
@@ -6342,7 +6345,7 @@
     "message": "Les membres de votre organisation sont éligibles à l'abonnement aux Familles Gratuites de Bitwarden. Vous pouvez voir ici les membres qui ont parrainé une organisation Familles."
   },
   "organizationHasMemberMessage": {
-    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "message": "Un parrainage ne peut pas être envoyé à $EMAIL$ car il est membre de votre organisation.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6402,7 +6405,7 @@
     "message": "Compte récupéré"
   },
   "revokeAccountMessage": {
-    "message": "Revoke account $NAME$",
+    "message": "Révoquer le compte $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -7836,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "La connexion d'un domaine permet aux membres de passer outre le champ de l'identifiant SSO lors de la connexion avec SSO."
   },
-  "verifyDomain": {
-    "message": "Vérifier le domaine"
-  },
-  "reverifyDomain": {
-    "message": "Revérifier le domaine"
-  },
   "copyDnsTxtRecord": {
     "message": "Copier l'enregistrement DNS TXT"
   },
@@ -7850,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copiez-collez l'enregistrement TXT dans votre fournisseur de services DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Exemple : mondomaine.com. Les sous-domaines nécessitent des entrées séparées pour être vérifiés."
-  },
-  "automaticDomainVerification": {
-    "message": "Vérification automatique du domaine"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden tentera de vérifier le domaine 3 fois au cours des 72 premières heures. Si le domaine ne peut pas être vérifié, vérifiez l'enregistrement DNS de votre hôte et vérifiez manuellement. Le domaine sera retiré de votre organisation dans 7 jours s'il n'est pas vérifié"
-  },
-  "invalidDomainNameMessage": {
-    "message": "L'entrée n'est pas saisie dans un format valide. Format : mondomaine.com. Les sous-domaines nécessitent des entrées séparées pour être vérifiés."
   },
   "removeDomain": {
     "message": "Retirer le domaine"
@@ -7875,9 +7860,6 @@
   "domainSaved": {
     "message": "Domaine sauvegardé"
   },
-  "domainVerified": {
-    "message": "Domaine vérifié"
-  },
   "duplicateDomainError": {
     "message": "Vous ne pouvez pas revendiquer le même domaine deux fois."
   },
@@ -7889,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ non vérifié. Vérifiez votre enregistrement DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Vérifié"
-  },
-  "domainStatusUnverified": {
-    "message": "Non vérifié"
   },
   "domainNameTh": {
     "message": "Nom"
@@ -7931,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "Domaine $DOMAIN$ retiré",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ vérifié",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ non vérifié",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gérer la facturation depuis le Portail Fournisseur"
   },
+  "continueSettingUp": {
+    "message": "Continuer la configuration de Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continuer à configurer votre essai gratuit de Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continuer la configuration du Gestionnaire de Mots de Passe Bitwarden"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continuer à configurer votre essai gratuit du gestionnaire de mots de passe Bitwarden"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continuez à configurer votre essai gratuit de Secrets Manager de Bitwarden"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continuez à configurer votre essai gratuit de Bitwarden Secrets Manager"
@@ -10245,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Avis important"
-  },
-  "setupTwoStepLogin": {
-    "message": "Configurer l'identification à deux facteurs"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden enverra un code au courriel de votre compte pour vérifier les connexions depuis de nouveaux appareils à partir de février 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Vous pouvez configurer l'identification à deux facteurs comme un moyen alternatif de protéger votre compte ou de changer votre adresse courriel à une autre à laquelle vous pouvez accéder."
-  },
-  "remindMeLater": {
-    "message": "Me le rappeler plus tard"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Avez-vous un accès fiable à votre courriel $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Non, je ne l'ai pas"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Oui, je peux accéder à mon courriel de manière fiable"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Configurer l'identification à deux facteurs"
-  },
-  "changeAcctEmail": {
-    "message": "Changer l'adresse courriel du compte"
-  },
   "removeMembers": {
     "message": "Retirer des membres"
   },
@@ -10396,11 +10318,17 @@
   "doNotTrust": {
     "message": "Ne pas faire confiance"
   },
+  "organizationNotTrusted": {
+    "message": "L'organisation n'est pas fiable"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Pour la sécurité de votre compte, confirmez seulement si vous avez accordé l'accès d'urgence à cet utilisateur et que sa phrase d'empreinte correspond à ce qui est affiché dans son compte"
   },
   "orgTrustWarning": {
     "message": "Pour la sécurité de votre compte, continuez seulement si vous êtes un membre de cette organisation, avez la récupération de compte activée et que la phrase d'empreinte correspond à celle de l'organisation."
+  },
+  "orgTrustWarning1": {
+    "message": "Cette organisation a une politique de sécurité Entreprise qui vous inscrira dans la récupération de votre compte. L'inscription permettra aux administrateurs de l'organisation de changer votre mot de passe. Continuez seulement si vous reconnaissez cette organisation et que la phrase d'empreinte affichée ci-dessous correspond à l'empreinte de l'organisation."
   },
   "trustUser": {
     "message": "Faire confiance à l'utilisateur"
@@ -10629,39 +10557,61 @@
     "message": "Nouvelle unité d'affaires"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Gagnez du temps avec le remplissage automatique"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Inclure un",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Site internet",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "pour que cet identifiant apparaisse comme une suggestion de remplissage automatique.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Paiement en ligne transparent"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Avec les cartes, remplissez facilement les formulaires de paiement en toute sécurité et avec précision."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Simplifier la création de comptes"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Avec les identités, remplissez rapidement de longs formulaires d'inscription ou de contact."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Gardez vos données sensibles en sécurité"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Avec les notes, conservez en toute sécurité des données sensibles comme les informations bancaires ou d'assurances."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Accès SSH convivial pour les développeurs"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Enregistrez vos clés et connectez-vous avec l'agent SSH pour une authentification rapide et chiffrée.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "En savoir plus sur l'agent SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Redémarrer"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 1-2 prochains jours ouvrables. Entrez le code de la transaction de ce dépôt sur la page d'abonnement de votre fournisseur pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "clickPayWithPayPal": {
+    "message": "Veuillez cliquer sur le bouton Payer avec PayPal pour ajouter votre mode de paiement."
   }
 }

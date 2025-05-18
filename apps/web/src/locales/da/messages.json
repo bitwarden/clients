@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Markér app som kritisk"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps markeret som kritiske"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Applikation"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Disse medlemmer logger ind på programmer med svage, udsatte eller genbrugte adgangskoder."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Disse applikationer har svage, udsatte eller genbrugte adgangskoder."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Disse medlemmer logger ind på $APPNAME$ med svage, udsatte eller genbrugte adgangskoder.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Efter opdatering af din krypteringsnøgle skal du logge ud og ind igen i alle Bitwarden-programmer, du bruger i øjeblikket (f.eks. mobilapp eller browserudvidelser). Hvis du ikke logger ud og ind (som downloader din nye krypteringsnøgle), kan det resultere i data korruption. Vi vil forsøge at logge dig ud automatisk, men det kan blive forsinket."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Enhver krypteret eksport du har gemt, vil også blive utilgængelig."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Abonnement"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Den nuværende organisationspolitik tillader dig ikke at deltage i mere end én organisation. Kontakt organisationens admins eller benyt en anden Bitwarden-konto under tilmelding."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Organisationsmedlemmer, undtagen ejere eller admins, som allerede er medlem af en anden organisation, fjernes fra organisationen."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Ikke-overholdende medlemmer placeres i privilegie-ophævet status, indtil de forlader alle øvrige organisationer. Administratorer er fritaget og kan gendanne medlemmer, når overholdelse er opfyldt."
@@ -5886,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "Fjern brugere"
-  },
-  "revokeUsers": {
-    "message": "Ophæv status som bruger"
-  },
-  "restoreUsers": {
-    "message": "Gendan status som bruger"
-  },
   "error": {
     "message": "Fejl"
   },
@@ -6326,7 +6329,7 @@
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium-adgang for op til 6 brugere"
   },
-  "sponsoredFamiliesSharedCollectionsMessage": {
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Shared collections for family members"
   },
   "memberFamilies": {
@@ -7836,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "Tilslutning af et domæne lader medlemmer overspringe SSO-identifikationsfeltet under SSO-baseret indlogning."
   },
-  "verifyDomain": {
-    "message": "Bekræft domæne"
-  },
-  "reverifyDomain": {
-    "message": "Genbekræft domæne"
-  },
   "copyDnsTxtRecord": {
     "message": "Kopiér DNS TXT-post"
   },
@@ -7850,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Kopiér og indsæt TXT-posten i din DNS-udbyder."
-  },
-  "domainNameInputHint": {
-    "message": "Eks.: mitdomaene.dk. Underdomæner kræver at separate poster bekræftes."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatisk Domænebekræftelse"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden vil forsøge at bekræfte domænet 3 gange i løbet af de første 72 timer. Kan domænet ikke bekræftes, så tjek DNS-posten på værten og bekræft manuelt. Såfremt ubekræftet efter 7 dage, fjernes domænet fra organisationen"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Input er ikke i et gyldigt format. Format: mitdomaene.dk. Underdomæner kræver at separate poster bekræftes."
   },
   "removeDomain": {
     "message": "Fjern domæne"
@@ -7875,9 +7860,6 @@
   "domainSaved": {
     "message": "Domæne gemt"
   },
-  "domainVerified": {
-    "message": "Domæne bekræftet"
-  },
   "duplicateDomainError": {
     "message": "Der kan ikke gøres krav på det samme domæne to gange."
   },
@@ -7889,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ ikke bekræftet. Tjek DNS-posten.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Bekræftet"
-  },
-  "domainStatusUnverified": {
-    "message": "Ikke-bekræftet"
   },
   "domainNameTh": {
     "message": "Navn"
@@ -7931,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "Domænet $DOMAIN$ fjernet",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ bekræftet",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ ikke bekræftet",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Håndter fakturering via udbyderportalen"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Fortsæt opsætningen af den gratis Bitwarden-prøveperiode"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Fortsæt opsætningen af den gratis Bitwarden Password Manager-prøveperiode"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Fortsæt opsætningen af den gratis Bitwarden Secrets Manager-prøveperiode"
@@ -10245,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Vigtig notits"
-  },
-  "setupTwoStepLogin": {
-    "message": "Opsæt totrins-login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
-  },
-  "remindMeLater": {
-    "message": "Påmind senere"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nej, muligvis ikke"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, e-mailadressen kan pålideligt tilgås"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Slå totrins-login til"
-  },
-  "changeAcctEmail": {
-    "message": "Skift kontoe-mailadresse"
-  },
   "removeMembers": {
     "message": "Fjern medlemmer"
   },
@@ -10396,11 +10318,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10631,8 +10559,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -10655,13 +10595,23 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Restart"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

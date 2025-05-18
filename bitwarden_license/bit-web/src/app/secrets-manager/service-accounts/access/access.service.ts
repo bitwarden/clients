@@ -102,12 +102,12 @@ export class AccessService {
     const organizationKey = await this.getOrganizationKey(organizationId);
     const accessTokenRequest = new AccessTokenRequest();
     const [name, encryptedPayload, key] = await Promise.all([
-      await this.encryptService.encrypt(accessTokenView.name, organizationKey),
-      await this.encryptService.encrypt(
+      await this.encryptService.encryptString(accessTokenView.name, organizationKey),
+      await this.encryptService.encryptString(
         JSON.stringify({ encryptionKey: organizationKey.keyB64 }),
         encryptionKey,
       ),
-      await this.encryptService.encrypt(encryptionKey.keyB64, organizationKey),
+      await this.encryptService.encryptString(encryptionKey.keyB64, organizationKey),
     ]);
 
     accessTokenRequest.name = name;
@@ -130,7 +130,7 @@ export class AccessService {
       accessTokenResponses.map(async (s) => {
         const view = new AccessTokenView();
         view.id = s.id;
-        view.name = await this.encryptService.decryptToUtf8(new EncString(s.name), orgKey);
+        view.name = await this.encryptService.decryptString(new EncString(s.name), orgKey);
         view.scopes = s.scopes;
         view.expireAt = s.expireAt ? new Date(s.expireAt) : null;
         view.creationDate = new Date(s.creationDate);

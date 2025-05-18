@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "O agente SSH é um serviço direcionado a desenvolvedores que permite que você assine solicitações SSH diretamente do seu cofre do Bitwarden."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Requer Assinatura Premium"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Add field"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Field type"
@@ -1079,9 +1103,6 @@
   "addNewItem": {
     "message": "Adicionar Novo Item"
   },
-  "addNewFolder": {
-    "message": "Adicionar Nova Pasta"
-  },
   "view": {
     "message": "Ver"
   },
@@ -1701,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Senha do arquivo\" e \"Confirmação de senha\" não correspondem."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Carregar Cookie de Acessibilidade"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registre-se como um usuário de acessibilidade em",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copie e cole o link enviado para o seu email abaixo"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Digite a URL para carregar o cookie de acessibilidade para hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "O URL do hCaptcha é necessário",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "URL inválida"
-  },
   "done": {
     "message": "Concluído"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookies de acessibilidade salvos!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Nenhum cookie de acessibilidade salvo"
   },
   "warning": {
     "message": "AVISO",
@@ -3623,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "O desbloqueio por biometria está indisponível por razões desconhecidas."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Autorizar"
   },
@@ -3671,63 +3682,6 @@
   "fileSavedToDevice": {
     "message": "Arquivo salvo no dispositivo. Gerencie a partir das transferências do seu dispositivo."
   },
-  "importantNotice": {
-    "message": "Aviso importante"
-  },
-  "setupTwoStepLogin": {
-    "message": "Configurar login em duas etapas"
-  },
-  "itemDetails": {
-    "message": "Item details"
-  },
-  "itemName": {
-    "message": "Item name"
-  },
-  "loginCredentials": {
-    "message": "Login credentials"
-  },
-  "additionalOptions": {
-    "message": "Additional options"
-  },
-  "itemHistory": {
-    "message": "Item history"
-  },
-  "lastEdited": {
-    "message": "Last edited"
-  },
-  "upload": {
-    "message": "Upload"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden enviará um código para o seu e-mail para verificar novos dispositivos a partir de fevereiro de 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Você pode configurar o login em duas etapas como uma forma alternativa de proteger sua conta ou mudar seu e-mail para um que você possa acessar."
-  },
-  "remindMeLater": {
-    "message": "Lembre-me depois"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Você tem acesso ao seu e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Não tenho"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Sim, eu tenho"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ativar login em duas etapas"
-  },
-  "changeAcctEmail": {
-    "message": "Alterar e-mail"
-  },
   "allowScreenshots": {
     "message": "Permitir captura de tela"
   },
@@ -3752,11 +3706,32 @@
   "move": {
     "message": "Mover"
   },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -3779,7 +3754,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

@@ -20,7 +20,6 @@ import {
   IconButtonModule,
   LinkModule,
   PopoverModule,
-  SectionComponent,
   SectionHeaderComponent,
   ToastService,
   TypographyModule,
@@ -36,7 +35,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
   templateUrl: "./login-details-section.component.html",
   standalone: true,
   imports: [
-    SectionComponent,
     ReactiveFormsModule,
     SectionHeaderComponent,
     TypographyModule,

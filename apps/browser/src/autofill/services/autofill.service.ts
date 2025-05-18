@@ -593,15 +593,20 @@ export default class AutofillService implements AutofillServiceInterface {
    *
    * @param cipher - The cipher to autofill
    * @param tab - The tab to autofill
+   * @param action - override for default action once reprompt is completed successfully
    */
-  async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
+  async isPasswordRepromptRequired(
+    cipher: CipherView,
+    tab: chrome.tabs.Tab,
+    action?: string,
+  ): Promise<boolean> {
     const userHasMasterPasswordAndKeyHash =
       await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
     if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
-          action: "autofill",
+          action: action ?? "autofill",
         });
       }
 

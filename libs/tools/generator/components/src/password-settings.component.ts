@@ -37,6 +37,7 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-password-settings",
   templateUrl: "password-settings.component.html",
+  standalone: false,
 })
 export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
