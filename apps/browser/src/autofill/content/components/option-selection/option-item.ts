@@ -12,16 +12,20 @@ const { css } = createEmotion({
   key: optionItemTagName,
 });
 
-export function OptionItem({
-  icon,
-  text,
-  value,
-  theme,
-  handleSelection,
-}: Option & {
+export type OptionItemProps = Option & {
+  contextLabel?: string;
   theme: Theme;
   handleSelection: () => void;
-}) {
+};
+
+export function OptionItem({
+  contextLabel,
+  icon,
+  text,
+  theme,
+  value,
+  handleSelection,
+}: OptionItemProps) {
   const handleSelectionKeyUpProxy = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Enter", "Space"]);
     if (listenedForKeys.has(event.code) && event.target instanceof Element) {
@@ -33,12 +37,18 @@ export function OptionItem({
 
   const iconProps: IconProps = { color: themes[theme].text.main, theme };
   const itemIcon = icon?.(iconProps);
+  const ariaLabel =
+    contextLabel && text
+      ? chrome.i18n.getMessage("selectItemAriaLabel", [contextLabel, text])
+      : text;
 
   return html`<div
     class=${optionItemStyles}
     key=${value}
     tabindex="0"
     title=${text}
+    role="option"
+    aria-label=${ariaLabel}
     @click=${handleSelection}
     @keyup=${handleSelectionKeyUpProxy}
   >

@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH agenti, SSH tələblərini birbaşa Bitwarden seyfinizdən imzalamağa imkan verən developerlərə yönəlmiş bir xidmətdir."
   },
+  "sshAgentPromptBehavior": {
+    "message": "SSH agentini istifadə edərkən səlahiyyətləndirmə üçün soruş"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "SSH agenti səlahiyyətləndirmə sorğularının necə emal ediləcəyini seçin."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "SSH səlahiyyətləndirmələrini xatırla"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Həmişə"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Heç vaxt"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Seyf kilidlənənə qədər xatırla"
+  },
   "premiumRequired": {
     "message": "Premium üzvlük lazımdır"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Xana əlavə et"
+  },
+  "editField": {
+    "message": "Xanaya düzəliş et"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Bu qoşmanı birdəfəlik silmək istədiyinizə əminsiniz?"
   },
   "fieldType": {
     "message": "Xana növü"
@@ -1079,9 +1103,6 @@
   "addNewItem": {
     "message": "Yeni element əlavə et"
   },
-  "addNewFolder": {
-    "message": "Yeni qovluq əlavə et"
-  },
   "view": {
     "message": "Bax"
   },
@@ -1701,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyuşmur."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha ünvanı",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Əlçatımlılıq çərəzini yüklə"
-  },
-  "registerAccessibilityUser": {
-    "message": "Əlçatımlılıq istifadəçisi kimi qeydiyyatdan keçin",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "E-poçtunuza göndərilən keçidi kopyalayıb aşağıda yapışdırın"
-  },
-  "enterhCaptchaUrl": {
-    "message": "hCaptcha əlçatımlılıq çərəzini yükləmək üçün ünvanı daxil edin",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha ünvanı tələb olunur",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Yararsız ünvan"
-  },
   "done": {
     "message": "Bitdi"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Əlçatımlılıq çərəzi saxlanıldı!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Əlçatımlılıq çərəzi saxlanılmadı"
   },
   "warning": {
     "message": "XƏBƏRDARLIQ",
@@ -2006,6 +1996,21 @@
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Ödənişsiz təşkilatlar qoşmaları istifadə edə bilməz"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 xananın diqqətinizə ehtiyacı var."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ xananın diqqətinizə ehtiyacı var.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "cardExpiredTitle": {
     "message": "Kartın müddəti bitib"
@@ -3152,6 +3157,30 @@
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
   },
+  "trustOrganization": {
+    "message": "Təşkilata güvən"
+  },
+  "trust": {
+    "message": "Güvən"
+  },
+  "doNotTrust": {
+    "message": "Güvənmə"
+  },
+  "organizationNotTrusted": {
+    "message": "Təşkilata güvənilmir"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu istifadəçiyə fövqəladə hal müraciəti icazəsini verdiyinizi və onun barmaq izinin hesabında görünən barmaq izi ilə uyuşduğunu təsdiqləyin"
+  },
+  "orgTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu təşkilatın üzvüsünüzsə, hesab geri qaytarma fəaldırsa və aşağıda görünən barmaq izi təşkilatın barmaq izi ilə uyuşursa davam edin."
+  },
+  "orgTrustWarning1": {
+    "message": "Bu təşkilat, sahib olduğu Müəssisə siyasəti ilə sizi hesabın qaytarılması prosesinə yazdıracaq. Yazılma, təşkilat inzibatçılarının parolunuzu dəyişdirməsinə imkan verəcək. Yalnız bu təşkilatı tanıyırsınızsa və aşağıda görünən barmaq izi ifadəsi, təşkilatın barmaq izi ifadəsi ilə uyuşursa davam edin."
+  },
+  "trustUser": {
+    "message": "İstifadəçiyə güvən"
+  },
   "inputRequired": {
     "message": "Giriş lazımdır."
   },
@@ -3584,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
+  "itemDetails": {
+    "message": "Element detalları"
+  },
+  "itemName": {
+    "message": "Element adı"
+  },
+  "loginCredentials": {
+    "message": "Giriş məlumatları"
+  },
+  "additionalOptions": {
+    "message": "Əlavə seçimlər"
+  },
+  "itemHistory": {
+    "message": "Element tarixçəsi"
+  },
+  "lastEdited": {
+    "message": "Son düzəliş"
+  },
+  "upload": {
+    "message": "Yüklə"
+  },
   "authorize": {
     "message": "Səlahiyyət ver"
   },
@@ -3632,63 +3682,6 @@
   "fileSavedToDevice": {
     "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "itemDetails": {
-    "message": "Element detalları"
-  },
-  "itemName": {
-    "message": "Element adı"
-  },
-  "loginCredentials": {
-    "message": "Giriş məlumatları"
-  },
-  "additionalOptions": {
-    "message": "Əlavə seçimlər"
-  },
-  "itemHistory": {
-    "message": "Element tarixçəsi"
-  },
-  "lastEdited": {
-    "message": "Son düzəliş"
-  },
-  "upload": {
-    "message": "Yüklə"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "allowScreenshots": {
     "message": "Ekranı çəkməyə icazə ver"
   },
@@ -3712,5 +3705,63 @@
   },
   "move": {
     "message": "Daşı"
+  },
+  "newFolder": {
+    "message": "Yeni qovluq"
+  },
+  "folderName": {
+    "message": "Qovluq adı"
+  },
+  "folderHintText": {
+    "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Avto-doldurma ilə vaxta qənaət edin"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bir veb sayt",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "daxil edin ki,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "bu giriş məlumatları avto-doldurma təklifi kimi görünsün.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Problemsiz onlayn ödəniş"
+  },
+  "newCardNudgeBody": {
+    "message": "Kartlarla, ödəniş xanalarını təhlükəsiz və doğru şəkildə avtomatik doldurun."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Hesab yaratmanı sadələşdirin"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Həssas datalarınızı güvənli şəkildə saxlayın"
+  },
+  "newNoteNudgeBody": {
+    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas dataları təhlükəsiz saxlayın."
+  },
+  "newSshNudgeTitle": {
+    "message": "Gəlişdirici dostu SSH müraciəti"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "SSH agenti barədə daha ətraflı",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

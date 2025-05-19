@@ -55,6 +55,7 @@ rsa = { workspace = true }
 ed25519 = { workspace = true, features = ["pkcs8"] }
 bytes = { workspace = true }
 sysinfo = { workspace = true, features = ["windows"] }
+zeroizing-alloc = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 widestring = { workspace = true, optional = true }

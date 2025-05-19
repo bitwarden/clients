@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Edit before saving",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ saved to Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ updated in Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Spremi novu prijavu",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Ažuriraj prijavu",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Save login",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Prijedlozi auto-ispune"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
   },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Radnja nakon isteka "
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nove mogućnosti prilagodbe"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Prilagodi svoje iskustvo trezora brzim kopiranjem, kompaktnim načinom rada i više!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Pogledaj sve postavke izgleda"
   },
   "lock": {
     "message": "Zaključaj",
@@ -3564,6 +3583,30 @@
   "deviceTrusted": {
     "message": "Uređaj pouzdan"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sendsNoItemsTitle": {
     "message": "Nema aktivnih Sendova",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4488,6 +4531,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Sigurno želiš trajno izbrisati ovaj privitak?"
   },
@@ -5111,42 +5181,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Važna napomena"
-  },
-  "setupTwoStepLogin": {
-    "message": "Postavi dvostruku autentifikaciju"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti."
-  },
-  "remindMeLater": {
-    "message": "Podsjeti me kasnije"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Imaš li pouzdan pristup svojoj e-pošti: $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemam"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Da, pouzdano mogu pristupiti svojoj e-pošti"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Uključi prijavu dvostrukom autentifikacijom"
-  },
-  "changeAcctEmail": {
-    "message": "Promjeni e-poštu računa"
-  },
   "extensionWidth": {
     "message": "Širina proširenja"
   },
@@ -5201,6 +5235,12 @@
   "changeAtRiskPassword": {
     "message": "Promijeni rizičnu lozinku"
   },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"
   },
@@ -5227,5 +5267,81 @@
   },
   "secureDevicesBody": {
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

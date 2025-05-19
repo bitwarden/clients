@@ -26,6 +26,8 @@ export type EmergencyAccessAddEditDialogData = {
   readOnly: boolean;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessAddEditDialogResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -34,6 +36,7 @@ export enum EmergencyAccessAddEditDialogResult {
 @Component({
   selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
+  standalone: false,
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
   loading = true;

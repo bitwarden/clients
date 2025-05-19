@@ -30,6 +30,7 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 @Component({
   selector: "app-vault-add-edit",
   templateUrl: "add-edit.component.html",
+  standalone: false,
 })
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")

@@ -120,8 +120,11 @@ const mockStateProvider = () => {
 const mockCryptoService = () => {
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
-  encryptService.decryptToUtf8
+  encryptService.decryptString
     .calledWith(expect.any(EncString), expect.anything())
+    .mockResolvedValue("DECRYPTED_STRING");
+  encryptService.decryptToUtf8
+    .calledWith(expect.any(EncString), expect.anything(), expect.anything())
     .mockResolvedValue("DECRYPTED_STRING");
 
   (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
