@@ -21,6 +21,7 @@ type ReportResult = CipherView & { exposedXTimes: number };
 @Component({
   selector: "app-exposed-passwords-report",
   templateUrl: "exposed-passwords-report.component.html",
+  standalone: false,
 })
 export class ExposedPasswordsReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;

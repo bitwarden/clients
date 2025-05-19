@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Označiť aplikáciu ako kritickú"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikácie označené ako kritické"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Títo členovia sa prihlasujú do aplikácií so slabým, uniknutým alebo viacnásobne použitým heslom."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Tieto aplikácie majú slabé, uniknuté alebo opätovne použité heslá."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Títo členovia sa prihlasujú do $APPNAME$ so slabým, uniknutým alebo viacnásobne použitým heslom.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizácii šifrovacieho kľúča budete požiadaní o opätovné prihlásenie do všetkých Bitwarden aplikácii ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neprihlásite (touto operáciou sa stiahnu nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených dát. Pokúsime sa odhlásiť vás automaticky, ale môže to chvíľu trvať."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Všetky uložené šifrované exporty sa tiež stanú neplatnými."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Predplatné"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Vaša súčasná organizácia má pravidlo, ktoré vám nedovoľuje pripojiť sa k viac než jednej organizácii. Kontaktujte, prosím, administrátorov vašej organizácie alebo sa prihláste prostredníctvom iného Bitwarden účtu."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Členovia organizácie, ktorí nie sú vlastníkmi alebo administrátormi a už sú členmi inej organizácie, budú odstránení z vašej organizácie."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Členovia, ktorí nedodržiavajú pravidlo, budú zaradení do zrušeného stavu, kým neopustia všetky ostatné organizácie. Správcovia majú výnimku a môžu obnoviť členov po splnení požiadaviek pravidiel organizácie."
@@ -5886,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fráza odtlačku prsta:"
   },
-  "removeUsers": {
-    "message": "Odstrániť používateľov"
-  },
-  "revokeUsers": {
-    "message": "Odvolať používateľov"
-  },
-  "restoreUsers": {
-    "message": "Obnoviť používateľov"
-  },
   "error": {
     "message": "Chyba"
   },
@@ -6303,13 +6306,13 @@
     "message": "Sponzorované rodiny"
   },
   "noSponsoredFamiliesMessage": {
-    "message": "No sponsored families"
+    "message": "Žiadne sponzorované rodiny"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Tu sa zobrazia sponzorované plány pre Rodiny pre nečlenov"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Členovia vašej organizácie majú nárok na bezplatný plán pre Rodiny. Bezplatný plán pre Rodiny môžete sponzorovať aj pre zamestnancov ktorí nie sú členmi vašej Bitwarden organizácie. Spozorovanie nečlena vyžaduje voľné sedenie v organizácii."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Keď odoberiete aktívne sponzorstvo, sedenie vo vašej organizácii sa uvoľní po dátume obnovenia sponzorovanej organizácie."
@@ -6321,13 +6324,13 @@
     "message": "Využite bezplatný plán Bitwarden pre Rodiny aby ste mali dáta v bezpečí aj keď nie ste v práci."
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "The Bitwarden for Families plan includes"
+    "message": "Bitwarden plán pre Rodiny zahŕňa"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémiový prístup pre maximálne 6 používateľov"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "Shared collections for family members"
+    "message": "Zdieľané zbierky pre členov rodiny"
   },
   "memberFamilies": {
     "message": "Členské rodiny"
@@ -6342,7 +6345,7 @@
     "message": "Členovia vašej organizácie majú nárok na bezplatný plán pre Rodiny. Tu môžete vidieť členov so sponzorstvom Rodinnej organizácie."
   },
   "organizationHasMemberMessage": {
-    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "message": "Sponzorstvo nemôže byt odoslané na $EMAIL$ pretože sú členmi vašej organizácie.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6402,7 +6405,7 @@
     "message": "Account redeemed"
   },
   "revokeAccountMessage": {
-    "message": "Revoke account $NAME$",
+    "message": "Odvolať konto $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -7836,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "Pripojenie domény umožňuje členom preskočiť počas prihlasovania sa prostredníctvom SSO pole identifikátora SSO."
   },
-  "verifyDomain": {
-    "message": "Overiť doménu"
-  },
-  "reverifyDomain": {
-    "message": "Opätovne overiť doménu"
-  },
   "copyDnsTxtRecord": {
     "message": "Kopírovať DNS TXT záznam"
   },
@@ -7850,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Kopírujte TXT záznam k vášmu poskytovateľovi DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Príklad: mydomain.com. Pre overenie subdomén musia byť tieto každá zadaná individuálne."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatické Overenie Domény"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden sa pokúsi overiť doménu 3 krát počas prvých 72 hodín. Ak sa doménu nepodarilo overiť, skontrolujte DNS záznam u svojho hostiteľa a overte manuálne. Doména bude z organizácie odstránená po 7 dňoch ak nie je overená"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Zadaný neplatný formát. Formát: mydomain.com. Pre overenie subdomén musia byť tieto každá zadaná individuálne."
   },
   "removeDomain": {
     "message": "Odstrániť doménu"
@@ -7875,9 +7860,6 @@
   "domainSaved": {
     "message": "Doména uložená"
   },
-  "domainVerified": {
-    "message": "Doména overená"
-  },
   "duplicateDomainError": {
     "message": "Nemôžete si privlastniť tú istú doménu dva krát."
   },
@@ -7889,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nie je overená. Overte si DNS záznam.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Overená"
-  },
-  "domainStatusUnverified": {
-    "message": "Neoverená"
   },
   "domainNameTh": {
     "message": "Názov"
@@ -7931,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "Odstránená doména $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ overená",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ neoverená",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Spravujte fakturáciu cez portál poskytovateľa"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwardenu"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwarden Správcu Hesiel"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Pokračujte v nastavovaní vašej bezplatnej skúšobnej doby Bitwarden správcu tajomstiev"
@@ -10245,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Dôležité upozornenie"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastaviť dvojstupňové prihlásenie"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
-  },
-  "remindMeLater": {
-    "message": "Pripomenúť neskôr"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spoľahlivý prístup k svojmu e-mailu, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nie, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám spoľahlivý prístup k svojmu e-mailu"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnúť dvojstupňové prihlásenie"
-  },
-  "changeAcctEmail": {
-    "message": "Zmeniť e-mail účtu"
-  },
   "removeMembers": {
     "message": "Odstrániť členov"
   },
@@ -10397,7 +10319,7 @@
     "message": "Nedôverovať"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Organizácia nie je dôveryhodná"
   },
   "emergencyAccessTrustWarning": {
     "message": "Pre bezpečnosť vášho konta stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom konte"
@@ -10406,7 +10328,7 @@
     "message": "Pre bezpečnosť vášho konta pokračujte iba ak ste členom organizácie, mate povolenú obnovu konta a odtlačok sa zhoduje s odtlačkom organizácie."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Táto organizácia má pravidlá spoločnosti, ktoré vás zaregistrujú do obnovy účtu. Zápis umožní správcom organizácie zmeniť vaše heslo. Pokračujte len vtedy, ak túto organizáciu poznáte a nižšie zobrazená fráza odtlačku prsta sa zhoduje s odtlačkom prsta organizácie."
   },
   "trustUser": {
     "message": "Dôverovať používateľovi"
@@ -10614,10 +10536,10 @@
     "message": "Neumožnite vaším členom odomykať si konto PIN kódom."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Pre vašu organizáciu sa denník udalosti neukladá. Ak chcete plný pristúp k denníkom udalostí v organizácii povýšte na plán Teams alebo Enterprise."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Ak chcete vidieť denník udalostí vašej organizácie povýšte."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10635,39 +10557,61 @@
     "message": "Nová organizačná jednotka"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Ušetrite čas s automatickým vypĺňaním"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrnúť",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webstránku",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Bezproblémová online platba"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "S kartami môžete jednoducho, bezpečne a presne automaticky vypĺňať platobné formuláre."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Zjednodušenie vytvárania účtov"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Pomocou identít môžete rýchlo automaticky vypĺňať dlhé registračné alebo kontaktné formuláre."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Udržujte svoje citlivé údaje v bezpečí"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Pomocou poznámok môžete bezpečne ukladať citlivé údaje, napríklad bankové údaje alebo údaje o poistení."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Prístup SSH vhodný pre vývojárov"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Viac informácií o agentovi SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
-    "message": "Restart"
+    "message": "Reštartovať"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Na overenie bankového účtu zadajte kód popisu výpisu z tohto vkladu na fakturačnej stránke poskytovateľa. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

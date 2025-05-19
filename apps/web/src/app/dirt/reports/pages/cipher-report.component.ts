@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, ViewChild, ViewContainerRef, OnDestroy } from "@angular/core";
+import { Directive, OnDestroy } from "@angular/core";
 import {
   BehaviorSubject,
   lastValueFrom,
@@ -37,8 +37,6 @@ import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/se
 
 @Directive()
 export class CipherReportComponent implements OnDestroy {
-  @ViewChild("cipherAddEdit", { read: ViewContainerRef, static: true })
-  cipherAddEditModalRef: ViewContainerRef;
   isAdminConsoleActive = false;
 
   loading = false;

@@ -11,6 +11,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 @Component({
   selector: "app-invoices",
   templateUrl: "./invoices.component.html",
+  standalone: false,
 })
 export class InvoicesComponent implements OnInit {
   @Input() startWith?: InvoicesResponse;

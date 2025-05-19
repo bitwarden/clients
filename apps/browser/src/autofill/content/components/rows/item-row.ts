@@ -5,13 +5,12 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { spacing, themes, typography } from "../../../content/components/constants/styles";
 
-export function ItemRow({
-  theme = ThemeTypes.Light,
-  children,
-}: {
+export type ItemRowProps = {
   theme: Theme;
   children: TemplateResult | TemplateResult[];
-}) {
+};
+
+export function ItemRow({ theme = ThemeTypes.Light, children }: ItemRowProps) {
   return html` <div class=${itemRowStyles({ theme })}>${children}</div> `;
 }
 

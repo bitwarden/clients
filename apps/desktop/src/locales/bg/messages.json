@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH-агентът е услуга, предназначена за разработчици, чрез която можете да подписвате заявки за SSH направо от трезора си в Битуорден."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Изискване на удостоверяване при ползване на SSH-агента"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Изберете как да се обработват заявките за удостоверяване за SSH-агента."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Запомняне на удостоверяванията чрез SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Винаги"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Никога"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Запомняне до заключване на трезора"
+  },
   "premiumRequired": {
     "message": "Изисква се платен абонамент"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Добавяне на поле"
+  },
+  "editField": {
+    "message": "Редактиране на полето"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
   },
   "fieldType": {
     "message": "Тип на полето"
@@ -1079,9 +1103,6 @@
   "addNewItem": {
     "message": "Добавяне на нов елемент"
   },
-  "addNewFolder": {
-    "message": "Добавяне на нова папка"
-  },
   "view": {
     "message": "Преглед"
   },
@@ -1701,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
-  "hCaptchaUrl": {
-    "message": "Адрес за hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Зареждане на бисквитка за достъпност"
-  },
-  "registerAccessibilityUser": {
-    "message": "Регистрирайте се като потребител на достъпност на",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Копирайте връзката изпратена на е-пощата Ви и я поставете по-долу"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Въведете URL за зареждане на бисквитка за достъпност за hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Адресът за hCaptcha е задължителен",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Неправилен адрес"
-  },
   "done": {
     "message": "Готово"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Бисквитката за достъпност е запазена!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Няма запазена бисквитка за достъпност"
   },
   "warning": {
     "message": "ВНИМАНИЕ",
@@ -3623,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
+  "itemDetails": {
+    "message": "Подробности за елемента"
+  },
+  "itemName": {
+    "message": "Име на елемента"
+  },
+  "loginCredentials": {
+    "message": "Данни за вписване"
+  },
+  "additionalOptions": {
+    "message": "Допълнителни настройки"
+  },
+  "itemHistory": {
+    "message": "История на елемента"
+  },
+  "lastEdited": {
+    "message": "Последна промяна"
+  },
+  "upload": {
+    "message": "Качване"
+  },
   "authorize": {
     "message": "Упълномощаване"
   },
@@ -3671,63 +3682,6 @@
   "fileSavedToDevice": {
     "message": "Файлът е запазен на устройството. Можете да го намерите в мястото за сваляния на устройството."
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "itemDetails": {
-    "message": "Подробности за елемента"
-  },
-  "itemName": {
-    "message": "Име на елемента"
-  },
-  "loginCredentials": {
-    "message": "Данни за вписване"
-  },
-  "additionalOptions": {
-    "message": "Допълнителни настройки"
-  },
-  "itemHistory": {
-    "message": "История на елемента"
-  },
-  "lastEdited": {
-    "message": "Последна промяна"
-  },
-  "upload": {
-    "message": "Качване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "allowScreenshots": {
     "message": "Позволяване на заснемането на екрана"
   },
@@ -3752,11 +3706,32 @@
   "move": {
     "message": "Преместване"
   },
+  "newFolder": {
+    "message": "Нова папка"
+  },
+  "folderName": {
+    "message": "Име на папката"
+  },
+  "folderHintText": {
+    "message": "Можете да вложите една папка в друга като въведете името на горната папка, а след това „/“. Пример: Социални/Форуми"
+  },
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"
   },
-  "newLoginNudgeBody": {
-    "message": "Добавете уеб сайт, за да може тези данни за вписване да се появяват като предложение за автоматично попълване."
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Безпроблемни плащания"
@@ -3779,7 +3754,14 @@
   "newSshNudgeTitle": {
     "message": "Улеснен достъп за разработчици чрез SSH"
   },
-  "newSshNudgeBody": {
-    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване."
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

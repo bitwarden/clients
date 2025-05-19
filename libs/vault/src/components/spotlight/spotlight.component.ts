@@ -14,16 +14,18 @@ export class SpotlightComponent {
   // The title of the component
   @Input({ required: true }) title: string | null = null;
   // The subtitle of the component
-  @Input({ required: true }) subtitle: string | null = null;
+  @Input() subtitle?: string | null = null;
   // The text to display on the button
   @Input() buttonText?: string;
   // Wheter the component can be dismissed, if true, the component will not show a close button
   @Input() persistent = false;
+  // Optional icon to display on the button
+  @Input() buttonIcon: string | null = null;
   @Output() onDismiss = new EventEmitter<void>();
-  @Output() onButtonClick = new EventEmitter<void>();
+  @Output() onButtonClick = new EventEmitter();
 
-  handleButtonClick(): void {
-    this.onButtonClick.emit();
+  handleButtonClick(event: MouseEvent): void {
+    this.onButtonClick.emit(event);
   }
 
   handleDismiss(): void {

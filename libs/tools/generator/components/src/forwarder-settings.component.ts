@@ -33,6 +33,7 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-forwarder-settings",
   templateUrl: "forwarder-settings.component.html",
+  standalone: false,
 })
 export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component

@@ -53,6 +53,7 @@ import { GeneratorHistoryService } from "@bitwarden/generator-history";
 @Component({
   selector: "tools-password-generator",
   templateUrl: "password-generator.component.html",
+  standalone: false,
 })
 export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(

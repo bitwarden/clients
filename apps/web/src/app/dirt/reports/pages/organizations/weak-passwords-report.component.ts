@@ -36,6 +36,7 @@ import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
+  standalone: false,
 })
 export class WeakPasswordsReportComponent
   extends BaseWeakPasswordsReportComponent

@@ -7,6 +7,7 @@ import { ReportEntry } from "../models/report-entry";
 @Component({
   selector: "app-report-list",
   templateUrl: "report-list.component.html",
+  standalone: false,
 })
 export class ReportListComponent {
   @Input() reports: ReportEntry[];

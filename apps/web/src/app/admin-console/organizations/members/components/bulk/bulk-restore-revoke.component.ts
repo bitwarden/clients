@@ -1,12 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
-import { Observable } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogService } from "@bitwarden/components";
 
@@ -21,6 +18,7 @@ type BulkRestoreDialogParams = {
 @Component({
   selector: "app-bulk-restore-revoke",
   templateUrl: "bulk-restore-revoke.component.html",
+  standalone: false,
 })
 export class BulkRestoreRevokeComponent {
   isRevoking: boolean;
@@ -34,12 +32,10 @@ export class BulkRestoreRevokeComponent {
   error: string;
   showNoMasterPasswordWarning = false;
   nonCompliantMembers: boolean = false;
-  accountDeprovisioningEnabled$: Observable<boolean>;
 
   constructor(
     protected i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
-    private configService: ConfigService,
     @Inject(DIALOG_DATA) protected data: BulkRestoreDialogParams,
   ) {
     this.isRevoking = data.isRevoking;
@@ -48,17 +44,9 @@ export class BulkRestoreRevokeComponent {
     this.showNoMasterPasswordWarning = this.users.some(
       (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
     );
-    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AccountDeprovisioning,
-    );
   }
 
   get bulkTitle() {
-    const titleKey = this.isRevoking ? "revokeUsers" : "restoreUsers";
-    return this.i18nService.t(titleKey);
-  }
-
-  get bulkMemberTitle() {
     const titleKey = this.isRevoking ? "revokeMembers" : "restoreMembers";
     return this.i18nService.t(titleKey);
   }

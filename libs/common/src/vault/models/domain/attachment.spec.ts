@@ -77,7 +77,10 @@ describe("Attachment", () => {
       attachment.key = mockEnc("key");
       attachment.fileName = mockEnc("fileName");
 
-      encryptService.decryptToBytes.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.decryptFileData.mockResolvedValue(makeStaticByteArray(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(makeStaticByteArray(64)),
+      );
 
       const view = await attachment.decrypt(null);
 
@@ -105,7 +108,7 @@ describe("Attachment", () => {
         await attachment.decrypt(null, "", providedKey);
 
         expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, providedKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, providedKey);
       });
 
       it("gets an organization key if required", async () => {
@@ -115,7 +118,7 @@ describe("Attachment", () => {
         await attachment.decrypt("orgId", "", null);
 
         expect(keyService.getOrgKey).toHaveBeenCalledWith("orgId");
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, orgKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, orgKey);
       });
 
       it("gets the user's decryption key if required", async () => {
@@ -125,7 +128,7 @@ describe("Attachment", () => {
         await attachment.decrypt(null, "", null);
 
         expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalled();
-        expect(encryptService.decryptToBytes).toHaveBeenCalledWith(attachment.key, userKey);
+        expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(attachment.key, userKey);
       });
     });
   });
@@ -148,6 +151,23 @@ describe("Attachment", () => {
 
     it("returns null if object is null", () => {
       expect(Attachment.fromJSON(null)).toBeNull();
+    });
+  });
+
+  describe("toSdkAttachment", () => {
+    it("should map to SDK Attachment", () => {
+      const attachment = new Attachment(data);
+
+      const sdkAttachment = attachment.toSdkAttachment();
+
+      expect(sdkAttachment).toEqual({
+        id: "id",
+        url: "url",
+        size: "1100",
+        sizeName: "1.1 KB",
+        fileName: "fileName",
+        key: "key",
+      });
     });
   });
 });
