@@ -925,10 +925,10 @@
     "message": "Maksimuma dosiergrandeco estas 500 MB."
   },
   "addedItem": {
-    "message": "La ero aldoniĝis"
+    "message": "Ero aldoniĝis"
   },
   "editedItem": {
-    "message": "La ero redaktiĝis"
+    "message": "Ero redaktiĝis"
   },
   "movedItemToOrg": {
     "message": "$ITEMNAME$ moviĝis al $ORGNAME$",
@@ -944,7 +944,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "La eroj moviĝis al $ORGNAME$",
+    "message": "Eroj moviĝis al $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -953,7 +953,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "La ero moviĝis al $ORGNAME$",
+    "message": "Ero moviĝis al $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -986,7 +986,7 @@
     "message": "Ĉu vi certe volas anstataŭigi la nunan pasvorton?"
   },
   "editedFolder": {
-    "message": "La dosierujo konserviĝis"
+    "message": "`Dosierujo konserviĝis"
   },
   "addedFolder": {
     "message": "Dosierujo aldoniĝis"
@@ -2866,7 +2866,7 @@
     "message": "Ĉu vi certas, ke vi volas nuligi? Vi perdos aliron al ĉiuj funkcioj de ĉi tiu abono fine de ĉi tiu faktura ciklo."
   },
   "canceledSubscription": {
-    "message": "La abono estis nuligita."
+    "message": "Abono nuliĝis"
   },
   "neverExpires": {
     "message": "Neniam eksvalidiĝis"
@@ -4248,7 +4248,7 @@
     "message": "La organizo kaj ĉiuj rilataj datumoj estis forigitaj."
   },
   "organizationUpdated": {
-    "message": "La organizo ĝisdatiĝis"
+    "message": "Organizo konserviĝis"
   },
   "taxInformation": {
     "message": "Impostaj Informoj"
@@ -4548,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Post ĝisdatigi vian ĉifradan ŝlosilon, vi devas elsaluti kaj reeniri al ĉiuj Bitwarden-aplikaĵoj, kiujn vi nun uzas (kiel la poŝtelefona programo aŭ retumila etendaĵoj). Malsukceso elsaluti kaj reeniri (kiu elŝutas via nova ĉifra ŝlosilo) povas rezultigi korupton de datumoj. Ni provos elsaluti vin aŭtomate, tamen ĝi eble prokrastos. "
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Ĉiuj ĉifritaj eksportaĵoj, kiujn vi konservis, ankaŭ malvalidiĝos."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Abono"
@@ -4878,7 +4878,7 @@
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
-    "message": "La prefero de uzanto"
+    "message": "Prefero de la uzanto"
   },
   "vaultTimeoutAction": {
     "message": "Volta Tempolima Ago"
@@ -4949,7 +4949,7 @@
     "message": "Eroj rehaviĝis"
   },
   "restoredItemId": {
-    "message": "La ero $ID$ rehaviĝis",
+    "message": "Restariĝis ero $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8694,7 +8694,7 @@
     }
   },
   "collectionManagement": {
-    "message": "Collection management"
+    "message": "Administrado de kolekto"
   },
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
@@ -8770,13 +8770,13 @@
     "message": "At least one member or group must have can manage permission."
   },
   "typePasskey": {
-    "message": "Passkey"
+    "message": "Pasŝlosilo"
   },
   "passkeyNotCopied": {
-    "message": "Passkey will not be copied"
+    "message": "Pasŝlosilo ne estos kopiita"
   },
   "passkeyNotCopiedAlert": {
-    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+    "message": "La pasŝlosilo ne estos kopiita al la klonaĵo. Ĉu vi volas daŭrigi la klonadon de ĉi tiu ero?"
   },
   "modifiedCollectionManagement": {
     "message": "Modified collection management setting $ID$.",
@@ -8792,13 +8792,13 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "installBrowserExtension": {
-    "message": "Install browser extension"
+    "message": "Instali la retumilan etendaĵon"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+    "message": "Uzu la etendaĵon por rapide konservi salutilojn kaj aŭtomate plenigi la kampojn sen malfermo de la reteja apo."
   },
   "projectAccessUpdated": {
-    "message": "Project access updated"
+    "message": "Projekto-alirebleco ĝisdatiĝis"
   },
   "unexpectedErrorSend": {
     "message": "An unexpected error has occurred while loading this Send. Try again later."
@@ -8813,7 +8813,7 @@
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   },
   "collectionAccessRestricted": {
-    "message": "Collection access is restricted"
+    "message": "La aliro al kolekto estas limigita"
   },
   "readOnlyCollectionAccess": {
     "message": "You do not have access to manage this collection."
@@ -9057,15 +9057,15 @@
     "message": "Machine accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
   "machineAccount": {
-    "message": "Machine account",
+    "message": "Maŝina konto",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "machineAccounts": {
-    "message": "Machine accounts",
+    "message": "Maŝinaj kontoj",
     "description": "The title for the section that deals with machine accounts."
   },
   "newMachineAccount": {
-    "message": "New machine account",
+    "message": "Nova maŝina konto",
     "description": "Title for creating a new machine account."
   },
   "machineAccountsNoItemsMessage": {
@@ -9073,23 +9073,23 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "Nothing to show yet",
+    "message": "Ankoraŭ neniu por montri",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
-    "message": "Delete machine accounts",
+    "message": "Forĵeti maŝinan konton",
     "description": "Title for the action to delete one or multiple machine accounts."
   },
   "deleteMachineAccount": {
-    "message": "Delete machine account",
+    "message": "Forĵeti maŝinajn kontojn",
     "description": "Title for the action to delete a single machine account."
   },
   "viewMachineAccount": {
-    "message": "View machine account",
+    "message": "Vidi maŝinan konton",
     "description": "Action to view the details of a machine account."
   },
   "deleteMachineAccountDialogMessage": {
-    "message": "Deleting machine account $MACHINE_ACCOUNT$ is permanent and irreversible.",
+    "message": "Forĵeti la maŝinan konton $MACHINE_ACCOUNT$  estas poreterne kaj neinverseble.",
     "placeholders": {
       "machine_account": {
         "content": "$1",
@@ -10102,7 +10102,7 @@
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
   },
   "deleteOrganizationUser": {
-    "message": "Delete $NAME$",
+    "message": "Fo",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10610,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }
