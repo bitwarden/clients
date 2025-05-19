@@ -119,16 +119,32 @@ const findElementById = <ElementType extends HTMLElement>(
  * @returns The localized header message string, or undefined if the type is not recognized.
  */
 export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.saveLogin;
-    case NotificationTypes.Change:
-      return i18n.updateLogin;
-    case NotificationTypes.Unlock:
-      return i18n.unlockToSave;
-    default:
-      return undefined;
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.saveLogin,
+        [NotificationTypes.Change]: i18n.updateLogin,
+        [NotificationTypes.Unlock]: i18n.unlockToSave,
+      }[type]
+    : undefined;
+}
+
+/**
+ * Returns the localized header message for the confirmation message bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
+  if (error) {
+    return i18n.saveFailure;
   }
+
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.loginSaveSuccess,
+        [NotificationTypes.Change]: i18n.loginUpdateSuccess,
+        [NotificationTypes.Unlock]: "",
+      }[type]
+    : undefined;
 }
 
 /**
@@ -141,6 +157,22 @@ export function appendHeaderMessageToTitle(headerMessage?: string) {
   }
   const baseTitle = document.title.split(" - ")[0];
   document.title = `${baseTitle} - ${headerMessage}`;
+}
+
+/**
+ * Determines the effective notification type to use based on initialization data.
+ *
+ * If the vault is locked, the notification type will be set to `Unlock`.
+ * Otherwise, the type provided in the init data is returned.
+ *
+ * @returns The resolved `NotificationType` to be used for rendering logic.
+ */
+function resolveNotificationType(initData: NotificationBarIframeInitData): NotificationType {
+  if (initData.isVaultLocked) {
+    return NotificationTypes.Unlock;
+  }
+
+  return initData.type as NotificationType;
 }
 
 /**
@@ -176,9 +208,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
-  const resolvedType = isVaultLocked
-    ? NotificationTypes.Unlock
-    : (notificationBarIframeInitData.type as NotificationType);
+  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
 
   if (useComponentBar) {
     const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
@@ -467,6 +497,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
+  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
@@ -476,6 +508,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       type: type as NotificationType,
       theme: resolvedTheme,
       handleCloseNotification,
+      headerMessage,
       i18n,
       error,
       itemName: itemName ?? i18n.typeLogin,
