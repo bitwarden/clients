@@ -208,9 +208,9 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
-  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
 
   if (useComponentBar) {
+    const resolvedType = resolveNotificationType(notificationBarIframeInitData);
     const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
     appendHeaderMessageToTitle(headerMessage);
 
