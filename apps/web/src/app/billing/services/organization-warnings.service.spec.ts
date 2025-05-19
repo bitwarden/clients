@@ -12,7 +12,7 @@ import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 import { OrganizationWarningsService } from "./organization-warnings.service";
 
 // Skipped since Angular complains about `TypeError: Cannot read properties of undefined (reading 'ngModule')`
-// which is typically a sign of circular dependencies
+// which is typically a sign of circular dependencies. The problem seems to be originating from `ChangePlanDialogComponent`.
 describe.skip("OrganizationWarningsService", () => {
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
