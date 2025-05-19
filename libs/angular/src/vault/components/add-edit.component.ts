@@ -736,17 +736,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.cipherService.encrypt(this.cipher, userId);
   }
 
-  protected saveCipher(cipher: Cipher) {
+  protected saveCipher(data: { cipher: Cipher; encryptedFor: UserId }) {
     let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
-    if (!cipher.collectionIds) {
+    if (!data.cipher.collectionIds) {
       orgAdmin = this.organization?.canEditUnassignedCiphers;
     }
 
     return this.cipher.id == null
-      ? this.cipherService.createWithServer(cipher, orgAdmin)
-      : this.cipherService.updateWithServer(cipher, orgAdmin);
+      ? this.cipherService.createWithServer(data, orgAdmin)
+      : this.cipherService.updateWithServer(data, orgAdmin);
   }
 
   protected deleteCipher(userId: UserId) {

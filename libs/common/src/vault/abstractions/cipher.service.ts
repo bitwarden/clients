@@ -40,7 +40,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     keyForEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
-  ): Promise<Cipher>;
+  ): Promise<{ cipher: Cipher; encryptedFor: UserId }>;
   abstract encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]>;
   abstract encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
@@ -92,7 +92,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *
    * @returns A promise that resolves to the created cipher
    */
-  abstract createWithServer(cipher: Cipher, orgAdmin?: boolean): Promise<Cipher>;
+  abstract createWithServer(
+    { cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId },
+    orgAdmin?: boolean,
+  ): Promise<Cipher>;
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
@@ -102,7 +105,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the updated cipher
    */
   abstract updateWithServer(
-    cipher: Cipher,
+    { cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId },
     orgAdmin?: boolean,
     isNotClone?: boolean,
   ): Promise<Cipher>;
