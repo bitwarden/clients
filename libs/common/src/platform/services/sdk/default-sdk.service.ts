@@ -150,7 +150,15 @@ export class DefaultSdkService implements SdkService {
             const settings = this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(settings);
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              privateKey,
+              userKey,
+              orgKeys,
+            );
 
             return client;
           };
@@ -169,9 +177,7 @@ export class DefaultSdkService implements SdkService {
           return () => client?.markForDisposal();
         });
       }),
-      tap({
-        finalize: () => this.sdkClientCache.delete(userId),
-      }),
+      tap({ finalize: () => this.sdkClientCache.delete(userId) }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -180,6 +186,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async initializeClient(
+    userId: UserId,
     client: BitwardenClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
@@ -188,13 +195,12 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
+      userId: userId,
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:
         kdfParams.kdfType === KdfType.PBKDF2_SHA256
-          ? {
-              pBKDF2: { iterations: kdfParams.iterations },
-            }
+          ? { pBKDF2: { iterations: kdfParams.iterations } }
           : {
               argon2id: {
                 iterations: kdfParams.iterations,
