@@ -4,10 +4,12 @@ import { html, TemplateResult } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { border, themes, typography, spacing } from "../constants/styles";
+import { Spinner } from "../icons";
 
 export type ActionButtonProps = {
   buttonText: string | TemplateResult;
   disabled?: boolean;
+  isLoading?: boolean;
   theme: Theme;
   handleClick: (e: Event) => void;
 };
@@ -15,31 +17,43 @@ export type ActionButtonProps = {
 export function ActionButton({
   buttonText,
   disabled = false,
+  isLoading = false,
   theme,
   handleClick,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled) {
+    if (!disabled && !isLoading) {
       handleClick(event);
     }
   };
 
   return html`
     <button
-      class=${actionButtonStyles({ disabled, theme })}
+      class=${actionButtonStyles({ disabled, isLoading, theme })}
       title=${buttonText}
       type="button"
       @click=${handleButtonClick}
     >
-      ${buttonText}
+      ${isLoading ? Spinner({ theme, color: themes[theme].text.muted }) : buttonText}
     </button>
   `;
 }
 
-const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: Theme }) => css`
+const actionButtonStyles = ({
+  disabled,
+  isLoading,
+  theme,
+}: {
+  disabled: boolean;
+  isLoading: boolean;
+  theme: Theme;
+}) => css`
   ${typography.body2}
 
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
   padding: ${spacing["1"]} ${spacing["3"]};
@@ -49,7 +63,7 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
   text-overflow: ellipsis;
   font-weight: 700;
 
-  ${disabled
+  ${disabled || isLoading
     ? `
     background-color: ${themes[theme].secondary["300"]};
     color: ${themes[theme].text.muted};
@@ -71,7 +85,8 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
   `}
 
   svg {
-    width: fit-content;
+    padding: 2px 0; /* Match line-height of button body2 typography */
+    width: auto;
     height: 16px;
   }
 `;
