@@ -1,10 +1,15 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { ButtonComponent } from "./button.component";
 
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
+  decorators: [
+    moduleMetadata({
+      imports: [Blah],
+    }),
+  ],
   args: {
     buttonType: "primary",
     disabled: false,
@@ -32,7 +37,7 @@ export const Primary: Story = {
     props: args,
     template: /*html*/ `
     <div class="tw-flex tw-gap-4 tw-mb-6 tw-items-center">
-      <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Button</button>
+      <button bitButton (click)="handleExternalClick" [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block">Button</button>
       <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
       <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
       <button bitButton [disabled]="disabled" [loading]="loading" [buttonType]="buttonType" [size]="size" [block]="block" class="tw-test-hover tw-test-focus-visible">Button:hover:focus-visible</button>

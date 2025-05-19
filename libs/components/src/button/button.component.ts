@@ -1,6 +1,15 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed, input } from "@angular/core";
+import {
+  Input,
+  HostBinding,
+  Component,
+  model,
+  computed,
+  input,
+  ElementRef,
+  OnDestroy,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
@@ -55,10 +64,20 @@ const buttonStyles: Record<ButtonType, string[]> = {
   standalone: true,
   imports: [NgClass],
   host: {
-    "[attr.disabled]": "disabledAttr()",
+    "[attr.aria-disabled]": "disabledAttr()",
   },
 })
-export class ButtonComponent implements ButtonLikeAbstraction {
+export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
+  // @HostListener('click', ['$event'])
+  // onClick(event: KeyboardEvent | MouseEvent) {
+  //   if (this.disabledAttr()) {
+  //     console.log({event})
+  //     console.log('should prevent')
+  //     event.stopPropagation();
+  //     return false
+  //   }
+  // }
+
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
@@ -76,14 +95,15 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
-              "disabled:tw-bg-secondary-300",
-              "disabled:hover:tw-bg-secondary-300",
-              "disabled:tw-border-secondary-300",
-              "disabled:hover:tw-border-secondary-300",
-              "disabled:!tw-text-muted",
-              "disabled:hover:!tw-text-muted",
-              "disabled:tw-cursor-not-allowed",
-              "disabled:hover:tw-no-underline",
+              "tw-bg-secondary-300",
+              "hover:tw-bg-secondary-300",
+              "tw-border-secondary-300",
+              "hover:tw-border-secondary-300",
+              "!tw-text-muted",
+              "hover:!tw-text-muted",
+              "tw-cursor-not-allowed",
+              "hover:tw-no-underline",
+              "tw-pointer-events-none",
             ]
           : [],
       )
@@ -141,4 +161,21 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   );
 
   disabled = model<boolean>(false);
+
+  constructor(private elementRef: ElementRef) {
+    this.elementRef.nativeElement.addEventListener("click", this.captureClick, true);
+  }
+
+  ngOnDestroy() {
+    this.elementRef.nativeElement.removeEventListener("click", this.captureClick, true);
+  }
+
+  private captureClick = (event: PointerEvent) => {
+    if (this.disabledAttr()) {
+      event.stopPropagation();
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  };
 }
