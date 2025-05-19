@@ -26,6 +26,7 @@ import {
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
+import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
@@ -42,6 +43,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
     </div>
     <bit-toast-container></bit-toast-container>
   `,
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
@@ -71,6 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private popupSizeService: PopupSizeService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
   }
@@ -79,6 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
     initPopupClosedListener();
 
     this.compactModeService.init();
+    await this.popupSizeService.setHeight();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur

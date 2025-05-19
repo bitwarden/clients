@@ -21,6 +21,7 @@ import { CipherReportComponent } from "./cipher-report.component";
 @Component({
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
+  standalone: false,
 })
 export class InactiveTwoFactorReportComponent extends CipherReportComponent implements OnInit {
   services = new Map<string, string>();

@@ -203,9 +203,7 @@ export class ViewV2Component {
 
   async getCipherData(id: string, userId: UserId) {
     const cipher = await this.cipherService.get(id, userId);
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
-    );
+    return await this.cipherService.decrypt(cipher, userId);
   }
 
   async editCipher() {

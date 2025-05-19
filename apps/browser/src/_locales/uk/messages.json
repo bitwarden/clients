@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Редагувати перед збереженням",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ збережено до Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ оновлено в Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Зберегти як новий запис",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Оновити запис",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Зберегти запис",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Пропозиції автозаповнення"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Користуйтеся пропозиціями автозаповнення"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Вимкніть налаштування автозаповнення вашого браузера, щоб вони не конфліктували з Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Вимкнути автозаповнення $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Вимкніть автозаповнення"
   },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Дія після часу очікування"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Нові можливості налаштування"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Налаштуйте своє сховище за допомогою швидких дій копіювання, компактного режиму та інших можливостей!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Всі налаштування подання"
   },
   "lock": {
     "message": "Блокувати",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Завантажити з bitwarden.com"
   },
+  "getItOnGooglePlay": {
+    "message": "Завантажити з Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Завантажити з App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Зберігайте скільки завгодно паролів на необмеженій кількості пристроїв, використовуючи Bitwarden для мобільних пристроїв, браузерів та комп'ютерів."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Імпортуйте наявні паролі"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Вітаємо у вашому сховищі!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Автозаповнення на відкритій сторінці\nОбрані записи для легкого доступу\nПошук будь-яких даних у сховищі"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"
@@ -5306,5 +5340,8 @@
     "message": "Докладніше про SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Nová položka"
   },
-  "addNewFolder": {
-    "message": "Nová složka"
-  },
   "view": {
     "message": "Zobrazit"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
   },
-  "hCaptchaUrl": {
-    "message": "URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Načíst soubory cookie pro přístupnost"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrovat jako uživatele přístupnosti na",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Zkopírujte a vložte odkaz odeslaný na Váš e-mail níže"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Zadejte URL pro načtení cookie přístupnosti pro hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Je vyžadována adresa URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Neplatná adresa URL"
-  },
   "done": {
     "message": "Hotovo"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie pro přístupnost byla uložena!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Žádné cookies pro přístupnost nebyly uloženy"
   },
   "warning": {
     "message": "VAROVÁNÍ",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrické odemknutí je momentálně z neznámého důvodu nedostupné."
   },
+  "itemDetails": {
+    "message": "Detaily položky"
+  },
+  "itemName": {
+    "message": "Název položky"
+  },
+  "loginCredentials": {
+    "message": "Přihlašovací údaje"
+  },
+  "additionalOptions": {
+    "message": "Další volby"
+  },
+  "itemHistory": {
+    "message": "Historie položky"
+  },
+  "lastEdited": {
+    "message": "Naposledy upraveno"
+  },
+  "upload": {
+    "message": "Nahrát"
+  },
   "authorize": {
     "message": "Autorizovat"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Přesunout"
+  },
+  "newFolder": {
+    "message": "Nová složka"
+  },
+  "folderName": {
+    "message": "Název složky"
+  },
+  "folderHintText": {
+    "message": "Vnořte složku přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
   },
   "newLoginNudgeTitle": {
     "message": "Ušetřete čas s automatickým vyplňováním"

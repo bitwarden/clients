@@ -14,6 +14,7 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items",
   templateUrl: "vault-items.component.html",
+  standalone: false,
 })
 export class VaultItemsComponent extends BaseVaultItemsComponent {
   constructor(
