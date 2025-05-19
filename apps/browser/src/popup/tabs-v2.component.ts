@@ -1,12 +1,12 @@
 import { Component } from "@angular/core";
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
+import { NudgesService } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Icons } from "@bitwarden/components";
-import { NudgesService } from "@bitwarden/vault";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
