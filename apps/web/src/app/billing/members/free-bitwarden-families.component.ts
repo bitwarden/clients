@@ -16,7 +16,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
@@ -33,6 +33,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
   organizationId = "";
   organizationKey$: Observable<OrgKey>;
+
+  protected searchIcon = Icons.Empty;
 
   private locale: string = "";
 

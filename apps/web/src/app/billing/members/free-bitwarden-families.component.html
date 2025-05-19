@@ -90,11 +90,10 @@
         <hr class="tw-mt-0" />
       </ng-container>
     } @else if (!loading()) {
-      <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
-        <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
-        <h4 class="tw-mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
-        <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
-      </div>
+      <bit-no-items [icon]="searchIcon" class="tw-text-main">
+        <ng-container slot="title">{{ "noSponsoredFamiliesMessage" | i18n }}</ng-container>
+        <ng-container slot="description">{{ "nosponsoredFamiliesDetails" | i18n }}</ng-container>
+      </bit-no-items>
     }
 
     @if (!loading() && sponsoredFamilies.length > 0) {
