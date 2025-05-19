@@ -6,9 +6,9 @@ import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-
 import { IconPaths } from "./state";
 
 export interface RawBadgeState {
-  text?: string;
-  backgroundColor?: string;
-  icon?: IconPaths;
+  text: string;
+  backgroundColor: string;
+  icon: IconPaths;
 }
 
 export class BadgeBrowserApi {
@@ -71,6 +71,10 @@ export class BadgeBrowserApi {
   }
 
   private async setSideBarText(text: string) {
+    if (!this.sidebarAction) {
+      return;
+    }
+
     if (this.isOperaSidebar(this.sidebarAction)) {
       this.sidebarAction.setBadgeText({ text });
     } else if (this.sidebarAction) {
@@ -81,10 +85,10 @@ export class BadgeBrowserApi {
   }
 
   private async setBackgroundColor(color: string) {
-    if (this.badgeAction?.setBadgeBackgroundColor) {
+    if (this.badgeAction && this.badgeAction?.setBadgeBackgroundColor) {
       await this.badgeAction.setBadgeBackgroundColor({ color });
     }
-    if (this.isOperaSidebar(this.sidebarAction)) {
+    if (this.sidebarAction && this.isOperaSidebar(this.sidebarAction)) {
       this.sidebarAction.setBadgeBackgroundColor({ color });
     }
   }

@@ -26,7 +26,7 @@ export class AutofillBadgeUpdaterService {
     })
       .pipe(
         mergeMap(async ({ account, enableBadgeCounter, tab }) => {
-          if (!account || !tab) {
+          if (!account || !tab || !tab.url) {
             return { ciphers: 0, enableBadgeCounter };
           }
 
