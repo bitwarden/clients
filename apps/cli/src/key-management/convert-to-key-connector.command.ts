@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
@@ -10,7 +8,6 @@ import {
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
@@ -20,7 +17,6 @@ export class ConvertToKeyConnectorCommand {
     private readonly userId: UserId,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
-    private syncService: SyncService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
   ) {}
@@ -39,7 +35,7 @@ export class ConvertToKeyConnectorCommand {
       );
     }
 
-    const organization = await this.keyConnectorService.getManagingOrganization();
+    const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
 
     const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
       type: "list",
@@ -65,14 +61,11 @@ export class ConvertToKeyConnectorCommand {
 
     if (answer.convert === "remove") {
       try {
-        await this.keyConnectorService.migrateUser();
+        await this.keyConnectorService.migrateUser(this.userId);
       } catch (e) {
         await this.logout();
         throw e;
       }
-
-      await this.keyConnectorService.removeConvertAccountRequired();
-      await this.keyConnectorService.setUsesKeyConnector(true, this.userId);
 
       // Update environment URL - required for api key login
       const env = await firstValueFrom(this.environmentService.environment$);
@@ -83,7 +76,6 @@ export class ConvertToKeyConnectorCommand {
       return Response.success();
     } else if (answer.convert === "leave") {
       await this.organizationApiService.leave(organization.id);
-      await this.keyConnectorService.removeConvertAccountRequired();
       return Response.success();
     } else {
       await this.logout();

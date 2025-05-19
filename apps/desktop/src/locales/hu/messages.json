@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Új elem"
   },
-  "addNewFolder": {
-    "message": "Új mappa"
-  },
   "view": {
     "message": "Megtekintés"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha webcím",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Akadálymentes süti betöltése"
-  },
-  "registerAccessibilityUser": {
-    "message": "Regisztrálás akadálymentes felhasználóként:",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Vágólapon át szúrjuk be lentebb a kapott emailben levő hivatkozást."
-  },
-  "enterhCaptchaUrl": {
-    "message": "Webcím megadása a hCaptcha akadálymentes sütijének betöltéséhez",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "A hCaptcha webcím megadása szükséges",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "A webcím érvénytelen."
-  },
   "done": {
     "message": "Kész"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Az ajadálymentes süti mentésre került."
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Nem lett elmentve akadálymentes süti."
   },
   "warning": {
     "message": "FIGYELEM",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
   },
+  "itemDetails": {
+    "message": "Elem részletek"
+  },
+  "itemName": {
+    "message": "Elem név"
+  },
+  "loginCredentials": {
+    "message": "Bejelentkezési hitelesítések"
+  },
+  "additionalOptions": {
+    "message": "Kiegészítő opciók"
+  },
+  "itemHistory": {
+    "message": "Elem előzmény"
+  },
+  "lastEdited": {
+    "message": "Utoljára szerkesztve"
+  },
+  "upload": {
+    "message": "Feltöltés"
+  },
   "authorize": {
     "message": "Hitelesítés"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Áthelyezés"
+  },
+  "newFolder": {
+    "message": "Új mappa"
+  },
+  "folderName": {
+    "message": "Mappanév"
+  },
+  "folderHintText": {
+    "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
   },
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"

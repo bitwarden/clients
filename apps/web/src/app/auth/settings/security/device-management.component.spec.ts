@@ -9,13 +9,7 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import {
-  DialogService,
-  ToastService,
-  TableModule,
-  PopoverModule,
-  LayoutComponent,
-} from "@bitwarden/components";
+import { DialogService, ToastService, TableModule, PopoverModule } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 import { VaultBannersService } from "../../../vault/individual-vault/vault-banners/services/vault-banners.service";
@@ -119,12 +113,6 @@ describe("DeviceManagementComponent", () => {
           provide: ValidationService,
           useValue: {
             showError: jest.fn(),
-          },
-        },
-        {
-          provide: LayoutComponent,
-          useValue: {
-            mainContent: jest.fn(),
           },
         },
       ],
