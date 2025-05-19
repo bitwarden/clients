@@ -6,7 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ItemModule } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
@@ -19,7 +18,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopOutComponent,
     PopupHeaderComponent,
     PopupPageComponent,
-    PopupFooterComponent,
     RouterModule,
     ItemModule,
     DeviceManagementComponent,
