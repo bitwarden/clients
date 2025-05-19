@@ -1,9 +1,7 @@
 import { Component } from "@angular/core";
-import { RouterModule } from "@angular/router";
 
 import { DeviceManagementComponent } from "@bitwarden/angular/auth/components/device-management/device-management.component";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ItemModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -14,13 +12,11 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
   selector: "extension-device-management",
   templateUrl: "extension-device-management.component.html",
   imports: [
-    JslibModule,
+    DeviceManagementComponent,
+    I18nPipe,
     PopOutComponent,
     PopupHeaderComponent,
     PopupPageComponent,
-    RouterModule,
-    ItemModule,
-    DeviceManagementComponent,
   ],
 })
 export class ExtensionDeviceManagementComponent {}
