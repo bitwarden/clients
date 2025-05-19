@@ -146,23 +146,23 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     if (loginResponse.requestApproved) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t(
-          "logInConfirmedForEmailOnDevice",
+          "loginRequestApprovedForEmailOnDevice",
           this.email,
-          loginResponse.requestDeviceType,
+          this.formatDeviceTypeName(loginResponse.requestDeviceTypeValue),
         ),
       });
     } else {
       this.toastService.showToast({
         variant: "info",
-        title: null,
-        message: this.i18nService.t("youDeniedALogInAttemptFromAnotherDevice"),
+        title: "",
+        message: this.i18nService.t("youDeniedLoginAttemptFromAnotherDevice"),
       });
     }
   }
 
-  getReadableDeviceTypeName(type: DeviceType): string {
+  formatDeviceTypeName(type: DeviceType): string {
     if (type === undefined) {
       return this.i18nService.t("unknownDevice");
     }

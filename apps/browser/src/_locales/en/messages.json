@@ -3408,6 +3408,22 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "exposedMasterPassword": {
     "message": "Exposed Master Password"
   },
@@ -3521,6 +3537,9 @@
   },
   "webVault": {
     "message": "Web vault"
+  },
+  "webApp": {
+    "message": "Web app"
   },
   "cli": {
     "message": "CLI"
