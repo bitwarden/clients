@@ -3707,13 +3707,13 @@
     "message": "Taşı"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Yeni klasör"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Klasör adı"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"

@@ -3707,13 +3707,13 @@
     "message": "Pārvietot"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Jauna mape"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Mapes nosaukums"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Apakšmapes var izveidot, ja pievieno iekļaujošās mapes nosaukumu, aiz kura ir \"/\". Piemēram: Tīklošanās/Forumi"
   },
   "newLoginNudgeTitle": {
     "message": "Laika ietaupīšana ar automātisko aizpildi"
