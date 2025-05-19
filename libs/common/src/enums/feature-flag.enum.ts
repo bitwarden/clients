@@ -22,7 +22,6 @@ export enum FeatureFlag {
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  IdpAutoSubmitLogin = "idp-auto-submit-login",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -87,7 +86,6 @@ export const DefaultFeatureFlagValue = {
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
