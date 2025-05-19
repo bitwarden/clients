@@ -95,6 +95,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           encryptor,
           state,
           log,
+          now: Date.now,
         });
 
         return {
@@ -126,6 +127,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           encryptor,
           state,
           log: system.log,
+          now: Date.now,
         } satisfies UserStateSubjectDependencyProvider;
 
         const metadata = new providers.GeneratorMetadataProvider(
@@ -145,6 +147,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           encryptor,
           state,
           log: system.log,
+          now: Date.now,
         };
 
         return {
@@ -170,6 +173,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           encryptor,
           state,
           log: disabledSemanticLoggerProvider,
+          now: Date.now,
         }),
       deps: [LegacyEncryptorProvider, StateProvider],
     }),

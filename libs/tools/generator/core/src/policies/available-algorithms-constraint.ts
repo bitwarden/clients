@@ -11,12 +11,14 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
   readonly constraints: Readonly<Constraints<CredentialPreference>> = {};
 
   /** Creates a password policy constraints
-   *  @param constraints Constraints derived from the policy and application-defined defaults
+   *  @param algorithms loads the algorithms for an algorithm type
+   *  @param isAvailable returns `true` when `algorithm` is enabled by policy
+   *  @param system provides logging facilities
    */
   constructor(
     readonly algorithms: (request: TypeRequest) => CredentialAlgorithm[],
     readonly isAvailable: (algorithm: CredentialAlgorithm) => boolean,
-    system: UserStateSubjectDependencyProvider,
+    readonly system: UserStateSubjectDependencyProvider,
   ) {
     this.log = system.log({ type: "AvailableAlgorithmsConstraint" });
   }
@@ -27,10 +29,7 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
 
     const types = Object.keys(preferences) as CredentialType[];
     for (const t of types) {
-      const { algorithm } = preferences[t];
-      result[t] = this.isAvailable(algorithm)
-        ? preferences[t]
-        : this.adjustPreference(t, preferences[t]);
+      result[t] = this.adjustPreference(t, preferences[t]);
     }
 
     return result;
@@ -38,6 +37,8 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
 
   private adjustPreference(type: CredentialType, preference: { algorithm: CredentialAlgorithm }) {
     if (this.isAvailable(preference.algorithm)) {
+      this.log.debug({ preference, type }, "using preferred algorithm");
+
       return preference;
     }
 
@@ -48,7 +49,11 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
     // adjust the preference
     let adjustedPreference;
     if (defaultAlgorithm) {
-      adjustedPreference = { ...preference, algorithm: defaultAlgorithm };
+      adjustedPreference = {
+        ...preference,
+        algorithm: defaultAlgorithm,
+        updated: this.system.now(),
+      };
       this.log.debug(
         { preference, defaultAlgorithm, type },
         "preference not available; defaulting the algorithm",

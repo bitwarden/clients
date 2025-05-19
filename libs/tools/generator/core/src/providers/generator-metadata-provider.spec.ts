@@ -75,6 +75,7 @@ const SystemProvider = {
   } as LegacyEncryptorProvider,
   state: SomeStateProvider,
   log: disabledSemanticLoggerProvider,
+  now: Date.now,
 } as UserStateSubjectDependencyProvider;
 
 const SomeSiteId: SiteId = Site.forwarder;

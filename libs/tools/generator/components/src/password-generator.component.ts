@@ -118,7 +118,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
   disableMargin = false;
 
   /** tracks the currently selected credential type */
-  protected credentialType$ = new BehaviorSubject<CredentialAlgorithm>(Algorithm.password);
+  protected credentialType$ = new BehaviorSubject<CredentialAlgorithm | null>(null);
 
   /** Emits the last generated value. */
   protected readonly value$ = new BehaviorSubject<string>("");
@@ -163,7 +163,7 @@ export class PasswordGeneratorComponent implements OnInit, OnChanges, OnDestroy 
 
   async ngOnInit() {
     this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
-      type: "UsernameGeneratorComponent",
+      type: "PasswordGeneratorComponent",
     });
 
     if (!this.account) {

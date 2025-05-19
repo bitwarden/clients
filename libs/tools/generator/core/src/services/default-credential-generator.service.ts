@@ -49,7 +49,7 @@ export class DefaultCredentialGeneratorService implements CredentialGeneratorSer
     private readonly provide: CredentialGeneratorProviders,
     private readonly system: SystemServiceProvider,
   ) {
-    this.log = system.log({ type: "CredentialGeneratorService" });
+    this.log = system.log({ type: "DefaultCredentialGeneratorService" });
   }
 
   private readonly log: SemanticLogger;
