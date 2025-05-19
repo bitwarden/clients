@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import {
   CdkVirtualScrollViewport,
-  CdkVirtualScrollableWindow,
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
+  CdkVirtualScrollableWindow,
 } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -20,8 +20,6 @@ import {
   ElementRef,
   TrackByFunction,
 } from "@angular/core";
-
-import { ScrollLayoutDirective } from "../layout";
 
 import { RowDirective } from "./row.directive";
 import { TableComponent } from "./table.component";
@@ -60,7 +58,6 @@ export class BitRowDef {
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     RowDirective,
-    ScrollLayoutDirective,
   ],
 })
 export class TableScrollComponent

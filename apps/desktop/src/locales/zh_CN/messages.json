@@ -446,10 +446,10 @@
     "message": "添加字段"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "编辑字段"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "确定要永久删除此附件吗？"
   },
   "fieldType": {
     "message": "字段类型"
@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "新增项目"
   },
-  "addNewFolder": {
-    "message": "新增文件夹"
-  },
   "view": {
     "message": "查看"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "加载无障碍 Cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "注册为无障碍用户到",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "复制发送到您电子邮箱的链接然后粘贴在下方"
-  },
-  "enterhCaptchaUrl": {
-    "message": "输入 URL 以加载 hCaptcha 的无障碍 Cookie",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha URL 必填",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "无效的 URL"
-  },
   "done": {
     "message": "完成"
-  },
-  "accessibilityCookieSaved": {
-    "message": "无障碍 Cookie 已保存！"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "未保存任何无障碍 Cookie！"
   },
   "warning": {
     "message": "警告",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "由于某个未知的原因，生物识别解锁当前不可用。"
   },
+  "itemDetails": {
+    "message": "项目详细信息"
+  },
+  "itemName": {
+    "message": "项目名称"
+  },
+  "loginCredentials": {
+    "message": "登录凭据"
+  },
+  "additionalOptions": {
+    "message": "附加选项"
+  },
+  "itemHistory": {
+    "message": "项目历史记录"
+  },
+  "lastEdited": {
+    "message": "最后编辑于"
+  },
+  "upload": {
+    "message": "上传"
+  },
   "authorize": {
     "message": "批准"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "移动"
+  },
+  "newFolder": {
+    "message": "新增文件夹"
+  },
+  "folderName": {
+    "message": "文件夹名称"
+  },
+  "folderHintText": {
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"

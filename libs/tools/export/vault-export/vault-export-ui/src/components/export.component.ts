@@ -80,7 +80,6 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     CalloutModule,
     RadioButtonModule,
     ExportScopeCalloutComponent,
-    UserVerificationDialogComponent,
     PasswordStrengthV2Component,
     GeneratorServicesModule,
   ],

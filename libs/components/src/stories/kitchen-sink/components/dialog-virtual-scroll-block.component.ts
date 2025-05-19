@@ -3,23 +3,15 @@ import { Component, OnInit } from "@angular/core";
 
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
-import { ScrollLayoutDirective } from "../../../layout";
 import { SectionComponent } from "../../../section";
 import { TableDataSource, TableModule } from "../../../table";
 
 @Component({
   selector: "dialog-virtual-scroll-block",
   standalone: true,
-  imports: [
-    DialogModule,
-    IconButtonModule,
-    SectionComponent,
-    TableModule,
-    ScrollingModule,
-    ScrollLayoutDirective,
-  ],
+  imports: [DialogModule, IconButtonModule, SectionComponent, TableModule, ScrollingModule],
   template: /*html*/ `<bit-section>
-    <cdk-virtual-scroll-viewport bitScrollLayout itemSize="63.5">
+    <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>

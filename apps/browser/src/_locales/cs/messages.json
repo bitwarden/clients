@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Nová položka, otevře se v novém okně",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Upravit před uložením",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ - uloženo do Bitwardenu.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "uloženo do Bitwardenu.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ - aktualizováno v Bitwardenu.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "aktualizováno v Bitwardenu.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Vybrat $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Uložit jako nové přihlašovací údaje",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Aktualizovat přihlašovací údaje",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Odemknout pro uložení tohoto přihlášení",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Uložit přihlašovací údaje",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Návrhy automatického vyplňování"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Snadné hledání návrhů automatického vyplňování"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Vypněte nastavení automatického vyplňování prohlížeče, takže nebude v rozporu s Bitwardenem."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Vypnout automatické vyplňování $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Vypnout automatické vyplňování"
   },
   "showInlineMenuLabel": {
     "message": "Zobrazit návrhy automatického vyplňování v polích formuláře"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Akce vypršení časového limitu"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nové volby přizpůsobení"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Přizpůsobte si svůj trezor s rychlými kopírovacími akcemi, kompaktním režimem a dalším!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Zobrazit všechna nastavení vzhledu"
   },
   "lock": {
     "message": "Zamknout",
@@ -3444,7 +3463,7 @@
     "message": "Nastavení automatického vyplňování"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Zkrátka automatického vyplňování"
+    "message": "Zkratka automatického vyplňování"
   },
   "autofillKeyboardShortcutUpdateLabel": {
     "message": "Změnit zkratku"
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Stáhnout z bitwarden.com nyní"
   },
+  "getItOnGooglePlay": {
+    "message": "Získejte ji na Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Stáhnout v App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Opravdu chcete tuto přílohu navždy smazat?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Uložte neomezená hesla na neomezených zařízeních s Bitwardenem na mobilu, prohlížeči a desktopové aplikaci."
   },
+  "nudgeBadgeAria": {
+    "message": "1 oznámení"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Importovat existující hesla"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Vítejte ve Vašem trezoru!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Položky automatického vyplňování pro aktuální stránku\nOblíbené položky pro snadný přístup\nNajděte v trezoru něco jiného"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Položky automatického vyplňování aktuální stránky"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Oblíbené položky pro snadný přístup"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Najít v trezoru něco jiného"
   },
   "newLoginNudgeTitle": {
     "message": "Ušetřete čas s automatickým vyplňováním"
@@ -5306,5 +5340,8 @@
     "message": "Další informace o SSH agentovi",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
   }
 }
