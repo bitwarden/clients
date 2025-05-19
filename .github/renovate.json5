@@ -52,6 +52,12 @@
       addLabels: ["hold"],
     },
     {
+      // Enable support for Rust toolchain updates.
+      matchManagers: ["custom.regex"],
+      matchDepNames: ["rust"],
+      commitMessageTopic: "Rust",
+    },
+    {
       // By default, we send patch updates to the Dependency Dashboard and do not generate a PR.
       // We want to generate PRs for a select number of dependencies to ensure we stay up to date on these.
       matchPackageNames: ["browserslist", "electron", "rxjs", "typescript", "webpack"],
@@ -222,7 +228,6 @@
         "@types/chrome",
         "@types/firefox-webext-browser",
         "@types/glob",
-        "@types/jquery",
         "@types/lowdb",
         "@types/node",
         "@types/node-forge",
@@ -312,6 +317,7 @@
         "@angular/platform-browser",
         "@angular/platform",
         "@angular/router",
+        "axe-playwright",
         "@compodoc/compodoc",
         "@ng-select/ng-select",
         "@storybook/addon-a11y",
@@ -320,6 +326,7 @@
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
         "@storybook/addon-links",
+        "@storybook/test-runner",
         "@storybook/addon-themes",
         "@storybook/angular",
         "@storybook/manager-api",
@@ -328,9 +335,7 @@
         "autoprefixer",
         "bootstrap",
         "chromatic",
-        "jquery",
         "ngx-toastr",
-        "popper.js",
         "react",
         "react-dom",
         "remark-gfm",

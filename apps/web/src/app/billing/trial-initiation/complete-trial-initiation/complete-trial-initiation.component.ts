@@ -47,11 +47,13 @@ export type InitiationPath =
 @Component({
   selector: "app-complete-trial-initiation",
   templateUrl: "complete-trial-initiation.component.html",
+  standalone: false,
 })
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
-  InputPasswordFlow = InputPasswordFlow;
+  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  initializing = true;
 
   /** Password Manager or Secrets Manager */
   product: ProductType;
@@ -202,6 +204,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
+
+    this.initializing = false;
   }
 
   ngOnDestroy(): void {
@@ -366,14 +370,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const captchaToken = await this.finishRegistration(passwordInputResult);
+    await this.finishRegistration(passwordInputResult);
 
-    if (captchaToken == null) {
-      this.submitting = false;
-      return;
-    }
-
-    await this.logIn(passwordInputResult.newPassword, captchaToken);
+    await this.logIn(passwordInputResult.newPassword);
 
     this.submitting = false;
 
@@ -389,14 +388,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
-    const credentials = new PasswordLoginCredentials(
-      this.email,
-      masterPassword,
-      captchaBypassToken,
-      null,
-    );
+  /** Logs the user in */
+  private async logIn(masterPassword: string): Promise<void> {
+    const credentials = new PasswordLoginCredentials(this.email, masterPassword);
 
     await this.loginStrategyService.logIn(credentials);
   }

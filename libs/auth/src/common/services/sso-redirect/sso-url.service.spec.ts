@@ -92,4 +92,27 @@ describe("SsoUrlService", () => {
     );
     expect(result).toBe(expectedUrl);
   });
+
+  it("should build CLI SSO URL with Org SSO Identifier correctly", () => {
+    const baseUrl = "https://web-vault.bitwarden.com";
+    const clientType = ClientType.Cli;
+    const redirectUri = "https://localhost:1000";
+    const state = "abc123";
+    const codeChallenge = "xyz789";
+    const email = "test@bitwarden.com";
+    const orgSsoIdentifier = "test-org";
+
+    const expectedUrl = `${baseUrl}/#/sso?clientId=cli&redirectUri=${encodeURIComponent(redirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}&identifier=${encodeURIComponent(orgSsoIdentifier)}`;
+
+    const result = service.buildSsoUrl(
+      baseUrl,
+      clientType,
+      redirectUri,
+      state,
+      codeChallenge,
+      email,
+      orgSsoIdentifier,
+    );
+    expect(result).toBe(expectedUrl);
+  });
 });

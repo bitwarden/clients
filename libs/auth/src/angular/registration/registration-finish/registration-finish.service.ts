@@ -27,7 +27,7 @@ export abstract class RegistrationFinishService {
    * @param emergencyAccessId The optional emergency access id which is required to validate the emergency access invite token.
    * @param providerInviteToken The optional provider invite token.
    * @param providerUserId The optional provider user id which is required to validate the provider invite token.
-   * @returns a promise which resolves to the captcha bypass token string upon a successful account creation.
+   * @returns a promise which resolves upon a successful account creation.
    */
   abstract finishRegistration(
     email: string,
@@ -38,5 +38,5 @@ export abstract class RegistrationFinishService {
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
-  ): Promise<string>;
+  ): Promise<void>;
 }

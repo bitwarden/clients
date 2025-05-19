@@ -22,7 +22,6 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
-  captchaBypassToken: string;
   tokenRequest: SsoTokenRequest;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.

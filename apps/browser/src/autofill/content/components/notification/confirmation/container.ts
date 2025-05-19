@@ -45,13 +45,15 @@ export function NotificationConfirmationContainer({
   const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
-  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
+  const buttonAria = error
+    ? i18n.notificationNewItemAria
+    : chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
-  let tasksAreComplete: boolean = false;
+  let tasksAreComplete: boolean = true;
 
-  if (task) {
+  if (task && !error) {
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
@@ -68,6 +70,7 @@ export function NotificationConfirmationContainer({
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
+        i18n,
         message: headerMessage,
         theme,
       })}
@@ -82,7 +85,7 @@ export function NotificationConfirmationContainer({
         theme,
         handleOpenVault,
       })}
-      ${remainingTasksCount
+      ${!error && remainingTasksCount
         ? NotificationConfirmationFooter({
             i18n,
             theme,
@@ -113,9 +116,14 @@ function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: str
   if (error) {
     return i18n.saveFailureDetails;
   }
+
+  /* @TODO This partial string return and later concatenation with the cipher name is needed
+   * to handle cipher name overflow cases, but is risky for i18n concerns. Fix concatenation
+   * with cipher name overflow when a tag replacement solution is available.
+   */
   return type === NotificationTypes.Add
-    ? i18n.loginSaveConfirmation
-    : i18n.loginUpdatedConfirmation;
+    ? i18n.notificationLoginSaveConfirmation
+    : i18n.notificationLoginUpdatedConfirmation;
 }
 
 function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
