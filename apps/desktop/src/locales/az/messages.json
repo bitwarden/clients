@@ -3707,13 +3707,13 @@
     "message": "Daşı"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Yeni qovluq"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Qovluq adı"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"

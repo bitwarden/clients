@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Új elem, megnyitás új ablakban",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Szerkesztés mentés előtt",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1117,7 +1121,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Feloldás a bejelentkezés mentéséhez",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {

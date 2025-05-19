@@ -14,6 +14,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { DialogService } from "../../dialog";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -38,20 +39,8 @@ export default {
         KitchenSinkTable,
         KitchenSinkToggleList,
       ],
-    }),
-    applicationConfig({
       providers: [
-        provideNoopAnimations(),
-        importProvidersFrom(
-          RouterModule.forRoot(
-            [
-              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
-              { path: "bitwarden", component: KitchenSinkMainComponent },
-              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
-            ],
-            { useHash: true },
-          ),
-        ),
+        DialogService,
         {
           provide: I18nService,
           useFactory: () => {
@@ -67,6 +56,21 @@ export default {
             });
           },
         },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        provideNoopAnimations(),
+        importProvidersFrom(
+          RouterModule.forRoot(
+            [
+              { path: "", redirectTo: "bitwarden", pathMatch: "full" },
+              { path: "bitwarden", component: KitchenSinkMainComponent },
+              { path: "virtual-scroll", component: DialogVirtualScrollBlockComponent },
+            ],
+            { useHash: true },
+          ),
+        ),
       ],
     }),
   ],
