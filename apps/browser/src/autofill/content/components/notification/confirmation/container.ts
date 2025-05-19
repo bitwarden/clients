@@ -25,7 +25,7 @@ export type NotificationConfirmationContainerProps = NotificationBarIframeInitDa
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
-  headerMessage: string;
+  headerMessage?: string;
   i18n: I18n;
   itemName: string;
   task?: NotificationTaskInfo;
