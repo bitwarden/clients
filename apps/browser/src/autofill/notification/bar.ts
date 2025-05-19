@@ -6,9 +6,11 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { OrgView } from "../content/components/common-types";
+import { CollectionView, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -17,6 +19,7 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
   NotificationType,
+  NotificationTypes,
 } from "./abstractions/notification-bar";
 
 const logService = new ConsoleLogService(false);
@@ -41,6 +44,7 @@ function load() {
     applyNotificationBarStyle();
   });
 }
+
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -53,31 +57,39 @@ function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
+    collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
-    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
     loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
     loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
     nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
+    myVault: chrome.i18n.getMessage("myVault"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
+    notificationLoginSaveConfirmation: chrome.i18n.getMessage("notificationLoginSaveConfirmation"),
+    notificationLoginUpdatedConfirmation: chrome.i18n.getMessage(
+      "notificationLoginUpdatedConfirmation",
+    ),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
     saveFailure: chrome.i18n.getMessage("saveFailure"),
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
-    saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
+    unlockToSave: chrome.i18n.getMessage("unlockToSave"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
-    updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    updateLogin: chrome.i18n.getMessage("updateLogin"),
+    vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
 }
@@ -127,7 +139,11 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const {
+    isVaultLocked,
+    removeIndividualVault: personalVaultDisallowed, // renamed to avoid local method collision
+    theme,
+  } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -136,6 +152,27 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
+    if (isVaultLocked) {
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          type: NotificationTypes.Unlock,
+          theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
+          handleCloseNotification,
+          handleSaveAction: (e) => {
+            sendSaveCipherMessage(true);
+
+            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
+          },
+          handleEditOrUpdateAction,
+          i18n,
+        }),
+        document.body,
+      );
+    }
+
+    const orgId = selectedVaultSignal.get();
     await Promise.all([
       new Promise<OrgView[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
@@ -146,19 +183,25 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       new Promise<NotificationCipherData[]>((resolve) =>
         sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
       ),
-    ]).then(([organizations, folders, ciphers]) => {
+      new Promise<CollectionView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers, collections]) => {
       notificationBarIframeInitData = {
         ...notificationBarIframeInitData,
+        organizations,
         folders,
         ciphers,
-        organizations,
+        collections,
       };
+
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
           type: notificationBarIframeInitData.type as NotificationType,
           theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
           handleSaveAction,
           handleEditOrUpdateAction,
@@ -174,7 +217,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       ? chrome.runtime.getURL("images/icon38_locked.png")
       : chrome.runtime.getURL("images/icon38.png");
 
-    setupLogoLink(i18n);
+    setupLogoLink(i18n.appName);
 
     // i18n for "Add" template
     const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
@@ -200,7 +243,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
     const changeButton = findElementById<HTMLSelectElement>(changeTemplate, "change-save");
-    changeButton.textContent = i18n.notificationChangeSave;
+    changeButton.textContent = i18n.notificationUpdate;
 
     const changeEditButton = findElementById<HTMLButtonElement>(changeTemplate, "change-edit");
     changeEditButton.textContent = i18n.notificationEdit;
@@ -249,9 +292,21 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
+  const selectedVault = selectedVaultSignal.get();
+  const selectedFolder = selectedFolderSignal.get();
+
+  if (selectedVault.length > 1) {
+    openAddEditVaultItemPopout(e, {
+      organizationId: selectedVault,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
+    });
+    handleCloseNotification(e);
+    return;
+  }
+
   e.preventDefault();
 
-  sendSaveCipherMessage(removeIndividualVault());
+  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }
@@ -346,17 +401,32 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
-function openViewVaultItemPopout(e: Event, cipherId: string) {
+function openAddEditVaultItemPopout(
+  e: Event,
+  options: {
+    cipherId?: string;
+    organizationId?: string;
+    folder?: string;
+  },
+) {
   e.preventDefault();
   sendPlatformMessage({
-    command: "bgOpenVault",
+    command: "bgOpenAddEditVaultItemPopout",
+    ...options,
+  });
+}
+
+function openViewVaultItemPopout(cipherId: string) {
+  sendPlatformMessage({
+    command: "bgOpenViewVaultItemPopout",
     cipherId,
   });
 }
 
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error, username, cipherId } = message;
+  const { error, data } = message;
+  const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
@@ -370,9 +440,11 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       handleCloseNotification,
       i18n,
       error,
-      username: username ?? i18n.typeLogin,
-      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
-      handleOpenTasks: () => {},
+      itemName: itemName ?? i18n.typeLogin,
+      task,
+      handleOpenVault: (e: Event) =>
+        cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
     }),
     document.body,
   );
@@ -477,9 +549,9 @@ function handleWindowMessage(event: MessageEvent) {
   handler({ message });
 }
 
-function setupLogoLink(i18n: Record<string, string>) {
+function setupLogoLink(linkText: string) {
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
+  logoLink.title = linkText;
   const setWebVaultUrlLink = (webVaultURL: string) => {
     const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
     if (newVaultURL && newVaultURL !== logoLink.href) {

@@ -32,7 +32,7 @@ export class WindowMain {
   session: Electron.Session;
 
   readonly defaultWidth = 950;
-  readonly defaultHeight = 600;
+  readonly defaultHeight = 790;
 
   constructor(
     private biometricStateService: BiometricStateService,
@@ -292,11 +292,7 @@ export class WindowMain {
       this.win.maximize();
     }
 
-    // Show it later since it might need to be maximized.
-    // use once event to avoid flash on unstyled content.
-    this.win.once("ready-to-show", () => {
-      this.win.show();
-    });
+    this.win.show();
 
     if (template === "full-app") {
       // and load the index.html of the app.

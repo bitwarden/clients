@@ -14,6 +14,7 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
+  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -80,8 +81,8 @@ class VaultComponent {
 @Component({
   selector: "mock-add-button",
   template: `
-    <button bitButton buttonType="primary" type="button">
-      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+    <button bitButton size="small" buttonType="primary" type="button">
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
       Add
     </button>
   `,
@@ -340,6 +341,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
+              labelWithNotification: (label: string) => `${label}: New Notification`,
             });
           },
         },
@@ -398,17 +400,64 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-export const PopupTabNavigation: Story = {
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
+
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    icon: Icons.VaultInactive,
+    iconActive: Icons.VaultActive,
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    icon: Icons.GeneratorInactive,
+    iconActive: Icons.GeneratorActive,
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    icon: Icons.SendInactive,
+    iconActive: Icons.SendActive,
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    icon: Icons.SettingsInactive,
+    iconActive: Icons.SettingsActive,
+    showBerry: showBerry,
+  },
+];
+
+export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
   render: (args) => ({
     props: args,
-    template: /* HTML */ `
+    template: /*html*/ `
       <extension-container>
-        <popup-tab-navigation>
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
         </popup-tab-navigation>
-      </extension-container>
-    `,
+      </extension-container>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
+};
+
+export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <router-outlet></router-outlet>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(true),
+  },
 };
 
 export const PopupPage: Story = {

@@ -4,16 +4,18 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  FormControl,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { filter, firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   BrowserClientVendors,
@@ -53,7 +55,9 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { NudgesService, NudgeType, SpotlightComponent } from "@bitwarden/vault";
 
+import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -81,6 +85,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
+    SpotlightComponent,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -92,7 +97,6 @@ export class AutofillComponent implements OnInit {
   protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
-  protected inlineMenuPositioningImprovementsEnabled: boolean = false;
   protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
@@ -101,6 +105,12 @@ export class AutofillComponent implements OnInit {
   protected browserClientIsUnknown: boolean;
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+  protected showSpotlightNudge$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    filter((account): account is Account => account !== null),
+    switchMap((account) =>
+      this.nudgesService.showNudgeSpotlight$(NudgeType.AutofillNudge, account.id),
+    ),
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -143,6 +153,9 @@ export class AutofillComponent implements OnInit {
     private configService: ConfigService,
     private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
+    private nudgesService: NudgesService,
+    private accountService: AccountService,
+    private autofillBrowserSettingsService: AutofillBrowserSettingsService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -166,7 +179,7 @@ export class AutofillComponent implements OnInit {
       { name: i18nService.t("never"), value: UriMatchStrategy.Never },
     ];
 
-    this.browserClientVendor = this.getBrowserClientVendor();
+    this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
     this.browserShortcutsURI = BrowserShortcutsUris[this.browserClientVendor];
     this.browserClientIsUnknown = this.browserClientVendor === BrowserClientVendors.Unknown;
@@ -174,27 +187,27 @@ export class AutofillComponent implements OnInit {
 
   async ngOnInit() {
     this.canOverrideBrowserAutofillSetting = !this.browserClientIsUnknown;
-    this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
+
+    this.defaultBrowserAutofillDisabled =
+      await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+        this.browserClientVendor,
+      );
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
-    );
-
-    this.inlineMenuPositioningImprovementsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
     );
 
     this.blockBrowserInjectionsByDomainEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.BlockBrowserInjectionsByDomain,
     );
 
-    this.showInlineMenuIdentities =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$));
+    this.showInlineMenuIdentities = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuIdentities$,
+    );
 
-    this.showInlineMenuCards =
-      this.inlineMenuPositioningImprovementsEnabled &&
-      (await firstValueFrom(this.autofillSettingsService.showInlineMenuCards$));
+    this.showInlineMenuCards = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuCards$,
+    );
 
     this.enableInlineMenuOnIconSelect =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick;
@@ -313,6 +326,27 @@ export class AutofillComponent implements OnInit {
     );
   }
 
+  get spotlightButtonIcon() {
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
+      return "bwi-external-link";
+    }
+    return null;
+  }
+
+  get spotlightButtonText() {
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
+      return this.i18nService.t("turnOffAutofill");
+    }
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
+  }
+
+  async dismissSpotlight() {
+    await this.nudgesService.dismissNudge(
+      NudgeType.AutofillNudge,
+      await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+    );
+  }
+
   async updateInlineMenuVisibility() {
     if (!this.enableInlineMenu) {
       this.enableInlineMenuOnIconSelect = false;
@@ -349,26 +383,6 @@ export class AutofillComponent implements OnInit {
     } else {
       this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutNotSet");
     }
-  }
-
-  private getBrowserClientVendor(): BrowserClientVendor {
-    if (this.platformUtilsService.isChrome()) {
-      return BrowserClientVendors.Chrome;
-    }
-
-    if (this.platformUtilsService.isOpera()) {
-      return BrowserClientVendors.Opera;
-    }
-
-    if (this.platformUtilsService.isEdge()) {
-      return BrowserClientVendors.Edge;
-    }
-
-    if (this.platformUtilsService.isVivaldi()) {
-      return BrowserClientVendors.Vivaldi;
-    }
-
-    return BrowserClientVendors.Unknown;
   }
 
   protected async openURI(event: Event, uri: BrowserShortcutsUri | DisablePasswordManagerUri) {
@@ -427,7 +441,7 @@ export class AutofillComponent implements OnInit {
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.Off ||
       !this.canOverrideBrowserAutofillSetting ||
-      (await this.browserAutofillSettingCurrentlyOverridden())
+      this.defaultBrowserAutofillDisabled
     ) {
       return;
     }
@@ -465,24 +479,15 @@ export class AutofillComponent implements OnInit {
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
+    this.autofillBrowserSettingsService.setDefaultBrowserAutofillDisabled(
+      this.defaultBrowserAutofillDisabled,
+    );
   }
 
   private handleOverrideDialogAccept = async () => {
     this.defaultBrowserAutofillDisabled = true;
     await this.updateDefaultBrowserAutofillDisabled();
   };
-
-  async browserAutofillSettingCurrentlyOverridden() {
-    if (!this.canOverrideBrowserAutofillSetting) {
-      return false;
-    }
-
-    if (!(await this.privacyPermissionGranted())) {
-      return false;
-    }
-
-    return await BrowserApi.browserAutofillSettingsOverridden();
-  }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);

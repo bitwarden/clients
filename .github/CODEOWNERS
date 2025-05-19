@@ -8,7 +8,8 @@
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-dev
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-dev
-## No ownership for Cargo.toml to allow dependency updates
+## No ownership fo Cargo.lock and Cargo.toml to allow dependency updates
+apps/desktop/desktop_native/Cargo.lock
 apps/desktop/desktop_native/Cargo.toml
 
 ## Auth team files ##
@@ -33,8 +34,11 @@ libs/common/src/models/export @bitwarden/team-tools-dev
 libs/common/src/tools @bitwarden/team-tools-dev
 libs/importer @bitwarden/team-tools-dev
 libs/tools @bitwarden/team-tools-dev
-bitwarden_license/bit-web/src/app/tools @bitwarden/team-tools-dev
-bitwarden_license/bit-common/src/tools @bitwarden/team-tools-dev
+
+## Dirt (Data Insights & Reporting) team files ##
+apps/web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
+bitwarden_license/bit-common/src/dirt @bitwarden/team-data-insights-and-reporting-dev
+bitwarden_license/bit-web/src/app/dirt @bitwarden/team-data-insights-and-reporting-dev
 
 ## Localization/Crowdin (Platform and Tools team)
 apps/browser/src/_locales @bitwarden/team-tools-dev @bitwarden/team-platform-dev
@@ -181,5 +185,8 @@ apps/web/src/locales/en/messages.json
 **/entrypoint.sh
 
 ## Overrides
-# tsconfig files are potentially dangerous and will be reviewed by platform to prevent misconfigurations
+# For the time being platform owns tsconfig and jest config
+# These overrides will be removed after Nx is implemented
+# To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
 **/tsconfig.json @bitwarden/team-platform-dev
+**/jest.config.js @bitwarden/team-platform-dev

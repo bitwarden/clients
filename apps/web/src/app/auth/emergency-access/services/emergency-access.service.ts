@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -234,11 +233,10 @@ export class EmergencyAccessService
       throw new Error("Active user does not have a private key, cannot get view only ciphers.");
     }
 
-    const grantorKeyBuffer = await this.encryptService.rsaDecrypt(
+    const grantorUserKey = (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(response.keyEncrypted),
       activeUserPrivateKey,
-    );
-    const grantorUserKey = new SymmetricCryptoKey(grantorKeyBuffer) as UserKey;
+    )) as UserKey;
 
     let ciphers: CipherView[] = [];
     if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
@@ -271,15 +269,15 @@ export class EmergencyAccessService
       throw new Error("Active user does not have a private key, cannot complete a takeover.");
     }
 
-    const grantorKeyBuffer = await this.encryptService.rsaDecrypt(
+    const grantorKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(takeoverResponse.keyEncrypted),
       activeUserPrivateKey,
     );
-    if (grantorKeyBuffer == null) {
+    if (grantorKey == null) {
       throw new Error("Failed to decrypt grantor key");
     }
 
-    const grantorUserKey = new SymmetricCryptoKey(grantorKeyBuffer) as UserKey;
+    const grantorUserKey = grantorKey as UserKey;
 
     let config: KdfConfig;
 
@@ -407,6 +405,6 @@ export class EmergencyAccessService
   }
 
   private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
-    return (await this.encryptService.rsaEncrypt(userKey.key, publicKey)).encryptedString;
+    return (await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey)).encryptedString;
   }
 }

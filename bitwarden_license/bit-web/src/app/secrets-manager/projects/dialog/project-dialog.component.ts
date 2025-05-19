@@ -11,6 +11,8 @@ import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../../projects/project.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
@@ -25,6 +27,7 @@ export interface ProjectOperation {
 
 @Component({
   templateUrl: "./project-dialog.component.html",
+  standalone: false,
 })
 export class ProjectDialogComponent implements OnInit {
   protected formGroup = new FormGroup({

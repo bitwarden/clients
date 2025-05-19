@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "extName": {
     "message": "Bitwarden – менеджер паролів",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід за допомогою ключа безпеки."
+  },
   "restartRegistration": {
     "message": "Перезапустити реєстрацію"
   },
@@ -1056,23 +1062,55 @@
   "notificationAddSave": {
     "message": "Зберегти"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ збережено до Bitwarden.",
+  "notificationViewAria": {
+    "message": "Переглянути $ITEMNAME$, відкривається у новому вікні",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ оновлено у Bitwarden.",
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Редагувати перед збереженням",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Нове сповіщення"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: нове сповіщення",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
-        "content": "$1"
+      "label": {
+        "content": "$1",
+        "example": "Login"
       }
-    },
-    "description": "Shown to user after login is updated."
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Зберегти як новий запис",
@@ -1082,12 +1120,16 @@
     "message": "Оновити запис",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Зберегти запис?",
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Зберегти запис",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Оновити наявний запис?",
+  "updateLogin": {
+    "message": "Оновити наявний запис",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1097,6 +1139,31 @@
   "loginUpdateSuccess": {
     "message": "Запис оновлено",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Чудова робота! Ви щойно підвищили рівень безпеки для себе та $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Дякуємо за підвищення рівня безпеки $ORGANIZATION$. Залишилося оновити ще $TASK_COUNT$ паролів.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Змінити наступний пароль",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "Помилка збереження",
@@ -1531,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Пропозиції автозаповнення"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Користуйтеся пропозиціями автозаповнення"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Вимкніть налаштування автозаповнення вашого браузера, щоб вони не конфліктували з Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Вимкнути автозаповнення $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Вимкніть автозаповнення"
   },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
@@ -2126,11 +2211,11 @@
     "message": "Надійний пароль згенеровано! Обов'язково оновіть свій пароль на вебсайті."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Скористатися генератором",
+    "message": "Скористайтеся генератором,",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "для створення надійного, унікального пароля",
+    "message": "щоб створити надійний, унікальний пароль",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
@@ -2141,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Дія після часу очікування"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Нові можливості налаштування"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Налаштуйте своє сховище за допомогою швидких дій копіювання, компактного режиму та інших можливостей!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Всі налаштування подання"
   },
   "lock": {
     "message": "Блокувати",
@@ -2981,7 +3057,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
+    "message": "Будуть експортовані лише записи особистого сховища включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3506,6 +3582,30 @@
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
+  },
+  "trustOrganization": {
+    "message": "Довіряти організації"
+  },
+  "trust": {
+    "message": "Довіряти"
+  },
+  "doNotTrust": {
+    "message": "Не довіряти"
+  },
+  "organizationNotTrusted": {
+    "message": "Це не довірена організація"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Щоб захистити свій обліковий запис, підтверджуйте лише якщо ви надали цьому користувачу екстрений доступ, і його цифровий відбиток збігається з показаним в його обліковому записі."
+  },
+  "orgTrustWarning": {
+    "message": "Щоб захистити свій обліковий запис, продовжуйте лише якщо ви є учасником цієї організації, маєте ввімкнене відновлення облікового запису, і показаний нижче цифровий відбиток збігається з відбитком організації."
+  },
+  "orgTrustWarning1": {
+    "message": "Ця організація має політику компанії, яка розгорне для вас відновлення облікового запису. Розгортання дасть змогу адміністраторам організації змінювати ваш пароль. Продовжуйте тільки якщо ви впізнаєте організацію і наведена нижче фраза відбитка відповідає відбитку організації."
+  },
+  "trustUser": {
+    "message": "Довіряти користувачу"
   },
   "sendsNoItemsTitle": {
     "message": "Немає активних відправлень",
@@ -4431,6 +4531,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Завантажити Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Завантажити Bitwarden на всіх пристроях"
+  },
+  "getTheMobileApp": {
+    "message": "Отримати програму для мобільного пристрою"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Користуйтеся своїми паролями звідусіль за допомогою програми Bitwarden для мобільних пристроїв."
+  },
+  "getTheDesktopApp": {
+    "message": "Отримати програму для комп'ютера"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Користуйтеся сховищем без браузера, налаштуйте біометричне розблокування, щоб спростити доступ у програмі на комп'ютері та в розширенні браузера."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Завантажити з bitwarden.com"
+  },
+  "getItOnGooglePlay": {
+    "message": "Завантажити з Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Завантажити з App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
@@ -4903,8 +5030,8 @@
     "message": "Пароль згенеровано повторно",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Зберегти запис у Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Зберегти в Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5054,42 +5181,6 @@
   "beta": {
     "message": "Бета"
   },
-  "importantNotice": {
-    "message": "Важлива інформація"
-  },
-  "setupTwoStepLogin": {
-    "message": "Налаштувати двоетапну перевірку"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
-  },
-  "remindMeLater": {
-    "message": "Нагадати пізніше"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ні, не маю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Так, я маю постійний доступ до своєї електронної пошти"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Увімкнути двоетапну перевірку"
-  },
-  "changeAcctEmail": {
-    "message": "Змінити адресу е-пошти"
-  },
   "extensionWidth": {
     "message": "Ширина вікна розширення"
   },
@@ -5144,6 +5235,12 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "settingsVaultOptions": {
+    "message": "Параметри сховища"
+  },
+  "emptyVaultDescription": {
+    "message": "Сховище захищає не лише ваші паролі. Безпечно зберігайте дані для входу, посвідчення, картки й нотатки."
+  },
   "introCarouselLabel": {
     "message": "Вітаємо в Bitwarden"
   },
@@ -5170,5 +5267,81 @@
   },
   "secureDevicesBody": {
     "message": "Зберігайте скільки завгодно паролів на необмеженій кількості пристроїв, використовуючи Bitwarden для мобільних пристроїв, браузерів та комп'ютерів."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Імпортуйте наявні паролі"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Скористайтеся інструментом імпортування, щоб швидко перенести записи до Bitwarden, а не додавати їх вручну."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Імпортувати"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Вітаємо у вашому сховищі!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Заощаджуйте час з автозаповненням"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Включити",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Вебсайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "щоб цей запис з'являвся у пропозиціях автозаповнення.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Швидке оформлення замовлень"
+  },
+  "newCardNudgeBody": {
+    "message": "За допомогою записів для карток можна безпечно й точно заповнювати платіжні форми."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Спростіть створення облікових записів"
+  },
+  "newIdentityNudgeBody": {
+    "message": "За допомогою записів для посвідчень можна швидко заповнювати форми реєстрації чи контактів."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Захистіть свої конфіденційні дані"
+  },
+  "newNoteNudgeBody": {
+    "message": "За допомогою нотаток можна надійно зберігати конфіденційні дані, як-от банківську інформацію або страхування."
+  },
+  "newSshNudgeTitle": {
+    "message": "SSH-доступ для розробників"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Зберігайте свої ключі та під'єднуйтеся за допомогою SSH-агента для швидкої зашифрованої автентифікації.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Докладніше про SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

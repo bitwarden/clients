@@ -152,6 +152,7 @@ describe("FidoAuthenticatorService", () => {
           id === excludedCipher.id ? ({ decrypt: () => excludedCipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([excludedCipher]);
+        cipherService.decrypt.mockResolvedValue(excludedCipher);
       });
 
       /**
@@ -220,6 +221,7 @@ describe("FidoAuthenticatorService", () => {
           id === existingCipher.id ? ({ decrypt: () => existingCipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([existingCipher]);
+        cipherService.decrypt.mockResolvedValue(existingCipher);
       });
 
       /**
@@ -306,6 +308,11 @@ describe("FidoAuthenticatorService", () => {
         const encryptedCipher = { ...existingCipher, reprompt: CipherRepromptType.Password };
         cipherService.get.mockResolvedValue(encryptedCipher as unknown as Cipher);
 
+        cipherService.decrypt.mockResolvedValue({
+          ...existingCipher,
+          reprompt: CipherRepromptType.Password,
+        } as unknown as CipherView);
+
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
         await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
@@ -347,6 +354,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId === cipher.id ? ({ decrypt: () => cipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
+        cipherService.decrypt.mockResolvedValue(cipher);
         cipherService.encrypt.mockImplementation(async (cipher) => {
           cipher.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
           return {} as any;

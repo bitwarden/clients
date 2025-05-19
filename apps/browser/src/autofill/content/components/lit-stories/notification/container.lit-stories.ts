@@ -6,6 +6,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
 import { NotificationContainer, NotificationContainerProps } from "../../notification/container";
+import { mockBrowserI18nGetMessage, mockI18n } from "../mock-data";
 
 export default {
   title: "Components/Notifications",
@@ -32,19 +33,10 @@ export default {
         login: { username: "user@example.com" },
       },
     ],
-    i18n: {
-      loginSaveSuccess: "Login saved",
-      loginUpdateSuccess: "Login updated",
-      saveAction: "Save",
-      saveAsNewLoginAction: "Save as new login",
-      saveFailure: "Error saving",
-      saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
-      updateLoginPrompt: "Update existing login?",
-      view: "View",
-    },
     type: NotificationTypes.Change,
     username: "mockUsername",
     theme: ThemeTypes.Light,
+    i18n: mockI18n,
   },
   parameters: {
     design: {
@@ -59,3 +51,10 @@ const Template = (args: NotificationContainerProps) => NotificationContainer({ .
 export const Default: StoryObj<NotificationContainerProps> = {
   render: Template,
 };
+
+window.chrome = {
+  ...window.chrome,
+  i18n: {
+    getMessage: mockBrowserI18nGetMessage,
+  },
+} as typeof chrome;

@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,13 +13,16 @@ import { UserNotificationSettingsService } from "@bitwarden/common/autofill/serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
@@ -46,9 +50,12 @@ jest.mock("rxjs", () => {
 });
 
 describe("NotificationBackground", () => {
+  const messagingService = mock<MessagingService>();
+  const taskService = mock<TaskService>();
   let notificationBackground: NotificationBackground;
   const autofillService = mock<AutofillService>();
   const cipherService = mock<CipherService>();
+  const collectionService = mock<CollectionService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   const policyService = mock<DefaultPolicyService>();
@@ -79,6 +86,7 @@ describe("NotificationBackground", () => {
       authService,
       autofillService,
       cipherService,
+      collectionService,
       configService,
       domainSettingsService,
       environmentService,
@@ -88,6 +96,8 @@ describe("NotificationBackground", () => {
       policyService,
       themeStateService,
       userNotificationSettingsService,
+      taskService,
+      messagingService,
     );
   });
 
@@ -201,8 +211,8 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(notificationBackground["handleSaveCipherMessage"]).toHaveBeenCalledWith(
-          message.data.commandToRetry.message,
-          message.data.commandToRetry.sender,
+          message.data?.commandToRetry?.message,
+          message.data?.commandToRetry?.sender,
         );
       });
     });
@@ -498,7 +508,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           null,
           "example.com",
-          message.data.newPassword,
+          message.data?.newPassword,
           sender.tab,
           true,
         );
@@ -570,7 +580,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data.newPassword,
+          message.data?.newPassword,
           sender.tab,
         );
       });
@@ -618,7 +628,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data.newPassword,
+          message.data?.newPassword,
           sender.tab,
         );
       });
@@ -817,7 +827,9 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
             id: "testId",
+            name: "testItemName",
             login: { username: "testUser" },
+            reprompt: CipherRepromptType.None,
           });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
 
@@ -832,14 +844,147 @@ describe("NotificationBackground", () => {
             message.edit,
             sender.tab,
             "testId",
+            false,
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
             "saveCipherAttemptCompleted",
             {
-              username: cipherView.login.username,
+              itemName: "testItemName",
               cipherId: cipherView.id,
+              task: undefined,
+            },
+          );
+        });
+
+        it("prompts the user for master password entry if the notification message type is for ChangePassword and the cipher reprompt is enabled", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const message: NotificationBackgroundExtensionMessage = {
+            command: "bgSaveCipher",
+            edit: false,
+            folder: "folder-id",
+          };
+          const queueMessage = mock<AddChangePasswordQueueMessage>({
+            type: NotificationQueueMessageType.ChangePassword,
+            tab,
+            domain: "example.com",
+            newPassword: "newPassword",
+          });
+          notificationBackground["notificationQueue"] = [queueMessage];
+          const cipherView = mock<CipherView>({
+            id: "testId",
+            name: "testItemName",
+            login: { username: "testUser" },
+            reprompt: CipherRepromptType.Password,
+          });
+          getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+
+          sendMockExtensionMessage(message, sender);
+          await flushPromises();
+
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).toHaveBeenCalledWith(
+            cipherView,
+            queueMessage.newPassword,
+            message.edit,
+            sender.tab,
+            "testId",
+            false,
+          );
+          expect(updateWithServerSpy).not.toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).not.toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              itemName: "testItemName",
+              cipherId: cipherView.id,
+              task: undefined,
+            },
+          );
+        });
+
+        it("completes password update notification with a security task notice if any are present for the cipher, and dismisses tasks for the updated cipher", async () => {
+          const mockCipherId = "testId";
+          const mockOrgId = "testOrgId";
+          const mockSecurityTask = {
+            id: "testTaskId",
+            organizationId: mockOrgId,
+            cipherId: mockCipherId,
+            type: 0,
+            status: 0,
+            creationDate: new Date(),
+            revisionDate: new Date(),
+          } as SecurityTask;
+          const mockSecurityTask2 = {
+            ...mockSecurityTask,
+            id: "testTaskId2",
+            cipherId: "testId2",
+          } as SecurityTask;
+          taskService.tasksEnabled$.mockImplementation(() => of(true));
+          taskService.pendingTasks$.mockImplementation(() =>
+            of([mockSecurityTask, mockSecurityTask2]),
+          );
+          jest
+            .spyOn(notificationBackground as any, "getNotificationFlag")
+            .mockResolvedValueOnce(true);
+          jest.spyOn(notificationBackground as any, "getOrgData").mockResolvedValueOnce([
+            {
+              id: mockOrgId,
+              name: "Org Name, LLC",
+              productTierType: 3,
+            },
+          ]);
+
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const message: NotificationBackgroundExtensionMessage = {
+            command: "bgSaveCipher",
+            edit: false,
+            folder: "folder-id",
+          };
+          const queueMessage = mock<AddChangePasswordQueueMessage>({
+            type: NotificationQueueMessageType.ChangePassword,
+            tab,
+            domain: "example.com",
+            newPassword: "newPassword",
+          });
+          notificationBackground["notificationQueue"] = [queueMessage];
+          const cipherView = mock<CipherView>({
+            id: mockCipherId,
+            organizationId: mockOrgId,
+            name: "Test Item",
+            reprompt: CipherRepromptType.None,
+          });
+          getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+
+          sendMockExtensionMessage(message, sender);
+          await flushPromises();
+
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
+          expect(updatePasswordSpy).toHaveBeenCalledWith(
+            cipherView,
+            queueMessage.newPassword,
+            message.edit,
+            sender.tab,
+            mockCipherId,
+            false,
+          );
+          expect(updateWithServerSpy).toHaveBeenCalled();
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              cipherId: "testId",
+              itemName: "Test Item",
+              task: {
+                orgName: "Org Name, LLC",
+                remainingTasksCount: 1,
+              },
             },
           );
         });
@@ -909,6 +1054,7 @@ describe("NotificationBackground", () => {
             message.edit,
             sender.tab,
             "testId",
+            false,
           );
           expect(editItemSpy).toHaveBeenCalled();
           expect(updateWithServerSpy).not.toHaveBeenCalled();
@@ -988,6 +1134,7 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>({
             id: "testId",
+            name: "testName",
             login: { username: "test", password: "password" },
           });
           folderExistsSpy.mockResolvedValueOnce(false);
@@ -1011,8 +1158,8 @@ describe("NotificationBackground", () => {
             sender.tab,
             "saveCipherAttemptCompleted",
             {
-              username: cipherView.login.username,
               cipherId: cipherView.id,
+              itemName: cipherView.name,
             },
           );
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
@@ -1078,7 +1225,7 @@ describe("NotificationBackground", () => {
             newPassword: "newPassword",
           });
           notificationBackground["notificationQueue"] = [queueMessage];
-          const cipherView = mock<CipherView>();
+          const cipherView = mock<CipherView>({ reprompt: CipherRepromptType.None });
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
           const errorMessage = "fetch error";
           updateWithServerSpy.mockImplementation(() => {

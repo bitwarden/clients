@@ -103,8 +103,8 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     }
     const pubKey = Utils.fromB64ToArray(authRequest.publicKey);
 
-    const keyToEncrypt = (await this.keyService.getUserKey()).key;
-    const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
+    const keyToEncrypt = await this.keyService.getUserKey();
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(keyToEncrypt, pubKey);
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
