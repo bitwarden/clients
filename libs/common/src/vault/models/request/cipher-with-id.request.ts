@@ -1,12 +1,11 @@
-import { UserId } from "../../../types/guid";
-import { Cipher } from "../domain/cipher";
+import { EncryptionContext } from "../../abstractions/cipher.service";
 
 import { CipherRequest } from "./cipher.request";
 
 export class CipherWithIdRequest extends CipherRequest {
   id: string;
 
-  constructor({ cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId }) {
+  constructor({ cipher, encryptedFor }: EncryptionContext) {
     super({ cipher, encryptedFor });
     this.id = cipher.id;
   }

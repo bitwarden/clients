@@ -31,7 +31,10 @@ import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid
 import { OrgKey, UserKey } from "../../types/key";
 import { filterOutNullish, perUserCache$ } from "../../vault/utils/observable-utilities";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
-import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
+import {
+  CipherService as CipherServiceAbstraction,
+  EncryptionContext,
+} from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
@@ -194,7 +197,7 @@ export class CipherService implements CipherServiceAbstraction {
     keyForCipherEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher: Cipher = null,
-  ): Promise<{ cipher: Cipher; encryptedFor: UserId }> {
+  ): Promise<EncryptionContext> {
     if (model.id != null) {
       if (originalCipher == null) {
         originalCipher = await this.get(model.id, userId);
@@ -750,7 +753,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async createWithServer(
-    { cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId },
+    { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
     let response: CipherResponse;
@@ -775,7 +778,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async updateWithServer(
-    { cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId },
+    { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
   ): Promise<Cipher> {
     let response: CipherResponse;
@@ -1467,10 +1470,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   // In the case of a cipher that is being shared with an organization, we want to decrypt the
   // cipher key with the user's key and then re-encrypt it with the organization's key.
-  private async encryptSharedCipher(
-    model: CipherView,
-    userId: UserId,
-  ): Promise<{ cipher: Cipher; encryptedFor: UserId }> {
+  private async encryptSharedCipher(model: CipherView, userId: UserId): Promise<EncryptionContext> {
     const keyForCipherKeyDecryption = await this.keyService.getUserKeyWithLegacySupport(userId);
     return await this.encrypt(model, userId, null, keyForCipherKeyDecryption);
   }

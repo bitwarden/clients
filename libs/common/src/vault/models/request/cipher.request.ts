@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { UserId } from "../../../types/guid";
+import { EncryptionContext } from "../../abstractions/cipher.service";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CardApi } from "../api/card.api";
@@ -11,7 +12,6 @@ import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
-import { Cipher } from "../domain/cipher";
 
 import { AttachmentRequest } from "./attachment.request";
 import { PasswordHistoryRequest } from "./password-history.request";
@@ -38,7 +38,7 @@ export class CipherRequest {
   reprompt: CipherRepromptType;
   key: string;
 
-  constructor({ cipher, encryptedFor }: { cipher: Cipher; encryptedFor: UserId }) {
+  constructor({ cipher, encryptedFor }: EncryptionContext) {
     this.type = cipher.type;
     this.encryptedFor = encryptedFor;
     this.folderId = cipher.folderId;

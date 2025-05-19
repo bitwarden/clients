@@ -24,11 +24,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import {
+  CipherService,
+  EncryptionContext,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -736,7 +738,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.cipherService.encrypt(this.cipher, userId);
   }
 
-  protected saveCipher(data: { cipher: Cipher; encryptedFor: UserId }) {
+  protected saveCipher(data: EncryptionContext) {
     let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
