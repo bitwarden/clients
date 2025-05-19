@@ -337,7 +337,7 @@ describe("KeyRotationService", () => {
       expect(arg.accountUnlockData.emergencyAccessUnlockData.length).toBe(1);
       expect(arg.accountUnlockData.organizationAccountRecoveryUnlockData.length).toBe(1);
       expect(arg.accountUnlockData.passkeyUnlockData.length).toBe(2);
-      expect(PureCrypto.make_user_key_aes256_cbc_hmac).toHaveBeenCalled();
+      expect(PureCrypto.make_user_key_aes256_cbc_hmac).not.toHaveBeenCalled();
       expect(PureCrypto.encrypt_user_key_with_master_password).toHaveBeenCalledWith(
         new Uint8Array(70),
         "newMasterPassword",
