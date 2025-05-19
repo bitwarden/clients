@@ -224,13 +224,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 

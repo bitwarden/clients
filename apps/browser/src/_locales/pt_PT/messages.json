@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Novo item, abre numa nova janela",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Editar antes de guardar",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ guardado no Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "guardado no Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ atualizado no Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "atualizado no Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Selecionar $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Guardar como nova credencial",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Atualizar credencial",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Desbloqueie para guardar esta credencial",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Guardar credencial",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Sugestões de preenchimento automático"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Encontre facilmente sugestões de preenchimento automático"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Desative as definições de preenchimento automático do seu navegador, para que não entrem em conflito com o Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Desative o preenchimento automático do $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Desativar o preenchimento automático"
   },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático nos campos do formulário"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Ação de tempo limite"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Novas opções de personalização"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Personalize a sua experiência no cofre com ações de cópia rápida, modo compacto e muito mais!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Ver todas as definições de Aspeto"
   },
   "lock": {
     "message": "Bloquear",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Descarregue já a partir de bitwarden.com"
   },
+  "getItOnGooglePlay": {
+    "message": "Obtenha-a na Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Descarregue na App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Tem a certeza de que pretende eliminar permanentemente este anexo?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notificação"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Importar palavras-passe existentes"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Preenchimento automático de itens para a página atual\nItens favoritos para um acesso fácil\nProcurar outra coisa no seu cofre"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Preenchimento automático de itens para a página atual"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Adicione itens aos favoritos para fácil acesso"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Procure outras coisas no seu cofre"
   },
   "newLoginNudgeTitle": {
     "message": "Poupe tempo com o preenchimento automático"
@@ -5306,5 +5340,8 @@
     "message": "Saiba mais sobre o agente SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Não tem permissões para ver esta página. Tente iniciar sessão com uma conta diferente."
   }
 }

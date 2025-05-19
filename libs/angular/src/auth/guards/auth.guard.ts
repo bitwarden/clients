@@ -47,7 +47,7 @@ export const authGuard: CanActivateFn = async (
 
   if (
     !routerState.url.includes("remove-password") &&
-    (await keyConnectorService.getConvertAccountRequired())
+    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
   ) {
     return router.createUrlTree(["/remove-password"]);
   }
