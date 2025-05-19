@@ -28,7 +28,10 @@ const numberFormats: Record<string, CardRuleEntry[]> = {
   Other: [{ cardLength: 16, blocks: [4, 4, 4, 4] }],
 };
 
-@Pipe({ name: "creditCardNumber" })
+@Pipe({
+  name: "creditCardNumber",
+  standalone: false,
+})
 export class CreditCardNumberPipe implements PipeTransform {
   transform(creditCardNumber: string, brand: string): string {
     let rules = numberFormats[brand];

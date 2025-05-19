@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
-  "appsMarkedAsCritical": {
-    "message": "App als belangrijk gemarkeerd"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Als belangrijk gemarkeerde applicaties"
   },
   "application": {
     "message": "Applicatie"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Deze leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Deze niet-leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
+  },
   "atRiskApplicationsDescription": {
     "message": "Deze applicaties hebben zwakke, blootgelegde of hergebruikte wachtwoorden."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Deze applicaties hebben geen zwakke, blootgelegde of hergebruikte wachtwoorden."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Deze leden loggen in op $APPNAME$ met zwakke, blootgestelde of hergebruikte wachtwoorden.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Er zijn geen risico-leden voor $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Elke versleutelde export die je hebt bewaard wordt onbruikbaar."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
   },
   "subscription": {
     "message": "Abonnement"
@@ -9414,19 +9429,19 @@
     "message": "Facturering beheren vanuit het aanbiederportaal"
   },
   "continueSettingUp": {
-    "message": "Continue setting up Bitwarden"
+    "message": "Doorgaan met het instellen van Bitwarden"
   },
   "continueSettingUpFreeTrial": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden"
   },
   "continueSettingUpPasswordManager": {
-    "message": "Continue setting up Bitwarden Password Manager"
+    "message": "Doorgaan met het instellen van Bitwarden Password Manager"
   },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden Password Manager"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Continue setting up Bitwarden Secrets Manager"
+    "message": "Doorgaan met het instellen van Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden Secrets Manager"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Voer de code van het bankafschrift uit deze storting in op de factuurpagina van de provider om de bankrekening te verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "clickPayWithPayPal": {
+    "message": "Klik op \"Pay with PayPal\" voor het toevoegen van je betaalmethode."
   }
 }

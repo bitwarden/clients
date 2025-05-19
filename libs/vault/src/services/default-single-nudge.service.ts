@@ -4,19 +4,15 @@ import { map, Observable } from "rxjs";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import {
-  NudgeStatus,
-  VAULT_NUDGE_DISMISSED_DISK_KEY,
-  VaultNudgeType,
-} from "./vault-nudges.service";
+import { NudgeStatus, NUDGE_DISMISSED_DISK_KEY, NudgeType } from "./nudges.service";
 
 /**
  * Base interface for handling a nudge's status
  */
 export interface SingleNudgeService {
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus>;
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus>;
 
-  setNudgeStatus(nudgeType: VaultNudgeType, newStatus: NudgeStatus, userId: UserId): Promise<void>;
+  setNudgeStatus(nudgeType: NudgeType, newStatus: NudgeStatus, userId: UserId): Promise<void>;
 }
 
 /**
@@ -28,9 +24,9 @@ export interface SingleNudgeService {
 export class DefaultSingleNudgeService implements SingleNudgeService {
   stateProvider = inject(StateProvider);
 
-  protected getNudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  protected getNudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.stateProvider
-      .getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY)
+      .getUser(userId, NUDGE_DISMISSED_DISK_KEY)
       .state$.pipe(
         map(
           (nudges) =>
@@ -39,16 +35,12 @@ export class DefaultSingleNudgeService implements SingleNudgeService {
       );
   }
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.getNudgeStatus$(nudgeType, userId);
   }
 
-  async setNudgeStatus(
-    nudgeType: VaultNudgeType,
-    status: NudgeStatus,
-    userId: UserId,
-  ): Promise<void> {
-    await this.stateProvider.getUser(userId, VAULT_NUDGE_DISMISSED_DISK_KEY).update((nudges) => {
+  async setNudgeStatus(nudgeType: NudgeType, status: NudgeStatus, userId: UserId): Promise<void> {
+    await this.stateProvider.getUser(userId, NUDGE_DISMISSED_DISK_KEY).update((nudges) => {
       nudges ??= {};
       nudges[nudgeType] = status;
       return nudges;

@@ -42,6 +42,7 @@ const BroadcasterSubscriptionId = "ViewComponent";
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
+  standalone: false,
 })
 export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
@@ -72,7 +73,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     accountService: AccountService,
     toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
-    private configService: ConfigService,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -100,6 +101,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       billingAccountProfileStateService,
       toastService,
       cipherAuthorizationService,
+      configService,
     );
   }
 

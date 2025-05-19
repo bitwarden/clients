@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Új elem, megnyitás új ablakban",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Szerkesztés mentés előtt",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ mentésre került a Bitwardenben.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "mentésre került a Bitwardenbe.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ frissítésre került a Bitwardenben.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "frissítésre került a Bitwardenben.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ választás",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Mentés új bejelentkezésként",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Bejelentkezés frissítése",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Feloldás a bejelentkezés mentéséhez",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Bejelentkezés mentése",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autofill suggestions"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Kapcsoljuk ki a böngésző automatikus kitöltési beállításait, így azok nem ütköznek a Bitwardennel."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "$BROWSER$ automatikus kitöltés kikapcsolása",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Automat kitöltés bekapcsolása"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Időkifutási művelet"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Új testreszabási opciók"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Szabjuk testre tárhely élményét gyors másolási műveletekkel, kompakt móddal és még sok mással!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Az összes megjelenési beállítás megtekintése"
   },
   "lock": {
     "message": "Lezárás",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Letöltés most a bitwarden.com webhelyről"
   },
+  "getItOnGooglePlay": {
+    "message": "Beszerzés a Google Playen"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Letöltés az App Store-ból"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
   },
+  "nudgeBadgeAria": {
+    "message": "1 értesítés"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Létező jelszavak importálása"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Az aktuális oldal elemeinek automatikus kitöltése\nKedvenc elemek a könnyű hozzáférés érdekében\nValami más keresése a széfben"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Az aktuális oldal elemeinek automatikus kitöltése"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Kedvenc elemek a könnyű hozzáférés érdekében"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Valami más keresése a széfben"
   },
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"
@@ -5306,5 +5340,8 @@
     "message": "További információ az SSH ügynökről",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
   }
 }

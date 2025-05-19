@@ -27,10 +27,12 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
+  atRiskCipherIds: string[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
   atRiskMemberDetails: MemberDetailsFlat[];
+  cipher: CipherView;
 };
 
 export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
@@ -48,6 +50,7 @@ export type CipherHealthReportUriDetail = {
   exposedPasswordDetail: ExposedPasswordDetail;
   cipherMembers: MemberDetailsFlat[];
   trimmedUri: string;
+  cipher: CipherView;
 };
 
 /**
