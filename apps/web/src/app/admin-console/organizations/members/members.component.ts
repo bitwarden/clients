@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -90,11 +90,9 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
-export class MembersComponent extends BaseMembersComponent<OrganizationUserView> implements OnInit {
-  @ViewChild("resetPasswordTemplate", { read: ViewContainerRef, static: true })
-  resetPasswordModalRef: ViewContainerRef;
-
+export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
   userType = OrganizationUserType;
   userStatusType = OrganizationUserStatusType;
   memberTab = MemberDialogTab;
@@ -104,9 +102,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
   orgIsOnSecretsManagerStandalone = false;
-  accountDeprovisioningEnabled = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
@@ -139,8 +137,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private groupService: GroupApiService,
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
-    private configService: ConfigService,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -235,11 +233,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
-  }
 
-  async ngOnInit() {
-    this.accountDeprovisioningEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.AccountDeprovisioning,
+    // Setup feature flag-dependent observables
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
     );
   }
 
@@ -322,7 +325,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
     const orgKey = await this.keyService.getOrgKey(this.organization.id);
-    const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
+    const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
     const request = new OrganizationUserConfirmRequest();
     request.key = key.encryptedString;
     await this.organizationUserApiService.postOrganizationUserConfirm(
@@ -591,20 +594,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async bulkDelete() {
-    if (this.accountDeprovisioningEnabled) {
-      const warningAcknowledged = await firstValueFrom(
-        this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
-      );
+    const warningAcknowledged = await firstValueFrom(
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+    );
 
-      if (
-        !warningAcknowledged &&
-        this.organization.canManageUsers &&
-        this.organization.productTierType === ProductTierType.Enterprise
-      ) {
-        const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
-        if (!acknowledged) {
-          return;
-        }
+    if (
+      !warningAcknowledged &&
+      this.organization.canManageUsers &&
+      this.organization.productTierType === ProductTierType.Enterprise
+    ) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return;
       }
     }
 
@@ -794,20 +795,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async deleteUser(user: OrganizationUserView) {
-    if (this.accountDeprovisioningEnabled) {
-      const warningAcknowledged = await firstValueFrom(
-        this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
-      );
+    const warningAcknowledged = await firstValueFrom(
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+    );
 
-      if (
-        !warningAcknowledged &&
-        this.organization.canManageUsers &&
-        this.organization.productTierType === ProductTierType.Enterprise
-      ) {
-        const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
-        if (!acknowledged) {
-          return false;
-        }
+    if (
+      !warningAcknowledged &&
+      this.organization.canManageUsers &&
+      this.organization.productTierType === ProductTierType.Enterprise
+    ) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return false;
       }
     }
 
@@ -829,9 +828,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       return false;
     }
 
-    if (this.accountDeprovisioningEnabled) {
-      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organization.id);
-    }
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organization.id);
 
     this.actionPromise = this.organizationUserApiService.deleteOrganizationUser(
       this.organization.id,
@@ -864,56 +861,23 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     });
   }
 
-  get showBulkConfirmUsers(): boolean {
-    if (!this.accountDeprovisioningEnabled) {
-      return super.showBulkConfirmUsers;
-    }
-
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Accepted);
-  }
-
-  get showBulkReinviteUsers(): boolean {
-    if (!this.accountDeprovisioningEnabled) {
-      return super.showBulkReinviteUsers;
-    }
-
-    return this.dataSource
-      .getCheckedUsers()
-      .every((member) => member.status == this.userStatusType.Invited);
-  }
-
   get showBulkRestoreUsers(): boolean {
-    return (
-      !this.accountDeprovisioningEnabled ||
-      this.dataSource
-        .getCheckedUsers()
-        .every((member) => member.status == this.userStatusType.Revoked)
-    );
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Revoked);
   }
 
   get showBulkRevokeUsers(): boolean {
-    return (
-      !this.accountDeprovisioningEnabled ||
-      this.dataSource
-        .getCheckedUsers()
-        .every((member) => member.status != this.userStatusType.Revoked)
-    );
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status != this.userStatusType.Revoked);
   }
 
   get showBulkRemoveUsers(): boolean {
-    return (
-      !this.accountDeprovisioningEnabled ||
-      this.dataSource.getCheckedUsers().every((member) => !member.managedByOrganization)
-    );
+    return this.dataSource.getCheckedUsers().every((member) => !member.managedByOrganization);
   }
 
   get showBulkDeleteUsers(): boolean {
-    if (!this.accountDeprovisioningEnabled) {
-      return false;
-    }
-
     const validStatuses = [
       this.userStatusType.Accepted,
       this.userStatusType.Confirmed,

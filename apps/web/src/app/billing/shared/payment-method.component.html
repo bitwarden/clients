@@ -97,13 +97,7 @@
           {{ paymentSource.description }}
         </p>
       </ng-container>
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        class="payment_trigger_button"
-        [bitAction]="changePayment"
-      >
+      <button type="button" bitButton buttonType="secondary" [bitAction]="changePayment">
         {{ (paymentSource ? "changePaymentMethod" : "addPaymentMethod") | i18n }}
       </button>
       <p *ngIf="isUnpaid" bitTypography="body1">

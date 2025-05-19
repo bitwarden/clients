@@ -27,6 +27,7 @@ import { AccessTokenCreateDialogComponent } from "./dialogs/access-token-create-
 @Component({
   selector: "sm-access-tokens",
   templateUrl: "./access-tokens.component.html",
+  standalone: false,
 })
 export class AccessTokenComponent implements OnInit, OnDestroy {
   accessTokens$: Observable<AccessTokenView[]>;

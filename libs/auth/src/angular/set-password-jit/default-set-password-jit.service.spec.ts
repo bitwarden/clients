@@ -111,12 +111,12 @@ describe("DefaultSetPasswordJitService", () => {
       userId = "userId" as UserId;
 
       passwordInputResult = {
-        masterKey: masterKey,
-        serverMasterKeyHash: "serverMasterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
-        hint: "hint",
+        newMasterKey: masterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
+        newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        newPassword: "password",
+        newPassword: "newPassword",
       };
 
       credentials = {
@@ -131,9 +131,9 @@ describe("DefaultSetPasswordJitService", () => {
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
       setPasswordRequest = new SetPasswordRequest(
-        passwordInputResult.serverMasterKeyHash,
+        passwordInputResult.newServerMasterKeyHash,
         protectedUserKey[1].encryptedString,
-        passwordInputResult.hint,
+        passwordInputResult.newPasswordHint,
         orgSsoIdentifier,
         keysRequest,
         passwordInputResult.kdfConfig.kdfType,
@@ -174,7 +174,7 @@ describe("DefaultSetPasswordJitService", () => {
       }
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      encryptService.rsaEncrypt.mockResolvedValue(userKeyEncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(userKeyEncString);
 
       organizationUserApiService.putOrganizationUserResetPasswordEnrollment.mockResolvedValue(
         undefined,
@@ -216,7 +216,7 @@ describe("DefaultSetPasswordJitService", () => {
       // Assert
       expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
       expect(organizationApiService.getKeys).toHaveBeenCalledWith(orgId);
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(userKey.key, orgPublicKey);
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(userKey, orgPublicKey);
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalled();

@@ -2,9 +2,9 @@ import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -357,7 +357,7 @@ export class NativeMessagingBackground {
       await this.secureCommunication();
     }
 
-    return await this.encryptService.encrypt(
+    return await this.encryptService.encryptString(
       JSON.stringify(message),
       this.secureChannel!.sharedSecret!,
     );
@@ -401,10 +401,9 @@ export class NativeMessagingBackground {
         return;
       }
       message = JSON.parse(
-        await this.encryptService.decryptToUtf8(
+        await this.encryptService.decryptString(
           rawMessage as EncString,
           this.secureChannel.sharedSecret,
-          "ipc-desktop-ipc-channel-key",
         ),
       );
     } else {

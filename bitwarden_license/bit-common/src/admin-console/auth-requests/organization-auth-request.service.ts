@@ -7,11 +7,11 @@ import {
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";
+import { PendingAuthRequestWithFingerprintView } from "./pending-auth-request-with-fingerprint.view";
 import { PendingAuthRequestView } from "./pending-auth-request.view";
 
 export class OrganizationAuthRequestService {
@@ -24,6 +24,16 @@ export class OrganizationAuthRequestService {
 
   async listPendingRequests(organizationId: string): Promise<PendingAuthRequestView[]> {
     return await this.organizationAuthRequestApiService.listPendingRequests(organizationId);
+  }
+
+  async listPendingRequestsWithFingerprint(
+    organizationId: string,
+  ): Promise<PendingAuthRequestWithFingerprintView[]> {
+    return Promise.all(
+      ((await this.listPendingRequests(organizationId)) ?? []).map(
+        async (r) => await PendingAuthRequestWithFingerprintView.fromView(r, this.keyService),
+      ),
+    );
   }
 
   async denyPendingRequests(organizationId: string, ...requestIds: string[]): Promise<void> {
@@ -119,13 +129,12 @@ export class OrganizationAuthRequestService {
     );
 
     // Decrypt user key with decrypted org private key
-    const decValue = await this.encryptService.rsaDecrypt(
+    const userKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(encryptedUserKey),
       decOrgPrivateKey,
     );
-    const userKey = new SymmetricCryptoKey(decValue);
 
     // Re-encrypt user Key with the Device Public Key
-    return await this.encryptService.rsaEncrypt(userKey.key, devicePubKey);
+    return await this.encryptService.encapsulateKeyUnsigned(userKey, devicePubKey);
   }
 }

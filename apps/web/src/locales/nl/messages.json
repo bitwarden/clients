@@ -2,11 +2,14 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "criticalApplications": {
     "message": "Belangrijke applicaties"
   },
   "noCriticalAppsAtRisk": {
-    "message": "Geen belangrijke applicaties lopen risico"
+    "message": "Geen kritische applicaties in gevaar"
   },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "App aanwijzen als belangrijk"
   },
-  "appsMarkedAsCritical": {
-    "message": "App als belangrijk gemarkeerd"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Als belangrijk gemarkeerde applicaties"
   },
   "application": {
     "message": "Applicatie"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Deze leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Deze niet-leden loggen in op toepassingen met zwakke, blootgestelde of hergebruikte wachtwoorden."
+  },
   "atRiskApplicationsDescription": {
     "message": "Deze applicaties hebben zwakke, blootgelegde of hergebruikte wachtwoorden."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Deze applicaties hebben geen zwakke, blootgelegde of hergebruikte wachtwoorden."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Deze leden loggen in op $APPNAME$ met zwakke, blootgestelde of hergebruikte wachtwoorden.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Er zijn geen risico-leden voor $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Map"
   },
-  "newCustomField": {
-    "message": "Nieuw extra veld"
-  },
   "value": {
     "message": "Waarde"
-  },
-  "dragToSort": {
-    "message": "Slepen om te sorteren"
-  },
-  "dragToReorder": {
-    "message": "Sleep om te herschikken"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3323,6 +3332,12 @@
   "externalIdDesc": {
     "message": "Je kunt het externe ID gebruiken als referentie of om een koppeling te leggen tussen deze bron en een extern systeem zoals een directory met gebruikers."
   },
+  "ssoExternalId": {
+    "message": "SSO extern ID"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO Extern ID is een niet-versleutelde referentie tussen Bitwarden en je geconfigureerde SSO-provider."
+  },
   "nestCollectionUnder": {
     "message": "Plaats collectie onder"
   },
@@ -4066,7 +4081,7 @@
   "updateBrowser": {
     "message": "Webbrowser bijwerken"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Je risico-inzichten genereren..."
   },
   "updateBrowserDesc": {
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Elke versleutelde export die je hebt bewaard wordt onbruikbaar."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
   },
   "subscription": {
     "message": "Abonnement"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Jouw huidige organisatie heeft een beleid dat je niet toestaat om deel te nemen aan meer dan één organisatie. Neem contact op met de beheerders van jouw organisatie of meld je aan met een ander Bitwarden-account."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Leden van de organisatie die geen eigenaar of beheerder zijn en die al lid zijn van een andere organisatie, worden verwijderd uit jouw organisatie."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Niet-conforme leden krijgen de status ingetrokken totdat ze alle andere organisaties hebben verlaten. Beheerders zijn uitgezonderd en kunnen leden herstellen zodra ze aan de naleving voldoen."
@@ -5685,6 +5697,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn met succes geverifieerd! Je kunt dit tabblad sluiten."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -5880,14 +5895,8 @@
   "fingerprint": {
     "message": "Vingerafdruk"
   },
-  "removeUsers": {
-    "message": "Gebruikers verwijderen"
-  },
-  "revokeUsers": {
-    "message": "Gebruikers intrekken"
-  },
-  "restoreUsers": {
-    "message": "Gebruikers herstellen"
+  "fingerprintPhrase": {
+    "message": "Vingerafdrukzin:"
   },
   "error": {
     "message": "Fout"
@@ -6293,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Gratis Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Gesponsorde families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Geen gesponsorde families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Gesponsorde niet-lid Familie-plannen worden hier weergegeven"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Leden van je organisatie komen in aanmerking voor gratis Bitwarden Familie. Je kunt de gratis Bitwarden Familie sponsoren voor medewerkers die geen lid zijn van je Bitwarden-organisatie. Het sponsoren van een niet-lid vereist een beschikbare zitplaats binnen je organisatie."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Als je een actieve sponsoring verwijdert, komt er een plaats binnen je organisatie beschikbaar na de verlengingsdatum van de gesponsorde organisatie."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Jij en je familie komen in aanmerking voor gratis Bitwarden Families. Verzilver met je persoonlijke e-mail om je gegevens veilig te houden, zelfs als je niet op het werk bent."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Verzilver je gratis Bitwarden Families vandaag om je gegevens veilig te houden, zelfs wanneer je niet aan het werk bent."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "Bitwarden Families omvat"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium-toegang voor maximaal 6 gebruikers"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Gedeelde collecties voor familiegeheimen"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Gedeelde collecties voor familieleden"
+  },
+  "memberFamilies": {
+    "message": "Lid-families"
+  },
+  "noMemberFamilies": {
+    "message": "Niet-leden families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Leden die familieplannen hebben geclaimd worden hier weergegeven"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Leden van jouw organisatie komen in aanmerking voor gratis gebruik van Bitwarden Familie. Hier kunt je leden zien die een Familie-organisatie hebben gesponsord."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Kan geen sponsoring naar $EMAIL$ verzenden omdat ze lid van je organisatie zijn.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "De link is niet langer geldig. Zorg ervoor dat de sponsors de uitnodiging opnieuw versturen."
@@ -6359,7 +6404,7 @@
   "redeemedAccount": {
     "message": "Account verzilverd"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Account $NAME$ intrekken",
     "placeholders": {
       "name": {
@@ -7237,6 +7282,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om in te loggen."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Volg onderstaande stappen om in te loggen met je beveiligingssleutel."
+  },
   "launchDuo": {
     "message": "DUO starten"
   },
@@ -7791,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "Door een domein te verbinden kunnen leden het SSO-identificatieveld tijdens het inloggen met SSO overslaan."
   },
-  "verifyDomain": {
-    "message": "Domein verifiëren"
-  },
-  "reverifyDomain": {
-    "message": "Domein herverifiëren"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT record kopiëren"
   },
@@ -7805,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Kopieer en plak het TXT-record in je DNS-provider."
-  },
-  "domainNameInputHint": {
-    "message": "Voorbeeld: mijndomein.com. Subdomeinen moet je afzonderlijk verifiëren."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatische domeinverificatie"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden probeert het domein gedurende de eerste 72 uur driemaal te verifiëren. Als het domein niet geverifieerd kan worden, controleer dan het DNS-record in je host en controleer het handmatig. Het domein wordt binnen 7 dagen verwijderd uit je organisatie als het niet geverifieerd is"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Invoer is geen geldig formaat. Formaat: mijndomein.com. Subdomeinen moet je afzonderlijk verifiëren."
   },
   "removeDomain": {
     "message": "Domein verwijderen"
@@ -7830,9 +7860,6 @@
   "domainSaved": {
     "message": "Domein opgeslagen"
   },
-  "domainVerified": {
-    "message": "Domein geverifieerd"
-  },
   "duplicateDomainError": {
     "message": "Je kunt hetzelfde domein niet tweemaal opeisen."
   },
@@ -7844,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ niet geverifieerd. Controleer je DNS-record.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Geverifiëerd"
-  },
-  "domainStatusUnverified": {
-    "message": "Niet geverifieerd"
   },
   "domainNameTh": {
     "message": "Naam"
@@ -7886,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "Domein $DOMAIN$ verwijderd",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ geverifieerd",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ niet geverifieerd",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7970,6 +7964,9 @@
   },
   "inviteMember": {
     "message": "Lid uitnodigen"
+  },
+  "addSponsorship": {
+    "message": "Sponsoring toevoegen"
   },
   "needsConfirmation": {
     "message": "Bevestiging nodig"
@@ -9431,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Facturering beheren vanuit het aanbiederportaal"
   },
+  "continueSettingUp": {
+    "message": "Doorgaan met het instellen van Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Doorgaan met het instellen van Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Doorgaan met het instellen van Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Doorgaan met het instellen van je gratis proefperiode van Bitwarden Secrets Manager"
@@ -10197,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Belangrijke mededeling"
-  },
-  "setupTwoStepLogin": {
-    "message": "Tweestapsaanmelding instellen"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
-  },
-  "remindMeLater": {
-    "message": "Herinner me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nee, dat heb ik niet"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Tweestapsaanmelding inschakelen"
-  },
-  "changeAcctEmail": {
-    "message": "E-mailadres van het account veranderen"
-  },
   "removeMembers": {
     "message": "Leden verwijderen"
   },
@@ -10329,6 +10299,39 @@
   },
   "organizationNameMaxLength": {
     "message": "Organisatienaam mag niet langer zijn dan 50 tekens."
+  },
+  "rotationCompletedTitle": {
+    "message": "Sleutelrotatie geslaagd"
+  },
+  "rotationCompletedDesc": {
+    "message": "Je hoofdwachtwoord en encryptiesleutels zijn bijgewerkt. Je andere apparaten zijn uitgelogd."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "Gebruiker vertrouwen en bevestigen"
+  },
+  "trustOrganization": {
+    "message": "Organisatie vertrouwen"
+  },
+  "trust": {
+    "message": "Vertrouwen"
+  },
+  "doNotTrust": {
+    "message": "Niet vertrouwen"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisatie is niet vertrouwd"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
+  },
+  "orgTrustWarning": {
+    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "orgTrustWarning1": {
+    "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
+  },
+  "trustUser": {
+    "message": "Gebruiker vertrouwen"
   },
   "sshKeyWrongPassword": {
     "message": "Het door jou ingevoerde wachtwoord is onjuist."
@@ -10499,6 +10502,30 @@
   "assignedExceedsAvailable": {
     "message": "Meer toegewezen dan beschikbare plaatsen."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Vingerafdrukzin voor $NUM_USERS$ contacten waarvoor je noodtoegang hebt ingeschakeld.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Vingerafdrukzin voor de organisatie $ORG_NAME$ waarvoor je accountherstel hebt ingeschakeld.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Het roteren van je encryptiesleutels vereist dat je sleutels vertrouwt van alle organisaties die je account kunnen herstellen en alle contacten waarvoor je noodtoegang hebt ingeschakeld. Zorg ervoor dat je het volgende kunt verifiëren:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Niet-vertrouwde encryptiesleutels"
+  },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
@@ -10508,25 +10535,83 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$-abonnementen hebben geen toegang tot echte event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "We slaan geen eventlogs op voor jouw organisatie. Upgrade naar een Teams- of Enterprise-plan om volledige toegang te krijgen tot organisatie-eventlogs."
   },
-  "upgradeForFullEvents": {
-    "message": "Krijg volledige toegang tot event logs van de organisatie door te upgraden naar een Teams- of Enterprise-abonnement."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade voor echte event log gegevens"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade om eventlogs van je organisatie te zien."
   },
   "upgradeEventLogMessage": {
     "message": "Deze evenementen zijn alleen voorbeelden en weerspiegelen geen echte evenementen binnen je Bitwarden organisatie."
   },
   "cannotCreateCollection": {
     "message": "Gratis organisaties kunnen maximaal twee collecties hebben. Upgrade naar een betaald abonnement voor het toevoegen van meer collecties."
+  },
+  "businessUnit": {
+    "message": "Bedrijfseenheid"
+  },
+  "businessUnits": {
+    "message": "Bedrijfseenheden"
+  },
+  "newBusinessUnit": {
+    "message": "Nieuwe bedrijfseenheid"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Tijd besparen met automatisch aanvullen"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Voeg een",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "toe zodat deze login wordt weergegeven als een automatische invulsuggestie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Naadloos online afrekenen"
+  },
+  "newCardNudgeBody": {
+    "message": "Met kaarten gemakkelijk, veilig en accuraat automatisch invullen van betaalformulieren."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Vereenvoudig het aanmaken van accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Met identiteiten vul je lange registratie- of contactformulieren snel automatisch in."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Houd je gevoelige gegevens veilig"
+  },
+  "newNoteNudgeBody": {
+    "message": "Met notities veilig opslaan van gevoelige gegevens zoals bank- of verzekeringsgegevens."
+  },
+  "newSshNudgeTitle": {
+    "message": "Ontwikkelaars-vriendelijke SSH-toegang"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Meer informatie over SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Herstarten"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Voer de code van het bankafschrift uit deze storting in op de factuurpagina van de provider om de bankrekening te verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "clickPayWithPayPal": {
+    "message": "Klik op \"Pay with PayPal\" voor het toevoegen van je betaalmethode."
   }
 }

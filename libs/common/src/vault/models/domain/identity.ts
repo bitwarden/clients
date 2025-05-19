@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -164,5 +166,33 @@ export class Identity extends Domain {
       passportNumber,
       licenseNumber,
     });
+  }
+
+  /**
+   * Maps Identity to SDK format.
+   *
+   * @returns {SdkIdentity} The SDK identity object.
+   */
+  toSdkIdentity(): SdkIdentity {
+    return {
+      title: this.title?.toJSON(),
+      firstName: this.firstName?.toJSON(),
+      middleName: this.middleName?.toJSON(),
+      lastName: this.lastName?.toJSON(),
+      address1: this.address1?.toJSON(),
+      address2: this.address2?.toJSON(),
+      address3: this.address3?.toJSON(),
+      city: this.city?.toJSON(),
+      state: this.state?.toJSON(),
+      postalCode: this.postalCode?.toJSON(),
+      country: this.country?.toJSON(),
+      company: this.company?.toJSON(),
+      email: this.email?.toJSON(),
+      phone: this.phone?.toJSON(),
+      ssn: this.ssn?.toJSON(),
+      username: this.username?.toJSON(),
+      passportNumber: this.passportNumber?.toJSON(),
+      licenseNumber: this.licenseNumber?.toJSON(),
+    };
   }
 }

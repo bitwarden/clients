@@ -7,7 +7,6 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
@@ -18,7 +17,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {
   tokenRequest: WebAuthnLoginTokenRequest;
-  captchaBypassToken?: string;
   credentials: WebAuthnLoginCredentials;
 
   static fromJSON(obj: Jsonify<WebAuthnLoginStrategyData>): WebAuthnLoginStrategyData {
@@ -83,19 +81,19 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
       }
 
       // decrypt prf encrypted private key
-      const privateKey = await this.encryptService.decryptToBytes(
+      const privateKey = await this.encryptService.unwrapDecapsulationKey(
         webAuthnPrfOption.encryptedPrivateKey,
         credentials.prfKey,
       );
 
       // decrypt user key with private key
-      const userKey = await this.encryptService.rsaDecrypt(
+      const userKey = await this.encryptService.decapsulateKeyUnsigned(
         new EncString(webAuthnPrfOption.encryptedUserKey.encryptedString),
         privateKey,
       );
 
       if (userKey) {
-        await this.keyService.setUserKey(new SymmetricCryptoKey(userKey) as UserKey, userId);
+        await this.keyService.setUserKey(userKey as UserKey, userId);
       }
     }
   }

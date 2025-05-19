@@ -8,6 +8,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
+import { I18n } from "../common-types";
 
 import { CipherAction } from "./cipher-action";
 import { CipherIcon } from "./cipher-icon";
@@ -16,25 +17,36 @@ import { NotificationCipherData } from "./types";
 
 const cipherIconWidth = "24px";
 
+export type CipherItemProps = {
+  cipher: NotificationCipherData;
+  handleAction?: (e: Event) => void;
+  i18n: I18n;
+  notificationType?: NotificationType;
+  theme: Theme;
+};
+
 export function CipherItem({
   cipher,
   handleAction,
+  i18n,
   notificationType,
   theme = ThemeTypes.Light,
-}: {
-  cipher: NotificationCipherData;
-  handleAction?: (e: Event) => void;
-  notificationType?: NotificationType;
-  theme: Theme;
-}) {
-  const { icon } = cipher;
+}: CipherItemProps) {
+  const { icon, name, login } = cipher;
   const uri = (icon.imageEnabled && icon.image) || undefined;
 
   let cipherActionButton = null;
 
   if (notificationType === NotificationTypes.Change || notificationType === NotificationTypes.Add) {
     cipherActionButton = html`<div>
-      ${CipherAction({ handleAction, notificationType, theme })}
+      ${CipherAction({
+        handleAction,
+        i18n,
+        itemName: name,
+        notificationType,
+        theme,
+        username: login?.username,
+      })}
     </div>`;
   }
 

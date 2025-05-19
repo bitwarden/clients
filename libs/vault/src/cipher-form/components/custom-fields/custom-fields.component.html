@@ -1,4 +1,8 @@
-<bit-section *ngIf="hasCustomFields" [disableMargin]="disableSectionMargin">
+<section
+  class="tw-mb-5 bit-compact:tw-mb-4"
+  *ngIf="hasCustomFields"
+  [ngClass]="{ 'tw-mb-0': disableSectionMargin }"
+>
   <bit-section-header>
     <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
   </bit-section-header>
@@ -89,18 +93,18 @@
           bitIconButton="bwi-pencil-square"
           class="tw-self-center tw-mt-2"
           data-testid="edit-custom-field-button"
-          *ngIf="!isPartialEdit"
+          *ngIf="canEdit(field.value.type)"
         ></button>
 
         <button
           type="button"
-          bitIconButton="bwi-hamburger"
+          bitIconButton="bwi-drag-and-drop"
           class="tw-self-center tw-mt-2"
           cdkDragHandle
           [appA11yTitle]="'reorderToggleButton' | i18n: field.value.name"
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
-          *ngIf="!isPartialEdit"
+          *ngIf="canEdit(field.value.type)"
         ></button>
       </div>
 
@@ -116,4 +120,4 @@
       </button>
     </bit-card>
   </form>
-</bit-section>
+</section>

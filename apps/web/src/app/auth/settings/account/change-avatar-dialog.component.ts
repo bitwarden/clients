@@ -31,6 +31,7 @@ type ChangeAvatarDialogData = {
 @Component({
   templateUrl: "change-avatar-dialog.component.html",
   encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   profile: ProfileResponse;

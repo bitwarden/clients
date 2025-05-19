@@ -73,6 +73,7 @@ export default tseslint.config(
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
       "@bitwarden/platform/required-using": "error",
+      "@bitwarden/platform/no-enums": "error",
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
       "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
       "@typescript-eslint/no-floating-promises": "error",
