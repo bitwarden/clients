@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu qoşmanı birdəfəlik silmək istədiyinizə əminsiniz?"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "extensionWidth": {
     "message": "Uzantı eni"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"
   },
-  "newLoginNudgeBody": {
-    "message": "Bir veb sayt daxil edin ki, bu giriş məlumatları avto-doldurma təklifi kimi görünsün."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Problemsiz onlayn ödəniş"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH müraciəti"
   },
-  "newSshNudgeBody": {
-    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

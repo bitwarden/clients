@@ -19,6 +19,7 @@ import {
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
   SHOW_AUTOFILL_BUTTON,
+  UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -49,6 +50,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { sendExtensionMessage } from "../../../../../autofill/utils/index";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -72,7 +74,8 @@ type LoadAction =
   | typeof SHOW_AUTOFILL_BUTTON
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
-  | typeof COPY_VERIFICATION_CODE_ID;
+  | typeof COPY_VERIFICATION_CODE_ID
+  | typeof UPDATE_PASSWORD;
 
 @Component({
   selector: "app-view-v2",
@@ -200,9 +203,7 @@ export class ViewV2Component {
 
   async getCipherData(id: string, userId: UserId) {
     const cipher = await this.cipherService.get(id, userId);
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
-    );
+    return await this.cipherService.decrypt(cipher, userId);
   }
 
   async editCipher() {
@@ -294,7 +295,7 @@ export class ViewV2Component {
     // Both vaultPopupAutofillService and copyCipherFieldService will perform password re-prompting internally.
 
     switch (loadAction) {
-      case "show-autofill-button":
+      case SHOW_AUTOFILL_BUTTON:
         // This action simply shows the cipher view, no need to do anything.
         if (
           this.cipher.reprompt !== CipherRepromptType.None &&
@@ -303,30 +304,42 @@ export class ViewV2Component {
           await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
         }
         return;
-      case "autofill":
+      case AUTOFILL_ID:
         actionSuccess = await this.vaultPopupAutofillService.doAutofill(this.cipher, false);
         break;
-      case "copy-username":
+      case COPY_USERNAME_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.username,
           "username",
           this.cipher,
         );
         break;
-      case "copy-password":
+      case COPY_PASSWORD_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.password,
           "password",
           this.cipher,
         );
         break;
-      case "copy-totp":
+      case COPY_VERIFICATION_CODE_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.totp,
           "totp",
           this.cipher,
         );
         break;
+      case UPDATE_PASSWORD: {
+        const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
+
+        await sendExtensionMessage("bgHandleReprompt", {
+          tab: await chrome.tabs.get(senderTabId),
+          success: repromptSuccess,
+        });
+
+        await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+
+        break;
+      }
     }
 
     if (BrowserPopupUtils.inPopout(window)) {

@@ -4512,6 +4512,27 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Είστε σίγουροι ότι θέλετε να διαγράψετε οριστικά αυτό το συνημμένο;"
   },
@@ -5135,42 +5156,6 @@
   "beta": {
     "message": "Beta (Δοκιμαστική)"
   },
-  "importantNotice": {
-    "message": "Σημαντική ειδοποίηση"
-  },
-  "setupTwoStepLogin": {
-    "message": "Ρύθμιση σύνδεσης δύο βημάτων"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Το Bitwarden θα στείλει έναν κωδικό στο ηλ. ταχυδρομείο του λογαριασμού σας για να επαληθεύσει τις συνδέσεις από τις νέες συσκευές που ξεκινούν τον Φεβρουάριο του 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Μπορείτε να ορίσετε σύνδεση δύο βημάτων ως εναλλακτικό τρόπο προστασίας του λογαριασμού σας ή να αλλάξετε το ηλ. ταχυδρομείο σας σε ένα που μπορείτε να έχετε πρόσβαση."
-  },
-  "remindMeLater": {
-    "message": "Υπενθύμιση αργότερα"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Έχετε αξιόπιστη πρόσβαση στο ηλ. ταχυδρομείο σας, $EMAIL$;",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Όχι, δεν έχω"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ναι, μπορώ να συνδεθώ αξιόπιστα στο ηλ. ταχυδρομείο μου"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ενεργοποίηση σύνδεσης δύο βημάτων"
-  },
-  "changeAcctEmail": {
-    "message": "Αλλαγή ηλ. ταχυδρομείου λογαριασμού"
-  },
   "extensionWidth": {
     "message": "Πλάτος εφαρμογής"
   },
@@ -5276,8 +5261,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -5300,7 +5297,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

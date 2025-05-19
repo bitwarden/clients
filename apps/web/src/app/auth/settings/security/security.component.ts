@@ -6,6 +6,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 @Component({
   selector: "app-security",
   templateUrl: "security.component.html",
+  standalone: false,
 })
 export class SecurityComponent implements OnInit {
   showChangePassword = true;

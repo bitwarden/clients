@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Ваша організація має політику, що не дозволяє вам приєднуватися до більш, ніж однієї організації. Будь ласка, зв'яжіться з адміністратором вашої організації, або увійдіть з іншим обліковим записом Bitwarden."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Учасники організації, які не є власниками чи адміністраторами, але вже є учасниками іншої організації, будуть вилучені з вашої організації."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Учасникам, які не відповідають вимогам, буде призначено стан \"відкликано\" доки вони не покинуть інші організації. Адміністратори є винятком і можуть відновити учасників у разі відповідності вимогам."
   },
@@ -5886,15 +5883,6 @@
   "fingerprintPhrase": {
     "message": "Фраза відбитка:"
   },
-  "removeUsers": {
-    "message": "Вилучити користувачів"
-  },
-  "revokeUsers": {
-    "message": "Відкликати користувачів"
-  },
-  "restoreUsers": {
-    "message": "Відновити користувачів"
-  },
   "error": {
     "message": "Помилка"
   },
@@ -6303,13 +6291,13 @@
     "message": "Спонсоровані родини"
   },
   "noSponsoredFamiliesMessage": {
-    "message": "No sponsored families"
+    "message": "Немає спонсорованих родин"
   },
   "nosponsoredFamiliesDetails": {
-    "message": "Sponsored non-member families plans will display here"
+    "message": "Тут буде показано спонсоровані плани родин, які не є учасниками"
   },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Ви можете спонсорувати безплатні плани Bitwarden Families для співробітників, які не є учасниками вашої організації Bitwarden. Для спонсорування користувачів, які не є учасниками організації, необхідні вільні місця в межах вашої організації."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Якщо вилучити активне спонсорство, місце у вашій організації стане доступним після дати оновлення спонсорованої організації."
@@ -6321,13 +6309,13 @@
     "message": "Активуйте сьогодні безплатний тарифний план Bitwarden Families, щоб зберігати свої дані захищеними, навіть коли ви не на роботі."
   },
   "sponsoredFamiliesIncludeMessage": {
-    "message": "The Bitwarden for Families plan includes"
+    "message": "План Bitwarden Families включає"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Преміумдоступ до 6 користувачів"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "Shared collections for family members"
+    "message": "Спільні збірки для учасників родини"
   },
   "memberFamilies": {
     "message": "Родини учасників"
@@ -6342,7 +6330,7 @@
     "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Тут ви можете переглянути учасників, які спонсорують родинну організацію."
   },
   "organizationHasMemberMessage": {
-    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "message": "Спонсорство не можна надіслати на $EMAIL$, оскільки цей користувач є учасником вашої організації.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -6402,7 +6390,7 @@
     "message": "Обліковий запис активовано"
   },
   "revokeAccountMessage": {
-    "message": "Revoke account $NAME$",
+    "message": "Відкликати обліковий запис $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "Під'єднання домену дозволяє учасникам не використовувати поле ідентифікатора SSO під час входу з SSO."
   },
-  "verifyDomain": {
-    "message": "Підтвердити домен"
-  },
-  "reverifyDomain": {
-    "message": "Повторно підтвердити домен"
-  },
   "copyDnsTxtRecord": {
     "message": "Копіювати TXT-запис для DNS"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Скопіюйте і вставте TXT-запис у відповідне поле свого DNS-провайдера."
-  },
-  "domainNameInputHint": {
-    "message": "Зразок: mydomain.com. Для піддоменів потрібно підтвердити окремі записи."
-  },
-  "automaticDomainVerification": {
-    "message": "Автоматичне підтвердження доменів"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden намагатиметься підтвердити домен 3 рази впродовж 72 годин. Якщо не вдасться підтвердити домен, перевірте DNS-запис у вашого провайдера й підтвердьте його вручну. Якщо домен не буде підтверджено протягом 7 днів, його буде вилучено з вашої організації"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Неправильний формат введення. Правильний формат: mydomain.com. Для підтвердження піддоменів потрібно ввести окремі записи."
   },
   "removeDomain": {
     "message": "Вилучити домен"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "Домен збережено"
   },
-  "domainVerified": {
-    "message": "Домен підтверджено"
-  },
   "duplicateDomainError": {
     "message": "Не можна запитати той самий домен двічі."
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ не підтверджено. Перевірте свій DNS-запис.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Підтверджено"
-  },
-  "domainStatusUnverified": {
-    "message": "Не підтверджено"
   },
   "domainNameTh": {
     "message": "Ім'я"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "Домен $DOMAIN$ вилучено",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "Домен $DOMAIN$ підтверджено",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "Домен $DOMAIN$ не підтверджено",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Керування рахунками на порталі провайдера"
   },
+  "continueSettingUp": {
+    "message": "Продовжити налаштування Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Продовжити налаштування безплатної пробної версії Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Продовжити налаштування менеджера паролів Bitwarden"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Продовжити налаштування безплатної пробної версії менеджера паролів Bitwarden"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Продовжити налаштування менеджера секретів Bitwarden"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Продовжити налаштування безплатної пробної версії менеджера секретів Bitwarden"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Важлива інформація"
-  },
-  "setupTwoStepLogin": {
-    "message": "Налаштувати двоетапну перевірку"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
-  },
-  "remindMeLater": {
-    "message": "Нагадати пізніше"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ні, не маю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Так, я маю постійний доступ до своєї електронної пошти"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Увімкнути двоетапну перевірку"
-  },
-  "changeAcctEmail": {
-    "message": "Змінити адресу е-пошти"
-  },
   "removeMembers": {
     "message": "Вилучити учасників"
   },
@@ -10397,7 +10304,7 @@
     "message": "Не довіряти"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Це не довірена організація"
   },
   "emergencyAccessTrustWarning": {
     "message": "Щоб захистити свій обліковий запис, підтверджуйте лише якщо ви надали цьому користувачу екстрений доступ, і його цифровий відбиток збігається з показаним в його обліковому записі."
@@ -10406,7 +10313,7 @@
     "message": "Щоб захистити свій обліковий запис, продовжуйте лише якщо ви є учасником цієї організації, маєте ввімкнене відновлення облікового запису, і показаний нижче цифровий відбиток збігається з відбитком організації."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "Ця організація має політику компанії, яка розгорне для вас відновлення облікового запису. Розгортання дасть змогу адміністраторам організації змінювати ваш пароль. Продовжуйте тільки якщо ви впізнаєте організацію і наведена нижче фраза відбитка відповідає відбитку організації."
   },
   "trustUser": {
     "message": "Довіряти користувачу"
@@ -10614,10 +10521,10 @@
     "message": "Не дозволяти учасникам розблокувати свій обліковий запис за допомогою PIN-коду."
   },
   "upgradeForFullEventsMessage": {
-    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
+    "message": "Для вашої організації не зберігаються записи подій. Перейдіть на план Teams або Enterprise, щоб отримати повний доступ до подій організації."
   },
   "upgradeEventLogTitleMessage": {
-    "message": "Upgrade to see event logs from your organization."
+    "message": "Перейдіть на вищий тарифний план для доступу до записів подій вашої організації."
   },
   "upgradeEventLogMessage": {
     "message": "Ці події є лише зразками. Вони не відображають реальних подій у вашій організації Bitwarden."
@@ -10635,39 +10542,58 @@
     "message": "Новий бізнес-підрозділ"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Заощаджуйте час з автозаповненням"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Включити",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Вебсайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "щоб цей запис з'являвся у пропозиціях автозаповнення.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Швидке оформлення замовлень"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "За допомогою записів для карток можна безпечно й точно заповнювати платіжні форми."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Спростіть створення облікових записів"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "За допомогою записів для посвідчень можна швидко заповнювати форми реєстрації чи контактів."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Захистіть свої конфіденційні дані"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "За допомогою нотаток можна надійно зберігати конфіденційні дані, як-от банківську інформацію або страхування."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "SSH-доступ для розробників"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Зберігайте свої ключі та під'єднуйтеся за допомогою SSH-агента для швидкої зашифрованої автентифікації.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Докладніше про SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
-    "message": "Restart"
+    "message": "Перезапустити"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+    "message": "Оплата з банківським рахунком доступна тільки для клієнтів у США. Вам необхідно буде підтвердити свій банківський рахунок. Ми здійснимо мікродепозит протягом наступних 1–2 робочих днів. Введіть код дескриптора з цього депозиту на сторінці передплати провайдера, щоб підтвердити банківський рахунок. Неможливість засвідчення банківського рахунку призведе до втрати платежу та припинення вашої передплати."
   }
 }

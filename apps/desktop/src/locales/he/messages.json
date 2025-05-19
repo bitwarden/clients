@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "סוכן ה־SSH הוא שירות המיועד למפתחים שמאפשר לך לחתום בקשות SSH היישר מכספת ה־Bitwarden שלך."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "נדרש חשבון פרימיום"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Add field"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Field type"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "הקובץ נשמר למכשיר. נהל מהורדות המכשיר שלך."
   },
-  "importantNotice": {
-    "message": "הודעה חשובה"
-  },
-  "setupTwoStepLogin": {
-    "message": "הגדר כניסה דו־שלבית"
-  },
-  "itemDetails": {
-    "message": "Item details"
-  },
-  "itemName": {
-    "message": "Item name"
-  },
-  "loginCredentials": {
-    "message": "Login credentials"
-  },
-  "additionalOptions": {
-    "message": "Additional options"
-  },
-  "itemHistory": {
-    "message": "Item history"
-  },
-  "lastEdited": {
-    "message": "Last edited"
-  },
-  "upload": {
-    "message": "Upload"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden ישלח קוד לדוא\"ל החשבון שלך כדי לאמת כניסות ממכשירים חדשים החל מפברואר 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "אתה יכול להגדיר כניסה דו־שלבית כדרך חלופית להגן על החשבון שלך או לשנות את הדוא\"ל שלך לאחד שאתה יכול לגשת אליו."
-  },
-  "remindMeLater": {
-    "message": "הזכר לי מאוחר יותר"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "יש לך גישה מהימנה לדוא\"ל שלך, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "לא, אין לי"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "כן, אני יכול לגשת לדוא\"ל שלי באופן מהימן"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "הפעל כניסה דו־שלבית"
-  },
-  "changeAcctEmail": {
-    "message": "שנה את דוא\"ל החשבון"
-  },
   "allowScreenshots": {
     "message": "אפשר לכידת מסך"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

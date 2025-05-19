@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH agent je služba určená vývojářům; umožňuje Vám podepisovat požadavky SSH přímo z Vašeho trezoru."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Požádat o autorizaci při použití SSH agenta"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Vyberte si, jak vyřizovat žádosti o autorizaci SSH agenta."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Zapamatovat autorizace SSH"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Vždy"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Nikdy"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Pamatovat si, dokud není trezor uzamčen"
+  },
   "premiumRequired": {
     "message": "Je vyžadováno členství Premium"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "Přidat pole"
+  },
+  "editField": {
+    "message": "Upravit pole"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Opravdu chcete tuto přílohu navždy smazat?"
   },
   "fieldType": {
     "message": "Typ pole"
@@ -3671,63 +3695,6 @@
   "fileSavedToDevice": {
     "message": "Soubor byl uložen. Můžete jej nalézt ve stažené složce v zařízení."
   },
-  "importantNotice": {
-    "message": "Důležité upozornění"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastavit dvoufázové přihlášení"
-  },
-  "itemDetails": {
-    "message": "Detaily položky"
-  },
-  "itemName": {
-    "message": "Název položky"
-  },
-  "loginCredentials": {
-    "message": "Přihlašovací údaje"
-  },
-  "additionalOptions": {
-    "message": "Další volby"
-  },
-  "itemHistory": {
-    "message": "Historie položky"
-  },
-  "lastEdited": {
-    "message": "Naposledy upraveno"
-  },
-  "upload": {
-    "message": "Nahrát"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
-  },
-  "remindMeLater": {
-    "message": "Připomenout později"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ano, ke svému e-mailu mám přístup"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnout dvoufázové přihlášení"
-  },
-  "changeAcctEmail": {
-    "message": "Změnit e-mail účtu"
-  },
   "allowScreenshots": {
     "message": "Povolit záznam obrazovky"
   },
@@ -3755,8 +3722,20 @@
   "newLoginNudgeTitle": {
     "message": "Ušetřete čas s automatickým vyplňováním"
   },
-  "newLoginNudgeBody": {
-    "message": "Zahrne webovou stránku, takže se toto přihlášení objeví jako návrh automatického vyplňování."
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrne",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webovou stránku, ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "takže se toto přihlášení objeví jako návrh automatického vyplňování.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Bezproblémová online pokladna"
@@ -3779,7 +3758,14 @@
   "newSshNudgeTitle": {
     "message": "Přístup SSH pro vývojáře"
   },
-  "newSshNudgeBody": {
-    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření."
+  "newSshNudgeBodyOne": {
+    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Další informace o SSH agentovi",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

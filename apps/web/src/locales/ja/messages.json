@@ -5054,9 +5054,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "現在の組織には、複数の組織に参加することを許可していないポリシーがあります。 組織の管理者に連絡するか、別の Bitwarden アカウントから登録してください。"
   },
-  "singleOrgPolicyWarning": {
-    "message": "オーナーまたは管理者でなく、すでに他の組織のメンバーであるメンバーは組織から削除されます。"
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "ポリシーに準拠していないメンバーは、他のすべての組織から退出するまで失効状態になります。これは管理者には適用されず、管理者はコンプライアンスが満たされたメンバーを復元できます。"
   },
@@ -5885,15 +5882,6 @@
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "ユーザーを削除"
-  },
-  "revokeUsers": {
-    "message": "ユーザーを取り消す"
-  },
-  "restoreUsers": {
-    "message": "ユーザーの復元"
   },
   "error": {
     "message": "エラー"
@@ -7836,12 +7824,6 @@
   "noDomainsSubText": {
     "message": "ドメインを接続すると、メンバーは SSO でログインする際に SSO 識別子フィールドをスキップできます。"
   },
-  "verifyDomain": {
-    "message": "ドメインを確認"
-  },
-  "reverifyDomain": {
-    "message": "ドメインを再確認する"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT レコードをコピー"
   },
@@ -7850,18 +7832,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT レコードをコピーして DNS プロバイダーに貼り付けてください。"
-  },
-  "domainNameInputHint": {
-    "message": "例: mydomain.com サブドメインを検証するには別々のエントリが必要です。"
-  },
-  "automaticDomainVerification": {
-    "message": "ドメインの自動認証"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden は最初の 72 時間以内にドメインの検証を3回試みます。 ドメインが検証できない場合は、ホストの DNS レコードを確認し、手動で検証してください。 認証されていない場合、ドメインは7日後に組織から削除されます。"
-  },
-  "invalidDomainNameMessage": {
-    "message": "入力されたものは有効な形式ではありません。フォーマット例: mydomain.com サブドメインは検証するために個別のエントリを必要とします。"
   },
   "removeDomain": {
     "message": "ドメインを削除"
@@ -7875,9 +7845,6 @@
   "domainSaved": {
     "message": "ドメインを保存しました"
   },
-  "domainVerified": {
-    "message": "ドメインを認証しました"
-  },
   "duplicateDomainError": {
     "message": "同じドメインを二度要求することはできません。"
   },
@@ -7889,21 +7856,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ は認証されていません。DNS レコードを確認してください。",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "認証済み"
-  },
-  "domainStatusUnverified": {
-    "message": "未認証"
   },
   "domainNameTh": {
     "message": "名前"
@@ -7931,24 +7883,6 @@
   },
   "removedDomain": {
     "message": "ドメイン $DOMAIN$ を削除しました",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ を認証しました",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ は認証されていません",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9413,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "プロバイダーポータルからの請求を管理"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Bitwarden の無料トライアルのセットアップを続ける"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Bitwarden パスワードマネージャーの無料トライアルのセットアップを続けます"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Bitwarden シークレットマネージャーの無料トライアルのセットアップを続けます"
@@ -10245,42 +10188,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "メンバーを削除"
   },
@@ -10637,8 +10544,20 @@
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -10661,8 +10580,15 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Restart"

@@ -44,6 +44,7 @@ import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.comp
 
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
+  standalone: false,
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
   static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
