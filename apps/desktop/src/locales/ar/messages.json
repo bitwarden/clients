@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "إضافة عنصر جديد"
   },
-  "addNewFolder": {
-    "message": "إضافة مجلد جديد"
-  },
   "view": {
     "message": "عرض"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"كلمة مرور الملف\" و \"تأكيد كلمة مرور الملف\" غير متطابقين."
   },
-  "hCaptchaUrl": {
-    "message": "رابط hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "تحميل ملف تعريف الارتباط الخاص بإمكانية الوصول"
-  },
-  "registerAccessibilityUser": {
-    "message": "تسجيل كمستخدم مع إمكانية الوصول في",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "نسخ وصق الرابط المرسل إلى بريدك الإلكتروني أدناه"
-  },
-  "enterhCaptchaUrl": {
-    "message": "أدخل عنوان URL لتحميل ملف تعريف الارتباط للوصول إلى hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "مطلوب عنوان hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "الرابط غير صالح"
-  },
   "done": {
     "message": "تم"
-  },
-  "accessibilityCookieSaved": {
-    "message": "تم حفظ ملف تعريف الارتباط الخاص بإمكانية الوصول!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "لم يحفظ ملف تعريف الارتباط الخاص بإمكانية الوصول"
   },
   "warning": {
     "message": "تحذير",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "السماح"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

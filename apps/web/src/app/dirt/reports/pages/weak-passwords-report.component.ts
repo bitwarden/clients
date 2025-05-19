@@ -28,6 +28,7 @@ type ReportResult = CipherView & { score: number; reportValue: ReportScore; scor
 @Component({
   selector: "app-weak-passwords-report",
   templateUrl: "weak-passwords-report.component.html",
+  standalone: false,
 })
 export class WeakPasswordsReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;

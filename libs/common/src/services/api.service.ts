@@ -1621,18 +1621,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new OrganizationSponsorshipSyncStatusResponse(response);
   }
 
-  async deleteRevokeSponsorship(sponsoringOrganizationId: string): Promise<void> {
-    return await this.send(
-      "DELETE",
-      "/organization/sponsorship/" +
-        (this.platformUtilsService.isSelfHost() ? "self-hosted/" : "") +
-        sponsoringOrganizationId,
-      null,
-      true,
-      false,
-    );
-  }
-
   async deleteRemoveSponsorship(sponsoringOrgId: string): Promise<void> {
     return await this.send(
       "DELETE",

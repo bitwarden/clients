@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Пометить приложение как критическое"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Приложения помечены как критические"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Эти пользователи входят в приложения со слабыми, скомпрометированными или повторно используемыми паролями."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Эти приложения имеют слабые, скомпрометированные или повторно используемые пароли."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Эти пользователи входят в $APPNAME$ со слабыми, скомпрометированными или повторно используемыми паролями.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Любые зашифрованные экспортированные данные, которые вы сохранили, также станут недействительными."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Подписка"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице подписки провайдера для подтверждения банковского счета. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
+  },
+  "clickPayWithPayPal": {
+    "message": "Пожалуйста, нажмите кнопку \"Оплатить с помощью PayPal\", чтобы добавить свой способ оплаты."
   }
 }

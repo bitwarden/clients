@@ -5,6 +5,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -17,6 +18,7 @@ import { KeyService } from "@bitwarden/key-management";
 @Component({
   selector: "app-vault-attachments",
   templateUrl: "attachments.component.html",
+  standalone: false,
 })
 export class AttachmentsComponent extends BaseAttachmentsComponent {
   constructor(
@@ -33,6 +35,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
     toastService: ToastService,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -49,6 +52,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
       billingAccountProfileStateService,
       accountService,
       toastService,
+      configService,
     );
   }
 }

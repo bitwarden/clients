@@ -12,6 +12,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-deauthorize-sessions",
   templateUrl: "deauthorize-sessions.component.html",
+  standalone: false,
 })
 export class DeauthorizeSessionsComponent {
   deauthForm = this.formBuilder.group({

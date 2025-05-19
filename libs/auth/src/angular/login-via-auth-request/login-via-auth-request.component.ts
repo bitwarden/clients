@@ -40,6 +40,8 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { AuthRequestApiService } from "../../common/abstractions/auth-request-api.service";
 import { LoginViaAuthRequestCacheService } from "../../common/services/auth-request/default-login-via-auth-request-cache.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum Flow {
   StandardAuthRequest, // when user clicks "Login with device" from /login or "Approve from your other device" from /login-initiated
   AdminAuthRequest, // when user clicks "Request admin approval" from /login-initiated

@@ -50,11 +50,15 @@ export interface OrganizationCreatedEvent {
   planDescription: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum SubscriptionCadence {
   Annual,
   Monthly,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SubscriptionProduct {
   PasswordManager,
   SecretsManager,

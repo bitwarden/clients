@@ -894,9 +894,7 @@ export default class NotificationBackground {
   private async getDecryptedCipherById(cipherId: string, userId: UserId) {
     const cipher = await this.cipherService.get(cipherId, userId);
     if (cipher != null && cipher.type === CipherType.Login) {
-      return await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
-      );
+      return await this.cipherService.decrypt(cipher, userId);
     }
     return null;
   }

@@ -8,9 +8,8 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
@@ -31,13 +30,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   BadgeModule,
   ButtonModule,
@@ -47,6 +46,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
@@ -68,7 +69,6 @@ import { DesktopCredentialGenerationService } from "../../../services/desktop-ci
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
-import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -177,6 +177,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private formConfigService: CipherFormConfigService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private collectionService: CollectionService,
+    private folderService: FolderService,
   ) {}
 
   async ngOnInit() {
@@ -538,6 +539,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
     this.addType = type || this.activeFilter.cipherType;
     this.cipher = new CipherView();
+    this.cipherId = null;
     await this.buildFormConfig("add");
     this.action = "add";
     this.prefillCipherFromFilter();
@@ -633,38 +635,25 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async editFolder(folderId: string) {
-    if (this.modal != null) {
-      this.modal.close();
-    }
-    if (this.folderAddEditModalRef == null) {
-      return;
-    }
-    const [modal, childComponent] = await this.modalService
-      .openViewRef(
-        FolderAddEditComponent,
-        this.folderAddEditModalRef,
-        (comp) => (comp.folderId = folderId),
-      )
-      .catch(() => [null, null] as any);
-    this.modal = modal;
-    if (childComponent) {
-      childComponent.onSavedFolder.subscribe(async (folder: FolderView) => {
-        this.modal?.close();
-        await this.vaultFilterComponent
-          ?.reloadCollectionsAndFolders(this.activeFilter)
-          .catch(() => {});
-      });
-      childComponent.onDeletedFolder.subscribe(async (folder: FolderView) => {
-        this.modal?.close();
-        await this.vaultFilterComponent
-          ?.reloadCollectionsAndFolders(this.activeFilter)
-          .catch(() => {});
-      });
-    }
-    if (this.modal) {
-      this.modal.onClosed.pipe(takeUntilDestroyed()).subscribe(() => {
-        this.modal = null;
-      });
+    const folderView = await firstValueFrom(
+      this.folderService.getDecrypted$(folderId, this.activeUserId),
+    );
+
+    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
+      editFolderConfig: {
+        folder: {
+          ...folderView,
+        },
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (
+      result === AddEditFolderDialogResult.Deleted ||
+      result === AddEditFolderDialogResult.Created
+    ) {
+      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
     }
   }
 

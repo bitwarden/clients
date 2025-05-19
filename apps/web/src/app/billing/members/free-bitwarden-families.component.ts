@@ -24,6 +24,7 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
 @Component({
   selector: "app-free-bitwarden-families",
   templateUrl: "free-bitwarden-families.component.html",
+  standalone: false,
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
   loading = signal<boolean>(true);
@@ -179,7 +180,10 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.organizationId);
+    await this.organizationSponsorshipApiService.deleteAdminInitiatedRevokeSponsorship(
+      this.organizationId,
+      sponsorship.friendlyName,
+    );
 
     this.toastService.showToast({
       variant: "success",

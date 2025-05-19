@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
   },
-  "appsMarkedAsCritical": {
-    "message": "应用程序已标记为关键"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "标记为关键的应用程序"
   },
   "application": {
     "message": "应用程序"
@@ -138,13 +138,28 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到应用程序。"
+    "message": "这些成员正登录到具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
+  "atRiskMembersDescriptionNone": {
+    "message": "没有成员登录到具有弱的、暴露的或重复使用的密码的应用程序。"
   },
   "atRiskApplicationsDescription": {
     "message": "这些应用程序具有弱的、暴露的或重复使用的密码。"
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "没有具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ 中没有存在风险的成员。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -1515,7 +1530,7 @@
     "message": "电子邮箱"
   },
   "emailDescV2": {
-    "message": "请输入发送到您的电子邮箱的代码。"
+    "message": "输入发送到您的电子邮箱的代码。"
   },
   "continue": {
     "message": "继续"
@@ -2821,7 +2836,7 @@
     "message": "支付卡"
   },
   "paypalClickSubmit": {
-    "message": "点击 PayPal 按钮登录您的 PayPal 账户，然后点击下面的提交按钮继续。"
+    "message": "选择 PayPal 按钮登录您的 PayPal 账户，然后点击下面的「提交」按钮继续。"
   },
   "cancelSubscription": {
     "message": "取消订阅"
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "您保存的任何已加密导出也将变为无效。"
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您已保存的所有账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -9414,19 +9429,19 @@
     "message": "从提供商门户管理账单"
   },
   "continueSettingUp": {
-    "message": "Continue setting up Bitwarden"
+    "message": "继续设置 Bitwarden"
   },
   "continueSettingUpFreeTrial": {
     "message": "继续设置您的免费试用版 Bitwarden"
   },
   "continueSettingUpPasswordManager": {
-    "message": "Continue setting up Bitwarden Password Manager"
+    "message": "继续设置 Bitwarden 密码管理器"
   },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Continue setting up Bitwarden Secrets Manager"
+    "message": "继续设置 Bitwarden 机密管理器"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
@@ -10545,7 +10560,7 @@
     "message": "使用自动填充节省时间"
   },
   "newLoginNudgeBodyOne": {
-    "message": "包含一个",
+    "message": "包含",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -10555,7 +10570,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "因此此登录将显示为自动填充建议。",
+    "message": "以便将此登录显示为自动填充建议。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+  },
+  "clickPayWithPayPal": {
+    "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
   }
 }

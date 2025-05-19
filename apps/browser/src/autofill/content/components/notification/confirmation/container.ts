@@ -45,13 +45,15 @@ export function NotificationConfirmationContainer({
   const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
-  const buttonAria = chrome.i18n.getMessage("notificationViewAria", [itemName]);
+  const buttonAria = error
+    ? i18n.notificationNewItemAria
+    : chrome.i18n.getMessage("notificationViewAria", [itemName]);
 
   let messageDetails: string | undefined;
   let remainingTasksCount: number | undefined;
-  let tasksAreComplete: boolean = false;
+  let tasksAreComplete: boolean = true;
 
-  if (task) {
+  if (task && !error) {
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
@@ -68,6 +70,7 @@ export function NotificationConfirmationContainer({
     <div class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
+        i18n,
         message: headerMessage,
         theme,
       })}
@@ -82,7 +85,7 @@ export function NotificationConfirmationContainer({
         theme,
         handleOpenVault,
       })}
-      ${remainingTasksCount
+      ${!error && remainingTasksCount
         ? NotificationConfirmationFooter({
             i18n,
             theme,
