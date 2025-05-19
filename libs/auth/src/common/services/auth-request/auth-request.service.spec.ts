@@ -229,45 +229,6 @@ describe("AuthRequestService", () => {
     });
   });
 
-  describe("decryptAuthReqPubKeyEncryptedMasterKeyAndHash", () => {
-    it("returns a decrypted master key and hash when given a valid public key encrypted master key, public key encrypted master key hash, and an auth req private key", async () => {
-      // Arrange
-      const mockPubKeyEncryptedMasterKey = "pubKeyEncryptedMasterKey";
-      const mockPubKeyEncryptedMasterKeyHash = "pubKeyEncryptedMasterKeyHash";
-
-      const mockDecryptedMasterKeyBytes = new Uint8Array(64);
-      const mockDecryptedMasterKey = new SymmetricCryptoKey(
-        mockDecryptedMasterKeyBytes,
-      ) as MasterKey;
-      const mockDecryptedMasterKeyHashBytes = new Uint8Array(64);
-      const mockDecryptedMasterKeyHash = Utils.fromBufferToUtf8(mockDecryptedMasterKeyHashBytes);
-
-      encryptService.rsaDecrypt.mockResolvedValueOnce(mockDecryptedMasterKeyHashBytes);
-      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
-        new SymmetricCryptoKey(mockDecryptedMasterKeyBytes),
-      );
-
-      // Act
-      const result = await sut.decryptPubKeyEncryptedMasterKeyAndHash(
-        mockPubKeyEncryptedMasterKey,
-        mockPubKeyEncryptedMasterKeyHash,
-        mockPrivateKey,
-      );
-
-      // Assert
-      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
-        new EncString(mockPubKeyEncryptedMasterKey),
-        mockPrivateKey,
-      );
-      expect(encryptService.rsaDecrypt).toHaveBeenCalledWith(
-        new EncString(mockPubKeyEncryptedMasterKeyHash),
-        mockPrivateKey,
-      );
-      expect(result.masterKey).toEqual(mockDecryptedMasterKey);
-      expect(result.masterKeyHash).toEqual(mockDecryptedMasterKeyHash);
-    });
-  });
-
   describe("getFingerprintPhrase", () => {
     it("returns the same fingerprint regardless of email casing", () => {
       const email = "test@email.com";

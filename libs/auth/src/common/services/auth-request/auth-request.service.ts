@@ -153,12 +153,12 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
-    const decryptedUserKeyBytes = await this.encryptService.rsaDecrypt(
+    const decryptedUserKey = await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedUserKey),
       privateKey,
     );
 
-    return new SymmetricCryptoKey(decryptedUserKeyBytes) as UserKey;
+    return decryptedUserKey as UserKey;
   }
 
   async decryptPubKeyEncryptedMasterKeyAndHash(
