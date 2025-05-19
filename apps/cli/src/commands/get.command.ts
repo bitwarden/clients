@@ -456,7 +456,6 @@ export class GetCommand extends DownloadCommand {
       decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
-        `orgkey-${options.organizationId}`,
       );
       const groups =
         response.groups == null
