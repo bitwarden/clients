@@ -2,13 +2,13 @@ import { AsyncPipe, CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { firstValueFrom, Observable, switchMap } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { NudgesService, NudgeType } from "@bitwarden/vault";
 
 @Component({
   standalone: true,

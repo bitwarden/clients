@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { combineLatest, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,7 +20,6 @@ import {
   SendListItemsContainerComponent,
   SendSearchComponent,
 } from "@bitwarden/send-ui";
-import { NudgesService, NudgeType } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";

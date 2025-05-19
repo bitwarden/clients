@@ -6,6 +6,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService } from "@bitwarden/angular/vault";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -30,7 +31,6 @@ import {
   SendListFiltersComponent,
   SendListFiltersService,
 } from "@bitwarden/send-ui";
-import { NudgesService } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
