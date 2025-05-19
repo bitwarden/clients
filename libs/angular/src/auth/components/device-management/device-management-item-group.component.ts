@@ -2,10 +2,10 @@ import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { BadgeModule, DialogService, ItemModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DeviceDisplayData } from "./device-management.component";
 
@@ -14,7 +14,7 @@ import { DeviceDisplayData } from "./device-management.component";
   standalone: true,
   selector: "auth-device-management-item-group",
   templateUrl: "./device-management-item-group.component.html",
-  imports: [BadgeModule, CommonModule, ItemModule, JslibModule],
+  imports: [BadgeModule, CommonModule, ItemModule, I18nPipe],
 })
 export class DeviceManagementItemGroupComponent {
   @Input() devices: DeviceDisplayData[] = [];

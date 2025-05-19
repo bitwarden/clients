@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { catchError, combineLatest, finalize, map, Observable, of } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
@@ -13,6 +12,7 @@ import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/de
 import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, PopoverModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DeviceManagementItemGroupComponent } from "./device-management-item-group.component";
 import { DeviceManagementTableComponent } from "./device-management-table.component";
@@ -45,7 +45,7 @@ export interface DeviceDisplayData {
     CommonModule,
     DeviceManagementItemGroupComponent,
     DeviceManagementTableComponent,
-    JslibModule,
+    I18nPipe,
     PopoverModule,
   ],
 })

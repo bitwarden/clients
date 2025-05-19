@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,6 +13,7 @@ import {
   TableDataSource,
   TableModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DeviceDisplayData } from "./device-management.component";
 
@@ -22,7 +22,7 @@ import { DeviceDisplayData } from "./device-management.component";
   standalone: true,
   selector: "auth-device-management-table",
   templateUrl: "./device-management-table.component.html",
-  imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
+  imports: [BadgeModule, ButtonModule, CommonModule, I18nPipe, LinkModule, TableModule],
 })
 export class DeviceManagementTableComponent implements OnInit {
   @Input() devices: DeviceDisplayData[] = [];
