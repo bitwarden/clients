@@ -133,7 +133,7 @@ export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType
  *
  * @returns The localized header message string, or undefined if the type is not recognized.
  */
-function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
+export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
   if (error) {
     return i18n.saveFailure;
   }
