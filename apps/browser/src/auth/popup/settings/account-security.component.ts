@@ -43,6 +43,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogRef,
   CardComponent,
@@ -142,6 +143,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
+    private validationService: ValidationService,
   ) {}
 
   async ngOnInit() {
@@ -505,12 +507,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           await this.biometricStateService.setFingerprintValidated(false);
         }
       } catch (error) {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorEnableBiometricTitle"),
-          message: error?.message,
-        });
         this.form.controls.biometric.setValue(false);
+        this.validationService.showError(error);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);
