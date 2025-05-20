@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Yeni kayıt (yeni pencerede açılır)",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Kaydetmeden önce düzenle",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ Bitwarden'a kaydedildi.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "Bitwarden’a kaydedildi.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ Bitwarden'da güncellendi.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "Bitwarden’da güncellendi.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Seç: $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Yeni hesap olarak kaydet",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Hesabı güncelle",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Bu hesabı kaydetmek için kilidi açın",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Hesabı kaydet",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Otomatik doldurma önerileri"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Otomatik doldurma önerilerini kolayca bulun"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Bitwarden ile çakışmaması için tarayıcınızın otomatik doldurma ayarını kapatın."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "$BROWSER$ ile otomatik doldurmayı kapat",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Otomatik doldurmayı kapat"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Zaman aşımı eylemi"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Yeni özelleştirme seçenekleri"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Görünüm ayarlarının hepsini göster"
   },
   "lock": {
     "message": "Kilitle",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Şimdi bitwarden.com’dan indirin"
   },
+  "getItOnGooglePlay": {
+    "message": "Google Play'den edinin"
+  },
+  "downloadOnTheAppStore": {
+    "message": "App Store'dan indirin"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bu dosyayı kalıcı olarak silmek istediğinizden emin misiniz?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Bitwarden mobil, tarayıcı ve masaüstü uygulamalarıyla istediğiniz kadar cihaza istediğiniz kadar parola kaydedebilirsiniz."
   },
+  "nudgeBadgeAria": {
+    "message": "1 bildirim"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Mevcut parolaları içe aktar"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Kasanıza hoş geldiniz!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
@@ -5306,5 +5340,8 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Bu sayfayı görüntüleme izniniz yok. Farklı bir hesapla giriş yapmayı deneyin."
   }
 }

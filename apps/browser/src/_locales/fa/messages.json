@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "لوگو Bitwarden"
   },
   "extName": {
     "message": "مدیریت رمز عبور Bitwarden",
@@ -17,22 +17,22 @@
     "message": "وارد شوید یا یک حساب کاربری بسازید تا به گاوصندوق امن‌تان دسترسی یابید."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "دعوتنامه پذیرفته شد"
   },
   "createAccount": {
     "message": "ایجاد حساب کاربری"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "در Bitwarden تازه وارد هستید؟"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "با کلید عبور وارد شوید"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "استفاده از ورود تک مرحله‌ای"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "خوش آمدید"
   },
   "setAStrongPassword": {
     "message": "تنظیم رمز عبور قوی"
@@ -65,7 +65,7 @@
     "message": "یادآور کلمه عبور اصلی کمک می‌کند در صورت فراموشی آن را به یاد بیارید."
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "اگر کلمه عبور خود را فراموش کنید، یادآور کلمه عبور می‌تواند به ایمیل شما ارسال شود. حداکثر $CURRENT$/$MAXIMUM$ کاراکتر.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -84,7 +84,7 @@
     "message": "یادآور کلمه عبور اصلی (اختیاری)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "امتیاز قدرت کلمه عبور $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -93,10 +93,10 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "به سازمان بپیوندید"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "به $ORGANIZATIONNAME$ بپیوندید",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "با تعیین یک کلمه عبور اصلی، عضویت خود در این سازمان را کامل کنید."
   },
   "tab": {
     "message": "زبانه"
@@ -132,7 +132,7 @@
     "message": "کپی کلمه عبور"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "کپی عبارت عبور"
   },
   "copyNote": {
     "message": "کپی یادداشت"
@@ -150,31 +150,31 @@
     "message": "کپی کد امنیتی"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "کپی نام"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "کپی شرکت"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "کپی شماره کد ملی"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "کپی شماره گذرنامه"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "کپی شماره گواهینامه"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "کپی کلید خصوصی"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "کپی کلید عمومی"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "کپی اثر انگشت"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "کپی $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -183,17 +183,17 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "کپی وب‌سایت"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "کپی یادداشت‌ها"
   },
   "copy": {
-    "message": "Copy",
+    "message": "کپی",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "پر کردن",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -209,10 +209,10 @@
     "message": "پر کردن خودکار هویت"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "پر کردن کد تأیید"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "پر کردن کد تأیید",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -255,16 +255,16 @@
     "message": "افزودن مورد"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "حساب ایمیل"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "درخواست راهنمایی"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "درخواست یادآور کلمه عبور"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "نشانی ایمیل حساب کاربری خود را وارد کنید تا راهنمای کلمه عبور برای شما ارسال شود"
   },
   "getMasterPasswordHint": {
     "message": "دریافت یادآور کلمه عبور اصلی"
@@ -291,13 +291,13 @@
     "message": "تغییر کلمه عبور اصلی"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "با برنامه وب ادامه می‌دهید؟"
   },
   "continueToWebAppDesc": {
     "message": "ویژگی‌های بیشتر حساب Bitwarden خود را در برنامه وب کاوش کنید."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "به مرکز راهنمایی ادامه می‌دهید؟"
   },
   "continueToHelpCenterDesc": {
     "message": "درباره استفاده از Bitwarden در مرکز راهنما بیشتر بیاموزید."
@@ -309,7 +309,7 @@
     "message": "به دیگران کمک کنید تا بفهمند آیا Bitwarden برایشان مناسب است یا نه. به فروشگاه افزونه مرورگر خود بروید و نظر خود را به اشتراک بگذارید."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "می‌توانید کلمه عبور اصلی خود را در برنامه وب Bitwarden تغییر دهید."
   },
   "fingerprintPhrase": {
     "message": "عبارت اثر انگشت",
@@ -332,10 +332,10 @@
     "message": "درباره"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "موارد بیشتر از Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "به bitwarden.com ادامه می‌دهید؟"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden برای کسب و کارها"
@@ -344,25 +344,25 @@
     "message": "تاییدکننده هویت Bitwarden"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "احراز هویت کننده Bitwarden به شما امکان می‌دهد کلیدهای احراز هویت را ذخیره کرده و کدهای TOTP را برای فرآیندهای تأیید دومرحله‌ای تولید کنید. برای اطلاعات بیشتر به وب‌سایت bitwarden.com مراجعه کنید"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Secrets Manager"
+    "message": "مدیر اسرار Bitwarden"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
+    "message": "اسرار توسعه دهنده را با مدیر اسرا Bitwarden به‌صورت ایمن ذخیره، مدیریت و به اشتراک بگذارید. برای اطلاعات بیشتر به وب‌سایت bitwarden.com مراجعه کنید."
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
   },
   "continueToPasswordlessDotDevPageDesc": {
-    "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
+    "message": "با استفاده از Passwordless.dev تجربه‌های ورود روان و ایمنی را بدون نیاز به کلمات عبور سنتی ایجاد کنید. برای اطلاعات بیشتر به وب‌سایت bitwarden.com مراجعه کنید."
   },
   "freeBitwardenFamilies": {
     "message": "خانواده‌های رایگان Bitwarden"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
+    "message": "شما واجد شرایط استفاده رایگان از Bitwarden Families هستید. این پیشنهاد را امروز در نسخه وب دریافت کنید."
   },
   "version": {
     "message": "نسخه"
@@ -383,7 +383,7 @@
     "message": "ويرايش پوشه"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "ویرایش پوشه: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -392,22 +392,22 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "پوشه جدید"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "نام پوشه"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "برای تو در تو کردن یک پوشه، نام پوشه والد را وارد کرده و سپس یک “/” اضافه کنید. مثال: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "هیچ پوشه‌ای اضافه نشد"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "برای سامان‌دهی موردهای گاوصندوق خود پوشه ایجاد کنید"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "مطمئنید می‌خواهید این پوشه را برای همیشه پاک کنید؟"
   },
   "deleteFolder": {
     "message": "حذف پوشه"
@@ -450,7 +450,7 @@
     "message": "به طور خودکار کلمه‌های عبور قوی و منحصر به فرد برای ورود به سیستم خود ایجاد کنید."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "برنامه وب Bitwarden"
   },
   "importItems": {
     "message": "درون ریزی موارد"
@@ -462,19 +462,19 @@
     "message": "تولید کلمه عبور"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "تولید عبارت عبور"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "کلمه عبور تولید شد"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "عبارت عبور تولید شد"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "نام کاربری تولید شد"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "ایمیل تولید شد"
   },
   "regeneratePassword": {
     "message": "تولید مجدد کلمه عبور"
@@ -486,11 +486,11 @@
     "message": "طول"
   },
   "include": {
-    "message": "Include",
+    "message": "شامل",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "شامل حروف بزرگ باشد",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -498,7 +498,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "شامل حروف کوچک باشد",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -506,7 +506,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "شامل اعداد",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -514,7 +514,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "افزودن کاراکترهای خاص",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -537,11 +537,11 @@
     "message": "حداقل حرف خاص"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "از کاراکترهای مبهم خودداری کن",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "نیازمندی‌های سیاست سازمانی بر گزینه‌های تولید کننده شما اعمال شده‌اند.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
@@ -566,7 +566,7 @@
     "message": "کلمه عبور"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "کلید مخفی احراز کننده هویت‌"
   },
   "passphrase": {
     "message": "عبارت عبور"
@@ -587,7 +587,7 @@
     "message": "یادداشت‌ها"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "یادداشت خصوصی"
   },
   "note": {
     "message": "یادداشت"
@@ -608,10 +608,10 @@
     "message": "راه اندازی"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "باز کردن وب‌سایت"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "باز کردن وب‌سایت $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -632,19 +632,19 @@
     "message": "ساير"
   },
   "unlockMethods": {
-    "message": "Unlock options"
+    "message": "باز کردن امکانات"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "یک روش بازگشایی برای پایان زمان مجاز تنظیم کنید."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "یک روش باز کردن قفل را در تنظیمات راه‌اندازی کنید"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "پایان زمان نشست"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "متوقف شدن گاو‌صندوق"
   },
   "otherOptions": {
     "message": "سایر گزینه‌ها"
@@ -656,25 +656,25 @@
     "message": "مرورگر شما از کپی کلیپ بورد آسان پشتیبانی نمی‌کند. به جای آن به صورت دستی کپی کنید."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "هویت خود را تأیید کنید"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "ما این دستگاه را نمی‌شناسیم. برای تأیید هویت خود، کدی را که به ایمیلتان ارسال شده وارد کنید."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "ادامه ورود"
   },
   "yourVaultIsLocked": {
     "message": "گاوصندوق شما قفل شده است. برای ادامه هویت خود را تأیید کنید."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "گاوصندوق‌تان قفل شد"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "حساب شما قفل شده است"
   },
   "or": {
-    "message": "or"
+    "message": "یا"
   },
   "unlock": {
     "message": "باز کردن قفل"
@@ -699,13 +699,13 @@
     "message": "متوقف شدن گاو‌صندوق"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "پایان زمان"
   },
   "lockNow": {
     "message": "الان قفل شود"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "قفل کردن همه"
   },
   "immediately": {
     "message": "بلافاصله"
@@ -753,16 +753,16 @@
     "message": "امنیت"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "تأیید کلمه عبور اصلی"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "کلمه عبور اصلی"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "کلمه‌های عبور اصلی در صورت فراموشی قابل بازیابی نیستند!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "یادآور کلمه عبور اصلی"
   },
   "errorOccurred": {
     "message": "خطایی رخ داده است"
@@ -796,10 +796,10 @@
     "message": "حساب کاربری جدید شما ساخته شد! حالا می‌توانید وارد شوید."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "حساب جدید شما ایجاد شده است!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "شما با موفقیت وارد شدید!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "شما با موفقیت وارد شدید"
@@ -814,7 +814,7 @@
     "message": "کد تأیید مورد نیاز است."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "احراز هویت لغو شد یا بیش از حد طول کشید. لطفاً دوباره تلاش کنید."
   },
   "invalidVerificationCode": {
     "message": "کد تأیید نامعتبر است"
@@ -833,7 +833,7 @@
     "message": "ناتوان در پر کردن خودکار مورد انتخاب شده در این صفحه. اطلاعات را کپی و جای‌گذاری کنید."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "امکان اسکن کد QR از صفحه وب فعلی وجود ندارد"
   },
   "totpCaptureSuccess": {
     "message": "کلید احراز هویت اضافه شد"
@@ -890,10 +890,10 @@
     "message": "Follow the steps below to finish logging in with your security key."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "ثبت‌نام را دوباره آغاز کنید"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "پیوند منقضی شد"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -911,7 +911,7 @@
     "message": "خیر"
   },
   "location": {
-    "message": "Location"
+    "message": "موقعیت"
   },
   "unexpectedError": {
     "message": "یک خطای غیر منتظره رخ داده است."
@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Edit before saving",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ saved to Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ updated in Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Update login",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Save login",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autofill suggestions"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Timeout action"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "قفل",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Download from bitwarden.com now"
   },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Import existing passwords"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
@@ -5306,5 +5340,8 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

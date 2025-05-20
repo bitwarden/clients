@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Neuer Eintrag, öffnet sich in neuem Fenster",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Vor dem Speichern bearbeiten",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ in Bitwarden gespeichert.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "in Bitwarden gespeichert.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ in Bitwarden aktualisiert.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "in Bitwarden aktualisiert.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ auswählen",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Als neue Zugangsdaten speichern",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Zugangsdaten aktualisieren",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Entsperren, um diese Zugangsdaten zu speichern",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Zugangsdaten speichern",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Vorschläge zum Auto-Ausfüllen"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Auto-Ausfüllen-Vorschläge einfach finden"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Deaktiviere die Auto-Ausfüllen-Einstellungen deines Browsers, damit sie nicht mit Bitwarden in Konflikt geraten."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "$BROWSER$ Auto-Ausfüllen deaktivieren",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Auto-Ausfüllen deaktivieren"
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Timeout-Aktion"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Neue Personalisierungs-Optionen"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Personalisiere deinen Tresor mit Schnellkopier-Aktionen, Kompaktmodus und mehr!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Alle Aussehen-Einstellungen anzeigen"
   },
   "lock": {
     "message": "Sperren",
@@ -4519,19 +4538,25 @@
     "message": "Bitwarden auf allen Geräten herunterladen"
   },
   "getTheMobileApp": {
-    "message": "Get the mobile app"
+    "message": "Smartphone-App herunterladen"
   },
   "getTheMobileAppDesc": {
-    "message": "Access your passwords on the go with the Bitwarden mobile app."
+    "message": "Greife von unterwegs mit der Bitwarden Smartphone-App auf deine Passwörter zu."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "Desktop-App herunterladen"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Greife ohne Browser auf deinen Tresor zu und richte dann das Entsperren mit Biometrie ein, um die Entsperrung sowohl in der Desktop-App als auch in der Browser-Erweiterung zu beschleunigen."
   },
   "downloadFromBitwardenNow": {
-    "message": "Download from bitwarden.com now"
+    "message": "Jetzt von bitwarden.com herunterladen"
+  },
+  "getItOnGooglePlay": {
+    "message": "Verfügbar bei Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Im App Store herunterladen"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Speicher eine unbegrenzte Anzahl von Passwörtern auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   },
+  "nudgeBadgeAria": {
+    "message": "1 Benachrichtigung"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Vorhandene Passwörter importieren"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Willkommen in deinem Tresor!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Auto-Ausfüllen-Einträge für die aktuelle Seite\nFavoriten-Einträge für einfachen Zugriff\nDurchsuche deinen Tresor nach etwas anderem"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favoriten-Einträge für einfachen Zugriff"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Deinen Tresor nach etwas anderem durchsuchen"
   },
   "newLoginNudgeTitle": {
     "message": "Spare Zeit mit Auto-Ausfüllen"
@@ -5306,5 +5340,8 @@
     "message": "Erfahre mehr über den SSH-Agenten",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
   }
 }

@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Пазначыць праграму як крытычную"
   },
-  "appsMarkedAsCritical": {
-    "message": "Праграмы пазначаныя як крытычныя"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Праграма"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Гэтыя ўдзельнікі ўваходзяць у праграму з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Гэтыя праграмы маюць ненадзейныя, скампраметаваныя або паўторна выкарыстаныя паролі."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Гэтыя ўдзельнікі ўваходзяць у праграму $APPNAME$ з ненадзейнымі, скампраметаванымі або паўторна выкарыстанымі паролямі.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Пасля абнаўлення вашага ключа шыфравання вам неабходна выйсці з сістэмы, а потым выканаць паўторны ўваход ва ўсе праграмы Bitwarden, якія вы зараз выкарыстоўваеце (напрыклад, мабільныя праграмы або пашырэнні для браўзераў). Збой пры выхадзе і паўторным уваходзе (пры гэтым спампоўваецца ваш новы ключ шыфравання) можа стаць прычынай пашкоджання даных. Мы паспрабуем аўтаматычна ажыццявіць завяршэнне ўсіх вашых сеансаў, але гэта можа адбывацца з затрымкай."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Любыя зашыфраваныя экспартаванні, якія вы захавалі, таксама стануць памылковымі."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Падпіска"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }
