@@ -2,7 +2,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
-import { PasswordInputResult } from "../input-password/password-input-result";
+import { PasswordInputResult } from "../../input-password/password-input-result";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums

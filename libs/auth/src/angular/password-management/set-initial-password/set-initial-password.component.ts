@@ -18,12 +18,12 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CalloutComponent, DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
+import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
-} from "../input-password/input-password.component";
-import { PasswordInputResult } from "../input-password/password-input-result";
+} from "../../input-password/input-password.component";
+import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import {
   SetInitialPasswordService,

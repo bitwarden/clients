@@ -23,7 +23,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-import { PasswordInputResult } from "../input-password/password-input-result";
+import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
