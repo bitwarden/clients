@@ -511,7 +511,21 @@ export const CompactMode: Story = {
       const compact = canvasEl.querySelector(
         `#${containerId} [data-testid=popup-layout-scroll-region]`,
       );
-      const label = canvasEl.querySelector(`#${containerId} .example-label`);
+
+      if (!compact) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} [data-testid=popup-layout-scroll-region] not found`);
+        return;
+      }
+
+      const label = canvasEl.querySelector(`#${containerId} `);
+
+      if (!label) {
+        // eslint-disable-next-line
+        console.error(`#${containerId} .example-label not found`);
+        return;
+      }
+
       const percentVisible =
         100 -
         Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
