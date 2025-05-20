@@ -307,6 +307,8 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+      RouterService,
+      AcceptOrganizationInviteService,
     ],
   }),
   safeProvider({
