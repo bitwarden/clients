@@ -146,6 +146,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
+      this.serviceContainer.i18nService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
