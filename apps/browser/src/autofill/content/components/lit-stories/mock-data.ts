@@ -127,6 +127,7 @@ export const mockI18n = {
   notificationUnlock: "Unlock",
   notificationUnlockDesc: "Unlock your Bitwarden vault to complete the autofill request.",
   notificationViewAria: `View $ITEMNAME$, opens in new window`,
+  notificationNewItemAria: "New Item, opens in new window",
   saveAction: "Save",
   saveAsNewLoginAction: "Save as new login",
   saveFailure: "Error saving",

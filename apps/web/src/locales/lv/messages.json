@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Atzīmēt lietotni kā kritisku"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Lietotnes, kas atzīmētas kā kritiskas"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Šie dalībnieki piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Nav dalībnieku, kas piesakās lietotnēs ar vājām, atklātām vai atkārtoti izmantotām parolēm."
+  },
   "atRiskApplicationsDescription": {
     "message": "Šīm lietotnēm ir vājas, atklātas vai atkārtoti izmantotas paroles."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Nav lietotņu ar vājām, atklātām vai atkārtoti izmantotām parolēm."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Šie dalībnieki piesakās $APPNAME$ ar vājām, atklātām vai atkārtoti izmantotām parolēm.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ nav riskam pakļautu dalībnieku.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -411,10 +426,10 @@
     "message": "Padarīt divpakāpju apliecināšanu plūdenu"
   },
   "totpHelper": {
-    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecināšanas kodus. Atslēga jāievieto starpliktuvē un jāielīmē šajā laukā."
+    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecinājuma kodus. Atslēga jāievieto starpliktuvē un jāielīmē šajā laukā."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecināšanas kodus. Jāizvēlas kameras ikona, lai veiktu tīmekļvietnes autentificētāja kvadrātkoda ekrānuzņēmumu, vai jāievieto starpliktuvē atslēga un jāielīmē šajā laukā."
+    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecinājuma kodus. Jāizvēlas kameras ikona, lai veiktu tīmekļvietnes autentificētāja kvadrātkoda ekrānuzņēmumu, vai jāievieto starpliktuvē atslēga un jāielīmē šajā laukā."
   },
   "learnMoreAboutAuthenticators": {
     "message": "Uzzināt vairāk par autentificētājiem"
@@ -1430,7 +1445,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "E-pasts apstiprināšanai nosūtīts uz $EMAIL$.",
+    "message": "Apliecinājuma e-pasta ziņojums nosūtīts uz $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1563,10 +1578,10 @@
     }
   },
   "verificationCodeTotp": {
-    "message": "Apstiprinājuma kods (TOTP)"
+    "message": "Apliecinājuma kods (TOTP)"
   },
   "copyVerificationCode": {
-    "message": "Ievietot apstiprinājuma kodu starpliktuvē"
+    "message": "Ievietot apliecinājuma kodu starpliktuvē"
   },
   "copyUuid": {
     "message": "Ievietot UUID starpliktuvē"
@@ -1761,7 +1776,7 @@
     "message": "Kods"
   },
   "changeEmailDesc": {
-    "message": "Uz e-pasta adresi $EMAIL$ ir nosūtīts apstiprinājuma kods. Lūgums pārbaudīt e-pastu, vai tas ir saņemts, un ievadīt kodu zemāk esošajā laukā, lai pabeigtu e-pasta adreses maiņu.",
+    "message": "Uz e-pasta adresi $EMAIL$ ir nosūtīts apliecinājums kods. Lūgums pārbaudīt e-pastu, vai tas ir saņemts, un ievadīt kodu zemāk esošajā laukā, lai pabeigtu e-pasta adreses nomaiņu.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1870,13 +1885,13 @@
     "message": "Ieslēgt pieteikšanās jaunā ierīcē aizsardzību"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Turpināt zemāk, lai izslēgtu apliecināšanas e-pasta ziņojumus, ko Bitwarden sūta, kad notiek pieteikšanās jaunā ierīcē."
+    "message": "Turpināt zemāk, lai izslēgtu apliecinājuma e-pasta ziņojumus, ko Bitwarden sūta, kad notiek pieteikšanās jaunā ierīcē."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Turpināt zemāk, lai Bitwarden sūtītu apliecināšanas e-pasta ziņojumus, kad notiek pieteikšanās jaunā ierīcē."
+    "message": "Turpināt zemāk, lai Bitwarden sūtītu apliecinājuma e-pasta ziņojumus, kad notiek pieteikšanās jaunā ierīcē."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "Ar izslēgtu pieteikšanās jaunā ierīcē aizsardzību ikviens ar Tavu galveno paroli var piekļūt kontam no jebkuras ierīces. Lai aizsargātu savu kontu bez apliecināšanas e-pasta ziņojumiem, jāiestata divpakāpju pieteikšanās."
+    "message": "Ar izslēgtu pieteikšanās jaunā ierīcē aizsardzību ikviens ar Tavu galveno paroli var piekļūt kontam no jebkuras ierīces. Lai aizsargātu savu kontu bez apliecinājuma e-pasta ziņojumiem, jāiestata divpakāpju pieteikšanās."
   },
   "accountNewDeviceLoginProtectionSaved": {
     "message": "Pieteikšanās jaunā ierīcē aizsardzības izmaiņas saglabātas"
@@ -2348,10 +2363,10 @@
     "message": "Jāizpilda šie soļi, lai uzstādītu divpakāpju pieteikšanos ar e-pastu:"
   },
   "twoFactorEmailEnterEmail": {
-    "message": "Ievadīt e-pasta adresi, uz kuru saņemt apstiprināšanas kodus"
+    "message": "Ievadīt e-pasta adresi, kurā saņemt apliecinājuma kodus"
   },
   "twoFactorEmailEnterCode": {
-    "message": "Jāievada e-pastā saņemtais 6 ciparu apstiprinājuma kods"
+    "message": "Jāievada e-pastā saņemtais 6 ciparu apliecinājuma kods"
   },
   "sendEmail": {
     "message": "Nosūtīt e-pastu"
@@ -2696,7 +2711,7 @@
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP apstiprinājuma koda (2FA) veidotājs glabātavas pieteikšanās vienumiem."
+    "message": "TOTP apliecinājuma koda (2FA) veidotājs glabātavas pieteikšanās vienumiem."
   },
   "premiumSignUpSupport": {
     "message": "Priekšrocīgs lietotāju atbalsts."
@@ -4046,7 +4061,7 @@
     "message": "Vispirms ir jāapstiprina konta e-pasta adrese."
   },
   "checkInboxForVerification": {
-    "message": "E-pasta iesūtnē jāmeklē ziņojums ar apstiprinājuma saiti."
+    "message": "E-pasta iesūtnē jāmeklē ziņojums ar apliecinājuma saiti."
   },
   "emailVerified": {
     "message": "E-pasta adrese ir apstiprināta."
@@ -4055,13 +4070,13 @@
     "message": "E-pasta adrese ir apliecināta"
   },
   "emailVerifiedFailed": {
-    "message": "Nevar apstiprināt e-pasta adresi. Var mēģināt sūtīt atkārtotu apstiprinājuma e-pasta ziņojumu."
+    "message": "Nevar apliecināt e-pasta adresi. Jāmēģina nosūtīt jaunu apliecinājuma e-pasta ziņojumu."
   },
   "emailVerificationRequired": {
-    "message": "Nepieciešama e-pasta adreses apstiprināšana"
+    "message": "Nepieciešama e-pasta adreses apliecināšana"
   },
   "emailVerificationRequiredDesc": {
-    "message": "Ir jāapstiprina e-pasta adrese, lai izmantotu šo iespēju."
+    "message": "Ir jāapliecina sava e-pasta adrese, lai izmantotu šo iespēju."
   },
   "updateBrowser": {
     "message": "Atjaunināt pārlūku"
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Pēc šifrēšanas atslēgas atjaunināšanas ir nepieciešams atteikties un tad pieteikties visās Bitwarden lietotnēs, kas pašreiz tiek izmantotas (piemēram, tālruņa lietotnē vai pārlūku paplašinājumā). Ja tas netiks darīts (tā tiek lejupielādēta jaunā šifrēšanas atslēga), dati var tikt bojāti. Tiks veikts automātisks atteikšanās mēģinājums, tomēr tas var notikt ar aizkavi."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Arī katra šifrētā izguve, kas ir saglabāta, kļūs nederīga."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Jebkuras konta ierobežotās izguves, kas ir saglabātas, kļūs nederīgas."
   },
   "subscription": {
     "message": "Abonements"
@@ -6438,7 +6453,7 @@
     "message": "Key Connector URL"
   },
   "sendVerificationCode": {
-    "message": "Sūtīt apstiprinājuma kodu uz e-pastu"
+    "message": "Nosūtīt apliecinājuma kodu e-pastā"
   },
   "sendCode": {
     "message": "Nosūtīt kodu"
@@ -6447,19 +6462,19 @@
     "message": "Kods nosūtīts"
   },
   "verificationCode": {
-    "message": "Apstiprinājuma kods"
+    "message": "Apliecinājuma kods"
   },
   "confirmIdentity": {
     "message": "Jāapstiprina identitāte, lai turpinātu."
   },
   "verificationCodeRequired": {
-    "message": "Ir nepieciešams apstiprinājuma kods."
+    "message": "Apliecinājuma kods ir nepieciešams."
   },
   "webauthnCancelOrTimeout": {
     "message": "Autentifikācija tika atcelta vai tā aizņēma pārāk daudz laika. Lūgums mēģināt vēlreiz."
   },
   "invalidVerificationCode": {
-    "message": "Nederīgs apstiprinājuma kods"
+    "message": "Nederīgs apliecinājuma kods"
   },
   "convertOrganizationEncryptionDesc": {
     "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
@@ -7090,19 +7105,19 @@
     "description": "Part of a URL."
   },
   "deviceVerification": {
-    "message": "Ierīces apstiprināšana"
+    "message": "Ierīces apliecināšana"
   },
   "enableDeviceVerification": {
-    "message": "Iespējot ierīces apstiprināšanu"
+    "message": "Iespējot ierīces apliecināšanu"
   },
   "deviceVerificationDesc": {
-    "message": "Kad iespējots, apstiprinājuma kodi tiek sūtīti uz e-pasta adresi, kad notiek pieteikšanās no neatpazītas ierīces"
+    "message": "Kad iespējots, apliecinājuma kodi tiek sūtīti uz e-pasta adresi, kad notiek pieteikšanās no neatpazītas ierīces"
   },
   "updatedDeviceVerification": {
-    "message": "Atjaunināta ierīces apstiprināšana"
+    "message": "Atjaunināta ierīces apliecināšana"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "Vai tiešām vēlaties ieslēgt ierīces verifikāciju? Verifikācijas koda e-pasta ziņojumi tiks nosūtīti uz: $EMAIL$",
+    "message": "Vai tiešām ieslēgt ierīces apliecināšanu? Apliecinājuma koda e-pasta ziņojumi tiks nosūtīti uz: $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7813,7 +7828,7 @@
     "message": "Kopa"
   },
   "domainVerification": {
-    "message": "Domēna apstiprināšana"
+    "message": "Domēna apliecināšana"
   },
   "newDomain": {
     "message": "Jauns domēns"
@@ -7891,7 +7906,7 @@
     }
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Šai darbībai ir nepieciešama apliecināšana. Jāiestata PIN, lai turpinātu."
+    "message": "Šai darbībai ir nepieciešama apliecinājums. Jāiestata PIN, lai turpinātu."
   },
   "setPin": {
     "message": "Iestatīt PIN"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Apmaksa ar bankas kontu ir pieejama tikai klientiem Savienotajās Valstīs. Būs nepieciešams apliecināt savu bankas kontu. Mēs veiksim sīkiemaksu nākamās darba dienas vai divu laikā. Pēc tam šīs iemaksas uzdevuma aprakstā esošais kods būs jāievada pakalpojuma sniedzēja abonēšanas lapā, lai apliecinātu bankas kontu. Bankas konta apliecināšanas neveikšana beigsies ar nokavētu maksājumu un apturētu abonementu."
+  },
+  "clickPayWithPayPal": {
+    "message": "Lūgums klikšķināt pogu \"Apmaksāt ar PayPal, lai pievienotu savu maksājumu veidu."
   }
 }

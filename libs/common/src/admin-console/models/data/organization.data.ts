@@ -21,6 +21,7 @@ export class OrganizationData {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -87,6 +88,7 @@ export class OrganizationData {
     this.use2fa = response.use2fa;
     this.useApi = response.useApi;
     this.useSso = response.useSso;
+    this.useOrganizationDomains = response.useOrganizationDomains;
     this.useKeyConnector = response.useKeyConnector;
     this.useScim = response.useScim;
     this.useCustomPermissions = response.useCustomPermissions;

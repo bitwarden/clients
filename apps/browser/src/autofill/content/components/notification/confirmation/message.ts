@@ -8,7 +8,6 @@ import { spacing, themes, typography } from "../../constants/styles";
 export type NotificationConfirmationMessageProps = {
   buttonAria?: string;
   buttonText?: string;
-  error?: string;
   itemName?: string;
   message?: string;
   messageDetails?: string;
@@ -19,7 +18,6 @@ export type NotificationConfirmationMessageProps = {
 export function NotificationConfirmationMessage({
   buttonAria,
   buttonText,
-  error,
   itemName,
   message,
   messageDetails,
@@ -31,7 +29,7 @@ export function NotificationConfirmationMessage({
       ${message || buttonText
         ? html`
             <div class=${singleLineWrapperStyles}>
-              ${!error && itemName
+              ${itemName
                 ? html`
                     <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
                   `
