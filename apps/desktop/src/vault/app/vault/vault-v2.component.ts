@@ -9,7 +9,6 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-
 import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observable } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
@@ -74,7 +73,6 @@ import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-pr
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
 import { AssignCollectionsDesktopComponent } from "./assign-collections";
-import { FolderAddEditComponent } from "./folder-add-edit.component";
 import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
