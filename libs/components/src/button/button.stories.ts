@@ -1,4 +1,4 @@
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
@@ -7,11 +7,6 @@ import { ButtonComponent } from "./button.component";
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [Blah],
-    }),
-  ],
   args: {
     disabled: false,
     loading: false,
