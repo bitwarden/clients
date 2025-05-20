@@ -283,6 +283,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.environmentService,
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
+            this.serviceContainer.i18nService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);

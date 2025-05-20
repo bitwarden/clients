@@ -2,6 +2,7 @@ import { NgIf } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,7 +10,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
 
 import { SpotlightComponent } from "../../../components/spotlight/spotlight.component";
-import { NudgesService, NudgeType } from "../../../services/nudges.service";
 
 @Component({
   selector: "vault-new-item-nudge",
