@@ -25,6 +25,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -85,6 +86,7 @@ describe("AccountSecurityComponent", () => {
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ValidationService, useValue: mock<ValidationService>() },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
