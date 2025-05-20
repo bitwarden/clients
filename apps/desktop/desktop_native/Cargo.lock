@@ -934,6 +934,7 @@ dependencies = [
  "anyhow",
  "base64",
  "desktop_core",
+ "desktop_importer",
  "hex",
  "log",
  "napi",

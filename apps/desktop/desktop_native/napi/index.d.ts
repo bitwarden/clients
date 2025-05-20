@@ -198,3 +198,11 @@ export declare namespace logging {
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }
+export declare namespace chromium_importer {
+  export interface ProfileInfo {
+    name: string
+    folder: string
+  }
+  export function getInstalledBrowsers(): Promise<Array<string>>
+  export function getAvailableProfiles(browser: string): Promise<Array<ProfileInfo>>
+}

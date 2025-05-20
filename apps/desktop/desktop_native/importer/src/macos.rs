@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use aes::cipher::{BlockDecryptMut, KeyIvInit, block_padding::Pkcs7};
-use anyhow::{Result, anyhow};
-use home::home_dir;
+use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
+use anyhow::{anyhow, Result};
+use homedir::my_home;
 use pbkdf2::{hmac::Hmac, pbkdf2};
 use security_framework::passwords::get_generic_password;
 use sha1::Sha1;
@@ -27,11 +27,9 @@ pub fn get_browser_settings_directory(browser_name: &String) -> Result<PathBuf> 
     }
     let config = config.unwrap();
 
-    let home = home_dir();
-    if home.is_none() {
-        return Err(anyhow!("Home directory not found"));
-    }
-    let path = home.unwrap();
+    let path = my_home()
+        .map_err(|_| anyhow!("Home directory not found"))?
+        .ok_or_else(|| anyhow!("Home directory not found"))?;
 
     let path = path
         .join("Library/Application Support")

@@ -875,3 +875,36 @@ pub mod logging {
         fn flush(&self) {}
     }
 }
+
+#[napi]
+pub mod chromium_importer {
+    use desktop_importer::chromium::ProfileInfo as _ProfileInfo;
+
+    #[napi(object)]
+    pub struct ProfileInfo {
+        pub name: String,
+        pub folder: String,
+    }
+
+    impl From<_ProfileInfo> for ProfileInfo {
+        fn from(p: _ProfileInfo) -> Self {
+            ProfileInfo {
+                name: p.name,
+                folder: p.folder,
+            }
+        }
+    }
+
+    #[napi]
+    pub async fn get_installed_browsers() -> napi::Result<Vec<String>> {
+        desktop_importer::chromium::get_installed_browsers()
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
+        desktop_importer::chromium::get_available_profiles(&browser)
+            .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}

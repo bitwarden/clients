@@ -21,7 +21,7 @@ serde_json = { workspace = true }
 sha1 = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-security-framework = { workspace = true, optional = true }
+security-framework = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { workspace = true, features = ["dpapi", "memoryapi"] }
