@@ -343,7 +343,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get isExternalIdVisible(): boolean {
-    return !!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
   }
 
   protected get collectionId() {
