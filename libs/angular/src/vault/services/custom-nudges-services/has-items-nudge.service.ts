@@ -8,7 +8,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -23,7 +23,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
   vaultProfileService = inject(VaultProfileService);
   logService = inject(LogService);
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Error getting profile creation date");
@@ -51,7 +51,7 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
           };
           // permanently dismiss both the Empty Vault Nudge and Has Items Vault Nudge if the profile is older than 30 days
           await this.setNudgeStatus(nudgeType, dismissedStatus, userId);
-          await this.setNudgeStatus(VaultNudgeType.EmptyVaultNudge, dismissedStatus, userId);
+          await this.setNudgeStatus(NudgeType.EmptyVaultNudge, dismissedStatus, userId);
           return dismissedStatus;
         } else if (nudgeStatus.hasSpotlightDismissed) {
           return nudgeStatus;

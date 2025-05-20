@@ -65,12 +65,8 @@ export class ManageTaxInformationComponent implements OnInit, OnDestroy {
   };
 
   validate(): boolean {
-    if (this.formGroup.dirty) {
-      this.formGroup.markAllAsTouched();
-      return this.formGroup.valid;
-    } else {
-      return this.formGroup.valid;
-    }
+    this.formGroup.markAllAsTouched();
+    return this.formGroup.valid;
   }
 
   markAllAsTouched() {

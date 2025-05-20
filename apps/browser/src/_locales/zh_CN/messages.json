@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "新增项目，在新窗口中打开",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "保存前编辑",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ 已保存到 Bitwarden。",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "已保存到 Bitwarden。",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ 已在 Bitwarden 中更新。",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "已更新到 Bitwarden。",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "保存为新的登录",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "更新登录",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "解锁以保存此登录",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "保存登录",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "自动填充建议"
+  },
+  "autofillSpotlightTitle": {
+    "message": "轻松找到自动填充建议"
+  },
+  "autofillSpotlightDesc": {
+    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+  },
+  "turnOffBrowserAutofill": {
+    "message": "关闭 $BROWSER$ 的自动填充",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "关闭自动填充"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "超时动作"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "新的自定义选项"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "自定义您的密码库体验，包括快速复制操作、紧凑模式等！"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "查看所有外观设置"
   },
   "lock": {
     "message": "锁定",
@@ -4528,10 +4547,16 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "不使用浏览器访问您的密码库，然后设置生物识别解锁，从而在桌面 App 和浏览器扩展中实现快速解锁。"
+    "message": "无需浏览器也可访问您的密码库。在桌面 App 和浏览器扩展中设置生物识别解锁，以实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
+  },
+  "getItOnGooglePlay": {
+    "message": "从 Google Play 获取"
+  },
+  "downloadOnTheAppStore": {
+    "message": "从 App Store 下载"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您确定要永久删除此附件吗？"
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
   },
+  "nudgeBadgeAria": {
+    "message": "1 个通知"
+  },
   "emptyVaultNudgeTitle": {
     "message": "导入现有密码"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "欢迎来到您的密码库！"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "自动填充项目用于当前页面\n收藏夹项目用于轻松访问\n搜索密码库用于其他目的"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "自动填充项目用于当前页面"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "收藏项目用于轻松访问"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "搜索密码库用于其他"
   },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
@@ -5306,5 +5340,8 @@
     "message": "进一步了解 SSH 代理",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   }
 }

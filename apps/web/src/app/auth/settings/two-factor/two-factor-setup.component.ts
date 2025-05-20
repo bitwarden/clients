@@ -273,7 +273,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
     return this.apiService.getTwoFactorProviders();
   }
 
-  protected filterProvider(type: TwoFactorProviderType) {
+  protected filterProvider(type: TwoFactorProviderType): boolean {
     return type === TwoFactorProviderType.OrganizationDuo;
   }
 

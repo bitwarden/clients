@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Voeg Nuwe Item Toe"
   },
-  "addNewFolder": {
-    "message": "Voeg Nuwe Vouer Toe"
-  },
   "view": {
     "message": "Bekyk"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-bronadres",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Laai toeganklikheidskoekie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registreer as toeganklikheidsgebruiker by",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopieer en plak die skakel wat na die e-pos hier onder gestuur is"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Voer die bronadres in om die toeganklikheidskoekie vir hCaptcha te laai",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-bronadres word benodig",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ongeldige bronadres"
-  },
   "done": {
     "message": "Klaar"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Toeganklikheidskoekie is bewaar!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Geen toeganklikheidskoekie is bewaar nie"
   },
   "warning": {
     "message": "WAARSKUWING",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

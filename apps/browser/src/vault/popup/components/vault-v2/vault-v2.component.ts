@@ -16,6 +16,7 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -30,13 +31,7 @@ import {
   NoItemsModule,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  DecryptionFailureDialogComponent,
-  SpotlightComponent,
-  VaultIcons,
-  VaultNudgesService,
-  VaultNudgeType,
-} from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent, SpotlightComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -96,18 +91,16 @@ enum VaultState {
 export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(CdkVirtualScrollableElement) virtualScrollElement?: CdkVirtualScrollableElement;
 
-  VaultNudgeType = VaultNudgeType;
+  NudgeType = NudgeType;
   cipherType = CipherType;
   private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showEmptyVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
     switchMap((userId) =>
-      this.vaultNudgesService.showNudge$(VaultNudgeType.EmptyVaultNudge, userId),
+      this.nudgesService.showNudgeSpotlight$(NudgeType.EmptyVaultNudge, userId),
     ),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
   );
   showHasItemsVaultSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
-    switchMap((userId) => this.vaultNudgesService.showNudge$(VaultNudgeType.HasVaultItems, userId)),
-    map((nudgeStatus) => !nudgeStatus.hasSpotlightDismissed),
+    switchMap((userId) => this.nudgesService.showNudgeSpotlight$(NudgeType.HasVaultItems, userId)),
   );
 
   activeUserId: UserId | null = null;
@@ -159,7 +152,7 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private dialogService: DialogService,
     private vaultCopyButtonsService: VaultPopupCopyButtonsService,
     private introCarouselService: IntroCarouselService,
-    private vaultNudgesService: VaultNudgesService,
+    private nudgesService: NudgesService,
     private router: Router,
     private i18nService: I18nService,
   ) {
@@ -229,8 +222,8 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  async dismissVaultNudgeSpotlight(type: VaultNudgeType) {
-    await this.vaultNudgesService.dismissNudge(type, this.activeUserId as UserId);
+  async dismissVaultNudgeSpotlight(type: NudgeType) {
+    await this.nudgesService.dismissNudge(type, this.activeUserId as UserId);
   }
 
   protected readonly FeatureFlag = FeatureFlag;

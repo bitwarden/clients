@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Новый элемент"
   },
-  "addNewFolder": {
-    "message": "Новый папка"
-  },
   "view": {
     "message": "Вид"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Пароль к файлу\" и \"Подтверждение пароля к файлу\" не совпадают."
   },
-  "hCaptchaUrl": {
-    "message": "URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Загрузить cookie специальных возможностей"
-  },
-  "registerAccessibilityUser": {
-    "message": "Зарегистрироваться как пользователь специальных возможностей на",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Скопируйте и вставьте ниже ссылку, отправленную на вашу почту"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Введите URL для загрузки cookie специальных возможностей для hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Требуется URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Неверный URL"
-  },
   "done": {
     "message": "Готово"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie специальных возможностей сохранены!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Отсутствуют сохраненные cookie специальных возможностей"
   },
   "warning": {
     "message": "ВНИМАНИЕ",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Биометрическая разблокировка в настоящее время недоступна по неизвестной причине."
   },
+  "itemDetails": {
+    "message": "Информация об элементе"
+  },
+  "itemName": {
+    "message": "Название элемента"
+  },
+  "loginCredentials": {
+    "message": "Данные для авторизации"
+  },
+  "additionalOptions": {
+    "message": "Дополнительные настройки"
+  },
+  "itemHistory": {
+    "message": "История элемента"
+  },
+  "lastEdited": {
+    "message": "Последнее изменение"
+  },
+  "upload": {
+    "message": "Загрузить"
+  },
   "authorize": {
     "message": "Разрешить"
   },
@@ -3719,6 +3706,15 @@
   "move": {
     "message": "Переместить"
   },
+  "newFolder": {
+    "message": "Новая папка"
+  },
+  "folderName": {
+    "message": "Название папки"
+  },
+  "folderHintText": {
+    "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
+  },
   "newLoginNudgeTitle": {
     "message": "Экономьте время с помощью автозаполнения"
   },
@@ -3747,7 +3743,7 @@
     "message": "Упрощение создания аккаунтов"
   },
   "newIdentityNudgeBody": {
-    "message": "С помощью личностей можно быстро заполнять длинные регистрационные или контактные формы."
+    "message": "С помощью личной информации можно быстро заполнять длинные регистрационные или контактные формы."
   },
   "newNoteNudgeTitle": {
     "message": "Храните ваши конфиденциальные данные в безопасности"

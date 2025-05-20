@@ -7,7 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 /**
  * Custom Nudge Service Checking Nudge Status For Empty Vault
@@ -20,7 +20,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
