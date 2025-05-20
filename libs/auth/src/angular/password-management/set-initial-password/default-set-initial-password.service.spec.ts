@@ -28,6 +28,7 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
   SetInitialPasswordCredentials,
+  SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -113,7 +114,7 @@ describe("DefaultSetInitialPasswordService", () => {
       orgId = "orgId";
       resetPasswordAutoEnroll = false;
       userId = "userId" as UserId;
-      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER;
+      userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
 
       passwordInputResult = {
         newMasterKey: newMasterKey,
