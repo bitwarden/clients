@@ -83,7 +83,7 @@ describe("AutoSubmitLoginBackground", () => {
     jest.clearAllMocks();
   });
 
-  describe("when the AutoSubmitLoginBackground feature is disabled", () => {
+  describe("when conditions prevent auto-submit policy activation", () => {
     it("destroys all event listeners when the AutomaticAppLogIn policy is not enabled", async () => {
       automaticAppLogInPolicy$.next([mock<Policy>({ ...policyDetails, enabled: false })]);
 
@@ -109,7 +109,7 @@ describe("AutoSubmitLoginBackground", () => {
     });
   });
 
-  describe("when the AutoSubmitLoginBackground feature is enabled", () => {
+  describe("when the AutomaticAppLogIn policy is valid and active", () => {
     let webRequestDetails: chrome.webRequest.WebRequestBodyDetails;
 
     describe("starting the auto-submit login workflow", () => {
