@@ -1,13 +1,14 @@
-use anyhow::{Result, anyhow};
-use std::path::PathBuf;
+use anyhow::{anyhow, Result};
+use homedir::my_home;
+use std::path::PathBuf; // Added import
 
 use aes_gcm::aead::Aead;
 use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
+use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 
 use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
 use winapi::um::{dpapi::CryptUnprotectData, wincrypt::DATA_BLOB};
-use windows::Win32::Foundation::{HLOCAL, LocalFree};
+use windows::Win32::Foundation::{LocalFree, HLOCAL};
 
 use crate::chromium::{CryptoService, LocalState};
 
@@ -26,7 +27,9 @@ pub fn get_browser_settings_directory(browser_name: &str) -> Result<PathBuf> {
     let config = find_browser_config(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
-    let home_dir = home::home_dir().ok_or_else(|| anyhow!("Could not determine home directory"))?;
+    let home_dir = my_home() // Changed to my_home()
+        .map_err(|_| anyhow!("Could not determine home directory"))? // Adjusted error mapping
+        .ok_or_else(|| anyhow!("Could not determine home directory"))?;
 
     let path = home_dir
         .join("AppData")
@@ -236,7 +239,7 @@ fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
 
     unsafe {
         if !data_out.pbData.is_null() {
-            LocalFree(HLOCAL(data_out.pbData as *mut std::ffi::c_void));
+            LocalFree(Some(HLOCAL(data_out.pbData as *mut std::ffi::c_void)));
         }
     }
 
