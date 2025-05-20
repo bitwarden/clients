@@ -12,7 +12,7 @@ import { I18nMockService, ToastService } from "@bitwarden/components/src";
 
 import { canAccessFeature } from "./feature-flag.guard";
 
-@Component({ template: "" })
+@Component({ template: "", standalone: false })
 export class EmptyComponent {}
 
 describe("canAccessFeature", () => {

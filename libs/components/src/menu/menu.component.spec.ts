@@ -73,5 +73,6 @@ describe("Menu", () => {
       <a id="item2" bitMenuItem>Item 2</a>
     </bit-menu>
   `,
+  standalone: false,
 })
 class TestApp {}
