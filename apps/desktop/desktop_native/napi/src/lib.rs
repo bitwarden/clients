@@ -891,8 +891,9 @@ pub mod chromium_importer {
     pub struct LoginImportResult {
         pub url: String,
         pub username: String,
-        // pub password: String,
-        // pub note: String,
+        // TODO: Success/failure
+        pub password: String,
+        pub note: String,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
@@ -901,14 +902,14 @@ pub mod chromium_importer {
                 _LoginImportResult::Success(l) => LoginImportResult {
                     url: l.url,
                     username: l.username,
-                    // password: l.password,
-                    // note: l.note,
+                    password: l.password,
+                    note: l.note,
                 },
                 _LoginImportResult::Failure(l) => LoginImportResult {
                     url: l.url,
                     username: l.username,
-                    // password: l.password,
-                    // note: l.error,
+                    password: l.error.clone(),
+                    note: l.error.clone(),
                 },
             }
         }
