@@ -1,4 +1,4 @@
-import { argsToTemplate, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -47,13 +47,10 @@ type Story = StoryObj<BannerComponent>;
 
 export const Base: Story = {
   render: (args) => {
-    const { formattedNonFunctionArgs, functionArgKeys } =
-      formatArgsForCodeSnippet<BannerComponent>(args);
-
     return {
       props: args,
       template: `
-        <bit-banner ${formattedNonFunctionArgs} ${argsToTemplate(args, { include: functionArgKeys })}>
+        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
           Content Really Long Text Lorem Ipsum Ipsum Ipsum
           <button bitLink linkType="secondary">Button</button>
         </bit-banner>
