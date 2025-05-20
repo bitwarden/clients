@@ -18,14 +18,16 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { SharedModule } from "../../shared";
+
 export interface PurgeVaultDialogData {
   organizationId: string;
 }
 
 @Component({
-  selector: "app-purge-vault",
   templateUrl: "purge-vault.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule],
 })
 export class PurgeVaultComponent {
   organizationId: string = null;
