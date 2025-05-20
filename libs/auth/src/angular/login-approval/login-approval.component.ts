@@ -12,6 +12,7 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -145,20 +146,36 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     if (loginResponse.requestApproved) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t(
-          "logInConfirmedForEmailOnDevice",
+          "loginRequestApprovedForEmailOnDevice",
           this.email,
-          loginResponse.requestDeviceType,
+          this.formatDeviceTypeName(loginResponse.requestDeviceTypeValue),
         ),
       });
     } else {
       this.toastService.showToast({
         variant: "info",
-        title: null,
-        message: this.i18nService.t("youDeniedALogInAttemptFromAnotherDevice"),
+        title: "",
+        message: this.i18nService.t("youDeniedLoginAttemptFromAnotherDevice"),
       });
     }
+  }
+
+  formatDeviceTypeName(type: DeviceType): string {
+    if (type === undefined) {
+      return this.i18nService.t("unknownDevice");
+    }
+
+    const metadata = DeviceTypeMetadata[type];
+    if (!metadata) {
+      return this.i18nService.t("unknownDevice");
+    }
+
+    const platform =
+      metadata.platform === "Unknown" ? this.i18nService.t("unknown") : metadata.platform;
+    const category = this.i18nService.t(metadata.category);
+    return platform ? `${category} - ${platform}` : category;
   }
 
   updateTimeText() {

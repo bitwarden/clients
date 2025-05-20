@@ -1,0 +1,63 @@
+<bit-item-group>
+  <bit-item *ngFor="let device of devices">
+    @if (device.pendingAuthRequest) {
+      <button
+        class="tw-relative"
+        bit-item-content
+        type="button"
+        [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
+        (click)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
+        (keydown.enter)="approveOrDenyAuthRequest(device.pendingAuthRequest)"
+      >
+        <!-- Default Content -->
+        <span class="tw-text-base">{{ device.displayName }}</span>
+
+        <!-- Default Trailing Content -->
+        <span class="tw-absolute tw-top-[6px] tw-right-3" slot="default-trailing">
+          <span bitBadge variant="warning">
+            {{ "requestPending" | i18n }}
+          </span>
+        </span>
+
+        <!-- Secondary Content -->
+        <span slot="secondary" class="tw-text-sm">
+          <span>{{ "needsApproval" | i18n }}</span>
+          <div>
+            <span class="tw-font-semibold"> {{ "firstLogin" | i18n }}: </span>
+            <span>{{ device.firstLogin | date: "medium" }}</span>
+          </div>
+        </span>
+      </button>
+    } @else {
+      <bit-item-content ngClass="tw-relative">
+        <!-- Default Content -->
+        <span class="tw-text-base">{{ device.displayName }}</span>
+
+        <!-- Default Trailing Content -->
+        <div
+          *ngIf="device.isCurrentDevice"
+          class="tw-absolute tw-top-[6px] tw-right-3"
+          slot="default-trailing"
+        >
+          <span bitBadge variant="primary">
+            {{ "currentSession" | i18n }}
+          </span>
+        </div>
+
+        <!-- Secondary Content -->
+        <div slot="secondary" class="tw-text-sm">
+          @if (device.isTrusted) {
+            <span>{{ "trusted" | i18n }}</span>
+          } @else {
+            <br />
+          }
+
+          <div>
+            <span class="tw-font-semibold">{{ "firstLogin" | i18n }}: </span>
+            <span>{{ device.firstLogin | date: "medium" }}</span>
+          </div>
+        </div>
+      </bit-item-content>
+    }
+  </bit-item>
+</bit-item-group>
