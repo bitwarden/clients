@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Marcar a app como crítica"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marcadas como críticas"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Aplicações marcadas como críticas"
   },
   "application": {
     "message": "Aplicação"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Estes membros estão a iniciar sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Estes não são membros que iniciam sessão em aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  },
   "atRiskApplicationsDescription": {
     "message": "Estas aplicações têm palavras-passe fracas, expostas ou reutilizadas."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Não se trata de aplicações com palavras-passe fracas, expostas ou reutilizadas."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Estes membros estão a iniciar sessão no $APPNAME$ com palavras-passe fracas, expostas ou reutilizadas.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Não existem membros em risco para: $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Depois de atualizar a sua chave de encriptação, é necessário terminar sessão e voltar a iniciar em todas as aplicações Bitwarden que está a utilizar atualmente (como a aplicação móvel ou as extensões do navegador). A falha em terminar sessão e voltar a iniciar (que descarrega a sua nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, pode demorar."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Quaisquer exportações encriptadas que tenha guardado também se tornarão inválidas."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
   },
   "subscription": {
     "message": "Subscrição"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de subscrição do fornecedor para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
+  },
+  "clickPayWithPayPal": {
+    "message": "Por favor, clique no botão Pagar com PayPal para adicionar o seu método de pagamento."
   }
 }

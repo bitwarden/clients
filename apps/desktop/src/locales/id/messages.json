@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Tambahkan Item Baru"
   },
-  "addNewFolder": {
-    "message": "Tambahkan Folder Baru"
-  },
   "view": {
     "message": "Tampilan"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Muat cookie aksesibilitas"
-  },
-  "registerAccessibilityUser": {
-    "message": "Daftar sebagai pengguna aksesibilitas di",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Salin dan tempel tautan yang dikirimkan ke email Anda di bawah"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Masukkan URL untuk memuat cookie aksesibilitas untuk hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "url hCaptcha diperlukan",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Url tidak valid"
-  },
   "done": {
     "message": "Selesai"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie aksesibilitas disimpan!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Tidak ada cookie aksesibilitas yang disimpan"
   },
   "warning": {
     "message": "PERINGATAN",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

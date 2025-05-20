@@ -273,7 +273,7 @@
     "message": "Turpināt"
   },
   "sendVerificationCode": {
-    "message": "Sūtīt apstiprinājuma kodu uz e-pastu"
+    "message": "Nosūtīt apliecinājuma kodu e-pastā"
   },
   "sendCode": {
     "message": "Nosūtīt kodu"
@@ -282,7 +282,7 @@
     "message": "Kods nosūtīts"
   },
   "verificationCode": {
-    "message": "Apstiprināšanas kods"
+    "message": "Apliecinājuma kods"
   },
   "confirmIdentity": {
     "message": "Jāapliecina sava identitāte, lai turpinātu."
@@ -811,13 +811,13 @@
     "message": "Mēs nosūtījām galvenās paroles norādi e-pastā."
   },
   "verificationCodeRequired": {
-    "message": "Apstiprinājuma kods ir nepieciešams."
+    "message": "Apliecinājuma kods ir nepieciešams."
   },
   "webauthnCancelOrTimeout": {
     "message": "Autentifikācija tika atcelta vai tā aizņēma pārāk daudz laika. Lūgums mēģināt vēlreiz."
   },
   "invalidVerificationCode": {
-    "message": "Nederīgs apstiprinājuma kods"
+    "message": "Nederīgs apliecinājuma kods"
   },
   "valueCopied": {
     "message": "$VALUE$ ir starpliktuvē",
@@ -845,10 +845,10 @@
     "message": "Padarīt divpakāpju apliecināšanu plūdenu"
   },
   "totpHelper": {
-    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecināšanas kodus. Atslēga jāievieto starpliktuvē un jāielīmē šajā laukā."
+    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecinājuma kodus. Atslēga jāievieto starpliktuvē un jāielīmē šajā laukā."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecināšanas kodus. Jāizvēlas kameras ikona, lai veiktu tīmekļvietnes autentificētāja kvadrātkoda ekrānuzņēmumu, vai jāievieto starpliktuvē atslēga un jāielīmē šajā laukā."
+    "message": "Bitwarden var glabāt un aizpildīt divpakāpju apliecinājuma kodus. Jāizvēlas kameras ikona, lai veiktu tīmekļvietnes autentificētāja kvadrātkoda ekrānuzņēmumu, vai jāievieto starpliktuvē atslēga un jāielīmē šajā laukā."
   },
   "learnMoreAboutAuthenticators": {
     "message": "Uzzināt vairāk par autentificētājiem"
@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Jauns vienums, atvērsies jaunā logā",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Labot pirms saglabāšanas",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ saglabāts Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "saglabāts Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ atjaunināts Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "atjaunināts Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Atlasīt $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Saglabāt kā jaunu pieteikšanās vienumu",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Atjaunināt pieteikšanās vienumu",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Jāatslēdz, lai saglabātu šo pieteikšanās vienumu",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Saglabāt pieteikšanās vienumu",
@@ -1314,10 +1324,10 @@
     "message": "Autentificētāja atslēga (TOTP)"
   },
   "verificationCodeTotp": {
-    "message": "Apstiprinājuma kods (TOTP)"
+    "message": "Apliecinājuma kods (TOTP)"
   },
   "copyVerificationCode": {
-    "message": "Ievietot apstiprinājuma kodu starpliktuvē"
+    "message": "Ievietot apliecinājuma kodu starpliktuvē"
   },
   "attachments": {
     "message": "Pielikumi"
@@ -1389,7 +1399,7 @@
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."
   },
   "ppremiumSignUpTotp": {
-    "message": "TOTP apstiprinājuma koda (2FA) veidotājs glabātavas pieteikšanās vienumiem."
+    "message": "TOTP apliecinājuma koda (2FA) veidotājs glabātavas pieteikšanās vienumiem."
   },
   "ppremiumSignUpSupport": {
     "message": "Priekšrocīgs lietotāju atbalsts."
@@ -1437,7 +1447,7 @@
     "message": "Automātiski ievietot TOTP starpliktuvē"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apstiprinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne."
+    "message": "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apliecinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Palaižot vaicāt biometriju"
@@ -1455,7 +1465,7 @@
     "message": "Iestājās autentificēšanās sesijas noildze. Lūgums sākt pieteikšanos no jauna."
   },
   "verificationCodeEmailSent": {
-    "message": "E-pasts apstiprināšanai nosūtīts uz $EMAIL$.",
+    "message": "Apliecinājuma e-pasta ziņojums nosūtīts uz $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1589,6 +1599,24 @@
   "autofillSuggestionsSectionTitle": {
     "message": "Automātiskās aizpildes ieteikumi"
   },
+  "autofillSpotlightTitle": {
+    "message": "Viegla automātiskās aizpildes ieteikumu atrašana"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Jāizslēdz sava pārlūka automātiskās aizpildes iestatījumi, lai tie nebūtu pretrunā ar Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Izslēgt $BROWSER$ automātisko aizpildi",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Izslēgt automātisko aizpildi"
+  },
   "showInlineMenuLabel": {
     "message": "Rādīt automātiskās aizpildes ieteikumuis veidlapu laukos"
   },
@@ -1718,7 +1746,7 @@
     "description": "This describes a value that is 'linked' (tied) to another value."
   },
   "popup2faCloseMessage": {
-    "message": "Klikšķināšana ārpus uznirstošā loga, lai e-pastā apskatītu apstiprinājuma kodu, to aizvērs. Vai atvērt to atsevišķā logā, lai tas netiktu aizvērts?"
+    "message": "Klikšķināšana ārpus uznirstošā loga, lai e-pastā apskatītu apliecinājuma kodu, to aizvērs. Vai atvērt to atsevišķā logā, lai tas netiktu aizvērts?"
   },
   "popupU2fCloseMessage": {
     "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Noildzes darbība"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Jaunas pielāgošanas iespējas"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Savu glabātavas pieredzi var pielāgot ar ātrām kopēšanas darbībām, ciešo izkārtojumu un vēl."
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Apskatīt visus izskata iestatījumus"
   },
   "lock": {
     "message": "Slēgt",
@@ -2849,13 +2868,13 @@
     "message": "Šī darbība ir aizsargāta. Lai turpinātu, ir jāievada galvenā parole, lai apliecinātu savu identitāti."
   },
   "emailVerificationRequired": {
-    "message": "Nepieciešama e-pasta adreses apstiprināšana"
+    "message": "Nepieciešama e-pasta adreses apliecināšana"
   },
   "emailVerifiedV2": {
     "message": "E-pasta adrese ir apliecināta"
   },
   "emailVerificationRequiredDesc": {
-    "message": "Ir nepieciešams apstiprināt e-pasta adresi, lai būtu iespējams izmantot šo iespēju. To var izdarīt tīmekļa glabātavā."
+    "message": "Ir nepieciešams apliecināt savu e-pasta adresi, lai būtu iespējams izmantot šo iespēju. To var izdarīt tīmekļa glabātavā."
   },
   "updatedMasterPassword": {
     "message": "Galvenā parole atjaunināta"
@@ -3762,7 +3781,7 @@
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
-    "message": "Laikā balstīts vienreizējas izmantošanas paroles apliecināšanas kods",
+    "message": "Laikā balstīts vienreizējas izmantošanas paroles apliecinājuma kods",
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
@@ -3855,7 +3874,7 @@
     "message": "Jāmēģina vēlreiz"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Šai darbībai ir nepieciešama apliecināšana. Jāiestata PIN, lai turpinātu."
+    "message": "Šai darbībai ir nepieciešama apliecinājums. Jāiestata PIN, lai turpinātu."
   },
   "setPin": {
     "message": "Iestatīt PIN"
@@ -4001,7 +4020,7 @@
     "message": "Piekļuves atslēga netiks ievietota klonētajā vienumā. Vai turpināt šī vienuma klonēšanu?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
-    "message": "Vietne, kurā tika uzsākta darbība, pieprasa pārbaudi. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
+    "message": "Vietne, kurā tika uzsākta darbība, pieprasa apliecinājumu. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
   },
   "logInWithPasskeyQuestion": {
     "message": "Pieteikties ar piekļuves atslēgu?"
@@ -4532,6 +4551,12 @@
   },
   "downloadFromBitwardenNow": {
     "message": "Lejupielādē no bitwarden.com tagad"
+  },
+  "getItOnGooglePlay": {
+    "message": "Iegūt to Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Lejupielādēt no App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Vai tiešām neatgriezeniski izdzēst šo pielikumu?"
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden viedtālruņa, pārlūka un darbvirsmas lietotni."
   },
+  "nudgeBadgeAria": {
+    "message": "1 paziņojums"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Ievietot esošas paroles"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Laipni lūdzam Tavā glabātavā!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Automātiskās aizpldes vienumu pašreizējai lapai\nIzlases vienumi vieglai piekļuvei\nPārējo var meklēt glabātavā"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Automātiska pašreizējās lapas vienumu aizpildīšana"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Vienumu izlase vieglai piekļuvei"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Meklē savā glabātavā kaut ko citu"
   },
   "newLoginNudgeTitle": {
     "message": "Laika ietaupīšana ar automātisko aizpildi"
@@ -5306,5 +5340,8 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."
   }
 }
