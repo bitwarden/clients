@@ -346,10 +346,7 @@ export class AutofillComponent implements OnInit {
   }
 
   get spotlightButtonText() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
-      return this.i18nService.t("turnOffAutofill");
-    }
-    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
   }
 
   async dismissSpotlight() {
