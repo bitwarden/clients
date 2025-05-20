@@ -48,7 +48,8 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   }
 
   /**
-   * Initializes the auto-submit login policy.
+   * Initializes the auto-submit login policy. If the policy is not enabled, it
+   * will trigger a removal of any established listeners.
    */
   async init() {
     this.accountService.activeAccount$
