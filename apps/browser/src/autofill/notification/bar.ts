@@ -6,7 +6,7 @@ import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 import { NotificationCipherData } from "../content/components/cipher/types";
-import { CollectionView, OrgView } from "../content/components/common-types";
+import { CollectionView, I18n, OrgView } from "../content/components/common-types";
 import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
@@ -114,6 +114,68 @@ const findElementById = <ElementType extends HTMLElement>(
 };
 
 /**
+ * Returns the localized header message for the notification bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.saveLogin,
+        [NotificationTypes.Change]: i18n.updateLogin,
+        [NotificationTypes.Unlock]: i18n.unlockToSave,
+      }[type]
+    : undefined;
+}
+
+/**
+ * Returns the localized header message for the confirmation message bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
+  if (error) {
+    return i18n.saveFailure;
+  }
+
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.loginSaveSuccess,
+        [NotificationTypes.Change]: i18n.loginUpdateSuccess,
+        [NotificationTypes.Unlock]: "",
+      }[type]
+    : undefined;
+}
+
+/**
+ * Appends the header message to the document title.
+ * If the header message is already present, it avoids duplication.
+ */
+export function appendHeaderMessageToTitle(headerMessage?: string) {
+  if (!headerMessage) {
+    return;
+  }
+  const baseTitle = document.title.split(" - ")[0];
+  document.title = `${baseTitle} - ${headerMessage}`;
+}
+
+/**
+ * Determines the effective notification type to use based on initialization data.
+ *
+ * If the vault is locked, the notification type will be set to `Unlock`.
+ * Otherwise, the type provided in the init data is returned.
+ *
+ * @returns The resolved `NotificationType` to be used for rendering logic.
+ */
+function resolveNotificationType(initData: NotificationBarIframeInitData): NotificationType {
+  if (initData.isVaultLocked) {
+    return NotificationTypes.Unlock;
+  }
+
+  return initData.type as NotificationType;
+}
+
+/**
  * Sets the text content of an element identified by ID within a template's content.
  *
  * @param template - The template whose content will be searched for the element.
@@ -148,6 +210,10 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
   if (useComponentBar) {
+    const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+    const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
+    appendHeaderMessageToTitle(headerMessage);
+
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
@@ -156,7 +222,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
-          type: NotificationTypes.Unlock,
+          headerMessage,
+          type: resolvedType,
           theme: resolvedTheme,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
@@ -199,7 +266,8 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
-          type: notificationBarIframeInitData.type as NotificationType,
+          headerMessage,
+          type: resolvedType,
           theme: resolvedTheme,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
@@ -429,6 +497,8 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
+  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
@@ -438,6 +508,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       type: type as NotificationType,
       theme: resolvedTheme,
       handleCloseNotification,
+      headerMessage,
       i18n,
       error,
       itemName: itemName ?? i18n.typeLogin,
