@@ -5,7 +5,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -35,7 +34,6 @@ describe("AutoSubmitLoginBackground", () => {
   let scriptInjectorService: MockProxy<ScriptInjectorService>;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
-  let configService: MockProxy<ConfigService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let policyDetails: MockProxy<Policy>;
   let automaticAppLogInPolicy$: BehaviorSubject<Policy[]>;
@@ -56,9 +54,6 @@ describe("AutoSubmitLoginBackground", () => {
     authStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = authStatus$;
-    configService = mock<ConfigService>({
-      getFeatureFlag: jest.fn().mockResolvedValue(true),
-    });
     platformUtilsService = mock<PlatformUtilsService>();
     policyDetails = mock<Policy>({
       enabled: true,
@@ -78,7 +73,6 @@ describe("AutoSubmitLoginBackground", () => {
       autofillService,
       scriptInjectorService,
       authService,
-      configService,
       platformUtilsService,
       policyService,
       accountService,
@@ -268,7 +262,6 @@ describe("AutoSubmitLoginBackground", () => {
           autofillService,
           scriptInjectorService,
           authService,
-          configService,
           platformUtilsService,
           policyService,
           accountService,
