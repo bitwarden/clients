@@ -37,6 +37,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -162,6 +163,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private nativeMessagingManifestService: NativeMessagingManifestService,
     private configService: ConfigService,
+    private validationService: ValidationService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -491,11 +493,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.logService.error("Error updating unlock with PIN: ", error);
       this.form.controls.pin.setValue(!value, { emitEvent: false });
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        error?.message,
-      );
+      this.validationService.showError(error);
     } finally {
       this.messagingService.send("redrawMenu");
     }
@@ -532,11 +530,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.logService.error("Error updating unlock with biometrics: ", error);
       this.form.controls.biometric.setValue(!value, { emitEvent: false });
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        error?.message,
-      );
+      this.validationService.showError(error);
     } finally {
       this.messagingService.send("redrawMenu");
     }
