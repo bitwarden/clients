@@ -4,13 +4,12 @@ import { KdfConfig } from "@bitwarden/key-management";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SetInitialPasswordUserType {
+export const SetInitialPasswordUser = {
   /**
    * A user being "just-in-time" (JIT) provisioned into a master-password-encryption org
    */
-  JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER,
+  JIT_PROVISIONED_MP_ORG_USER: "jit_provisioned_mp_org_user",
+
   /**
    * Could be one of two scenarios:
    *  1. A user being "just-in-time" (JIT) provisioned into a trusted-device-encryption org
@@ -18,13 +17,17 @@ export enum SetInitialPasswordUserType {
    *  2. An user in a trusted-device-encryption org whose role was upgraded to one
    *     that requires a master password (admin, owner, etc.)
    */
-  TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD,
+  TDE_ORG_USER_ROLE_REQUIRES_MP: "tde_org_user_role_requires_mp",
+
   /**
    * A user in an org that offboarded from trusted device encryption and is now a
    * master-password-encryption org
    */
-  OFFBOARDED_TRUSTED_DEVICE_ORG_USER,
-}
+  OFFBOARDED_TDE_ORG_USER: "offboarded_tde_org_user",
+} as const;
+
+export type SetInitialPasswordUserType =
+  (typeof SetInitialPasswordUser)[keyof typeof SetInitialPasswordUser];
 
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
@@ -41,7 +44,7 @@ export interface SetInitialPasswordCredentials {
  * Handles setting an initial password for an existing authed user.
  *
  * To see the different scenarios where an existing authed user needs to set an
- * initial password, see {@link SetInitialPasswordUserType}
+ * initial password, see {@link SetInitialPasswordUser}
  */
 export abstract class SetInitialPasswordService {
   /**

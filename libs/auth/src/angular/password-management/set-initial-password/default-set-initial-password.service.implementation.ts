@@ -27,6 +27,7 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordUser,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -80,7 +81,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;
 
-    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER) {
+    if (userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
       /**
        * A user being JIT provisioned into a MP encryption org does not yet have a user
        * asymmetric key pair, so we create it for them here.
@@ -143,10 +144,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
      */
-    if (
-      keyPair != null &&
-      userType === SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER
-    ) {
+    if (keyPair != null && userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
