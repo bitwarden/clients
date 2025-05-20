@@ -32,13 +32,13 @@
       </div>
     </ng-container>
 
-    <i slot="end" class="bwi tw-text-2xl" [ngClass]="status.icon" aria-hidden="true"></i>
+    <i slot="end" class="bwi tw-text-lg" [ngClass]="status.icon" aria-hidden="true"></i>
   </button>
 </bit-item>
 
 <bit-item *ngIf="account.id === specialAccountAddId">
   <button type="button" bit-item-content (click)="selectAccount(account.id)">
-    <i slot="start" class="bwi bwi-plus tw-text-2xl tw-text-main" aria-hidden="true"></i>
+    <i slot="start" class="bwi bwi-plus tw-text-lg tw-text-main" aria-hidden="true"></i>
     {{ account.name | i18n }}
   </button>
 </bit-item>
