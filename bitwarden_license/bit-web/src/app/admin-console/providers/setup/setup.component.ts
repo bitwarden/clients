@@ -117,9 +117,15 @@ export class SetupComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     try {
+      const requireProviderPaymentMethodDuringSetup = await firstValueFrom(
+        this.requireProviderPaymentMethodDuringSetup$,
+      );
+
       this.formGroup.markAllAsTouched();
 
-      const paymentValid = this.paymentComponent.validate();
+      const paymentValid = requireProviderPaymentMethodDuringSetup
+        ? this.paymentComponent.validate()
+        : true;
       const taxInformationValid = this.taxInformationComponent.validate();
 
       if (!paymentValid || !taxInformationValid || !this.formGroup.valid) {
@@ -145,10 +151,6 @@ export class SetupComponent implements OnInit, OnDestroy {
       request.taxInfo.line2 = taxInformation.line2;
       request.taxInfo.city = taxInformation.city;
       request.taxInfo.state = taxInformation.state;
-
-      const requireProviderPaymentMethodDuringSetup = await firstValueFrom(
-        this.requireProviderPaymentMethodDuringSetup$,
-      );
 
       if (requireProviderPaymentMethodDuringSetup) {
         request.paymentSource = await this.paymentComponent.tokenize();
