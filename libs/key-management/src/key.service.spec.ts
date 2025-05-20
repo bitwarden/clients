@@ -906,18 +906,18 @@ describe("keyService", () => {
 
     describe("input validation", () => {
       const invalidUserIdTestCases = [
-        { keySuffix: KeySuffixOptions.Auto, userId: null },
-        { keySuffix: KeySuffixOptions.Auto, userId: undefined },
-        { keySuffix: KeySuffixOptions.Pin, userId: null },
-        { keySuffix: KeySuffixOptions.Pin, userId: undefined },
+        { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
       ];
 
       test.each(invalidUserIdTestCases)(
         "throws when keySuffix is $keySuffix and userId is $userId",
         async ({ keySuffix, userId }) => {
-          await expect(
-            keyService.getUserKeyFromStorage(keySuffix, userId as unknown as UserId),
-          ).rejects.toThrow("UserId is required");
+          await expect(keyService.getUserKeyFromStorage(keySuffix, userId)).rejects.toThrow(
+            "UserId is required",
+          );
         },
       );
     });
