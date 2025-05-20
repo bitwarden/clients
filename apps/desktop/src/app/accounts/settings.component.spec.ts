@@ -24,6 +24,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -111,6 +112,7 @@ describe("SettingsComponent", () => {
         { provide: ThemeStateService, useValue: themeStateService },
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
+        { provide: ValidationService, useValue: mock<ValidationService>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
