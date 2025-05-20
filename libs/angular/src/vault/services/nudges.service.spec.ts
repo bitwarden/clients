@@ -10,7 +10,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/common/spec";
 
 import {
   HasItemsNudgeService,

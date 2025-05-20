@@ -1,3 +1,4 @@
+import { DialogRef } from "@angular/cdk/dialog";
 import { formatDate } from "@angular/common";
 import { Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -15,7 +16,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.component";
@@ -179,7 +180,10 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
       return;
     }
 
-    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.organizationId, true);
+    await this.organizationSponsorshipApiService.deleteAdminInitiatedRevokeSponsorship(
+      this.organizationId,
+      sponsorship.friendlyName,
+    );
 
     this.toastService.showToast({
       variant: "success",
