@@ -14,6 +14,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -34,9 +35,7 @@ import { AsyncActionsModule, ButtonModule, ItemModule, ToastService } from "@bit
 import {
   CipherFormConfig,
   CipherFormGenerationService,
-  NudgeStatus,
   PasswordRepromptService,
-  NudgesService,
 } from "@bitwarden/vault";
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
