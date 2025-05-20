@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use hex::decode;
-use rusqlite::{Connection, params};
+use rusqlite::{params, Connection};
 
 // Platform-specific code
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
@@ -80,10 +80,7 @@ pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>>
     Ok(get_profile_info(&local_state))
 }
 
-pub fn import_logins(
-    browser_name: &String,
-    profile: &ProfileInfo,
-) -> Result<Vec<LoginImportResult>> {
+pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<LoginImportResult>> {
     let browser_dir = platform::get_browser_settings_directory(browser_name)
         .map_err(|e| anyhow!("Failed to get browser settings directory: {}", e))?;
 
@@ -94,7 +91,7 @@ pub fn import_logins(
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
     // TODO: Also do 'Login Data For Account'
-    let logins = get_logins(&browser_dir, &profile, "Login Data")
+    let logins = get_logins(&browser_dir, &profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     let results = decrypt_logins(logins, &mut crypto_service);
@@ -169,10 +166,10 @@ struct EncryptedLogin {
 
 fn get_logins(
     browser_dir: &PathBuf,
-    profile: &ProfileInfo,
+    profile_id: &String,
     filename: &str,
 ) -> Result<Vec<EncryptedLogin>> {
-    let login_data_path = browser_dir.join(&profile.folder).join(filename);
+    let login_data_path = browser_dir.join(&profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import
     if !login_data_path.exists() {

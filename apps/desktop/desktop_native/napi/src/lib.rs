@@ -878,19 +878,47 @@ pub mod logging {
 
 #[napi]
 pub mod chromium_importer {
+    use desktop_importer::chromium::LoginImportResult as _LoginImportResult;
     use desktop_importer::chromium::ProfileInfo as _ProfileInfo;
 
     #[napi(object)]
     pub struct ProfileInfo {
+        pub id: String,
         pub name: String,
-        pub folder: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportResult {
+        pub url: String,
+        pub username: String,
+        // pub password: String,
+        // pub note: String,
+    }
+
+    impl From<_LoginImportResult> for LoginImportResult {
+        fn from(l: _LoginImportResult) -> Self {
+            match l {
+                _LoginImportResult::Success(l) => LoginImportResult {
+                    url: l.url,
+                    username: l.username,
+                    // password: l.password,
+                    // note: l.note,
+                },
+                _LoginImportResult::Failure(l) => LoginImportResult {
+                    url: l.url,
+                    username: l.username,
+                    // password: l.password,
+                    // note: l.error,
+                },
+            }
+        }
     }
 
     impl From<_ProfileInfo> for ProfileInfo {
         fn from(p: _ProfileInfo) -> Self {
             ProfileInfo {
+                id: p.folder,
                 name: p.name,
-                folder: p.folder,
             }
         }
     }
@@ -905,6 +933,16 @@ pub mod chromium_importer {
     pub async fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
         desktop_importer::chromium::get_available_profiles(&browser)
             .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    #[napi]
+    pub async fn import_logins(
+        browser: String,
+        profile_id: String,
+    ) -> napi::Result<Vec<LoginImportResult>> {
+        desktop_importer::chromium::import_logins(&browser, &profile_id)
+            .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }

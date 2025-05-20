@@ -200,9 +200,14 @@ export declare namespace logging {
 }
 export declare namespace chromium_importer {
   export interface ProfileInfo {
+    id: string
     name: string
-    folder: string
+  }
+  export interface LoginImportResult {
+    url: string
+    username: string
   }
   export function getInstalledBrowsers(): Promise<Array<string>>
   export function getAvailableProfiles(browser: string): Promise<Array<ProfileInfo>>
+  export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
 }
