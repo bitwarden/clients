@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH 代理是一个针对开发者的服务，允许您直接从 Bitwarden 密码库签署 SSH 请求。"
   },
+  "sshAgentPromptBehavior": {
+    "message": "使用 SSH 代理时提示授权"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "选择如何处理 SSH 代理授权请求。"
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "记住 SSH 授权"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "总是"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "从不"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "记住直到密码库被锁定"
+  },
   "premiumRequired": {
     "message": "需要高级版"
   },
@@ -426,6 +444,12 @@
   },
   "addField": {
     "message": "添加字段"
+  },
+  "editField": {
+    "message": "编辑字段"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "确定要永久删除此附件吗？"
   },
   "fieldType": {
     "message": "字段类型"
@@ -1079,9 +1103,6 @@
   "addNewItem": {
     "message": "新增项目"
   },
-  "addNewFolder": {
-    "message": "新增文件夹"
-  },
   "view": {
     "message": "查看"
   },
@@ -1701,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "加载无障碍 Cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "注册为无障碍用户到",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "复制发送到您电子邮箱的链接然后粘贴在下方"
-  },
-  "enterhCaptchaUrl": {
-    "message": "输入 URL 以加载 hCaptcha 的无障碍 Cookie",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha URL 必填",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "无效的 URL"
-  },
   "done": {
     "message": "完成"
-  },
-  "accessibilityCookieSaved": {
-    "message": "无障碍 Cookie 已保存！"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "未保存任何无障碍 Cookie！"
   },
   "warning": {
     "message": "警告",
@@ -3623,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "由于某个未知的原因，生物识别解锁当前不可用。"
   },
+  "itemDetails": {
+    "message": "项目详细信息"
+  },
+  "itemName": {
+    "message": "项目名称"
+  },
+  "loginCredentials": {
+    "message": "登录凭据"
+  },
+  "additionalOptions": {
+    "message": "附加选项"
+  },
+  "itemHistory": {
+    "message": "项目历史记录"
+  },
+  "lastEdited": {
+    "message": "最后编辑于"
+  },
+  "upload": {
+    "message": "上传"
+  },
   "authorize": {
     "message": "批准"
   },
@@ -3671,63 +3682,6 @@
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "itemDetails": {
-    "message": "项目详细信息"
-  },
-  "itemName": {
-    "message": "项目名称"
-  },
-  "loginCredentials": {
-    "message": "登录凭据"
-  },
-  "additionalOptions": {
-    "message": "附加选项"
-  },
-  "itemHistory": {
-    "message": "项目历史记录"
-  },
-  "lastEdited": {
-    "message": "最后编辑于"
-  },
-  "upload": {
-    "message": "上传"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能可正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "allowScreenshots": {
     "message": "允许屏幕截图"
   },
@@ -3752,11 +3706,32 @@
   "move": {
     "message": "移动"
   },
+  "newFolder": {
+    "message": "新增文件夹"
+  },
+  "folderName": {
+    "message": "文件夹名称"
+  },
+  "folderHintText": {
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
+  },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "无缝在线结账"
@@ -3779,7 +3754,14 @@
   "newSshNudgeTitle": {
     "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

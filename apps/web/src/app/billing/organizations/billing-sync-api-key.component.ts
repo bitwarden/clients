@@ -22,6 +22,7 @@ export interface BillingSyncApiModalData {
 
 @Component({
   templateUrl: "billing-sync-api-key.component.html",
+  standalone: false,
 })
 export class BillingSyncApiKeyComponent {
   protected organizationId: string;

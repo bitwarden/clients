@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Nieuw Item, opent in nieuw venster",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Bewerken voor opslaan",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ opgeslagen in Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "opslaan in Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ bijgewerkt in Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "bijgewerkt in Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ selecteren",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Opslaan als nieuwe login",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Login bijwerken",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Ontgrendel voor het opslaan van deze login",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Login opslaan",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Suggesties automatisch invullen"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Gemakkelijk suggesties voor automatisch invullen vinden"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Schakel de autofill-instellingen van je browser uit, zodat ze niet conflicteren met Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Automatisch invullen van $BROWSER$ uitschakelen",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Automatisch invullen uitschakelen"
   },
   "showInlineMenuLabel": {
     "message": "Suggesties voor automatisch invullen op formuliervelden weergeven"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Time-out actie"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nieuwe aanpassingsopties"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Pas je kluis ervaring aan met snelle kopieeracties, compacte modus en meer!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Alle weergave-instellingen bekijken"
   },
   "lock": {
     "message": "Vergrendelen",
@@ -4512,6 +4531,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Bitwarden downloaden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Bitwarden op alle apparaten downloaden"
+  },
+  "getTheMobileApp": {
+    "message": "De mobiele app downloaden"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Toegang tot je wachtwoorden onderweg met de mobiele Bitwarden-app."
+  },
+  "getTheDesktopApp": {
+    "message": "De desktop-app downloaden"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Toegang tot je kluis zonder browser, vervolgens ontgrendelen met biometrische gegevens om sneller te ontgrendelen in zowel de desktopapp als browserextensie."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Nu van bitwarden.com downloaden"
+  },
+  "getItOnGooglePlay": {
+    "message": "Download op Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
   },
@@ -4562,7 +4608,7 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login referenties"
+    "message": "Inloggegevens"
   },
   "authenticatorKey": {
     "message": "Authenticatiesleutel"
@@ -5135,42 +5181,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Belangrijke mededeling"
-  },
-  "setupTwoStepLogin": {
-    "message": "Tweestapsaanmelding instellen"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt."
-  },
-  "remindMeLater": {
-    "message": "Herinner me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Heb je betrouwbare toegang tot je e-mail, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nee, dat heb ik niet"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, ik heb betrouwbare toegang tot mijn e-mail"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Tweestapsaanmelding inschakelen"
-  },
-  "changeAcctEmail": {
-    "message": "E-mailadres van het account veranderen"
-  },
   "extensionWidth": {
     "message": "Extensiebreedte"
   },
@@ -5258,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Onbeperkt wachtwoorden opslaan op alle apparaten met Bitwarden-apps voor mobiel, browser en desktop."
   },
+  "nudgeBadgeAria": {
+    "message": "1 melding"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Bestaande wachtwoorden importeren"
   },
@@ -5270,14 +5283,32 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welkom in je kluis!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Autofill items voor de huidige pagina\nFavoriete items voor eenvoudige toegang\nDoorzoek je kluis naar iets anders"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Automatisch invullen van items voor de huidige pagina"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Items als favoriet markeren voor gemakkelijke toegang"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Je kluis doorzoeken naar iets anders"
   },
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"
   },
-  "newLoginNudgeBody": {
-    "message": "Voeg een website toe zodat deze login wordt weergegeven als een automatische invulsuggestie."
+  "newLoginNudgeBodyOne": {
+    "message": "Voeg een",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "toe zodat deze login wordt weergegeven als een automatische invulsuggestie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Naadloos online afrekenen"
@@ -5300,7 +5331,17 @@
   "newSshNudgeTitle": {
     "message": "Ontwikkelaars-vriendelijke SSH-toegang"
   },
-  "newSshNudgeBody": {
-    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie."
+  "newSshNudgeBodyOne": {
+    "message": "Sla je sleutels op en verbind met de SSH-agent voor snelle, versleutelde authenticatie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Meer informatie over SSH-agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
   }
 }

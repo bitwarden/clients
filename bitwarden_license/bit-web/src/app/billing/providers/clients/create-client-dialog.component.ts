@@ -22,6 +22,8 @@ type CreateClientDialogParams = {
   plans: PlanResponse[];
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CreateClientDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -99,6 +101,7 @@ export class PlanCard {
 
 @Component({
   templateUrl: "./create-client-dialog.component.html",
+  standalone: false,
 })
 export class CreateClientDialogComponent implements OnInit {
   protected discountPercentage: number | null | undefined;

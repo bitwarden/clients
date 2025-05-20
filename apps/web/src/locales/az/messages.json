@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Tətbiqi kritik olaraq işarələ"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olaraq işarələnmiş tətbiqlər"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Bu üzvlər, tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edən üzv yoxdur."
+  },
   "atRiskApplicationsDescription": {
     "message": "Bu tətbiqlər zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahibdir."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahib tətbiq yoxdur."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Bu üzvlər, $APPNAME$ tətbiqinə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ üçün risk altında olan üzv yoxdur.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) dataların zədələnməsi ilə nəticələnə bilər. Avtomatik olaraq çıxış etməyə çalışacağıq, bu gecikə bilər."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Saxladığınız bütün şifrələmə ixracları da yararsız olacaq."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
   },
   "subscription": {
     "message": "Abunəlik"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Hazırkı təşkilatınızın, bir neçə təşkilata qoşulmasına icazə verməyən bir siyasəti var. Lütfən təşkilat adminləri ilə əlaqə saxlayın və ya fərqli bir Bitwarden hesabı ilə qeydiyyatdan keçin."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Sahib və ya administrator olmayan və hal-hazırda başqa bir təşkilatın üzvü olan istifadəçilər təşkilatınızdan çıxarılacaq."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Uyumlu olmayan üzvlər, digər bütün təşkilatları tərk edənə qədər rədd edilmiş statusa daxil ediləcək. Administratorlar azaddır və uyum təmin edildikdən sonra üzvləri bərpa edə bilər."
@@ -5885,15 +5897,6 @@
   },
   "fingerprintPhrase": {
     "message": "Barmaq izi ifadəsi:"
-  },
-  "removeUsers": {
-    "message": "İstifadəçiləri çıxart"
-  },
-  "revokeUsers": {
-    "message": "İstifadəçiləri ləğv et"
-  },
-  "restoreUsers": {
-    "message": "İstifadəçiləri bərpa et"
   },
   "error": {
     "message": "Xəta"
@@ -7836,12 +7839,6 @@
   "noDomainsSubText": {
     "message": "Bir domenin bağlantı qurması, üzvlərin SSO ilə Giriş etməsi zamanı SSO identifikatoru xanasını ötürməsinə icazə verir."
   },
-  "verifyDomain": {
-    "message": "Domeni doğrula"
-  },
-  "reverifyDomain": {
-    "message": "Domeni yenidən doğrula"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT qeydini kopyala"
   },
@@ -7850,18 +7847,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT qeydini DNS Provayderinizə kopyalayıb yapışdırın."
-  },
-  "domainNameInputHint": {
-    "message": "Nümunə: mydomain.com. Alt domenlərin doğrulanması üçün ayrıca girişlər tələb olunur."
-  },
-  "automaticDomainVerification": {
-    "message": "Avtomatik Domen Doğrulaması"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden, ilk 72 saat ərzində domeni 3 dəfə doğrulamağa çalışacaq. Əgər domen doğrulana bilməsə, \"host\"unuzdakı DNS qeydini yoxlayıb əllə doğrulayın. Domen doğrulanmasa, 7 gün ərzində təşkilatınızdan silinəcək"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Giriş, yararlı bir format deyil. Format: mydomain.com. Alt domenlərin doğrulanması üçün ayrıca girişlər tələb olunur."
   },
   "removeDomain": {
     "message": "Domeni sil"
@@ -7875,9 +7860,6 @@
   "domainSaved": {
     "message": "Domen saxlanıldı"
   },
-  "domainVerified": {
-    "message": "Domen doğrulandı"
-  },
   "duplicateDomainError": {
     "message": "Eyni domeni iki dəfə tələb edə bilməzsiniz."
   },
@@ -7889,21 +7871,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ doğrulanmadı. DNS qeydinizi yoxlayın.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Doğrulandı"
-  },
-  "domainStatusUnverified": {
-    "message": "Doğrulanmadı"
   },
   "domainNameTh": {
     "message": "Ad"
@@ -7931,24 +7898,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domeni silindi",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulandı",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulanmadı",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9428,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Fakturanı \"Provayder Portalı\"ndan idarə et"
   },
+  "continueSettingUp": {
+    "message": "Bitwarden-i qurmağa davam edin"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Ödənişsiz Bitwarden sınağınızı qurmağa davam edin"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "\"Bitwarden Parol Meneceri\"ni qurmağa davam edin"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Ödənişsiz Bitwarden Parol Meneceri sınağınızı qurmağa davam edin"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "\"Bitwarden Sirr Meneceri\"ni qurmağa davam edin"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Ödənişsiz Bitwarden Sirr Meneceri sınağınızı qurmağa davam edin"
@@ -10245,42 +10203,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "removeMembers": {
     "message": "Üzvləri çıxart"
   },
@@ -10637,8 +10559,20 @@
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"
   },
-  "newLoginNudgeBody": {
-    "message": "Bir veb sayt daxil edin ki, bu giriş məlumatları avto-doldurma təklifi kimi görünsün."
+  "newLoginNudgeBodyOne": {
+    "message": "Bir veb sayt",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "daxil edin ki,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "bu giriş məlumatları avto-doldurma təklifi kimi görünsün.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Problemsiz onlayn ödəniş"
@@ -10661,13 +10595,23 @@
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH müraciəti"
   },
-  "newSshNudgeBody": {
-    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın."
+  "newSshNudgeBodyOne": {
+    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "SSH agenti barədə daha ətraflı",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Yenidən başlat"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu təşkilatın abunəlik səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+  },
+  "clickPayWithPayPal": {
+    "message": "Ödəniş üsulunuzu əlavə etmək üçün lütfən Paypal ilə ödəniş et düyməsinə klikləyin."
   }
 }

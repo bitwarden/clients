@@ -12,6 +12,7 @@ import { Icon, Icons } from "@bitwarden/components";
 
 @Component({
   templateUrl: "./org-suspended.component.html",
+  standalone: false,
 })
 export class OrgSuspendedComponent {
   constructor(

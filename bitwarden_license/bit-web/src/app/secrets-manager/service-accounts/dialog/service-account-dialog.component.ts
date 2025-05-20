@@ -10,6 +10,8 @@ import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
@@ -24,6 +26,7 @@ export interface ServiceAccountOperation {
 
 @Component({
   templateUrl: "./service-account-dialog.component.html",
+  standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(

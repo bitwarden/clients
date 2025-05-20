@@ -1,14 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import {
-  combineLatest,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { combineLatest, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -25,7 +16,6 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -43,6 +33,7 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
 @Component({
   selector: "app-organization-options",
   templateUrl: "organization-options.component.html",
+  standalone: false,
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   protected actionPromise?: Promise<void | boolean>;
@@ -83,22 +74,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       map((policies) => policies.filter((p) => p.type == PolicyType.ResetPassword)),
     );
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const managingOrg$ = this.configService
-      .getFeatureFlag$(FeatureFlag.AccountDeprovisioning)
-      .pipe(
-        switchMap((isAccountDeprovisioningEnabled) =>
-          isAccountDeprovisioningEnabled
-            ? this.organizationService
-                .organizations$(userId)
-                .pipe(
-                  map((organizations) =>
-                    organizations.find((o) => o.userIsManagedByOrganization === true),
-                  ),
-                )
-            : of(null),
-        ),
-      );
+    const managingOrg$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+    );
 
     combineLatest([
       this.organization$,

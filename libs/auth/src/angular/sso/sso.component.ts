@@ -16,7 +16,6 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -24,12 +23,10 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -106,7 +103,6 @@ export class SsoComponent implements OnInit {
     private route: ActivatedRoute,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private apiService: ApiService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -155,7 +151,14 @@ export class SsoComponent implements OnInit {
       return;
     }
 
-    // Detect if we have landed here but only have an SSO identifier in the URL.
+    // Detect if we are on the first portion of the SSO flow
+    // and have been sent here from another client with the info in query params.
+    // If so, we want to initialize the SSO flow with those values.
+    if (this.hasParametersFromOtherClientRedirect(qParams)) {
+      this.initializeFromRedirectFromOtherClient(qParams);
+    }
+
+    // Detect if we have landed here with an SSO identifier in the URL.
     // This is used by integrations that want to "short-circuit" the login to send users
     // directly to their IdP to simulate IdP-initiated SSO, so we submit automatically.
     if (qParams.identifier != null) {
@@ -163,13 +166,6 @@ export class SsoComponent implements OnInit {
       this.loggingIn = true;
       await this.submit();
       return;
-    }
-
-    // Detect if we are on the first portion of the SSO flow
-    // and have been sent here from another client with the info in query params.
-    // If so, we want to initialize the SSO flow with those values.
-    if (this.hasParametersFromOtherClientRedirect(qParams)) {
-      this.initializeFromRedirectFromOtherClient(qParams);
     }
 
     // Try to determine the identifier using claimed domain or local state
@@ -541,14 +537,6 @@ export class SsoComponent implements OnInit {
     });
   }
 
-  private async handleForcePasswordReset(orgIdentifier: string) {
-    await this.router.navigate(["update-temp-password"], {
-      queryParams: {
-        identifier: orgIdentifier,
-      },
-    });
-  }
-
   private async handleSuccessfulLogin() {
     await this.router.navigate(["lock"]);
   }
@@ -605,24 +593,13 @@ export class SsoComponent implements OnInit {
       this.loggingIn = true;
       try {
         // Check if email matches any claimed domains
-        if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
-          const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
-            await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
+        const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
+          await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
 
-          if (response.data.length > 0) {
-            this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
-            await this.submit();
-            return;
-          }
-        } else {
-          const response: OrganizationDomainSsoDetailsResponse =
-            await this.orgDomainApiService.getClaimedOrgDomainByEmail(this.email);
-
-          if (response?.ssoAvailable && response?.verifiedDate) {
-            this.identifierFormControl.setValue(response.organizationIdentifier);
-            await this.submit();
-            return;
-          }
+        if (response.data.length > 0) {
+          this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
+          await this.submit();
+          return;
         }
       } catch (error) {
         this.handleGetClaimedDomainByEmailError(error);

@@ -23,6 +23,8 @@ export interface BulkMoveDialogParams {
   cipherIds?: string[];
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BulkMoveDialogResult {
   Moved = "moved",
   Canceled = "canceled",
@@ -45,6 +47,7 @@ export const openBulkMoveDialog = (
 
 @Component({
   templateUrl: "bulk-move-dialog.component.html",
+  standalone: false,
 })
 export class BulkMoveDialogComponent implements OnInit {
   cipherIds: string[] = [];
