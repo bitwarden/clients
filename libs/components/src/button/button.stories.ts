@@ -1,15 +1,10 @@
-import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
 import { ButtonComponent } from "./button.component";
 
 export default {
   title: "Component Library/Button",
   component: ButtonComponent,
-  decorators: [
-    moduleMetadata({
-      imports: [Blah],
-    }),
-  ],
   args: {
     buttonType: "primary",
     disabled: false,
