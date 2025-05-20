@@ -1,0 +1,31 @@
+[package]
+name = "desktop_importer"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+aes = { workspace = true }
+aes-gcm = { workspace = true }
+anyhow = { workspace = true }
+base64 = { workspace = true }
+cbc = { workspace = true, features = ["alloc"] }
+hex = { workspace = true }
+homedir = { workspace = true }
+pbkdf2 = { workspace = true }
+rand = { workspace = true }
+rusqlite = { workspace = true, features = ["bundled"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = { workspace = true, optional = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+winapi = { workspace = true, features = ["dpapi", "memoryapi"] }
+windows = { workspace = true, features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# TODO: Add Linux-specific dependencies
