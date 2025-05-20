@@ -63,7 +63,6 @@ import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
 
 @Component({
   templateUrl: "autofill.component.html",
@@ -101,7 +100,6 @@ export class AutofillComponent implements OnInit {
     AutofillOverlayVisibility.OnFieldFocus;
   protected blockBrowserInjectionsByDomainEnabled: boolean = false;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
-  protected deviceType = BrowserPlatformUtilsService.getDevice(window);
   protected disablePasswordManagerURI: DisablePasswordManagerUri =
     DisablePasswordManagerUris.Unknown;
   protected browserShortcutsURI: BrowserShortcutsUri = BrowserShortcutsUris.Unknown;
@@ -159,7 +157,6 @@ export class AutofillComponent implements OnInit {
     private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
-    private browserPlatformUtilsService: BrowserPlatformUtilsService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -337,20 +334,11 @@ export class AutofillComponent implements OnInit {
     return null;
   }
 
-  get browserClientVendorExtended() {
-    if (this.browserClientVendor !== BrowserClientVendors.Unknown) {
-      return this.browserClientVendor;
-    }
-    if (this.browserPlatformUtilsService.isFirefox()) {
-      return "Firefox";
-    }
-    if (this.browserPlatformUtilsService.isSafari()) {
-      return "Safari";
-    }
-  }
-
   get spotlightButtonText() {
-    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
+    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
+      return this.i18nService.t("turnOffAutofill");
+    }
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
   }
 
   async dismissSpotlight() {
