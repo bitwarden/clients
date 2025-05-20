@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import { combineLatest, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -46,7 +45,6 @@ export enum SendState {
     JslibModule,
     CommonModule,
     ButtonModule,
-    RouterLink,
     NewSendDropdownComponent,
     SendListItemsContainerComponent,
     SendListFiltersComponent,
