@@ -1,13 +1,15 @@
-import type { Args } from "@storybook/csf";
+import { argsToTemplate, StoryObj } from "@storybook/angular";
 
-export const formatArgsForCodeSnippet = <ComponentType>(args: Args) => {
+type RenderArgType<T> = Parameters<StoryObj<T>["render"]>[0];
+
+export const formatArgsForCodeSnippet = <ComponentType>(args: RenderArgType<ComponentType>) => {
   const nonNullArgs = Object.entries(args).filter(
     ([_, value]) => value !== null && value !== undefined,
   );
   const functionArgs = nonNullArgs.filter(([_, value]) => typeof value === "function");
 
   const nonFunctionArgs = nonNullArgs.filter(([_, value]) => typeof value !== "function");
-  const functionArgKeys = [...functionArgs].map(([key, _]) => key as keyof ComponentType);
+  const functionArgKeys = [...functionArgs].map(([key, _]) => key as keyof RenderArgType<ComponentType>);
 
   const formattedNonFunctionArgs = nonFunctionArgs
     .map(([key, value]) => {
@@ -15,8 +17,5 @@ export const formatArgsForCodeSnippet = <ComponentType>(args: Args) => {
     })
     .join(" ");
 
-  return {
-    formattedNonFunctionArgs,
-    functionArgKeys,
-  };
+  return `${formattedNonFunctionArgs} ${argsToTemplate(args, { include: functionArgKeys })}`;
 };
