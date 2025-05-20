@@ -65,6 +65,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: TEST FAIL
+        run: |
+          echo "$GITHUB_HEAD_REF"
+          exit 1
+
       - name: Get GitHub sha as version
         id: version
         run: echo "value=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
