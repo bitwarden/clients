@@ -1,6 +1,6 @@
 import { dialog, shell } from "electron";
 import log from "electron-log";
-import { autoUpdater, UpdateDownloadedEvent, VerifyUpdateSupport } from "electron-updater";
+import { autoUpdater, UpdateDownloadedEvent } from "electron-updater";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -16,7 +16,7 @@ export class UpdaterMain {
   private doingUpdateCheckWithFeedback = false;
   private canUpdate = false;
   private updateDownloaded: UpdateDownloadedEvent = null;
-  private originalRolloutFunction: VerifyUpdateSupport = null;
+  //private originalRolloutFunction: VerifyUpdateSupport = null;
 
   constructor(
     private i18nService: I18nService,
@@ -24,7 +24,7 @@ export class UpdaterMain {
   ) {
     autoUpdater.logger = log;
 
-    this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
+    //this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
 
     const linuxCanUpdate = process.platform === "linux" && isAppImage();
     const windowsCanUpdate =
@@ -130,7 +130,7 @@ export class UpdaterMain {
 
       // If the user has explicitly checked for updates, we want to bypass
       // the current staging rollout percentage
-      autoUpdater.isUserWithinRollout = (info) => true;
+      //autoUpdater.isUserWithinRollout = (info) => true;
     }
 
     await autoUpdater.checkForUpdates();
@@ -139,7 +139,7 @@ export class UpdaterMain {
   private reset() {
     autoUpdater.autoDownload = true;
     // Reset the rollout check to the default behavior
-    autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
+    //autoUpdater.isUserWithinRollout = this.originalRolloutFunction;
     this.doingUpdateCheck = false;
     this.updateDownloaded = null;
   }

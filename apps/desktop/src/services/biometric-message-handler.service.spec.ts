@@ -107,6 +107,7 @@ describe("BiometricMessageHandlerService", () => {
       authService,
       ngZone,
       i18nService,
+      null,
     );
   });
 
@@ -165,6 +166,7 @@ describe("BiometricMessageHandlerService", () => {
         authService,
         ngZone,
         i18nService,
+        null,
       );
     });
 
