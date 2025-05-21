@@ -137,14 +137,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
     
     private func getWindowPosition() -> Position {
-        let frame = self.view.window?.frame ?? .zero
-        let screenHeight = NSScreen.main?.frame.height ?? 0      
-        
-        // frame.width and frame.height is always 0. Estimating works OK for now.
-        let estimatedWidth:CGFloat = 400;
-        let estimatedHeight:CGFloat = 200;
-        let centerX = Int32(round(frame.origin.x + estimatedWidth/2))
-        let centerY = Int32(round(screenHeight - (frame.origin.y + estimatedHeight/2)))
+        let screenHeight = NSScreen.main?.frame.height ?? 0
+        let screenWidth = NSScreen.main?.frame.width ?? 0
+        let centerX = Int32(round(screenWidth)/2)
+        let centerY = Int32(round(screenHeight)/2)
         
         return Position(x: centerX, y:centerY)
     }
