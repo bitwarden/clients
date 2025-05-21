@@ -28,28 +28,35 @@ export function NotificationConfirmationMessage({
     <div class=${containerStyles}>
       ${message || buttonText
         ? html`
-            <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
-            <span
-              title=${message || buttonText}
-              class=${notificationConfirmationMessageStyles(theme)}
-            >
-              ${message || nothing}
-              ${buttonText
+            <div class=${singleLineWrapperStyles}>
+              ${itemName
                 ? html`
-                    <a
-                      title=${buttonText}
-                      class=${notificationConfirmationButtonTextStyles(theme)}
-                      @click=${handleClick}
-                      @keydown=${(e: KeyboardEvent) => handleButtonKeyDown(e, () => handleClick(e))}
-                      aria-label=${buttonAria}
-                      tabindex="0"
-                      role="button"
-                    >
-                      ${buttonText}
-                    </a>
+                    <span class=${itemNameStyles(theme)} title=${itemName}> ${itemName} </span>
                   `
                 : nothing}
-            </span>
+              <span
+                title=${message || buttonText}
+                class=${notificationConfirmationMessageStyles(theme)}
+              >
+                ${message || nothing}
+                ${buttonText
+                  ? html`
+                      <a
+                        title=${buttonText}
+                        class=${notificationConfirmationButtonTextStyles(theme)}
+                        @click=${handleClick}
+                        @keydown=${(e: KeyboardEvent) =>
+                          handleButtonKeyDown(e, () => handleClick(e))}
+                        aria-label=${buttonAria}
+                        tabindex="0"
+                        role="button"
+                      >
+                        ${buttonText}
+                      </a>
+                    `
+                  : nothing}
+              </span>
+            </div>
           `
         : nothing}
       ${messageDetails
@@ -61,10 +68,15 @@ export function NotificationConfirmationMessage({
 
 const containerStyles = css`
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
   gap: ${spacing[1]};
   width: 100%;
+`;
+
+const singleLineWrapperStyles = css`
+  display: inline;
+  white-space: normal;
+  word-break: break-word;
 `;
 
 const baseTextStyles = css`
@@ -81,6 +93,9 @@ const notificationConfirmationMessageStyles = (theme: Theme) => css`
 
   color: ${themes[theme].text.main};
   font-weight: 400;
+  white-space: normal;
+  word-break: break-word;
+  display: inline;
 `;
 
 const itemNameStyles = (theme: Theme) => css`
@@ -90,6 +105,10 @@ const itemNameStyles = (theme: Theme) => css`
   font-weight: 400;
   white-space: nowrap;
   max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
 `;
 
 const notificationConfirmationButtonTextStyles = (theme: Theme) => css`

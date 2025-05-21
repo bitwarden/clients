@@ -446,10 +446,10 @@
     "message": "Додати поле"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Редагувати поле"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
   "fieldType": {
     "message": "Тип поля"
@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Новий запис"
   },
-  "addNewFolder": {
-    "message": "Нова тека"
-  },
   "view": {
     "message": "Переглянути"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
-  "hCaptchaUrl": {
-    "message": "URL-адреса hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Завантажити cookie спеціальних можливостей"
-  },
-  "registerAccessibilityUser": {
-    "message": "Реєстрація користувача зі спеціальними можливостями",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Вставте нижче код, надісланий на вашу е-пошту"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Введіть URL-адресу для завантаження cookie спеціальних можливостей для hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Необхідно ввести URL-адресу hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Недійсна URL-адреса"
-  },
   "done": {
     "message": "Виконано"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie спеціальних можливостей збережено!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Немає збережених cookie особливих можливостей"
   },
   "warning": {
     "message": "ПОПЕРЕДЖЕННЯ",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Біометричне розблокування зараз недоступне з невідомої причини."
   },
+  "itemDetails": {
+    "message": "Подробиці запису"
+  },
+  "itemName": {
+    "message": "Назва запису"
+  },
+  "loginCredentials": {
+    "message": "Облікові дані для входу"
+  },
+  "additionalOptions": {
+    "message": "Додаткові налаштування"
+  },
+  "itemHistory": {
+    "message": "Історія запису"
+  },
+  "lastEdited": {
+    "message": "Востаннє редаговано"
+  },
+  "upload": {
+    "message": "Вивантажити"
+  },
   "authorize": {
     "message": "Авторизувати"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Перемістити"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"

@@ -18,6 +18,7 @@ import { ServiceAccountEventLogApiService } from "./service-account-event-log-ap
 @Component({
   selector: "sm-service-accounts-events",
   templateUrl: "./service-accounts-events.component.html",
+  standalone: false,
 })
 export class ServiceAccountEventsComponent
   extends BaseEventsComponent

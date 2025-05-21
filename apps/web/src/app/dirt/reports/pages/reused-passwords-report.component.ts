@@ -19,6 +19,7 @@ import { CipherReportComponent } from "./cipher-report.component";
 @Component({
   selector: "app-reused-passwords-report",
   templateUrl: "reused-passwords-report.component.html",
+  standalone: false,
 })
 export class ReusedPasswordsReportComponent extends CipherReportComponent implements OnInit {
   passwordUseMap: Map<string, number>;

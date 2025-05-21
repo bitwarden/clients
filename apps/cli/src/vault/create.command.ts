@@ -93,9 +93,7 @@ export class CreateCommand {
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
       const newCipher = await this.cipherService.createWithServer(cipher);
-      const decCipher = await newCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(newCipher, activeUserId),
-      );
+      const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -162,9 +160,7 @@ export class CreateCommand {
         new Uint8Array(fileBuf).buffer,
         activeUserId,
       );
-      const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
       return Response.success(new CipherResponse(decCipher));
     } catch (e) {
       return Response.error(e);

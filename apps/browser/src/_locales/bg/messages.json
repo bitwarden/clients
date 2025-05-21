@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Нов елемент, отваря се в нов прозорец",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Редактиране преди запазване",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "Запазено в Битуорден: $ITEMNAME$.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "запазено в Битуорден.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "Обновено в Битуорден: $ITEMNAME$.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "обновено в Битуорден.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Избиране на $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Запазване като нов елемент за вписване",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Обновяване на данните за вписване",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Отключете, за да запазите тези данни за вписване",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Запазване на данните за вписване",
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Предложения за авт. попълване"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Намирайте лесно предложения за авт. попълване"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Изключете настройките за автоматично попълване на браузъра си, за да не си пречат с Битуорден."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Изключете автоматичното попълване на $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Изключване на автоматичното попълване"
   },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
@@ -2198,15 +2226,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Действие при изтичането на времето за достъп"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Нови възможности за персонализиране"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Персонализирайте трезора си с бързи действия за копиране, компактен режим и още!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Преглед на всички настройки за външния вид"
   },
   "lock": {
     "message": "Заключване",
@@ -4533,6 +4552,12 @@
   "downloadFromBitwardenNow": {
     "message": "Свалете от bitwarden.com сега"
   },
+  "getItOnGooglePlay": {
+    "message": "Вземете го от Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Свалете от App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
   },
@@ -5243,6 +5268,9 @@
   "secureDevicesBody": {
     "message": "Съхранявайте неограничен брой пароли на множество устройства – с приложенията на Битуорден за мобилни телефони, браузър и компютър."
   },
+  "nudgeBadgeAria": {
+    "message": "1 известие"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Внасяне на съществуващи пароли"
   },
@@ -5255,8 +5283,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Добре дошли в трезора си!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Елементи за авт. попълване в текущата страница\nЛюбими елементи за лесен достъп\nПотърсете в трезора си за нещо друго"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Попълвайте автоматично елементи в текущата страница"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Добавете любими елементи за бърз достъп"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Потърсете нещо друго в трезора си"
   },
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"
@@ -5306,5 +5340,8 @@
     "message": "Научете повече относно SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "noPermissionsViewPage": {
+    "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
   }
 }

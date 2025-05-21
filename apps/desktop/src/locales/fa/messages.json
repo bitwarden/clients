@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "مورد جدید"
   },
-  "addNewFolder": {
-    "message": "پوشه جدید"
-  },
   "view": {
     "message": "مشاهده"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "عدم تطابق \"رمز فایل\" و \"تایید رمز فایل\" با یکدیگر."
   },
-  "hCaptchaUrl": {
-    "message": "نشانی اینترنتی hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "بارگیری کوکی دسترسی"
-  },
-  "registerAccessibilityUser": {
-    "message": "ثبت نام به عنوان کاربر قابلیت دسترسی در",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "لینک ارسال شده به ایمیل خود را در زیر کپی و پیست کنید"
-  },
-  "enterhCaptchaUrl": {
-    "message": "برای بارگیری کوکی دسترسی کپچا نشانی اینترنتی را وارد کنید",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "نشانی اینترنتی کپچا مورد نیاز است",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "نشانی اینترنتی نامعتبر"
-  },
   "done": {
     "message": "انجام شد"
-  },
-  "accessibilityCookieSaved": {
-    "message": "کوکی دسترسی ذخیره شد!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "هیچ کوکی دسترسی ذخیره نشد"
   },
   "warning": {
     "message": "اخطار",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

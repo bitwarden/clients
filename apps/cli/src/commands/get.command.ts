@@ -116,9 +116,7 @@ export class GetCommand extends DownloadCommand {
     if (Utils.isGuid(id)) {
       const cipher = await this.cipherService.get(id, activeUserId);
       if (cipher != null) {
-        decCipher = await cipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-        );
+        decCipher = await this.cipherService.decrypt(cipher, activeUserId);
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted(activeUserId);
@@ -455,10 +453,9 @@ export class GetCommand extends DownloadCommand {
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
       const decCollection = new CollectionView(response);
-      decCollection.name = await this.encryptService.decryptToUtf8(
+      decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
-        `orgkey-${options.organizationId}`,
       );
       const groups =
         response.groups == null

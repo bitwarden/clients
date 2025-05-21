@@ -18,6 +18,7 @@ type BulkDeleteDialogParams = {
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   organizationId: string;

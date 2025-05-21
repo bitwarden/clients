@@ -64,6 +64,8 @@ import { commaSeparatedEmails } from "./validators/comma-separated-emails.valida
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogTab {
   Role = 0,
   Groups = 1,
@@ -92,6 +94,8 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
 
 export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -102,6 +106,7 @@ export enum MemberDialogResult {
 
 @Component({
   templateUrl: "member-dialog.component.html",
+  standalone: false,
 })
 export class MemberDialogComponent implements OnDestroy {
   loading = true;

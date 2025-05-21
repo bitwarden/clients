@@ -17,7 +17,7 @@ export class OverlayNotificationsContentService
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private currentNotificationBarType: string | null = null;
   private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
-  private notificationRefreshFlag: boolean;
+  private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
     height: "82px",
     width: "430px",
@@ -57,6 +57,7 @@ export class OverlayNotificationsContentService
     void sendExtensionMessage("checkNotificationQueue");
     void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
       this.notificationRefreshFlag = !!notificationRefreshFlag;
+      this.setNotificationRefreshBarHeight();
     });
   }
 
@@ -223,12 +224,28 @@ export class OverlayNotificationsContentService
       this.notificationBarElement.id = "bit-notification-bar";
 
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
-
-      if (this.notificationRefreshFlag) {
-        setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
-      }
+      this.setNotificationRefreshBarHeight();
 
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
+    }
+  }
+
+  /**
+   * Sets the height of the notification bar based on the value of `notificationRefreshFlag`.
+   * If the flag is `true`, the bar is expanded to 400px and aligned right.
+   * If the flag is `false`, `null`, or `undefined`, it defaults to height of 82px.
+   * Skips if the notification bar element has not yet been created.
+   *
+   */
+  private setNotificationRefreshBarHeight() {
+    const isNotificationV3 = !!this.notificationRefreshFlag;
+
+    if (!this.notificationBarElement) {
+      return;
+    }
+
+    if (isNotificationV3) {
+      setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
     }
   }
 
