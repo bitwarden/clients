@@ -1,15 +1,9 @@
 import { Jsonify } from "type-fest";
 
-import {
-  COLLECTION_DATA,
-  DeriveDefinition,
-  UserKeyDefinition,
-} from "@bitwarden/common/platform/state";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
+import { COLLECTION_DATA, UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { CollectionId } from "@bitwarden/common/types/guid";
 
-import { vNextCollectionService } from "../abstractions/vnext-collection.service";
-import { Collection, CollectionData, CollectionView } from "../models";
+import { CollectionData, CollectionView } from "../models";
 
 export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, CollectionId>(
   COLLECTION_DATA,
@@ -20,17 +14,12 @@ export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<Collection
   },
 );
 
-export const DECRYPTED_COLLECTION_DATA_KEY = new DeriveDefinition<
-  [Collection[], Record<OrganizationId, OrgKey> | null],
-  CollectionView[],
-  { collectionService: vNextCollectionService }
->(COLLECTION_DATA, "decryptedCollections", {
-  deserializer: (obj) => obj.map((collection) => CollectionView.fromJSON(collection)),
-  derive: async ([collections, orgKeys], { collectionService }) => {
-    if (collections == null) {
-      return [];
-    }
-
-    return await collectionService.decryptMany(collections, orgKeys);
+export const DECRYPTED_COLLECTION_DATA_KEY = new UserKeyDefinition<CollectionView[]>(
+  COLLECTION_DATA,
+  "decryptedCollections",
+  {
+    deserializer: (obj: Jsonify<CollectionView[]>) =>
+      obj?.map((f) => CollectionView.fromJSON(f)) ?? [],
+    clearOn: ["logout", "lock"],
   },
-});
+);
