@@ -1,76 +1,52 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
-import { Jsonify } from "type-fest";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+} from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import {
-  ActiveUserState,
-  COLLECTION_DATA,
-  DeriveDefinition,
-  DerivedState,
-  StateProvider,
-  UserKeyDefinition,
-} from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 
-import { CollectionService } from "../abstractions";
+import { CollectionService } from "../abstractions/collection.service";
 import { Collection, CollectionData, CollectionView } from "../models";
 
-export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, CollectionId>(
-  COLLECTION_DATA,
-  "collections",
-  {
-    deserializer: (jsonData: Jsonify<CollectionData>) => CollectionData.fromJSON(jsonData),
-    clearOn: ["logout"],
-  },
-);
-
-const DECRYPTED_COLLECTION_DATA_KEY = new DeriveDefinition<
-  [Record<CollectionId, CollectionData>, Record<OrganizationId, OrgKey>],
-  CollectionView[],
-  { collectionService: DefaultCollectionService }
->(COLLECTION_DATA, "decryptedCollections", {
-  deserializer: (obj) => obj.map((collection) => CollectionView.fromJSON(collection)),
-  derive: async ([collections, orgKeys], { collectionService }) => {
-    if (collections == null) {
-      return [];
-    }
-
-    const data = Object.values(collections).map((c) => new Collection(c));
-    return await collectionService.decryptMany(data, orgKeys);
-  },
-});
+import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 
 const NestingDelimiter = "/";
 
 export class DefaultCollectionService implements CollectionService {
-  private encryptedCollectionDataState: ActiveUserState<Record<CollectionId, CollectionData>>;
-  encryptedCollections$: Observable<Collection[]>;
-  private decryptedCollectionDataState: DerivedState<CollectionView[]>;
-  decryptedCollections$: Observable<CollectionView[]>;
+  private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
 
-  decryptedCollectionViews$(ids: CollectionId[]): Observable<CollectionView[]> {
-    return this.decryptedCollections$.pipe(
-      map((collections) => collections.filter((c) => ids.includes(c.id as CollectionId))),
-    );
-  }
+  /**
+   * Used to force the collectionViews$ Observable to re-emit with a provided value.
+   * Required because shareReplay with refCount: false maintains last emission.
+   * Used during cleanup to force emit empty arrays, ensuring stale data isn't retained.
+   */
+  private forceCollectionViews: Record<UserId, Subject<CollectionView[]>> = {};
 
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
-  ) {
-    this.encryptedCollectionDataState = this.stateProvider.getActive(ENCRYPTED_COLLECTION_DATA_KEY);
+  ) {}
 
-    this.encryptedCollections$ = this.encryptedCollectionDataState.state$.pipe(
+  encryptedCollections$(userId: UserId) {
+    return this.encryptedState(userId).state$.pipe(
       map((collections) => {
         if (collections == null) {
           return [];
@@ -79,114 +55,19 @@ export class DefaultCollectionService implements CollectionService {
         return Object.values(collections).map((c) => new Collection(c));
       }),
     );
-
-    const encryptedCollectionsWithKeys = this.encryptedCollectionDataState.combinedState$.pipe(
-      switchMap(([userId, collectionData]) =>
-        combineLatest([of(collectionData), this.keyService.orgKeys$(userId)]),
-      ),
-      shareReplay({ refCount: false, bufferSize: 1 }),
-    );
-
-    this.decryptedCollectionDataState = this.stateProvider.getDerived(
-      encryptedCollectionsWithKeys,
-      DECRYPTED_COLLECTION_DATA_KEY,
-      { collectionService: this },
-    );
-
-    this.decryptedCollections$ = this.decryptedCollectionDataState.state$;
   }
 
-  async clearActiveUserCache(): Promise<void> {
-    await this.decryptedCollectionDataState.forceValue(null);
-  }
-
-  async encrypt(model: CollectionView): Promise<Collection> {
-    if (model.organizationId == null) {
-      throw new Error("Collection has no organization id.");
-    }
-    const key = await this.keyService.getOrgKey(model.organizationId);
-    if (key == null) {
-      throw new Error("No key for this collection's organization.");
-    }
-    const collection = new Collection();
-    collection.id = model.id;
-    collection.organizationId = model.organizationId;
-    collection.readOnly = model.readOnly;
-    collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encryptString(model.name, key);
-    return collection;
-  }
-
-  // TODO: this should be private and orgKeys should be required.
-  // See https://bitwarden.atlassian.net/browse/PM-12375
-  async decryptMany(
-    collections: Collection[],
-    orgKeys?: Record<OrganizationId, OrgKey>,
-  ): Promise<CollectionView[]> {
-    if (collections == null || collections.length === 0) {
-      return [];
-    }
-    const decCollections: CollectionView[] = [];
-
-    orgKeys ??= await firstValueFrom(this.keyService.activeUserOrgKeys$);
-
-    const promises: Promise<any>[] = [];
-    collections.forEach((collection) => {
-      promises.push(
-        collection
-          .decrypt(orgKeys[collection.organizationId as OrganizationId])
-          .then((c) => decCollections.push(c)),
-      );
-    });
-    await Promise.all(promises);
-    return decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
-  }
-
-  async get(id: string): Promise<Collection> {
+  decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
     return (
-      (await firstValueFrom(
-        this.encryptedCollections$.pipe(map((cs) => cs.find((c) => c.id === id))),
-      )) ?? null
+      this.collectionViews$(userId).pipe(shareReplay({ refCount: true, bufferSize: 1 })) ?? of([])
     );
   }
 
-  async getAll(): Promise<Collection[]> {
-    return await firstValueFrom(this.encryptedCollections$);
-  }
-
-  async getAllDecrypted(): Promise<CollectionView[]> {
-    return await firstValueFrom(this.decryptedCollections$);
-  }
-
-  async getAllNested(collections: CollectionView[] = null): Promise<TreeNode<CollectionView>[]> {
-    if (collections == null) {
-      collections = await this.getAllDecrypted();
-    }
-    const nodes: TreeNode<CollectionView>[] = [];
-    collections.forEach((c) => {
-      const collectionCopy = new CollectionView();
-      collectionCopy.id = c.id;
-      collectionCopy.organizationId = c.organizationId;
-      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
-    });
-    return nodes;
-  }
-
-  /**
-   * @deprecated August 30 2022: Moved to new Vault Filter Service
-   * Remove when Desktop and Browser are updated
-   */
-  async getNested(id: string): Promise<TreeNode<CollectionView>> {
-    const collections = await this.getAllNested();
-    return ServiceUtils.getTreeNodeObjectFromList(collections, id) as TreeNode<CollectionView>;
-  }
-
-  async upsert(toUpdate: CollectionData | CollectionData[]): Promise<void> {
+  async upsert(toUpdate: CollectionData | CollectionData[], userId: UserId): Promise<void> {
     if (toUpdate == null) {
       return;
     }
-    await this.encryptedCollectionDataState.update((collections) => {
+    await this.encryptedState(userId).update((collections) => {
       if (collections == null) {
         collections = {};
       }
@@ -202,22 +83,26 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   async replace(collections: Record<CollectionId, CollectionData>, userId: UserId): Promise<void> {
-    await this.stateProvider
-      .getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY)
-      .update(() => collections);
+    await this.encryptedState(userId).update(() => collections);
   }
 
-  async clear(userId?: UserId): Promise<void> {
+  async clearDecryptedState(userId: UserId): Promise<void> {
     if (userId == null) {
-      await this.encryptedCollectionDataState.update(() => null);
-      await this.decryptedCollectionDataState.forceValue(null);
-    } else {
-      await this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY).update(() => null);
+      throw new Error("User ID is required.");
     }
+
+    await this.setDecryptedCollections([], userId);
   }
 
-  async delete(id: CollectionId | CollectionId[]): Promise<any> {
-    await this.encryptedCollectionDataState.update((collections) => {
+  async clear(userId: UserId): Promise<void> {
+    this.forceCollectionViews[userId]?.next([]);
+
+    await this.encryptedState(userId).update(() => null);
+    await this.clearDecryptedState(userId);
+  }
+
+  async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
+    await this.encryptedState(userId).update((collections) => {
       if (collections == null) {
         collections = {};
       }
@@ -230,5 +115,129 @@ export class DefaultCollectionService implements CollectionService {
       }
       return collections;
     });
+  }
+
+  async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
+    if (model.organizationId == null) {
+      throw new Error("Collection has no organization id.");
+    }
+
+    const key = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        filter((orgKeys) => !!orgKeys),
+        map((k) => k[model.organizationId as OrganizationId]),
+      ),
+    );
+
+    const collection = new Collection();
+    collection.id = model.id;
+    collection.organizationId = model.organizationId;
+    collection.readOnly = model.readOnly;
+    collection.externalId = model.externalId;
+    collection.name = await this.encryptService.encryptString(model.name, key);
+    return collection;
+  }
+
+  private async decryptMany(
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey> | null,
+    userId: UserId,
+  ): Promise<CollectionView[]> {
+    const decrypted = await firstValueFrom(
+      this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY).state$,
+    );
+
+    if (decrypted?.length) {
+      return decrypted;
+    }
+
+    if (collections == null || collections.length === 0 || orgKeys === null) {
+      return [];
+    }
+    const decCollections: CollectionView[] = [];
+
+    const promises: Promise<any>[] = [];
+    collections.forEach((collection) => {
+      promises.push(
+        collection
+          .decrypt(orgKeys[collection.organizationId as OrganizationId])
+          .then((c) => decCollections.push(c)),
+      );
+    });
+
+    await Promise.all(promises);
+    const sortedCollections = decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
+    await this.setDecryptedCollections(sortedCollections, userId);
+    return sortedCollections;
+  }
+
+  getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
+    const nodes: TreeNode<CollectionView>[] = [];
+    collections.forEach((c) => {
+      const collectionCopy = new CollectionView();
+      collectionCopy.id = c.id;
+      collectionCopy.organizationId = c.organizationId;
+      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, undefined, NestingDelimiter);
+    });
+    return nodes;
+  }
+
+  /**
+   * @deprecated August 30 2022: Moved to new Vault Filter Service
+   * Remove when Desktop and Browser are updated
+   */
+  getNested(collections: CollectionView[], id: string): TreeNode<CollectionView> {
+    const nestedCollections = this.getAllNested(collections);
+    return ServiceUtils.getTreeNodeObjectFromList(
+      nestedCollections,
+      id,
+    ) as TreeNode<CollectionView>;
+  }
+
+  /**
+   * @returns a SingleUserState for encrypted collection data.
+   */
+  private encryptedState(userId: UserId) {
+    return this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY);
+  }
+
+  /**
+   * Returns an Observable of decrypted Collection Views for the given userId.
+   * Uses collectionViewCache to maintain a single Observable instance per user,
+   * combining normal collection state updates with forced updates.
+   */
+  collectionViews$(userId: UserId): Observable<CollectionView[]> {
+    if (!this.collectionViewCache.has(userId)) {
+      if (!this.forceCollectionViews[userId]) {
+        this.forceCollectionViews[userId] = new Subject<CollectionView[]>();
+      }
+
+      const observable = merge(
+        this.forceCollectionViews[userId],
+        combineLatest([
+          this.encryptedCollections$(userId),
+          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+        ]).pipe(
+          switchMap(([collections, orgKeys]) => this.decryptMany(collections, orgKeys, userId)),
+        ),
+      ).pipe(shareReplay({ refCount: false, bufferSize: 1 }));
+
+      this.collectionViewCache.set(userId, observable);
+    }
+
+    return this.collectionViewCache.get(userId) ?? of([]);
+  }
+
+  /**
+   * Sets the decrypted collections state for a user.
+   * @param collections the decrypted collections
+   * @param userId the user id
+   */
+  private async setDecryptedCollections(
+    collections: CollectionView[],
+    userId: UserId,
+  ): Promise<void> {
+    await this.stateProvider.setUserState(DECRYPTED_COLLECTION_DATA_KEY, collections, userId);
   }
 }
