@@ -49,8 +49,8 @@ export interface SetInitialPasswordCredentials {
 export abstract class SetInitialPasswordService {
   /**
    * Sets an initial password for an existing authed user who is either:
-   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MASTER_PASSWORD_ORG_USER}
-   * - {@link SetInitialPasswordUserType.TRUSTED_DEVICE_ORG_USER_ROLE_REQUIRES_MASTER_PASSWORD}
+   * - {@link SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER}
+   * - {@link SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP}
    *
    * @param credentials An object of the credentials needed to set the initial password
    * @throws If any property on the `credentials` object is null or undefined, or if a
