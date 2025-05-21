@@ -9,10 +9,15 @@ export const formatArgsForCodeSnippet = <ComponentType>(args: RenderArgType<Comp
   const functionArgs = nonNullArgs.filter(([_, value]) => typeof value === "function");
 
   const nonFunctionArgs = nonNullArgs.filter(([_, value]) => typeof value !== "function");
-  const functionArgKeys = [...functionArgs].map(([key, _]) => key as keyof RenderArgType<ComponentType>);
+  const functionArgKeys = [...functionArgs].map(
+    ([key, _]) => key as keyof RenderArgType<ComponentType>,
+  );
 
   const formattedNonFunctionArgs = nonFunctionArgs
     .map(([key, value]) => {
+      if (typeof value === "boolean") {
+        return `[${key}]="${value}"`;
+      }
       return `${key}="${value}"`;
     })
     .join(" ");
