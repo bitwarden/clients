@@ -379,7 +379,6 @@ export default tseslint.config(
         "@bitwarden/importer",
         "@bitwarden/key-management-ui",
         "@bitwarden/node",
-        "@bitwarden/platform",
         "@bitwarden/tools",
         "@bitwarden/vault",
       ]),
