@@ -90,11 +90,23 @@ pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<L
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
-    // TODO: Also do 'Login Data For Account'
-    let logins = get_logins(&browser_dir, &profile_id, "Login Data")
+    let local_logins = get_logins(&browser_dir, &profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
-    let results = decrypt_logins(logins, &mut crypto_service);
+    // This is not available in all browsers, but there's no harm in trying. If the file doesn't exist we just get an empty vector.
+    let account_logins = get_logins(&browser_dir, &profile_id, "Login Data For Account")
+        .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
+
+    // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
+    // TODO: Should we also ignore an error from one of the two imports? If one is successful and the other fails,
+    //       should we still return the successful ones? At the moment it doesn't fail for a missing file, only when
+    //       something goes really wrong.
+    let all_logins = local_logins
+        .into_iter()
+        .chain(account_logins.into_iter())
+        .collect::<Vec<_>>();
+
+    let results = decrypt_logins(all_logins, &mut crypto_service);
 
     Ok(results)
 }
