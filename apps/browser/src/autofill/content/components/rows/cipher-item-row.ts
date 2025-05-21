@@ -1,17 +1,40 @@
 import { css } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
+import { NotificationType } from "../../../notification/abstractions/notification-bar";
+import { CipherItem } from "../cipher/cipher-item";
+import { NotificationCipherData } from "../cipher/types";
+import { I18n } from "../common-types";
 import { spacing, themes, typography } from "../constants/styles";
 
 export type CipherItemRowProps = {
+  cipher: NotificationCipherData;
+  i18n: I18n;
+  notificationType?: NotificationType;
   theme: Theme;
-  children: TemplateResult | TemplateResult[];
+  handleAction: (e: Event) => void;
 };
 
-export function CipherItemRow({ theme = ThemeTypes.Light, children }: CipherItemRowProps) {
-  return html` <div class=${cipherItemRowStyles({ theme })}>${children}</div> `;
+export function CipherItemRow({
+  cipher,
+  i18n,
+  notificationType,
+  theme,
+  handleAction,
+}: CipherItemRowProps) {
+  return html`
+    <div class=${cipherItemRowStyles({ theme })}>
+      ${CipherItem({
+        cipher,
+        i18n,
+        notificationType,
+        theme,
+        handleAction,
+      })}
+    </div>
+  `;
 }
 
 const cipherItemRowStyles = ({ theme }: { theme: Theme }) => css`

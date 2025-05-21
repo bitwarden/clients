@@ -25,7 +25,7 @@ export default {
   },
 } as Meta<CipherItemProps>;
 
-const Template = (args: CipherItemProps) => CipherItem({ ...args });
+const Template = (props: CipherItemProps) => CipherItem({ ...props });
 
 export const Default: StoryObj<CipherItemProps> = {
   render: Template,

@@ -4,7 +4,6 @@ import { html } from "lit";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationType } from "../../../notification/abstractions/notification-bar";
-import { CipherItem } from "../cipher";
 import { NotificationCipherData } from "../cipher/types";
 import { I18n } from "../common-types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
@@ -38,14 +37,11 @@ export function NotificationBody({
     <div class=${notificationBodyStyles({ isSafari, theme })}>
       ${ciphers.map((cipher) =>
         CipherItemRow({
+          cipher,
           theme,
-          children: CipherItem({
-            cipher,
-            i18n,
-            notificationType,
-            theme,
-            handleAction: handleEditOrUpdateAction,
-          }),
+          i18n,
+          notificationType,
+          handleAction: handleEditOrUpdateAction,
         }),
       )}
     </div>
