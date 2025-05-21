@@ -44,6 +44,7 @@ export function OptionItem({
 
   return html`<div
     class=${optionItemStyles}
+    data-testid="${contextLabel}-item"
     key=${value}
     tabindex="0"
     title=${text}

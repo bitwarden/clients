@@ -21,7 +21,7 @@ export class OptionSelection extends LitElement {
   disabled: boolean = false;
 
   @property()
-  id: string;
+  id: string = "";
 
   @property()
   label?: string;
@@ -126,10 +126,7 @@ export class OptionSelection extends LitElement {
     }
 
     return html`
-      <div
-        class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}
-        @focusout=${this.handleFocusOut}
-      >
+      <div class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}>
         ${OptionSelectionButton({
           disabled: this.disabled,
           icon: this.selection?.icon,
