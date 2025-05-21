@@ -14,8 +14,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 export const authGuard: CanActivateFn = async (
@@ -28,6 +30,7 @@ export const authGuard: CanActivateFn = async (
   const keyConnectorService = inject(KeyConnectorService);
   const accountService = inject(AccountService);
   const masterPasswordService = inject(MasterPasswordServiceAbstraction);
+  const configService = inject(ConfigService);
 
   const authStatus = await authService.getAuthStatus();
 
@@ -60,9 +63,16 @@ export const authGuard: CanActivateFn = async (
   if (
     forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
-    !routerState.url.includes("set-password")
+    !routerState.url.includes("set-password") &&
+    !routerState.url.includes("set-initial-password")
   ) {
-    return router.createUrlTree(["/set-password"]);
+    const SetInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
+
+    const route = SetInitialPasswordRefactorFlagOn ? "/set-initial-password" : "/set-password";
+
+    return router.createUrlTree([route]);
   }
 
   if (
