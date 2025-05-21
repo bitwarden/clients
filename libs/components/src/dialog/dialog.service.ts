@@ -61,7 +61,9 @@ export abstract class DialogRef<R = unknown, C = unknown>
 export type DialogConfig<D = unknown, R = unknown> = Pick<
   CdkDialogConfig<D, R>,
   "data" | "disableClose" | "ariaModal" | "positionStrategy" | "height" | "width"
->;
+> & {
+  responsive?: boolean;
+};
 
 class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
@@ -168,7 +170,8 @@ export class DialogService {
       dialogRef: ref,
     });
 
-    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+    const responsive = config?.responsive ?? true;
+    const isSmallScreen = responsive && window.matchMedia("(max-width: 768px)").matches;
 
     // Merge the custom config with the default config
     const _config = {
@@ -231,6 +234,7 @@ export class DialogService {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
+      responsive: false,
     });
   }
 
