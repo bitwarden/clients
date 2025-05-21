@@ -81,7 +81,10 @@ export class SetInitialPasswordComponent implements OnInit {
     this.email = activeAccount?.email;
 
     await this.determineUserType();
-    await this.handleQueryParams();
+
+    if (this.userType !== SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
+      await this.handleQueryParams();
+    }
 
     this.initializing = false;
   }
@@ -95,7 +98,13 @@ export class SetInitialPasswordComponent implements OnInit {
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
 
-    if (
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER;
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "setMasterPassword" },
+        pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
+      });
+    } else if (
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
@@ -179,31 +188,62 @@ export class SetInitialPasswordComponent implements OnInit {
       throw new Error("resetPasswordAutoEnroll not found. Could not set initial password.");
     }
 
-    try {
-      const credentials: SetInitialPasswordCredentials = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
-        newPasswordHint: passwordInputResult.newPasswordHint,
-        kdfConfig: passwordInputResult.kdfConfig,
-        orgSsoIdentifier: this.orgSsoIdentifier,
-        orgId: this.orgId,
-        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-      };
+    if (
+      this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER ||
+      this.userType ===
+        SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP
+    ) {
+      try {
+        const credentials: SetInitialPasswordCredentials = {
+          newMasterKey: passwordInputResult.newMasterKey,
+          newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+          newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+          newPasswordHint: passwordInputResult.newPasswordHint,
+          kdfConfig: passwordInputResult.kdfConfig,
+          orgSsoIdentifier: this.orgSsoIdentifier,
+          orgId: this.orgId,
+          resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+        };
 
-      await this.setInitialPasswordService.setInitialPassword(
-        credentials,
-        this.userType,
-        this.userId,
-      );
+        await this.setInitialPasswordService.setInitialPassword(
+          credentials,
+          this.userType,
+          this.userId,
+        );
 
-      this.showSuccessToastByUserType();
+        this.showSuccessToastByUserType();
 
-      this.submitting = false;
-      await this.router.navigate(["vault"]);
-    } catch (e) {
-      this.validationService.showError(e);
-      this.submitting = false;
+        this.submitting = false;
+        await this.router.navigate(["vault"]);
+      } catch (e) {
+        this.validationService.showError(e);
+        this.submitting = false;
+      }
+
+      return;
+    }
+
+    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
+      try {
+        await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
+          passwordInputResult,
+          this.userId,
+        );
+
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("masterPasswordSuccessfullySet"),
+        });
+
+        this.submitting = false;
+        // TODO-rr-bw: logout user?
+      } catch (e) {
+        this.validationService.showError(e);
+        this.submitting = false;
+      }
+
+      return;
     }
   }
 
