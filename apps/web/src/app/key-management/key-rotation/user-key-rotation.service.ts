@@ -5,14 +5,17 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -26,6 +29,7 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -59,6 +63,7 @@ export class UserKeyRotationService {
     private toastService: ToastService,
     private i18nService: I18nService,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -116,8 +121,22 @@ export class UserKeyRotationService {
 
     const newMasterKey = await this.keyService.makeMasterKey(newMasterPassword, email, kdfConfig);
 
-    const [newUnencryptedUserKey, newMasterKeyEncryptedUserKey] =
-      await this.keyService.makeUserKey(newMasterKey);
+    let userKeyBytes: Uint8Array;
+    if (await this.configService.getFeatureFlag(FeatureFlag.EnrollAeadOnKeyRotation)) {
+      userKeyBytes = PureCrypto.make_user_key_xchacha20_poly1305();
+    } else {
+      userKeyBytes = PureCrypto.make_user_key_aes256_cbc_hmac();
+    }
+
+    const newMasterKeyEncryptedUserKey = new EncString(
+      PureCrypto.encrypt_user_key_with_master_password(
+        userKeyBytes,
+        newMasterPassword,
+        email,
+        kdfConfig.toSdkConfig(),
+      ),
+    );
+    const newUnencryptedUserKey = new SymmetricCryptoKey(userKeyBytes) as UserKey;
 
     if (!newUnencryptedUserKey || !newMasterKeyEncryptedUserKey) {
       this.logService.info("[Userkey rotation] User key could not be created. Aborting!");
