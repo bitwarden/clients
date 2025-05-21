@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Nová položka, otvorí sa v novom okne",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Upraviť pred uložením",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1117,7 +1121,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Odomknúť na uloženie prihlasovacích údajov",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {

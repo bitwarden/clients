@@ -4548,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Nakon ažuriranja svojeg ključa za šifriranje, obavezno se trebaš odjaviti i ponovno prijaviti u sve Bitwarden aplikacije koje trenutno koristiš (npr. mobilna aplikacija, proširenje preglednika, ...). Ako se ne odjaviš i ponovno prijaviš (čime se preuzima tvoj novi ključ za šifriranje) može doći do oštećenja spremljenih podataka. Pokušati ćemo te automatski odjaviti, no, to bi možda moglo potrajati."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Svi spremljeni šifrirani izvozi također će postati nevažeći."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Pretplata"
@@ -10610,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

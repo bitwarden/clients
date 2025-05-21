@@ -2,15 +2,17 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/common/spec";
 
 import {
   HasItemsNudgeService,
@@ -73,6 +75,14 @@ describe("Vault Nudges Service", () => {
         {
           provide: LogService,
           useValue: mock<LogService>(),
+        },
+        {
+          provide: PinServiceAbstraction,
+          useValue: mock<PinServiceAbstraction>(),
+        },
+        {
+          provide: VaultTimeoutSettingsService,
+          useValue: mock<VaultTimeoutSettingsService>(),
         },
       ],
     });
