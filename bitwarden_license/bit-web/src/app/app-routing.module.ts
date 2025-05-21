@@ -3,7 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { unauthGuardFn } from "@bitwarden/angular/auth/guards";
 import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
-import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link.guard";
+import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link/deep-link.guard";
 import { RouteDataProperties } from "@bitwarden/web-vault/app/core";
 
 import { ProvidersModule } from "./admin-console/providers/providers.module";
