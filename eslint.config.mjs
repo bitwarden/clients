@@ -528,12 +528,6 @@ export default tseslint.config(
 
   /// Team overrides
   {
-    files: ["**/src/platform/**/*.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports([], true),
-    },
-  },
-  {
     files: [
       "apps/cli/src/admin-console/**/*.ts",
       "apps/web/src/app/admin-console/**/*.ts",
