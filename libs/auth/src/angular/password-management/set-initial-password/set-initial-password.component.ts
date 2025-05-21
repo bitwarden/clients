@@ -144,6 +144,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
     if (
       !this.userId ||
+      !this.userType ||
       !this.orgSsoIdentifier ||
       !this.orgId ||
       this.resetPasswordAutoEnroll == null

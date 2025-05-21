@@ -71,7 +71,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newMasterKey,
       userId,
     );
-    if (masterKeyEncryptedUserKey == null) {
+    if (!masterKeyEncryptedUserKey || !masterKeyEncryptedUserKey[1].encryptedString) {
       throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
 
@@ -111,6 +111,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
       }
 
+      if (!keyPair[1].encryptedString) {
+        throw new Error("encryptedString not found. Could not set password.");
+      }
+
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
@@ -120,7 +124,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType, // kdfConfig is always DEFAULT_KDF_CONFIG (see InputPasswordComponent) TODO-rr-bw: clarify this comment
+      kdfConfig.kdfType,
       kdfConfig.iterations,
     );
 
@@ -142,6 +146,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
      * (Existing TDE users will have their private key set on sync or on login.)
      */
     if (keyPair != null && userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
+      if (!keyPair[1].encryptedString) {
+        throw new Error("encryptedString not found. Could not set password.");
+      }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
 
@@ -209,7 +216,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgPublicKey,
     );
 
-    // TODO-rr-bw: verify
     if (!orgPublicKeyEncryptedUserKey.encryptedString) {
       throw new Error(
         "orgPublicKeyEncryptedUserKey.encryptedString not found. Could not handle reset password auto enroll.",
