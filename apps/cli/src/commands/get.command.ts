@@ -453,10 +453,9 @@ export class GetCommand extends DownloadCommand {
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
       const decCollection = new CollectionView(response);
-      decCollection.name = await this.encryptService.decryptToUtf8(
+      decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
-        `orgkey-${options.organizationId}`,
       );
       const groups =
         response.groups == null

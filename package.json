@@ -159,7 +159,7 @@
     "@angular/platform-browser": "18.2.13",
     "@angular/platform-browser-dynamic": "18.2.13",
     "@angular/router": "18.2.13",
-    "@bitwarden/sdk-internal": "0.2.0-main.159",
+    "@bitwarden/sdk-internal": "0.2.0-main.168",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "3.1.0",
@@ -211,6 +211,7 @@
     "@storybook/angular": {
       "zone.js": "$zone.js"
     },
+    "parse5": "7.2.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@types/react": "18.3.20",

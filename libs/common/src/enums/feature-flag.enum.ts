@@ -48,6 +48,7 @@ export enum FeatureFlag {
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
+  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
   ItemShare = "item-share",
@@ -131,6 +132,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
+  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,
