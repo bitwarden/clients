@@ -40,6 +40,8 @@ export enum NudgeType {
   NewIdentityItemStatus = "new-identity-item-status",
   NewNoteItemStatus = "new-note-item-status",
   NewSshItemStatus = "new-ssh-item-status",
+  GeneratorNudgeStatus = "generator-nudge-status",
+  SendNudgeStatus = "send-nudge-status",
 }
 
 export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
