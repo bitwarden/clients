@@ -627,6 +627,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
+    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
+      return 0;
+    }
+
     let subTotal = this.selectedPlan.PasswordManager.basePrice;
     if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
       subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
@@ -638,10 +642,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   secretsManagerSubtotal() {
-    this.secretsManagerTotal = 0;
-    const plan = this.selectedSecretsManagerPlan;
+    const plan = this.selectedPlan;
+    if (!plan || !plan.SecretsManager) {
+      return this.secretsManagerTotal || 0;
+    }
 
-    if (!this.organization.useSecretsManager) {
+    if (this.secretsManagerTotal) {
       return this.secretsManagerTotal;
     }
 
@@ -653,6 +659,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSeats() {
+    if (!this.selectedPlan) {
+      return 0;
+    }
+
     if (this.selectedPlan.productTier === ProductTierType.Families) {
       return this.selectedPlan.PasswordManager.baseSeats;
     }
@@ -660,7 +670,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get total() {
-    if (this.organization && this.organization.useSecretsManager) {
+    if (!this.organization || !this.selectedPlan) {
+      return 0;
+    }
+
+    if (this.organization.useSecretsManager) {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
@@ -680,6 +694,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get additionalServiceAccount() {
+    if (!this.currentPlan || !this.currentPlan.SecretsManager) {
+      return 0;
+    }
+
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
     const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
 
@@ -1096,8 +1114,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   get submitButtonLabel(): string {
     if (
+      this.organization &&
+      this.sub &&
       this.organization.productTierType !== ProductTierType.Free &&
-      this.sub.subscription.status === "canceled"
+      this.sub.subscription?.status === "canceled"
     ) {
       return this.i18nService.t("restart");
     } else {
