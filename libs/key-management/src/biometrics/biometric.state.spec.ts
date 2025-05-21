@@ -1,4 +1,3 @@
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyDefinition, UserKeyDefinition } from "@bitwarden/common/platform/state";
 
 import {
@@ -21,12 +20,7 @@ describe.each([
   [FINGERPRINT_VALIDATED, true],
 ])(
   "deserializes state %s",
-  (
-    ...args:
-      | [UserKeyDefinition<EncryptedString>, EncryptedString]
-      | [UserKeyDefinition<boolean>, boolean]
-      | [KeyDefinition<boolean>, boolean]
-  ) => {
+  (...args: [UserKeyDefinition<unknown> | KeyDefinition<unknown>, unknown]) => {
     function testDeserialization<T>(
       keyDefinition: UserKeyDefinition<T> | KeyDefinition<T>,
       state: T,

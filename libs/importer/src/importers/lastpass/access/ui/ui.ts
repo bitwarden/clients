@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OobResult, OtpResult } from "../models";
 export abstract class Ui {
   // To cancel return OtpResult.Cancel, otherwise only valid data is expected.

@@ -1,17 +1,30 @@
 import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { View } from "../../../models/view/view";
-import { EncryptService } from "../../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
 export type DecryptedObject<
   TEncryptedObject,
   TDecryptedKeys extends EncStringKeys<TEncryptedObject>,
 > = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
+
+// extracts shared keys from the domain and view types
+type EncryptableKeys<D extends Domain, V extends View> = (keyof D &
+  ConditionalKeys<D, EncString | null>) &
+  (keyof V & ConditionalKeys<V, string | null>);
+
+type DomainEncryptableKeys<D extends Domain> = {
+  [key in ConditionalKeys<D, EncString | null>]: EncString | null;
+};
+
+type ViewEncryptableKeys<V extends View> = {
+  [key in ConditionalKeys<V, string | null>]: string | null;
+};
 
 // https://contributing.bitwarden.com/architecture/clients/data-model#domain
 export default class Domain {
@@ -35,6 +48,7 @@ export default class Domain {
       }
     }
   }
+
   protected buildDataModel<D extends Domain>(
     domain: D,
     dataObj: any,
@@ -56,39 +70,24 @@ export default class Domain {
     }
   }
 
-  protected async decryptObj<T extends View>(
-    viewModel: T,
-    map: any,
-    orgId: string,
-    key: SymmetricCryptoKey = null,
-  ): Promise<T> {
-    const promises = [];
-    const self: any = this;
-
-    for (const prop in map) {
-      // eslint-disable-next-line
-      if (!map.hasOwnProperty(prop)) {
-        continue;
-      }
-
-      (function (theProp) {
-        const p = Promise.resolve()
-          .then(() => {
-            const mapProp = map[theProp] || theProp;
-            if (self[mapProp]) {
-              return self[mapProp].decrypt(orgId, key);
-            }
-            return null;
-          })
-          .then((val: any) => {
-            (viewModel as any)[theProp] = val;
-          });
-        promises.push(p);
-      })(prop);
+  protected async decryptObj<D extends Domain, V extends View>(
+    domain: DomainEncryptableKeys<D>,
+    viewModel: ViewEncryptableKeys<V>,
+    props: EncryptableKeys<D, V>[],
+    orgId: string | null,
+    key: SymmetricCryptoKey | null = null,
+    objectContext: string = "No Domain Context",
+  ): Promise<V> {
+    for (const prop of props) {
+      viewModel[prop] =
+        (await domain[prop]?.decrypt(
+          orgId,
+          key,
+          `Property: ${prop as string}; ObjectContext: ${objectContext}`,
+        )) ?? null;
     }
 
-    await Promise.all(promises);
-    return viewModel;
+    return viewModel as V;
   }
 
   /**
@@ -112,15 +111,22 @@ export default class Domain {
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
     _: Constructor<TThis> = this.constructor as Constructor<TThis>,
+    objectContext: string = "No Domain Context",
   ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
-    const promises = [];
+    const decryptedObjects = [];
 
     for (const prop of encryptedProperties) {
-      const value = (this as any)[prop] as EncString;
-      promises.push(this.decryptProperty(prop, value, key, encryptService));
+      const value = this[prop] as EncString;
+      const decrypted = await this.decryptProperty(
+        prop,
+        value,
+        key,
+        encryptService,
+        `Property: ${prop.toString()}; ObjectContext: ${objectContext}`,
+      );
+      decryptedObjects.push(decrypted);
     }
 
-    const decryptedObjects = await Promise.all(promises);
     const decryptedObject = decryptedObjects.reduce(
       (acc, obj) => {
         return { ...acc, ...obj };
@@ -135,12 +141,11 @@ export default class Domain {
     value: EncString,
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
+    decryptTrace: string,
   ) {
-    let decrypted: string = null;
+    let decrypted: string | null = null;
     if (value) {
-      decrypted = await value.decryptWithKey(key, encryptService);
-    } else {
-      decrypted = null;
+      decrypted = await value.decryptWithKey(key, encryptService, decryptTrace);
     }
     return {
       [propertyKey]: decrypted,

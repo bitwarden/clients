@@ -1,9 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+
 import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
 @Component({
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
+  standalone: true,
 })
 export class BreadcrumbComponent {
   @Input()

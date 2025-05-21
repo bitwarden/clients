@@ -1,12 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,12 +16,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
-  AdjustStorageDialogV2Component,
-  AdjustStorageDialogV2ResultType,
-} from "../shared/adjust-storage-dialog/adjust-storage-dialog-v2.component";
-import {
-  AdjustStorageDialogResult,
-  openAdjustStorageDialog,
+  AdjustStorageDialogComponent,
+  AdjustStorageDialogResultType,
 } from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
@@ -31,6 +28,7 @@ import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
 @Component({
   templateUrl: "user-subscription.component.html",
+  standalone: false,
 })
 export class UserSubscriptionComponent implements OnInit {
   loading = false;
@@ -41,10 +39,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
-
-  protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
-    FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
-  );
 
   constructor(
     private apiService: ApiService,
@@ -57,7 +51,7 @@ export class UserSubscriptionComponent implements OnInit {
     private environmentService: EnvironmentService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
-    private configService: ConfigService,
+    private accountService: AccountService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }
@@ -73,7 +67,10 @@ export class UserSubscriptionComponent implements OnInit {
       return;
     }
 
-    if (await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$)) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      await firstValueFrom(this.billingAccountProfileStateService.hasPremiumPersonally$(userId.id))
+    ) {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
@@ -159,33 +156,18 @@ export class UserSubscriptionComponent implements OnInit {
   };
 
   adjustStorage = async (add: boolean) => {
-    const deprecateStripeSourcesAPI = await firstValueFrom(this.deprecateStripeSourcesAPI$);
+    const dialogRef = AdjustStorageDialogComponent.open(this.dialogService, {
+      data: {
+        price: 4,
+        cadence: "year",
+        type: add ? "Add" : "Remove",
+      },
+    });
 
-    if (deprecateStripeSourcesAPI) {
-      const dialogRef = AdjustStorageDialogV2Component.open(this.dialogService, {
-        data: {
-          price: 4,
-          cadence: "year",
-          type: add ? "Add" : "Remove",
-        },
-      });
+    const result = await lastValueFrom(dialogRef.closed);
 
-      const result = await lastValueFrom(dialogRef.closed);
-
-      if (result === AdjustStorageDialogV2ResultType.Submitted) {
-        await this.load();
-      }
-    } else {
-      const dialogRef = openAdjustStorageDialog(this.dialogService, {
-        data: {
-          storageGbPrice: 4,
-          add: add,
-        },
-      });
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === AdjustStorageDialogResult.Adjusted) {
-        await this.load();
-      }
+    if (result === AdjustStorageDialogResultType.Submitted) {
+      await this.load();
     }
   };
 

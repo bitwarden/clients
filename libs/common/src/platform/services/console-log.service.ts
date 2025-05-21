@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LogService as LogServiceAbstraction } from "../abstractions/log.service";
 import { LogLevelType } from "../enums/log-level-type.enum";
 

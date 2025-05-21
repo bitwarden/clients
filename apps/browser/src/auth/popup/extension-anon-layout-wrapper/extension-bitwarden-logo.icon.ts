@@ -8,6 +8,7 @@ export const ExtensionBitwardenLogo = svgIcon`
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
+    <title>Bitwarden</title>
     <path
     class="tw-fill-marketing-logo"
       fill-rule="evenodd"

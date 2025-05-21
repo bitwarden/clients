@@ -1,9 +1,13 @@
-import { TemplatePortal } from "@angular/cdk/portal";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { TemplatePortal, CdkPortalOutlet } from "@angular/cdk/portal";
 import { Component, HostBinding, Input } from "@angular/core";
 
 @Component({
   selector: "bit-tab-body",
   templateUrl: "tab-body.component.html",
+  standalone: true,
+  imports: [CdkPortalOutlet],
 })
 export class TabBodyComponent {
   private _firstRender: boolean;

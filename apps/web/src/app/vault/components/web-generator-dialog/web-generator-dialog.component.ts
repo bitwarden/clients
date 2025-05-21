@@ -1,13 +1,24 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
+import { AlgorithmInfo } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface WebVaultGeneratorDialogParams {
   type: "password" | "username";
+  uri?: string;
 }
 
 export interface WebVaultGeneratorDialogResult {
@@ -15,6 +26,8 @@ export interface WebVaultGeneratorDialogResult {
   generatedValue?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum WebVaultGeneratorDialogAction {
   Selected = "selected",
   Canceled = "canceled",
@@ -24,13 +37,11 @@ export enum WebVaultGeneratorDialogAction {
   selector: "web-vault-generator-dialog",
   templateUrl: "./web-generator-dialog.component.html",
   standalone: true,
-  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule],
+  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule, I18nPipe],
 })
 export class WebVaultGeneratorDialogComponent {
-  protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");
-  protected selectButtonText = this.i18nService.t(
-    this.isPassword ? "useThisPassword" : "useThisUsername",
-  );
+  protected titleKey = this.isPassword ? "passwordGenerator" : "usernameGenerator";
+  protected buttonLabel: string | undefined;
 
   /**
    * Whether the dialog is generating a password/passphrase. If false, it is generating a username.
@@ -46,11 +57,15 @@ export class WebVaultGeneratorDialogComponent {
    */
   protected generatedValue: string = "";
 
+  protected uri: string;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: WebVaultGeneratorDialogParams,
     private dialogRef: DialogRef<WebVaultGeneratorDialogResult>,
     private i18nService: I18nService,
-  ) {}
+  ) {
+    this.uri = params.uri;
+  }
 
   /**
    * Close the dialog without selecting a value.
@@ -72,6 +87,16 @@ export class WebVaultGeneratorDialogComponent {
   onValueGenerated(value: string) {
     this.generatedValue = value;
   }
+
+  onAlgorithmSelected = (selected?: AlgorithmInfo) => {
+    if (selected) {
+      this.buttonLabel = selected.useGeneratedValue;
+    } else {
+      // default to email
+      this.buttonLabel = this.i18nService.t("useThisEmail");
+    }
+    this.generatedValue = undefined;
+  };
 
   /**
    * Opens the vault generator dialog.

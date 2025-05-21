@@ -1,7 +1,8 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
 import {
   FakeAccountService,
   makeStaticByteArray,

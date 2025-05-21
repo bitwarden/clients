@@ -1,8 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { BankAccount } from "@bitwarden/common/billing/models/domain";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BillingServicesModule } from "./billing-services.module";
@@ -17,10 +17,7 @@ export class StripeService {
     cardCvc: string;
   };
 
-  constructor(
-    private logService: LogService,
-    private configService: ConfigService,
-  ) {}
+  constructor(private logService: LogService) {}
 
   /**
    * Loads [Stripe JS]{@link https://docs.stripe.com/js} in the <head> element of the current page and mounts
@@ -41,19 +38,10 @@ export class StripeService {
       const window$ = window as any;
       this.stripe = window$.Stripe(process.env.STRIPE_KEY);
       this.elements = this.stripe.elements();
-      const isExtensionRefresh = await this.configService.getFeatureFlag(
-        FeatureFlag.ExtensionRefresh,
-      );
       setTimeout(() => {
-        this.elements.create(
-          "cardNumber",
-          this.getElementOptions("cardNumber", isExtensionRefresh),
-        );
-        this.elements.create(
-          "cardExpiry",
-          this.getElementOptions("cardExpiry", isExtensionRefresh),
-        );
-        this.elements.create("cardCvc", this.getElementOptions("cardCvc", isExtensionRefresh));
+        this.elements.create("cardNumber", this.getElementOptions("cardNumber"));
+        this.elements.create("cardExpiry", this.getElementOptions("cardExpiry"));
+        this.elements.create("cardCvc", this.getElementOptions("cardCvc"));
         if (autoMount) {
           this.mountElements();
         }
@@ -67,15 +55,21 @@ export class StripeService {
    * Re-mounts previously created Stripe credit card [elements]{@link https://docs.stripe.com/js/elements_object/create} into the HTML elements
    * specified during the {@link loadStripe} call. This is useful for when those HTML elements are removed from the DOM by Angular.
    */
-  mountElements() {
+  mountElements(i: number = 0) {
     setTimeout(() => {
+      if (!document.querySelector(this.elementIds.cardNumber) && i < 10) {
+        this.logService.warning("Stripe container missing, retrying...");
+        this.mountElements(i + 1);
+        return;
+      }
+
       const cardNumber = this.elements.getElement("cardNumber");
       const cardExpiry = this.elements.getElement("cardExpiry");
       const cardCvc = this.elements.getElement("cardCvc");
       cardNumber.mount(this.elementIds.cardNumber);
       cardExpiry.mount(this.elementIds.cardExpiry);
       cardCvc.mount(this.elementIds.cardCvc);
-    });
+    }, 50);
   }
 
   /**
@@ -148,16 +142,13 @@ export class StripeService {
     }, 500);
   }
 
-  private getElementOptions(
-    element: "cardNumber" | "cardExpiry" | "cardCvc",
-    isExtensionRefresh: boolean,
-  ): any {
+  private getElementOptions(element: "cardNumber" | "cardExpiry" | "cardCvc"): any {
     const options: any = {
       style: {
         base: {
           color: null,
           fontFamily:
-            '"DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
+            'Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, ' +
             '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
           fontSize: "16px",
           fontSmoothing: "antialiased",
@@ -170,21 +161,18 @@ export class StripeService {
         },
       },
       classes: {
+        base: "tw-stripe-form-control",
         focus: "is-focused",
         empty: "is-empty",
         invalid: "is-invalid",
       },
     };
 
-    // Unique settings that should only be applied when the extension refresh flag is active
-    if (isExtensionRefresh) {
-      options.style.base.fontWeight = "500";
-      options.classes.base = "v2";
+    options.style.base.fontWeight = "500";
 
-      // Remove the placeholder for number and CVC fields
-      if (["cardNumber", "cardCvc"].includes(element)) {
-        options.placeholder = "";
-      }
+    // Remove the placeholder for number and CVC fields
+    if (["cardNumber", "cardCvc"].includes(element)) {
+      options.placeholder = "";
     }
 
     const style = getComputedStyle(document.documentElement);

@@ -1,4 +1,6 @@
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -23,10 +25,12 @@ import {
   CollectionDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { PolicyApiServiceAbstraction as PolicyApiService } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -38,11 +42,13 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -71,10 +77,12 @@ import {
   MemberDialogTab,
   openUserAddEditDialog,
 } from "./components/member-dialog";
+import { isFixedSeatPlan } from "./components/member-dialog/validators/org-seat-limit-reached.validator";
 import {
   ResetPasswordComponent,
   ResetPasswordDialogResult,
 } from "./components/reset-password.component";
+import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -82,11 +90,9 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
-  @ViewChild("resetPasswordTemplate", { read: ViewContainerRef, static: true })
-  resetPasswordModalRef: ViewContainerRef;
-
   userType = OrganizationUserType;
   userStatusType = OrganizationUserStatusType;
   memberTab = MemberDialogTab;
@@ -98,14 +104,15 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
-
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
+
+  get occupiedSeatCount(): number {
+    return this.dataSource.activeUserCount;
+  }
 
   constructor(
     apiService: ApiService,
@@ -123,13 +130,14 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private route: ActivatedRoute,
     private syncService: SyncService,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private router: Router,
     private groupService: GroupApiService,
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
-    private modalService: ModalService,
+    protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
   ) {
     super(
@@ -145,21 +153,32 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     );
 
     const organization$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      concatMap((params) =>
+        this.accountService.activeAccount$.pipe(
+          switchMap((account) =>
+            this.organizationService
+              .organizations$(account?.id)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     this.canUseSecretsManager$ = organization$.pipe(map((org) => org.useSecretsManager));
 
-    const policies$ = organization$.pipe(
-      switchMap((organization) => {
+    const policies$ = combineLatest([
+      this.accountService.activeAccount$.pipe(getUserId),
+      organization$,
+    ]).pipe(
+      switchMap(([userId, organization]) => {
         if (organization.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
             map((response) => Policy.fromListResponse(response)),
           );
         }
 
-        return this.policyService.policies$;
+        return this.policyService.policies$(userId);
       }),
     );
 
@@ -214,6 +233,17 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    // Setup feature flag-dependent observables
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
+    );
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
@@ -295,7 +325,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
     const orgKey = await this.keyService.getOrgKey(this.organization.id);
-    const key = await this.encryptService.rsaEncrypt(orgKey.key, publicKey);
+    const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
     const request = new OrganizationUserConfirmRequest();
     request.key = key.encryptedString;
     await this.organizationUserApiService.postOrganizationUserConfirm(
@@ -459,58 +489,79 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     firstValueFrom(simpleDialog.closed).then(this.handleDialogClose.bind(this));
   }
 
-  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
-    if (
-      !user &&
-      this.organization.hasReseller &&
-      this.organization.seats === this.dataSource.confirmedUserCount
-    ) {
+  private async handleInviteDialog() {
+    const dialog = openUserAddEditDialog(this.dialogService, {
+      data: {
+        kind: "Add",
+        organizationId: this.organization.id,
+        allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
+        occupiedSeatCount: this.occupiedSeatCount,
+        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+
+    if (result === MemberDialogResult.Saved) {
+      await this.load();
+    }
+  }
+
+  private async handleSeatLimitForFixedTiers() {
+    if (!this.organization.canEditSubscription) {
+      await this.showSeatLimitReachedDialog();
+      return;
+    }
+
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organization.id,
+        subscription: null,
+        productTierType: this.organization.productTierType,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Submitted) {
+      await this.load();
+    }
+  }
+
+  async invite() {
+    if (this.organization.hasReseller && this.organization.seats === this.occupiedSeatCount) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("seatLimitReached"),
         message: this.i18nService.t("contactYourProvider"),
       });
+
       return;
     }
 
-    // Invite User: Add Flow
-    // Click on user email: Edit Flow
-
-    // User attempting to invite new users in a free org with max users
     if (
-      !user &&
-      this.dataSource.data.length === this.organization.seats &&
-      (this.organization.productTierType === ProductTierType.Free ||
-        this.organization.productTierType === ProductTierType.TeamsStarter ||
-        this.organization.productTierType === ProductTierType.Families)
+      this.occupiedSeatCount === this.organization.seats &&
+      isFixedSeatPlan(this.organization.productTierType)
     ) {
-      const reference = openChangePlanDialog(this.dialogService, {
-        data: {
-          organizationId: this.organization.id,
-          subscription: null,
-          productTierType: this.organization.productTierType,
-        },
-      });
+      await this.handleSeatLimitForFixedTiers();
 
-      const result = await lastValueFrom(reference.closed);
-
-      if (result === ChangePlanDialogResultType.Submitted) {
-        await this.load();
-      }
       return;
     }
 
+    await this.handleInviteDialog();
+  }
+
+  async edit(user: OrganizationUserView, initialTab: MemberDialogTab = MemberDialogTab.Role) {
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
+        kind: "Edit",
         name: this.userNamePipe.transform(user),
         organizationId: this.organization.id,
-        organizationUserId: user != null ? user.id : null,
-        allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        usesKeyConnector: user?.usesKeyConnector,
+        organizationUserId: user.id,
+        usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
-        numConfirmedMembers: this.dataSource.confirmedUserCount,
-        managedByOrganization: user?.managedByOrganization,
+        managedByOrganization: user.managedByOrganization,
       },
     });
 
@@ -522,9 +573,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       case MemberDialogResult.Saved:
       case MemberDialogResult.Revoked:
       case MemberDialogResult.Restored:
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.load();
+        await this.load();
         break;
     }
   }
@@ -545,6 +594,21 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async bulkDelete() {
+    const warningAcknowledged = await firstValueFrom(
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+    );
+
+    if (
+      !warningAcknowledged &&
+      this.organization.canManageUsers &&
+      this.organization.productTierType === ProductTierType.Enterprise
+    ) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return;
+      }
+    }
+
     if (this.actionPromise != null) {
       return;
     }
@@ -604,9 +668,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         this.organization.id,
         filteredUsers.map((user) => user.id),
       );
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-
       // Bulk Status component open
       const dialogRef = BulkStatusComponent.open(this.dialogService, {
         data: {
@@ -734,12 +795,30 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async deleteUser(user: OrganizationUserView) {
+    const warningAcknowledged = await firstValueFrom(
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.organization.id),
+    );
+
+    if (
+      !warningAcknowledged &&
+      this.organization.canManageUsers &&
+      this.organization.productTierType === ProductTierType.Enterprise
+    ) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return false;
+      }
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: {
         key: "deleteOrganizationUser",
         placeholders: [this.userNamePipe.transform(user)],
       },
-      content: { key: "deleteOrganizationUserWarning" },
+      content: {
+        key: "deleteOrganizationUserWarningDesc",
+        placeholders: [this.userNamePipe.transform(user)],
+      },
       type: "warning",
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
@@ -748,6 +827,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     if (!confirmed) {
       return false;
     }
+
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organization.id);
 
     this.actionPromise = this.organizationUserApiService.deleteOrganizationUser(
       this.organization.id,
@@ -778,5 +859,33 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       },
       type: "warning",
     });
+  }
+
+  get showBulkRestoreUsers(): boolean {
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status == this.userStatusType.Revoked);
+  }
+
+  get showBulkRevokeUsers(): boolean {
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.status != this.userStatusType.Revoked);
+  }
+
+  get showBulkRemoveUsers(): boolean {
+    return this.dataSource.getCheckedUsers().every((member) => !member.managedByOrganization);
+  }
+
+  get showBulkDeleteUsers(): boolean {
+    const validStatuses = [
+      this.userStatusType.Accepted,
+      this.userStatusType.Confirmed,
+      this.userStatusType.Revoked,
+    ];
+
+    return this.dataSource
+      .getCheckedUsers()
+      .every((member) => member.managedByOrganization && validStatuses.includes(member.status));
   }
 }

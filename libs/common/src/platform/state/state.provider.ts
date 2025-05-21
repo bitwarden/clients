@@ -60,9 +60,9 @@ export abstract class StateProvider {
    */
   abstract setUserState<T>(
     keyDefinition: UserKeyDefinition<T>,
-    value: T,
+    value: T | null,
     userId?: UserId,
-  ): Promise<[UserId, T]>;
+  ): Promise<[UserId, T | null]>;
 
   /** @see{@link ActiveUserStateProvider.get} */
   abstract getActive<T>(userKeyDefinition: UserKeyDefinition<T>): ActiveUserState<T>;

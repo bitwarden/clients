@@ -1,0 +1,56 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./header.lit-stories";
+
+<Meta title="Components/Notifications/Notification Header" of={stories} />
+
+## Notification Header
+
+The `NotificationHeader` component is used to display a notification banner with a message, theme,
+and an optional close button. This component is versatile and can be styled dynamically based on the
+`theme` and other provided props.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop**                  | **Type**             | **Required** | **Description**                                                     |
+| ------------------------- | -------------------- | ------------ | ------------------------------------------------------------------- |
+| `message`                 | `string`             | Yes          | The text message to be displayed in the notification.               |
+| `standalone`              | `boolean`            | No           | Determines if the notification is displayed independently.          |
+| `theme`                   | `Theme`              | Yes          | Defines the theme of the notification. Must match the `Theme` enum. |
+| `handleCloseNotification` | `(e: Event) => void` | No           | A callback function triggered when the close button is clicked.     |
+
+---
+
+## Usage Example
+
+```tsx
+import { NotificationHeader } from "../../notification/header";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<NotificationHeader
+  message="This is a sample notification."
+  standalone={true}
+  theme={ThemeTypes.Dark}
+  handleCloseNotification={() => console.log("Notification closed!")}
+/>;
+```
+
+## Accessibility (WCAG) Compliance
+
+The `NotificationHeader` component is designed with accessibility in mind:
+
+### Screen Reader Compatibility
+
+- The message is rendered in a way that ensures visibility to assistive technologies.
+
+### Visual Feedback
+
+- The theme prop dynamically adjusts colors and contrast for light and dark modes.
+- The component provides clear visual separation to ensure readability in all themes.
+
+### Notes
+
+- If handleCloseNotification is not provided, the close button will not trigger any action.

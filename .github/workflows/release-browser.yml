@@ -23,7 +23,7 @@ jobs:
     name: Setup
     runs-on: ubuntu-22.04
     outputs:
-      release-version: ${{ steps.version.outputs.version }}
+      release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -118,7 +118,7 @@ jobs:
 
       - name: Rename build artifacts
         env:
-          PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+          PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
           mv browser-source.zip browser-source-$PACKAGE_VERSION.zip
           mv dist-chrome.zip dist-chrome-$PACKAGE_VERSION.zip
@@ -128,16 +128,16 @@ jobs:
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
         with:
-          artifacts: 'browser-source-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-chrome-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-opera-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-firefox-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-edge-${{ needs.setup.outputs.release-version }}.zip'
+          artifacts: 'browser-source-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-opera-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-firefox-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-edge-${{ needs.setup.outputs.release_version }}.zip'
           commit: ${{ github.sha }}
-          tag: "browser-v${{ needs.setup.outputs.release-version }}"
-          name: "Browser v${{ needs.setup.outputs.release-version }}"
+          tag: "browser-v${{ needs.setup.outputs.release_version }}"
+          name: "Browser v${{ needs.setup.outputs.release_version }}"
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true

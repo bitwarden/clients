@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
@@ -12,12 +14,14 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { organizationPermissionsGuard } from "../../admin-console/organizations/guards/org-permissions.guard";
-import { organizationRedirectGuard } from "../../admin-console/organizations/guards/org-redirect.guard";
-import { OrganizationLayoutComponent } from "../../admin-console/organizations/layouts/organization-layout.component";
-import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
-import { VaultModule } from "../../vault/org-vault/vault.module";
+import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
 
+import { VaultModule } from "./collections/vault.module";
+import { isEnterpriseOrgGuard } from "./guards/is-enterprise-org.guard";
+import { organizationPermissionsGuard } from "./guards/org-permissions.guard";
+import { organizationRedirectGuard } from "./guards/org-redirect.guard";
+import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
+import { OrganizationLayoutComponent } from "./layouts/organization-layout.component";
 import { GroupsComponent } from "./manage/groups.component";
 
 const routes: Routes = [
@@ -35,6 +39,17 @@ const routes: Routes = [
       {
         path: "vault",
         loadChildren: () => VaultModule,
+      },
+      {
+        path: "integrations",
+        canActivate: [
+          isEnterpriseOrgGuard(false),
+          organizationPermissionsGuard(canAccessIntegrations),
+        ],
+        component: AdminConsoleIntegrationsComponent,
+        data: {
+          titleId: "integrations",
+        },
       },
       {
         path: "settings",
@@ -60,13 +75,6 @@ const routes: Routes = [
         loadChildren: () =>
           import("../organizations/reporting/organization-reporting.module").then(
             (m) => m.OrganizationReportingModule,
-          ),
-      },
-      {
-        path: "access-intelligence",
-        loadChildren: () =>
-          import("../../tools/access-intelligence/access-intelligence.module").then(
-            (m) => m.AccessIntelligenceModule,
           ),
       },
       {
@@ -97,6 +105,10 @@ function getOrganizationRoute(organization: Organization): string {
     return "settings";
   }
   return undefined;
+}
+
+function canAccessIntegrations(organization: Organization) {
+  return organization.canAccessIntegrations;
 }
 
 @NgModule({

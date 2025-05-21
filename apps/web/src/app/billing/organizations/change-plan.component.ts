@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { ProductTierType } from "@bitwarden/common/billing/enums";
@@ -7,6 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 @Component({
   selector: "app-change-plan",
   templateUrl: "change-plan.component.html",
+  standalone: false,
 })
 export class ChangePlanComponent {
   @Input() organizationId: string;

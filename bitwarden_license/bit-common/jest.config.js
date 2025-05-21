@@ -7,9 +7,17 @@ module.exports = {
   ...sharedConfig,
   displayName: "bit-common tests",
   testEnvironment: "jsdom",
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
-  }),
+  moduleNameMapper: pathsToModuleNameMapper(
+    {
+      "@bitwarden/common/spec": ["../../libs/common/spec"],
+      "@bitwarden/common": ["../../libs/common/src/*"],
+      "@bitwarden/admin-console/common": ["<rootDir>/libs/admin-console/src/common"],
+      ...(compilerOptions?.paths ?? {}),
+    },
+    {
+      prefix: "<rootDir>/",
+    },
+  ),
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   transformIgnorePatterns: ["node_modules/(?!(.*\\.mjs$|@angular|rxjs|@bitwarden))"],
   moduleFileExtensions: ["ts", "js", "html", "mjs"],

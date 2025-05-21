@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 /**
  * Service for managing vault settings.
@@ -17,6 +19,12 @@ export abstract class VaultSettingsService {
    */
   showIdentitiesCurrentTab$: Observable<boolean>;
   /**
+  /**
+   * An observable monitoring the state of the click items on the Vault view
+   * for Autofill suggestions.
+   */
+  clickItemsToAutofillVaultView$: Observable<boolean>;
+  /**
 
   /**
    * Saves the enable passkeys setting to disk.
@@ -33,4 +41,10 @@ export abstract class VaultSettingsService {
    * @param value The new value for the show identities on tab page setting.
    */
   setShowIdentitiesCurrentTab: (value: boolean) => Promise<void>;
+  /**
+   * Saves the click items on vault View for Autofill suggestions to disk.
+   * @param value The new value for the click items on vault View for
+   * Autofill suggestions setting.
+   */
+  setClickItemsToAutofillVaultView: (value: boolean) => Promise<void>;
 }

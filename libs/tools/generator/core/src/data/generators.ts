@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
@@ -54,8 +56,10 @@ const PASSPHRASE: CredentialGeneratorConfiguration<
   category: "password",
   nameKey: "passphrase",
   generateKey: "generatePassphrase",
-  generatedValueKey: "passphrase",
+  onGeneratedMessageKey: "passphraseGenerated",
+  credentialTypeKey: "passphrase",
   copyKey: "copyPassphrase",
+  useGeneratedValueKey: "useThisPassword",
   onlyOnRequest: false,
   request: [],
   engine: {
@@ -115,8 +119,10 @@ const PASSWORD: CredentialGeneratorConfiguration<
   category: "password",
   nameKey: "password",
   generateKey: "generatePassword",
-  generatedValueKey: "password",
+  onGeneratedMessageKey: "passwordGenerated",
+  credentialTypeKey: "password",
   copyKey: "copyPassword",
+  useGeneratedValueKey: "useThisPassword",
   onlyOnRequest: false,
   request: [],
   engine: {
@@ -191,8 +197,10 @@ const USERNAME: CredentialGeneratorConfiguration<EffUsernameGenerationOptions, N
     category: "username",
     nameKey: "randomWord",
     generateKey: "generateUsername",
-    generatedValueKey: "username",
+    onGeneratedMessageKey: "usernameGenerated",
+    credentialTypeKey: "username",
     copyKey: "copyUsername",
+    useGeneratedValueKey: "useThisUsername",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -243,8 +251,10 @@ const CATCHALL: CredentialGeneratorConfiguration<CatchallGenerationOptions, NoPo
     nameKey: "catchallEmail",
     descriptionKey: "catchallEmailDesc",
     generateKey: "generateEmail",
-    generatedValueKey: "email",
+    onGeneratedMessageKey: "emailGenerated",
+    credentialTypeKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -298,8 +308,10 @@ const SUBADDRESS: CredentialGeneratorConfiguration<SubaddressGenerationOptions, 
     nameKey: "plusAddressedEmail",
     descriptionKey: "plusAddressedEmailDesc",
     generateKey: "generateEmail",
-    generatedValueKey: "email",
+    onGeneratedMessageKey: "emailGenerated",
+    credentialTypeKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: false,
     request: [],
     engine: {
@@ -355,8 +367,10 @@ export function toCredentialGeneratorConfiguration<Settings extends ApiSettings 
     nameKey: configuration.name,
     descriptionKey: "forwardedEmailDesc",
     generateKey: "generateEmail",
-    generatedValueKey: "email",
+    onGeneratedMessageKey: "emailGenerated",
+    credentialTypeKey: "email",
     copyKey: "copyEmail",
+    useGeneratedValueKey: "useThisEmail",
     onlyOnRequest: true,
     request: configuration.forwarder.request,
     engine: {
@@ -369,7 +383,7 @@ export function toCredentialGeneratorConfiguration<Settings extends ApiSettings 
     settings: {
       initial: configuration.forwarder.defaultSettings,
       constraints: configuration.forwarder.settingsConstraints,
-      account: configuration.forwarder.settings,
+      account: configuration.forwarder.local.settings,
     },
     policy: {
       type: PolicyType.PasswordGenerator,

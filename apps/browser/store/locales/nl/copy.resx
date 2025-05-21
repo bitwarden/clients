@@ -118,58 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - wachtwoordbeheerder</value>
+    <value>Bitwarden Wachtwoordbeheerder</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Thuis, op het werk of onderweg, Bitwarden beveiligt eenvoudig al je wachtwoorden, sleutels en gevoelige informatie.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Erkend als de beste wachtwoordmanager door PCMag, WIRED, The Verge, CNET, G2 en meer!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+BEVEILIG JE DIGITALE LEVEN
+Beveilig je digitale leven en bescherm je tegen datalekken door unieke, sterke wachtwoorden te genereren en op te slaan voor elke account. Bewaar alles in een end-to-end versleutelde wachtwoordkluis waar alleen jij toegang toe hebt.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+OVERAL EN ALTIJD TOEGANG TOT JE GEGEVENS, OP ELK APPARAAT
+Beheer, bewaar, beveilig en deel een onbeperkt aantal wachtwoorden op een onbeperkt aantal apparaten zonder beperkingen.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+IEDEREEN ZOU DE MIDDELEN MOETEN HEBBEN OM VEILIG ONLINE TE BLIJVEN
+Gebruik Bitwarden gratis, zonder advertenties of verkoop van gegevens. Bitwarden vindt dat iedereen de mogelijkheid moet hebben om veilig online te zijn. Premium abonnementen bieden toegang tot geavanceerde functies.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+VERSTERK JE TEAMS MET BITWARDEN
+Abonnementen voor Teams en Enterprise worden geleverd met professionele zakelijke functies. Enkele voorbeelden zijn SSO-integratie, zelf hosten, directory-integratie en SCIM provisioning, globaal beleid, API-toegang, gebeurtenislogboeken en meer.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Gebruik Bitwarden om je medewerkers te beveiligen en gevoelige informatie te delen met collega's.
 
 
-More reasons to choose Bitwarden:
+Meer redenen om voor Bitwarden te kiezen:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Encryptie van wereldklasse
+Wachtwoorden worden beschermd met geavanceerde end-to-end versleuteling (AES-256 bit, salted hashtag en PBKDF2 SHA-256) zodat je gegevens veilig en privé blijven.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Audits door derde partijen
+Bitwarden voert regelmatig uitgebreide beveiligingsaudits uit bij gerenommeerde beveiligingsbedrijven. Deze jaarlijkse audits omvatten broncodebeoordelingen en penetratietests voor Bitwarden IP's, servers en webapplicaties.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Geavanceerde 2FA
+Beveilig je login met een authenticator van derden, codes per e-mail of FIDO2 WebAuthn referenties zoals een hardware beveiligingssleutel of passkey.
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Verstuur gegevens rechtstreeks naar anderen met behoud van end-to-end versleutelde beveiliging en beperking van blootstelling.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Ingebouwde generator
+Maak lange, complexe en duidelijke wachtwoorden en unieke gebruikersnamen voor elke site die je bezoekt. Integreer met e-mail alias providers voor extra privacy.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Wereldwijde vertalingen
+Bitwarden vertalingen bestaan voor meer dan 60 talen, vertaald door de wereldwijde gemeenschap via Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Platformoverkoepelende applicaties
+Beveilig en deel gevoelige gegevens in je Bitwarden Vault vanuit elke browser, mobiel apparaat of desktop OS, en meer.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden beveiligt meer dan alleen wachtwoorden
+Met de end-to-end versleutelde oplossingen voor referentiebeheer van Bitwarden kunnen organisaties alles beveiligen, inclusief ontwikkelaarsgeheimen en ervaringen met wachtwoorden. Bezoek Bitwarden.com voor meer informatie over Bitwarden Secrets Manager en Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Thuis, op het werk of onderweg, Bitwarden beveiligt eenvoudig al je wachtwoorden, sleutels en gevoelige informatie.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchroniseer en gebruik je kluis op meerdere apparaten</value>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
@@ -24,10 +26,8 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -36,12 +36,14 @@ import {
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
+import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
+import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 @Component({
@@ -53,11 +55,12 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
       provide: CipherFormContainer,
       useExisting: forwardRef(() => CipherFormComponent),
     },
+    {
+      provide: CipherFormCacheService,
+    },
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -70,6 +73,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     NgIf,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
+    NewItemNudgeComponent,
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {
@@ -127,6 +131,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   protected updatedCipherView: CipherView | null;
 
+  get website(): string | null {
+    return this.updatedCipherView?.login?.uris?.[0]?.uri ?? null;
+  }
+
   protected loading: boolean = true;
 
   CipherType = CipherType;
@@ -134,11 +142,11 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   ngAfterViewInit(): void {
     if (this.submitBtn) {
       this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
-        this.submitBtn.loading = loading;
+        this.submitBtn.loading.set(loading);
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
     }
   }
@@ -162,6 +170,26 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
    */
   patchCipher(updateFn: (current: CipherView) => CipherView): void {
     this.updatedCipherView = updateFn(this.updatedCipherView);
+    // Cache the updated cipher
+    this.cipherFormCacheService.cacheCipherView(this.updatedCipherView);
+  }
+
+  /**
+   * Return initial values for given keys of a cipher
+   */
+  getInitialCipherView(): CipherView {
+    const cachedCipherView = this.cipherFormCacheService.getCachedCipherView();
+
+    if (cachedCipherView && this.initializedWithCachedCipher()) {
+      return cachedCipherView;
+    }
+
+    return this.originalCipherView;
+  }
+
+  /** */
+  initializedWithCachedCipher(): boolean {
+    return this.cipherFormCacheService.initializedWithValue;
   }
 
   /**
@@ -184,6 +212,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
     // Force change detection so that all child components are destroyed and re-created
     this.changeDetectorRef.detectChanges();
+
+    await this.cipherFormCacheService.init();
 
     this.updatedCipherView = new CipherView();
     this.originalCipherView = null;
@@ -209,6 +239,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+
+        if (this.updatedCipherView.login) {
+          this.updatedCipherView.login.fido2Credentials = null;
+        }
       }
     } else {
       this.updatedCipherView.type = this.config.cipherType;
@@ -218,8 +252,25 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       }
     }
 
+    this.setInitialCipherFromCache();
+
     this.loading = false;
     this.formReadySubject.next();
+  }
+
+  /**
+   * Updates `updatedCipherView` based on the value from the cache.
+   */
+  setInitialCipherFromCache() {
+    const cachedCipher = this.cipherFormCacheService.getCachedCipherView();
+    if (cachedCipher === null) {
+      return;
+    }
+
+    // Use the cached cipher when it matches the cipher being edited
+    if (this.updatedCipherView.id === cachedCipher.id) {
+      this.updatedCipherView = cachedCipher;
+    }
   }
 
   constructor(
@@ -228,6 +279,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private toastService: ToastService,
     private i18nService: I18nService,
     private changeDetectorRef: ChangeDetectorRef,
+    private cipherFormCacheService: CipherFormCacheService,
   ) {}
 
   /**

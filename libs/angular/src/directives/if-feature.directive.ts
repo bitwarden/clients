@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, Input, OnInit, TemplateRef, ViewContainerRef } from "@angular/core";
 
 import { AllowedFeatureFlagTypes, FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -12,6 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
  */
 @Directive({
   selector: "[appIfFeature]",
+  standalone: false,
 })
 export class IfFeatureDirective implements OnInit {
   /**

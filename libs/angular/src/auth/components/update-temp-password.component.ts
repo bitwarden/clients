@@ -1,12 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -14,16 +15,15 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
@@ -49,12 +49,10 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
     policyService: PolicyService,
     keyService: KeyService,
     messagingService: MessagingService,
-    private apiService: ApiService,
-    stateService: StateService,
+    private masterPasswordApiService: MasterPasswordApiService,
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
@@ -69,10 +67,8 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
       i18nService,
       keyService,
       messagingService,
-      passwordGenerationService,
       platformUtilsService,
       policyService,
-      stateService,
       dialogService,
       kdfConfigService,
       masterPasswordService,
@@ -114,10 +110,11 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
   }
 
   async setupSubmitActions(): Promise<boolean> {
-    this.email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    const [userId, email] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
     );
-    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+    this.email = email;
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     return true;
   }
 
@@ -206,7 +203,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = masterPasswordHash;
     request.masterPasswordHint = this.hint;
 
-    return this.apiService.putUpdateTempPassword(request);
+    return this.masterPasswordApiService.putUpdateTempPassword(request);
   }
 
   private async updatePassword(newMasterPasswordHash: string, userKey: [UserKey, EncString]) {
@@ -218,7 +215,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = newMasterPasswordHash;
     request.key = userKey[1].encryptedString;
 
-    return this.apiService.postPassword(request);
+    return this.masterPasswordApiService.postPassword(request);
   }
 
   private async updateTdeOffboardingPassword(
@@ -230,6 +227,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     request.newMasterPasswordHash = masterPasswordHash;
     request.masterPasswordHint = this.hint;
 
-    return this.apiService.putUpdateTdeOffboardingPassword(request);
+    return this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
   }
 }

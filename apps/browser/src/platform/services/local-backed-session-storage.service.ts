@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -88,7 +90,6 @@ export class LocalBackedSessionStorageService
           this.logService.warning(
             `Possible unnecessary write to local session storage. Key: ${key}`,
           );
-          this.logService.warning(obj as any);
         }
       } catch (err) {
         this.logService.warning(`Error while comparing values for key: ${key}`);
@@ -117,11 +118,7 @@ export class LocalBackedSessionStorageService
       return null;
     }
 
-    const valueJson = await this.encryptService.decryptToUtf8(
-      new EncString(local),
-      encKey,
-      "browser-session-key",
-    );
+    const valueJson = await this.encryptService.decryptString(new EncString(local), encKey);
     if (valueJson == null) {
       // error with decryption, value is lost, delete state and start over
       await this.localStorage.remove(this.sessionStorageKey(key));
@@ -138,7 +135,10 @@ export class LocalBackedSessionStorageService
     }
 
     const valueJson = JSON.stringify(value);
-    const encValue = await this.encryptService.encrypt(valueJson, await this.sessionKey.get());
+    const encValue = await this.encryptService.encryptString(
+      valueJson,
+      await this.sessionKey.get(),
+    );
     await this.localStorage.save(this.sessionStorageKey(key), encValue.encryptedString);
   }
 
@@ -196,6 +196,8 @@ export class LocalBackedSessionStorageService
   private compareValues<T>(value1: T, value2: T): boolean {
     try {
       return compareValues(value1, value2);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logService.error(
         `error comparing values\n${JSON.stringify(value1)}\n${JSON.stringify(value2)}`,

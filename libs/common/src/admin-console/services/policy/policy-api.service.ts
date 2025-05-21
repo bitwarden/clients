@@ -1,6 +1,8 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { getUserId } from "../../../auth/services/account.service";
 import { HttpStatusCode } from "../../../enums";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
@@ -18,6 +20,7 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
   constructor(
     private policyService: InternalPolicyService,
     private apiService: ApiService,
+    private accountService: AccountService,
   ) {}
 
   async getPolicy(organizationId: string, type: PolicyType): Promise<PolicyResponse> {
@@ -93,8 +96,14 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
         return null;
       }
 
-      return await firstValueFrom(
-        this.policyService.masterPasswordPolicyOptions$([masterPasswordPolicy]),
+      return firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService.masterPasswordPolicyOptions$(userId, [masterPasswordPolicy]),
+          ),
+          map((policy) => policy ?? null),
+        ),
       );
     } catch (error) {
       // If policy not found, return null
@@ -114,8 +123,9 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
       true,
       true,
     );
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const response = new PolicyResponse(r);
     const data = new PolicyData(response);
-    await this.policyService.upsert(data);
+    await this.policyService.upsert(data, userId);
   }
 }

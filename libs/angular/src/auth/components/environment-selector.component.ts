@@ -5,8 +5,6 @@ import { ActivatedRoute } from "@angular/router";
 import { Observable, map, Subject, takeUntil } from "rxjs";
 
 import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -59,6 +57,7 @@ export interface EnvironmentSelectorRouteData {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
+  standalone: false,
 })
 export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   @Output() onOpenSelfHostedSettings = new EventEmitter<void>();
@@ -86,7 +85,6 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
     protected environmentService: EnvironmentService,
     private route: ActivatedRoute,
     private dialogService: DialogService,
-    private configService: ConfigService,
     private toastService: ToastService,
     private i18nService: I18nService,
   ) {}
@@ -111,24 +109,18 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Opens the self-hosted settings dialog.
-     *
-     * If the `UnauthenticatedExtensionUIRefresh` feature flag is enabled,
-     * the self-hosted settings dialog is opened directly. Otherwise, the
-     * `onOpenSelfHostedSettings` event is emitted.
+     * Opens the self-hosted settings dialog when the self-hosted option is selected.
      */
     if (option === Region.SelfHosted) {
-      if (await this.configService.getFeatureFlag(FeatureFlag.UnauthenticatedExtensionUIRefresh)) {
-        if (await SelfHostedEnvConfigDialogComponent.open(this.dialogService)) {
-          this.toastService.showToast({
-            variant: "success",
-            title: null,
-            message: this.i18nService.t("environmentSaved"),
-          });
-        }
-      } else {
-        this.onOpenSelfHostedSettings.emit();
+      const dialogResult = await SelfHostedEnvConfigDialogComponent.open(this.dialogService);
+      if (dialogResult) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("environmentSaved"),
+        });
       }
+      // Don't proceed to setEnvironment when the self-hosted dialog is cancelled
       return;
     }
 

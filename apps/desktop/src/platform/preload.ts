@@ -1,4 +1,3 @@
-import { sshagent as ssh } from "desktop_native/napi";
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -11,7 +10,15 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isDev,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsStore,
+} from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -50,18 +57,14 @@ const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
   },
-  generateKey: async (keyAlgorithm: string): Promise<ssh.SshKey> => {
-    return await ipcRenderer.invoke("sshagent.generatekey", { keyAlgorithm });
-  },
   lock: async () => {
     return await ipcRenderer.invoke("sshagent.lock");
   },
-  importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
-    const res = await ipcRenderer.invoke("sshagent.importkey", {
-      privateKey: key,
-      password: password,
-    });
-    return res;
+  clearKeys: async () => {
+    return await ipcRenderer.invoke("sshagent.clearkeys");
+  },
+  isLoaded(): Promise<boolean> {
+    return ipcRenderer.invoke("sshagent.isloaded");
   },
 };
 
@@ -76,6 +79,7 @@ const nativeMessaging = {
   },
   sendMessage: (message: {
     appId: string;
+    messageId?: number;
     command?: string;
     sharedSecret?: string;
     message?: EncString;
@@ -96,8 +100,8 @@ const nativeMessaging = {
 
 const crypto = {
   argon2: (
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
+    password: Uint8Array,
+    salt: Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number,
@@ -111,11 +115,12 @@ const ephemeralStore = {
   getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
   removeEphemeralValue: (key: string): Promise<void> =>
     ipcRenderer.invoke("deleteEphemeralValue", key),
+  listEphemeralValueKeys: (): Promise<string[]> => ipcRenderer.invoke("listEphemeralValueKeys"),
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
   },
 };
 
@@ -137,6 +142,7 @@ export default {
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
+  allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),

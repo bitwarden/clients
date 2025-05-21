@@ -1,11 +1,17 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
-import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import {
+  VaultTimeout,
+  VaultTimeoutAction,
+  VaultTimeoutStringType,
+} from "../../key-management/vault-timeout";
 import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
@@ -14,7 +20,6 @@ import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
-import { VaultTimeout, VaultTimeoutStringType } from "../../types/vault-timeout.type";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 
 import { ACCOUNT_ACTIVE_ACCOUNT_ID } from "./account.service";
@@ -288,7 +293,7 @@ describe("TokenService", () => {
 
           const mockEncryptedAccessToken = "encryptedAccessToken";
 
-          encryptService.encrypt.mockResolvedValue({
+          encryptService.encryptString.mockResolvedValue({
             encryptedString: mockEncryptedAccessToken,
           } as any);
 
@@ -499,7 +504,7 @@ describe("TokenService", () => {
             .nextState("encryptedAccessToken");
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockResolvedValue("decryptedAccessToken");
+          encryptService.decryptString.mockResolvedValue("decryptedAccessToken");
 
           // Need to have global active id set to the user id
           if (!userId) {
@@ -1510,7 +1515,7 @@ describe("TokenService", () => {
             .nextState(encryptedAccessToken);
 
           secureStorageService.get.mockResolvedValue(accessTokenKeyB64);
-          encryptService.decryptToUtf8.mockRejectedValue(new Error("Decryption error"));
+          encryptService.decryptString.mockRejectedValue(new Error("Decryption error"));
 
           // Act
           const result = await tokenService.getAccessToken(userIdFromAccessToken);

@@ -1,8 +1,8 @@
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
-import { SendWithIdRequest } from "@bitwarden/common/src/tools/send/models/request/send-with-id.request";
-import { CipherWithIdRequest } from "@bitwarden/common/src/vault/models/request/cipher-with-id.request";
-import { FolderWithIdRequest } from "@bitwarden/common/src/vault/models/request/folder-with-id.request";
+import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
+import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
+import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 
 import { EmergencyAccessWithIdRequest } from "../../../auth/emergency-access/request/emergency-access-update.request";
 
@@ -16,4 +16,10 @@ export class UpdateKeyRequest {
   emergencyAccessKeys: EmergencyAccessWithIdRequest[] = [];
   resetPasswordKeys: OrganizationUserResetPasswordWithIdRequest[] = [];
   webauthnKeys: WebauthnRotateCredentialRequest[] = [];
+
+  constructor(masterPasswordHash: string, key: string, privateKey: string) {
+    this.masterPasswordHash = masterPasswordHash;
+    this.key = key;
+    this.privateKey = privateKey;
+  }
 }

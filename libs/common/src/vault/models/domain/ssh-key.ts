@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
+import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SshKeyData } from "../data/ssh-key.data";
 import { SshKeyView } from "../view/ssh-key.view";
@@ -30,16 +33,18 @@ export class SshKey extends Domain {
     );
   }
 
-  decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<SshKeyView> {
-    return this.decryptObj(
+  decrypt(
+    orgId: string,
+    context = "No Cipher Context",
+    encKey?: SymmetricCryptoKey,
+  ): Promise<SshKeyView> {
+    return this.decryptObj<SshKey, SshKeyView>(
+      this,
       new SshKeyView(),
-      {
-        privateKey: null,
-        publicKey: null,
-        keyFingerprint: null,
-      },
+      ["privateKey", "publicKey", "keyFingerprint"],
       orgId,
       encKey,
+      "DomainType: SshKey; " + context,
     );
   }
 
@@ -66,5 +71,18 @@ export class SshKey extends Domain {
       publicKey,
       keyFingerprint,
     });
+  }
+
+  /**
+   * Maps SSH key to SDK format.
+   *
+   * @returns {SdkSshKey} The SDK SSH key object.
+   */
+  toSdkSshKey(): SdkSshKey {
+    return {
+      privateKey: this.privateKey.toJSON(),
+      publicKey: this.publicKey.toJSON(),
+      fingerprint: this.keyFingerprint.toJSON(),
+    };
   }
 }

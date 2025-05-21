@@ -1,9 +1,10 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
 import { SecretListView } from "../../models/view/secret-list.view";
 import {
@@ -19,6 +20,7 @@ export interface SecretDeleteOperation {
 
 @Component({
   templateUrl: "./secret-delete.component.html",
+  standalone: false,
 })
 export class SecretDeleteDialogComponent {
   constructor(

@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("../../../shared/tsconfig.libs.json");
+const { compilerOptions } = require("../../../shared/tsconfig.spec.json");
 
 /** @type {import('jest').Config} */
 module.exports = {

@@ -1,6 +1,12 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
 import { ApItemValueType } from "./models/ap-item-value.type";
 import { ApItemViewType } from "./models/ap-item-view.type";
@@ -11,13 +17,22 @@ import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
   providedIn: "root",
 })
 export class AccessPolicySelectorService {
-  constructor(private organizationService: OrganizationService) {}
+  constructor(
+    private organizationService: OrganizationService,
+    private accountServcie: AccountService,
+  ) {}
 
   async showAccessRemovalWarning(
     organizationId: string,
     selectedPoliciesValues: ApItemValueType[],
   ): Promise<boolean> {
-    const organization = await this.organizationService.get(organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountServcie.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+    if (!organization) {
+      return false;
+    }
     if (organization.isOwner || organization.isAdmin) {
       return false;
     }
@@ -38,7 +53,13 @@ export class AccessPolicySelectorService {
       return false;
     }
 
-    const organization = await this.organizationService.get(organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountServcie.activeAccount$));
+    const organization = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+    if (!organization) {
+      return false;
+    }
     if (organization.isOwner || organization.isAdmin || !this.userHasReadWriteAccess(current)) {
       return false;
     }

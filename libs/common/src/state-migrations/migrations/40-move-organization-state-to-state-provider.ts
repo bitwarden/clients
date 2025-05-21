@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
@@ -5,6 +7,8 @@ import { Migrator } from "../migrator";
 
 // Local declarations of `OrganizationData` and the types of it's properties.
 // Duplicated to remain frozen in time when migration occurs.
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum OrganizationUserStatusType {
   Invited = 0,
   Accepted = 1,
@@ -12,6 +16,8 @@ enum OrganizationUserStatusType {
   Revoked = -1,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum OrganizationUserType {
   Owner = 0,
   Admin = 1,
@@ -38,11 +44,15 @@ type PermissionsApi = {
   manageScim: boolean;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ProviderType {
   Msp = 0,
   Reseller = 1,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ProductType {
   Free = 0,
   Families = 1,

@@ -1,11 +1,22 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Subject, firstValueFrom, takeUntil, map, BehaviorSubject, concatMap } from "rxjs";
+import {
+  Subject,
+  firstValueFrom,
+  takeUntil,
+  map,
+  BehaviorSubject,
+  concatMap,
+  switchMap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,6 +36,8 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 // Value = hours
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum DatePreset {
   OneHour = 1,
   OneDay = 24,
@@ -144,9 +157,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -154,9 +172,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.policyService
-      .getAll$(PolicyType.SendOptions)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntil(this.destroy$),
       )
@@ -195,8 +214,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     const env = await firstValueFrom(this.environmentService.environment$);
     this.sendLinkBaseUrl = env.getSendUrl();
 
-    this.billingAccountProfileStateService.hasPremiumFromAnySource$
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) =>
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((hasPremiumFromAnySource) => {
         this.canAccessPremium = hasPremiumFromAnySource;
       });

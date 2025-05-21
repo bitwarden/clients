@@ -13,6 +13,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-vault-collections",
   templateUrl: "collections.component.html",
+  standalone: false,
 })
 export class CollectionsComponent extends BaseCollectionsComponent {
   constructor(

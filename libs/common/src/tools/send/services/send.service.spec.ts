@@ -1,10 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+import { KeyService } from "@bitwarden/key-management";
 
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
 import {
   FakeAccountService,
   FakeActiveUserState,
@@ -12,13 +10,15 @@ import {
   awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
+import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";
@@ -477,9 +477,11 @@ describe("SendService", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+      );
       encryptedKey = new EncString("Re-encrypted Send Key");
-      encryptService.encrypt.mockResolvedValue(encryptedKey);
+      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
     });
 
     it("returns re-encrypted user sends", async () => {

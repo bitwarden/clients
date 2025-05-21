@@ -1,8 +1,9 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
-import { DialogService, BitValidators } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, DialogService, BitValidators } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../../models/view/service-account.view";
 import { AccessTokenView } from "../../models/view/access-token.view";
@@ -16,6 +17,7 @@ export interface AccessTokenOperation {
 
 @Component({
   templateUrl: "./access-token-create-dialog.component.html",
+  standalone: false,
 })
 export class AccessTokenCreateDialogComponent implements OnInit {
   protected formGroup = new FormGroup({

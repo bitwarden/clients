@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { SshKeyView as SdkSshKeyView } from "@bitwarden/sdk-internal";
 
 import { SshKey } from "../domain/ssh-key";
 
@@ -41,5 +45,20 @@ export class SshKeyView extends ItemView {
 
   static fromJSON(obj: Partial<Jsonify<SshKeyView>>): SshKeyView {
     return Object.assign(new SshKeyView(), obj);
+  }
+
+  /**
+   * Converts the SDK SshKeyView to a SshKeyView.
+   */
+  static fromSdkSshKeyView(obj: SdkSshKeyView): SshKeyView | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const keyFingerprint = obj.fingerprint;
+
+    return Object.assign(new SshKeyView(), obj, {
+      keyFingerprint,
+    });
   }
 }

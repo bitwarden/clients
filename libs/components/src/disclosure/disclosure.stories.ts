@@ -13,6 +13,12 @@ export default {
       imports: [DisclosureTriggerForDirective, DisclosureComponent, IconButtonModule],
     }),
   ],
+  parameters: {
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21662-47329&t=k6OTDDPZOTtypRqo-11",
+    },
+  },
 } as Meta<DisclosureComponent>;
 
 type Story = StoryObj<DisclosureComponent>;

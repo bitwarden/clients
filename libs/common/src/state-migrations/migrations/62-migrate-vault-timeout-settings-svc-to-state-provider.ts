@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { KeyDefinitionLike, MigrationHelper, StateDefinitionLike } from "../migration-helper";
 import { Migrator } from "../migrator";
 
@@ -55,6 +57,8 @@ const vaultTimeoutTypeRollbackRecord: Record<VaultTimeout, any> = {
   onIdle: -4,
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ClientType {
   Web = "web",
   Browser = "browser",

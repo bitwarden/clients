@@ -1,4 +1,5 @@
-import { DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
@@ -6,11 +7,11 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   templateUrl: "delete-account-dialog.component.html",
+  standalone: false,
 })
 export class DeleteAccountDialogComponent {
   deleteForm = this.formBuilder.group({
@@ -20,7 +21,6 @@ export class DeleteAccountDialogComponent {
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private formBuilder: FormBuilder,
     private accountApiService: AccountApiService,
     private dialogRef: DialogRef,

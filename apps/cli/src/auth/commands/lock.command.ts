@@ -1,4 +1,6 @@
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";

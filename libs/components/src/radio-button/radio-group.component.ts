@@ -1,5 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgTemplateOutlet } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
+
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitLabel } from "../form-control/label.component";
 
@@ -8,6 +13,8 @@ let nextId = 0;
 @Component({
   selector: "bit-radio-group",
   templateUrl: "radio-group.component.html",
+  standalone: true,
+  imports: [NgTemplateOutlet, I18nPipe],
 })
 export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;

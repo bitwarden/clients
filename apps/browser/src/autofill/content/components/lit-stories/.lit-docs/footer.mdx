@@ -1,0 +1,45 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./footer.lit-stories";
+
+<Meta title="Components/Notifications/Notification Footer" of={stories} />
+
+## Notification Footer
+
+The `NotificationFooter` component is used to display a footer for notifications, allowing dynamic
+customization based on the `theme` and `notificationType`.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop**           | **Type**           | **Required** | **Description**                                                                                    |
+| ------------------ | ------------------ | ------------ | -------------------------------------------------------------------------------------------------- |
+| `notificationType` | `NotificationType` | Yes          | The type of notification footer to display. Options: `add`, `change`, `unlock`, `fileless-import`. |
+| `theme`            | `Theme`            | Yes          | Defines the theme of the notification footer. Must match the `Theme` enum.                         |
+
+---
+
+## Usage Example
+
+```tsx
+import { NotificationFooter } from "../../notification/footer";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<NotificationFooter notificationType="add" theme={ThemeTypes.Dark} />;
+```
+
+## Accessibility (WCAG) Compliance
+
+The `NotificationFooter` component has been designed with accessibility in mind:
+
+### Screen Reader Compatibility
+
+- Ensures that the notification type and relevant information are accessible to assistive
+  technologies.
+
+## Visual Feedback
+
+- The theme prop dynamically adjusts colors and contrast for light and dark modes.
+- Provides clear visual separation to enhance readability.

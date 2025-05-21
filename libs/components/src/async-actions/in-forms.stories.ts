@@ -4,8 +4,8 @@ import { action } from "@storybook/addon-actions";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
@@ -109,20 +109,17 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [
+      declarations: [PromiseExampleComponent, ObservableExampleComponent],
+      imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
-        PromiseExampleComponent,
-        ObservableExampleComponent,
-        BitActionDirective,
-      ],
-      imports: [
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
         InputModule,
         ButtonModule,
         IconButtonModule,
+        BitActionDirective,
       ],
       providers: [
         {

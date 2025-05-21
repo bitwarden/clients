@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -10,14 +12,16 @@ import {
   startWith,
   Subject,
   switchMap,
-  timeout,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { isUrlInList } from "@bitwarden/common/autofill/utils";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -25,11 +29,11 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout-window";
@@ -64,6 +68,76 @@ export class VaultPopupAutofillService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  currentTabIsOnBlocklist$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab) {
+        return isUrlInList(currentTab?.url, blockedInteractionsUrls);
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  showCurrentTabIsBlockedBanner$: Observable<boolean> = combineLatest([
+    this.domainSettingsService.blockedInteractionsUris$,
+    this.currentAutofillTab$,
+  ]).pipe(
+    map(([blockedInteractionsUrls, currentTab]) => {
+      if (blockedInteractionsUrls && currentTab?.url?.length) {
+        const tabHostname = Utils.getHostname(currentTab.url);
+
+        if (!tabHostname) {
+          return false;
+        }
+
+        const tabIsBlocked = isUrlInList(currentTab.url, blockedInteractionsUrls);
+
+        const showScriptInjectionIsBlockedBanner =
+          tabIsBlocked && !blockedInteractionsUrls[tabHostname]?.bannerIsDismissed;
+
+        return showScriptInjectionIsBlockedBanner;
+      }
+
+      return false;
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
+  async dismissCurrentTabIsBlockedBanner() {
+    try {
+      const currentTab = await firstValueFrom(this.currentAutofillTab$);
+      const currentTabHostname = currentTab?.url.length && Utils.getHostname(currentTab.url);
+
+      if (!currentTabHostname) {
+        return;
+      }
+
+      const blockedURLs = await firstValueFrom(this.domainSettingsService.blockedInteractionsUris$);
+
+      let tabIsBlocked = false;
+      if (blockedURLs && currentTab?.url?.length) {
+        tabIsBlocked = isUrlInList(currentTab.url, blockedURLs);
+      }
+
+      if (tabIsBlocked) {
+        void this.domainSettingsService.setBlockedInteractionsUris({
+          ...blockedURLs,
+          [currentTabHostname as string]: { bannerIsDismissed: true },
+        });
+      }
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      throw new Error(
+        "There was a problem dismissing the blocked interaction URL notification banner",
+      );
+    }
+  }
+
   /**
    * Observable that indicates whether autofill is allowed in the current context.
    * Autofill is allowed when there is a current tab and the popup is not in a popout window.
@@ -75,9 +149,20 @@ export class VaultPopupAutofillService {
       if (!tab) {
         return of([]);
       }
-      return this.autofillService
-        .collectPageDetailsFromTab$(tab)
-        .pipe(timeout({ first: 1500, with: () => of([]) }));
+
+      return this.domainSettingsService.blockedInteractionsUris$.pipe(
+        switchMap((blockedURLs) => {
+          if (blockedURLs && tab?.url?.length) {
+            const tabIsBlocked = isUrlInList(tab.url, blockedURLs);
+
+            if (tabIsBlocked) {
+              return of([]);
+            }
+          }
+
+          return this.autofillService.collectPageDetailsFromTab$(tab);
+        }),
+      );
     }),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
@@ -124,6 +209,7 @@ export class VaultPopupAutofillService {
 
   constructor(
     private autofillService: AutofillService,
+    private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
     private platformUtilService: PlatformUtilsService,

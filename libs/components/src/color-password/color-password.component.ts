@@ -1,7 +1,9 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, computed, HostBinding, input } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum CharacterType {
   Letter,
   Emoji,
@@ -11,20 +13,24 @@ enum CharacterType {
 
 @Component({
   selector: "bit-color-password",
-  template: `<span
-    *ngFor="let character of passwordArray; index as i"
-    [class]="getCharacterClass(character)"
-  >
-    <span>{{ character }}</span>
-    <span *ngIf="showCount" class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{
-      i + 1
-    }}</span>
-  </span>`,
-  preserveWhitespaces: false,
+  template: `@for (character of passwordCharArray(); track $index; let i = $index) {
+    <span [class]="getCharacterClass(character)">
+      <span>{{ character }}</span>
+      @if (showCount()) {
+        <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
+      }
+    </span>
+  }`,
+  standalone: true,
 })
 export class ColorPasswordComponent {
-  @Input() password: string = null;
-  @Input() showCount = false;
+  password = input<string>("");
+  showCount = input<boolean>(false);
+
+  // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
+  passwordCharArray = computed(() => {
+    return Array.from(this.password() ?? "");
+  });
 
   characterStyles: Record<CharacterType, string[]> = {
     [CharacterType.Emoji]: [],
@@ -38,16 +44,11 @@ export class ColorPasswordComponent {
     return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-all"];
   }
 
-  get passwordArray() {
-    // Convert to an array to handle cases that strings have special characters, i.e.: emoji.
-    return Array.from(this.password);
-  }
-
   getCharacterClass(character: string) {
     const charType = this.getCharacterType(character);
     const charClass = this.characterStyles[charType];
 
-    if (this.showCount) {
+    if (this.showCount()) {
       return charClass.concat([
         "tw-inline-flex",
         "tw-flex-col",

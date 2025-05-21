@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   AfterViewInit,
   Component,
@@ -16,7 +18,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-import { compareValues } from "../../../common/src/platform/misc/compare-values";
+import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
@@ -77,7 +80,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   protected focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches(".fvw-target:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {

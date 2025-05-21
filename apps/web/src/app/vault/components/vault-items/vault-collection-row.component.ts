@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
@@ -16,6 +18,7 @@ import { RowHeightClass } from "./vault-items.component";
 @Component({
   selector: "tr[appVaultCollectionRow]",
   templateUrl: "vault-collection-row.component.html",
+  standalone: false,
 })
 export class VaultCollectionRowComponent {
   protected RowHeightClass = RowHeightClass;
@@ -72,7 +75,7 @@ export class VaultCollectionRowComponent {
 
   get permissionText() {
     if (this.collection.id == Unassigned && this.organization?.canEditUnassignedCiphers) {
-      return this.i18nService.t("canEdit");
+      return this.i18nService.t("editItems");
     }
     if ((this.collection as CollectionAdminView).assigned) {
       const permissionList = getPermissionList();

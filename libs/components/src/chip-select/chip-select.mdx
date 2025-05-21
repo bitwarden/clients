@@ -1,4 +1,4 @@
-import { Meta, Story, Primary, Controls, Canvas } from "@storybook/addon-docs";
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs";
 
 import * as stories from "./chip-select.stories";
 
@@ -12,9 +12,7 @@ import { ChipSelectComponent } from "@bitwarden/components";
 
 `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
 
-<Canvas>
-  <Story of={stories.Default} />
-</Canvas>
+<Canvas of={stories.Default} />
 
 ## Options
 
@@ -91,9 +89,7 @@ const options = [
 ];
 ```
 
-<Canvas>
-  <Story of={stories.NestedOptions} />
-</Canvas>
+<Canvas of={stories.NestedOptions} />
 
 ## Placeholder Content
 

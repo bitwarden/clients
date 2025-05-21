@@ -1,5 +1,4 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { DialogRef } from "@angular/cdk/dialog";
 import { CdkDragDrop } from "@angular/cdk/drag-drop";
 import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
@@ -17,9 +16,8 @@ import {
 } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, BitPasswordInputToggleDirective, DialogService } from "@bitwarden/components";
 
-import { BitPasswordInputToggleDirective } from "../../../../../components/src/form-field/password-input-toggle.directive";
 import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
@@ -47,7 +45,9 @@ describe("CustomFieldsComponent", () => {
     announce = jest.fn().mockResolvedValue(null);
     patchCipher = jest.fn();
     originalCipherView = new CipherView();
-    config = {} as CipherFormConfig;
+    config = {
+      collections: [],
+    } as CipherFormConfig;
 
     await TestBed.configureTestingModule({
       imports: [CustomFieldsComponent],
@@ -59,7 +59,13 @@ describe("CustomFieldsComponent", () => {
         },
         {
           provide: CipherFormContainer,
-          useValue: { patchCipher, originalCipherView, registerChildForm: jest.fn(), config },
+          useValue: {
+            patchCipher,
+            originalCipherView,
+            registerChildForm: jest.fn(),
+            config,
+            getInitialCipherView: jest.fn(() => originalCipherView),
+          },
         },
         {
           provide: LiveAnnouncer,
@@ -107,11 +113,17 @@ describe("CustomFieldsComponent", () => {
           value: true,
           newField: false,
         },
-        { linkedId: 1, name: "linked label", type: FieldType.Linked, value: null, newField: false },
+        {
+          linkedId: 1,
+          name: "linked label",
+          type: FieldType.Linked,
+          value: null,
+          newField: false,
+        },
       ]);
     });
 
-    it("forbids a user to view hidden fields when the cipher `viewPassword` is false", () => {
+    it("when `viewPassword` is false the user cannot see the view toggle option", () => {
       originalCipherView.viewPassword = false;
       originalCipherView.fields = mockFieldViews;
 
@@ -121,7 +133,33 @@ describe("CustomFieldsComponent", () => {
 
       const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
 
-      expect(button.nativeElement.disabled).toBe(true);
+      expect(button).toBeFalsy();
+    });
+
+    it("should disable the hidden field input when `viewPassword` is false", () => {
+      originalCipherView.viewPassword = false;
+      originalCipherView.fields = mockFieldViews;
+
+      component.ngOnInit();
+
+      fixture.detectChanges();
+
+      const input = fixture.debugElement.query(By.css('[data-testid="custom-hidden-field"]'));
+
+      expect(input.nativeElement.disabled).toBe(true);
+    });
+
+    it("when `viewPassword` is true the user can see the view toggle option", () => {
+      originalCipherView.viewPassword = true;
+      originalCipherView.fields = mockFieldViews;
+
+      component.ngOnInit();
+
+      fixture.detectChanges();
+
+      const button = fixture.debugElement.query(By.directive(BitPasswordInputToggleDirective));
+
+      expect(button).toBeTruthy();
     });
 
     describe("linkedFieldOptions", () => {
@@ -426,6 +464,92 @@ describe("CustomFieldsComponent", () => {
 
       // "reorder boolean label to position 4 of 4"
       expect(announce).toHaveBeenCalledWith("reorderFieldDown boolean label 4 4", "assertive");
+    });
+
+    it("hides reorder buttons when in partial edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      toggleItems = fixture.debugElement.queryAll(
+        By.css('button[data-testid="reorder-toggle-button"]'),
+      );
+
+      expect(toggleItems).toHaveLength(0);
+    });
+  });
+
+  it("shows all reorders button when in edit mode and viewPassword is true", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = true;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+    expect(toggleItems).toHaveLength(4);
+  });
+
+  it("shows all reorder buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+    originalCipherView.fields = mockFieldViews;
+    originalCipherView.viewPassword = false;
+    config.mode = "edit";
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const toggleItems = fixture.debugElement.queryAll(
+      By.css('button[data-testid="reorder-toggle-button"]'),
+    );
+
+    expect(toggleItems).toHaveLength(3);
+  });
+
+  describe("edit button", () => {
+    it("hides the edit button when in partial-edit mode", () => {
+      originalCipherView.fields = mockFieldViews;
+      config.mode = "partial-edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(0);
+    });
+
+    it("shows all the edit buttons when in edit mode and viewPassword is true", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = true;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(4);
+    });
+
+    it("shows all the edit buttons except for hidden fields when in edit mode and viewPassword is false", () => {
+      originalCipherView.fields = mockFieldViews;
+      originalCipherView.viewPassword = false;
+      config.mode = "edit";
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const editButtons = fixture.debugElement.queryAll(
+        By.css('button[data-testid="edit-custom-field-button"]'),
+      );
+      expect(editButtons).toHaveLength(3);
     });
   });
 });

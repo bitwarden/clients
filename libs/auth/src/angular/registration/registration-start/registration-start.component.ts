@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -24,6 +26,8 @@ import { RegistrationUserAddIcon } from "../../icons";
 import { RegistrationCheckEmailIcon } from "../../icons/registration-check-email.icon";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RegistrationStartState {
   USER_DATA_ENTRY = "UserDataEntry",
   CHECK_EMAIL = "CheckEmail",

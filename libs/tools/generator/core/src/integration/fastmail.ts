@@ -1,8 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   GENERATOR_DISK,
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -123,9 +126,11 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.Fastmail.local.settings"
       key: "fastmailForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<FastmailSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],
@@ -155,7 +160,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const Fastmail = Object.freeze({
-  id: "fastmail" as IntegrationId,
+  id: "fastmail" as IntegrationId & VendorId,
   name: "Fastmail",
   baseUrl: "https://api.fastmail.com",
   selfHost: "maybe",

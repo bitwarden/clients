@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { program, Command } from "commander";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
@@ -111,6 +113,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationUserApiService,
           this.serviceContainer.apiService,
           this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, cmd);
 
@@ -179,7 +182,6 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.auditService,
           this.serviceContainer.keyService,
           this.serviceContainer.encryptService,
-          this.serviceContainer.stateService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,
           this.serviceContainer.organizationService,
@@ -320,6 +322,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.folderApiService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.cipherAuthorizationService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -344,7 +347,12 @@ export class VaultProgram extends BaseProgram {
         }
 
         await this.exitIfLocked();
-        const command = new RestoreCommand(this.serviceContainer.cipherService);
+        const command = new RestoreCommand(
+          this.serviceContainer.cipherService,
+          this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.cipherAuthorizationService,
+        );
         const response = await command.run(object, id);
         this.processResponse(response);
       });
@@ -447,6 +455,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.importService,
           this.serviceContainer.organizationService,
           this.serviceContainer.syncService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);
@@ -455,7 +464,7 @@ export class VaultProgram extends BaseProgram {
 
   private exportCommand(): Command {
     return new Command("export")
-      .description("Export vault data to a CSV or JSON file.")
+      .description("Export vault data to a CSV, JSON or ZIP file.")
       .option("--output <output>", "Output directory or filename.")
       .option("--format <format>", "Export file format.")
       .option(
@@ -467,7 +476,7 @@ export class VaultProgram extends BaseProgram {
         writeLn("\n  Notes:");
         writeLn("");
         writeLn(
-          "    Valid formats are `csv`, `json`, and `encrypted_json`. Default format is `csv`.",
+          "    Valid formats are `csv`, `json`, `encrypted_json` and zip. Default format is `csv`.",
         );
         writeLn("");
         writeLn(
@@ -494,6 +503,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.exportService,
           this.serviceContainer.policyService,
           this.serviceContainer.eventCollectionService,
+          this.serviceContainer.accountService,
         );
         const response = await command.run(options);
         this.processResponse(response);

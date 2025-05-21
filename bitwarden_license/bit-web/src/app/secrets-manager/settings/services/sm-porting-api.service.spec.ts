@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -28,8 +28,8 @@ describe("SecretsManagerPortingApiService", () => {
 
     sut = new SecretsManagerPortingApiService(apiService, encryptService, keyService);
 
-    encryptService.encrypt.mockResolvedValue(mockEncryptedString);
-    encryptService.decryptToUtf8.mockResolvedValue(mockUnencryptedString);
+    encryptService.encryptString.mockResolvedValue(mockEncryptedString);
+    encryptService.decryptString.mockResolvedValue(mockUnencryptedString);
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
     const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;

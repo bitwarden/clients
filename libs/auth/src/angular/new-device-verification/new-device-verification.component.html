@@ -1,0 +1,37 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-form-field class="!tw-mb-1">
+    <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      id="verificationCode"
+      name="verificationCode"
+      formControlName="code"
+      appInputVerbatim
+    />
+  </bit-form-field>
+
+  <button
+    bitLink
+    type="button"
+    linkType="primary"
+    (click)="resendOTP()"
+    [disabled]="disableRequestOTP"
+    class="tw-text-sm"
+  >
+    {{ "resendCode" | i18n }}
+  </button>
+
+  <div class="tw-flex tw-mt-4">
+    <button
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+      [block]="true"
+      [disabled]="formGroup.invalid"
+    >
+      {{ "continueLoggingIn" | i18n }}
+    </button>
+  </div>
+</form>

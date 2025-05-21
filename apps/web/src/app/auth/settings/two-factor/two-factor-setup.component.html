@@ -1,0 +1,86 @@
+<app-header *ngIf="organizationId != null"></app-header>
+
+<bit-container>
+  <div class="tw-mt-6 tw-mb-2 tw-pb-2.5" *ngIf="organizationId == null">
+    <h1 *ngIf="!organizationId || !isEnterpriseOrg">{{ "twoStepLogin" | i18n }}</h1>
+    <h1 *ngIf="organizationId && isEnterpriseOrg">{{ "twoStepLoginEnforcement" | i18n }}</h1>
+  </div>
+
+  <p *ngIf="!organizationId">{{ "twoStepLoginDesc" | i18n }}</p>
+  <ng-container *ngIf="organizationId">
+    <p>
+      <ng-container *ngIf="isEnterpriseOrg; else teamsDescription">
+        {{ "twoStepLoginEnterpriseDescStart" | i18n }}
+        <a bitLink routerLink="../policies">{{ "twoStepLoginPolicy" | i18n }}.</a>
+        <br />
+        {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+        <br />
+        <br />
+        <p>{{ "twoStepLoginOrganizationSsoDesc" | i18n }}</p>
+      </ng-container>
+      <ng-template #teamsDescription>
+        {{ "twoStepLoginTeamsDesc" | i18n }}
+        <br />
+        {{ "twoStepLoginOrganizationDuoDesc" | i18n }}
+      </ng-template>
+    </p>
+  </ng-container>
+  <bit-callout type="warning" *ngIf="!organizationId">
+    <p>{{ recoveryCodeWarningMessage }}</p>
+    <button type="button" bitButton buttonType="secondary" (click)="recoveryCode()">
+      {{ "viewRecoveryCode" | i18n }}
+    </button>
+  </bit-callout>
+  <h2 [ngClass]="{ 'mt-5': !organizationId }">
+    {{ "providers" | i18n }}
+    <small *ngIf="loading">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-fw tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </small>
+  </h2>
+  <bit-callout type="warning" *ngIf="showPolicyWarning">
+    {{ "twoStepLoginPolicyUserWarning" | i18n }}
+  </bit-callout>
+  <bit-item-group [attr.aria-label]="'providers' | i18n">
+    <bit-item *ngFor="let p of providers" class="tw-py-4">
+      <div slot="start" class="tw-min-w-[120px] tw-flex tw-justify-center">
+        <auth-two-factor-icon class="tw-flex tw-items-center" [provider]="p.type" [name]="p.name" />
+      </div>
+      <div bit-item-content class="tw-px-4">
+        <h3 class="tw-mb-0">
+          <div
+            class="tw-font-semibold tw-text-base"
+            [style]="p.enabled || p.premium ? 'display:inline-block' : ''"
+          >
+            {{ p.name }}
+          </div>
+          <ng-container *ngIf="p.enabled">
+            <i
+              class="bwi bwi-check tw-text-success-600 bwi-fw tw-ml-2"
+              title="{{ 'enabled' | i18n }}"
+              aria-hidden="true"
+            ></i>
+            <span class="tw-sr-only">{{ "enabled" | i18n }}</span>
+          </ng-container>
+          <app-premium-badge class="tw-ml-2" *ngIf="p.premium"></app-premium-badge>
+        </h3>
+        <div class="tw-mt-2 tw-text-wrap">{{ p.description }}</div>
+      </div>
+      <bit-item-action slot="end">
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [disabled]="!(canAccessPremium$ | async) && p.premium"
+          (click)="manage(p.type)"
+        >
+          {{ "manage" | i18n }}
+        </button>
+      </bit-item-action>
+    </bit-item>
+  </bit-item-group>
+</bit-container>

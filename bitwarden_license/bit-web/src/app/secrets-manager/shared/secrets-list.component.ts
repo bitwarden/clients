@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
@@ -13,6 +15,7 @@ import { SecretService } from "../secrets/secret.service";
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
+  standalone: false,
 })
 export class SecretsListComponent implements OnDestroy {
   protected dataSource = new TableDataSource<SecretListView>();

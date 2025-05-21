@@ -59,7 +59,9 @@ describe("VaultHeaderV2Component", () => {
       providers: [
         {
           provide: CipherService,
-          useValue: mock<CipherService>({ cipherViews$: new BehaviorSubject([]) }),
+          useValue: mock<CipherService>({
+            cipherViews$: jest.fn().mockReturnValue(new BehaviorSubject([])),
+          }),
         },
         { provide: VaultSettingsService, useValue: mock<VaultSettingsService>() },
         { provide: FolderService, useValue: mock<FolderService>() },
@@ -75,7 +77,7 @@ describe("VaultHeaderV2Component", () => {
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: VaultPopupItemsService,
-          useValue: mock<VaultPopupItemsService>({ latestSearchText$: new BehaviorSubject("") }),
+          useValue: mock<VaultPopupItemsService>({ searchText$: new BehaviorSubject("") }),
         },
         {
           provide: SyncService,
@@ -152,7 +154,7 @@ describe("VaultHeaderV2Component", () => {
   it("defaults the initial state to true", (done) => {
     // The initial value of the `state$` variable above is undefined
     component["initialDisclosureVisibility$"].subscribe((initialVisibility) => {
-      expect(initialVisibility).toBeTrue();
+      expect(initialVisibility).toBe(true);
       done();
     });
 

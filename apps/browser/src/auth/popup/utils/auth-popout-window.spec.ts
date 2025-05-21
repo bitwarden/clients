@@ -7,8 +7,13 @@ import {
   openUnlockPopout,
   closeUnlockPopout,
   openSsoAuthResultPopout,
-  openTwoFactorAuthPopout,
-  closeTwoFactorAuthPopout,
+  openTwoFactorAuthWebAuthnPopout,
+  closeTwoFactorAuthWebAuthnPopout,
+  closeSsoAuthResultPopout,
+  openTwoFactorAuthEmailPopout,
+  closeTwoFactorAuthEmailPopout,
+  openTwoFactorAuthDuoPopout,
+  closeTwoFactorAuthDuoPopout,
 } from "./auth-popout-window";
 
 describe("AuthPopoutWindow", () => {
@@ -67,7 +72,7 @@ describe("AuthPopoutWindow", () => {
 
     it("closes any existing popup window types that are open to the login extension route", async () => {
       const loginTab = createChromeTabMock({
-        url: chrome.runtime.getURL("popup/index.html#/home"),
+        url: chrome.runtime.getURL("popup/index.html#/login"),
       });
       jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([loginTab]);
       jest.spyOn(BrowserApi, "removeWindow");
@@ -97,22 +102,66 @@ describe("AuthPopoutWindow", () => {
     });
   });
 
-  describe("openTwoFactorAuthPopout", () => {
-    it("opens a window that facilitates two factor authentication", async () => {
-      await openTwoFactorAuthPopout({ data: "data", remember: "remember" });
+  describe("closeSsoAuthResultPopout", () => {
+    it("closes the SSO authentication result popout window", async () => {
+      await closeSsoAuthResultPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.ssoAuthResult);
+    });
+  });
+
+  describe("openTwoFactorAuthWebAuthnPopout", () => {
+    it("opens a window that facilitates two factor authentication via WebAuthn", async () => {
+      await openTwoFactorAuthWebAuthnPopout({ data: "data", remember: "remember" });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
         "popup/index.html#/2fa;webAuthnResponse=data;remember=remember",
-        { singleActionKey: AuthPopoutType.twoFactorAuth },
+        { singleActionKey: AuthPopoutType.twoFactorAuthWebAuthn },
       );
     });
   });
 
-  describe("closeTwoFactorAuthPopout", () => {
-    it("closes the two-factor authentication window", async () => {
-      await closeTwoFactorAuthPopout();
+  describe("closeTwoFactorAuthWebAuthnPopout", () => {
+    it("closes the two-factor authentication WebAuthn window", async () => {
+      await closeTwoFactorAuthWebAuthnPopout();
 
-      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuth);
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthWebAuthn);
+    });
+  });
+
+  describe("openTwoFactorAuthEmailPopout", () => {
+    it("opens a window that facilitates two factor authentication via email", async () => {
+      await openTwoFactorAuthEmailPopout();
+
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/2fa", {
+        singleActionKey: AuthPopoutType.twoFactorAuthEmail,
+      });
+    });
+  });
+
+  describe("closeTwoFactorAuthEmailPopout", () => {
+    it("closes the two-factor authentication email window", async () => {
+      await closeTwoFactorAuthEmailPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthEmail);
+    });
+  });
+
+  describe("openTwoFactorAuthDuoPopout", () => {
+    it("opens a window that facilitates two factor authentication via Duo", async () => {
+      await openTwoFactorAuthDuoPopout();
+
+      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/2fa", {
+        singleActionKey: AuthPopoutType.twoFactorAuthDuo,
+      });
+    });
+  });
+
+  describe("closeTwoFactorAuthDuoPopout", () => {
+    it("closes the two-factor authentication Duo window", async () => {
+      await closeTwoFactorAuthDuoPopout();
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuthDuo);
     });
   });
 });

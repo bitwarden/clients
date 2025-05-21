@@ -1,11 +1,12 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ setSectionTitle }}</h2>
   </bit-section-header>
   <read-only-cipher-card>
     <bit-form-field *ngIf="card.cardholderName">
-      <bit-label>{{ "cardholderName" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="card.cardholderName">{{ "cardholderName" | i18n }}</bit-label>
       <input
+        id="cardholderName"
         readonly
         bitInput
         type="text"
@@ -15,12 +16,13 @@
       />
     </bit-form-field>
     <bit-form-field *ngIf="card.number">
-      <bit-label>{{ "number" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="card.number">{{ "number" | i18n }}</bit-label>
       <input
+        id="cardNumber"
         readonly
         bitInput
         type="password"
-        [value]="card.number"
+        [value]="card.number | creditCardNumber: cipher.card.brand"
         aria-readonly="true"
         data-testid="cardholder-number"
         class="tw-font-mono"
@@ -31,6 +33,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-number"
+        [toggled]="revealCardNumber"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardNumberVisible)"
       ></button>
       <button
@@ -45,8 +48,9 @@
       ></button>
     </bit-form-field>
     <bit-form-field *ngIf="card.expiration">
-      <bit-label>{{ "expiration" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="card.expiration">{{ "expiration" | i18n }}</bit-label>
       <input
+        id="expiration"
         readonly
         bitInput
         type="text"
@@ -56,8 +60,9 @@
       />
     </bit-form-field>
     <bit-form-field *ngIf="card.code">
-      <bit-label>{{ "securityCode" | i18n }}</bit-label>
+      <bit-label [appTextDrag]="card.code">{{ "securityCode" | i18n }}</bit-label>
       <input
+        id="securityCode"
         readonly
         bitInput
         type="password"
@@ -72,6 +77,7 @@
         bitIconButton
         bitPasswordInputToggle
         data-testid="toggle-code"
+        [toggled]="revealCardCode"
         (toggledChange)="logCardEvent($event, EventType.Cipher_ClientToggledCardCodeVisible)"
       ></button>
       <button
@@ -87,4 +93,4 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>

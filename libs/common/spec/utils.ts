@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable } from "rxjs";
 
@@ -61,6 +63,20 @@ export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
  * Use to mock a return value of a static fromJSON method.
  */
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
+
+/**
+ * Use to mock a return value of a static fromSdk method.
+ */
+export const mockFromSdk = (stub: any) => {
+  if (typeof stub === "object") {
+    return {
+      ...stub,
+      __fromSdk: true,
+    };
+  }
+
+  return `${stub}_fromSdk`;
+};
 
 /**
  * Tracks the emissions of the given observable.

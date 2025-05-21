@@ -1,7 +1,7 @@
 import { Directive, HostBinding, HostListener, Input, OnChanges, Optional } from "@angular/core";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { MenuItemDirective } from "@bitwarden/components";
+import { MenuItemDirective, BitIconButtonComponent } from "@bitwarden/components";
 import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
 
 /**
@@ -26,13 +26,14 @@ export class CopyCipherFieldDirective implements OnChanges {
     alias: "appCopyField",
     required: true,
   })
-  action: Exclude<CopyAction, "hiddenField">;
+  action!: Exclude<CopyAction, "hiddenField">;
 
-  @Input({ required: true }) cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
 
   constructor(
     private copyCipherFieldService: CopyCipherFieldService,
     @Optional() private menuItemDirective?: MenuItemDirective,
+    @Optional() private iconButtonComponent?: BitIconButtonComponent,
   ) {}
 
   @HostBinding("attr.disabled")
@@ -50,7 +51,7 @@ export class CopyCipherFieldDirective implements OnChanges {
   @HostListener("click")
   async copy() {
     const value = this.getValueToCopy();
-    await this.copyCipherFieldService.copy(value, this.action, this.cipher);
+    await this.copyCipherFieldService.copy(value ?? "", this.action, this.cipher);
   }
 
   async ngOnChanges() {
@@ -65,9 +66,14 @@ export class CopyCipherFieldDirective implements OnChanges {
         ? true
         : null;
 
+    // When used on an icon button, update the disabled state of the button component
+    if (this.iconButtonComponent) {
+      this.iconButtonComponent.disabled.set(this.disabled ?? false);
+    }
+
     // If the directive is used on a menu item, update the menu item to prevent keyboard navigation
     if (this.menuItemDirective) {
-      this.menuItemDirective.disabled = this.disabled;
+      this.menuItemDirective.disabled = this.disabled ?? false;
     }
   }
 

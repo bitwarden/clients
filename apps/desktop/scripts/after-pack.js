@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const child_process = require("child_process");
 const path = require("path");
@@ -42,7 +42,7 @@ async function run(context) {
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
         id = is_mas_dev
-          ? "E7C9978F6FBCE0553429185C405E61F5380BE8EB"
+          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
         id = "Developer ID Application: 8bit Solutions LLC";

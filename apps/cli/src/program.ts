@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
@@ -116,7 +118,10 @@ export class Program extends BaseProgram {
       .description("Log into a user account.")
       .option("--method <method>", "Two-step login method.")
       .option("--code <code>", "Two-step login code.")
-      .option("--sso", "Log in with Single-Sign On.")
+      .option(
+        "--sso [identifier]",
+        "Log in with Single-Sign On with optional organization identifier.",
+      )
       .option("--apikey", "Log in with an Api Key.")
       .option("--passwordenv <passwordenv>", "Environment variable storing your password")
       .option(
@@ -153,6 +158,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
             this.serviceContainer.apiService,
+            this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
             this.serviceContainer.passwordGenerationService,
@@ -168,6 +174,8 @@ export class Program extends BaseProgram {
             this.serviceContainer.organizationService,
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.kdfConfigService,
+            this.serviceContainer.ssoUrlService,
+            this.serviceContainer.masterPasswordService,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -273,9 +281,9 @@ export class Program extends BaseProgram {
             this.serviceContainer.logService,
             this.serviceContainer.keyConnectorService,
             this.serviceContainer.environmentService,
-            this.serviceContainer.syncService,
             this.serviceContainer.organizationApiService,
             async () => await this.serviceContainer.logout(),
+            this.serviceContainer.i18nService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
@@ -426,7 +434,10 @@ export class Program extends BaseProgram {
         writeLn("", true);
       })
       .action(async () => {
-        const command = new UpdateCommand(this.serviceContainer.platformUtilsService);
+        const command = new UpdateCommand(
+          this.serviceContainer.platformUtilsService,
+          this.serviceContainer.apiService,
+        );
         const response = await command.run();
         this.processResponse(response);
       });

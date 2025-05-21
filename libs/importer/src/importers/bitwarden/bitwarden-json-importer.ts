@@ -1,14 +1,16 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -70,7 +72,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         keyForDecryption = await this.keyService.getUserKeyWithLegacySupport();
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
-      const encKeyValidationDecrypt = await this.encryptService.decryptToUtf8(
+      const encKeyValidationDecrypt = await this.encryptService.decryptString(
         encKeyValidation,
         keyForDecryption,
       );
@@ -116,9 +118,7 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const view = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
+      const view = await this.cipherService.decrypt(cipher, activeUserId);
       this.cleanupCipher(view);
       this.result.ciphers.push(view);
     }

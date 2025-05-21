@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
 /**
@@ -6,7 +8,7 @@ import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential
  *
  * The authenticator provides key management and cryptographic signatures.
  */
-export abstract class Fido2AuthenticatorService {
+export abstract class Fido2AuthenticatorService<ParentWindowReference> {
   /**
    * Create and save a new credential as described in:
    * https://www.w3.org/TR/webauthn-3/#sctn-op-make-cred
@@ -17,7 +19,7 @@ export abstract class Fido2AuthenticatorService {
    **/
   makeCredential: (
     params: Fido2AuthenticatorMakeCredentialsParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<Fido2AuthenticatorMakeCredentialResult>;
 
@@ -31,7 +33,7 @@ export abstract class Fido2AuthenticatorService {
    */
   getAssertion: (
     params: Fido2AuthenticatorGetAssertionParams,
-    tab: chrome.tabs.Tab,
+    window: ParentWindowReference,
     abortController?: AbortController,
   ) => Promise<Fido2AuthenticatorGetAssertionResult>;
 
@@ -44,11 +46,15 @@ export abstract class Fido2AuthenticatorService {
   silentCredentialDiscovery: (rpId: string) => Promise<Fido2CredentialView[]>;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Fido2AlgorithmIdentifier {
   ES256 = -7,
   RS256 = -257,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Fido2AuthenticatorErrorCode {
   Unknown = "UnknownError",
   NotSupported = "NotSupportedError",
@@ -64,7 +70,7 @@ export class Fido2AuthenticatorError extends Error {
 }
 
 export interface PublicKeyCredentialDescriptor {
-  id: BufferSource;
+  id: Uint8Array;
   transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
   type: "public-key";
 }

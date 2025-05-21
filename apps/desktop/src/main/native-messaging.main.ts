@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { existsSync, promises as fs } from "fs";
 import { homedir, userInfo } from "os";
 import * as path from "path";
@@ -170,7 +172,7 @@ export class NativeMessagingMain {
             const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
 
             let manifest: any = chromeJson;
-            if (key === "Firefox") {
+            if (key === "Firefox" || key === "Zen") {
               manifest = firefoxJson;
             }
 
@@ -311,6 +313,7 @@ export class NativeMessagingMain {
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
+      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
     };
     /* eslint-enable no-useless-escape */
   }
@@ -403,6 +406,8 @@ export class NativeMessagingMain {
             this.logService.info(`Error reading preferences: ${e}`);
           }
         }
+        // FIXME: Remove when updating file. Eslint update
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         // Browser is not installed, we can just skip it
       }

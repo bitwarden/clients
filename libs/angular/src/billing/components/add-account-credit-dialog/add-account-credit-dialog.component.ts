@@ -1,26 +1,29 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, ElementRef, Inject, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService, AccountInfo } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/bit-pay-invoice.request";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 export type AddAccountCreditDialogParams = {
   organizationId?: string;
   providerId?: string;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddAccountCreditDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -45,6 +48,7 @@ type PayPalConfig = {
 
 @Component({
   templateUrl: "./add-account-credit-dialog.component.html",
+  standalone: false,
 })
 export class AddAccountCreditDialogComponent implements OnInit {
   @ViewChild("payPalForm", { read: ElementRef, static: true }) payPalForm: ElementRef;
@@ -103,7 +107,16 @@ export class AddAccountCreditDialogComponent implements OnInit {
       this.formGroup.patchValue({
         creditAmount: 20.0,
       });
-      this.organization = await this.organizationService.get(this.dialogParams.organizationId);
+      this.user = await firstValueFrom(this.accountService.activeAccount$);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(this.user.id)
+          .pipe(
+            map((organizations) =>
+              organizations.find((org) => org.id === this.dialogParams.organizationId),
+            ),
+          ),
+      );
       payPalCustomField = "organization_id:" + this.organization.id;
       this.payPalConfig.subject = this.organization.name;
     } else if (this.dialogParams.providerId) {
@@ -117,7 +130,6 @@ export class AddAccountCreditDialogComponent implements OnInit {
       this.formGroup.patchValue({
         creditAmount: 10.0,
       });
-      this.user = await firstValueFrom(this.accountService.activeAccount$);
       payPalCustomField = "user_id:" + this.user.id;
       this.payPalConfig.subject = this.user.email;
     }

@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, HostListener, Input } from "@angular/core";
 
 @Directive({
   selector: "[appFallbackSrc]",
+  standalone: false,
 })
 export class FallbackSrcDirective {
   @Input("appFallbackSrc") appFallbackSrc: string;

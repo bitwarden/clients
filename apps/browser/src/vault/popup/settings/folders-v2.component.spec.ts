@@ -4,17 +4,20 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService } from "@bitwarden/components";
+import { AddEditFolderDialogComponent } from "@bitwarden/vault";
 
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
-import { AddEditFolderDialogComponent } from "../components/vault-v2/add-edit-folder-dialog/add-edit-folder-dialog.component";
 
 import { FoldersV2Component } from "./folders-v2.component";
 
@@ -24,8 +27,8 @@ import { FoldersV2Component } from "./folders-v2.component";
   template: `<ng-content></ng-content>`,
 })
 class MockPopupHeaderComponent {
-  @Input() pageTitle: string;
-  @Input() backAction: () => void;
+  @Input() pageTitle: string = "";
+  @Input() backAction: () => void = () => {};
 }
 
 @Component({
@@ -34,14 +37,15 @@ class MockPopupHeaderComponent {
   template: `<ng-content></ng-content>`,
 })
 class MockPopupFooterComponent {
-  @Input() pageTitle: string;
+  @Input() pageTitle: string = "";
 }
 
 describe("FoldersV2Component", () => {
   let component: FoldersV2Component;
   let fixture: ComponentFixture<FoldersV2Component>;
   const folderViews$ = new BehaviorSubject<FolderView[]>([]);
-  const open = jest.fn();
+  const open = jest.spyOn(AddEditFolderDialogComponent, "open");
+  const mockDialogService = { open: jest.fn() };
 
   beforeEach(async () => {
     open.mockClear();
@@ -52,8 +56,9 @@ describe("FoldersV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: FolderService, useValue: { folderViews$ } },
+        { provide: FolderService, useValue: { folderViews$: () => folderViews$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     })
       .overrideComponent(FoldersV2Component, {
@@ -64,7 +69,7 @@ describe("FoldersV2Component", () => {
           imports: [MockPopupHeaderComponent, MockPopupFooterComponent],
         },
       })
-      .overrideProvider(DialogService, { useValue: { open } })
+      .overrideProvider(DialogService, { useValue: mockDialogService })
       .compileComponents();
 
     fixture = TestBed.createComponent(FoldersV2Component);
@@ -97,9 +102,7 @@ describe("FoldersV2Component", () => {
 
     editButton.triggerEventHandler("click");
 
-    expect(open).toHaveBeenCalledWith(AddEditFolderDialogComponent, {
-      data: { editFolderConfig: { folder } },
-    });
+    expect(open).toHaveBeenCalledWith(mockDialogService, { editFolderConfig: { folder } });
   });
 
   it("opens add dialog for new folder when there are no folders", () => {
@@ -110,6 +113,6 @@ describe("FoldersV2Component", () => {
 
     addButton.triggerEventHandler("click");
 
-    expect(open).toHaveBeenCalledWith(AddEditFolderDialogComponent, { data: {} });
+    expect(open).toHaveBeenCalledWith(mockDialogService, {});
   });
 });

@@ -706,4 +706,73 @@ describe("Utils Service", () => {
       });
     });
   });
+
+  describe("fromUtf8ToB64(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should handle empty string", () => {
+      const str = Utils.fromUtf8ToB64("");
+      expect(str).toBe("");
+    });
+
+    runInBothEnvironments("should convert a normal b64 string", () => {
+      const str = Utils.fromUtf8ToB64(asciiHelloWorld);
+      expect(str).toBe(b64HelloWorldString);
+    });
+
+    runInBothEnvironments("should convert various special characters", () => {
+      const cases = [
+        { input: "»", output: "wrs=" },
+        { input: "¦", output: "wqY=" },
+        { input: "£", output: "wqM=" },
+        { input: "é", output: "w6k=" },
+        { input: "ö", output: "w7Y=" },
+        { input: "»»", output: "wrvCuw==" },
+      ];
+      cases.forEach((c) => {
+        const utfStr = c.input;
+        const str = Utils.fromUtf8ToB64(utfStr);
+        expect(str).toBe(c.output);
+      });
+    });
+  });
+
+  describe("fromB64ToUtf8(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should handle empty string", () => {
+      const str = Utils.fromB64ToUtf8("");
+      expect(str).toBe("");
+    });
+
+    runInBothEnvironments("should convert a normal b64 string", () => {
+      const str = Utils.fromB64ToUtf8(b64HelloWorldString);
+      expect(str).toBe(asciiHelloWorld);
+    });
+
+    runInBothEnvironments("should handle various special characters", () => {
+      const cases = [
+        { input: "wrs=", output: "»" },
+        { input: "wqY=", output: "¦" },
+        { input: "wqM=", output: "£" },
+        { input: "w6k=", output: "é" },
+        { input: "w7Y=", output: "ö" },
+        { input: "wrvCuw==", output: "»»" },
+      ];
+
+      cases.forEach((c) => {
+        const b64Str = c.input;
+        const str = Utils.fromB64ToUtf8(b64Str);
+        expect(str).toBe(c.output);
+      });
+    });
+  });
 });

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { TranslationService as TranslationServiceAbstraction } from "../abstractions/translation.service";
 
 export abstract class TranslationService implements TranslationServiceAbstraction {

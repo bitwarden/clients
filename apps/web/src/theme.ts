@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 // Set theme on page load
 // This is done outside the Angular app to avoid a flash of unthemed content before it loads
 const setTheme = () => {

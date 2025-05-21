@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnChanges } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -10,6 +12,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 @Component({
   selector: "app-org-badge",
   templateUrl: "organization-name-badge.component.html",
+  standalone: false,
 })
 export class OrganizationNameBadgeComponent implements OnChanges {
   @Input() organizationId?: string;

@@ -17,7 +17,7 @@ interface Animal {
 }
 
 @Component({
-  template: `<button bitButton (click)="openDialog()">Open Simple Dialog</button>`,
+  template: `<button type="button" bitButton (click)="openDialog()">Open Simple Dialog</button>`,
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -41,8 +41,10 @@ class StoryDialogComponent {
         Animal: {{ animal }}
       </span>
       <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" (click)="dialogRef.close()">Save</button>
-        <button bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
       </ng-container>
     </bit-simple-dialog>
   `,
@@ -87,7 +89,7 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21514-19247&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;

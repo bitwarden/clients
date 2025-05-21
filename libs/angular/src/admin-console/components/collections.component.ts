@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
@@ -5,9 +7,11 @@ import { CollectionService, CollectionView } from "@bitwarden/admin-console/comm
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -43,14 +47,10 @@ export class CollectionsComponent implements OnInit {
   }
 
   async load() {
-    this.cipherDomain = await this.loadCipher();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.cipherDomain = await this.loadCipher(activeUserId);
     this.collectionIds = this.loadCipherCollections();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(this.cipherDomain, activeUserId);
     this.collections = await this.loadCollections();
 
     this.collections.forEach((c) => ((c as any).checked = false));
@@ -61,7 +61,15 @@ export class CollectionsComponent implements OnInit {
     }
 
     if (this.organization == null) {
-      this.organization = await this.organizationService.get(this.cipher.organizationId);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(activeUserId)
+          .pipe(
+            map((organizations) =>
+              organizations.find((org) => org.id === this.cipher.organizationId),
+            ),
+          ),
+      );
     }
   }
 
@@ -85,7 +93,8 @@ export class CollectionsComponent implements OnInit {
     }
     this.cipherDomain.collectionIds = selectedCollectionIds;
     try {
-      this.formPromise = this.saveCollections();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.formPromise = this.saveCollections(activeUserId);
       await this.formPromise;
       this.onSavedCollections.emit();
       this.toastService.showToast({
@@ -104,8 +113,8 @@ export class CollectionsComponent implements OnInit {
     }
   }
 
-  protected loadCipher() {
-    return this.cipherService.get(this.cipherId);
+  protected loadCipher(userId: UserId) {
+    return this.cipherService.get(this.cipherId, userId);
   }
 
   protected loadCipherCollections() {
@@ -119,7 +128,7 @@ export class CollectionsComponent implements OnInit {
     );
   }
 
-  protected saveCollections() {
-    return this.cipherService.saveCollectionsWithServer(this.cipherDomain);
+  protected saveCollections(userId: UserId) {
+    return this.cipherService.saveCollectionsWithServer(this.cipherDomain, userId);
   }
 }

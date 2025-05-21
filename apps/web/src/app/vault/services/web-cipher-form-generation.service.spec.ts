@@ -1,9 +1,8 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { WebVaultGeneratorDialogComponent } from "../components/web-generator-dialog/web-generator-dialog.component";
 

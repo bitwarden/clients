@@ -1,0 +1,61 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./edit-button.lit-stories";
+
+<Meta title="Components/Buttons/Edit Button" of={stories} />
+
+## Edit Button
+
+The `EditButton` component is a small, themeable button that integrates an editable pencil icon to
+represent edit functionality. It is built using the `lit` library and styled with `@emotion/css`.
+The component supports themes, click events, and a disabled state, making it ideal for use in forms
+or settings where inline editing is required.
+
+<Primary />
+<Controls />
+## Props
+
+| **Prop**       | **Type**                   | **Required** | **Description**                                             |
+| -------------- | -------------------------- | ------------ | ----------------------------------------------------------- |
+| `buttonAction` | `(e: Event) => void`       | Yes          | The function to execute when the button is clicked.         |
+| `buttonText`   | `string`                   | Yes          | The text displayed as the button's tooltip.                 |
+| `disabled`     | `boolean` (default: false) | No           | Disables the button when set to `true`.                     |
+| `theme`        | `Theme`                    | Yes          | The theme to style the button. Must match the `Theme` enum. |
+
+## Installation and Setup
+
+1. Ensure you have the necessary dependencies installed:
+
+   - `lit`: Used to render the component.
+   - `@emotion/css`: Used for styling the component.
+
+2. Pass the required props to the component when rendering:
+   - `buttonAction`: A function that handles the click event.
+   - `buttonText`: The text displayed as a tooltip for the button.
+   - `disabled` (optional): A boolean indicating whether the button is disabled.
+   - `theme`: The theme to style the button (must be a valid `Theme`).
+
+## Accessibility (WCAG) Compliance
+
+The `EditButton` component follows the
+[W3C ARIA button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/). Below is a breakdown of
+key accessibility considerations:
+
+### Keyboard Accessibility
+
+- The button supports keyboard interaction through the `@click` event.
+- Users can activate the button using the `Enter` or `Space` key.
+
+### Screen Reader Compatibility
+
+- The `title` attribute is dynamically set to the button's text (`buttonText`), ensuring it is read
+  by screen readers.
+- The semantic `<button>` element is used, which is natively recognized by assistive technologies.
+
+### Focus Management
+
+- Ensure the button receives proper focus, especially when navigating using a keyboard.
+
+### Visual Feedback
+
+- The button provides hover feedback by changing the border color for better user interaction.

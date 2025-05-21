@@ -1,9 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, combineLatest, first, map, switchMap } from "rxjs";
+import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -56,16 +58,15 @@ export class AssignCollections {
     private accountService: AccountService,
     route: ActivatedRoute,
   ) {
-    const cipher$: Observable<CipherView> = route.queryParams.pipe(
-      switchMap(({ cipherId }) => this.cipherService.get(cipherId)),
-      switchMap((cipherDomain) =>
-        this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
-          switchMap((userId) =>
-            this.cipherService
-              .getKeyForCipherKeyDecryption(cipherDomain, userId)
-              .then(cipherDomain.decrypt.bind(cipherDomain)),
-          ),
+    const cipher$: Observable<CipherView> = this.accountService.activeAccount$.pipe(
+      map((account) => account?.id),
+      filter((userId) => userId != null),
+      switchMap((userId) =>
+        route.queryParams.pipe(
+          switchMap(async ({ cipherId }) => {
+            const cipherDomain = await this.cipherService.get(cipherId, userId);
+            return await this.cipherService.decrypt(cipherDomain, userId);
+          }),
         ),
       ),
     );

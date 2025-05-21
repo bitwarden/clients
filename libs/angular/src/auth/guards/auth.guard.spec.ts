@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import {
@@ -11,10 +11,10 @@ import {
   AccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -30,9 +30,7 @@ describe("AuthGuard", () => {
     authService.getAuthStatus.mockResolvedValue(authStatus);
     const messagingService: MockProxy<MessagingService> = mock<MessagingService>();
     const keyConnectorService: MockProxy<KeyConnectorService> = mock<KeyConnectorService>();
-    keyConnectorService.getConvertAccountRequired.mockResolvedValue(
-      keyConnectorServiceRequiresAccountConversion,
-    );
+    keyConnectorService.convertAccountRequired$ = of(keyConnectorServiceRequiresAccountConversion);
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const activeAccountSubject = new BehaviorSubject<Account | null>(null);
     accountService.activeAccount$ = activeAccountSubject;

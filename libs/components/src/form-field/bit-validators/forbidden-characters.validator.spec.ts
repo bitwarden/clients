@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FormControl } from "@angular/forms";
 
 import { forbiddenCharacters } from "./forbidden-characters.validator";

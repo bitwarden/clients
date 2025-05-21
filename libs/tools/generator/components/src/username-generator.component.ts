@@ -1,5 +1,18 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -8,6 +21,7 @@ import {
   combineLatestWith,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   map,
   ReplaySubject,
   Subject,
@@ -16,17 +30,23 @@ import {
   withLatestFrom,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { IntegrationId } from "@bitwarden/common/tools/integration";
+import {
+  SemanticLogger,
+  disabledSemanticLoggerProvider,
+  ifEnabledSemanticLoggerProvider,
+} from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-import { Option } from "@bitwarden/components/src/select/option";
+import { ToastService, Option } from "@bitwarden/components";
 import {
   AlgorithmInfo,
   CredentialAlgorithm,
+  CredentialCategories,
   CredentialGeneratorService,
+  GenerateRequest,
   GeneratedCredential,
   Generators,
   getForwarderConfiguration,
@@ -47,8 +67,9 @@ const NONE_SELECTED = "none";
 @Component({
   selector: "tools-username-generator",
   templateUrl: "username-generator.component.html",
+  standalone: false,
 })
-export class UsernameGeneratorComponent implements OnInit, OnDestroy {
+export class UsernameGeneratorComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the username generator
    *  @param generatorService generates credentials; stores preferences
    *  @param i18nService localizes generator algorithm descriptions
@@ -65,17 +86,55 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private zone: NgZone,
     private formBuilder: FormBuilder,
+    private ariaLive: LiveAnnouncer,
   ) {}
 
   /** Binds the component to a specific user's settings. When this input is not provided,
    * the form binds to the active user
    */
   @Input()
-  userId: UserId | null;
+  account: Account | null;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  /** Send structured debug logs from the credential generator component
+   *  to the debugger console.
+   *
+   *  @warning this may reveal sensitive information in plaintext.
+   */
+  @Input()
+  debug: boolean = false;
+
+  // this `log` initializer is overridden in `ngOnInit`
+  private log: SemanticLogger = disabledSemanticLoggerProvider({});
+
+  async ngOnChanges(changes: SimpleChanges) {
+    const account = changes?.account;
+    if (account?.previousValue?.id !== account?.currentValue?.id) {
+      this.log.debug(
+        {
+          previousUserId: account?.previousValue?.id as UserId,
+          currentUserId: account?.currentValue?.id as UserId,
+        },
+        "account input change detected",
+      );
+      this.account$.next(this.account);
+    }
+  }
+
+  /**
+   * The website associated with the credential generation request.
+   */
+  @Input()
+  website: string | null = null;
 
   /** Emits credentials created from a generation request. */
   @Output()
   readonly onGenerated = new EventEmitter<GeneratedCredential>();
+
+  /** emits algorithm info when the selected algorithm changes */
+  @Output()
+  readonly onAlgorithm = new EventEmitter<AlgorithmInfo>();
 
   /** Removes bottom margin from internal elements */
   @Input({ transform: coerceBooleanProperty }) disableMargin = false;
@@ -90,20 +149,21 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    if (this.userId) {
-      this.userId$.next(this.userId);
-    } else {
-      this.accountService.activeAccount$
-        .pipe(
-          map((acct) => acct.id),
-          distinctUntilChanged(),
-          takeUntil(this.destroyed),
-        )
-        .subscribe(this.userId$);
+    this.log = ifEnabledSemanticLoggerProvider(this.debug, this.logService, {
+      type: "UsernameGeneratorComponent",
+    });
+
+    if (!this.account) {
+      this.account = await firstValueFrom(this.accountService.activeAccount$);
+      this.log.info(
+        { userId: this.account.id },
+        "account not specified; using active account settings",
+      );
+      this.account$.next(this.account);
     }
 
     this.generatorService
-      .algorithms$(["email", "username"], { userId$: this.userId$ })
+      .algorithms$(["email", "username"], { account$: this.account$ })
       .pipe(
         map((algorithms) => {
           const usernames = algorithms.filter((a) => !isForwarderIntegration(a.id));
@@ -155,12 +215,14 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
           // continue with origin stream
           return generator;
         }),
-        withLatestFrom(this.userId$),
+        withLatestFrom(this.account$, this.algorithm$),
         takeUntil(this.destroyed),
       )
-      .subscribe(([generated, userId]) => {
+      .subscribe(([generated, account, algorithm]) => {
+        this.log.debug({ source: generated.source }, "credential generated");
+
         this.generatorHistoryService
-          .track(userId, generated.credential, generated.category, generated.generationDate)
+          .track(account.id, generated.credential, generated.category, generated.generationDate)
           .catch((e: unknown) => {
             this.logService.error(e);
           });
@@ -168,6 +230,10 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
+          if (generated.source === this.USER_REQUEST) {
+            this.announce(algorithm.onGeneratedMessage);
+          }
+
           this.onGenerated.next(generated);
           this.value$.next(generated.credential);
         });
@@ -219,6 +285,8 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroyed),
       )
       .subscribe(([showForwarder, forwarderId]) => {
+        this.log.debug({ forwarderId, showForwarder }, "forwarder visibility updated");
+
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
@@ -242,15 +310,18 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         takeUntil(this.destroyed),
       )
       .subscribe((algorithm) => {
+        this.log.debug(algorithm, "algorithm selected");
+
         // update subjects within the angular zone so that the
         // template bindings refresh immediately
         this.zone.run(() => {
           this.algorithm$.next(algorithm);
+          this.onAlgorithm.next(algorithm);
         });
       });
 
     // assume the last-visible generator algorithm is the user's preferred one
-    const preferences = await this.generatorService.preferences({ singleUserId$: this.userId$ });
+    const preferences = await this.generatorService.preferences({ account$: this.account$ });
     this.algorithm$
       .pipe(
         filter((algorithm) => !!algorithm),
@@ -259,9 +330,17 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
       )
       .subscribe(([algorithm, preference]) => {
         if (isEmailAlgorithm(algorithm.id)) {
+          this.log.info(
+            { algorithm, category: CredentialCategories.email },
+            "algorithm preferences updated",
+          );
           preference.email.algorithm = algorithm.id;
           preference.email.updated = new Date();
         } else if (isUsernameAlgorithm(algorithm.id)) {
+          this.log.info(
+            { algorithm, category: CredentialCategories.username },
+            "algorithm preferences updated",
+          );
           preference.username.algorithm = algorithm.id;
           preference.username.updated = new Date();
         } else {
@@ -320,21 +399,30 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
     this.algorithm$.pipe(takeUntil(this.destroyed)).subscribe((a) => {
       this.zone.run(() => {
         if (!a || a.onlyOnRequest) {
+          this.log.debug("autogeneration disabled; clearing generated credential");
           this.value$.next("-");
         } else {
-          this.generate("autogenerate").catch((e: unknown) => this.logService.error(e));
+          this.log.debug("autogeneration enabled");
+
+          this.generate("autogenerate").catch((e: unknown) => {
+            this.log.error(e as object, "a failure occurred during autogeneration");
+          });
         }
       });
     });
+
+    this.log.debug("component initialized");
   }
 
-  private typeToGenerator$(type: CredentialAlgorithm) {
+  private typeToGenerator$(algorithm: CredentialAlgorithm) {
     const dependencies = {
       on$: this.generate$,
-      userId$: this.userId$,
+      account$: this.account$,
     };
 
-    switch (type) {
+    this.log.debug({ algorithm }, "constructing generation stream");
+
+    switch (algorithm) {
       case "catchall":
         return this.generatorService.generate$(Generators.catchall, dependencies);
 
@@ -345,13 +433,17 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
         return this.generatorService.generate$(Generators.username, dependencies);
     }
 
-    if (isForwarderIntegration(type)) {
-      const forwarder = getForwarderConfiguration(type.forwarder);
+    if (isForwarderIntegration(algorithm)) {
+      const forwarder = getForwarderConfiguration(algorithm.forwarder);
       const configuration = toCredentialGeneratorConfiguration(forwarder);
       return this.generatorService.generate$(configuration, dependencies);
     }
 
-    throw new Error(`Invalid generator type: "${type}"`);
+    this.log.panic({ algorithm }, `Invalid generator type: "${algorithm}"`);
+  }
+
+  private announce(message: string) {
+    this.ariaLive.announce(message).catch((e) => this.logService.error(e));
   }
 
   /** Lists the credential types supported by the component. */
@@ -368,6 +460,15 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
 
   /** tracks the currently selected credential type */
   protected algorithm$ = new ReplaySubject<AlgorithmInfo>(1);
+
+  /** Emits hint key for the currently selected credential type */
+  protected credentialTypeHint$ = new ReplaySubject<string>(1);
+
+  /** Emits the last generated value. */
+  protected readonly value$ = new BehaviorSubject<string>("");
+
+  /** Emits when a new credential is requested */
+  private readonly generate$ = new Subject<GenerateRequest>();
 
   protected showAlgorithm$ = this.algorithm$.pipe(
     combineLatestWith(this.showForwarder$),
@@ -395,27 +496,20 @@ export class UsernameGeneratorComponent implements OnInit, OnDestroy {
    */
   protected credentialTypeLabel$ = this.algorithm$.pipe(
     filter((algorithm) => !!algorithm),
-    map(({ generatedValue }) => generatedValue),
+    map(({ credentialType }) => credentialType),
   );
 
-  /** Emits hint key for the currently selected credential type */
-  protected credentialTypeHint$ = new ReplaySubject<string>(1);
-
-  /** Emits the last generated value. */
-  protected readonly value$ = new BehaviorSubject<string>("");
-
-  /** Emits when the userId changes */
-  protected readonly userId$ = new BehaviorSubject<UserId>(null);
-
-  /** Emits when a new credential is requested */
-  private readonly generate$ = new Subject<string>();
+  /** Identifies generator requests that were requested by the user */
+  protected readonly USER_REQUEST = "user request";
 
   /** Request a new value from the generator
-   * @param requestor a label used to trace generation request
+   * @param source a label used to trace generation request
    *  origin in the debugger.
    */
-  protected async generate(requestor: string) {
-    this.generate$.next(requestor);
+  protected async generate(source: string) {
+    const request = { source, website: this.website };
+    this.log.debug(request, "generation requested");
+    this.generate$.next(request);
   }
 
   private toOptions(algorithms: AlgorithmInfo[]) {

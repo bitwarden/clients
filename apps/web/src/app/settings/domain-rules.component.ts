@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { FormArray, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 
@@ -7,9 +9,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
+import { HeaderModule } from "../layouts/header/header.module";
+import { SharedModule } from "../shared";
+
 @Component({
   selector: "app-domain-rules",
   templateUrl: "domain-rules.component.html",
+  standalone: true,
+  imports: [SharedModule, HeaderModule],
 })
 export class DomainRulesComponent implements OnInit {
   loading = true;

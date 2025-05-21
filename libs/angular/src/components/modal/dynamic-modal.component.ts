@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ConfigurableFocusTrap, ConfigurableFocusTrapFactory } from "@angular/cdk/a11y";
 import {
   AfterViewInit,
@@ -16,6 +18,7 @@ import { ModalRef } from "./modal.ref";
 @Component({
   selector: "app-modal",
   template: "<ng-template #modalContent></ng-template>",
+  standalone: false,
 })
 export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   componentRef: ComponentRef<any>;

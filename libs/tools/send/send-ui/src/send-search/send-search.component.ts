@@ -18,7 +18,7 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "send-search.component.html",
 })
 export class SendSearchComponent {
-  searchText: string;
+  searchText: string = "";
 
   private searchText$ = new Subject<string>();
 

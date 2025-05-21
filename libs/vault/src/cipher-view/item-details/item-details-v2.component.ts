@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
@@ -9,7 +11,6 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CardComponent,
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -24,7 +25,6 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     CommonModule,
     JslibModule,
     CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     OrgIconDirective,

@@ -18,7 +18,7 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText: string;
+  searchText: string = "";
 
   private searchText$ = new Subject<string>();
 
@@ -28,11 +28,11 @@ export class VaultV2SearchComponent {
   }
 
   onSearchTextChanged() {
-    this.searchText$.next(this.searchText);
+    this.vaultPopupItemsService.applyFilter(this.searchText);
   }
 
   subscribeToLatestSearchText(): Subscription {
-    return this.vaultPopupItemsService.latestSearchText$
+    return this.vaultPopupItemsService.searchText$
       .pipe(
         takeUntilDestroyed(),
         filter((data) => !!data),

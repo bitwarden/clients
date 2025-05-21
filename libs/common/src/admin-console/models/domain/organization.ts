@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { ProductTierType } from "../../../billing/enums";
@@ -26,6 +28,7 @@ export class Organization {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -70,11 +73,15 @@ export class Organization {
    */
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
-  // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
-  limitCollectionCreationDeletion: boolean;
 
   /**
    * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
+   */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability to limit delete permission of collection items.
+   * If set to true, members can only delete items when they have a Can Manage permission over the collection.
+   * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
@@ -83,6 +90,9 @@ export class Organization {
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
   userIsManagedByOrganization: boolean;
+  useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -102,6 +112,7 @@ export class Organization {
     this.use2fa = obj.use2fa;
     this.useApi = obj.useApi;
     this.useSso = obj.useSso;
+    this.useOrganizationDomains = obj.useOrganizationDomains;
     this.useKeyConnector = obj.useKeyConnector;
     this.useScim = obj.useScim;
     this.useCustomPermissions = obj.useCustomPermissions;
@@ -137,10 +148,12 @@ export class Organization {
     this.accessSecretsManager = obj.accessSecretsManager;
     this.limitCollectionCreation = obj.limitCollectionCreation;
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
-    // Deprecated: https://bitwarden.atlassian.net/browse/PM-10863
-    this.limitCollectionCreationDeletion = obj.limitCollectionCreationDeletion;
+    this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
+    this.useRiskInsights = obj.useRiskInsights;
+    this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.isAdminInitiated = obj.isAdminInitiated;
   }
 
   get canAccess() {
@@ -168,8 +181,27 @@ export class Organization {
     return (this.isAdmin || this.permissions.accessEventLogs) && this.useEvents;
   }
 
-  get canAccessImportExport() {
-    return this.isAdmin || this.permissions.accessImportExport;
+  /**
+   * Returns true if the user can access the Import page in the Admin Console.
+   * Note: this does not affect user access to the Import page in Password Manager, which can also be used to import
+   * into organization collections.
+   */
+  get canAccessImport() {
+    return (
+      this.isProviderUser ||
+      this.type === OrganizationUserType.Owner ||
+      this.type === OrganizationUserType.Admin ||
+      this.permissions.accessImportExport
+    );
+  }
+
+  get canAccessExport() {
+    return (
+      this.isMember &&
+      (this.type === OrganizationUserType.Owner ||
+        this.type === OrganizationUserType.Admin ||
+        this.permissions.accessImportExport)
+    );
   }
 
   get canAccessReports() {
@@ -222,7 +254,7 @@ export class Organization {
       return true;
     }
 
-    // If AllowAdminAccessToAllCollectionItems is true, Owners and Admins can delete any collection, regardless of LimitCollectionCreationDeletion setting
+    // If AllowAdminAccessToAllCollectionItems is true, Owners and Admins can delete any collection, regardless of LimitCollectionDeletion setting
     // Using explicit type checks because provider users are handled above and this mimics the server's permission checks closely
     if (this.allowAdminAccessToAllCollectionItems) {
       return this.type == OrganizationUserType.Owner || this.type == OrganizationUserType.Admin;
@@ -251,7 +283,7 @@ export class Organization {
   }
 
   get canManageDomainVerification() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useSso;
+    return (this.isAdmin || this.permissions.manageSso) && this.useOrganizationDomains;
   }
 
   get canManageScim() {
@@ -305,8 +337,7 @@ export class Organization {
   get hasBillableProvider() {
     return (
       this.hasProvider &&
-      (this.providerType === ProviderType.Msp ||
-        this.providerType === ProviderType.MultiOrganizationEnterprise)
+      (this.providerType === ProviderType.Msp || this.providerType === ProviderType.BusinessUnit)
     );
   }
 
@@ -336,5 +367,16 @@ export class Organization {
       familySponsorshipLastSyncDate: new Date(json.familySponsorshipLastSyncDate),
       familySponsorshipValidUntil: new Date(json.familySponsorshipValidUntil),
     });
+  }
+
+  get canAccessIntegrations() {
+    return (
+      (this.productTierType === ProductTierType.Teams ||
+        this.productTierType === ProductTierType.Enterprise) &&
+      (this.isAdmin ||
+        this.permissions.manageUsers ||
+        this.permissions.manageGroups ||
+        this.permissions.accessEventLogs)
+    );
   }
 }

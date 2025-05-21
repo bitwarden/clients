@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
 const path = require("path");
 
@@ -16,7 +16,7 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyAutofillExtension = ["mas"].includes(context.electronPlatformName);
+  const copyAutofillExtension = ["darwin", "mas"].includes(context.electronPlatformName);
 
   let shouldResign = false;
 

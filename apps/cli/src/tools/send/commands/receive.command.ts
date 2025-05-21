@@ -1,10 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -33,8 +36,9 @@ export class SendReceiveCommand extends DownloadCommand {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private sendApiService: SendApiService,
+    apiService: ApiService,
   ) {
-    super(encryptService);
+    super(encryptService, apiService);
   }
 
   async run(url: string, options: OptionValues): Promise<Response> {
@@ -43,6 +47,8 @@ export class SendReceiveCommand extends DownloadCommand {
     let urlObject: URL;
     try {
       urlObject = new URL(url);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return Response.badRequest("Failed to parse the provided Send url");
     }

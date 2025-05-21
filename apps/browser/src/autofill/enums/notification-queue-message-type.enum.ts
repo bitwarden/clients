@@ -2,7 +2,6 @@ const NotificationQueueMessageType = {
   AddLogin: "add",
   ChangePassword: "change",
   UnlockVault: "unlock",
-  RequestFilelessImport: "fileless-import",
 } as const;
 
 type NotificationQueueMessageTypes =

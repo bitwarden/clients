@@ -2,13 +2,13 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyService } from "@bitwarden/key-management";
 
-import { UserId } from "../../../../common/src/types/guid";
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { UserId } from "../../types/guid";
 import { Account, AccountInfo, AccountService } from "../abstractions/account.service";
 
 import { PasswordResetEnrollmentServiceImplementation } from "./password-reset-enrollment.service.implementation";
@@ -100,7 +100,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
       keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
 
@@ -122,7 +122,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       const encryptedKey = { encryptedString: "encryptedString" };
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId", "userId", { key: "key" } as any);
 

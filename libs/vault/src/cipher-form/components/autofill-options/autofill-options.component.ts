@@ -1,4 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -19,7 +22,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -39,7 +41,7 @@ interface UriField {
   templateUrl: "./autofill-options.component.html",
   standalone: true,
   imports: [
-    SectionComponent,
+    DragDropModule,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,
@@ -128,8 +130,9 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cipherFormContainer.originalCipherView?.login) {
-      this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.login);
     } else {
       this.initNewCipher();
     }
@@ -140,17 +143,29 @@ export class AutofillOptionsComponent implements OnInit {
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
+    // The `uris` control is a FormArray which needs to dynamically
+    // add controls to the form. Doing this will trigger the `valueChanges` observable on the form
+    // and overwrite the `autofillOnPageLoad` value before it is set in the following `patchValue` call.
+    // Pass `false` to `addUri` to stop events from emitting when adding the URIs.
     existingLogin.uris?.forEach((uri) => {
-      this.addUri({
-        uri: uri.uri,
-        matchDetection: uri.match,
-      });
+      this.addUri(
+        {
+          uri: uri.uri,
+          matchDetection: uri.match,
+        },
+        false,
+        false,
+      );
     });
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: existingLogin.autofillOnPageLoad,
     });
 
-    if (this.cipherFormContainer.config.initialValues?.loginUri) {
+    // Only add the initial value when the cipher was not initialized from a cached state
+    if (
+      this.cipherFormContainer.config.initialValues?.loginUri &&
+      !this.cipherFormContainer.initializedWithCachedCipher()
+    ) {
       // Avoid adding the same uri again if it already exists
       if (
         existingLogin.uris?.findIndex(
@@ -195,9 +210,16 @@ export class AutofillOptionsComponent implements OnInit {
    * Adds a new URI input to the form.
    * @param uriFieldValue The initial value for the new URI input.
    * @param focusNewInput If true, the new URI input will be focused after being added.
+   * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
    */
-  addUri(uriFieldValue: UriField = { uri: null, matchDetection: null }, focusNewInput = false) {
-    this.autofillOptionsForm.controls.uris.push(this.formBuilder.control(uriFieldValue));
+  addUri(
+    uriFieldValue: UriField = { uri: null, matchDetection: null },
+    focusNewInput = false,
+    emitEvent = true,
+  ) {
+    this.autofillOptionsForm.controls.uris.push(this.formBuilder.control(uriFieldValue), {
+      emitEvent,
+    });
 
     if (focusNewInput) {
       this.focusOnNewInput$.next();
@@ -206,5 +228,59 @@ export class AutofillOptionsComponent implements OnInit {
 
   removeUri(i: number) {
     this.autofillOptionsForm.controls.uris.removeAt(i);
+  }
+
+  /** Create a new list of LoginUriViews from the form objects and update the cipher */
+  private updateUriFields() {
+    this.cipherFormContainer.patchCipher((cipher) => {
+      cipher.login.uris = this.uriControls.map(
+        (control) =>
+          Object.assign(new LoginUriView(), {
+            uri: control.value.uri,
+            match: control.value.matchDetection ?? null,
+          }) as LoginUriView,
+      );
+      return cipher;
+    });
+  }
+
+  /** Reorder the controls to match the new order after a "drop" event */
+  onUriItemDrop(event: CdkDragDrop<HTMLDivElement>) {
+    moveItemInArray(this.uriControls, event.previousIndex, event.currentIndex);
+    this.updateUriFields();
+  }
+
+  /** Handles a uri item keyboard up or down event */
+  async onUriItemKeydown(event: KeyboardEvent, index: number) {
+    if (event.key === "ArrowUp" && index !== 0) {
+      await this.reorderUriItems(event, index, "Up");
+    }
+
+    if (event.key === "ArrowDown" && index !== this.uriControls.length - 1) {
+      await this.reorderUriItems(event, index, "Down");
+    }
+  }
+
+  /** Reorders the uri items from a keyboard up or down event */
+  async reorderUriItems(event: KeyboardEvent, previousIndex: number, direction: "Up" | "Down") {
+    const currentIndex = previousIndex + (direction === "Up" ? -1 : 1);
+    event.preventDefault();
+    await this.liveAnnouncer.announce(
+      this.i18nService.t(
+        `reorderField${direction}`,
+        this.i18nService.t("websiteUri"),
+        currentIndex + 1,
+        this.uriControls.length,
+      ),
+      "assertive",
+    );
+    moveItemInArray(this.uriControls, previousIndex, currentIndex);
+    this.updateUriFields();
+    // Refocus the button after the reorder
+    // Angular re-renders the list when moving an item up which causes the focus to be lost
+    // Wait for the next tick to ensure the button is rendered before focusing
+    requestAnimationFrame(() => {
+      (event.target as HTMLButtonElement).focus();
+    });
   }
 }

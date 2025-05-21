@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Location } from "@angular/common";
 import { Injectable, inject } from "@angular/core";
 import {
@@ -6,11 +8,10 @@ import {
   NavigationEnd,
   Router,
   UrlSerializer,
+  UrlTree,
 } from "@angular/router";
 import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 import { POPUP_ROUTE_HISTORY_KEY } from "../../../platform/services/popup-view-cache-background.service";
@@ -30,6 +31,11 @@ export class PopupRouterCacheService {
   private location = inject(Location);
 
   private hasNavigated = false;
+
+  private _hasRestoredCache = false;
+  get hasRestoredCache() {
+    return this._hasRestoredCache;
+  }
 
   constructor() {
     // init history with existing state
@@ -107,33 +113,35 @@ export class PopupRouterCacheService {
     // if no history is present, fallback to vault page
     await this.router.navigate([""]);
   }
+
+  /**
+   * Mark the cache as restored to prevent the router `popupRouterCacheGuard` from
+   * redirecting to the last visited route again this session.
+   */
+  markCacheRestored() {
+    this._hasRestoredCache = true;
+  }
 }
 
 /**
  * Redirect to the last visited route. Should be applied to root route.
- *
- * If `FeatureFlag.PersistPopupView` is disabled, do nothing.
  **/
-export const popupRouterCacheGuard = (() => {
-  const configService = inject(ConfigService);
+export const popupRouterCacheGuard = ((): Observable<true | UrlTree> => {
   const popupHistoryService = inject(PopupRouterCacheService);
   const urlSerializer = inject(UrlSerializer);
 
-  return configService.getFeatureFlag$(FeatureFlag.PersistPopupView).pipe(
-    switchMap((featureEnabled) => {
-      if (!featureEnabled) {
-        return of(true);
+  if (popupHistoryService.hasRestoredCache) {
+    return of(true);
+  }
+
+  return popupHistoryService.last$().pipe(
+    map((url: string) => {
+      if (!url) {
+        return true;
       }
 
-      return popupHistoryService.last$().pipe(
-        map((url: string) => {
-          if (!url) {
-            return true;
-          }
-
-          return urlSerializer.parse(url);
-        }),
-      );
+      popupHistoryService.markCacheRestored();
+      return urlSerializer.parse(url);
     }),
   );
 }) satisfies CanActivateFn;

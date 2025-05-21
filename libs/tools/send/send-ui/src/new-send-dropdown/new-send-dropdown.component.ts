@@ -4,9 +4,10 @@ import { Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { BadgeModule, ButtonModule, MenuModule } from "@bitwarden/components";
+import { BadgeModule, ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 
 @Component({
   selector: "tools-new-send-dropdown",
@@ -16,6 +17,7 @@ import { BadgeModule, ButtonModule, MenuModule } from "@bitwarden/components";
 })
 export class NewSendDropdownComponent implements OnInit {
   @Input() hideIcon: boolean = false;
+  @Input() buttonType: ButtonType = "primary";
 
   sendType = SendType;
 
@@ -24,18 +26,33 @@ export class NewSendDropdownComponent implements OnInit {
   constructor(
     private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    if (!account) {
+      this.hasNoPremium = true;
+      return;
+    }
+
     this.hasNoPremium = !(await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ));
   }
 
-  newItemNavigate(type: SendType) {
+  buildRouterLink(type: SendType) {
     if (this.hasNoPremium && type === SendType.File) {
-      return this.router.navigate(["/premium"]);
+      return "/premium";
+    } else {
+      return "/add-send";
     }
-    void this.router.navigate(["/add-send"], { queryParams: { type: type, isNew: true } });
+  }
+
+  buildQueryParams(type: SendType) {
+    if (this.hasNoPremium && type === SendType.File) {
+      return null;
+    }
+    return { type: type, isNew: true };
   }
 }

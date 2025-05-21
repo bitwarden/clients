@@ -21,10 +21,16 @@ describe("AutofillInlineMenuList", () => {
     disconnect: jest.fn(),
   }));
 
-  let autofillInlineMenuList: AutofillInlineMenuList;
+  let autofillInlineMenuList: AutofillInlineMenuList | null;
   const portKey: string = "inlineMenuListPortKey";
+  const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
+    const oldEv = globalThis.addEventListener;
+    globalThis.addEventListener = (eventName: any, callback: any) => {
+      events.push({ eventName, callback });
+      oldEv.call(globalThis, eventName, callback);
+    };
     document.body.innerHTML = `<autofill-inline-menu-list></autofill-inline-menu-list>`;
     autofillInlineMenuList = document.querySelector("autofill-inline-menu-list");
     jest.spyOn(globalThis.document, "createElement");
@@ -33,6 +39,9 @@ describe("AutofillInlineMenuList", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    events.forEach(({ eventName, callback }) => {
+      globalThis.removeEventListener(eventName, callback);
+    });
   });
 
   describe("initAutofillInlineMenuList", () => {
@@ -137,6 +146,74 @@ describe("AutofillInlineMenuList", () => {
       });
 
       it("creates the view for a list of login ciphers", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+      });
+
+      it("creates the view for a totp field", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            inlineMenuFillType: CipherType.Login,
+            ciphers: [
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Login,
+                login: {
+                  totp: "123456",
+                  totpField: true,
+                },
+              }),
+            ],
+          }),
+        );
+
+        await flushPromises();
+
+        const cipherSubtitleElement = autofillInlineMenuList[
+          "inlineMenuListContainer"
+        ].querySelector('[data-testid="totp-code"]');
+
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
+        expect(cipherSubtitleElement).not.toBeNull();
+        expect(cipherSubtitleElement.textContent).toBe("123 456");
+      });
+
+      it("renders correctly when there are multiple TOTP elements with username displayed", async () => {
+        const totpCipher1 = createAutofillOverlayCipherDataMock(1, {
+          type: CipherType.Login,
+          login: {
+            totp: "123456",
+            totpField: true,
+            username: "user1",
+          },
+        });
+
+        const totpCipher2 = createAutofillOverlayCipherDataMock(2, {
+          type: CipherType.Login,
+          login: {
+            totp: "654321",
+            totpField: true,
+            username: "user2",
+          },
+        });
+
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            inlineMenuFillType: CipherType.Login,
+            ciphers: [totpCipher1, totpCipher2],
+          }),
+        );
+
+        await flushPromises();
+        const checkSubtitleElement = (username: string) => {
+          const subtitleElement = autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            `span.cipher-subtitle[title="${username}"]`,
+          );
+          expect(subtitleElement).not.toBeNull();
+          expect(subtitleElement.textContent).toBe(username);
+        };
+
+        checkSubtitleElement("user1");
+        checkSubtitleElement("user2");
+
         expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
@@ -1021,12 +1098,12 @@ describe("AutofillInlineMenuList", () => {
     });
 
     describe("displaying the save login view", () => {
-      let buildSaveLoginInlineMenuListSpy: jest.SpyInstance;
+      let buildSaveLoginInlineMenuSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        buildSaveLoginInlineMenuListSpy = jest.spyOn(
+        buildSaveLoginInlineMenuSpy = jest.spyOn(
           autofillInlineMenuList as any,
-          "buildSaveLoginInlineMenuList",
+          "buildSaveLoginInlineMenu",
         );
       });
 
@@ -1040,7 +1117,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "showSaveLoginInlineMenuList" });
 
-        expect(buildSaveLoginInlineMenuListSpy).not.toHaveBeenCalled();
+        expect(buildSaveLoginInlineMenuSpy).not.toHaveBeenCalled();
       });
 
       it("builds the save login item view", async () => {
@@ -1049,7 +1126,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "showSaveLoginInlineMenuList" });
 
-        expect(buildSaveLoginInlineMenuListSpy).toHaveBeenCalled();
+        expect(buildSaveLoginInlineMenuSpy).toHaveBeenCalled();
       });
     });
 

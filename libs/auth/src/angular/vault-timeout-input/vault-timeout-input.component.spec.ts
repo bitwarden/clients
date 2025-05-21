@@ -1,24 +1,33 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { BehaviorSubject } from "rxjs";
 
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { VaultTimeoutInputComponent } from "./vault-timeout-input.component";
 
 describe("VaultTimeoutInputComponent", () => {
   let component: VaultTimeoutInputComponent;
   let fixture: ComponentFixture<VaultTimeoutInputComponent>;
-  const get$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
+  const policiesByType$ = jest.fn().mockReturnValue(new BehaviorSubject({}));
   const availableVaultTimeoutActions$ = jest.fn().mockReturnValue(new BehaviorSubject([]));
+  const mockUserId = Utils.newGuid() as UserId;
+  const accountService = mockAccountServiceWith(mockUserId);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [VaultTimeoutInputComponent],
       providers: [
-        { provide: PolicyService, useValue: { get$ } },
+        { provide: PolicyService, useValue: { policiesByType$ } },
+        { provide: AccountService, useValue: accountService },
         { provide: VaultTimeoutSettingsService, useValue: { availableVaultTimeoutActions$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],

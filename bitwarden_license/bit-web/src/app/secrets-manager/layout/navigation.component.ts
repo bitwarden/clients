@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
@@ -13,8 +15,13 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SecretsManagerLogo } from "@bitwarden/web-vault/app/layouts/secrets-manager-logo";
 
 import { OrganizationCounts } from "../models/view/counts.view";
@@ -27,6 +34,7 @@ import { CountService } from "../shared/counts/count.service";
 @Component({
   selector: "sm-navigation",
   templateUrl: "./navigation.component.html",
+  standalone: false,
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   protected readonly logo = SecretsManagerLogo;
@@ -39,6 +47,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   constructor(
     protected route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private accountService: AccountService,
     private countService: CountService,
     private projectService: ProjectService,
     private secretService: SecretService,
@@ -48,7 +57,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const org$ = this.route.params.pipe(
-      concatMap((params) => this.organizationService.get(params.organizationId)),
+      concatMap((params) =>
+        getUserId(this.accountService.activeAccount$).pipe(
+          switchMap((userId) =>
+            this.organizationService
+              .organizations$(userId)
+              .pipe(getOrganizationById(params.organizationId)),
+          ),
+        ),
+      ),
       distinctUntilChanged(),
       takeUntil(this.destroy$),
     );

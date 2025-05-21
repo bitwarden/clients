@@ -124,49 +124,51 @@
     <value>À la maison, au travail ou en déplacement, Bitwarden sécurise facilement tous vos mots de passe, clés d'accès et informations sensibles.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>Reconnu comme le meilleur gestionnaire de mots de passe par PCMag, WIRED, The Verge, CNET, G2, et bien d'autres !
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+SÉCURISEZ VOTRE VIE NUMÉRIQUE
+Sécurisez votre vie numérique et protégez-vous contre les brèches de données en générant et en enregistrant des mots de passe uniques et forts pour chaque compte. Conservez tout dans un coffre chiffré de bout en bout auquel vous êtes le seul à avoir accès.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+ACCÉDER À VOS DONNÉES, PARTOUT, À TOUT MOMENT ET SUR N'IMPORTE QUEL APPAREIL
+Gérez, stockez, sécurisez et partagez facilement un nombre illimité de mots de passe sur un nombre illimité d'appareils, sans aucune restriction.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+TOUT LE MONDE DEVRAIT DISPOSER DES OUTILS NÉCESSAIRES POUR ASSURER SA SÉCURITÉ EN LIGNE
+Utilisez Bitwarden gratuitement, sans publicité ni vente de données. Bitwarden estime que tout le monde devrait avoir la possibilité de rester en sécurité en ligne. Les plans Premium et Familles permettent d'accéder à des fonctionnalités avancées.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+RESPONSABILISEZ VOS ÉQUIPES AVEC BITWARDEN
+Les plans Équipes et Entreprises sont dotées de fonctionnalités professionnelles. Citons par exemple l'intégration SSO, l'auto-hébergement, l'intégration de l'annuaire et le SCIM provisioning, les politiques globales de sécurité, l'accès API, les journaux d'événements, etc.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Utilisez Bitwarden pour sécuriser votre personnel et partager des informations sensibles avec vos collègues.
 
 
-More reasons to choose Bitwarden:
+D'autres raisons de choisir Bitwarden :
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
+Chiffrement de classe mondiale
+Les mots de passe sont protégés par un cryptage avancé de bout en bout (AES-256 bits, hachage salé et PBKDF2 SHA-256) afin que vos données restent sécurisées et privées.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Chiffrement de classe mondiale
+Les mots de passe sont protégés par un cryptage avancé de bout en bout (AES-256 bits, hashtag salé et PBKDF2 SHA-256) afin que vos données restent sécurisées et privées.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Audits de tierces parties
+Bitwarden effectue régulièrement des audits de sécurité complets avec des sociétés tierces de sécurité renommées. Ces audits annuels comprennent des évaluations du code source et des tests de pénétration sur les IP, les serveurs et les applications web de Bitwarden.
+
+2FA avancé
+Sécurisez votre connexion à l'aide d'un authentificateur tiers, de codes envoyés par courriel ou d'identifiants FIDO2 WebAuthn tels qu'une clé de sécurité matérielle ou une clé d'identificatio (passkey).
 
 Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Transmettez des données directement à d'autres personnes tout en maintenant une sécurité cryptée de bout en bout et en limitant l'exposition.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Générateur intégré
+Créez des mots de passe longs, complexes et distincts et des noms d'utilisateur uniques pour chaque site que vous visitez. Intégration avec des fournisseurs d'alias de courriels pour plus de confidentialité.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Traductions globales
+Il existe des traductions de Bitwarden dans plus de 60 langues, traduites par la communauté mondiale via Crowdin.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Applications multiplateformes
+Sécurisez et partagez des données sensibles dans votre coffre Bitwarden à partir de n'importe quel navigateur, appareil mobile ou système d'exploitation de bureau, et plus encore.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
-</value>
+Bitwarden sécurise bien plus que les mots de passe
+Les solutions de gestion de bout en bout des identifiants chiffrés de Bitwarden permettent aux organisations de tout sécuriser, y compris les secrets des développeurs et les expériences de clés de passe. Visitez Bitwarden.com pour en savoir plus sur Bitwarden Secrets Manager et Bitwarden Passwordless.dev !</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
     <value>À la maison, au travail ou en déplacement, Bitwarden sécurise facilement tous vos mots de passe, clés d'accès et informations sensibles.</value>

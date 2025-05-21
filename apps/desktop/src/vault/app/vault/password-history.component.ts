@@ -5,10 +5,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-password-history",
   templateUrl: "password-history.component.html",
+  standalone: false,
 })
 export class PasswordHistoryComponent extends BasePasswordHistoryComponent {
   constructor(
@@ -16,7 +18,8 @@ export class PasswordHistoryComponent extends BasePasswordHistoryComponent {
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     accountService: AccountService,
+    toastService: ToastService,
   ) {
-    super(cipherService, platformUtilsService, i18nService, accountService, window);
+    super(cipherService, platformUtilsService, i18nService, accountService, window, toastService);
   }
 }

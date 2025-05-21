@@ -6,10 +6,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { CalloutModule } from "../callout";
 import { NavigationModule } from "../navigation";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
-import { positionFixedWrapperDecorator } from "../utils/position-fixed-wrapper-decorator";
 
 import { LayoutComponent } from "./layout.component";
+import { mockLayoutI18n } from "./mocks";
 
 export default {
   title: "Component Library/Layout",
@@ -22,12 +23,7 @@ export default {
         {
           provide: I18nService,
           useFactory: () => {
-            return new I18nMockService({
-              toggleSideNavigation: "Toggle side navigation",
-              skipToContent: "Skip to content",
-              submenu: "submenu",
-              toggleCollapse: "toggle collapse",
-            });
+            return new I18nMockService(mockLayoutI18n);
           },
         },
       ],
@@ -35,6 +31,10 @@ export default {
   ],
   parameters: {
     chromatic: { viewports: [640, 1280] },
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=21662-51009&t=k6OTDDPZOTtypRqo-11",
+    },
   },
 } as Meta;
 
@@ -60,26 +60,26 @@ export const WithContent: Story = {
             <bit-nav-group
               text="Level 1 - with children (empty)"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
             <bit-nav-group
               text="Level 1 - with children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
               [open]="true"
             >
               <bit-nav-group
                 text="Level 2 - with children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               >
@@ -91,7 +91,7 @@ export const WithContent: Story = {
                 <bit-nav-group
                   text="Level 3 - with children"
                   route="#"
-                  icon="bwi-collection"
+                  icon="bwi-collection-shared"
                   variant="tree"
                   [open]="true"
                 >
@@ -105,48 +105,48 @@ export const WithContent: Story = {
               <bit-nav-group
                 text="Level 2 - with children (empty)"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               ></bit-nav-group>
               <bit-nav-item
                 text="Level 2 - no children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
               ></bit-nav-item>
             </bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
           </bit-nav-group>
-          <bit-nav-group text="Tree B" icon="bwi-collection" [open]="true">
+          <bit-nav-group text="Tree B" icon="bwi-collection-shared" [open]="true">
             <bit-nav-group
               text="Level 1 - with children (empty)"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
             <bit-nav-group
               text="Level 1 - with children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
               [open]="true"
             >
               <bit-nav-group
                 text="Level 2 - with children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               >
@@ -158,7 +158,7 @@ export const WithContent: Story = {
                 <bit-nav-group
                   text="Level 3 - with children"
                   route="#"
-                  icon="bwi-collection"
+                  icon="bwi-collection-shared"
                   variant="tree"
                   [open]="true"
                 >
@@ -172,21 +172,21 @@ export const WithContent: Story = {
               <bit-nav-group
                 text="Level 2 - with children (empty)"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               ></bit-nav-group>
               <bit-nav-item
                 text="Level 2 - no children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
               ></bit-nav-item>
             </bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
           </bit-nav-group>
@@ -194,26 +194,26 @@ export const WithContent: Story = {
             <bit-nav-group
               text="Level 1 - with children (empty)"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
             <bit-nav-group
               text="Level 1 - with children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
               [open]="true"
             >
               <bit-nav-group
                 text="Level 2 - with children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               >
@@ -225,7 +225,7 @@ export const WithContent: Story = {
                 <bit-nav-group
                   text="Level 3 - with children"
                   route="#"
-                  icon="bwi-collection"
+                  icon="bwi-collection-shared"
                   variant="tree"
                   [open]="true"
                 >
@@ -239,21 +239,21 @@ export const WithContent: Story = {
               <bit-nav-group
                 text="Level 2 - with children (empty)"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               ></bit-nav-group>
               <bit-nav-item
                 text="Level 2 - no children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
               ></bit-nav-item>
             </bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
           </bit-nav-group>
@@ -277,35 +277,35 @@ export const Secondary: Story = {
     template: /* HTML */ `
       <bit-layout>
         <bit-side-nav variant="secondary">
-          <bit-nav-item text="Item A" icon="bwi-collection"></bit-nav-item>
-          <bit-nav-item text="Item B" icon="bwi-collection"></bit-nav-item>
+          <bit-nav-item text="Item A" icon="bwi-collection-shared"></bit-nav-item>
+          <bit-nav-item text="Item B" icon="bwi-collection-shared"></bit-nav-item>
           <bit-nav-divider></bit-nav-divider>
-          <bit-nav-item text="Item C" icon="bwi-collection"></bit-nav-item>
-          <bit-nav-item text="Item D" icon="bwi-collection"></bit-nav-item>
-          <bit-nav-group text="Tree example" icon="bwi-collection" [open]="true">
+          <bit-nav-item text="Item C" icon="bwi-collection-shared"></bit-nav-item>
+          <bit-nav-item text="Item D" icon="bwi-collection-shared"></bit-nav-item>
+          <bit-nav-group text="Tree example" icon="bwi-collection-shared" [open]="true">
             <bit-nav-group
               text="Level 1 - with children (empty)"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
             <bit-nav-group
               text="Level 1 - with children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
               [open]="true"
             >
               <bit-nav-group
                 text="Level 2 - with children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               >
@@ -317,7 +317,7 @@ export const Secondary: Story = {
                 <bit-nav-group
                   text="Level 3 - with children"
                   route="#"
-                  icon="bwi-collection"
+                  icon="bwi-collection-shared"
                   variant="tree"
                   [open]="true"
                 >
@@ -331,21 +331,21 @@ export const Secondary: Story = {
               <bit-nav-group
                 text="Level 2 - with children (empty)"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
                 [open]="true"
               ></bit-nav-group>
               <bit-nav-item
                 text="Level 2 - no children"
                 route="#"
-                icon="bwi-collection"
+                icon="bwi-collection-shared"
                 variant="tree"
               ></bit-nav-item>
             </bit-nav-group>
             <bit-nav-item
               text="Level 1 - no children"
               route="#"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
               variant="tree"
             ></bit-nav-item>
           </bit-nav-group>

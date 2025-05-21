@@ -3,6 +3,7 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import { ApiSettings, IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
@@ -55,9 +56,11 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.DuckDuckGo.local.settings",
       key: "duckDuckGoForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<DuckDuckGoSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],
@@ -87,7 +90,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const DuckDuckGo = Object.freeze({
-  id: "duckduckgo" as IntegrationId,
+  id: "duckduckgo" as IntegrationId & VendorId,
   name: "DuckDuckGo",
   baseUrl: "https://quack.duckduckgo.com/api",
   selfHost: "never",

@@ -1,4 +1,3 @@
-import { sequentialize } from "./sequentialize";
 import { throttle } from "./throttle";
 
 describe("throttle decorator", () => {
@@ -51,17 +50,6 @@ describe("throttle decorator", () => {
     expect(foo.calls).toBe(10);
     expect(foo2.calls).toBe(10);
   });
-
-  it("should work together with sequentialize", async () => {
-    const foo = new Foo();
-    const promises = [];
-    for (let i = 0; i < 10; i++) {
-      promises.push(foo.qux(Math.floor(i / 2) * 2));
-    }
-    await Promise.all(promises);
-
-    expect(foo.calls).toBe(5);
-  });
 });
 
 class Foo {
@@ -94,7 +82,6 @@ class Foo {
     });
   }
 
-  @sequentialize((args) => "qux" + args[0])
   @throttle(1, () => "qux")
   qux(a: number) {
     this.calls++;

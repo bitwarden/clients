@@ -1,3 +1,6 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
@@ -11,6 +14,8 @@ import {
   signal,
 } from "@angular/core";
 
+import { I18nPipe } from "@bitwarden/ui-common";
+
 import { BitHintComponent } from "../form-control/hint.component";
 import { BitLabel } from "../form-control/label.component";
 import { inputBorderClasses } from "../input/input.directive";
@@ -21,6 +26,8 @@ import { BitFormFieldControl } from "./form-field-control";
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
+  standalone: true,
+  imports: [CommonModule, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {
   @ContentChild(BitFormFieldControl) input: BitFormFieldControl;
@@ -84,7 +91,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
   protected defaultContentIsFocused = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.defaultContentIsFocused.set(target.matches(".default-content *:focus-visible"));
+    this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {

@@ -1,4 +1,7 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -22,15 +25,18 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import {
   LoginComponentService,
   SetPasswordJitService,
-  LockComponentService,
+  SsoComponentService,
+  DefaultSsoComponentService,
+  TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
+  LoginApprovalComponentServiceAbstraction,
   LoginEmailService,
   PinServiceAbstraction,
+  SsoUrlService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -41,15 +47,23 @@ import {
   AuthService,
   AuthService as AuthServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/auth.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import {
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
+import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -60,6 +74,7 @@ import {
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -67,15 +82,17 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
+import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
+import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -86,10 +103,18 @@ import {
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
+import { LockComponentService } from "@bitwarden/key-management-ui";
+import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
+import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
+import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { ElectronBiometricsService } from "../../key-management/biometrics/electron-biometrics.service";
+import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
+import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronKeyService } from "../../platform/services/electron-key.service";
@@ -104,15 +129,14 @@ import { ElectronRendererStorageService } from "../../platform/services/electron
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
-import { DesktopLockComponentService } from "../../services/desktop-lock-component.service";
+import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
+import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
-import { NativeMessageHandlerService } from "../../services/native-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
-import { DesktopThemeStateService } from "./desktop-theme.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
@@ -128,10 +152,16 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
     provide: BiometricsService,
-    useClass: ElectronBiometricsService,
+    useClass: RendererBiometricsService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: DesktopBiometricsService,
+    useClass: RendererBiometricsService,
     deps: [],
   }),
   safeProvider(NativeMessagingService),
+  safeProvider(BiometricMessageHandlerService),
   safeProvider(SearchBarService),
   safeProvider(DialogService),
   safeProvider({
@@ -226,6 +256,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       BiometricStateService,
       AccountServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -239,11 +270,6 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: ThemeStateService,
-    useClass: DesktopThemeStateService,
-    deps: [GlobalStateProvider],
-  }),
-  safeProvider({
     provide: EncryptedMessageHandlerService,
     deps: [
       AccountServiceAbstraction,
@@ -255,7 +281,7 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: NativeMessageHandlerService,
+    provide: DuckDuckGoMessageHandlerService,
     deps: [
       StateServiceAbstraction,
       EncryptService,
@@ -287,6 +313,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       BiometricStateService,
       KdfConfigService,
+      DesktopBiometricsService,
     ],
   }),
   safeProvider({
@@ -296,6 +323,44 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutofillSettingsService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: DesktopAutofillService,
+    deps: [
+      LogService,
+      CipherServiceAbstraction,
+      ConfigService,
+      Fido2AuthenticatorServiceAbstraction,
+      AccountService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopFido2UserInterfaceService,
+    useClass: DesktopFido2UserInterfaceService,
+    deps: [
+      AuthServiceAbstraction,
+      CipherServiceAbstraction,
+      AccountService,
+      LogService,
+      MessagingServiceAbstraction,
+      Router,
+      DesktopSettingsService,
+    ],
+  }),
+  safeProvider({
+    provide: Fido2UserInterfaceServiceAbstraction, // We utilize desktop specific methods when wiring OS API's
+    useExisting: DesktopFido2UserInterfaceService,
+  }),
+  safeProvider({
+    provide: Fido2AuthenticatorServiceAbstraction,
+    useClass: Fido2AuthenticatorService,
+    deps: [
+      CipherServiceAbstraction,
+      Fido2UserInterfaceServiceAbstraction,
+      SyncService,
+      AccountService,
+      LogService,
+    ],
   }),
   safeProvider({
     provide: NativeMessagingManifestService,
@@ -316,6 +381,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopSetPasswordJitService,
     deps: [
       ApiService,
+      MasterPasswordApiService,
       KeyService,
       EncryptService,
       I18nServiceAbstraction,
@@ -325,6 +391,11 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: SsoUrlService,
+    useClass: SsoUrlService,
+    deps: [],
   }),
   safeProvider({
     provide: LoginComponentService,
@@ -337,6 +408,17 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       I18nServiceAbstraction,
       ToastService,
+      SsoUrlService,
+    ],
+  }),
+  safeProvider({
+    provide: TwoFactorAuthDuoComponentService,
+    useClass: DesktopTwoFactorAuthDuoComponentService,
+    deps: [
+      MessageListener,
+      EnvironmentService,
+      I18nServiceAbstraction,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -345,9 +427,29 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SdkLoadService,
+    useClass: flagEnabled("sdk") ? DefaultSdkLoadService : NoopSdkLoadService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LoginEmailService,
     useClass: LoginEmailService,
     deps: [AccountService, AuthService, StateProvider],
+  }),
+  safeProvider({
+    provide: SsoComponentService,
+    useClass: DefaultSsoComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: LoginApprovalComponentServiceAbstraction,
+    useClass: DesktopLoginApprovalComponentService,
+    deps: [I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SshImportPromptService,
+    useClass: DefaultSshImportPromptService,
+    deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
   }),
 ];
 

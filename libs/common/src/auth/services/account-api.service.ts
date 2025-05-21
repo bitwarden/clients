@@ -10,6 +10,7 @@ import { UserVerificationService } from "../abstractions/user-verification/user-
 import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
+import { SetVerifyDevicesRequest } from "../models/request/set-verify-devices.request";
 import { Verification } from "../types/verification";
 
 export class AccountApiServiceImplementation implements AccountApiService {
@@ -83,7 +84,7 @@ export class AccountApiServiceImplementation implements AccountApiService {
     }
   }
 
-  async registerFinish(request: RegisterFinishRequest): Promise<string> {
+  async registerFinish(request: RegisterFinishRequest): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
     try {
@@ -94,6 +95,23 @@ export class AccountApiServiceImplementation implements AccountApiService {
         false,
         true,
         env.getIdentityUrl(),
+      );
+
+      return response;
+    } catch (e: unknown) {
+      this.logService.error(e);
+      throw e;
+    }
+  }
+
+  async setVerifyDevices(request: SetVerifyDevicesRequest): Promise<string> {
+    try {
+      const response = await this.apiService.send(
+        "POST",
+        "/accounts/verify-devices",
+        request,
+        true,
+        true,
       );
 
       return response;

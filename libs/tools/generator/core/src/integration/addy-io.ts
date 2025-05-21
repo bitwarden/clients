@@ -3,6 +3,7 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import {
   ApiSettings,
@@ -27,6 +28,7 @@ export type AddyIoConfiguration = ForwarderConfiguration<AddyIoSettings>;
 const defaultSettings = Object.freeze({
   token: "",
   domain: "",
+  baseUrl: "",
 });
 
 // supported RPC calls
@@ -37,7 +39,7 @@ const createForwardingEmail = Object.freeze({
   body(request: IntegrationRequest, context: ForwarderContext<AddyIoSettings>) {
     return {
       domain: context.emailDomain(),
-      description: context.generatedBy(request),
+      description: context.generatedBy(request, { extractHostname: true, maxLength: 200 }),
     };
   },
   hasJsonPayload(response: Response) {
@@ -65,9 +67,11 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.AddyIo.local.settings",
       key: "addyIoForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<AddyIoSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],
@@ -97,7 +101,7 @@ const forwarder = Object.freeze({
 
 export const AddyIo = Object.freeze({
   // integration
-  id: "anonaddy" as IntegrationId,
+  id: "anonaddy" as IntegrationId & VendorId,
   name: "Addy.io",
   extends: ["forwarder"],
 

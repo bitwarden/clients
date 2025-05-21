@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
@@ -6,8 +8,8 @@ import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
 @Component({
   selector: "app-create-organization",
   templateUrl: "create-organization.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class CreateOrganizationComponent implements OnInit {
   @ViewChild(OrganizationPlansComponent, { static: true })
   orgPlansComponent: OrganizationPlansComponent;

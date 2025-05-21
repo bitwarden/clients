@@ -1,8 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
 
-import { RegisterRouteService } from "@bitwarden/auth/common";
+import { BitwardenLogo } from "@bitwarden/auth/angular";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProviderUserAcceptRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-accept.request";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -13,8 +14,10 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 @Component({
   selector: "app-accept-provider",
   templateUrl: "accept-provider.component.html",
+  standalone: false,
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
+  protected logo = BitwardenLogo;
   providerName: string;
   providerId: string;
   providerUserId: string;
@@ -31,9 +34,8 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
     authService: AuthService,
     private apiService: ApiService,
     platformUtilService: PlatformUtilsService,
-    registerRouteService: RegisterRouteService,
   ) {
-    super(router, platformUtilService, i18nService, route, authService, registerRouteService);
+    super(router, platformUtilService, i18nService, route, authService);
   }
 
   async authedHandler(qParams: Params) {
@@ -45,6 +47,7 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
       qParams.providerUserId,
       request,
     );
+
     this.platformUtilService.showToast(
       "success",
       this.i18nService.t("inviteAccepted"),
@@ -62,25 +65,14 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
   }
 
   async register() {
-    let queryParams: Params;
-    let registerRoute = await firstValueFrom(this.registerRoute$);
-    if (registerRoute === "/register") {
-      queryParams = {
-        email: this.email,
-      };
-    } else if (registerRoute === "/signup") {
-      // We have to override the base component route as we don't need users to
-      // complete email verification if they are coming directly an emailed invite.
-      registerRoute = "/finish-signup";
-      queryParams = {
+    // We don't need users to complete email verification if they are coming directly from an emailed invite.
+    // Therefore, we skip /signup and navigate directly to /finish-signup.
+    await this.router.navigate(["/finish-signup"], {
+      queryParams: {
         email: this.email,
         providerUserId: this.providerUserId,
         providerInviteToken: this.providerInviteToken,
-      };
-    }
-
-    await this.router.navigate([registerRoute], {
-      queryParams: queryParams,
+      },
     });
   }
 }

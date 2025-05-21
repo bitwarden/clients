@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
 import { AfterViewInit, Component, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
-import { IsActiveMatchOptions, RouterLinkActive } from "@angular/router";
+import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
@@ -10,6 +12,8 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
 @Component({
   selector: "bit-tab-link",
   templateUrl: "tab-link.component.html",
+  standalone: true,
+  imports: [TabListItemDirective, RouterModule],
 })
 export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();

@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { Login as SdkLogin } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
@@ -53,17 +57,16 @@ export class Login extends Domain {
   async decrypt(
     orgId: string,
     bypassValidation: boolean,
+    context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<LoginView> {
-    const view = await this.decryptObj(
+    const view = await this.decryptObj<Login, LoginView>(
+      this,
       new LoginView(this),
-      {
-        username: null,
-        password: null,
-        totp: null,
-      },
+      ["username", "password", "totp"],
       orgId,
       encKey,
+      `DomainType: Login; ${context}`,
     );
 
     if (this.uris != null) {
@@ -74,7 +77,7 @@ export class Login extends Domain {
           continue;
         }
 
-        const uri = await this.uris[i].decrypt(orgId, encKey);
+        const uri = await this.uris[i].decrypt(orgId, context, encKey);
         // URIs are shared remotely after decryption
         // we need to validate that the string hasn't been changed by a compromised server
         // This validation is tied to the existence of cypher.key for backwards compatibility
@@ -142,5 +145,22 @@ export class Login extends Domain {
       uris,
       fido2Credentials,
     });
+  }
+
+  /**
+   * Maps Login to SDK format.
+   *
+   * @returns {SdkLogin} The SDK login object.
+   */
+  toSdkLogin(): SdkLogin {
+    return {
+      uris: this.uris?.map((u) => u.toSdkLoginUri()),
+      username: this.username?.toJSON(),
+      password: this.password?.toJSON(),
+      passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
+      totp: this.totp?.toJSON(),
+      autofillOnPageLoad: this.autofillOnPageLoad,
+      fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
+    };
   }
 }

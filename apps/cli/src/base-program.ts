@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as chalk from "chalk";
 import { firstValueFrom, map } from "rxjs";
 
@@ -177,9 +179,9 @@ export abstract class BaseProgram {
         this.serviceContainer.logService,
         this.serviceContainer.keyConnectorService,
         this.serviceContainer.environmentService,
-        this.serviceContainer.syncService,
         this.serviceContainer.organizationApiService,
         this.serviceContainer.logout,
+        this.serviceContainer.i18nService,
       );
       const response = await command.run(null, null);
       if (!response.success) {

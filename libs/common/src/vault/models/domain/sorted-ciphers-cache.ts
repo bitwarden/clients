@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CipherView } from "../view/cipher.view";
 
 const CacheTTL = 3000;

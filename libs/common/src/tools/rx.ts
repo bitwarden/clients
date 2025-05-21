@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import {
   map,
   distinctUntilChanged,
@@ -15,7 +17,60 @@ import {
   takeUntil,
   withLatestFrom,
   concatMap,
+  startWith,
+  pairwise,
+  MonoTypeOperatorFunction,
 } from "rxjs";
+
+/** Returns its input. */
+function identity(value: any): any {
+  return value;
+}
+
+/** Combines its arguments into a plain old javascript object. */
+function expectedAndActualValue(expectedValue: any, actualValue: any) {
+  return {
+    expectedValue,
+    actualValue,
+  };
+}
+
+/**
+ * An observable operator that throws an error when the stream's
+ *   value changes. Uses strict (`===`) comparison checks.
+ * @param extract a function that identifies the member to compare;
+ *   defaults to the identity function
+ * @param error a function that packages the expected and failed
+ *   values into an error.
+ * @returns a stream of values that emits when the input emits,
+ *   completes when the input completes, and errors when either the
+ *   input errors or the comparison fails.
+ */
+export function errorOnChange<Input, Extracted>(
+  extract: (value: Input) => Extracted = identity,
+  error: (expectedValue: Extracted, actualValue: Extracted) => unknown = expectedAndActualValue,
+): OperatorFunction<Input, Input> {
+  return pipe(
+    startWith(null),
+    pairwise(),
+    map(([expected, actual], i) => {
+      // always let the first value through
+      if (i === 0) {
+        return actual;
+      }
+
+      const expectedValue = extract(expected);
+      const actualValue = extract(actual);
+
+      // fail the stream if the state desyncs from its initial value
+      if (expectedValue === actualValue) {
+        return actual;
+      } else {
+        throw error(expectedValue, actualValue);
+      }
+    }),
+  );
+}
 
 /**
  * An observable operator that reduces an emitted collection to a single object,
@@ -156,6 +211,30 @@ export function on<T>(watch$: Observable<any>) {
           concatMap(() => source.pipe(first())),
         )
         .pipe(takeUntil(anyComplete(source)));
+    }),
+  );
+}
+
+/** Create an observable that emits the first value from the source and
+ *  throws if the observable emits another value.
+ *  @param options.name names the pin to make discovering failing observables easier
+ *  @param options.distinct compares two emissions with each other to determine whether
+ *   the second emission is a duplicate. When this is specified, duplicates are ignored.
+ *   When this isn't specified, any emission after the first causes the pin to throw
+ *   an error.
+ */
+export function pin<T>(options?: {
+  name?: () => string;
+  distinct?: (previous: T, current: T) => boolean;
+}): MonoTypeOperatorFunction<T> {
+  return pipe(
+    options?.distinct ? distinctUntilChanged(options.distinct) : (i) => i,
+    map((value, index) => {
+      if (index > 0) {
+        throw new Error(`${options?.name?.() ?? "unknown"} observable should only emit one value.`);
+      } else {
+        return value;
+      }
     }),
   );
 }

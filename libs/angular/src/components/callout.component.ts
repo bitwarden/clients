@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -10,6 +12,7 @@ import { CalloutTypes } from "@bitwarden/components";
 @Component({
   selector: "app-callout",
   templateUrl: "callout.component.html",
+  standalone: false,
 })
 export class DeprecatedCalloutComponent implements OnInit {
   @Input() type: CalloutTypes = "info";

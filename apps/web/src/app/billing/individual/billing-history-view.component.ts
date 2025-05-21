@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
@@ -10,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 @Component({
   templateUrl: "billing-history-view.component.html",
+  standalone: false,
 })
 export class BillingHistoryViewComponent implements OnInit {
   loading = false;

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { svgIcon } from "@bitwarden/components";
@@ -32,6 +34,7 @@ const SubscriptionHiddenIcon = svgIcon`
     <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: providerName }}</p>
     <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
   </div>`,
+  standalone: false,
 })
 export class SubscriptionHiddenComponent {
   @Input() providerName: string;

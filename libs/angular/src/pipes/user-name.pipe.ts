@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Pipe, PipeTransform } from "@angular/core";
 
 export interface User {
@@ -7,6 +9,7 @@ export interface User {
 
 @Pipe({
   name: "userName",
+  standalone: false,
 })
 export class UserNamePipe implements PipeTransform {
   transform(user?: User): string {

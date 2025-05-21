@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
@@ -6,6 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -52,7 +55,11 @@ export class ShareComponent implements OnInit, OnDestroy {
     const allCollections = await this.collectionService.getAllDecrypted();
     this.writeableCollections = allCollections.map((c) => c).filter((c) => !c.readOnly);
 
-    this.organizations$ = this.organizationService.memberOrganizations$.pipe(
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
+    this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
       map((orgs) => {
         return orgs
           .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
@@ -67,13 +74,9 @@ export class ShareComponent implements OnInit, OnDestroy {
       }
     });
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    this.cipher = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
+    this.cipher = await this.cipherService.decrypt(cipherDomain, activeUserId);
   }
 
   filterCollections() {
@@ -98,13 +101,9 @@ export class ShareComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    const cipherView = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
+    const cipherView = await this.cipherService.decrypt(cipherDomain, activeUserId);
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
       orgs.find((o) => o.id === this.organizationId)?.name ?? this.i18nService.t("organization");

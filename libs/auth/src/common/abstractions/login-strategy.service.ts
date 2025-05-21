@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
@@ -45,7 +47,6 @@ export abstract class LoginStrategyServiceAbstraction {
    * Auth Request. Otherwise, it will return null.
    */
   getAuthRequestId: () => Promise<string | null>;
-
   /**
    * Sends a token request to the server using the provided credentials.
    */
@@ -58,17 +59,21 @@ export abstract class LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ) => Promise<AuthResult>;
   /**
-   * Sends a token request to the server with the provided two factor token
-   * and captcha response. This uses data stored from {@link LoginStrategyServiceAbstraction.logIn},
-   * so that must be called first.
+   * Sends a token request to the server with the provided two factor token.
+   * This uses data stored from {@link LoginStrategyServiceAbstraction.logIn}, so that must be called first.
    * Returns an error if no session data is found.
    */
-  logInTwoFactor: (
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ) => Promise<AuthResult>;
+  logInTwoFactor: (twoFactor: TokenTwoFactorRequest) => Promise<AuthResult>;
   /**
    * Creates a master key from the provided master password and email.
    */
   makePreloginKey: (masterPassword: string, email: string) => Promise<MasterKey>;
+  /**
+   * Emits true if the authentication session has expired.
+   */
+  authenticationSessionTimeout$: Observable<boolean>;
+  /**
+   * Sends a token request to the server with the provided device verification OTP.
+   */
+  logInNewDeviceVerification: (deviceVerificationOtp: string) => Promise<AuthResult>;
 }

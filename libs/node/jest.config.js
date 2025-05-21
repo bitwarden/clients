@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("../shared/tsconfig.libs");
+const { compilerOptions } = require("../shared/tsconfig.spec");
 
 const sharedConfig = require("../shared/jest.config.ts");
 

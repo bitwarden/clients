@@ -5,5 +5,10 @@ import { TypeFilterComponent as BaseTypeFilterComponent } from "@bitwarden/angul
 @Component({
   selector: "app-type-filter",
   templateUrl: "type-filter.component.html",
+  standalone: false,
 })
-export class TypeFilterComponent extends BaseTypeFilterComponent {}
+export class TypeFilterComponent extends BaseTypeFilterComponent {
+  constructor() {
+    super();
+  }
+}

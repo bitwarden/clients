@@ -1,14 +1,20 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
+import { KeyService } from "@bitwarden/key-management";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -21,13 +27,13 @@ import { PolicyResponse } from "../../admin-console/models/response/policy.respo
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
-import { KeyConnectorService } from "../../auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -45,10 +51,10 @@ import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
-import { sequentialize } from "../misc/sequentialize";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
@@ -97,13 +103,20 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  @sequentialize(() => "fullSync")
-  override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  override async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
@@ -112,18 +125,20 @@ export class DefaultSyncService extends CoreSyncService {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
       await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
+      if (!skipTokenRefresh) {
+        await this.apiService.refreshIdentityToken();
+      }
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
@@ -135,13 +150,13 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
     }
   }
@@ -189,6 +204,7 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
@@ -208,13 +224,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 

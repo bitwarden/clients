@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Observable, filter, of, switchMap, take } from "rxjs";
 
 import { UserId } from "../../../types/guid";
@@ -52,9 +54,9 @@ export class DefaultStateProvider implements StateProvider {
 
   async setUserState<T>(
     userKeyDefinition: UserKeyDefinition<T>,
-    value: T,
+    value: T | null,
     userId?: UserId,
-  ): Promise<[UserId, T]> {
+  ): Promise<[UserId, T | null]> {
     if (userId) {
       return [userId, await this.getUser<T>(userId, userKeyDefinition).update(() => value)];
     } else {

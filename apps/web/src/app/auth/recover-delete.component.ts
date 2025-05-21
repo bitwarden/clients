@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -11,6 +13,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-recover-delete",
   templateUrl: "recover-delete.component.html",
+  standalone: false,
 })
 export class RecoverDeleteComponent {
   protected recoverDeleteForm = new FormGroup({

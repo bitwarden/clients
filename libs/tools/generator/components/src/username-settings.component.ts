@@ -1,23 +1,32 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, map, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
+import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   CredentialGeneratorService,
   EffUsernameGenerationOptions,
   Generators,
 } from "@bitwarden/generator-core";
 
-import { completeOnAccountSwitch } from "./util";
-
 /** Options group for usernames */
 @Component({
   selector: "tools-username-settings",
   templateUrl: "username-settings.component.html",
+  standalone: false,
 })
-export class UsernameSettingsComponent implements OnInit, OnDestroy {
+export class UsernameSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
    *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
@@ -26,15 +35,20 @@ export class UsernameSettingsComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private generatorService: CredentialGeneratorService,
-    private accountService: AccountService,
   ) {}
 
   /** Binds the component to a specific user's settings.
-   *  When this input is not provided, the form binds to the active
-   *  user
    */
-  @Input()
-  userId: UserId | null;
+  @Input({ required: true })
+  account: Account;
+
+  protected account$ = new ReplaySubject<Account>(1);
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if ("account" in changes) {
+      this.account$.next(this.account);
+    }
+  }
 
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
@@ -51,8 +65,9 @@ export class UsernameSettingsComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    const singleUserId$ = this.singleUserId$();
-    const settings = await this.generatorService.settings(Generators.username, { singleUserId$ });
+    const settings = await this.generatorService.settings(Generators.username, {
+      account$: this.account$,
+    });
 
     settings.pipe(takeUntil(this.destroyed$)).subscribe((s) => {
       this.settings.patchValue(s, { emitEvent: false });
@@ -73,19 +88,6 @@ export class UsernameSettingsComponent implements OnInit, OnDestroy {
   private saveSettings = new Subject<string>();
   save(site: string = "component api call") {
     this.saveSettings.next(site);
-  }
-
-  private singleUserId$() {
-    // FIXME: this branch should probably scan for the user and make sure
-    // the account is unlocked
-    if (this.userId) {
-      return new BehaviorSubject(this.userId as UserId).asObservable();
-    }
-
-    return this.accountService.activeAccount$.pipe(
-      completeOnAccountSwitch(),
-      takeUntil(this.destroyed$),
-    );
   }
 
   private readonly destroyed$ = new Subject<void>();

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,6 +16,7 @@ export interface PasswordColorText {
 @Component({
   selector: "app-password-strength",
   templateUrl: "password-strength.component.html",
+  standalone: false,
 })
 export class PasswordStrengthComponent implements OnChanges {
   @Input() showText = false;

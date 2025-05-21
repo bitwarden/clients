@@ -1,20 +1,31 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { inject, NgModule } from "@angular/core";
+import { CanMatchFn, RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { ExposedPasswordsReportComponent } from "../../../admin-console/organizations/tools/exposed-passwords-report.component";
-import { InactiveTwoFactorReportComponent } from "../../../admin-console/organizations/tools/inactive-two-factor-report.component";
-import { ReusedPasswordsReportComponent } from "../../../admin-console/organizations/tools/reused-passwords-report.component";
-import { UnsecuredWebsitesReportComponent } from "../../../admin-console/organizations/tools/unsecured-websites-report.component";
-import { WeakPasswordsReportComponent } from "../../../admin-console/organizations/tools/weak-passwords-report.component";
+import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
+import { InactiveTwoFactorReportComponent } from "../../../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+import { ReusedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/reused-passwords-report.component";
+import { UnsecuredWebsitesReportComponent } from "../../../dirt/reports/pages/organizations/unsecured-websites-report.component";
+import { WeakPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/weak-passwords-report.component";
+/* eslint no-restricted-imports: "error" */
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";
 import { EventsComponent } from "../manage/events.component";
 
 import { ReportsHomeComponent } from "./reports-home.component";
+
+const breadcrumbEventLogsPermission$: CanMatchFn = () =>
+  inject(ConfigService)
+    .getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs)
+    .pipe(map((breadcrumbEventLogs) => breadcrumbEventLogs === true));
 
 const routes: Routes = [
   {
@@ -76,6 +87,20 @@ const routes: Routes = [
             canActivate: [isPaidOrgGuard()],
           },
         ],
+      },
+      // Event routing is temporarily duplicated
+      {
+        path: "events",
+        component: EventsComponent,
+        canMatch: [breadcrumbEventLogsPermission$], // if this matches, the flag is ON
+        canActivate: [
+          organizationPermissionsGuard(
+            (org) => (org.canAccessEventLogs && org.useEvents) || org.isOwner,
+          ),
+        ],
+        data: {
+          titleId: "eventLogs",
+        },
       },
       {
         path: "events",

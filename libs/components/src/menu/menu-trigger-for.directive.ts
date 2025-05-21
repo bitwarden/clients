@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
@@ -14,10 +16,7 @@ import { filter, mergeWith } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
-@Directive({
-  selector: "[bitMenuTriggerFor]",
-  exportAs: "menuTrigger",
-})
+@Directive({ selector: "[bitMenuTriggerFor]", exportAs: "menuTrigger", standalone: true })
 export class MenuTriggerForDirective implements OnDestroy {
   @HostBinding("attr.aria-expanded") isOpen = false;
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
@@ -33,24 +32,16 @@ export class MenuTriggerForDirective implements OnDestroy {
   private defaultMenuConfig: OverlayConfig = {
     panelClass: "bit-menu-panel",
     hasBackdrop: true,
-    backdropClass: "cdk-overlay-transparent-backdrop",
+    backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
     scrollStrategy: this.overlay.scrollStrategies.reposition(),
     positionStrategy: this.overlay
       .position()
       .flexibleConnectedTo(this.elementRef)
       .withPositions([
-        {
-          originX: "start",
-          originY: "bottom",
-          overlayX: "start",
-          overlayY: "top",
-        },
-        {
-          originX: "end",
-          originY: "bottom",
-          overlayX: "end",
-          overlayY: "top",
-        },
+        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
+        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
+        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
+        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
       ])
       .withLockedPosition(true)
       .withFlexibleDimensions(false)

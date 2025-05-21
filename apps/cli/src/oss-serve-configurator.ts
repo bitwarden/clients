@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
 import * as koa from "koa";
@@ -58,7 +60,6 @@ export class OssServeConfigurator {
       this.serviceContainer.auditService,
       this.serviceContainer.keyService,
       this.serviceContainer.encryptService,
-      this.serviceContainer.stateService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,
       this.serviceContainer.organizationService,
@@ -75,6 +76,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
+      this.serviceContainer.accountService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -114,6 +116,7 @@ export class OssServeConfigurator {
       this.serviceContainer.folderApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
+      this.serviceContainer.accountService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
@@ -121,7 +124,12 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
     );
-    this.restoreCommand = new RestoreCommand(this.serviceContainer.cipherService);
+    this.restoreCommand = new RestoreCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.cipherAuthorizationService,
+    );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
@@ -136,9 +144,9 @@ export class OssServeConfigurator {
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
-      this.serviceContainer.syncService,
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
+      this.serviceContainer.i18nService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -146,6 +154,7 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -156,12 +165,14 @@ export class OssServeConfigurator {
       this.serviceContainer.environmentService,
       this.serviceContainer.searchService,
       this.serviceContainer.encryptService,
+      this.serviceContainer.apiService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
       this.sendGetCommand,
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.accountService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,

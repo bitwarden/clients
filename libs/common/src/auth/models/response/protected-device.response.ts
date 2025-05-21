@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { RotateableKeySet } from "@bitwarden/auth/common";
 
 import { DeviceType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
@@ -36,4 +40,12 @@ export class ProtectedDeviceResponse extends BaseResponse {
    * This enabled a user to rotate the keys for all of their devices.
    */
   encryptedPublicKey: EncString;
+
+  getRotateableKeyset(): RotateableKeySet {
+    return new RotateableKeySet(this.encryptedUserKey, this.encryptedPublicKey);
+  }
+
+  isTrusted(): boolean {
+    return this.encryptedUserKey != null && this.encryptedPublicKey != null;
+  }
 }

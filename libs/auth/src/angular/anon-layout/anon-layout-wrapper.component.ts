@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Data, NavigationEnd, Router, RouterModule } from "@angular/router";
 import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
@@ -33,6 +35,10 @@ export interface AnonLayoutWrapperData {
    * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
    */
   maxWidth?: "md" | "3xl";
+  /**
+   * Optional flag to set the max-width of the title area. Defaults to null if not provided.
+   */
+  titleAreaMaxWidth?: "md";
 }
 
 @Component({
@@ -48,6 +54,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected pageIcon: Icon;
   protected showReadonlyHostname: boolean;
   protected maxWidth: "md" | "3xl";
+  protected titleAreaMaxWidth: "md";
 
   constructor(
     private router: Router,
@@ -98,6 +105,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
+    this.titleAreaMaxWidth = firstChildRouteData["titleAreaMaxWidth"];
   }
 
   private listenForServiceDataChanges() {
@@ -155,6 +163,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.pageIcon = null;
     this.showReadonlyHostname = null;
     this.maxWidth = null;
+    this.titleAreaMaxWidth = null;
   }
 
   ngOnDestroy() {

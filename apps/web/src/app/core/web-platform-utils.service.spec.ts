@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
 describe("Web Platform Utils Service", () => {

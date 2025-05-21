@@ -3,16 +3,23 @@
     {{ "customFields" | i18n }}
   </h2>
   <div class="box-content">
-    <div class="box-content-row box-content-row-flex" *ngFor="let field of cipher.fields">
+    <div
+      class="box-content-row box-content-row-flex"
+      *ngFor="let field of cipher.fields; index as i"
+    >
       <div class="row-main">
         <span
           *ngIf="field.type != fieldType.Linked"
           class="row-label draggable"
           draggable="true"
           (dragstart)="setTextDataOnDrag($event, field.value)"
-          >{{ field.name }}</span
+          [id]="'customField-' + i"
         >
-        <span *ngIf="field.type === fieldType.Linked" class="row-label">{{ field.name }}</span>
+          {{ field.name }}
+        </span>
+        <span *ngIf="field.type === fieldType.Linked" class="row-label">
+          {{ "cfTypeLinked" | i18n }}: {{ field.name }}
+        </span>
         <div *ngIf="field.type === fieldType.Text">
           {{ field.value || "&nbsp;" }}
         </div>
@@ -29,19 +36,14 @@
           ></span>
         </div>
         <div *ngIf="field.type === fieldType.Boolean">
-          <i class="bwi bwi-check-square" *ngIf="field.value === 'true'" aria-hidden="true"></i>
-          <i class="bwi bwi-square" *ngIf="field.value !== 'true'" aria-hidden="true"></i>
-          <span class="sr-only">{{ field.value }}</span>
+          <input
+            type="checkbox"
+            [checked]="field.value === 'true'"
+            disabled="true"
+            [attr.aria-labelledby]="'customField-' + i"
+          />
         </div>
         <div *ngIf="field.type === fieldType.Linked" class="box-content-row-flex">
-          <div class="icon icon-small">
-            <i
-              class="bwi bwi-link"
-              aria-hidden="true"
-              appA11yTitle="{{ 'linkedValue' | i18n }}"
-            ></i>
-            <span class="sr-only">{{ "linkedValue" | i18n }}</span>
-          </div>
           <span>{{ cipher.linkedFieldI18nKey(field.linkedId) | i18n }}</span>
         </div>
       </div>

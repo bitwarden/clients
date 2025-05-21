@@ -1,0 +1,70 @@
+import { Meta, Controls, Primary } from "@storybook/addon-docs";
+
+import * as stories from "./body.lit-stories";
+
+<Meta title="Components/Notifications/Notification Body" of={stories} />
+
+## Notification Body
+
+The `NotificationBody` component displays a detailed notification with a list of associated ciphers,
+notification type, and styling based on the selected theme. It is a flexible component for
+presenting actionable information.
+
+<Primary />
+<Controls />
+
+## Props
+
+| **Prop**           | **Type**           | **Required** | **Description**                                                                                           |
+| ------------------ | ------------------ | ------------ | --------------------------------------------------------------------------------------------------------- |
+| `ciphers`          | `CipherData[]`     | Yes          | An array of cipher data objects. Each cipher includes metadata such as ID, name, type, and login details. |
+| `notificationType` | `NotificationType` | Yes          | Specifies the type of notification, such as `add`, `change`, `unlock`, or `fileless-import`.              |
+| `theme`            | `Theme`            | Yes          | Defines the theme used for styling the notification. Must match the `Theme` enum.                         |
+
+---
+
+## Usage Example
+
+```tsx
+import { NotificationBody } from "../../notification/body";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+
+<NotificationBody
+  ciphers={[
+    {
+      id: "1",
+      name: "Example Cipher",
+      type: "Login",
+      favorite: false,
+      reprompt: "None",
+      icon: {
+        imageEnabled: true,
+        image: "",
+        fallbackImage: "https://example.com/fallback.png",
+        icon: "icon-class",
+      },
+      login: { username: "user@example.com", passkey: null },
+    },
+  ]}
+  notificationType="add"
+  theme={ThemeTypes.Dark}
+/>;
+```
+
+### Accessibility (WCAG) Compliance
+
+The NotificationBody component is designed to be accessible and adheres to WCAG guidelines:
+
+## Screen Reader Compatibility
+
+- Ciphers are presented with clear labeling to ensure context for assistive technologies.
+- Icons include fallback options for better accessibility.
+
+## Visual Feedback
+
+- `notificationType` adjusts the visual presentation for contextually relevant feedback.
+
+### Notes
+
+- ciphers: Ensure the array includes well-defined cipher objects to avoid rendering issues.
+- notificationType: This prop influences the messaging and appearance of the notification body.

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import {
@@ -24,6 +26,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       return this.deviceCache;
     }
 
+    // ORDERING MATTERS HERE
+    // Ordered from most specific to least specific. We try to discern the greatest detail
+    // for the type of extension the user is on by checking specific cases first and as we go down
+    // the list we hope to catch all by the most generic clients they could be on.
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
     } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
@@ -167,7 +173,28 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
       return BrowserApi.isPopupOpen();
     }
-    return Boolean(await BrowserApi.sendMessageWithResponse("checkVaultPopupHeartbeat"));
+
+    return new Promise<boolean>((resolve, reject) => {
+      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
+        if (chrome.runtime.lastError != null) {
+          // This error means that nothing was there to listen to the message,
+          // meaning the view is not open.
+          if (
+            chrome.runtime.lastError.message ===
+            "Could not establish connection. Receiving end does not exist."
+          ) {
+            resolve(false);
+            return;
+          }
+
+          // All unhandled errors still reject
+          reject(chrome.runtime.lastError);
+          return;
+        }
+
+        resolve(Boolean(response));
+      });
+    });
   }
 
   lockTimeout(): number {

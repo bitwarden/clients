@@ -111,7 +111,7 @@
                   }}</small>
                 </div>
               </ng-container>
-              <div class="form-group">
+              <div class="form-group" *ngIf="(pinEnabled$ | async) || this.form.value.pin">
                 <div class="checkbox">
                   <label for="pin">
                     <input id="pin" type="checkbox" formControlName="pin" />
@@ -163,7 +163,11 @@
                       formControlName="requirePasswordOnStart"
                       (change)="updateRequirePasswordOnStart()"
                     />
-                    {{ "requirePasswordOnStart" | i18n }}
+                    @if (pinEnabled$ | async) {
+                      {{ "requirePasswordOnStart" | i18n }}
+                    } @else {
+                      {{ "requirePasswordWithoutPinOnStart" | i18n }}
+                    }
                   </label>
                 </div>
                 <small class="help-block form-group-child" *ngIf="isWindows">{{
@@ -334,7 +338,7 @@
                 </div>
                 <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
               </div>
-              <div class="form-group">
+              <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
                   <label for="openAtLogin">
                     <input
@@ -419,7 +423,7 @@
                   "enableHardwareAccelerationDesc" | i18n
                 }}</small>
               </div>
-              <div class="form-group" *ngIf="showSshAgentOption">
+              <div class="form-group">
                 <div class="checkbox">
                   <label for="enableSshAgent">
                     <input
@@ -434,6 +438,39 @@
                 </div>
                 <small id="enableSshAgentHelp" class="help-block">{{
                   "enableSshAgentDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group" *ngIf="this.form.value.enableSshAgent">
+                <label for="sshAgentPromptBehavior">{{ "sshAgentPromptBehavior" | i18n }}</label>
+                <select
+                  id="sshAgentPromptBehavior"
+                  aria-describedby="sshAgentPromptBehaviorHelp"
+                  formControlName="sshAgentPromptBehavior"
+                  (change)="saveSshAgentPromptBehavior()"
+                >
+                  <option *ngFor="let o of sshAgentPromptBehaviorOptions" [ngValue]="o.value">
+                    {{ o.name }}
+                  </option>
+                </select>
+                <small id="sshAgentPromptBehaviorHelp" class="help-block">{{
+                  "sshAgentPromptBehaviorDesc" | i18n
+                }}</small>
+              </div>
+              <div class="form-group" *ngIf="!isLinux">
+                <div class="checkbox">
+                  <label for="allowScreenshots">
+                    <input
+                      id="allowScreenshots"
+                      type="checkbox"
+                      aria-describedby="allowScreenshotsHelp"
+                      formControlName="allowScreenshots"
+                      (change)="savePreventScreenshots()"
+                    />
+                    {{ "allowScreenshots" | i18n }}
+                  </label>
+                </div>
+                <small id="allowScreenshotsHelp" class="help-block">{{
+                  "allowScreenshotsDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="showDuckDuckGoIntegrationOption">

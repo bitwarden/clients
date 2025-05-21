@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, ElementRef, HostListener, OnInit } from "@angular/core";
 
 @Directive({
   selector: "[appBoxRow]",
+  standalone: false,
 })
 export class BoxRowDirective implements OnInit {
   el: HTMLElement = null;

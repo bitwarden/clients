@@ -3,6 +3,7 @@ import {
   GENERATOR_MEMORY,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
+import { VendorId } from "@bitwarden/common/tools/extension";
 import { IntegrationContext, IntegrationId } from "@bitwarden/common/tools/integration";
 import {
   ApiSettings,
@@ -27,6 +28,7 @@ export type SimpleLoginConfiguration = ForwarderConfiguration<SimpleLoginSetting
 const defaultSettings = Object.freeze({
   token: "",
   domain: "",
+  baseUrl: "",
 });
 
 // supported RPC calls
@@ -64,9 +66,11 @@ const forwarder = Object.freeze({
       // e.g. key: "forwarder.SimpleLogin.local.settings",
       key: "simpleLoginForwarder",
       target: "object",
-      format: "classified",
+      format: "secret-state",
+      frame: 512,
       classifier: new PrivateClassifier<SimpleLoginSettings>(),
       state: GENERATOR_DISK,
+      initial: defaultSettings,
       options: {
         deserializer: (value) => value,
         clearOn: ["logout"],
@@ -100,7 +104,7 @@ const forwarder = Object.freeze({
 
 // integration-wide configuration
 export const SimpleLogin = Object.freeze({
-  id: "simplelogin" as IntegrationId,
+  id: "simplelogin" as IntegrationId & VendorId,
   name: "SimpleLogin",
   selfHost: "maybe",
   extends: ["forwarder"],

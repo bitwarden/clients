@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   IconButtonModule,
@@ -45,6 +47,14 @@ export class AutofillVaultListItemsComponent {
    */
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
 
+  /** Flag indicating whether the login item should automatically autofill when clicked  */
+  protected clickItemsToAutofillVaultView$: Observable<boolean> =
+    this.vaultSettingsService.clickItemsToAutofillVaultView$;
+
+  protected groupByType = toSignal(
+    this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
+  );
+
   /**
    * Observable that determines whether the empty autofill tip should be shown.
    * The tip is shown when there are no login ciphers to autofill, no filter is applied, and autofill is allowed in
@@ -62,9 +72,16 @@ export class AutofillVaultListItemsComponent {
     ),
   );
 
+  /**
+   * Flag indicating that the current tab location is blocked
+   */
+  currentURIIsBlocked$: Observable<boolean> =
+    this.vaultPopupAutofillService.currentTabIsOnBlocklist$;
+
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     // TODO: Migrate logic to show Autofill policy toast PM-8144
   }

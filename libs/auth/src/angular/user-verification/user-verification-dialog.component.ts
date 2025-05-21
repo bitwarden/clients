@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -10,6 +11,8 @@ import { VerificationWithSecret } from "@bitwarden/common/auth/types/verificatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,

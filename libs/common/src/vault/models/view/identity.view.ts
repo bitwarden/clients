@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { IdentityView as SdkIdentityView } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../platform/misc/utils";
 import { IdentityLinkedId as LinkedId } from "../../enums";
@@ -154,6 +158,17 @@ export class IdentityView extends ItemView {
   }
 
   static fromJSON(obj: Partial<Jsonify<IdentityView>>): IdentityView {
+    return Object.assign(new IdentityView(), obj);
+  }
+
+  /**
+   * Converts the SDK IdentityView to an IdentityView.
+   */
+  static fromSdkIdentityView(obj: SdkIdentityView): IdentityView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
     return Object.assign(new IdentityView(), obj);
   }
 }

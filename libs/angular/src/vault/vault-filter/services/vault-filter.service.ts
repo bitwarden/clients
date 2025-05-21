@@ -1,25 +1,26 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom, from, map, mergeMap, Observable } from "rxjs";
+import { firstValueFrom, from, map, mergeMap, Observable, switchMap, take } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import {
-  isMember,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { DeprecatedVaultFilterService as DeprecatedVaultFilterServiceAbstraction } from "../../abstractions/deprecated-vault-filter.service";
 import { DynamicTreeNode } from "../models/dynamic-tree-node.model";
-
-import { COLLAPSED_GROUPINGS } from "./../../../../../common/src/vault/services/key-state/collapsed-groupings.state";
 
 const NestingDelimiter = "/";
 
@@ -37,6 +38,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected collectionService: CollectionService,
     protected policyService: PolicyService,
     protected stateProvider: StateProvider,
+    protected accountService: AccountService,
   ) {}
 
   async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
@@ -48,16 +50,19 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async buildOrganizations(): Promise<Organization[]> {
-    let organizations = await this.organizationService.getAll();
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    let organizations = await firstValueFrom(this.organizationService.organizations$(userId));
     if (organizations != null) {
-      organizations = organizations.filter(isMember).sort((a, b) => a.name.localeCompare(b.name));
+      organizations = organizations
+        .filter((o) => o.isMember)
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
 
     return organizations;
   }
 
   buildNestedFolders(organizationId?: string): Observable<DynamicTreeNode<FolderView>> {
-    const transformation = async (storedFolders: FolderView[]) => {
+    const transformation = async (storedFolders: FolderView[], userId: UserId) => {
       let folders: FolderView[];
 
       // If no org or "My Vault" is selected, show all folders
@@ -65,7 +70,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         folders = storedFolders;
       } else {
         // Otherwise, show only folders that have ciphers from the selected org and the "no folder" folder
-        const ciphers = await this.cipherService.getAllDecrypted();
+        const ciphers = await this.cipherService.getAllDecrypted(userId);
         const orgCiphers = ciphers.filter((c) => c.organizationId == organizationId);
         folders = storedFolders.filter(
           (f) => orgCiphers.some((oc) => oc.folderId == f.id) || f.id == null,
@@ -79,8 +84,14 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       });
     };
 
-    return this.folderService.folderViews$.pipe(
-      mergeMap((folders) => from(transformation(folders))),
+    return this.accountService.activeAccount$.pipe(
+      take(1),
+      getUserId,
+      switchMap((userId) =>
+        this.folderService
+          .folderViews$(userId)
+          .pipe(mergeMap((folders) => from(transformation(folders, userId)))),
+      ),
     );
   }
 
@@ -101,13 +112,23 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 
   async checkForSingleOrganizationPolicy(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+      ),
     );
   }
 
   async checkForPersonalOwnershipPolicy(): Promise<boolean> {
     return await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
     );
   }
 
@@ -124,8 +145,9 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async getFolderNested(id: string): Promise<TreeNode<FolderView>> {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folders = await this.getAllFoldersNested(
-      await firstValueFrom(this.folderService.folderViews$),
+      await firstValueFrom(this.folderService.folderViews$(activeUserId)),
     );
     return ServiceUtils.getTreeNodeObjectFromList(folders, id) as TreeNode<FolderView>;
   }

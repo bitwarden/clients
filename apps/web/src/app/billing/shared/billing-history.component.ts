@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
 import { PaymentMethodType, TransactionType } from "@bitwarden/common/billing/enums";
@@ -9,6 +11,7 @@ import {
 @Component({
   selector: "app-billing-history",
   templateUrl: "billing-history.component.html",
+  standalone: false,
 })
 export class BillingHistoryComponent {
   @Input()
@@ -29,7 +32,7 @@ export class BillingHistoryComponent {
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
       case PaymentMethodType.WireTransfer:
-        return ["bwi-bank"];
+        return ["bwi-billing"];
       case PaymentMethodType.BitPay:
         return ["bwi-bitcoin text-warning"];
       case PaymentMethodType.PayPal:

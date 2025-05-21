@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -18,6 +17,7 @@ import {
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -81,17 +81,17 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
     const dialogResult = await firstValueFrom(dialogRef.closed);
 
-    return dialogResult;
+    return dialogResult ?? false;
   }
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [null],
-      webVaultUrl: [null],
-      apiUrl: [null],
-      identityUrl: [null],
-      iconsUrl: [null],
-      notificationsUrl: [null],
+      baseUrl: [""],
+      webVaultUrl: [""],
+      apiUrl: [""],
+      identityUrl: [""],
+      iconsUrl: [""],
+      notificationsUrl: [""],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );

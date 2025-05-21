@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -136,7 +138,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const serviceAccountId = Utils.newGuid();
 
@@ -173,7 +175,7 @@ describe("AccessPolicyService", () => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
       keyService.getOrgKey.mockResolvedValue(mockOrgKey);
-      encryptService.decryptToUtf8.mockImplementation((c) => Promise.resolve(c.encryptedString));
+      encryptService.decryptString.mockImplementation((c) => Promise.resolve(c.encryptedString));
       const organizationId = Utils.newGuid();
       const projectId = Utils.newGuid();
 

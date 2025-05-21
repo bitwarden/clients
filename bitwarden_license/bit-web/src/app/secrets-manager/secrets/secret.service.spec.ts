@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -24,10 +24,10 @@ describe("SecretService", () => {
 
     sut = new SecretService(keyService, apiService, encryptService, accessPolicyService);
 
-    encryptService.encrypt.mockResolvedValue({
+    encryptService.encryptString.mockResolvedValue({
       encryptedString: "mockEncryptedString",
     } as EncString);
-    encryptService.decryptToUtf8.mockResolvedValue(mockUnencryptedData);
+    encryptService.decryptString.mockResolvedValue(mockUnencryptedData);
   });
 
   it("instantiates", () => {

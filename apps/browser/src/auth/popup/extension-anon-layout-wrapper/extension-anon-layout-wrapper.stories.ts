@@ -25,6 +25,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { ButtonModule, I18nMockService } from "@bitwarden/components";
 
+// FIXME: remove `src` and fix import
+// eslint-disable-next-line no-restricted-imports
 import { RegistrationCheckEmailIcon } from "../../../../../../libs/auth/src/angular/icons/registration-check-email.icon";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
@@ -166,18 +168,21 @@ type Story = StoryObj<ExtensionAnonLayoutWrapperComponent>;
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
+  standalone: false,
 })
 class DefaultPrimaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
+  standalone: false,
 })
 class DefaultSecondaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
+  standalone: false,
 })
 class DefaultEnvSelectorOutletExampleComponent {}
 
@@ -240,6 +245,7 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
+  hideIcon: false,
 };
 
 const changedData: ExtensionAnonLayoutWrapperData = {
@@ -253,6 +259,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,
+  hideIcon: false,
 };
 
 @Component({
@@ -260,6 +267,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
+  standalone: false,
 })
 export class DynamicContentExampleComponent {
   initialData = true;

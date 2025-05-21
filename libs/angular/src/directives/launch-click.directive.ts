@@ -5,6 +5,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 @Directive({
   selector: "[appLaunchClick]",
+  standalone: false,
 })
 export class LaunchClickDirective {
   constructor(private platformUtilsService: PlatformUtilsService) {}

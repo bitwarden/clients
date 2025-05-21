@@ -1,12 +1,8 @@
 ﻿@import "variables.scss";
 
-#login-page,
-#login-with-device-page,
 #lock-page,
-#sso-page,
 #set-password-page,
-#remove-password-page,
-#login-decryption-options-page {
+#remove-password-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -27,10 +23,8 @@
   }
 }
 
-#accessibility-cookie-page,
 #register-page,
 #hint-page,
-#two-factor-page,
 #update-temp-password-page,
 #remove-password-page {
   padding-top: 20px;
@@ -48,14 +42,10 @@
   }
 }
 
-#accessibility-cookie-page,
-#login-page,
 #register-page,
 #hint-page,
-#two-factor-page,
 #lock-page,
-#update-temp-password-page,
-#login-decryption-options-page {
+#update-temp-password-page {
   .content {
     width: 325px;
     transition: width 0.25s linear;
@@ -109,18 +99,6 @@
           margin-bottom: 0;
         }
       }
-    }
-  }
-}
-
-#sso-page {
-  .content {
-    width: 325px;
-
-    .box {
-      margin-top: 30px;
-      margin-bottom: 30px;
-      text-align: center;
     }
   }
 }
@@ -190,73 +168,6 @@
   }
 }
 
-#login-page,
-#login-with-device-page,
-#login-decryption-options-page {
-  flex-direction: column;
-  justify-content: unset;
-  padding-top: 20px;
-
-  .login-header {
-    align-self: flex-start;
-    padding: 1em;
-    font-size: 1.2em;
-    .environment-urls-settings-icon {
-      @include themify($themes) {
-        color: themed("mutedColor");
-      }
-
-      span {
-        visibility: hidden;
-      }
-
-      &:hover,
-      &:focus {
-        text-decoration: none;
-
-        @include themify($themes) {
-          color: themed("primaryColor");
-        }
-      }
-    }
-  }
-}
-
-#login-with-device-page {
-  .content {
-    display: block;
-    padding-top: 70px;
-    width: 350px !important;
-
-    .fingerprint {
-      margin: auto;
-      width: 315px;
-
-      .fingerpint-header {
-        padding-left: 15px;
-      }
-    }
-
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .another-method {
-      display: flex;
-      margin: auto;
-      .description-text {
-        padding-right: 5px;
-      }
-    }
-
-    code {
-      @include themify($themes) {
-        color: themed("codeColor");
-      }
-    }
-  }
-}
-
 #login-approval-page {
   .section-title {
     padding: 20px;
@@ -274,16 +185,5 @@
         font-weight: bold;
       }
     }
-  }
-}
-
-#login-decryption-options-page {
-  .standard-bottom-margin {
-    margin-bottom: 20px;
-  }
-
-  #rememberThisDeviceHintText {
-    font-size: $font-size-small;
-    color: $text-muted;
   }
 }

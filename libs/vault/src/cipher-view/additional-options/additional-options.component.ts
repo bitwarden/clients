@@ -6,7 +6,6 @@ import {
   IconButtonModule,
   CardComponent,
   InputModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
@@ -22,12 +21,11 @@ import {
     CardComponent,
     IconButtonModule,
     InputModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
   ],
 })
 export class AdditionalOptionsComponent {
-  @Input() notes: string;
+  @Input() notes: string = "";
 }

@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
-import { DefaultKeyService } from "../../../../key-management/src/key.service";
+import { DefaultKeyService } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";

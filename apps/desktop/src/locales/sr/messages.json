@@ -27,7 +27,7 @@
     "message": "Сигурносна белешка"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH кључ"
   },
   "folders": {
     "message": "Фасцикле"
@@ -181,46 +181,79 @@
     "message": "Адреса"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Приватни кључ"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Јавни кључ"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Отисак"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Врста кључа"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
   },
   "sshKeyAlgorithmRSA2048": {
-    "message": "RSA 2048-Bit"
+    "message": "RSA 2048-бита"
   },
   "sshKeyAlgorithmRSA3072": {
-    "message": "RSA 3072-Bit"
+    "message": "RSA 3072-бита"
   },
   "sshKeyAlgorithmRSA4096": {
-    "message": "RSA 4096-Bit"
+    "message": "RSA 4096-бита"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "Генерисан је нови SSH кључ"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Лозинка коју сте унели није тачна."
+  },
+  "importSshKey": {
+    "message": "Увоз"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потврда лозинке"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Унети лозинку за SSH кључ."
+  },
+  "enterSshKeyPassword": {
+    "message": "Унесите лозинку"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Откључајте свој сеф да бисте одобрили захтев за SSH кључ."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "Захтев за SSH кључем је истекао."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Упали SSH агент"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Омогућите SSH агенту да потписује SSH захтеве директно из вашег Bitwarden сефа."
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "SSH агент је услуга намењена програмерима која вам омогућава да потпишете SSH захтеве директно из вашег Bitwarden сефа."
+  },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
   },
   "premiumRequired": {
     "message": "Потребан Премијум"
@@ -233,6 +266,20 @@
   },
   "error": {
     "message": "Грешка"
+  },
+  "decryptionError": {
+    "message": "Грешка при декрипцији"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden није могао да декриптује ставке из трезора наведене испод."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "Обратите се корисничкој подршци",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "да бисте избегли додатни губитак података.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "Јануар"
@@ -364,6 +411,70 @@
   "authenticatorKeyTotp": {
     "message": "Једнократни код"
   },
+  "authenticatorKey": {
+    "message": "Кључ аутентификатора"
+  },
+  "autofillOptions": {
+    "message": "Опције Ауто-пуњења"
+  },
+  "websiteUri": {
+    "message": "Вебсајт (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Сајт (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Вебсајт додат"
+  },
+  "addWebsite": {
+    "message": "Додај вебсајт"
+  },
+  "deleteWebsite": {
+    "message": "Обриши вебсајт"
+  },
+  "owner": {
+    "message": "Власник"
+  },
+  "addField": {
+    "message": "Додај поље"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
+  },
+  "fieldType": {
+    "message": "Врста поља"
+  },
+  "fieldLabel": {
+    "message": "Ознака поља"
+  },
+  "add": {
+    "message": "Додај"
+  },
+  "textHelpText": {
+    "message": "Користите текстуална поља за податке као што су безбедносна питања"
+  },
+  "hiddenHelpText": {
+    "message": "Користите скривена поља за осетљиве податке као што је лозинка"
+  },
+  "checkBoxHelpText": {
+    "message": "Користите поља за потврду ако желите да аутоматски попуните поље за потврду обрасца, на пример имејл за памћење"
+  },
+  "linkedHelpText": {
+    "message": "Користите повезано поље када имате проблема са аутоматским попуњавањем за одређену веб локацију."
+  },
+  "linkedLabelHelpText": {
+    "message": "Унесите html Ид поља, име, aria-label, или placeholder."
+  },
   "folder": {
     "message": "Фасцикла"
   },
@@ -388,6 +499,9 @@
   "cfTypeLinked": {
     "message": "Повезано",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Поље за потврду"
   },
   "linkedValue": {
     "message": "Вредност повезана",
@@ -446,10 +560,10 @@
     "message": "Копирај лозинку"
   },
   "regenerateSshKey": {
-    "message": "Regenerate SSH key"
+    "message": "Регенеришите SSH кључ"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "Копирајте SSH приватни кључ"
   },
   "copyPassphrase": {
     "message": "Копирај приступну фразу",
@@ -513,10 +627,6 @@
   "specialCharactersDescription": {
     "message": "Укључити специјална слова",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Број речи"
@@ -609,7 +719,7 @@
     "message": "Креирај налог"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Нови сте у Bitwarden-у?"
   },
   "setAStrongPassword": {
     "message": "Поставите јаку лозинку"
@@ -621,16 +731,25 @@
     "message": "Пријавите се"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Пријавите се на Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Унесите кôд послат на ваш имејл"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Унесите кôд из апликације за аутентификацију"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Стисните Ваш YubiKey за аутентификацију"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Пријавите се са приступним кључем"
   },
   "loginWithDevice": {
-    "message": "Log in with device"
+    "message": "Пријавите се са уређајем"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Употребити једнократну пријаву"
   },
   "submit": {
     "message": "Пошаљи"
@@ -675,6 +794,15 @@
   "masterPassHintLabel": {
     "message": "Савет главне лозинке"
   },
+  "passwordStrengthScore": {
+    "message": "Снага лозинкe $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Придружи Организацију"
   },
@@ -704,12 +832,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
-  },
-  "passwordHint": {
-    "message": "Савет главне лозинке"
-  },
-  "enterEmailToGetHint": {
-    "message": "Унесите Ваш имејл да би добили савет за Вашу Главну Лозинку."
   },
   "getMasterPasswordHint": {
     "message": "Добити савет за Главну Лозинку"
@@ -787,23 +909,14 @@
   "webauthnCancelOrTimeout": {
     "message": "Аутентификација је отказана или је трајала предуго. Молим вас, покушајте поново."
   },
+  "openInNewTab": {
+    "message": "Отвори у новом језичку"
+  },
   "invalidVerificationCode": {
     "message": "Неисправан верификациони код"
   },
   "continue": {
     "message": "Настави"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Унесите шестоцифрени верификациони код из апликације за утврђивање аутентичности."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Унесите шестоцифрени верификациони код који је послан на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Провера имејла послата на $EMAIL$.",
@@ -814,17 +927,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запамти ме"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не питајте поново на овом уређају 30 дана"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Поново послати верификациони код на имејл"
+  "selectAnotherMethod": {
+    "message": "Изаберите другу методу",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Користите другу методу пријављивања у два корака"
-  },
-  "insertYubiKey": {
-    "message": "Убаците свој YubiKey у УСБ порт рачунара, а затим додирните његово дугме."
+  "useYourRecoveryCode": {
+    "message": "Употребите шифру за опоравак"
   },
   "insertU2f": {
     "message": "Убаците свој сигурносни кључ у УСБ порт рачунара, и ако има дугме , додирните га."
@@ -856,6 +967,15 @@
     "message": "Провери са Duo Security за вашу организацију користећи Duo Mobile апликацију, СМС, телефонски позив, или U2F кључ.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
+  "verifyYourIdentity": {
+    "message": "Потврдите идентитет"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "Не препознајемо овај уређај. Унесите код послат на адресу ваше електронске поште да би сте потврдили ваш идентитет."
+  },
+  "continueLoggingIn": {
+    "message": "Настави са пријављивањем"
+  },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
@@ -880,11 +1000,11 @@
   "twoStepOptions": {
     "message": "Опције дво-коракне пријаве"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Одабрати методу пријављивања у два корака"
+  },
   "selfHostedEnvironment": {
     "message": "Самостално окружење"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Наведите основни УРЛ ваше локалне Bitwarden инсталације."
   },
   "selfHostedBaseUrlHint": {
     "message": "Наведите основну УРЛ адресу вашег локалног хостовања Bitwarden-а. Пример: https://bitwarden.company.com"
@@ -898,11 +1018,14 @@
   "customEnvironment": {
     "message": "Прилагођено окружење"
   },
-  "customEnvironmentFooter": {
-    "message": "За напредне кориснике. Можете да одредите независно основни УРЛ сваког сервиса."
-  },
   "baseUrl": {
     "message": "УРЛ Сервера"
+  },
+  "authenticationTimeout": {
+    "message": "Истекло је време аутентификације"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "Истекло је време сесије за аутентификацију. Молим вас покрените процес пријаве поново."
   },
   "selfHostBaseUrl": {
     "message": "УРЛ сервера који се самостално хостује",
@@ -934,6 +1057,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Локација"
   },
   "overwritePassword": {
     "message": "Промени лозинку"
@@ -976,9 +1102,6 @@
   },
   "addNewItem": {
     "message": "Додај нову ставку"
-  },
-  "addNewFolder": {
-    "message": "Додај нову фасциклу"
   },
   "view": {
     "message": "Приказ"
@@ -1344,9 +1467,6 @@
   "premiumPurchase": {
     "message": "Купити премијум"
   },
-  "premiumPurchaseAlert": {
-    "message": "Можете купити премијум претплату на bitwarden.com. Да ли желите да посетите веб сајт сада?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "Можете да купите Премиум у подешавањима налога у веб апликацији Bitwarden."
   },
@@ -1371,12 +1491,30 @@
   "passwordHistory": {
     "message": "Историја Лозинке"
   },
+  "generatorHistory": {
+    "message": "Генератор историје"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Испразнити генератор историје"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ако наставите, сви уноси ће бити трајно избрисани из генератора историје. Да ли сте сигурни да желите да наставите?"
+  },
   "clear": {
     "message": "Очисти",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "Нема лозинки за приказивање."
+  },
+  "clearHistory": {
+    "message": "Обриши историју"
+  },
+  "nothingToShow": {
+    "message": "Ништа за приказ"
+  },
+  "nothingGeneratedRecently": {
+    "message": "Недавно нисте ништа генерисали"
   },
   "undo": {
     "message": "Опозови"
@@ -1584,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Унете лозинке се не подударају."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Учитај колачић приступачности"
-  },
-  "registerAccessibilityUser": {
-    "message": "Региструјте се као корисник приступачности на",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Копирајте и испод налепите линк који је послат на адресу ваше е-поште"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Упишите адресу како би се учитао колачић приступачности за hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha адреса је неопходна",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Неисправна адреса"
-  },
   "done": {
     "message": "Готово"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Колачић приступачности сачуван!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Нема сачуваног колачића приступачности"
   },
   "warning": {
     "message": "УПОЗОРЕЊЕ",
@@ -1695,9 +1802,6 @@
   "windowsHelloConsentMessage": {
     "message": "Потврди за Bitwarden."
   },
-  "polkitConsentMessage": {
-    "message": "Аутентификујте се да бисте откључали Bitwarden."
-  },
   "unlockWithTouchId": {
     "message": "Откључај са Touch ID"
   },
@@ -1719,6 +1823,9 @@
   "requirePasswordOnStart": {
     "message": "Захтевај лозинку или ПИН при покретању"
   },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Захтевај лозинку при покретању"
+  },
   "recommendedForSecurity": {
     "message": "Препоручује се за сигурност."
   },
@@ -1735,10 +1842,10 @@
     "message": "Брисање налога је трајно. Не може се поништити."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "Није могуће избрисати налог"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Ова радња се не може довршити јер је ваш налог у власништву организације. Обратите се администратору своје организације за додатне детаље."
   },
   "accountDeleted": {
     "message": "Налог обрисан"
@@ -1858,6 +1965,58 @@
         "example": "5"
       }
     }
+  },
+  "cardDetails": {
+    "message": "Детаљи картице"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ детаљи",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Сазнајте више о аутентификаторима"
+  },
+  "copyTOTP": {
+    "message": "Копирати једнократни кôд (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Учините верификацију у 2 корака беспрекорном"
+  },
+  "totpHelper": {
+    "message": "Bitwarden може да чува и попуњава верификационе кодове у 2 корака. Копирајте и налепите кључ у ово поље."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden може да чува и попуњава верификационе кодове у 2 корака. Изаберите икону камере да бисте направили снимак екрана QR кода за аутентификацију ове веб локације или копирајте и налепите кључ у ово поље."
+  },
+  "premium": {
+    "message": "Премијум",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Бесплатне организације не могу да користе прилоге"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 поље захтева вашу пажњу."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ поља захтевају вашу пажњу.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Картица је истекла"
+  },
+  "cardExpiredMessage": {
+    "message": "Ако сте је обновили, ажурирајте податке о картици"
   },
   "verificationRequired": {
     "message": "Потребдна верификација",
@@ -2016,6 +2175,9 @@
   "personalOwnershipSubmitError": {
     "message": "Због смерница за предузећа, ограничено вам је чување предмета у вашем личном трезору. Промените опцију власништва у организацију и изаберите из доступних колекција."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Ваша нова лозинка не може бити иста као тренутна лозинка."
+  },
   "hintEqualsPassword": {
     "message": "Ваш савет за лозинку не може да буде исти као лозинка."
   },
@@ -2024,6 +2186,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика организације је блокирала увоз ставки у ваш појединачни сеф."
+  },
+  "personalDetails": {
+    "message": "Личне информације"
+  },
+  "identification": {
+    "message": "Идентификација"
+  },
+  "contactInfo": {
+    "message": "Контакт подаци"
   },
   "allSends": {
     "message": "Сва слања",
@@ -2187,6 +2358,12 @@
   },
   "webAuthnAuthenticate": {
     "message": "WebAutn аутентификација"
+  },
+  "readSecurityKey": {
+    "message": "Читај сигурносни кључ"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Чека се интеракција сигурносног кључа..."
   },
   "hideEmail": {
     "message": "Сакриј моју е-адресу од примаоца."
@@ -2404,6 +2581,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Извешће се само појединачни сеф, укључујући прилоге повезане са $EMAIL$. Организациони сефски предмети неће бити укључени",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Извоз сефа организације"
   },
@@ -2444,8 +2630,11 @@
   "generateEmail": {
     "message": "Генеришите имејл"
   },
-  "generatorBoundariesHint": {
-    "message": "Value must be between $MIN$ and $MAX$",
+  "usernameGenerator": {
+    "message": "Генератор корисничког имена"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Вредност мора бити између $MIN$ и $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -2455,6 +2644,26 @@
       "max": {
         "content": "$2",
         "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Употребити $RECOMMENDED$ знакова или више да бисте генерисали јаку лозинку.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Употребити $RECOMMENDED$ речи или више да бисте генерисали јаку приступну фразу.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
       }
     }
   },
@@ -2473,6 +2682,9 @@
   },
   "catchallEmailDesc": {
     "message": "Користите подешено catch-all пријемно сандуче вашег домена."
+  },
+  "useThisEmail": {
+    "message": "Користи овај имејл"
   },
   "random": {
     "message": "Случајно"
@@ -2550,6 +2762,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Погрешан АПИ токен $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ одбио ваш захтев. Обратите се свом провајдеру сервиса за помоћ.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ одбио ваш захтев: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2639,14 +2875,8 @@
   "loginWithMasterPassword": {
     "message": "Пријавите се са главном лозинком"
   },
-  "loggingInAs": {
-    "message": "Пријављивање као"
-  },
   "rememberEmail": {
     "message": "Запамти имејл"
-  },
-  "notYou": {
-    "message": "Не ти?"
   },
   "newAroundHere": {
     "message": "Нов овде?"
@@ -2666,8 +2896,26 @@
   "loginInitiated": {
     "message": "Пријава је покренута"
   },
+  "logInRequestSent": {
+    "message": "Захтев је послат"
+  },
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Обавештење је послато на ваш уређај"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Откључај Bitwarden на твом уређају или на "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "веб апликација"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Потврдите да се фраза отиска поклапа са овом испод пре одобравања."
+  },
+  "needAnotherOptionV1": {
+    "message": "Треба Вам друга опција?"
   },
   "fingerprintMatchInfo": {
     "message": "Уверите се да је ваш сеф откључан и да се фраза отиска прста подудара на другом уређају."
@@ -2675,8 +2923,14 @@
   "fingerprintPhraseHeader": {
     "message": "Сигурносна фраза сефа"
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Бићете обавештени када захтев буде одобрен"
+  },
   "needAnotherOption": {
     "message": "Пријава помоћу уређаја мора бити подешена у подешавањима Bitwarden апликације. Потребна је друга опција?"
+  },
+  "viewAllLogInOptions": {
+    "message": "Погледајте сав извештај у опције"
   },
   "viewAllLoginOptions": {
     "message": "Погредајте све опције пријављивања"
@@ -2688,11 +2942,11 @@
     "message": "Пребаци бројање слова",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Да ли покушавате да се пријавите?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Да ли покушавате да приступите вашем налогу?"
   },
-  "logInAttemptBy": {
-    "message": "Покушај пријаве од $EMAIL$",
+  "accessAttemptBy": {
+    "message": "Покушај приступа са $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2709,11 +2963,11 @@
   "time": {
     "message": "Време"
   },
-  "confirmLogIn": {
-    "message": "Потврди пријављивање"
+  "confirmAccess": {
+    "message": "Потврдите приступ"
   },
-  "denyLogIn": {
-    "message": "Одбиј пријављивање"
+  "denyAccess": {
+    "message": "Одбити приступ"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "Пријава потврђена за $EMAIL$ на $DEVICE$",
@@ -2749,8 +3003,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Овај захтев више не важи."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Потврдити пријаву за $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Потврдити приступ за $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2760,6 +3014,9 @@
   },
   "logInRequested": {
     "message": "Захтев пријаве"
+  },
+  "accountAccessRequested": {
+    "message": "Приступ рачуна је затражен"
   },
   "creatingAccountOn": {
     "message": "Креирај налог на"
@@ -2794,8 +3051,17 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Идентификована је слаба лозинка и пронађена у упаду података. Користите јаку и јединствену лозинку да заштитите свој налог. Да ли сте сигурни да желите да користите ову лозинку?"
   },
+  "useThisPassword": {
+    "message": "Употреби ову лозинку"
+  },
+  "useThisUsername": {
+    "message": "Употреби ово корисничко име"
+  },
   "checkForBreaches": {
     "message": "Проверите познате упада података за ову лозинку"
+  },
+  "loggedInExclamation": {
+    "message": "Пријављено!"
   },
   "important": {
     "message": "Важно:"
@@ -2827,8 +3093,17 @@
   "windowsBiometricUpdateWarningTitle": {
     "message": "Препоручено ажурирање поставки"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Запамтити овај уређај да би будуће пријаве биле беспрекорне"
+  },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Потребно је одобрење уређаја"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Изаберите опцију одобрења у наставку"
   },
   "rememberThisDevice": {
     "message": "Запамти овај уређај"
@@ -2841,9 +3116,6 @@
   },
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
-  },
-  "approveWithMasterPassword": {
-    "message": "Одобрити са главном лозинком"
   },
   "region": {
     "message": "Регион"
@@ -2870,9 +3142,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Ваш захтев је послат вашем администратору."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Бићете обавештени када буде одобрено."
-  },
   "troubleLoggingIn": {
     "message": "Имате проблема са пријављивањем?"
   },
@@ -2882,8 +3151,35 @@
   "userEmailMissing": {
     "message": "Недостаје имејл корисника"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Имејл активног корисника није пронађен. Одјављивање."
+  },
   "deviceTrusted": {
     "message": "Уређај поуздан"
+  },
+  "trustOrganization": {
+    "message": "Повери организацију"
+  },
+  "trust": {
+    "message": "Повери"
+  },
+  "doNotTrust": {
+    "message": "Не повери"
+  },
+  "organizationNotTrusted": {
+    "message": "Организација није поверљива"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "За сигурност вашег налога, потврдите само ако сте добили хитни приступ овом кориснику и њиховим отискама одговарају оно што се приказује на њиховом налогу"
+  },
+  "orgTrustWarning": {
+    "message": "За сигурност вашег рачуна, наставите само ако сте члан ове организације, омогућили опоравак рачуна и отисак који се приказује испод одговара прстима организације."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Повери кориснику"
   },
   "inputRequired": {
     "message": "Унос је потребан."
@@ -3046,11 +3342,17 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Покренути Duo и пратите кораке да бисте завршили пријављивање."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Duo пријава у два корака је потребна за ваш налог."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "За ваш налог је потребан два корака. Следите наведене кораке да бисте завршили пријављивање."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следите наведене кораке да бисте завршили пријављивање."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следите наведене кораке да бисте завршили пријаву са својим безбедносним кључем."
   },
   "launchDuo": {
     "message": "Покренути Duo у претраживачу"
@@ -3276,37 +3578,190 @@
   "ssoError": {
     "message": "Нису пронађени портови за SSO пријаву."
   },
+  "securePasswordGenerated": {
+    "message": "Сигурна лозинка је генерисана! Не заборавите да ажурирате и своју лозинку на веб локацији."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Употребити генератор",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "да креирате јаку јединствену лозинку",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Биометријско откључавање није доступно јер је пре тога потребно унети ПИН или лозинку за откључавање."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Биометријско откључавање тренутно није доступно."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Биометријско откључавање није доступно због лоше подешених системских датотека."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Биометријско откључавање није доступно због лоше подешених системских датотека."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Биометријско откључавање није доступно јер није омогућено за $EMAIL$ у Bitwarden апликацији на рачунару.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Биометријско откључавање није доступно из непознатог разлога."
+  },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
-    "message": "Authorize"
+    "message": "Ауторизуј"
   },
   "deny": {
-    "message": "Deny"
+    "message": "Одбиј"
   },
   "sshkeyApprovalTitle": {
-    "message": "Confirm SSH key usage"
+    "message": "Потврдите употребу SSH кључа"
+  },
+  "agentForwardingWarningTitle": {
+    "message": "Упозорење: Прослеђивање агента"
+  },
+  "agentForwardingWarningText": {
+    "message": "Овај захтев долази са удаљеног уређаја на којим сте пријављени"
   },
   "sshkeyApprovalMessageInfix": {
-    "message": "is requesting access to"
+    "message": "тражи приступ"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "да бисте"
+  },
+  "sshActionLogin": {
+    "message": "се аутентификали на серверу"
+  },
+  "sshActionSign": {
+    "message": "потписати поруку"
+  },
+  "sshActionGitSign": {
+    "message": "потписати „git commit“"
   },
   "unknownApplication": {
-    "message": "An application"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
+    "message": "Апликација"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "SSH кључ је неважећи"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Тип SSH кључа није подржан"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Увезите кључ из оставе"
   },
-  "sshKeyPasted": {
-    "message": "SSH key imported successfully"
+  "sshKeyImported": {
+    "message": "SSH кључ је успешно увезен"
   },
   "fileSavedToDevice": {
     "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
+  },
+  "allowScreenshots": {
+    "message": "Дозволи снимање екрана"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Дозволите да Bitwarden апликација прихвата скриншот и преглед у удаљених радних површина. Онемогућавање то ће спречити приступ неким спољним дисплејима."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Потврдите да је прозор и даље видљив"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Потврдите да је прозор и даље видљив."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Неопходна надоградња додатка"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "Додатак који користите је застарело. Молимо ажурирајте га или онемогућите валидацију отисача претраживача Интеграција на поставки апликација за компјутер."
+  },
+  "changeAtRiskPassword": {
+    "message": "Променити ризичну лозинку"
+  },
+  "move": {
+    "message": "Премести"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Уштедите време са ауто-пуњењем"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Лако онлајн плачање"
+  },
+  "newCardNudgeBody": {
+    "message": "Са картицама, лако и сигурносно попуните формуларе за плаћање."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Поједноставите креирање налога"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Са идентитетима, брзо попуните регистрације или контактних образаци."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Држите на сигурном своје осетљиве податке"
+  },
+  "newNoteNudgeBody": {
+    "message": "Са белешкама, сигурно чувајте осетљиве податке попут банкарског или подаци о осигурању."
+  },
+  "newSshNudgeTitle": {
+    "message": "Лак SSH приступ"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

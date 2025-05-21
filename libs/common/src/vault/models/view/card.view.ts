@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { CardView as SdkCardView } from "@bitwarden/sdk-internal";
 
 import { normalizeExpiryYearFormat } from "../../../autofill/utils";
 import { CardLinkedId as LinkedId } from "../../enums";
@@ -143,5 +147,16 @@ export class CardView extends ItemView {
     }
 
     return null;
+  }
+
+  /**
+   * Converts an SDK CardView to a CardView.
+   */
+  static fromSdkCardView(obj: SdkCardView): CardView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    return Object.assign(new CardView(), obj);
   }
 }

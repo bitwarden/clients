@@ -1,6 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -114,7 +116,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     const promises = collections.map(async (c) => {
       const view = new CollectionAdminView();
       view.id = c.id;
-      view.name = await this.encryptService.decryptToUtf8(new EncString(c.name), orgKey);
+      view.name = await this.encryptService.decryptString(new EncString(c.name), orgKey);
       view.externalId = c.externalId;
       view.organizationId = c.organizationId;
 
@@ -144,7 +146,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
     const collection = new CollectionRequest();
     collection.externalId = model.externalId;
-    collection.name = (await this.encryptService.encrypt(model.name, key)).encryptedString;
+    collection.name = (await this.encryptService.encryptString(model.name, key)).encryptedString;
     collection.groups = model.groups.map(
       (group) =>
         new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),

@@ -13,6 +13,7 @@ import {
   hasConsolidatedBilling,
   ProviderBillingHistoryComponent,
 } from "../../billing/providers";
+import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
@@ -47,6 +48,11 @@ const routes: Routes = [
       {
         path: "setup-provider",
         component: SetupProviderComponent,
+        data: { titleId: "setupProvider" },
+      },
+      {
+        path: "setup-business-unit",
+        component: SetupBusinessUnitComponent,
         data: { titleId: "setupProvider" },
       },
     ],

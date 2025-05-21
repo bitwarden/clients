@@ -1,32 +1,38 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, OnInit } from "@angular/core";
-import { Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
+import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
+  DIALOG_DATA,
+  DialogRef,
+  DialogConfig,
   AsyncActionsModule,
   DialogModule,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { CipherViewComponent } from "@bitwarden/vault";
 
-import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
-import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
-import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
-import { WebViewPasswordHistoryService } from "../services/web-view-password-history.service";
+import { WebVaultPremiumUpgradePromptService } from "../../vault/services/web-premium-upgrade-prompt.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
@@ -48,6 +54,8 @@ export interface ViewCipherDialogParams {
   disableEdit?: boolean;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ViewCipherDialogResult {
   Edited = "edited",
   Deleted = "deleted",
@@ -68,7 +76,7 @@ export interface ViewCipherDialogCloseResult {
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
-    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
+    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
   ],
 })
@@ -92,6 +100,7 @@ export class ViewComponent implements OnInit {
     private toastService: ToastService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -101,8 +110,17 @@ export class ViewComponent implements OnInit {
     this.cipher = this.params.cipher;
     this.collections = this.params.collections;
     this.cipherTypeString = this.getCipherViewTypeString();
+
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+
     if (this.cipher.organizationId) {
-      this.organization = await this.organizationService.get(this.cipher.organizationId);
+      this.organization = await firstValueFrom(
+        this.organizationService
+          .organizations$(userId)
+          .pipe(
+            map((organizations) => organizations.find((o) => o.id === this.cipher.organizationId)),
+          ),
+      );
     }
 
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
@@ -151,10 +169,11 @@ export class ViewComponent implements OnInit {
    */
   protected async deleteCipher(): Promise<void> {
     const asAdmin = this.organization?.canEditAllCiphers;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.cipher.isDeleted) {
-      await this.cipherService.deleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.deleteWithServer(this.cipher.id, userId, asAdmin);
     } else {
-      await this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
+      await this.cipherService.softDeleteWithServer(this.cipher.id, userId, asAdmin);
     }
   }
 
@@ -184,6 +203,8 @@ export class ViewComponent implements OnInit {
         return this.i18nService.t("viewItemType", this.i18nService.t("typeCard").toLowerCase());
       case CipherType.Identity:
         return this.i18nService.t("viewItemType", this.i18nService.t("typeIdentity").toLowerCase());
+      case CipherType.SshKey:
+        return this.i18nService.t("viewItemType", this.i18nService.t("typeSshKey").toLowerCase());
       default:
         return null;
     }

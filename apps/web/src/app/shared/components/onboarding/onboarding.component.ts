@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, ContentChildren, EventEmitter, Input, Output, QueryList } from "@angular/core";
 
 import { OnboardingTaskComponent } from "./onboarding-task.component";
@@ -5,6 +7,7 @@ import { OnboardingTaskComponent } from "./onboarding-task.component";
 @Component({
   selector: "app-onboarding",
   templateUrl: "./onboarding.component.html",
+  standalone: false,
 })
 export class OnboardingComponent {
   @ContentChildren(OnboardingTaskComponent) tasks: QueryList<OnboardingTaskComponent>;

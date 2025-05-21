@@ -1,4 +1,8 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Jsonify } from "type-fest";
+
+import { FieldView as SdkFieldView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { FieldType, LinkedIdType } from "../../enums";
@@ -28,5 +32,22 @@ export class FieldView implements View {
 
   static fromJSON(obj: Partial<Jsonify<FieldView>>): FieldView {
     return Object.assign(new FieldView(), obj);
+  }
+
+  /**
+   * Converts the SDK FieldView to a FieldView.
+   */
+  static fromSdkFieldView(obj: SdkFieldView): FieldView | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const view = new FieldView();
+    view.name = obj.name;
+    view.value = obj.value;
+    view.type = obj.type;
+    view.linkedId = obj.linkedId as unknown as LinkedIdType;
+
+    return view;
   }
 }

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -14,7 +16,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -28,7 +29,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
   standalone: true,
   imports: [
     CardComponent,
-    SectionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -95,6 +95,10 @@ export class CardDetailsSectionComponent implements OnInit {
 
   EventType = EventType;
 
+  get initialValues() {
+    return this.cipherFormContainer.config.initialValues;
+  }
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
@@ -134,13 +138,37 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.originalCipherView?.card) {
-      this.setInitialValues();
+    const prefillCipher = this.cipherFormContainer.getInitialCipherView();
+
+    if (prefillCipher) {
+      this.initFromExistingCipher(prefillCipher.card);
+    } else {
+      this.initNewCipher();
     }
 
     if (this.disabled) {
       this.cardDetailsForm.disable();
     }
+  }
+
+  private initFromExistingCipher(existingCard: CardView) {
+    this.cardDetailsForm.patchValue({
+      cardholderName: this.initialValues?.cardholderName ?? existingCard.cardholderName,
+      number: this.initialValues?.number ?? existingCard.number,
+      expMonth: this.initialValues?.expMonth ?? existingCard.expMonth,
+      expYear: this.initialValues?.expYear ?? existingCard.expYear,
+      code: this.initialValues?.code ?? existingCard.code,
+    });
+  }
+
+  private initNewCipher() {
+    this.cardDetailsForm.patchValue({
+      cardholderName: this.initialValues?.cardholderName || "",
+      number: this.initialValues?.number || "",
+      expMonth: this.initialValues?.expMonth || "",
+      expYear: this.initialValues?.expYear || "",
+      code: this.initialValues?.code || "",
+    });
   }
 
   /** Get the section heading based on the card brand */
@@ -170,8 +198,8 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   /** Set form initial form values from the current cipher */
-  private setInitialValues() {
-    const { cardholderName, number, brand, expMonth, expYear, code } = this.originalCipherView.card;
+  private setInitialValues(cipherView: CipherView) {
+    const { cardholderName, number, brand, expMonth, expYear, code } = cipherView.card;
 
     this.cardDetailsForm.setValue({
       cardholderName: cardholderName,

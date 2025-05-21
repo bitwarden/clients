@@ -1,29 +1,28 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { concatMap, firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import {
-  isMember,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
-import { ClientType, EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -39,8 +38,9 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { generate_ssh_key } from "@bitwarden/sdk-internal";
+import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Directive()
 export class AddEditComponent implements OnInit, OnDestroy {
@@ -124,12 +124,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected logService: LogService,
     protected passwordRepromptService: PasswordRepromptService,
     private organizationService: OrganizationService,
-    protected sendApiService: SendApiService,
     protected dialogService: DialogService,
     protected win: Window,
     protected datePipe: DatePipe,
     protected configService: ConfigService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    protected toastService: ToastService,
+    protected sdkService: SdkService,
+    private sshImportPromptService: SshImportPromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -191,9 +193,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
+    this.accountService.activeAccount$
       .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
         concatMap(async (policyAppliesToActiveUser) => {
           this.personalOwnershipPolicyAppliesToActiveUser = policyAppliesToActiveUser;
           await this.init();
@@ -205,10 +210,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
 
-    const sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
-    if (this.platformUtilsService.getClientType() == ClientType.Desktop && sshKeysEnabled) {
-      this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
-    }
+    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {
@@ -229,9 +231,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.ownershipOptions.push({ name: myEmail, value: null });
     }
 
-    const orgs = await this.organizationService.getAll();
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
     orgs
-      .filter(isMember)
+      .filter((org) => org.isMember)
       .sort(Utils.getSortFunction(this.i18nService, "name"))
       .forEach((o) => {
         if (o.enabled && o.status === OrganizationUserStatusType.Confirmed) {
@@ -257,17 +262,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.title = this.i18nService.t("addItem");
     }
 
-    const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const loadedAddEditCipherInfo = await this.loadAddEditCipherInfo(activeUserId);
 
     if (this.cipher == null) {
       if (this.editMode) {
-        const cipher = await this.loadCipher();
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
-        this.cipher = await cipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-        );
+        const cipher = await this.loadCipher(activeUserId);
+        this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
 
         // Adjust Cipher Name if Cloning
         if (this.cloneMode) {
@@ -309,9 +311,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
     // Only Admins can clone a cipher to different owner
     if (this.cloneMode && this.cipher.organizationId != null) {
-      const cipherOrg = (await firstValueFrom(this.organizationService.memberOrganizations$)).find(
-        (o) => o.id === this.cipher.organizationId,
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
+
+      const cipherOrg = (
+        await firstValueFrom(this.organizationService.memberOrganizations$(activeUserId))
+      ).find((o) => o.id === this.cipher.organizationId);
 
       if (cipherOrg != null && !cipherOrg.isAdmin && !cipherOrg.permissions.editAnyCollection) {
         this.ownershipOptions = [{ name: cipherOrg.name, value: cipherOrg.id }];
@@ -323,7 +329,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.fido2Credentials = null;
     }
 
-    this.folders$ = this.folderService.folderViews$;
+    this.folders$ = this.folderService.folderViews$(activeUserId);
 
     if (this.editMode && this.previousCipherId !== this.cipherId) {
       void this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, [this.cipher]);
@@ -339,6 +345,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
       [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
+
+    if (!this.editMode || this.cloneMode) {
+      // Creating an ssh key directly while filtering to the ssh key category
+      // must force a key to be set. SSH keys must never be created with an empty private key field
+      if (
+        this.cipher.type === CipherType.SshKey &&
+        (this.cipher.sshKey.privateKey == null || this.cipher.sshKey.privateKey === "")
+      ) {
+        await this.generateSshKey(false);
+      }
+    }
   }
 
   async submit(): Promise<boolean> {
@@ -357,11 +374,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     if (this.cipher.name == null || this.cipher.name === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nameRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nameRequired"),
+      });
       return false;
     }
 
@@ -370,11 +387,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
       !this.allowPersonal &&
       this.cipher.organizationId == null
     ) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("personalOwnershipSubmitError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("personalOwnershipSubmitError"),
+      });
       return false;
     }
 
@@ -401,19 +418,22 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.id = null;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipher = await this.encryptCipher(activeUserId);
+
     try {
       this.formPromise = this.saveCipher(cipher);
-      await this.formPromise;
-      this.cipher.id = cipher.id;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode && !this.cloneMode ? "editedItem" : "addedItem"),
+      const savedCipher = await this.formPromise;
+
+      // Reset local cipher from the saved cipher returned from the server
+      this.cipher = await savedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
       );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode && !this.cloneMode ? "editedItem" : "addedItem"),
+      });
       this.onSavedCipher.emit(this.cipher);
       this.messagingService.send(this.editMode && !this.cloneMode ? "editedCipher" : "addedCipher");
       return true;
@@ -497,13 +517,16 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.deletePromise = this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.deletePromise = this.deleteCipher(activeUserId);
       await this.deletePromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
+        ),
+      });
       this.onDeletedCipher.emit(this.cipher);
       this.messagingService.send(
         this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
@@ -521,9 +544,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     try {
-      this.restorePromise = this.restoreCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      this.restorePromise = this.restoreCipher(activeUserId);
       await this.restorePromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("restoredItem"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("restoredItem"),
+      });
       this.onRestoredCipher.emit(this.cipher);
       this.messagingService.send("restoredCipher");
     } catch (e) {
@@ -637,7 +665,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
       if (this.collections.length === 1) {
         (this.collections[0] as any).checked = true;
       }
-      const org = await this.organizationService.get(this.cipher.organizationId);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+
+      const org = (
+        await firstValueFrom(this.organizationService.organizations$(activeUserId))
+      ).find((org) => org.id === this.cipher.organizationId);
       if (org != null) {
         this.cipher.organizationUseTotp = org.useTotp;
       }
@@ -664,13 +698,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.checkPasswordPromise = null;
 
     if (matches > 0) {
-      this.platformUtilsService.showToast(
-        "warning",
-        null,
-        this.i18nService.t("passwordExposed", matches.toString()),
-      );
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: this.i18nService.t("passwordExposed", matches.toString()),
+      });
     } else {
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("passwordSafe"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passwordSafe"),
+      });
     }
   }
 
@@ -690,8 +728,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return allCollections.filter((c) => !c.readOnly);
   }
 
-  protected loadCipher() {
-    return this.cipherService.get(this.cipherId);
+  protected loadCipher(userId: UserId) {
+    return this.cipherService.get(this.cipherId, userId);
   }
 
   protected encryptCipher(userId: UserId) {
@@ -699,7 +737,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   protected saveCipher(cipher: Cipher) {
-    const isNotClone = this.editMode && !this.cloneMode;
     let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
@@ -709,17 +746,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     return this.cipher.id == null
       ? this.cipherService.createWithServer(cipher, orgAdmin)
-      : this.cipherService.updateWithServer(cipher, orgAdmin, isNotClone);
+      : this.cipherService.updateWithServer(cipher, orgAdmin);
   }
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id, this.asAdmin)
-      : this.cipherService.softDeleteWithServer(this.cipher.id, this.asAdmin);
+      ? this.cipherService.deleteWithServer(this.cipher.id, userId, this.asAdmin)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, userId, this.asAdmin);
   }
 
-  protected restoreCipher() {
-    return this.cipherService.restoreWithServer(this.cipher.id, this.asAdmin);
+  protected restoreCipher(userId: UserId) {
+    return this.cipherService.restoreWithServer(this.cipher.id, userId, this.asAdmin);
   }
 
   /**
@@ -739,8 +776,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.ownershipOptions[0].value;
   }
 
-  async loadAddEditCipherInfo(): Promise<boolean> {
-    const addEditCipherInfo: any = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+  async loadAddEditCipherInfo(userId: UserId): Promise<boolean> {
+    const addEditCipherInfo: any = await firstValueFrom(
+      this.cipherService.addEditCipherInfo$(userId),
+    );
     const loadedSavedInfo = addEditCipherInfo != null;
 
     if (loadedSavedInfo) {
@@ -753,7 +792,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       }
     }
 
-    await this.cipherService.setAddEditCipherInfo(null);
+    await this.cipherService.setAddEditCipherInfo(null, userId);
 
     return loadedSavedInfo;
   }
@@ -765,11 +804,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     const copyOptions = this.win != null ? { window: this.win } : null;
     this.platformUtilsService.copyToClipboard(value, copyOptions);
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (typeI18nKey === "password") {
       void this.eventCollectionService.collectMany(EventType.Cipher_ClientCopiedPassword, [
@@ -786,5 +825,36 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     return true;
+  }
+
+  async importSshKeyFromClipboard() {
+    const key = await this.sshImportPromptService.importSshKeyFromClipboard();
+    if (key != null) {
+      this.cipher.sshKey.privateKey = key.privateKey;
+      this.cipher.sshKey.publicKey = key.publicKey;
+      this.cipher.sshKey.keyFingerprint = key.keyFingerprint;
+    }
+  }
+
+  private async generateSshKey(showNotification: boolean = true) {
+    await firstValueFrom(this.sdkService.client$);
+    const sshKey = generate_ssh_key("Ed25519");
+    this.cipher.sshKey.privateKey = sshKey.privateKey;
+    this.cipher.sshKey.publicKey = sshKey.publicKey;
+    this.cipher.sshKey.keyFingerprint = sshKey.fingerprint;
+
+    if (showNotification) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("sshKeyGenerated"),
+      });
+    }
+  }
+
+  async typeChange() {
+    if (this.cipher.type === CipherType.SshKey) {
+      await this.generateSshKey();
+    }
   }
 }

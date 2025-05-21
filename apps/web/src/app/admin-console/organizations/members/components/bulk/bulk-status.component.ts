@@ -1,4 +1,5 @@
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
@@ -11,7 +12,7 @@ import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
@@ -21,6 +22,7 @@ export interface BulkUserDetails {
   email: string;
   status: OrganizationUserStatusType | ProviderUserStatusType;
   hasMasterPassword?: boolean;
+  managedByOrganization?: boolean;
 }
 
 type BulkStatusEntry = {
@@ -39,6 +41,7 @@ type BulkStatusDialogData = {
 @Component({
   selector: "app-bulk-status",
   templateUrl: "bulk-status.component.html",
+  standalone: false,
 })
 export class BulkStatusComponent implements OnInit {
   users: BulkStatusEntry[];

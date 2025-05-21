@@ -1,8 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,10 +20,13 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { invokeMenu, RendererMenuItem } from "../../../utils";
+import { NavComponent } from "../../layout/nav.component";
 import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum Action {
   None = "",
   Add = "add",
@@ -29,6 +38,8 @@ const BroadcasterSubscriptionId = "SendComponent";
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
+  standalone: true,
+  imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
@@ -50,6 +61,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     sendApiService: SendApiService,
     dialogService: DialogService,
     toastService: ToastService,
+    accountService: AccountService,
   ) {
     super(
       sendService,
@@ -63,6 +75,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       sendApiService,
       dialogService,
       toastService,
+      accountService,
     );
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.searchBarService.searchText$.subscribe((searchText) => {

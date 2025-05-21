@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -13,8 +15,8 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-verify-email-token",
   templateUrl: "verify-email-token.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyEmailTokenComponent implements OnInit {
   constructor(
     private router: Router,

@@ -1,11 +1,15 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
 
 const IdleInterval = 60 * 5; // 5 minutes
 
@@ -30,12 +34,8 @@ export default class IdleBackground {
 
     const idleHandler = (newState: string) => {
       if (newState === "active") {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.notificationsService.reconnectFromActivity();
       } else {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.notificationsService.disconnectFromInactivity();
       }
     };

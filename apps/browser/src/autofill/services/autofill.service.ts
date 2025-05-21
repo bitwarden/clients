@@ -1,11 +1,23 @@
-import { filter, firstValueFrom, Observable, scan, startWith } from "rxjs";
-import { pairwise } from "rxjs/operators";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import {
+  filter,
+  firstValueFrom,
+  merge,
+  Observable,
+  ReplaySubject,
+  scan,
+  startWith,
+  timer,
+} from "rxjs";
+import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
   CardExpiryDateDelimiters,
@@ -91,6 +103,9 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param tab The tab to collect page details from
    */
   collectPageDetailsFromTab$(tab: chrome.tabs.Tab): Observable<PageDetail[]> {
+    /** Replay Subject that can be utilized when `messages$` may not emit the page details. */
+    const pageDetailsFallback$ = new ReplaySubject<[]>(1);
+
     const pageDetailsFromTab$ = this.messageListener
       .messages$(COLLECT_PAGE_DETAILS_RESPONSE_COMMAND)
       .pipe(
@@ -112,13 +127,47 @@ export default class AutofillService implements AutofillServiceInterface {
         ),
       );
 
-    void BrowserApi.tabSendMessage(tab, {
-      tab: tab,
-      command: AutofillMessageCommand.collectPageDetails,
-      sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+    void BrowserApi.tabSendMessage(
+      tab,
+      {
+        tab: tab,
+        command: AutofillMessageCommand.collectPageDetails,
+        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+      },
+      null,
+      true,
+    ).catch(() => {
+      // When `tabSendMessage` throws an error the `pageDetailsFromTab$` will not emit,
+      // fallback to an empty array
+      pageDetailsFallback$.next([]);
     });
 
-    return pageDetailsFromTab$;
+    // Fallback to empty array when:
+    // - In Safari, `tabSendMessage` doesn't throw an error for this case.
+    // - When opening the extension directly via the URL, `tabSendMessage` doesn't always respond nor throw an error in FireFox.
+    //   Adding checks for the major 3 browsers here to be safe.
+    const urlHasBrowserProtocol = [
+      "moz-extension://",
+      "chrome-extension://",
+      "safari-web-extension://",
+    ].some((protocol) => tab.url.startsWith(protocol));
+    if (!tab.url || urlHasBrowserProtocol) {
+      pageDetailsFallback$.next([]);
+    }
+
+    // Share the pageDetailsFromTab$ observable so that multiple subscribers don't trigger multiple executions.
+    const sharedPageDetailsFromTab$ = pageDetailsFromTab$.pipe(share());
+
+    // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
+    const pageDetailsTimeout$ = timer(1000).pipe(
+      map(() => []),
+      takeUntil(sharedPageDetailsFromTab$),
+    );
+
+    // Merge the responses so that if pageDetailsFromTab$ emits, that value is used.
+    // Otherwise, if it doesn't emit in time, the timeout observable emits an empty array.
+    // Also, pageDetailsFallback$ will emit in error cases.
+    return merge(sharedPageDetailsFromTab$, pageDetailsFallback$, pageDetailsTimeout$);
   }
 
   /**
@@ -187,13 +236,8 @@ export default class AutofillService implements AutofillServiceInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
-    const addLoginImprovementsFlagActive = await this.configService.getFeatureFlag(
-      FeatureFlag.NotificationBarAddLoginImprovements,
-    );
 
-    const injectedScripts = [
-      await this.getBootstrapAutofillContentScript(activeAccount, addLoginImprovementsFlagActive),
-    ];
+    const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
 
     if (activeAccount && accountIsUnlocked) {
       autoFillOnPageLoadIsEnabled = await this.getAutofillOnPageLoad();
@@ -208,10 +252,6 @@ export default class AutofillService implements AutofillServiceInterface {
         tabId: tab.id,
         injectDetails: { file: "content/content-message-handler.js", runAt: "document_start" },
       });
-    }
-
-    if (!addLoginImprovementsFlagActive) {
-      injectedScripts.push("notificationBar.js");
     }
 
     injectedScripts.push("contextMenuHandler.js");
@@ -234,25 +274,14 @@ export default class AutofillService implements AutofillServiceInterface {
    * enabled.
    *
    * @param activeAccount - The active account
-   * @param addLoginImprovementsFlagActive - Whether the add login improvements feature flag is active
    */
   private async getBootstrapAutofillContentScript(
     activeAccount: { id: UserId | undefined } & AccountInfo,
-    addLoginImprovementsFlagActive = false,
   ): Promise<string> {
     let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
 
     if (activeAccount) {
       inlineMenuVisibility = await this.getInlineMenuVisibility();
-    }
-
-    const inlineMenuPositioningImprovements = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-    if (!inlineMenuPositioningImprovements) {
-      return !inlineMenuVisibility
-        ? "bootstrap-autofill.js"
-        : "bootstrap-legacy-autofill-overlay.js";
     }
 
     const enableChangedPasswordPrompt = await firstValueFrom(
@@ -261,8 +290,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const enableAddedLoginPrompt = await firstValueFrom(
       this.userNotificationSettingsService.enableAddedLoginPrompt$,
     );
-    const isNotificationBarEnabled =
-      addLoginImprovementsFlagActive && (enableChangedPasswordPrompt || enableAddedLoginPrompt);
+    const isNotificationBarEnabled = enableChangedPasswordPrompt || enableAddedLoginPrompt;
 
     if (!inlineMenuVisibility && !isNotificationBarEnabled) {
       return "bootstrap-autofill.js";
@@ -389,8 +417,9 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let totp: string | null = null;
 
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
     );
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
 
@@ -436,7 +465,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
         didAutofill = true;
         if (!options.skipLastUsed) {
-          await this.cipherService.updateLastUsedDate(options.cipher.id);
+          await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -465,7 +494,7 @@ export default class AutofillService implements AutofillServiceInterface {
         const shouldAutoCopyTotp = await this.getShouldAutoCopyTotp();
 
         totp = shouldAutoCopyTotp
-          ? await this.totpService.getCode(options.cipher.login.totp)
+          ? (await firstValueFrom(this.totpService.getCode$(options.cipher.login.totp))).code
           : null;
       }),
     );
@@ -499,17 +528,29 @@ export default class AutofillService implements AutofillServiceInterface {
     autoSubmitLogin = false,
   ): Promise<string | null> {
     let cipher: CipherView;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (fromCommand) {
-      cipher = await this.cipherService.getNextCipherForUrl(tab.url);
+      cipher = await this.cipherService.getNextCipherForUrl(tab.url, activeUserId);
     } else {
-      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(tab.url, true);
+      const lastLaunchedCipher = await this.cipherService.getLastLaunchedForUrl(
+        tab.url,
+        activeUserId,
+        true,
+      );
       if (
         lastLaunchedCipher &&
         Date.now().valueOf() - lastLaunchedCipher.localData?.lastLaunched?.valueOf() < 30000
       ) {
         cipher = lastLaunchedCipher;
       } else {
-        cipher = await this.cipherService.getLastUsedForUrl(tab.url, true);
+        cipher = await this.cipherService.getLastUsedForUrl(tab.url, activeUserId, true);
       }
     }
 
@@ -552,15 +593,20 @@ export default class AutofillService implements AutofillServiceInterface {
    *
    * @param cipher - The cipher to autofill
    * @param tab - The tab to autofill
+   * @param action - override for default action once reprompt is completed successfully
    */
-  async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
+  async isPasswordRepromptRequired(
+    cipher: CipherView,
+    tab: chrome.tabs.Tab,
+    action?: string,
+  ): Promise<boolean> {
     const userHasMasterPasswordAndKeyHash =
       await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
     if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
-          action: "autofill",
+          action: action ?? "autofill",
         });
       }
 
@@ -598,12 +644,19 @@ export default class AutofillService implements AutofillServiceInterface {
     let cipher: CipherView;
     let cacheKey = "";
 
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (activeUserId == null) {
+      return null;
+    }
+
     if (cipherType === CipherType.Card) {
       cacheKey = "cardCiphers";
-      cipher = await this.cipherService.getNextCardCipher();
+      cipher = await this.cipherService.getNextCardCipher(activeUserId);
     } else {
       cacheKey = "identityCiphers";
-      cipher = await this.cipherService.getNextIdentityCipher();
+      cipher = await this.cipherService.getNextIdentityCipher(activeUserId);
     }
 
     if (!cipher || !cacheKey || (cipher.reprompt === CipherRepromptType.Password && !fromCommand)) {
@@ -883,28 +936,37 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (!passwordFields.length) {
-      // No password fields on this page. Let's try to just fuzzy fill the username.
-      pageDetails.fields.forEach((f) => {
-        if (
-          !options.skipUsernameOnlyFill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "email" || f.type === "tel") &&
-          AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.UsernameFieldNames)
-        ) {
-          usernames.push(f);
+      // If there are no passwords, username or TOTP fields may be present.
+      // username and TOTP fields are mutually exclusive
+      pageDetails.fields.forEach((field) => {
+        if (!field.viewable) {
+          return;
         }
 
-        if (
+        const isFillableTotpField =
           options.allowTotpAutofill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "number") &&
-          (AutofillService.fieldIsFuzzyMatch(f, [
+          ["number", "tel", "text"].some((t) => t === field.type) &&
+          (AutofillService.fieldIsFuzzyMatch(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            f.autoCompleteType === "one-time-code")
-        ) {
-          totps.push(f);
+            field.autoCompleteType === "one-time-code");
+
+        const isFillableUsernameField =
+          !options.skipUsernameOnlyFill &&
+          ["email", "tel", "text"].some((t) => t === field.type) &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+
+        // Prefer more uniquely keyworded fields first.
+        switch (true) {
+          case isFillableTotpField:
+            totps.push(field);
+            return;
+          case isFillableUsernameField:
+            usernames.push(field);
+            return;
+          default:
+            return;
         }
       });
     }
@@ -944,7 +1006,10 @@ export default class AutofillService implements AutofillServiceInterface {
           }
 
           filledFields[t.opid] = t;
-          let totpValue = await this.totpService.getCode(login.totp);
+          const totpResponse = await firstValueFrom(
+            this.totpService.getCode$(options.cipher.login.totp),
+          );
+          let totpValue = totpResponse.code;
           if (totpValue.length == totps.length) {
             totpValue = totpValue.charAt(i);
           }
@@ -1361,7 +1426,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let doesContainValue = false;
     CreditCardAutoFillConstants.CardAttributesExtended.forEach((attributeName) => {
-      // eslint-disable-next-line no-prototype-builtins
       if (doesContainValue || !field[attributeName]) {
         return;
       }
@@ -1487,7 +1551,7 @@ export default class AutofillService implements AutofillServiceInterface {
       );
 
       return CreditCardAutoFillConstants.CardAttributesExtended.find((attributeName) => {
-        const fieldAttributeValue = field[attributeName];
+        const fieldAttributeValue = field[attributeName]?.toLocaleLowerCase();
 
         const fieldAttributeMatch = fieldAttributeValue?.match(dateFormatPattern);
         // break find as soon as a match is found
@@ -2853,52 +2917,46 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Accepts a field and returns true if the field contains a
    * value that matches any of the names in the provided list.
+   *
+   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
+   *
    * @param {AutofillField} field
    * @param {string[]} names
-   * @returns {boolean}
+   * @param {boolean} showMatch
+   * @returns {boolean | [boolean, { attr: string; value: string }?]}
    */
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean {
-    if (AutofillService.hasValue(field.htmlID) && this.fuzzyMatch(names, field.htmlID)) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.htmlName) && this.fuzzyMatch(names, field.htmlName)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-tag"]) &&
-      this.fuzzyMatch(names, field["label-tag"])
-    ) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.placeholder) && this.fuzzyMatch(names, field.placeholder)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-left"]) &&
-      this.fuzzyMatch(names, field["label-left"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-top"]) &&
-      this.fuzzyMatch(names, field["label-top"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-aria"]) &&
-      this.fuzzyMatch(names, field["label-aria"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field.dataSetValues) &&
-      this.fuzzyMatch(names, field.dataSetValues)
-    ) {
-      return true;
-    }
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: true,
+  ): [boolean, { attr: string; value: string }?];
+  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: boolean = false,
+  ): boolean | [boolean, { attr: string; value: string }?] {
+    const attrs = [
+      "htmlID",
+      "htmlName",
+      "label-tag",
+      "placeholder",
+      "label-left",
+      "label-top",
+      "label-aria",
+      "dataSetValues",
+    ];
 
-    return false;
+    for (const attr of attrs) {
+      const value = field[attr];
+      if (!AutofillService.hasValue(value)) {
+        continue;
+      }
+      if (this.fuzzyMatch(names, value)) {
+        return showMatch ? [true, { attr, value }] : true;
+      }
+    }
+    return showMatch ? [false] : false;
   }
 
   /**

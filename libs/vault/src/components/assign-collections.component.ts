@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -24,10 +26,14 @@ import {
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  getOrganizationById,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -74,6 +80,8 @@ export interface CollectionAssignmentParams {
   isSingleCipherAdmin?: boolean;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionAssignmentResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -126,28 +134,31 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   protected orgName: string;
   protected showOrgSelector: boolean = false;
 
-  protected organizations$: Observable<Organization[]> =
-    this.organizationService.organizations$.pipe(
-      map((orgs) =>
-        orgs
-          .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      ),
-      tap((orgs) => {
-        if (orgs.length > 0 && this.showOrgSelector) {
-          // Using setTimeout to defer the patchValue call until the next event loop cycle
-          setTimeout(() => {
-            this.formGroup.patchValue({ selectedOrg: orgs[0].id });
-            this.setFormValidators();
+  protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.organizationService.organizations$(account?.id).pipe(
+        map((orgs) =>
+          orgs
+            .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        ),
+        tap((orgs) => {
+          if (orgs.length > 0 && this.showOrgSelector) {
+            // Using setTimeout to defer the patchValue call until the next event loop cycle
+            setTimeout(() => {
+              this.formGroup.patchValue({ selectedOrg: orgs[0].id });
+              this.setFormValidators();
 
-            // Disable the org selector if there is only one organization
-            if (orgs.length === 1) {
-              this.formGroup.controls.selectedOrg.disable();
-            }
-          });
-        }
-      }),
-    );
+              // Disable the org selector if there is only one organization
+              if (orgs.length === 1) {
+                this.formGroup.controls.selectedOrg.disable();
+              }
+            });
+          }
+        }),
+      ),
+    ),
+  );
 
   protected transferWarningText = (orgName: string, itemsCount: number) => {
     const haveOrgName = !!orgName;
@@ -170,7 +181,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private get selectedOrgId(): OrganizationId {
     return this.formGroup.getRawValue().selectedOrg || this.params.organizationId;
   }
-  private activeUserId: UserId;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -184,10 +194,6 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   ) {}
 
   async ngOnInit() {
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
     const onlyPersonalItems = this.params.ciphers.every((c) => c.organizationId == null);
 
     if (this.selectedOrgId === MY_VAULT_ID || onlyPersonalItems) {
@@ -197,7 +203,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     await this.initializeItems(this.selectedOrgId);
 
     if (this.selectedOrgId && this.selectedOrgId !== MY_VAULT_ID) {
-      await this.handleOrganizationCiphers();
+      await this.handleOrganizationCiphers(this.selectedOrgId);
     }
 
     this.setupFormSubscriptions();
@@ -209,7 +215,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return;
       }
 
-      this.submitBtn.loading = loading;
+      this.submitBtn.loading.set(loading);
     });
 
     this.bitSubmit.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
@@ -217,7 +223,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         return;
       }
 
-      this.submitBtn.disabled = disabled;
+      this.submitBtn.disabled.set(disabled);
     });
   }
 
@@ -244,12 +250,15 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       .filter((i) => i.organizationId)
       .map((i) => i.id as CipherId);
 
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     // Move personal items to the organization
     if (this.personalItemsCount > 0) {
       await this.moveToOrganization(
         this.selectedOrgId,
         this.params.ciphers.filter((c) => c.organizationId == null),
         this.formGroup.controls.collections.value.map((i) => i.id as CollectionId),
+        activeUserId,
       );
     }
 
@@ -258,8 +267,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
 
       // Update assigned collections for single org cipher or bulk update collections for multiple org ciphers
       await (isSingleOrgCipher
-        ? this.updateAssignedCollections(this.editableItems[0])
-        : this.bulkUpdateCollections(cipherIds));
+        ? this.updateAssignedCollections(this.editableItems[0], activeUserId)
+        : this.bulkUpdateCollections(cipherIds, activeUserId));
 
       this.toastService.showToast({
         variant: "success",
@@ -274,7 +283,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private sortItems = (a: SelectItemView, b: SelectItemView) =>
     this.i18nService.collator.compare(a.labelName, b.labelName);
 
-  private async handleOrganizationCiphers() {
+  private async handleOrganizationCiphers(organizationId: OrganizationId) {
     // If no ciphers are editable, cancel the operation
     if (this.editableItemCount == 0) {
       this.toastService.showToast({
@@ -287,12 +296,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    this.availableCollections = this.params.availableCollections.map((c) => ({
-      icon: "bwi-collection",
-      id: c.id,
-      labelName: c.name,
-      listName: c.name,
-    }));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
+
+    this.availableCollections = this.params.availableCollections
+      .filter((collection) => {
+        return collection.canEditItems(org);
+      })
+      .map((c) => ({
+        icon: "bwi-collection-shared",
+        id: c.id,
+        labelName: c.name,
+        listName: c.name,
+      }));
 
     // Select assigned collections for a single cipher.
     this.selectCollectionsAssignedToSingleCipher();
@@ -301,7 +319,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     if (this.params.activeCollection) {
       this.selectCollections([
         {
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: this.params.activeCollection.id,
           labelName: this.params.activeCollection.name,
           listName: this.params.activeCollection.name,
@@ -329,7 +347,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           collection.id !== this.params.activeCollection?.id,
       )
       .map((collection) => ({
-        icon: "bwi-collection",
+        icon: "bwi-collection-shared",
         id: collection.id,
         labelName: collection.labelName,
         listName: collection.listName,
@@ -352,7 +370,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return;
     }
 
-    const org = await this.organizationService.get(organizationId);
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
+    );
     this.orgName = org.name;
 
     this.editableItems = org.canEditAllCiphers
@@ -390,7 +411,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       )
       .subscribe((collections) => {
         this.availableCollections = collections.map((c) => ({
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
           id: c.id,
           labelName: c.name,
           listName: c.name,
@@ -406,7 +427,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
     return combineLatest([
       this.collectionService.decryptedCollections$,
-      this.organizationService.organizations$,
+      this.accountService.activeAccount$.pipe(
+        switchMap((account) => this.organizationService.organizations$(account?.id)),
+      ),
     ]).pipe(
       map(([collections, organizations]) => {
         const org = organizations.find((o) => o.id === orgId);
@@ -424,12 +447,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     organizationId: OrganizationId,
     shareableCiphers: CipherView[],
     selectedCollectionIds: CollectionId[],
+    userId: UserId,
   ) {
     await this.cipherService.shareManyWithServer(
       shareableCiphers,
       organizationId,
       selectedCollectionIds,
-      this.activeUserId,
+      userId,
     );
 
     this.toastService.showToast({
@@ -442,10 +466,11 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     });
   }
 
-  private async bulkUpdateCollections(cipherIds: CipherId[]) {
+  private async bulkUpdateCollections(cipherIds: CipherId[], userId: UserId) {
     if (this.formGroup.controls.collections.value.length > 0) {
       await this.cipherService.bulkUpdateCollectionsWithServer(
         this.selectedOrgId,
+        userId,
         cipherIds,
         this.formGroup.controls.collections.value.map((i) => i.id as CollectionId),
         false,
@@ -460,6 +485,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     ) {
       await this.cipherService.bulkUpdateCollectionsWithServer(
         this.selectedOrgId,
+        userId,
         cipherIds,
         [this.params.activeCollection.id as CollectionId],
         true,
@@ -467,14 +493,14 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     }
   }
 
-  private async updateAssignedCollections(cipherView: CipherView) {
+  private async updateAssignedCollections(cipherView: CipherView, userId: UserId) {
     const { collections } = this.formGroup.getRawValue();
     cipherView.collectionIds = collections.map((i) => i.id as CollectionId);
-    const cipher = await this.cipherService.encrypt(cipherView, this.activeUserId);
+    const cipher = await this.cipherService.encrypt(cipherView, userId);
     if (this.params.isSingleCipherAdmin) {
       await this.cipherService.saveCollectionsWithServerAdmin(cipher);
     } else {
-      await this.cipherService.saveCollectionsWithServer(cipher);
+      await this.cipherService.saveCollectionsWithServer(cipher, userId);
     }
   }
 }

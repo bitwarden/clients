@@ -22,6 +22,8 @@ describe("FIDO2 page-script for manifest v2", () => {
   it("skips appending the `page-script.js` file if the document contentType is not `text/html`", () => {
     Object.defineProperty(window.document, "contentType", { value: "text/plain", writable: true });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-page-script-append.mv2");
 
     expect(window.document.createElement).not.toHaveBeenCalled();
@@ -33,6 +35,8 @@ describe("FIDO2 page-script for manifest v2", () => {
       return node;
     });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-page-script-append.mv2");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");
@@ -48,6 +52,8 @@ describe("FIDO2 page-script for manifest v2", () => {
       return node;
     });
 
+    // FIXME: Remove when updating file. Eslint update
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./fido2-page-script-append.mv2");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");

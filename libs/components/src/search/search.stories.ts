@@ -32,7 +32,7 @@ export default {
 type Story = StoryObj<SearchComponent>;
 
 export const Default: Story = {
-  render: (args: SearchComponent) => ({
+  render: (args) => ({
     props: args,
     template: `
       <bit-search [(ngModel)]="searchText" [placeholder]="placeholder" [disabled]="disabled"></bit-search>

@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { I18nService } from "../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 
@@ -23,7 +25,10 @@ export class WebAuthnIFrame {
     const params = new URLSearchParams({
       data: this.base64Encode(JSON.stringify(data)),
       parent: encodeURIComponent(this.win.document.location.href),
-      btnText: encodeURIComponent(this.i18nService.t("webAuthnAuthenticate")),
+      btnText: encodeURIComponent(this.i18nService.t("readSecurityKey")),
+      btnAwaitingInteractionText: encodeURIComponent(
+        this.i18nService.t("awaitingSecurityKeyInteraction"),
+      ),
       v: "1",
     });
 

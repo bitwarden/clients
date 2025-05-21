@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -7,21 +9,32 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  Unassigned,
+  CollectionView,
+  CollectionAdminService,
+} from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { BreadcrumbsModule, MenuModule } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  DialogService,
+  MenuModule,
+  SimpleDialogOptions,
+} from "@bitwarden/components";
 
+import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { CollectionDialogTabType } from "../../components/collection-dialog";
 import { PipesModule } from "../pipes/pipes.module";
 import {
   All,
@@ -48,7 +61,6 @@ export class VaultHeaderComponent implements OnInit {
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
-  protected extensionRefreshEnabled: boolean;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -85,14 +97,13 @@ export class VaultHeaderComponent implements OnInit {
 
   constructor(
     private i18nService: I18nService,
+    private collectionAdminService: CollectionAdminService,
+    private dialogService: DialogService,
+    private router: Router,
     private configService: ConfigService,
   ) {}
 
-  async ngOnInit() {
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
-  }
+  async ngOnInit() {}
 
   /**
    * The id of the organization that is currently being filtered on.
@@ -141,7 +152,9 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   protected get icon() {
-    return this.filter.collectionId && this.filter.collectionId !== All ? "bwi-collection" : "";
+    return this.filter.collectionId && this.filter.collectionId !== All
+      ? "bwi-collection-shared"
+      : "";
   }
 
   /**
@@ -208,6 +221,57 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   async addCollection(): Promise<void> {
+    const isBreadcrumbEventLogsEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM12276_BreadcrumbEventLogs),
+    );
+
+    if (isBreadcrumbEventLogsEnabled) {
+      const organization = this.organizations?.find(
+        (org) => org.productTierType === ProductTierType.Free,
+      );
+
+      if (this.organizations?.length == 1 && !!organization) {
+        const collections = await this.collectionAdminService.getAll(organization.id);
+        if (collections.length === organization.maxCollections) {
+          await this.showFreeOrgUpgradeDialog(organization);
+          return;
+        }
+      }
+    }
+
     this.onAddCollection.emit();
+  }
+
+  private async showFreeOrgUpgradeDialog(organization: Organization): Promise<void> {
+    const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
+      title: this.i18nService.t("upgradeOrganization"),
+      content: this.i18nService.t(
+        organization.canEditSubscription
+          ? "freeOrgMaxCollectionReachedManageBilling"
+          : "freeOrgMaxCollectionReachedNoManageBilling",
+        organization.maxCollections,
+      ),
+      type: "primary",
+    };
+
+    if (organization.canEditSubscription) {
+      orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("upgrade");
+    } else {
+      orgUpgradeSimpleDialogOpts.acceptButtonText = this.i18nService.t("ok");
+      orgUpgradeSimpleDialogOpts.cancelButtonText = null; // hide secondary btn
+    }
+
+    const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
+    const result: boolean | undefined = await firstValueFrom(simpleDialog.closed);
+
+    if (!result) {
+      return;
+    }
+
+    if (organization.canEditSubscription) {
+      await this.router.navigate(["/organizations", organization.id, "billing", "subscription"], {
+        queryParams: { upgrade: true },
+      });
+    }
   }
 }

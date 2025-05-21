@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
@@ -165,6 +167,8 @@ export abstract class BaseEventsComponent {
     let dates: string[] = null;
     try {
       dates = this.eventService.formatDateFilters(this.start, this.end);
+      // FIXME: Remove when updating file. Eslint update
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.toastService.showToast({
         variant: "error",

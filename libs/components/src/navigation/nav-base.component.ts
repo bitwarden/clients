@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
@@ -17,7 +19,7 @@ export abstract class NavBaseComponent {
   @Input() ariaLabel: string;
 
   /**
-   * Optional icon, e.g. `"bwi-collection"`
+   * Optional icon, e.g. `"bwi-collection-shared"`
    */
   @Input() icon: string;
 
