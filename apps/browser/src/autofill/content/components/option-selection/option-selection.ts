@@ -126,7 +126,10 @@ export class OptionSelection extends LitElement {
     }
 
     return html`
-      <div class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}>
+      <div
+        class=${optionSelectionStyles({ menuIsEndJustified: this.menuIsEndJustified })}
+        @focusout=${this.handleFocusOut}
+      >
         ${OptionSelectionButton({
           disabled: this.disabled,
           icon: this.selection?.icon,

@@ -160,6 +160,23 @@ export function appendHeaderMessageToTitle(headerMessage?: string) {
 }
 
 /**
+ * Formats a base string into a standardized test ID for notifications.
+ *
+ * Converts the input string to lowercase, replaces all whitespace with hyphens,
+ * and appends '-notification' to the end. Useful for generating consistent
+ * data-testid attributes in tests.
+ *
+ * @param headerMessage - The base string to format, in our case header message.
+ */
+
+function formatDynamicTestId(headerMessage?: string) {
+  if (!headerMessage) {
+    return "notification-bar";
+  }
+  return `${headerMessage.toLowerCase().replace(/\s+/g, "-")}-notification`;
+}
+
+/**
  * Determines the effective notification type to use based on initialization data.
  *
  * If the vault is locked, the notification type will be set to `Unlock`.
@@ -212,6 +229,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   if (useComponentBar) {
     const resolvedType = resolveNotificationType(notificationBarIframeInitData);
     const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
+    const testId = formatDynamicTestId(headerMessage);
     appendHeaderMessageToTitle(headerMessage);
 
     document.body.innerHTML = "";
@@ -224,6 +242,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           ...notificationBarIframeInitData,
           headerMessage,
           type: resolvedType,
+          testId,
           theme: resolvedTheme,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
@@ -269,6 +288,7 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
           headerMessage,
           type: resolvedType,
           theme: resolvedTheme,
+          testId,
           personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
           handleSaveAction,
@@ -499,6 +519,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
   const resolvedType = resolveNotificationType(notificationBarIframeInitData);
   const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
+  const testId = formatDynamicTestId(headerMessage);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
@@ -513,6 +534,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       error,
       itemName: itemName ?? i18n.typeLogin,
       task,
+      testId,
       handleOpenVault: (e: Event) =>
         cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
       handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
