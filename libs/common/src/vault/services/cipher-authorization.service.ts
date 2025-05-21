@@ -8,6 +8,7 @@ import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { getUserId } from "../../auth/services/account.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { getByIds } from "../../platform/misc";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -92,8 +93,9 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
     return combineLatest([
       this.organization$(cipher),
       this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion),
+      this.accountService.activeAccount$.pipe(getUserId),
     ]).pipe(
-      switchMap(([organization, featureFlagEnabled]) => {
+      switchMap(([organization, featureFlagEnabled, userId]) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can delete an unassigned cipher
           if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
@@ -114,7 +116,8 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         }
 
         return this.collectionService
-          .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
+          .decryptedCollections$(userId)
+          .pipe(getByIds(cipher.collectionIds))
           .pipe(
             map((allCollections) => {
               const shouldFilter = allowedCollections?.some(Boolean);
@@ -161,8 +164,11 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
       return of(true);
     }
 
-    return this.organization$(cipher).pipe(
-      switchMap((organization) => {
+    return combineLatest([
+      this.organization$(cipher),
+      this.accountService.activeAccount$.pipe(getUserId),
+    ]).pipe(
+      switchMap(([organization, userId]) => {
         // Admins and custom users can always clone when in the Admin Console
         if (
           isAdminConsoleAction &&
@@ -172,9 +178,10 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           return of(true);
         }
 
-        return this.collectionService
-          .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
-          .pipe(map((allCollections) => allCollections.some((collection) => collection.manage)));
+        return this.collectionService.decryptedCollections$(userId).pipe(
+          getByIds(cipher.collectionIds),
+          map((allCollections) => allCollections.some((collection) => collection.manage)),
+        );
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );

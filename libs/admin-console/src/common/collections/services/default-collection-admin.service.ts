@@ -1,9 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
@@ -24,6 +29,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private collectionService: CollectionService,
+    private accountService: AccountService,
   ) {}
 
   async getAll(organizationId: string): Promise<CollectionAdminView[]> {
@@ -57,6 +63,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
 
   async save(collection: CollectionAdminView): Promise<CollectionDetailsResponse> {
     const request = await this.encrypt(collection);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     let response: CollectionDetailsResponse;
     if (collection.id == null) {
@@ -71,9 +78,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
 
     if (response.assigned) {
-      await this.collectionService.upsert(new CollectionData(response));
+      await this.collectionService.upsert(new CollectionData(response), userId);
     } else {
-      await this.collectionService.delete(collection.id);
+      await this.collectionService.delete(collection.id as CollectionId, userId);
     }
 
     return response;
