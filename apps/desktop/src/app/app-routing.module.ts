@@ -40,6 +40,7 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
+  SetInitialPasswordComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
@@ -307,6 +308,10 @@ const routes: Routes = [
             key: "finishJoiningThisOrganizationBySettingAMasterPassword",
           },
         } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "set-initial-password",
+        component: SetInitialPasswordComponent,
       },
       {
         path: "2fa",
