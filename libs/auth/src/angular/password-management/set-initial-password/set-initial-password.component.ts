@@ -77,10 +77,7 @@ export class SetInitialPasswordComponent implements OnInit {
     this.email = activeAccount?.email;
 
     await this.determineUserType();
-
-    if (this.userType !== SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER) {
-      await this.handleQueryParams();
-    }
+    await this.handleQueryParams();
 
     this.initializing = false;
   }
@@ -94,13 +91,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
 
-    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
-      this.userType = SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER;
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "setMasterPassword" },
-        pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
-      });
-    } else if (
+    if (
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
@@ -162,81 +153,51 @@ export class SetInitialPasswordComponent implements OnInit {
       );
     }
 
-    if (
-      this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER ||
-      this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP
-    ) {
-      try {
-        const credentials: SetInitialPasswordCredentials = {
-          newMasterKey: passwordInputResult.newMasterKey,
-          newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-          newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
-          newPasswordHint: passwordInputResult.newPasswordHint,
-          kdfConfig: passwordInputResult.kdfConfig,
-          orgSsoIdentifier: this.orgSsoIdentifier,
-          orgId: this.orgId,
-          resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
-        };
+    try {
+      const credentials: SetInitialPasswordCredentials = {
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
+        orgSsoIdentifier: this.orgSsoIdentifier,
+        orgId: this.orgId,
+        resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,
+      };
 
-        await this.setInitialPasswordService.setInitialPassword(
-          credentials,
-          this.userType,
-          this.userId,
-        );
+      await this.setInitialPasswordService.setInitialPassword(
+        credentials,
+        this.userType,
+        this.userId,
+      );
 
-        if (this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("accountSuccessfullyCreated"),
-          });
+      if (this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("accountSuccessfullyCreated"),
+        });
 
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("inviteAccepted"),
-          });
-        }
-
-        if (this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP) {
-          this.toastService.showToast({
-            variant: "success",
-            title: "",
-            message: this.i18nService.t("masterPasswordSuccessfullySet"),
-          });
-        }
-
-        this.submitting = false;
-        await this.router.navigate(["vault"]);
-      } catch (e) {
-        this.validationService.showError(e);
-        this.submitting = false;
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("inviteAccepted"),
+        });
       }
 
-      return;
-    }
-
-    if (this.userType === SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER) {
-      try {
-        await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
-          passwordInputResult,
-          this.userId,
-        );
-
+      if (this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP) {
         this.toastService.showToast({
           variant: "success",
           title: "",
           message: this.i18nService.t("masterPasswordSuccessfullySet"),
         });
-
-        this.submitting = false;
-        // TODO-rr-bw: logout user?
-      } catch (e) {
-        this.validationService.showError(e);
-        this.submitting = false;
       }
 
-      return;
+      this.submitting = false;
+      await this.router.navigate(["vault"]);
+    } catch (e) {
+      this.validationService.showError(e);
+      this.submitting = false;
     }
   }
 
