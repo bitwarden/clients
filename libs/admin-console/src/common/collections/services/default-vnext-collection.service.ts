@@ -128,9 +128,7 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     const key = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(
         filter((orgKeys) => !!orgKeys),
-        map((k) => {
-          return k[model.organizationId as OrganizationId];
-        }),
+        map((k) => k[model.organizationId as OrganizationId]),
       ),
     );
 
