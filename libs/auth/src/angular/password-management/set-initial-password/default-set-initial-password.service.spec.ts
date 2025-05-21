@@ -28,12 +28,13 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {
   SetInitialPasswordCredentials,
+  SetInitialPasswordService,
   SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
 describe("DefaultSetInitialPasswordService", () => {
-  let sut: DefaultSetInitialPasswordService;
+  let sut: SetInitialPasswordService;
 
   let apiService: MockProxy<ApiService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
@@ -159,6 +160,9 @@ describe("DefaultSetInitialPasswordService", () => {
         keyService.encryptUserKeyWithMasterKey.mockResolvedValue(protectedUserKey);
       }
 
+      keyService.userPrivateKey$.mockReturnValue(of(null));
+      keyService.userPublicKey$.mockReturnValue(of(null));
+
       keyService.makeKeyPair.mockResolvedValue(keyPair);
 
       masterPasswordApiService.setPassword.mockResolvedValue(undefined);
@@ -183,7 +187,7 @@ describe("DefaultSetInitialPasswordService", () => {
       }
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      encryptService.rsaEncrypt.mockResolvedValue(userKeyEncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(userKeyEncString);
 
       organizationUserApiService.putOrganizationUserResetPasswordEnrollment.mockResolvedValue(
         undefined,
