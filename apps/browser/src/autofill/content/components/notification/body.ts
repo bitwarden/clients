@@ -8,7 +8,7 @@ import { CipherItem } from "../cipher";
 import { NotificationCipherData } from "../cipher/types";
 import { I18n } from "../common-types";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
-import { ItemRow } from "../rows/item-row";
+import { CipherItemRow } from "../rows/cipher-item-row";
 
 export const componentClassPrefix = "notification-body";
 
@@ -37,7 +37,7 @@ export function NotificationBody({
   return html`
     <div class=${notificationBodyStyles({ isSafari, theme })}>
       ${ciphers.map((cipher) =>
-        ItemRow({
+        CipherItemRow({
           theme,
           children: CipherItem({
             cipher,

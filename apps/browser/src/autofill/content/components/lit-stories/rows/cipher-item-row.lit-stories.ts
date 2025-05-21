@@ -2,10 +2,10 @@ import { Meta, StoryObj } from "@storybook/web-components";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { ItemRow, ItemRowProps } from "../../rows/item-row";
+import { CipherItemRow, CipherItemRowProps } from "../../rows/cipher-item-row";
 
 export default {
-  title: "Components/Rows/Item Row",
+  title: "Components/Rows/Cipher Item Row",
   argTypes: {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     children: { control: "object" },
@@ -13,10 +13,10 @@ export default {
   args: {
     theme: ThemeTypes.Light,
   },
-} as Meta<ItemRowProps>;
+} as Meta<CipherItemRowProps>;
 
-const Template = (args: ItemRowProps) => ItemRow({ ...args });
+const Template = (props: CipherItemRowProps) => CipherItemRow({ ...props });
 
-export const Default: StoryObj<ItemRowProps> = {
+export const Default: StoryObj<CipherItemRowProps> = {
   render: Template,
 };

@@ -3,18 +3,18 @@ import { html, TemplateResult } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { spacing, themes, typography } from "../../../content/components/constants/styles";
+import { spacing, themes, typography } from "../constants/styles";
 
-export type ItemRowProps = {
+export type CipherItemRowProps = {
   theme: Theme;
   children: TemplateResult | TemplateResult[];
 };
 
-export function ItemRow({ theme = ThemeTypes.Light, children }: ItemRowProps) {
-  return html` <div class=${itemRowStyles({ theme })}>${children}</div> `;
+export function CipherItemRow({ theme = ThemeTypes.Light, children }: CipherItemRowProps) {
+  return html` <div class=${cipherItemRowStyles({ theme })}>${children}</div> `;
 }
 
-export const itemRowStyles = ({ theme }: { theme: Theme }) => css`
+const cipherItemRowStyles = ({ theme }: { theme: Theme }) => css`
   ${typography.body1}
 
   gap: ${spacing["2"]};
