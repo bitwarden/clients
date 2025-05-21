@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Añadir nuevo elemento"
   },
-  "addNewFolder": {
-    "message": "Añadir nueva carpeta"
-  },
   "view": {
     "message": "Ver"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Contraseña del archivo\" y \"Confirmar contraseña del archivo\" no coinciden."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Cargar cookie de accesibilidad"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrarse como usuario de accesibilidad en",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copia y pega el enlace enviado a tu correo electrónico"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Introduzca la URL para cargar la cookie de accesibilidad de hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha Url es obligatorio",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Url inválida"
-  },
   "done": {
     "message": "Hecho"
-  },
-  "accessibilityCookieSaved": {
-    "message": "¡Cookie de accesibilidad guardada!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "No hay ninguna cookie de accesibilidad guardada"
   },
   "warning": {
     "message": "ADVERTENCIA",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Autorizar"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Mover"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

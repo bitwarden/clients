@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ezek a tagok gyenge, nyílt vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Ezek nem olyan tagok, akik gyenge, kitett vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ezeknél az alkalmazásoknál gyenge, nyílt vagy újra felhasznált jelszavak vannak."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Ezek nem gyenge, kitett vagy újrafelhasznált jelszavakkal rendelkező alkalmazások."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ezek a tagok gyenge, nyilvános vagy újrahasznált jelszavakkal jelentkeznek be $APPNAME$ alkalmazásba.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Nincsenek veszélyeztetett tagok $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Az el nem mentett titkosított exportok szintén érvénytelenné válnak."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
   },
   "subscription": {
     "message": "Előfizetés"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "A bankszámlával történő fizetés csak az Egyesült Államokban élő ügyfelek számára érhető el. A bankszámlát igazolni kell. A fejlesztők a következő 1-2 munkanapon belül mikrobetétet teljesítenek. A bankszámla ellenőrzéséhez írjuk be az utalás leíró kódját a szervezet számlázási oldalán. Ha elmulasztjuk a bankszámla igazolását, az a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
+  },
+  "clickPayWithPayPal": {
+    "message": "Kattintás a Pay with PayPal gombra a fizetési mód hozzáadásához."
   }
 }

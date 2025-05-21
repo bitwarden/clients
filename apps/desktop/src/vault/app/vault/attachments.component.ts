@@ -18,6 +18,7 @@ import { KeyService } from "@bitwarden/key-management";
 @Component({
   selector: "app-vault-attachments",
   templateUrl: "attachments.component.html",
+  standalone: false,
 })
 export class AttachmentsComponent extends BaseAttachmentsComponent {
   constructor(

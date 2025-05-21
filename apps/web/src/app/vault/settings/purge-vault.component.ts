@@ -25,6 +25,7 @@ export interface PurgeVaultDialogData {
 @Component({
   selector: "app-purge-vault",
   templateUrl: "purge-vault.component.html",
+  standalone: false,
 })
 export class PurgeVaultComponent {
   organizationId: string = null;

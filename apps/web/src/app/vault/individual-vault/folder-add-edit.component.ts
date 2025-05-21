@@ -23,6 +23,7 @@ import { KeyService } from "@bitwarden/key-management";
 @Component({
   selector: "app-folder-add-edit",
   templateUrl: "folder-add-edit.component.html",
+  standalone: false,
 })
 export class FolderAddEditComponent extends BaseFolderAddEditComponent {
   protected override componentName = "app-folder-add-edit";

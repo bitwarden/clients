@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Добавяне на нов елемент"
   },
-  "addNewFolder": {
-    "message": "Добавяне на нова папка"
-  },
   "view": {
     "message": "Преглед"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },
-  "hCaptchaUrl": {
-    "message": "Адрес за hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Зареждане на бисквитка за достъпност"
-  },
-  "registerAccessibilityUser": {
-    "message": "Регистрирайте се като потребител на достъпност на",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Копирайте връзката изпратена на е-пощата Ви и я поставете по-долу"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Въведете URL за зареждане на бисквитка за достъпност за hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Адресът за hCaptcha е задължителен",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Неправилен адрес"
-  },
   "done": {
     "message": "Готово"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Бисквитката за достъпност е запазена!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Няма запазена бисквитка за достъпност"
   },
   "warning": {
     "message": "ВНИМАНИЕ",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
+  "itemDetails": {
+    "message": "Подробности за елемента"
+  },
+  "itemName": {
+    "message": "Име на елемента"
+  },
+  "loginCredentials": {
+    "message": "Данни за вписване"
+  },
+  "additionalOptions": {
+    "message": "Допълнителни настройки"
+  },
+  "itemHistory": {
+    "message": "История на елемента"
+  },
+  "lastEdited": {
+    "message": "Последна промяна"
+  },
+  "upload": {
+    "message": "Качване"
+  },
   "authorize": {
     "message": "Упълномощаване"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Преместване"
+  },
+  "newFolder": {
+    "message": "Нова папка"
+  },
+  "folderName": {
+    "message": "Име на папката"
+  },
+  "folderHintText": {
+    "message": "Можете да вложите една папка в друга като въведете името на горната папка, а след това „/“. Пример: Социални/Форуми"
   },
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"

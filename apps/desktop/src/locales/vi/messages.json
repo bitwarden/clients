@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Mục mới"
   },
-  "addNewFolder": {
-    "message": "Thư mục mới"
-  },
   "view": {
     "message": "Xem"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“Mật khẩu tập tin” và “Nhập lại mật khẩu tập tin” không khớp."
   },
-  "hCaptchaUrl": {
-    "message": "Địa chỉ hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Tải cookie trợ năng"
-  },
-  "registerAccessibilityUser": {
-    "message": "Đăng ký như người dùng trợ năng tại",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Sao chép và dán liên kết được gửi tới email của bạn bên dưới"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Nhập địa chỉ để tải cookie trợ năng cho hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Địa chỉ hCaptcha là bắt buộc",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Địa chỉ không hợp lệ"
-  },
   "done": {
     "message": "Xong"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Đã lưu cookie trợ năng!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Không có cookie trợ năng nào được lưu"
   },
   "warning": {
     "message": "CẢNH BÁO",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

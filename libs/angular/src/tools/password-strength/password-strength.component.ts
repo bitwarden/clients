@@ -16,6 +16,7 @@ export interface PasswordColorText {
 @Component({
   selector: "app-password-strength",
   templateUrl: "password-strength.component.html",
+  standalone: false,
 })
 export class PasswordStrengthComponent implements OnChanges {
   @Input() showText = false;

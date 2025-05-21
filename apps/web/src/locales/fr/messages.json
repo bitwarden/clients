@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Marquer l'application comme critique"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marquées comme critiques"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ces applications ont des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Il n'y a aucune application avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ces membres se connectent à $APPNAME$ avec des mots de passe faibles, exposés ou réutilisés.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Il n'y a pas de membre à risque pour $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Tous les exports chiffrés que vous avez enregistrés deviendront également invalides."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
   },
   "subscription": {
     "message": "Abonnement"
@@ -10545,7 +10560,7 @@
     "message": "Gagnez du temps avec le remplissage automatique"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Inclure un",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 1-2 prochains jours ouvrables. Entrez le code de la transaction de ce dépôt sur la page d'abonnement de votre fournisseur pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "clickPayWithPayPal": {
+    "message": "Veuillez cliquer sur le bouton Payer avec PayPal pour ajouter votre mode de paiement."
   }
 }

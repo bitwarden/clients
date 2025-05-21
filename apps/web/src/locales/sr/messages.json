@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Означите апликацију као критичну"
   },
-  "appsMarkedAsCritical": {
-    "message": "Апликације означене као критичне"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Апликација"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ови чланови се пријављују у апликације са слабим, откривеним или поново коришћеним лозинкама."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ове апликације имају слабу, проваљену или често коришћену лозинку."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ови чланови се пријављују у $APPNAME$ са слабим, откривеним или поново коришћеним лозинкама.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Сваки шифровани извоз који сте сачували такође ће постати неважећи."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Претплата"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Плаћање са банковним рачуном доступно је само купцима у Сједињеним Државама. Од вас ће бити потребно да проверите свој банковни рачун. Направит ћемо микро депозит у наредних 1-2 радна дана. Унесите кôд за дескриптор изјаве са овог депозита на претплатничкој страници провајдера да бисте потврдили банковни рачун. Неуспех у верификацији банковног рачуна резултираће пропуштеним плаћањем и претплатом је суспендовано."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

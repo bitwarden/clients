@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Element nou"
   },
-  "addNewFolder": {
-    "message": "Carpeta nova"
-  },
   "view": {
     "message": "Mostra"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
   },
-  "hCaptchaUrl": {
-    "message": "Url hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Carrega la galeta d'accessibilitat"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registreu-vos com a usuari d'accessibilitat a",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copieu i enganxeu l'enllaç enviat al vostre correu electrònic a continuació"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Introduïu l'URL per carregar la galeta d'accessibilitat per a hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Es requereix l'URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "URL no vàlida"
-  },
   "done": {
     "message": "Fet"
-  },
-  "accessibilityCookieSaved": {
-    "message": "S'ha guardat la galeta d'accessibilitat!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "No s'ha guardat la galeta d'accessibilitat"
   },
   "warning": {
     "message": "ADVERTIMENT",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Autoritza"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

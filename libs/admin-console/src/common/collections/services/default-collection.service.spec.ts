@@ -123,9 +123,6 @@ const mockCryptoService = () => {
   encryptService.decryptString
     .calledWith(expect.any(EncString), expect.anything())
     .mockResolvedValue("DECRYPTED_STRING");
-  encryptService.decryptToUtf8
-    .calledWith(expect.any(EncString), expect.anything(), expect.anything())
-    .mockResolvedValue("DECRYPTED_STRING");
 
   (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
 

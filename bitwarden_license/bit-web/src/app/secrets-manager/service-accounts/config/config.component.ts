@@ -24,6 +24,7 @@ class ServiceAccountConfig {
 @Component({
   selector: "sm-service-account-config",
   templateUrl: "./config.component.html",
+  standalone: false,
 })
 export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   identityUrl: string;

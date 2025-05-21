@@ -15,6 +15,7 @@ import { SecretService } from "../secrets/secret.service";
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
+  standalone: false,
 })
 export class SecretsListComponent implements OnDestroy {
   protected dataSource = new TableDataSource<SecretListView>();
