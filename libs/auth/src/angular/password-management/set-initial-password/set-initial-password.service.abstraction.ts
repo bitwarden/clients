@@ -56,7 +56,7 @@ export abstract class SetInitialPasswordService {
    * @throws If any property on the `credentials` object is null or undefined, or if a
    *         masterKeyEncryptedUserKey or newKeyPair could not be created.
    */
-  setInitialPassword: (
+  abstract setInitialPassword: (
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
     userId: UserId,
@@ -70,7 +70,7 @@ export abstract class SetInitialPasswordService {
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the account `userId`
    */
-  setInitialPasswordTdeOffboarding: (
+  abstract setInitialPasswordTdeOffboarding: (
     passwordInputResult: PasswordInputResult,
     userId: UserId,
   ) => Promise<void>;

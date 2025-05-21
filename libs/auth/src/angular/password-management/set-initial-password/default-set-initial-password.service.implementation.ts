@@ -176,7 +176,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     masterKey: MasterKey,
     userId: UserId,
   ): Promise<[UserKey, EncString]> {
-    let masterKeyEncryptedUserKey: [UserKey, EncString] = null;
+    let masterKeyEncryptedUserKey: [UserKey, EncString] | null = null;
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
@@ -228,6 +228,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userKey,
       orgPublicKey,
     );
+
+    // TODO-rr-bw: verify
+    if (!orgPublicKeyEncryptedUserKey.encryptedString) {
+      throw new Error(
+        "orgPublicKeyEncryptedUserKey.encryptedString not found. Could not handle reset password auto enroll.",
+      );
+    }
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.masterPasswordHash = masterKeyHash;

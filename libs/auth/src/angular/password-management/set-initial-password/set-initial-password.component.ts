@@ -40,16 +40,16 @@ import {
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
 
-  protected email: string;
-  protected forceSetPasswordReason: ForceSetPasswordReason;
+  protected email?: string;
+  protected forceSetPasswordReason?: ForceSetPasswordReason;
   protected initializing = true;
-  protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions;
-  protected orgId: string;
-  protected orgSsoIdentifier: string;
-  protected resetPasswordAutoEnroll: boolean;
+  protected masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+  protected orgId?: string;
+  protected orgSsoIdentifier?: string;
+  protected resetPasswordAutoEnroll?: boolean;
   protected submitting = false;
-  protected userId: UserId;
-  protected userType: SetInitialPasswordUserType;
+  protected userId?: UserId;
+  protected userType?: SetInitialPasswordUserType;
 
   constructor(
     private accountService: AccountService,
@@ -86,6 +86,10 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   private async determineUserType() {
+    if (!this.userId) {
+      throw new Error("userId not found. Could not determine user type.");
+    }
+
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
@@ -115,6 +119,10 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   private async handleQueryParams() {
+    if (!this.userId) {
+      throw new Error("userId not found. Could not handle query params.");
+    }
+
     const qParams = await firstValueFrom(this.activatedRoute.queryParams);
 
     this.orgSsoIdentifier =
@@ -142,6 +150,17 @@ export class SetInitialPasswordComponent implements OnInit {
 
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
+
+    if (
+      !this.userId ||
+      !this.orgSsoIdentifier ||
+      !this.orgId ||
+      this.resetPasswordAutoEnroll == null
+    ) {
+      throw new Error(
+        "userId, orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
+      );
+    }
 
     if (
       this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER ||
