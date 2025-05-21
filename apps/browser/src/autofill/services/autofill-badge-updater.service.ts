@@ -8,7 +8,7 @@ import { BadgeService } from "../../platform/badge/badge.service";
 import { BadgeStatePriority } from "../../platform/badge/priority";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-const StateName = "autofill";
+const StateName = "autofill-badge";
 
 export class AutofillBadgeUpdaterService {
   private currentTab$ = new BehaviorSubject<chrome.tabs.Tab | null>(null);
@@ -27,19 +27,19 @@ export class AutofillBadgeUpdaterService {
       .pipe(
         mergeMap(async ({ account, enableBadgeCounter, tab }) => {
           if (!account || !tab || !tab.url) {
-            return { ciphers: 0, enableBadgeCounter };
+            return { cipherCount: 0, enableBadgeCounter };
           }
 
           const ciphers = await this.cipherService.getAllDecryptedForUrl(tab.url, account.id);
-          return { ciphers: ciphers.length, enableBadgeCounter };
+          return { cipherCount: ciphers.length, enableBadgeCounter };
         }),
-        mergeMap(async ({ ciphers, enableBadgeCounter }) => {
-          if (!enableBadgeCounter || ciphers === 0) {
+        mergeMap(async ({ cipherCount, enableBadgeCounter }) => {
+          if (!enableBadgeCounter || cipherCount === 0) {
             await this.badgeService.clearState(StateName);
             return;
           }
 
-          const countText = ciphers > 9 ? "9+" : ciphers.toString();
+          const countText = cipherCount > 9 ? "9+" : cipherCount.toString();
           await this.badgeService.setState(StateName, BadgeStatePriority.Default, {
             text: countText,
           });
