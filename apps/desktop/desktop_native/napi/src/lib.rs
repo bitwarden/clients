@@ -888,28 +888,45 @@ pub mod chromium_importer {
     }
 
     #[napi(object)]
-    pub struct LoginImportResult {
+    pub struct Login {
         pub url: String,
         pub username: String,
-        // TODO: Success/failure
         pub password: String,
         pub note: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportFailure {
+        pub url: String,
+        pub username: String,
+        pub error: String,
+    }
+
+    #[napi(object)]
+    pub struct LoginImportResult {
+        pub login: Option<Login>,
+        pub failure: Option<LoginImportFailure>,
     }
 
     impl From<_LoginImportResult> for LoginImportResult {
         fn from(l: _LoginImportResult) -> Self {
             match l {
                 _LoginImportResult::Success(l) => LoginImportResult {
-                    url: l.url,
-                    username: l.username,
-                    password: l.password,
-                    note: l.note,
+                    login: Some(Login {
+                        url: l.url,
+                        username: l.username,
+                        password: l.password,
+                        note: l.note,
+                    }),
+                    failure: None,
                 },
                 _LoginImportResult::Failure(l) => LoginImportResult {
-                    url: l.url,
-                    username: l.username,
-                    password: l.error.clone(),
-                    note: l.error.clone(),
+                    login: None,
+                    failure: Some(LoginImportFailure {
+                        url: l.url,
+                        username: l.username,
+                        error: l.error,
+                    }),
                 },
             }
         }

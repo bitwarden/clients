@@ -203,11 +203,20 @@ export declare namespace chromium_importer {
     id: string
     name: string
   }
-  export interface LoginImportResult {
+  export interface Login {
     url: string
     username: string
     password: string
     note: string
+  }
+  export interface LoginImportFailure {
+    url: string
+    username: string
+    error: string
+  }
+  export interface LoginImportResult {
+    login?: Login
+    failure?: LoginImportFailure
   }
   export function getInstalledBrowsers(): Promise<Array<string>>
   export function getAvailableProfiles(browser: string): Promise<Array<ProfileInfo>>
