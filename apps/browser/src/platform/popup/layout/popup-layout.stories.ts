@@ -518,7 +518,7 @@ export const CompactMode: Story = {
         return;
       }
 
-      const label = canvasEl.querySelector(`#${containerId} `);
+      const label = canvasEl.querySelector(`#${containerId} .example-label`);
 
       if (!label) {
         // eslint-disable-next-line
