@@ -40,6 +40,7 @@ import {
   DeviceVerificationIcon,
   UserLockIcon,
   VaultIcon,
+  SetInitialPasswordComponent,
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
@@ -377,6 +378,13 @@ const routes: Routes = [
             component: RegistrationFinishComponent,
           },
         ],
+      },
+      {
+        path: "set-initial-password",
+        component: SetInitialPasswordComponent,
+        data: {
+          elevation: 1,
+        } satisfies RouteDataProperties,
       },
       {
         path: "login",
