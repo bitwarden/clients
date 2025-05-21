@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, HostBinding, HostListener, Input } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -60,7 +60,6 @@ export class DialogComponent {
    */
   @Input() loading = false;
 
-  private animationClasses = ["tw-animate-slide-up", "md:tw-animate-slide-down"];
   private animationCompleted = false;
 
   @HostBinding("class") get classes() {
@@ -73,9 +72,7 @@ export class DialogComponent {
       "tw-max-h-[90vh]",
       // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
       ...(this.animationCompleted ? [] : this.animationClasses),
-    ].concat(
-      this.width,
-    );
+    ].concat(this.width);
   }
 
   get width() {
@@ -89,6 +86,15 @@ export class DialogComponent {
       default: {
         return "tw-max-w-xl";
       }
+    }
+  }
+
+  get animationClasses() {
+    switch (this.dialogSize) {
+      case "small":
+        return ["tw-animate-slide-down"];
+      default:
+        return ["tw-animate-slide-up", "md:tw-animate-slide-down"];
     }
   }
 

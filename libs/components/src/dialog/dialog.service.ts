@@ -96,7 +96,8 @@ export class DialogService extends Dialog implements OnDestroy {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, DialogRef<R, C>>,
   ): DialogRef<R, C> {
-    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+    const responsive = config?.responsive ?? true;
+    const isSmallScreen = responsive && window.matchMedia("(max-width: 768px)").matches;
 
     config = {
       backdropClass: this.backDropClasses,
@@ -136,6 +137,7 @@ export class DialogService extends Dialog implements OnDestroy {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
+      responsive: false,
     });
   }
 
