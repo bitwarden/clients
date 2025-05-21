@@ -2,6 +2,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
+import { PasswordInputResult } from "../../input-password/password-input-result";
+
 export const SetInitialPasswordUser = {
   /**
    * A user being "just-in-time" (JIT) provisioned into a master-password-encryption org
@@ -16,6 +18,12 @@ export const SetInitialPasswordUser = {
    *     that requires a master password (admin, owner, etc.)
    */
   TDE_ORG_USER_ROLE_REQUIRES_MP: "tde_org_user_role_requires_mp",
+
+  /**
+   * A user in an org that offboarded from trusted device encryption and is now a
+   * master-password-encryption org
+   */
+  OFFBOARDED_TDE_ORG_USER: "offboarded_tde_org_user",
 } as const;
 
 export type SetInitialPasswordUserType =
@@ -51,6 +59,19 @@ export abstract class SetInitialPasswordService {
   abstract setInitialPassword: (
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER}
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the account `userId`
+   */
+  abstract setInitialPasswordTdeOffboarding: (
+    passwordInputResult: PasswordInputResult,
     userId: UserId,
   ) => Promise<void>;
 }

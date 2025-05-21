@@ -10,6 +10,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
@@ -19,6 +20,8 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
+
+import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import {
   SetInitialPasswordService,
@@ -231,5 +234,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       resetRequest,
     );
+  }
+
+  async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult, userId: UserId) {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      passwordInputResult.newMasterKey,
+      userKey,
+    );
+
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+    request.masterPasswordHint = passwordInputResult.newPasswordHint;
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 }
