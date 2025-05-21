@@ -24,9 +24,10 @@ import {
   LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -167,6 +168,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private environmentService: EnvironmentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
+    private authService: AuthService,
   ) {}
 
   async ngOnInit() {
@@ -507,8 +509,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async determineDefaultSuccessRoute(): Promise<string> {
-    const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
-    if (authType == AuthenticationType.Sso || authType == AuthenticationType.UserApiKey) {
+    const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
     }
 
