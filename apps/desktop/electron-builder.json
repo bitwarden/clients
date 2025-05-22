@@ -265,5 +265,12 @@
       "name": "Bitwarden",
       "schemes": ["bitwarden"]
     }
+  ],
+  "extraResources": [
+    {
+      "from": "build/images",
+      "to": "images",
+      "filter": ["**/*"]
+    }
   ]
 }
