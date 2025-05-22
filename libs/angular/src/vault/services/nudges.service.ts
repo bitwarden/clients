@@ -12,6 +12,7 @@ import {
   AutofillNudgeService,
   DownloadBitwardenNudgeService,
   NewItemNudgeService,
+  AccountSecurityNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
@@ -32,12 +33,15 @@ export enum NudgeType {
   EmptyVaultNudge = "empty-vault-nudge",
   HasVaultItems = "has-vault-items",
   AutofillNudge = "autofill-nudge",
+  AccountSecurity = "account-security",
   DownloadBitwarden = "download-bitwarden",
   NewLoginItemStatus = "new-login-item-status",
   NewCardItemStatus = "new-card-item-status",
   NewIdentityItemStatus = "new-identity-item-status",
   NewNoteItemStatus = "new-note-item-status",
   NewSshItemStatus = "new-ssh-item-status",
+  GeneratorNudgeStatus = "generator-nudge-status",
+  SendNudgeStatus = "send-nudge-status",
 }
 
 export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
@@ -61,6 +65,7 @@ export class NudgesService {
   private customNudgeServices: Partial<Record<NudgeType, SingleNudgeService>> = {
     [NudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
     [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
     [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
     [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,

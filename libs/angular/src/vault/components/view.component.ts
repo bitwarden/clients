@@ -95,7 +95,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   cipherType = CipherType;
 
   private previousCipherId: string;
-  private passwordReprompted = false;
+  protected passwordReprompted = false;
 
   /**
    * Represents TOTP information including display formatting and timing

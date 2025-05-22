@@ -81,6 +81,7 @@ export class PopupViewCacheService implements ViewCacheService {
       injector = inject(Injector),
       initialValue,
       persistNavigation,
+      clearOnTabChange,
     } = options;
     const cachedValue = this.cache[key]?.value
       ? deserializer(JSON.parse(this.cache[key].value))
@@ -89,6 +90,7 @@ export class PopupViewCacheService implements ViewCacheService {
 
     const viewCacheOptions = {
       ...(persistNavigation && { persistNavigation }),
+      ...(clearOnTabChange && { clearOnTabChange }),
     };
 
     effect(

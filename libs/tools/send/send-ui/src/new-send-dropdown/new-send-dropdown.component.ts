@@ -7,7 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { BadgeModule, ButtonModule, MenuModule } from "@bitwarden/components";
+import { BadgeModule, ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 
 @Component({
   selector: "tools-new-send-dropdown",
@@ -17,6 +17,7 @@ import { BadgeModule, ButtonModule, MenuModule } from "@bitwarden/components";
 })
 export class NewSendDropdownComponent implements OnInit {
   @Input() hideIcon: boolean = false;
+  @Input() buttonType: ButtonType = "primary";
 
   sendType = SendType;
 

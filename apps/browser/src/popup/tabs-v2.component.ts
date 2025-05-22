@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { combineLatest, map, Observable, switchMap } from "rxjs";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,6 +23,7 @@ export class TabsV2Component {
     this.configService.getFeatureFlag$(FeatureFlag.PM8851_BrowserOnboardingNudge),
     this.hasActiveBadges$,
   ]).pipe(
+    startWith([false, false]),
     map(([onboardingFeatureEnabled, hasBadges]) => {
       return [
         {

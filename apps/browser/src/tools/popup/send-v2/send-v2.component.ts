@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, switchMap } from "rxjs";
+import { combineLatest, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -11,13 +12,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
-  NoSendsIcon,
   NewSendDropdownComponent,
-  SendListItemsContainerComponent,
+  NoSendsIcon,
   SendItemsService,
-  SendSearchComponent,
   SendListFiltersComponent,
   SendListFiltersService,
+  SendListItemsContainerComponent,
+  SendSearchComponent,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -51,7 +52,7 @@ export enum SendState {
     SendSearchComponent,
   ],
 })
-export class SendV2Component implements OnInit, OnDestroy {
+export class SendV2Component implements OnDestroy {
   sendType = SendType;
   sendState = SendState;
 
@@ -61,6 +62,12 @@ export class SendV2Component implements OnInit, OnDestroy {
   protected title: string = "allSends";
   protected noItemIcon = NoSendsIcon;
   protected noResultsIcon = Icons.NoResults;
+  private activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+  protected showSendSpotlight$: Observable<boolean> = this.activeUserId$.pipe(
+    switchMap((userId) =>
+      this.nudgesService.showNudgeSpotlight$(NudgeType.SendNudgeStatus, userId),
+    ),
+  );
 
   protected sendsDisabled = false;
 
@@ -69,6 +76,7 @@ export class SendV2Component implements OnInit, OnDestroy {
     protected sendListFiltersService: SendListFiltersService,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private nudgesService: NudgesService,
   ) {
     combineLatest([
       this.sendItemsService.emptyList$,
@@ -108,8 +116,6 @@ export class SendV2Component implements OnInit, OnDestroy {
         this.sendsDisabled = sendsDisabled;
       });
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {}
 }
