@@ -7,7 +7,7 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { RouterService } from "../../core/router.service";
+import { RouterService } from "../../../core/router.service";
 
 import { deepLinkGuard } from "./deep-link.guard";
 
@@ -91,6 +91,18 @@ describe("Deep Link Guard", () => {
     // Arrange
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
     routerService.getPreviousUrl.mockReturnValue("/lock");
+
+    // Act
+    await routerHarness.navigateByUrl("/lock-route");
+
+    // Assert
+    expect(routerService.persistLoginRedirectUrl).not.toHaveBeenCalled();
+  });
+
+  it('should not persist routerService.previousUrl when routerService.previousUrl contains "login-initiated"', async () => {
+    // Arrange
+    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
+    routerService.getPreviousUrl.mockReturnValue("/login-initiated");
 
     // Act
     await routerHarness.navigateByUrl("/lock-route");
