@@ -1,16 +1,13 @@
-use anyhow::{anyhow, Result};
-use homedir::my_home;
-use std::path::PathBuf; // Added import
-
 use aes_gcm::aead::Aead;
 use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
+use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 
 use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
 use winapi::um::{dpapi::CryptUnprotectData, wincrypt::DATA_BLOB};
 use windows::Win32::Foundation::{LocalFree, HLOCAL};
 
-use crate::chromium::{CryptoService, LocalState};
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
 #[allow(dead_code)]
 mod util;
@@ -19,30 +16,20 @@ mod util;
 // Public API
 //
 
-pub fn get_supported_browsers() -> Vec<String> {
-    SUPPORTED_BROWSERS
-        .iter()
-        .map(|b| b.name.to_string())
-        .collect()
-}
-
-pub fn get_browser_settings_directory(browser_name: &str) -> Result<PathBuf> {
-    let config = find_browser_config(browser_name)
-        .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
-
-    let home_dir = my_home() // Changed to my_home()
-        .map_err(|_| anyhow!("Could not determine home directory"))? // Adjusted error mapping
-        .ok_or_else(|| anyhow!("Could not determine home directory"))?;
-
-    let path = home_dir
-        .join("AppData")
-        .join("Local")
-        .join(config.company)
-        .join(config.product)
-        .join("User Data");
-
-    Ok(path)
-}
+pub const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
+    BrowserConfig {
+        name: "Chrome",
+        data_dir: "AppData/Local/Google/Chrome/User Data",
+    },
+    BrowserConfig {
+        name: "Edge",
+        data_dir: "AppData/Local/Microsoft/Edge/User Data",
+    },
+    BrowserConfig {
+        name: "Brave",
+        data_dir: "AppData/Local/BraveSoftware/Brave-Browser/User Data",
+    },
+];
 
 pub fn get_crypto_service(
     _browser_name: &str,
@@ -54,35 +41,6 @@ pub fn get_crypto_service(
 //
 // Private
 //
-
-#[derive(Debug)]
-struct BrowserConfig {
-    name: &'static str,
-    company: &'static str,
-    product: &'static str,
-}
-
-const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
-    BrowserConfig {
-        name: "Chrome",
-        company: "Google",
-        product: "Chrome",
-    },
-    BrowserConfig {
-        name: "Edge",
-        company: "Microsoft",
-        product: "Edge",
-    },
-    BrowserConfig {
-        name: "Brave",
-        company: "BraveSoftware",
-        product: "Brave-Browser",
-    },
-];
-
-fn find_browser_config(browser_name: &str) -> Option<&'static BrowserConfig> {
-    SUPPORTED_BROWSERS.iter().find(|b| b.name == browser_name)
-}
 
 //
 // CryptoService
