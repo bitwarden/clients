@@ -3,9 +3,10 @@
     <div role="tablist">
       <div class="tw-flex tw-gap-8 tw-justify-between">
         @for (step of steps; track $index; let isLast = $last) {
+          @let isCurrentStepDisabled = isStepDisabled($index);
           <button
             type="button"
-            [disabled]="isStepDisabled($index)"
+            [disabled]="isCurrentStepDisabled"
             (click)="selectStepByIndex($index)"
             class="tw-flex tw-p-3 tw-items-center tw-border-none tw-bg-transparent tw-shrink-0"
             [ngClass]="{
