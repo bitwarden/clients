@@ -5,15 +5,26 @@
   </span>
 
   <div bitDialogContent>
-    <bit-callout type="warning">{{
-      "emergencyAccessLoggedOutWarning" | i18n: dialogData.grantorName
-    }}</bit-callout>
+    @if (initializing) {
+      <div class="tw-flex tw-items-center tw-justify-center">
+        <i
+          class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </div>
+    } @else {
+      <bit-callout type="warning">{{
+        "emergencyAccessLoggedOutWarning" | i18n: dialogData.grantorName
+      }}</bit-callout>
 
-    <auth-input-password
-      [flow]="inputPasswordFlow"
-      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
-      (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
-    ></auth-input-password>
+      <auth-input-password
+        [flow]="inputPasswordFlow"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+        (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+      ></auth-input-password>
+    }
   </div>
 
   <ng-container bitDialogFooter>

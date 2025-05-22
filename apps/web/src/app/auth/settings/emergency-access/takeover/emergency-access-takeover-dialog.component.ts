@@ -65,6 +65,7 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent!: InputPasswordComponent;
 
+  initializing = true;
   inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
 
@@ -80,14 +81,16 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
-      this.dialogData.emergencyAccessId,
-    );
+    // const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    // const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
+    //   this.dialogData.emergencyAccessId,
+    // );
 
-    this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(activeUserId, grantorPolicies),
-    );
+    // this.masterPasswordPolicyOptions = await firstValueFrom(
+    //   this.policyService.masterPasswordPolicyOptions$(activeUserId, grantorPolicies),
+    // );
+
+    this.initializing = false;
   }
 
   protected handlePrimaryButtonClick = async () => {
