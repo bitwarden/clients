@@ -3704,6 +3704,12 @@
   "saveNewPasskey": {
     "message": "Save as new login"
   },
+  "savePasskeyNewLogin": {
+    "message": "Save passkey as new login"
+  },
+  "noMatchingLoginsForSite": {
+    "message": "No matching logins for this site"
+  },
   "overwritePasskey": {
     "message": "Overwrite passkey?"
   },
