@@ -28,8 +28,8 @@ export type NotificationConfirmationContainerProps = NotificationBarIframeInitDa
   headerMessage?: string;
   i18n: I18n;
   itemName: string;
+  notificationTestId: string;
   task?: NotificationTaskInfo;
-  testId: string;
   type: NotificationType;
 };
 
@@ -41,8 +41,8 @@ export function NotificationConfirmationContainer({
   headerMessage,
   i18n,
   itemName,
+  notificationTestId,
   task,
-  testId,
   theme = ThemeTypes.Light,
   type,
 }: NotificationConfirmationContainerProps) {
@@ -70,7 +70,7 @@ export function NotificationConfirmationContainer({
   }
 
   return html`
-    <div data-testid="${testId}" class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,

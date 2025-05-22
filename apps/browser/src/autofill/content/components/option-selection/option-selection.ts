@@ -141,6 +141,7 @@ export class OptionSelection extends LitElement {
         })}
         ${this.showMenu
           ? OptionItems({
+              id: this.id,
               label: this.label,
               options: this.options,
               theme: this.theme,
