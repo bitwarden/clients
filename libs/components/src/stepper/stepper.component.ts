@@ -15,6 +15,8 @@ import { StepComponent } from "./step.component";
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {
+  // Need to reimplement the constructor to fix an invalidFactoryDep error in Storybook
+  // @see https://github.com/storybookjs/storybook/issues/23534#issuecomment-2042888436
   constructor(
     _dir: Directionality,
     _changeDetectorRef: ChangeDetectorRef,
