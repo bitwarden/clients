@@ -59,7 +59,6 @@
       type="button"
       [buttonType]="'primary'"
       bitButton
-      *ngIf="isCriticalAppsFeatureEnabled"
       [disabled]="!selectedUrls.size"
       [loading]="markingAsCritical"
       (click)="markAppsAsCritical()"
@@ -74,7 +73,6 @@
     [showRowCheckBox]="true"
     [showRowMenuForCriticalApps]="false"
     [selectedUrls]="selectedUrls"
-    [isCriticalAppsFeatureEnabled]="isCriticalAppsFeatureEnabled"
     [isDrawerIsOpenForThisRecord]="isDrawerOpenForTableRow"
     [checkboxChange]="onCheckboxChange"
     [showAppAtRiskMembers]="showAppAtRiskMembers"
