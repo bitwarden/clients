@@ -6,7 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { mockAccountServiceWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
-import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
@@ -254,7 +254,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as EncryptionContext);
 
         await authenticator.makeCredential(params, windowReference);
 
@@ -325,7 +325,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as EncryptionContext);
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
@@ -359,11 +359,11 @@ describe("FidoAuthenticatorService", () => {
           cipher.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
           return {} as any;
         });
-        cipherService.createWithServer.mockImplementation(async (cipher) => {
+        cipherService.createWithServer.mockImplementation(async ({ cipher }) => {
           cipher.id = cipherId;
           return cipher;
         });
-        cipherService.updateWithServer.mockImplementation(async (cipher) => {
+        cipherService.updateWithServer.mockImplementation(async ({ cipher }) => {
           cipher.id = cipherId;
           return cipher;
         });
