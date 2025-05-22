@@ -446,10 +446,10 @@
     "message": "Veld toevoegen"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Veld bewerken"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
   },
   "fieldType": {
     "message": "Veldtype"
@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Nieuw item toevoegen"
   },
-  "addNewFolder": {
-    "message": "Nieuwe map toevoegen"
-  },
   "view": {
     "message": "Weergeven"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Bestandswachtwoord\" en \"Bestandswachtwoord bevestigen\" komen niet overeen."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Toegankelijkheidscookie laden"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registreer als toegankelijkheidsgebruiker op",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopieer en plak de link die naar uw e-mail is gestuurd hieronder"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Voer een URL in om toegankelijkheidscookie voor hCaptcha te laden",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL is vereist",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ongeldige URL"
-  },
   "done": {
     "message": "Klaar"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Toegankelijkheidscookie opgeslagen!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Geen toegankelijkheidscookie opgeslagen"
   },
   "warning": {
     "message": "WAARSCHUWING",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
+  "itemDetails": {
+    "message": "Itemdetails"
+  },
+  "itemName": {
+    "message": "Itemnaam"
+  },
+  "loginCredentials": {
+    "message": "Inloggegevens"
+  },
+  "additionalOptions": {
+    "message": "Extra opties"
+  },
+  "itemHistory": {
+    "message": "Itemgeschiedenis"
+  },
+  "lastEdited": {
+    "message": "Laatst gewijzigd"
+  },
+  "upload": {
+    "message": "Uploaden"
+  },
   "authorize": {
     "message": "Autoriseren"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Verplaatsen"
+  },
+  "newFolder": {
+    "message": "Nieuwe map"
+  },
+  "folderName": {
+    "message": "Mapnaam"
+  },
+  "folderHintText": {
+    "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"

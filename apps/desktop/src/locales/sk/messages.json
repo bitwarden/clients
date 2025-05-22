@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Pridať novú položku"
   },
-  "addNewFolder": {
-    "message": "Vytvoriť nový priečinok"
-  },
   "view": {
     "message": "Zobraziť"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Heslo súboru\" a \"Potvrdiť heslo súboru\" sa nezhodujú."
   },
-  "hCaptchaUrl": {
-    "message": "URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Načítať súbor cookie prístupnosti"
-  },
-  "registerAccessibilityUser": {
-    "message": "Zaregistrujte sa ako používateľ prístupnosti na",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Skopírujte a vložte odkaz zaslaný na váš e-mail nižšie"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Zadajte adresu URL na načítanie súboru cookie prístupnosti pre hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Vyžaduje sa URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Neplatná URL"
-  },
   "done": {
     "message": "Hotovo"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Súbor cookie prístupnosti uložený!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Nie je uložený žiadny súbor cookie prístupnosti"
   },
   "warning": {
     "message": "UPOZORNENIE",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Odomykanie biometrickými údajmi je z neznámych dôvodov nedostupné."
   },
+  "itemDetails": {
+    "message": "Podrobnosti o položke"
+  },
+  "itemName": {
+    "message": "Názov položky"
+  },
+  "loginCredentials": {
+    "message": "Prihlasovacie údaje"
+  },
+  "additionalOptions": {
+    "message": "Ďalšie možnosti"
+  },
+  "itemHistory": {
+    "message": "História položky"
+  },
+  "lastEdited": {
+    "message": "Posledná úprava"
+  },
+  "upload": {
+    "message": "Nahrať"
+  },
   "authorize": {
     "message": "Autorizovať"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Presunúť"
+  },
+  "newFolder": {
+    "message": "Nový priečinok"
+  },
+  "folderName": {
+    "message": "Názov priečinka"
+  },
+  "folderHintText": {
+    "message": "Vnorte priečinok pridaním názvu nadradeného priečinka a znaku \"/\". Príklad: Sociálne siete/Fóra"
   },
   "newLoginNudgeTitle": {
     "message": "Ušetrite čas s automatickým vypĺňaním"

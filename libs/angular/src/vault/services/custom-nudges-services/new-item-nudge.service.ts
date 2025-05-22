@@ -6,7 +6,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
-import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
+import { NudgeStatus, NudgeType } from "../nudges.service";
 
 /**
  * Custom Nudge Service Checking Nudge Status For Vault New Item Types
@@ -17,7 +17,7 @@ import { NudgeStatus, VaultNudgeType } from "../vault-nudges.service";
 export class NewItemNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
 
-  nudgeStatus$(nudgeType: VaultNudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return combineLatest([
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
@@ -30,19 +30,19 @@ export class NewItemNudgeService extends DefaultSingleNudgeService {
         let currentType: CipherType;
 
         switch (nudgeType) {
-          case VaultNudgeType.newLoginItemStatus:
+          case NudgeType.NewLoginItemStatus:
             currentType = CipherType.Login;
             break;
-          case VaultNudgeType.newCardItemStatus:
+          case NudgeType.NewCardItemStatus:
             currentType = CipherType.Card;
             break;
-          case VaultNudgeType.newIdentityItemStatus:
+          case NudgeType.NewIdentityItemStatus:
             currentType = CipherType.Identity;
             break;
-          case VaultNudgeType.newNoteItemStatus:
+          case NudgeType.NewNoteItemStatus:
             currentType = CipherType.SecureNote;
             break;
-          case VaultNudgeType.newSshItemStatus:
+          case NudgeType.NewSshItemStatus:
             currentType = CipherType.SshKey;
             break;
         }

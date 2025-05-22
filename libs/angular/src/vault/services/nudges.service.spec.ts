@@ -2,15 +2,17 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../common/spec";
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/common/spec";
 
 import {
   HasItemsNudgeService,
@@ -18,7 +20,7 @@ import {
   DownloadBitwardenNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
-import { VaultNudgesService, VaultNudgeType } from "./vault-nudges.service";
+import { NudgesService, NudgeType } from "./nudges.service";
 
 describe("Vault Nudges Service", () => {
   let fakeStateProvider: FakeStateProvider;
@@ -29,7 +31,7 @@ describe("Vault Nudges Service", () => {
     getFeatureFlag: jest.fn().mockReturnValue(true),
   };
 
-  const vaultNudgeServices = [EmptyVaultNudgeService, DownloadBitwardenNudgeService];
+  const nudgeServices = [EmptyVaultNudgeService, DownloadBitwardenNudgeService];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -38,7 +40,7 @@ describe("Vault Nudges Service", () => {
       imports: [],
       providers: [
         {
-          provide: VaultNudgesService,
+          provide: NudgesService,
         },
         {
           provide: DefaultSingleNudgeService,
@@ -74,6 +76,14 @@ describe("Vault Nudges Service", () => {
           provide: LogService,
           useValue: mock<LogService>(),
         },
+        {
+          provide: PinServiceAbstraction,
+          useValue: mock<PinServiceAbstraction>(),
+        },
+        {
+          provide: VaultTimeoutSettingsService,
+          useValue: mock<VaultTimeoutSettingsService>(),
+        },
       ],
     });
   });
@@ -83,13 +93,13 @@ describe("Vault Nudges Service", () => {
       const service = testBed.inject(DefaultSingleNudgeService);
 
       await service.setNudgeStatus(
-        VaultNudgeType.EmptyVaultNudge,
+        NudgeType.EmptyVaultNudge,
         { hasBadgeDismissed: true, hasSpotlightDismissed: true },
         "user-id" as UserId,
       );
 
       const result = await firstValueFrom(
-        service.nudgeStatus$(VaultNudgeType.EmptyVaultNudge, "user-id" as UserId),
+        service.nudgeStatus$(NudgeType.EmptyVaultNudge, "user-id" as UserId),
       );
       expect(result).toEqual({ hasBadgeDismissed: true, hasSpotlightDismissed: true });
     });
@@ -98,27 +108,27 @@ describe("Vault Nudges Service", () => {
       const service = testBed.inject(DefaultSingleNudgeService);
 
       await service.setNudgeStatus(
-        VaultNudgeType.EmptyVaultNudge,
+        NudgeType.EmptyVaultNudge,
         { hasBadgeDismissed: false, hasSpotlightDismissed: false },
         "user-id" as UserId,
       );
 
       const result = await firstValueFrom(
-        service.nudgeStatus$(VaultNudgeType.EmptyVaultNudge, "user-id" as UserId),
+        service.nudgeStatus$(NudgeType.EmptyVaultNudge, "user-id" as UserId),
       );
       expect(result).toEqual({ hasBadgeDismissed: false, hasSpotlightDismissed: false });
     });
   });
 
-  describe("VaultNudgesService", () => {
+  describe("NudgesService", () => {
     it("should return true, the proper value from the custom nudge service nudgeStatus$", async () => {
       TestBed.overrideProvider(HasItemsNudgeService, {
         useValue: { nudgeStatus$: () => of(true) },
       });
-      const service = testBed.inject(VaultNudgesService);
+      const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(
-        service.showNudge$(VaultNudgeType.HasVaultItems, "user-id" as UserId),
+        service.showNudgeStatus$(NudgeType.HasVaultItems, "user-id" as UserId),
       );
 
       expect(result).toBe(true);
@@ -128,10 +138,40 @@ describe("Vault Nudges Service", () => {
       TestBed.overrideProvider(HasItemsNudgeService, {
         useValue: { nudgeStatus$: () => of(false) },
       });
-      const service = testBed.inject(VaultNudgesService);
+      const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(
-        service.showNudge$(VaultNudgeType.HasVaultItems, "user-id" as UserId),
+        service.showNudgeStatus$(NudgeType.HasVaultItems, "user-id" as UserId),
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should return showNudgeSpotlight$ false if hasSpotLightDismissed is true", async () => {
+      TestBed.overrideProvider(HasItemsNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasSpotlightDismissed: true, hasBadgeDismissed: true }),
+        },
+      });
+      const service = testBed.inject(NudgesService);
+
+      const result = await firstValueFrom(
+        service.showNudgeSpotlight$(NudgeType.HasVaultItems, "user-id" as UserId),
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should return showNudgeBadge$ false when hasBadgeDismissed is true", async () => {
+      TestBed.overrideProvider(HasItemsNudgeService, {
+        useValue: {
+          nudgeStatus$: () => of({ hasSpotlightDismissed: true, hasBadgeDismissed: true }),
+        },
+      });
+      const service = testBed.inject(NudgesService);
+
+      const result = await firstValueFrom(
+        service.showNudgeBadge$(NudgeType.HasVaultItems, "user-id" as UserId),
       );
 
       expect(result).toBe(false);
@@ -140,7 +180,7 @@ describe("Vault Nudges Service", () => {
 
   describe("HasActiveBadges", () => {
     it("should return true if a nudgeType with hasBadgeDismissed === false", async () => {
-      vaultNudgeServices.forEach((service) => {
+      nudgeServices.forEach((service) => {
         TestBed.overrideProvider(service, {
           useValue: {
             nudgeStatus$: () => of({ hasBadgeDismissed: false, hasSpotlightDismissed: false }),
@@ -148,21 +188,21 @@ describe("Vault Nudges Service", () => {
         });
       });
 
-      const service = testBed.inject(VaultNudgesService);
+      const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
 
       expect(result).toBe(true);
     });
     it("should return false if all nudgeTypes have hasBadgeDismissed === true", async () => {
-      vaultNudgeServices.forEach((service) => {
+      nudgeServices.forEach((service) => {
         TestBed.overrideProvider(service, {
           useValue: {
             nudgeStatus$: () => of({ hasBadgeDismissed: true, hasSpotlightDismissed: false }),
           },
         });
       });
-      const service = testBed.inject(VaultNudgesService);
+      const service = testBed.inject(NudgesService);
 
       const result = await firstValueFrom(service.hasActiveBadges$("user-id" as UserId));
 
