@@ -154,7 +154,10 @@ export class ListCommand {
   }
 
   private async listCollections(options: Options) {
-    let collections = await this.collectionService.getAllDecrypted();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    let collections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId),
+    );
 
     if (options.organizationId != null) {
       collections = collections.filter((c) => {
