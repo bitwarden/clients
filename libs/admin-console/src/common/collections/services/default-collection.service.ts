@@ -151,12 +151,13 @@ export class DefaultCollectionService implements CollectionService {
       return decrypted;
     }
 
-    if (collections == null || collections.length === 0 || orgKeys === null) {
+    if (collections === null || collections.length === 0 || orgKeys === null) {
       return [];
     }
-    const decCollections: CollectionView[] = [];
 
+    const decCollections: CollectionView[] = [];
     const promises: Promise<any>[] = [];
+
     collections.forEach((collection) => {
       promises.push(
         collection

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import { first, firstValueFrom, lastValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,13 +19,10 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionData } from "../models";
 
-import { DefaultvNextCollectionService } from "./default-vnext-collection.service";
-import {
-  DECRYPTED_COLLECTION_DATA_KEY,
-  ENCRYPTED_COLLECTION_DATA_KEY,
-} from "./vnext-collection.state";
+import { DefaultCollectionService } from "./default-collection.service";
+import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 
-describe("DefaultvNextCollectionService", () => {
+describe("DefaultCollectionService", () => {
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
@@ -35,7 +32,7 @@ describe("DefaultvNextCollectionService", () => {
 
   let cryptoKeys: ReplaySubject<Record<OrganizationId, OrgKey> | null>;
 
-  let collectionService: DefaultvNextCollectionService;
+  let collectionService: DefaultCollectionService;
 
   beforeEach(() => {
     userId = Utils.newGuid() as UserId;
@@ -60,7 +57,7 @@ describe("DefaultvNextCollectionService", () => {
     // Arrange i18nService so that sorting algorithm doesn't throw
     i18nService.collator = null;
 
-    collectionService = new DefaultvNextCollectionService(
+    collectionService = new DefaultCollectionService(
       keyService,
       encryptService,
       i18nService,
@@ -277,6 +274,7 @@ describe("DefaultvNextCollectionService", () => {
     const decryptedCollections = await firstValueFrom(
       stateProvider.getUserState$(DECRYPTED_COLLECTION_DATA_KEY, userId),
     );
+
     expect(decryptedCollections.length).toEqual(0);
   });
 

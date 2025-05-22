@@ -115,20 +115,18 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           return of(true);
         }
 
-        return this.collectionService
-          .decryptedCollections$(userId)
-          .pipe(getByIds(cipher.collectionIds))
-          .pipe(
-            map((allCollections) => {
-              const shouldFilter = allowedCollections?.some(Boolean);
+        return this.collectionService.decryptedCollections$(userId).pipe(
+          getByIds(cipher.collectionIds),
+          map((allCollections) => {
+            const shouldFilter = allowedCollections?.some(Boolean);
 
-              const collections = shouldFilter
-                ? allCollections.filter((c) => allowedCollections?.includes(c.id as CollectionId))
-                : allCollections;
+            const collections = shouldFilter
+              ? allCollections.filter((c) => allowedCollections?.includes(c.id as CollectionId))
+              : allCollections;
 
-              return collections.some((collection) => collection.manage);
-            }),
-          );
+            return collections.some((collection) => collection.manage);
+          }),
+        );
       }),
     );
   }
