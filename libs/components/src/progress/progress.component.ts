@@ -1,22 +1,25 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
-type SizeTypes = "small" | "default" | "large";
-type BackgroundTypes = "danger" | "primary" | "success" | "warning";
+type ProgressSizeType = "small" | "default" | "large";
+type BackgroundType = "danger" | "primary" | "success" | "warning";
 
-const SizeClasses: Record<SizeTypes, string[]> = {
+const SizeClasses: Record<ProgressSizeType, string[]> = {
   small: ["tw-h-1"],
   default: ["tw-h-4"],
   large: ["tw-h-6"],
 };
 
-const BackgroundClasses: Record<BackgroundTypes, string[]> = {
+const BackgroundClasses: Record<BackgroundType, string[]> = {
   danger: ["tw-bg-danger-600"],
   primary: ["tw-bg-primary-600"],
   success: ["tw-bg-success-600"],
   warning: ["tw-bg-warning-600"],
 };
 
+/**
+ * Progress indicators may be used to visually indicate progress or to visually measure some other value, such as a password strength indicator.
+ */
 @Component({
   selector: "bit-progress",
   templateUrl: "./progress.component.html",
@@ -25,9 +28,9 @@ const BackgroundClasses: Record<BackgroundTypes, string[]> = {
 })
 export class ProgressComponent {
   @Input() barWidth = 0;
-  @Input() bgColor: BackgroundTypes = "primary";
+  @Input() bgColor: BackgroundType = "primary";
   @Input() showText = true;
-  @Input() size: SizeTypes = "default";
+  @Input() size: ProgressSizeType = "default";
   @Input() text?: string;
 
   get displayText() {
