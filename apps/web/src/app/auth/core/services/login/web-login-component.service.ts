@@ -98,7 +98,7 @@ export class WebLoginComponentService
       const enforcedPasswordPolicyOptions = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
           getUserId,
-          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
         ),
       );
 

@@ -177,13 +177,13 @@
               </bit-label>
             </bit-form-control>
           </ng-container>
-          <bit-form-field *ngIf="isExternalIdVisible$ | async">
+          <bit-form-field *ngIf="isExternalIdVisible">
             <bit-label>{{ "externalId" | i18n }}</bit-label>
             <input bitInput type="text" formControlName="externalId" />
             <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
           </bit-form-field>
 
-          <bit-form-field *ngIf="isSsoExternalIdVisible$ | async">
+          <bit-form-field *ngIf="isSsoExternalIdVisible">
             <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
             <input bitInput type="text" formControlName="ssoExternalId" />
             <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>

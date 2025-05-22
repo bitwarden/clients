@@ -157,27 +157,19 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(
-      map((isEnabled) => {
-        return !isEnabled || !!this.formGroup.get("externalId")?.value;
-      }),
-    );
+  get isExternalIdVisible(): boolean {
+    return !!this.formGroup.get("externalId")?.value;
+  }
 
-  protected isSsoExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(
-      map((isEnabled) => {
-        return isEnabled && !!this.formGroup.get("ssoExternalId")?.value;
-      }),
-    );
-
-  private destroy$ = new Subject<void>();
+  get isSsoExternalIdVisible(): boolean {
+    return !!this.formGroup.get("ssoExternalId")?.value;
+  }
 
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
   }
+
+  private destroy$ = new Subject<void>();
 
   isEditDialogParams(
     params: EditMemberDialogParams | AddMemberDialogParams,
