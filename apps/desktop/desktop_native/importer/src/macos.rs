@@ -123,6 +123,7 @@ impl MacCryptoService {
         }
     }
 
+    // TODO: remove this and use util::decrypt_aes_128_cbc
     fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
         if encrypted.len() < 3 {
             return Err(anyhow!(
@@ -135,6 +136,7 @@ impl MacCryptoService {
         Ok((std::str::from_utf8(version).unwrap(), password))
     }
 
+    // TODO: remove this and use util::decrypt_aes_128_cbc
     fn split_encrypted_string_and_validate<'a>(
         &self,
         encrypted: &'a [u8],
@@ -199,6 +201,7 @@ impl CryptoService for MacCryptoService {
     }
 }
 
+// TODO: remove this and use util::decrypt_aes_128_cbc
 fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
     let decryptor = cbc::Decryptor::<aes::Aes128>::new_from_slices(&key, &iv)?;
     let plaintext = decryptor
