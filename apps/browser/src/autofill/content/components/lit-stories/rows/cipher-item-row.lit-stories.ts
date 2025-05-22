@@ -3,30 +3,30 @@ import { Meta, StoryObj } from "@storybook/web-components";
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
-import { CipherItem, CipherItemProps } from "../../cipher/cipher-item";
+import { CipherItemRow, CipherItemRowProps } from "../../rows/cipher-item-row";
 import { mockCiphers, mockI18n } from "../mock-data";
 
 export default {
-  title: "Components/Ciphers/Cipher Item",
+  title: "Components/Rows/Cipher Item Row",
   argTypes: {
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
-    handleAction: { control: false },
     notificationType: {
       control: "select",
-      options: [NotificationTypes.Change, NotificationTypes.Add],
+      options: [...Object.values(NotificationTypes)],
     },
+    handleAction: { control: false },
   },
   args: {
     cipher: mockCiphers[0],
-    theme: ThemeTypes.Light,
-    notificationType: NotificationTypes.Change,
-    handleAction: () => alert("Clicked"),
     i18n: mockI18n,
+    notificationType: NotificationTypes.Change,
+    theme: ThemeTypes.Light,
+    handleAction: () => window.alert("clicked!"),
   },
-} as Meta<CipherItemProps>;
+} as Meta<CipherItemRowProps>;
 
-const Template = (args: CipherItemProps) => CipherItem({ ...args });
+const Template = (props: CipherItemRowProps) => CipherItemRow({ ...props });
 
-export const Default: StoryObj<CipherItemProps> = {
+export const Default: StoryObj<CipherItemRowProps> = {
   render: Template,
 };

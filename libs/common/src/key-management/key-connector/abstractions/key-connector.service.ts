@@ -1,22 +1,25 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { Observable } from "rxjs";
+
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { UserId } from "../../../types/guid";
 
 export abstract class KeyConnectorService {
-  setMasterKeyFromUrl: (url: string, userId: UserId) => Promise<void>;
-  getManagingOrganization: (userId?: UserId) => Promise<Organization>;
-  getUsesKeyConnector: (userId: UserId) => Promise<boolean>;
-  migrateUser: (userId?: UserId) => Promise<void>;
-  userNeedsMigration: (userId: UserId) => Promise<boolean>;
-  convertNewSsoUserToKeyConnector: (
+  abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;
+
+  abstract getManagingOrganization(userId: UserId): Promise<Organization>;
+
+  abstract getUsesKeyConnector(userId: UserId): Promise<boolean>;
+
+  abstract migrateUser(keyConnectorUrl: string, userId: UserId): Promise<void>;
+
+  abstract convertNewSsoUserToKeyConnector(
     tokenResponse: IdentityTokenResponse,
     orgId: string,
     userId: UserId,
-  ) => Promise<void>;
-  setUsesKeyConnector: (enabled: boolean, userId: UserId) => Promise<void>;
-  setConvertAccountRequired: (status: boolean, userId?: UserId) => Promise<void>;
-  getConvertAccountRequired: () => Promise<boolean>;
-  removeConvertAccountRequired: (userId?: UserId) => Promise<void>;
+  ): Promise<void>;
+
+  abstract setUsesKeyConnector(enabled: boolean, userId: UserId): Promise<void>;
+
+  abstract convertAccountRequired$: Observable<boolean>;
 }

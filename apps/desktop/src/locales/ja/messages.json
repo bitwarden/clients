@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "新しいアイテムの追加"
   },
-  "addNewFolder": {
-    "message": "新規フォルダーの追加"
-  },
   "view": {
     "message": "表示"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「ファイルパスワード」と「ファイルパスワードの確認」が一致しません。"
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "アクセシビリティクッキーを読み込む"
-  },
-  "registerAccessibilityUser": {
-    "message": "アクセシビリティユーザーとして登録する",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "以下のメールに送信されたリンクをコピーして貼り付けてください"
-  },
-  "enterhCaptchaUrl": {
-    "message": "hCaptcha のアクセシビリティクッキーを読み込むための URL を入力してください",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha URL が必要です",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "無効な URL"
-  },
   "done": {
     "message": "完了"
-  },
-  "accessibilityCookieSaved": {
-    "message": "アクセシビリティクッキーを保存しました！"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "アクセシビリティクッキーが保存されていません"
   },
   "warning": {
     "message": "警告",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "生体認証によるロック解除は、不明な理由により現在利用できません。"
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "認可"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "移動"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

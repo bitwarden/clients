@@ -9,7 +9,7 @@
     "message": "Aplicațiile critice"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "Nicio aplicație critică în pericol"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
@@ -18,7 +18,7 @@
     "message": "Risk Insights"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "Risc Parola"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -33,19 +33,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Membri notificați"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Revocare utilizatori"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Restabilire utilizatori"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Nu se poate restaura accesul organizației"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Toate aplicațiile ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -87,31 +87,31 @@
     "message": "As users save logins, applications appear here, showing any at-risk passwords. Mark critical apps and notify users to update passwords."
   },
   "noCriticalAppsTitle": {
-    "message": "You haven't marked any applications as a Critical"
+    "message": "Nu ai marcat nicio aplicație drept critică"
   },
   "noCriticalAppsDescription": {
     "message": "Select your most critical applications to discover at-risk passwords, and notify users to change those passwords."
   },
   "markCriticalApps": {
-    "message": "Mark critical apps"
+    "message": "Marchează aplicațiile critice"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "Marchează aplicația drept critică"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Aplicații marcate drept critice"
   },
   "application": {
-    "message": "Application"
+    "message": "Aplicație"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "Solicită modificarea parolei"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "Total parole"
   },
   "searchApps": {
     "message": "Search applications"
@@ -140,8 +140,14 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
+  },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
@@ -152,14 +158,23 @@
       }
     }
   },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
   "totalMembers": {
-    "message": "Total members"
+    "message": "Total membri"
   },
   "atRiskApplications": {
-    "message": "At-risk applications"
+    "message": "Aplicații cu risc"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "Toate aplicațiile"
   },
   "unmarkAsCriticalApp": {
     "message": "Unmark as critical app"
@@ -205,10 +220,10 @@
     "message": "Note"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Notă privată"
   },
   "note": {
-    "message": "Note"
+    "message": "Notă"
   },
   "customFields": {
     "message": "Câmpuri particularizate"
@@ -217,22 +232,22 @@
     "message": "Numele titularului cardului"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Date de logare"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Detalii personale"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identificare"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Informații contact"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Detalii card"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Detalii $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -241,16 +256,16 @@
     }
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Istoricul articolului"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Cheie de autentificare"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Opțiuni de completare automată"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Site web (URI)"
   },
   "websiteUriCount": {
     "message": "Website (URI) $COUNT$",
@@ -263,13 +278,13 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Site web adăugat"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Adăugare site"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Ștergere site"
   },
   "defaultLabel": {
     "message": "Default ($VALUE$)",
@@ -300,7 +315,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Completare automată la încărcarea paginii?"
   },
   "number": {
     "message": "Număr card"
@@ -315,7 +330,7 @@
     "message": "Cod de securitate (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "Cod de securitate (CVV)"
   },
   "identityName": {
     "message": "Numele identității"
@@ -393,10 +408,10 @@
     "message": "Dr."
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Card expirat"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Dacă l-ați reînnoit, actualizați informațiile cardului"
   },
   "expirationMonth": {
     "message": "Luna expirării"
@@ -442,10 +457,10 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Tipul câmpului"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Eticheta câmp"
   },
   "remove": {
     "message": "Ștergere"
@@ -458,7 +473,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Tu",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -481,10 +496,10 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Folder nou"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Numele folderului"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
@@ -536,7 +551,7 @@
     "message": "Generare parolă"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generare parolă"
   },
   "checkPassword": {
     "message": "Verificați dacă parola a fost dezvăluită."
@@ -591,11 +606,11 @@
     "description": "Search Login type"
   },
   "searchCard": {
-    "message": "Search cards",
+    "message": "Căutare carduri",
     "description": "Search Card type"
   },
   "searchIdentity": {
-    "message": "Search identities",
+    "message": "Caută identități",
     "description": "Search Identity type"
   },
   "searchSecureNote": {
@@ -609,7 +624,7 @@
     "message": "Caută în seiful meu"
   },
   "searchOrganization": {
-    "message": "Cauta organizatie"
+    "message": "Caută organizație"
   },
   "searchMembers": {
     "message": "Caută membri"
@@ -639,7 +654,7 @@
     "message": "Notă securizată"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Cheie SSH"
   },
   "typeLoginPlural": {
     "message": "Conectări"
@@ -672,7 +687,7 @@
     "message": "Numele complet"
   },
   "address": {
-    "message": "Address"
+    "message": "Adresă"
   },
   "address1": {
     "message": "Adresă 1"
@@ -744,7 +759,7 @@
     }
   },
   "new": {
-    "message": "New",
+    "message": "Nou",
     "description": "for adding new items"
   },
   "item": {
@@ -835,22 +850,22 @@
     "message": "Copy phone"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Copiere e-mail"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copiază firma"
   },
   "copySSN": {
     "message": "Copy Social Security number"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiați numărul pașaportului"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiați numărul de licență"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copiați numele"
   },
   "me": {
     "message": "Eu"
@@ -871,7 +886,7 @@
     "message": "Articolele seifului"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Filtru"
   },
   "deleteSelected": {
     "message": "Ștergere selecție"
@@ -983,37 +998,37 @@
     "message": "Dosar șters"
   },
   "editInfo": {
-    "message": "Edit info"
+    "message": "Editează info"
   },
   "access": {
-    "message": "Access"
+    "message": "Acces"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Nivel de acces"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Accesare"
   },
   "loggedOut": {
     "message": "Deconectat"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Ai fost deconectat din contul tău."
   },
   "loginExpired": {
     "message": "Sesiunea de autentificare a expirat."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reporniți înregistrarea"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Link expirat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Vă rugăm să reporniți înregistrarea sau să încercați să vă conectați."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Este posibil să aveți deja un cont"
   },
   "logOutConfirmation": {
     "message": "Sigur doriți să vă deconectați?"
@@ -1031,7 +1046,7 @@
     "message": "Nu"
   },
   "location": {
-    "message": "Location"
+    "message": "Locație"
   },
   "loginOrCreateNewAccount": {
     "message": "Autentificați-vă sau creați un cont nou pentru a accesa seiful dvs. securizat."
@@ -1043,31 +1058,31 @@
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Selectezi o altă opțiune?"
   },
   "loginWithMasterPassword": {
     "message": "Autentificați-vă cu parola principală"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Citire parolă..."
   },
   "readingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "Păstrează această fereastră deschisă și urmează instrucțiunile din browser-ul tău."
   },
   "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+    "message": "Folosiți o metodă diferită de autentificare"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Autentificare cu parolă"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Autentificare unică"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bine ați revenit!"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Invalid Passkey. Please try again."
+    "message": "Parolă nevalidă. Vă rugăm să încercați din nou."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
     "message": "2FA for passkeys is not supported. Update the app to log in."
@@ -1076,7 +1091,7 @@
     "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
   },
   "newPasskey": {
-    "message": "New passkey"
+    "message": "Cheie parolă nouă"
   },
   "learnMoreAboutPasswordless": {
     "message": "Learn more about passwordless"
@@ -1091,31 +1106,31 @@
     "message": "Error creating passkey"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "A apărut o eroare la crearea parolei."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "Parola a fost creata!"
   },
   "customPasskeyNameInfo": {
-    "message": "Name your passkey to help you identify it."
+    "message": "Numiți cheia de acces pentru a vă ajuta să o identificați."
   },
   "useForVaultEncryption": {
-    "message": "Use for vault encryption"
+    "message": "Utilizat pentru criptarea seifului"
   },
   "useForVaultEncryptionInfo": {
     "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
   },
   "useForVaultEncryptionErrorReadingPasskey": {
-    "message": "Error reading passkey. Try again or uncheck this option."
+    "message": "Eroare la citirea parolei. Încercați din nou sau debifați această opțiune."
   },
   "encryptionNotSupported": {
-    "message": "Encryption not supported"
+    "message": "Criptare neacceptată"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Configurare criptare"
   },
   "usedForEncryption": {
-    "message": "Used for encryption"
+    "message": "Folosit pentru criptare"
   },
   "loginWithPasskeyEnabled": {
     "message": "Log in with passkey turned on"
@@ -1130,10 +1145,10 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Parolă eliminată"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Înlăturare parolă"
   },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
@@ -1142,16 +1157,16 @@
     "message": "Passkey limit reached. Remove a passkey to add another."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Încercați din nou"
   },
   "createAccount": {
     "message": "Creare cont"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Nou pe Bitwarden?"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Setați o parolă puternică"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -1169,10 +1184,10 @@
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Introdu codul trimis la emailul tău"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introdu codul din aplicația de autentificare"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -1184,13 +1199,13 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verificați identitatea"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Dispozitiv nerecunoscut. Introdu codul trimis pe email pentru a verifica identitatea."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuă autentificarea"
   },
   "whatIsADevice": {
     "message": "What is a device?"
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "După actualizarea cheii de criptare, trebuie să vă reconectați în toate aplicațiile Bitwarden pe care le utilizați în prezent (cum ar fi aplicația mobilă sau extensiile browserului). Faptul de a nu vă deconecta și reconecta (care descarcă noua cheie de criptare) poate duce la corupția datelor. Vom încerca să vă deconectăm automat, însă ar putea fi întârziat."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Orice export criptat pe care l-ați salvat va deveni, de asemenea, nevalid."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Abonament"
@@ -10595,5 +10610,8 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

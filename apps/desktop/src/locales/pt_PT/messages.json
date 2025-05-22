@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Novo item"
   },
-  "addNewFolder": {
-    "message": "Nova pasta"
-  },
   "view": {
     "message": "Ver"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Palavra-passe do ficheiro\" e \"Confirmar palavra-passe do ficheiro\" não correspondem."
   },
-  "hCaptchaUrl": {
-    "message": "URL do hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Carregar cookie de acessibilidade"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registar como utilizador de acessibilidade em",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copie e cole o link enviado para o seu e-mail abaixo"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Introduza o URL para carregar o cookie de acessibilidade do hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "É necessário o URL do hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "URL inválido"
-  },
   "done": {
     "message": "Concluído"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie de acessibilidade guardado!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Nenhum cookie de acessibilidade guardado"
   },
   "warning": {
     "message": "AVISO",
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "O desbloqueio biométrico está atualmente indisponível por um motivo desconhecido."
   },
+  "itemDetails": {
+    "message": "Detalhes do item"
+  },
+  "itemName": {
+    "message": "Nome do item"
+  },
+  "loginCredentials": {
+    "message": "Credenciais de início de sessão"
+  },
+  "additionalOptions": {
+    "message": "Opções adicionais"
+  },
+  "itemHistory": {
+    "message": "Histórico do item"
+  },
+  "lastEdited": {
+    "message": "Última edição"
+  },
+  "upload": {
+    "message": "Carregar"
+  },
   "authorize": {
     "message": "Autorizar"
   },
@@ -3718,6 +3705,15 @@
   },
   "move": {
     "message": "Mover"
+  },
+  "newFolder": {
+    "message": "Nova pasta"
+  },
+  "folderName": {
+    "message": "Nome da pasta"
+  },
+  "folderHintText": {
+    "message": "Crie uma subpasta adicionando o nome da pasta principal seguido de um \"/\". Exemplo: Redes Sociais/Fóruns"
   },
   "newLoginNudgeTitle": {
     "message": "Poupe tempo com o preenchimento automático"

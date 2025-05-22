@@ -292,8 +292,9 @@ export class SendService implements InternalSendServiceAbstraction {
   ) {
     const requests = await Promise.all(
       sends.map(async (send) => {
-        const sendKey = await this.encryptService.unwrapSymmetricKey(send.key, originalUserKey);
-        send.key = await this.encryptService.wrapSymmetricKey(sendKey, rotateUserKey);
+        // Send key is not a key but a 16 byte seed used to derive the key
+        const sendKey = await this.encryptService.decryptBytes(send.key, originalUserKey);
+        send.key = await this.encryptService.encryptBytes(sendKey, rotateUserKey);
         return new SendWithIdRequest(send);
       }),
     );
