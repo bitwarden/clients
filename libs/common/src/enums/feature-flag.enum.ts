@@ -16,6 +16,7 @@ export enum FeatureFlag {
   SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
+  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
 
   /* Auth */
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
@@ -87,6 +88,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SsoExternalIdVisibility]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
+  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
