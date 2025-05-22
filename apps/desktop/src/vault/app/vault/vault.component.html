@@ -15,7 +15,7 @@
     *ngIf="cipherId && action === 'view'"
     [cipherId]="cipherId"
     [collectionId]="activeFilter?.selectedCollectionId"
-    [passwordPrompted]="cipherRepromptId === cipherId"
+    [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     (onCloneCipher)="cloneCipherWithoutPasswordPrompt($event)"
     (onEditCipher)="editCipher($event)"
     (onViewCipherPasswordHistory)="viewCipherPasswordHistory($event)"
