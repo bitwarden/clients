@@ -5,13 +5,10 @@ import { Directive, ElementRef, EventEmitter, Output, OnDestroy } from "@angular
   standalone: true,
 })
 export class ResizeObserverDirective implements OnDestroy {
-  private entriesMap = new WeakMap();
-
   private observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
-      if (this.entriesMap.has(entry.target)) {
-        const comp = this.entriesMap.get(entry.target);
-        comp._resizeCallback(entry);
+      if (entry.target === this.el.nativeElement) {
+        this._resizeCallback(entry);
       }
     }
   });
@@ -20,9 +17,7 @@ export class ResizeObserverDirective implements OnDestroy {
   resize = new EventEmitter();
 
   constructor(private el: ElementRef) {
-    const target = this.el.nativeElement;
-    this.entriesMap.set(target, this);
-    this.observer.observe(target);
+    this.observer.observe(this.el.nativeElement);
   }
 
   _resizeCallback(entry: ResizeObserverEntry) {
@@ -30,8 +25,6 @@ export class ResizeObserverDirective implements OnDestroy {
   }
 
   ngOnDestroy() {
-    const target = this.el.nativeElement;
-    this.observer.unobserve(target);
-    this.entriesMap.delete(target);
+    this.observer.unobserve(this.el.nativeElement);
   }
 }
