@@ -12,6 +12,9 @@ use windows::Win32::Foundation::{LocalFree, HLOCAL};
 
 use crate::chromium::{CryptoService, LocalState};
 
+#[allow(dead_code)]
+mod util;
+
 //
 // Public API
 //
@@ -101,34 +104,6 @@ impl WindowsCryptoService {
     }
 }
 
-fn split_prefix(data: &[u8]) -> Result<(&[u8], &[u8])> {
-    if data.len() < 3 {
-        return Err(anyhow!(
-            "Data too short to contain a 3-byte prefix: {} bytes",
-            data.len()
-        ));
-    }
-    Ok((&data[..3], &data[3..]))
-}
-
-pub fn split_and_validate_version<'a>(
-    data: &'a [u8],
-    allowed_versions: &[&str],
-) -> Result<(&'a [u8], &'a [u8])> {
-    let (prefix, rest) = split_prefix(data)?;
-
-    // Convert prefix to &str for comparison
-    let prefix_str =
-        std::str::from_utf8(prefix).map_err(|e| anyhow!("Prefix is not valid UTF-8: {}", e))?;
-
-    // Check against the allowed list
-    if allowed_versions.iter().any(|&p| p == prefix_str) {
-        Ok((prefix, rest))
-    } else {
-        Err(anyhow!("Unsupported encryption version: {}", prefix_str))
-    }
-}
-
 impl CryptoService for WindowsCryptoService {
     fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
         if encrypted.is_empty() {
@@ -136,7 +111,7 @@ impl CryptoService for WindowsCryptoService {
         }
 
         // On Windows only v10 is supported at the moment
-        let (_, no_prefix) = split_and_validate_version(encrypted, &["v10"])?;
+        let (_, no_prefix) = util::split_encrypted_string_and_validate(encrypted, &["v10"])?;
 
         // v10 is already stripped; Windows Chrome uses AES-GCM: [12 bytes IV][ciphertext][16 bytes auth tag]
         const IV_SIZE: usize = 12;
