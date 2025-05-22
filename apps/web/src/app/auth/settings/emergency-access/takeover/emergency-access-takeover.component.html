@@ -4,13 +4,10 @@
       {{ "takeover" | i18n }}
       <small class="tw-text-muted" *ngIf="params.name">{{ params.name }}</small>
     </span>
-
     <div bitDialogContent>
       <bit-callout type="warning">{{ "loggedOutWarning" | i18n }}</bit-callout>
-
       <auth-password-callout [policy]="enforcedPolicyOptions" *ngIf="enforcedPolicyOptions">
       </auth-password-callout>
-
       <div class="tw-w-full tw-flex tw-gap-4">
         <div class="tw-relative tw-flex-1">
           <bit-form-field disableMargin class="tw-mb-2">
@@ -23,7 +20,6 @@
             />
             <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
           </bit-form-field>
-
           <app-password-strength
             [password]="takeoverForm.value.masterPassword"
             [email]="email"
@@ -32,7 +28,6 @@
           >
           </app-password-strength>
         </div>
-
         <div class="tw-relative tw-flex-1">
           <bit-form-field disableMargin class="tw-mb-2">
             <bit-label>{{ "confirmNewMasterPass" | i18n }}</bit-label>
@@ -47,7 +42,6 @@
         </div>
       </div>
     </div>
-
     <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="primary">
         {{ "save" | i18n }}

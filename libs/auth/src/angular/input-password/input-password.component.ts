@@ -624,7 +624,7 @@ export class InputPasswordComponent implements OnInit {
     );
   }
 
-  copy() {
+  protected copy() {
     const value = this.formGroup.value.newPassword;
     if (value == null) {
       return;
