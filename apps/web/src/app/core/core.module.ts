@@ -317,7 +317,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CollectionAdminService,
     useClass: DefaultCollectionAdminService,
-    deps: [ApiService, KeyServiceAbstraction, EncryptService, CollectionService],
+    deps: [ApiService, KeyServiceAbstraction, EncryptService, CollectionService, AccountService],
   }),
   safeProvider({
     provide: SdkLoadService,
