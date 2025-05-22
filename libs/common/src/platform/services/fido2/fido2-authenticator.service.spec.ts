@@ -36,8 +36,9 @@ type ParentWindowReference = string;
 const RpId = "bitwarden.com";
 
 describe("FidoAuthenticatorService", () => {
+  const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<Account | null>({
-    id: "testId" as UserId,
+    id: userId,
     email: "test@example.com",
     emailVerified: true,
     name: "Test User",
@@ -357,7 +358,7 @@ describe("FidoAuthenticatorService", () => {
         cipherService.decrypt.mockResolvedValue(cipher);
         cipherService.encrypt.mockImplementation(async (cipher) => {
           cipher.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
-          return {} as any;
+          return { cipher: {} as any as Cipher, encryptedFor: userId };
         });
         cipherService.createWithServer.mockImplementation(async ({ cipher }) => {
           cipher.id = cipherId;
