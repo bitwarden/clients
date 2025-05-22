@@ -287,7 +287,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return availableActions;
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId: UserId): Promise<void> {
     await this.keyService.clearPinKeys(userId);
   }
 
