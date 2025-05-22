@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 
-use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
 use anyhow::{anyhow, Result};
 use homedir::my_home;
 use pbkdf2::{hmac::Hmac, pbkdf2};
@@ -8,6 +7,8 @@ use security_framework::passwords::get_generic_password;
 use sha1::Sha1;
 
 use crate::chromium::{CryptoService, LocalState};
+
+mod util;
 
 //
 // Public API
@@ -123,33 +124,6 @@ impl MacCryptoService {
         }
     }
 
-    // TODO: remove this and use util::decrypt_aes_128_cbc
-    fn split_encrypted_string(encrypted: &[u8]) -> Result<(&str, &[u8])> {
-        if encrypted.len() < 3 {
-            return Err(anyhow!(
-                "Corrupted entry: invalid encrypted string length, expected at least 3 bytes, got {}",
-                encrypted.len()
-            ));
-        }
-
-        let (version, password) = encrypted.split_at(3);
-        Ok((std::str::from_utf8(version).unwrap(), password))
-    }
-
-    // TODO: remove this and use util::decrypt_aes_128_cbc
-    fn split_encrypted_string_and_validate<'a>(
-        &self,
-        encrypted: &'a [u8],
-        supported_versions: &[&str],
-    ) -> Result<(&'a str, &'a [u8])> {
-        let (version, password) = Self::split_encrypted_string(encrypted)?;
-        if !supported_versions.contains(&version) {
-            return Err(anyhow!("Unsupported encryption version: {}", version));
-        }
-
-        Ok((version, password))
-    }
-
     fn get_master_key(&self) -> Result<Vec<u8>> {
         let master_password = self.get_master_password()?;
         let key = self.derive_key(&master_password)?;
@@ -186,7 +160,7 @@ impl CryptoService for MacCryptoService {
         }
 
         // On macOS only v10 is supported
-        let (_, no_prefix) = self.split_encrypted_string_and_validate(encrypted, &["v10"])?;
+        let (_, no_prefix) = util::split_encrypted_string_and_validate(encrypted, &["v10"])?;
 
         // This might bring up the admin password prompt
         if self.master_key.is_none() {
@@ -194,18 +168,9 @@ impl CryptoService for MacCryptoService {
         }
 
         let plaintext =
-            decrypt_aes_128_cbc(&self.master_key.as_ref().unwrap(), &Self::IV, no_prefix)
+            util::decrypt_aes_128_cbc(&self.master_key.as_ref().unwrap(), &Self::IV, no_prefix)
                 .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
 
         String::from_utf8(plaintext).map_err(|e| anyhow!("Invalid UTF-8: {}", e))
     }
-}
-
-// TODO: remove this and use util::decrypt_aes_128_cbc
-fn decrypt_aes_128_cbc(key: &[u8], iv: &[u8], ciphertext: &[u8]) -> Result<Vec<u8>> {
-    let decryptor = cbc::Decryptor::<aes::Aes128>::new_from_slices(&key, &iv)?;
-    let plaintext = decryptor
-        .decrypt_padded_vec_mut::<Pkcs7>(ciphertext)
-        .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
-    Ok(plaintext)
 }
