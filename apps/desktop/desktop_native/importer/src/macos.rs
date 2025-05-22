@@ -1,12 +1,9 @@
-use std::path::PathBuf;
-
 use anyhow::{anyhow, Result};
-use homedir::my_home;
 use pbkdf2::{hmac::Hmac, pbkdf2};
 use security_framework::passwords::get_generic_password;
 use sha1::Sha1;
 
-use crate::chromium::{CryptoService, LocalState};
+use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
 mod util;
 
@@ -14,43 +11,31 @@ mod util;
 // Public API
 //
 
-pub fn get_supported_browsers() -> Vec<String> {
-    SUPPORTED_BROWSERS
-        .iter()
-        .map(|b| b.name.to_string())
-        .collect()
-}
-
-pub fn get_browser_settings_directory(browser_name: &String) -> Result<PathBuf> {
-    let config = find_browser_config(&browser_name);
-    if config.is_none() {
-        return Err(anyhow!("Unsupported browser: {}", browser_name));
-    }
-    let config = config.unwrap();
-
-    let path = my_home()
-        .map_err(|_| anyhow!("Home directory not found"))?
-        .ok_or_else(|| anyhow!("Home directory not found"))?;
-
-    let path = path
-        .join("Library/Application Support")
-        .join(config.company)
-        .join(config.product);
-    Ok(path)
-}
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 3] = [
+    BrowserConfig {
+        name: "Chrome",
+        data_dir: "Library/Application Support/Google/Chrome",
+    },
+    BrowserConfig {
+        name: "Edge",
+        data_dir: "Library/Application Support/Microsoft/Edge",
+    },
+    BrowserConfig {
+        name: "Brave",
+        data_dir: "Library/Application Support/BraveSoftware/Brave-Browser",
+    },
+];
 
 pub fn get_crypto_service(
     browser_name: &String,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
-    let config = find_browser_config(&browser_name);
-    if config.is_none() {
-        return Err(anyhow!("Unsupported browser: {}", browser_name));
-    }
-    let config = config.unwrap();
+    let config = KEYCHAIN_CONFIG
+        .iter()
+        .find(|b| b.browser == browser_name)
+        .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
-    let result = MacCryptoService::new(config);
-    Ok(Box::new(result))
+    Ok(Box::new(MacCryptoService::new(config)))
 }
 
 //
@@ -58,52 +43,29 @@ pub fn get_crypto_service(
 //
 
 #[derive(Debug)]
-struct BrowserConfig {
-    name: &'static str,
-    company: &'static str,
-    product: &'static str,
-    keychain_config: KeychainConfig,
-}
-
-#[derive(Debug)]
 struct KeychainConfig {
+    browser: &'static str,
     service: &'static str,
     account: &'static str,
 }
 
-const SUPPORTED_BROWSERS: [BrowserConfig; 3] = [
-    BrowserConfig {
-        name: "Chrome",
-        company: "Google",
-        product: "Chrome",
-        keychain_config: KeychainConfig {
-            service: "Chrome Safe Storage",
-            account: "Chrome",
-        },
+const KEYCHAIN_CONFIG: [KeychainConfig; 3] = [
+    KeychainConfig {
+        browser: "Chrome",
+        service: "Chrome Safe Storage",
+        account: "Chrome",
     },
-    BrowserConfig {
-        name: "Edge",
-        company: "Microsoft",
-        product: "Edge",
-        keychain_config: KeychainConfig {
-            service: "Microsoft Edge Safe Storage",
-            account: "Microsoft Edge",
-        },
+    KeychainConfig {
+        browser: "Edge",
+        service: "Microsoft Edge Safe Storage",
+        account: "Microsoft Edge",
     },
-    BrowserConfig {
-        name: "Brave",
-        company: "BraveSoftware",
-        product: "Brave-Browser",
-        keychain_config: KeychainConfig {
-            service: "Brave Safe Storage",
-            account: "Brave",
-        },
+    KeychainConfig {
+        browser: "Brave",
+        service: "Brave Safe Storage",
+        account: "Brave",
     },
 ];
-
-fn find_browser_config(browser_name: &str) -> Option<&'static BrowserConfig> {
-    SUPPORTED_BROWSERS.iter().find(|b| b.name == browser_name)
-}
 
 //
 // CryptoService
@@ -111,13 +73,13 @@ fn find_browser_config(browser_name: &str) -> Option<&'static BrowserConfig> {
 
 struct MacCryptoService {
     master_key: Option<Vec<u8>>,
-    config: &'static BrowserConfig,
+    config: &'static KeychainConfig,
 }
 
 impl MacCryptoService {
     const IV: [u8; 16] = [0x20; 16]; // 16 bytes of 0x20 (space character)
 
-    fn new(config: &'static BrowserConfig) -> Self {
+    fn new(config: &'static KeychainConfig) -> Self {
         Self {
             master_key: None,
             config: config,
@@ -131,11 +93,8 @@ impl MacCryptoService {
     }
 
     fn get_master_password(&self) -> Result<Vec<u8>> {
-        let password = get_generic_password(
-            self.config.keychain_config.service,
-            self.config.keychain_config.account,
-        )
-        .map_err(|e| anyhow!("Failed to get password from keychain: {}", e))?;
+        let password = get_generic_password(self.config.service, self.config.account)
+            .map_err(|e| anyhow!("Failed to get password from keychain: {}", e))?;
 
         Ok(password)
     }

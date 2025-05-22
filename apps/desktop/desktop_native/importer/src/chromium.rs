@@ -1,7 +1,9 @@
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
 use hex::decode;
+use homedir::my_home;
 use rusqlite::{params, Connection};
 
 // Platform-specific code
@@ -48,15 +50,12 @@ pub enum LoginImportResult {
 }
 
 pub fn get_installed_browsers() -> Result<Vec<String>> {
-    let supported_browsers = platform::get_supported_browsers();
-    let mut browsers = Vec::with_capacity(supported_browsers.len());
+    let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
-    for browser in supported_browsers {
-        let browser_dir = platform::get_browser_settings_directory(&browser)
-            .map_err(|e| anyhow!("Failed to get browser settings directory: {}", e))?;
-
-        if browser_dir.exists() {
-            browsers.push(browser);
+    for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
+        let data_dir = get_browser_data_dir(config)?;
+        if data_dir.exists() {
+            browsers.push((*browser).to_string());
         }
     }
 
@@ -64,37 +63,21 @@ pub fn get_installed_browsers() -> Result<Vec<String>> {
 }
 
 pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
-    let browser_dir = platform::get_browser_settings_directory(browser_name)
-        .map_err(|e| anyhow!("Failed to get browser settings directory: {}", e))?;
-
-    if !browser_dir.exists() {
-        return Err(anyhow!(
-            "Browser user data directory '{}' not found",
-            browser_dir.display()
-        ));
-    }
-
-    let local_state =
-        load_local_state(&browser_dir).map_err(|e| anyhow!("Failed to load local state: {}", e))?;
-
+    let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
 
 pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<LoginImportResult>> {
-    let browser_dir = platform::get_browser_settings_directory(browser_name)
-        .map_err(|e| anyhow!("Failed to get browser settings directory: {}", e))?;
-
-    let local_state =
-        load_local_state(&browser_dir).map_err(|e| anyhow!("Failed to load local state: {}", e))?;
+    let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
-    let local_logins = get_logins(&browser_dir, &profile_id, "Login Data")
+    let local_logins = get_logins(&data_dir, &profile_id, "Login Data")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // This is not available in all browsers, but there's no harm in trying. If the file doesn't exist we just get an empty vector.
-    let account_logins = get_logins(&browser_dir, &profile_id, "Login Data For Account")
+    let account_logins = get_logins(&data_dir, &profile_id, "Login Data For Account")
         .map_err(|e| anyhow!("Failed to query logins: {}", e))?;
 
     // TODO: Do we need a better merge strategy? Maybe ignore duplicates at least?
@@ -114,6 +97,29 @@ pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<L
 //
 // Private
 //
+
+#[derive(Debug)]
+struct BrowserConfig {
+    name: &'static str,
+    data_dir: &'static str,
+}
+
+static SUPPORTED_BROWSER_MAP: LazyLock<
+    std::collections::HashMap<&'static str, &'static BrowserConfig>,
+> = LazyLock::new(|| {
+    platform::SUPPORTED_BROWSERS
+        .iter()
+        .map(|b| (b.name, b))
+        .collect::<std::collections::HashMap<_, _>>()
+});
+
+fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
+    let dir = my_home()
+        .map_err(|_| anyhow!("Home directory not found"))?
+        .ok_or_else(|| anyhow!("Home directory not found"))?
+        .join(config.data_dir);
+    Ok(dir)
+}
 
 //
 // CryptoService
@@ -146,6 +152,24 @@ struct OneProfile {
 struct OsCrypt {
     #[allow(dead_code)]
     encrypted_key: Option<String>,
+}
+
+fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {
+    let config = SUPPORTED_BROWSER_MAP
+        .get(browser_name.as_str())
+        .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
+
+    let data_dir = get_browser_data_dir(config)?;
+    if !data_dir.exists() {
+        return Err(anyhow!(
+            "Browser user data directory '{}' not found",
+            data_dir.display()
+        ));
+    }
+
+    let local_state = load_local_state(&data_dir)?;
+
+    Ok((data_dir, local_state))
 }
 
 fn load_local_state(browser_dir: &PathBuf) -> Result<LocalState> {
