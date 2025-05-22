@@ -7,6 +7,10 @@ import { ResizeObserverDirective } from "../resize-observer";
 
 import { StepComponent } from "./step.component";
 
+/**
+ * The `<bit-stepper>` component extends the
+ * [Angular CdkStepper](https://material.angular.io/cdk/stepper/api#CdkStepper) component
+ */
 @Component({
   selector: "bit-stepper",
   templateUrl: "stepper.component.html",
