@@ -14,7 +14,6 @@ base64 = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 hex = { workspace = true }
 homedir = { workspace = true }
-oo7 = { workspace = true }
 pbkdf2 = { workspace = true }
 rand = { workspace = true }
 rusqlite = { workspace = true, features = ["bundled"] }
@@ -30,4 +29,4 @@ winapi = { workspace = true, features = ["dpapi", "memoryapi"] }
 windows = { workspace = true, features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-# TODO: Add Linux-specific dependencies
+oo7 = { workspace = true }
