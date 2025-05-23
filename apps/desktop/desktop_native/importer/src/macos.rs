@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
-use pbkdf2::{hmac::Hmac, pbkdf2};
+use async_trait::async_trait;
 use security_framework::passwords::get_generic_password;
-use sha1::Sha1;
 
 use crate::chromium::{BrowserConfig, CryptoService, LocalState};
 
@@ -67,6 +66,8 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
     },
 ];
 
+const IV: [u8; 16] = [0x20; 16]; // 16 bytes of 0x20 (space character)
+
 //
 // CryptoService
 //
@@ -77,43 +78,17 @@ struct MacCryptoService {
 }
 
 impl MacCryptoService {
-    const IV: [u8; 16] = [0x20; 16]; // 16 bytes of 0x20 (space character)
-
     fn new(config: &'static KeychainConfig) -> Self {
         Self {
             config: config,
             master_key: None,
         }
     }
-
-    fn get_master_key(&self) -> Result<Vec<u8>> {
-        let master_password = self.get_master_password()?;
-        let key = self.derive_key(&master_password)?;
-        Ok(key)
-    }
-
-    fn get_master_password(&self) -> Result<Vec<u8>> {
-        let password = get_generic_password(self.config.service, self.config.account)
-            .map_err(|e| anyhow!("Failed to get password from keychain: {}", e))?;
-
-        Ok(password)
-    }
-
-    fn derive_key(&self, master_password: &[u8]) -> Result<Vec<u8>> {
-        let iterations = 1003;
-        let key_length = 16;
-        let salt = b"saltysalt";
-
-        let mut key = vec![0u8; key_length];
-        pbkdf2::<Hmac<Sha1>>(master_password, salt, iterations, &mut key)
-            .map_err(|e| anyhow!("Failed to derive key: {}", e))?;
-
-        Ok(key)
-    }
 }
 
+#[async_trait]
 impl CryptoService for MacCryptoService {
-    fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
+    async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
         if encrypted.is_empty() {
             return Ok(String::new());
         }
@@ -123,13 +98,26 @@ impl CryptoService for MacCryptoService {
 
         // This might bring up the admin password prompt
         if self.master_key.is_none() {
-            self.master_key = Some(self.get_master_key()?);
+            self.master_key = Some(get_master_key(self.config.service, self.config.account)?);
         }
 
         let plaintext =
-            util::decrypt_aes_128_cbc(&self.master_key.as_ref().unwrap(), &Self::IV, no_prefix)
+            util::decrypt_aes_128_cbc(&self.master_key.as_ref().unwrap(), &IV, no_prefix)
                 .map_err(|e| anyhow!("Failed to decrypt: {}", e))?;
 
         String::from_utf8(plaintext).map_err(|e| anyhow!("Invalid UTF-8: {}", e))
     }
+}
+
+fn get_master_key(service: &str, account: &str) -> Result<Vec<u8>> {
+    let master_password = get_master_password(service, account)?;
+    let key = util::derive_saltysalt(&master_password, 1003)?;
+    Ok(key)
+}
+
+fn get_master_password(service: &str, account: &str) -> Result<Vec<u8>> {
+    let password = get_generic_password(service, account)
+        .map_err(|e| anyhow!("Failed to get password from keychain: {}", e))?;
+
+    Ok(password)
 }
