@@ -49,7 +49,6 @@ import { PopupCipherView } from "../../views/popup-cipher.view";
     IconButtonModule,
     OrgIconDirective,
     TypographyModule,
-    DecryptionFailureDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

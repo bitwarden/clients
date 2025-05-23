@@ -13,7 +13,6 @@ import {
   IconButtonModule,
   DialogService,
 } from "@bitwarden/components";
-import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 export interface ApproveSshRequestParams {
   cipherName: string;
@@ -30,7 +29,6 @@ export interface ApproveSshRequestParams {
     DialogModule,
     CommonModule,
     JslibModule,
-    CipherFormGeneratorComponent,
     ButtonModule,
     IconButtonModule,
     ReactiveFormsModule,
