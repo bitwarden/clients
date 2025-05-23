@@ -24,15 +24,6 @@ const defaultIcon: Record<BannerType, string> = {
   * - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
   * - Avoid stacking multiple banners.
   * - Banners can contain a button or anchor that uses the `bitLink` directive with `linkType="secondary"`.
-  * 
-  * Example usage
-  * 
-  * ```html
-  * <bit-banner [bannerType]="info" (onClose)="yourCloseHandler($event)" [showClose]="true">
-  *   Your content goes here
-  *   <button bitLink linkType="secondary">Button text</button>
-  * </bit-banner>
-  * ```
  */
 @Component({
   selector: "bit-banner",
