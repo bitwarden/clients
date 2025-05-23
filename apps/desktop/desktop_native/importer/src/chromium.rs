@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::sync::LazyLock;
 
 use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use hex::decode;
 use homedir::my_home;
 use rusqlite::{params, Connection};
@@ -49,6 +50,7 @@ pub enum LoginImportResult {
     Failure(LoginImportFailure),
 }
 
+// TODO: Make thus async
 pub fn get_installed_browsers() -> Result<Vec<String>> {
     let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
 
@@ -62,12 +64,16 @@ pub fn get_installed_browsers() -> Result<Vec<String>> {
     Ok(browsers)
 }
 
+// TODO: Make thus async
 pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
 
-pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<LoginImportResult>> {
+pub async fn import_logins(
+    browser_name: &String,
+    profile_id: &String,
+) -> Result<Vec<LoginImportResult>> {
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
@@ -89,7 +95,7 @@ pub fn import_logins(browser_name: &String, profile_id: &String) -> Result<Vec<L
         .chain(account_logins.into_iter())
         .collect::<Vec<_>>();
 
-    let results = decrypt_logins(all_logins, &mut crypto_service);
+    let results = decrypt_logins(all_logins, &mut crypto_service).await;
 
     Ok(results)
 }
@@ -125,8 +131,9 @@ fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
 // CryptoService
 //
 
-trait CryptoService {
-    fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
+#[async_trait]
+trait CryptoService: Send {
+    async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String>;
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -296,24 +303,30 @@ fn query_logins(db_path: &str) -> Result<Vec<EncryptedLogin>, rusqlite::Error> {
     Ok(logins)
 }
 
-fn decrypt_logins(
+async fn decrypt_logins(
     encrypted_logins: Vec<EncryptedLogin>,
     crypto_service: &mut Box<dyn CryptoService>,
 ) -> Vec<LoginImportResult> {
-    encrypted_logins
-        .into_iter()
-        .map(|encrypted_login| decrypt_login(encrypted_login, crypto_service))
-        .collect()
+    let mut results = Vec::with_capacity(encrypted_logins.len());
+    for encrypted_login in encrypted_logins {
+        let result = decrypt_login(encrypted_login, crypto_service).await;
+        results.push(result);
+    }
+    results
 }
 
-fn decrypt_login(
+async fn decrypt_login(
     encrypted_login: EncryptedLogin,
     crypto_service: &mut Box<dyn CryptoService>,
 ) -> LoginImportResult {
-    match crypto_service.decrypt_to_string(&encrypted_login.encrypted_password) {
+    let maybe_password = crypto_service
+        .decrypt_to_string(&encrypted_login.encrypted_password)
+        .await;
+    match maybe_password {
         Ok(password) => {
             let note = crypto_service
                 .decrypt_to_string(&encrypted_login.encrypted_note)
+                .await
                 .unwrap_or_default();
 
             LoginImportResult::Success(Login {

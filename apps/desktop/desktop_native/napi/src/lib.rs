@@ -960,6 +960,7 @@ pub mod chromium_importer {
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
         desktop_importer::chromium::import_logins(&browser, &profile_id)
+            .await
             .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
