@@ -54,12 +54,6 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   * 
   * > `NOTE:` The `disabled` state only applies to buttons.
   * 
-  * Example usage
-  * 
-  * ```html
-  * <span bitBadge variant="primary">Badge content here</span>
-  * ```
-  * 
 */
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
