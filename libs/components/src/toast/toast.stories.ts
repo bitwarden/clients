@@ -6,6 +6,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -75,11 +76,20 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width]">
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="success"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="info"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="warning"></bit-toast>
-        <bit-toast [title]="title" [message]="message" [progressWidth]="progressWidth" (onClose)="onClose()" variant="error"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet(args)}></bit-toast>
+    `,
+  }),
+};
+
+export const Variants: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
+        <bit-toast ${formatArgsForCodeSnippet(args)} variant="success"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet(args)} variant="info"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet(args)} variant="warning"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet(args)} variant="error"></bit-toast>
       </div>
     `,
   }),

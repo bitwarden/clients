@@ -4,6 +4,9 @@ import { Toast as BaseToastrComponent, ToastPackage, ToastrService } from "ngx-t
 
 import { ToastComponent } from "./toast.component";
 
+/**
+ * Toasts are ephemeral notifications. They most often communicate the result of a user action. Due to their ephemeral nature, long messages and critical alerts should not utilize toasts.
+ */
 @Component({
   template: `
     <bit-toast
