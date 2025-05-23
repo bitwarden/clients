@@ -25,10 +25,14 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 2] = [
 ];
 
 pub fn get_crypto_service(
-    _browser_name: &String,
+    browser_name: &String,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
-    let service = LinuxCryptoService::new(_local_state);
+    let config = KEYRING_CONFIG
+        .iter()
+        .find(|b| b.browser == browser_name)
+        .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
+    let service = LinuxCryptoService::new(config);
     Ok(Box::new(service))
 }
 
@@ -36,18 +40,39 @@ pub fn get_crypto_service(
 // Private
 //
 
+#[derive(Debug)]
+struct KeyringConfig {
+    browser: &'static str,
+    application_id: &'static str,
+}
+
+const KEYRING_CONFIG: [KeyringConfig; SUPPORTED_BROWSERS.len()] = [
+    KeyringConfig {
+        browser: "Chrome",
+        application_id: "chrome",
+    },
+    KeyringConfig {
+        browser: "Chromium",
+        application_id: "chromium",
+    },
+];
+
 const IV: [u8; 16] = [0x20; 16];
 const V10_KEY: [u8; 16] = [
     0xfd, 0x62, 0x1f, 0xe5, 0xa2, 0xb4, 0x02, 0x53, 0x9d, 0xfa, 0x14, 0x7c, 0xa9, 0x27, 0x27, 0x78,
 ];
 
 struct LinuxCryptoService {
+    config: &'static KeyringConfig,
     v11_key: Option<Vec<u8>>,
 }
 
 impl LinuxCryptoService {
-    fn new(_local_state: &LocalState) -> Self {
-        Self { v11_key: None }
+    fn new(config: &'static KeyringConfig) -> Self {
+        Self {
+            config,
+            v11_key: None,
+        }
     }
 
     fn decrypt_v10(&self, encrypted: &[u8]) -> Result<String> {
@@ -56,7 +81,7 @@ impl LinuxCryptoService {
 
     async fn decrypt_v11(&mut self, encrypted: &[u8]) -> Result<String> {
         if self.v11_key.is_none() {
-            let master_password = get_master_password("chrome").await?;
+            let master_password = get_master_password(self.config.application_id).await?;
             self.v11_key = Some(util::derive_saltysalt(&master_password, 1)?);
         }
 

@@ -49,7 +49,7 @@ struct KeychainConfig {
     account: &'static str,
 }
 
-const KEYCHAIN_CONFIG: [KeychainConfig; 3] = [
+const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
     KeychainConfig {
         browser: "Chrome",
         service: "Chrome Safe Storage",
@@ -72,8 +72,8 @@ const KEYCHAIN_CONFIG: [KeychainConfig; 3] = [
 //
 
 struct MacCryptoService {
-    master_key: Option<Vec<u8>>,
     config: &'static KeychainConfig,
+    master_key: Option<Vec<u8>>,
 }
 
 impl MacCryptoService {
@@ -81,8 +81,8 @@ impl MacCryptoService {
 
     fn new(config: &'static KeychainConfig) -> Self {
         Self {
-            master_key: None,
             config: config,
+            master_key: None,
         }
     }
 
