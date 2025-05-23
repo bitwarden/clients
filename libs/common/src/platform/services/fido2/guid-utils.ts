@@ -7,12 +7,14 @@
   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
+import { Utils } from "../../../platform/misc/utils";
+
 /** Private array used for optimization */
 const byteToHex = Array.from({ length: 256 }, (_, i) => (i + 0x100).toString(16).substring(1));
 
 /** Convert standard format (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX) UUID to raw 16 byte array. */
 export function guidToRawFormat(guid: string) {
-  if (!isValidGuid(guid)) {
+  if (!Utils.isGuid(guid)) {
     throw TypeError("GUID parameter is invalid");
   }
 
@@ -81,15 +83,13 @@ export function guidToStandardFormat(bufferSource: BufferSource) {
   ).toLowerCase();
 
   // Consistency check for valid UUID.  If this throws, it's likely due to one
-  // or more input array values not mapping to a hex octet (leading to "undefined" in the uuid)
-  if (!isValidGuid(guid)) {
+  // of the following:
+  // - One or more input array values don't map to a hex octet (leading to
+  // "undefined" in the uuid)
+  // - Invalid input values for the RFC `version` or `variant` fields
+  if (!Utils.isGuid(guid)) {
     throw TypeError("Converted GUID is invalid");
   }
 
   return guid;
-}
-
-// Perform format validation, without enforcing any variant restrictions as Utils.isGuid does
-function isValidGuid(guid: string): boolean {
-  return RegExp(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/, "i").test(guid);
 }
