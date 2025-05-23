@@ -111,7 +111,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: true,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
   /* Billing */

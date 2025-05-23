@@ -26,8 +26,14 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     if (!userId) {
       throw new Error("userId not found");
     }
-    if (!passwordInputResult.currentMasterKey || !passwordInputResult.currentServerMasterKeyHash) {
-      throw new Error("currentMasterKey or currentServerMasterKeyHash not found");
+    if (
+      !passwordInputResult.currentMasterKey ||
+      !passwordInputResult.currentServerMasterKeyHash ||
+      !passwordInputResult.newMasterKey ||
+      !passwordInputResult.newServerMasterKeyHash ||
+      passwordInputResult.newPasswordHint == null
+    ) {
+      throw new Error("invalid PasswordInputResult credentials, could not change password");
     }
 
     const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
