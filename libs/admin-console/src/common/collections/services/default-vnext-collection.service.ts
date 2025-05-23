@@ -1,11 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { combineLatest, filter, firstValueFrom, map } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+} from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { StateProvider, DerivedState } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -23,6 +32,15 @@ import {
 const NestingDelimiter = "/";
 
 export class DefaultvNextCollectionService implements vNextCollectionService {
+  private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
+
+  /**
+   * Used to force the collectionViews$ Observable to re-emit with a provided value.
+   * Required because shareReplay with refCount: false maintains last emission.
+   * Used during cleanup to force emit empty arrays, ensuring stale data isn't retained.
+   */
+  private forceCollectionViews: Record<UserId, Subject<CollectionView[]>> = {};
+
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -42,8 +60,10 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     );
   }
 
-  decryptedCollections$(userId: UserId) {
-    return this.decryptedState(userId).state$.pipe(map((collections) => collections ?? []));
+  decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
+    return (
+      this.collectionViews$(userId).pipe(shareReplay({ refCount: true, bufferSize: 1 })) ?? of([])
+    );
   }
 
   async upsert(toUpdate: CollectionData | CollectionData[], userId: UserId): Promise<void> {
@@ -74,14 +94,14 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
       throw new Error("User ID is required.");
     }
 
-    await this.decryptedState(userId).forceValue([]);
+    await this.setDecryptedCollections([], userId);
   }
 
   async clear(userId: UserId): Promise<void> {
+    this.forceCollectionViews[userId]?.next([]);
+
     await this.encryptedState(userId).update(() => null);
-    // This will propagate from the encrypted state update, but by doing it explicitly
-    // the promise doesn't resolve until the update is complete.
-    await this.decryptedState(userId).forceValue([]);
+    await this.clearDecryptedState(userId);
   }
 
   async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
@@ -100,14 +120,20 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     });
   }
 
-  async encrypt(model: CollectionView): Promise<Collection> {
+  async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
     if (model.organizationId == null) {
       throw new Error("Collection has no organization id.");
     }
-    const key = await this.keyService.getOrgKey(model.organizationId);
-    if (key == null) {
-      throw new Error("No key for this collection's organization.");
-    }
+
+    const key = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        filter((orgKeys) => !!orgKeys),
+        map((k) => {
+          return k[model.organizationId as OrganizationId];
+        }),
+      ),
+    );
+
     const collection = new Collection();
     collection.id = model.id;
     collection.organizationId = model.organizationId;
@@ -117,18 +143,23 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     return collection;
   }
 
-  // TODO: this should be private and orgKeys should be required.
-  // See https://bitwarden.atlassian.net/browse/PM-12375
-  async decryptMany(
+  private async decryptMany(
     collections: Collection[],
-    orgKeys?: Record<OrganizationId, OrgKey> | null,
+    orgKeys: Record<OrganizationId, OrgKey> | null,
+    userId: UserId,
   ): Promise<CollectionView[]> {
-    if (collections == null || collections.length === 0) {
+    const decrypted = await firstValueFrom(
+      this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY).state$,
+    );
+
+    if (decrypted?.length) {
+      return decrypted;
+    }
+
+    if (collections == null || collections.length === 0 || orgKeys === null) {
       return [];
     }
     const decCollections: CollectionView[] = [];
-
-    orgKeys ??= await firstValueFrom(this.keyService.activeUserOrgKeys$);
 
     const promises: Promise<any>[] = [];
     collections.forEach((collection) => {
@@ -138,8 +169,11 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
           .then((c) => decCollections.push(c)),
       );
     });
+
     await Promise.all(promises);
-    return decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
+    const sortedCollections = decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
+    await this.setDecryptedCollections(sortedCollections, userId);
+    return sortedCollections;
   }
 
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
@@ -174,21 +208,41 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
   }
 
   /**
-   * @returns a SingleUserState for decrypted collection data.
+   * Returns an Observable of decrypted Collection Views for the given userId.
+   * Uses collectionViewCache to maintain a single Observable instance per user,
+   * combining normal collection state updates with forced updates.
    */
-  private decryptedState(userId: UserId): DerivedState<CollectionView[]> {
-    const encryptedCollectionsWithKeys$ = combineLatest([
-      this.encryptedCollections$(userId),
-      // orgKeys$ can emit null during brief moments on unlock and lock/logout, we want to ignore those intermediate states
-      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => orgKeys != null)),
-    ]);
+  collectionViews$(userId: UserId): Observable<CollectionView[]> {
+    if (!this.collectionViewCache.has(userId)) {
+      if (!this.forceCollectionViews[userId]) {
+        this.forceCollectionViews[userId] = new Subject<CollectionView[]>();
+      }
 
-    return this.stateProvider.getDerived(
-      encryptedCollectionsWithKeys$,
-      DECRYPTED_COLLECTION_DATA_KEY,
-      {
-        collectionService: this,
-      },
-    );
+      const observable = merge(
+        this.forceCollectionViews[userId],
+        combineLatest([
+          this.encryptedCollections$(userId),
+          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+        ]).pipe(
+          switchMap(([collections, orgKeys]) => this.decryptMany(collections, orgKeys, userId)),
+        ),
+      ).pipe(shareReplay({ refCount: false, bufferSize: 1 }));
+
+      this.collectionViewCache.set(userId, observable);
+    }
+
+    return this.collectionViewCache.get(userId) ?? of([]);
+  }
+
+  /**
+   * Sets the decrypted collections state for a user.
+   * @param collections the decrypted collections
+   * @param userId the user id
+   */
+  private async setDecryptedCollections(
+    collections: CollectionView[],
+    userId: UserId,
+  ): Promise<void> {
+    await this.stateProvider.setUserState(DECRYPTED_COLLECTION_DATA_KEY, collections, userId);
   }
 }

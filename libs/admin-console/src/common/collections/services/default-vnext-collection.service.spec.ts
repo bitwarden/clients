@@ -20,7 +20,10 @@ import { KeyService } from "@bitwarden/key-management";
 import { CollectionData } from "../models";
 
 import { DefaultvNextCollectionService } from "./default-vnext-collection.service";
-import { ENCRYPTED_COLLECTION_DATA_KEY } from "./vnext-collection.state";
+import {
+  DECRYPTED_COLLECTION_DATA_KEY,
+  ENCRYPTED_COLLECTION_DATA_KEY,
+} from "./vnext-collection.state";
 
 describe("DefaultvNextCollectionService", () => {
   let keyService: MockProxy<KeyService>;
@@ -271,8 +274,10 @@ describe("DefaultvNextCollectionService", () => {
     expect(encryptedState.length).toEqual(2);
 
     // Decrypted state is cleared
-    const decryptedState = await firstValueFrom(collectionService.decryptedCollections$(userId));
-    expect(decryptedState.length).toEqual(0);
+    const decryptedCollections = await firstValueFrom(
+      stateProvider.getUserState$(DECRYPTED_COLLECTION_DATA_KEY, userId),
+    );
+    expect(decryptedCollections.length).toEqual(0);
   });
 
   it("clear", async () => {
@@ -286,8 +291,10 @@ describe("DefaultvNextCollectionService", () => {
     expect(encryptedState.length).toEqual(0);
 
     // Decrypted state is cleared
-    const decryptedState = await firstValueFrom(collectionService.decryptedCollections$(userId));
-    expect(decryptedState.length).toEqual(0);
+    const decryptedCollections = await firstValueFrom(
+      collectionService.decryptedCollections$(userId),
+    );
+    expect(decryptedCollections.length).toEqual(0);
   });
 
   describe("delete", () => {
@@ -339,7 +346,7 @@ const collectionDataFactory = (orgId?: OrganizationId) => {
   const collection = new CollectionData({} as any);
   collection.id = Utils.newGuid() as CollectionId;
   collection.organizationId = orgId ?? (Utils.newGuid() as OrganizationId);
-  collection.name = makeEncString("ENC_NAME_" + collection.id).encryptedString;
+  collection.name = makeEncString("ENC_NAME_" + collection.id).encryptedString ?? "";
 
   return collection;
 };
