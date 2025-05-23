@@ -28,7 +28,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -558,9 +558,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
     this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent?.refresh().catch(() => {});
-    this.collections = await firstValueFrom(
-      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
-    );
+
+    if (!this.activeUserId) {
+      throw new Error("No userId provided.");
+    }
+
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {

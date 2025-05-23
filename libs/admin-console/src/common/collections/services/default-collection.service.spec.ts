@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { first, firstValueFrom, lastValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import { first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,8 +19,8 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionData } from "../models";
 
-import { DefaultCollectionService } from "./default-collection.service";
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
+import { DefaultCollectionService } from "./default-collection.service";
 
 describe("DefaultCollectionService", () => {
   let keyService: MockProxy<KeyService>;

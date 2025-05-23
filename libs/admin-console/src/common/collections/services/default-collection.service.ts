@@ -138,7 +138,9 @@ export class DefaultCollectionService implements CollectionService {
     return collection;
   }
 
-  private async decryptMany(
+  // TODO: this should be private.
+  // See https://bitwarden.atlassian.net/browse/PM-12375
+  async decryptMany(
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey> | null,
     userId: UserId,

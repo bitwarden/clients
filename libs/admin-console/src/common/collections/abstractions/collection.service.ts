@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { CollectionData, Collection, CollectionView } from "../models";
@@ -19,6 +20,14 @@ export abstract class CollectionService {
    * Clear decrypted and encrypted state.
    * Used for logging out.
    */
+  /**
+   * @deprecated This method will soon be made private, use `decryptedCollections$` instead.
+   */
+  abstract decryptMany: (
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey> | null,
+    userId: UserId,
+  ) => Promise<CollectionView[]>;
   abstract clear: (userId: UserId) => Promise<void>;
   abstract delete: (id: CollectionId | CollectionId[], userId: UserId) => Promise<any>;
   abstract encrypt: (model: CollectionView, userId: UserId) => Promise<Collection>;

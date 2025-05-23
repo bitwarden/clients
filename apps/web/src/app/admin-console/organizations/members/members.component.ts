@@ -300,7 +300,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const collections = response.data.map(
       (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
     );
-    const decryptedCollections = await this.collectionService.decryptMany(collections);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+    const decryptedCollections = await this.collectionService.decryptMany(
+      collections,
+      orgKeys,
+      userId,
+    );
 
     decryptedCollections.forEach((c) => collectionMap.set(c.id, c.name));
 

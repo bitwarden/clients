@@ -8,6 +8,7 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
@@ -25,10 +26,13 @@ import {
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { GroupDetailsView, InternalGroupApiService as GroupService } from "../core";
 
@@ -100,6 +104,8 @@ export class GroupsComponent {
     private logService: LogService,
     private collectionService: CollectionService,
     private toastService: ToastService,
+    private keyService: KeyService,
+    private accountService: AccountService,
   ) {
     this.route.params
       .pipe(
@@ -248,7 +254,14 @@ export class GroupsComponent {
     const collections = response.data.map(
       (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
     );
-    const decryptedCollections = await this.collectionService.decryptMany(collections);
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+    const decryptedCollections = await this.collectionService.decryptMany(
+      collections,
+      orgKeys,
+      userId,
+    );
 
     // Convert to an object using collection Ids as keys for faster name lookups
     const collectionMap: Record<string, CollectionView> = {};

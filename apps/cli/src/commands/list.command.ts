@@ -1,4 +1,4 @@
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -20,6 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
@@ -41,6 +42,7 @@ export class ListCommand {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private keyService: KeyService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -177,13 +179,13 @@ export class ListCommand {
   }
 
   private async listOrganizationCollections(options: Options) {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (options.organizationId == null || options.organizationId === "") {
       return Response.badRequest("`organizationid` option is required.");
     }
     if (!Utils.isGuid(options.organizationId)) {
       return Response.badRequest("`" + options.organizationId + "` is not a GUID.");
     }
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     if (!userId) {
       return Response.badRequest("No user found.");
     }
@@ -206,7 +208,10 @@ export class ListCommand {
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
         .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
-      let decCollections = await this.collectionService.decryptMany(collections);
+      const orgKeys = await firstValueFrom(
+        this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+      );
+      let decCollections = await this.collectionService.decryptMany(collections, orgKeys, userId);
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }
