@@ -103,8 +103,8 @@ export const LongContent: Story = {
   args: {
     title: "Foo",
     message: [
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
-      "Lorem ipsum dolor sit amet, consectetur adipisci",
+      "Maecenas commodo posuere quam, vel malesuada nulla accumsan ac.",
+      "Pellentesque interdum ligula ante, eget bibendum ante lacinia congue.",
     ],
   },
 };
