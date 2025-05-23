@@ -11,19 +11,21 @@
     <title>Bitwarden WebAuthn Connector</title>
   </head>
 
-  <body style="background: transparent">
-    <div class="row justify-content-md-center mt-5">
-      <div>
-        <img src="../images/logo-dark@2x.png" class="logo mb-2" alt="Bitwarden" />
-        <p id="webauthn-header" class="lead text-center mx-4 mb-4"></p>
-        <picture>
-          <source srcset="../images/u2fkey-mobile.avif" type="image/avif" />
-          <source srcset="../images/u2fkey-mobile.webp" type="image/webp" />
-          <img src="../images/u2fkey-mobile.jpg" class="rounded img-fluid" />
-        </picture>
-        <div class="text-center mt-4">
-          <button type="button" id="webauthn-button" class="btn btn-primary btn-lg"></button>
-        </div>
+  <body class="tw-bg-transparent">
+    <div class="tw-flex tw-mt-5 tw-flex-col tw-items-center">
+      <img src="../images/logo-dark@2x.png" class="logo tw-mb-2" alt="Bitwarden" />
+      <p id="webauthn-header" class="tw-text-center tw-mx-4 tw-mb-4 tw-text-xl"></p>
+      <picture>
+        <source srcset="../images/u2fkey-mobile.avif" type="image/avif" />
+        <source srcset="../images/u2fkey-mobile.webp" type="image/webp" />
+        <img src="../images/u2fkey-mobile.jpg" class="tw-rounded tw-max-w-full tw-h-auto" />
+      </picture>
+      <div class="tw-text-center tw-mt-4">
+        <button
+          type="button"
+          id="webauthn-button"
+          class="tw-cursor-pointer tw-bg-primary-600 tw-border-transparent tw-px-4 tw-py-2 tw-rounded-md hover:tw-bg-primary-700 tw-transition-colors tw-font-semibold tw-text-contrast tw-text-lg"
+        ></button>
       </div>
     </div>
   </body>
