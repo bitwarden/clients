@@ -55,7 +55,16 @@ async fn main() {
     #[cfg(target_os = "windows")]
     let should_foreground = windows::allow_foreground();
 
-    let sock_path = desktop_core::ipc::path("bitwarden");
+    let sock_paths = desktop_core::ipc::all_paths("bitwarden");
+    let sock_path = *sock_paths
+        .iter()
+        .filter(|p| p.exists())
+        .collect::<Vec<_>>()
+        .first()
+        .unwrap_or_else(|| {
+            error!("No valid socket path found.");
+            std::process::exit(1);
+        });
 
     let log_path = {
         let mut path = sock_path.clone();
@@ -93,7 +102,7 @@ async fn main() {
     let (out_send, mut out_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
 
     let mut handle = tokio::spawn(
-        desktop_core::ipc::client::connect(sock_path, out_send, in_recv)
+        desktop_core::ipc::client::connect(sock_path.to_path_buf(), out_send, in_recv)
             .map(|r| r.map_err(|e| e.to_string())),
     );
 

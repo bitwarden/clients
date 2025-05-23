@@ -256,6 +256,12 @@
           "action-prefix": "com.bitwarden.Bitwarden"
         }
       },
+      {
+        "personal-files": {
+          "read": [],
+          "write": ["$HOME/.config/chromium", "$HOME/.config/google-chrome", "$HOME/.mozilla"]
+        }
+      },
       "u2f-devices"
     ],
     "stagePackages": ["default"]

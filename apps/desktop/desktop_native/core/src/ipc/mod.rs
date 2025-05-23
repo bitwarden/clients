@@ -1,3 +1,5 @@
+use std::vec;
+
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 
@@ -19,6 +21,13 @@ pub const NATIVE_MESSAGING_BUFFER_SIZE: usize = 1024 * 1024;
 /// but ideally the messages should be processed as quickly as possible.
 pub const MESSAGE_CHANNEL_BUFFER: usize = 32;
 
+pub const FLATPAK_PATHS: [&str; 4] = [
+    "org.mozilla.firefox/.mozilla/native-messaging-hosts",
+    "com.google.Chrome/.config/google-chrome/NativeMessagingHosts",
+    "org.chromium.Chromium/.config/chromium/NativeMessagingHosts",
+    "com.microsoft.Edge/.config/microsoft-edge/NativeMessagingHosts",
+];
+
 /// This is the codec used for communication through the UNIX socket / Windows named pipe.
 /// It's an internal implementation detail, but we want to make sure that both the client
 ///  and the server use the same one.
@@ -29,7 +38,7 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
         .new_framed(inner)
 }
 
-/// Resolve the path to the IPC socket.
+/// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
     #[cfg(target_os = "windows")]
     {
@@ -80,5 +89,27 @@ pub fn path(name: &str) -> std::path::PathBuf {
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
         path_dir.join(format!("app.{name}"))
+    }
+}
+
+/// Paths to the ipc sockets including alternative paths.
+/// For flatpak, a path per sandbox is created.
+pub fn all_paths(name: &str) -> Vec<std::path::PathBuf> {
+    #[cfg(target_os = "linux")]
+    {
+        // On Linux, in flatpak, we mount sockets in each app's sandboxed directory.
+        let user_home = dirs::home_dir().unwrap();
+        let flatpak_path = user_home.join(".var/app/");
+        let flatpak_paths = FLATPAK_PATHS
+            .iter()
+            .map(|path| flatpak_path.join(path).join(format!(".app.{name}.socket")))
+            .collect::<Vec<_>>();
+        let mut paths = vec![path(name)];
+        paths.extend(flatpak_paths);
+        paths
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        vec![path(name)]
     }
 }
