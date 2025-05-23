@@ -362,8 +362,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (this.organization.canEditAllCiphers) {
           return collections;
         }
-        // The user is only allowed to add/edit items to assigned collections that are not readonly
-        return collections.filter((c) => c.assigned && !c.readOnly);
+        return collections.filter((c) => c.assigned);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
