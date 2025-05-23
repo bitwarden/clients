@@ -33,8 +33,7 @@ describe("ChangeEmailComponent", () => {
     accountService = mockAccountServiceWith("UserId" as UserId);
 
     await TestBed.configureTestingModule({
-      declarations: [ChangeEmailComponent],
-      imports: [ReactiveFormsModule, SharedModule],
+      imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: ApiService, useValue: apiService },
