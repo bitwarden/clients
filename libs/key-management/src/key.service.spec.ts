@@ -365,6 +365,19 @@ describe("keyService", () => {
     });
   });
 
+  describe("makeSendKey", () => {
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    it("calls keyGenerationService with expected hard coded parameters", async () => {
+      await keyService.makeSendKey(mockRandomBytes);
+
+      expect(keyGenerationService.deriveKeyFromMaterial).toHaveBeenCalledWith(
+        mockRandomBytes,
+        "bitwarden-send",
+        "send",
+      );
+    });
+  });
+
   describe("clearKeys", () => {
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
       "throws when the provided userId is %s",
