@@ -206,7 +206,7 @@
     "message": "Автозаполнение карты"
   },
   "autoFillIdentity": {
-    "message": "Автозаполнение личности"
+    "message": "Автозаполнение личной информации"
   },
   "fillVerificationCode": {
     "message": "Заполнить код подтверждения"
@@ -228,7 +228,7 @@
     "message": "Нет карт"
   },
   "noIdentities": {
-    "message": "Нет личностей"
+    "message": "Нет личной информации"
   },
   "addLoginMenu": {
     "message": "Добавить логин"
@@ -237,7 +237,7 @@
     "message": "Добавить карту"
   },
   "addIdentityMenu": {
-    "message": "Добавить личность"
+    "message": "Добавить личную информацию"
   },
   "unlockVaultMenu": {
     "message": "Разблокировать хранилище"
@@ -1037,10 +1037,10 @@
     "message": "Всегда показывать личности как предложения автозаполнения при просмотре хранилища"
   },
   "showIdentitiesCurrentTab": {
-    "message": "Показывать Личности на вкладке"
+    "message": "Показывать Личную информацию на вкладке"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Личности будут отображены на вкладке для удобного автозаполнения."
+    "message": "Личная информация будет отображена на вкладке для удобного автозаполнения."
   },
   "clickToAutofillOnVault": {
     "message": "Кликните элементы для автозаполнения в режиме просмотра хранилища"
@@ -1621,7 +1621,7 @@
     "message": "Показывать предположения автозаполнения в полях формы"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Показывать Личности как предложения"
+    "message": "Показывать Личную информацию как предложения"
   },
   "showInlineMenuCardsLabel": {
     "message": "Показывать Карты как предложения"
@@ -1699,7 +1699,7 @@
     "message": "Автозаполнение последней использованной карты для текущего сайта"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Автозаполнение последней использованной личности для текущего сайта"
+    "message": "Автозаполнение последних использованных личных данных для текущего сайта"
   },
   "commandGeneratePasswordDesc": {
     "message": "Сгенерировать и скопировать новый случайный пароль в буфер обмена."
@@ -1857,7 +1857,7 @@
     "message": "Полное имя"
   },
   "identityName": {
-    "message": "Название личности"
+    "message": "Название личной информации"
   },
   "company": {
     "message": "Компания"
@@ -1989,7 +1989,7 @@
     "message": "Карты"
   },
   "identities": {
-    "message": "Личные данные"
+    "message": "Личная информация"
   },
   "logins": {
     "message": "Логины"
@@ -3014,14 +3014,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Уникальный идентификатор не найден."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ использует SSO с собственным сервером ключей. Для авторизации пользователям этой организации больше не требуется мастер-пароль.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации."
+  },
+  "organizationName": {
+    "message": "Название организации"
+  },
+  "keyConnectorDomain": {
+    "message": "Домен соединителя ключей"
   },
   "leaveOrganization": {
     "message": "Покинуть организацию"
@@ -3615,6 +3615,14 @@
     "message": "Используйте Send для безопасного обмена зашифрованной информацией с кем угодно.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItems": {
+    "message": "Безопасная отправка конфиденциальной информации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "inputRequired": {
     "message": "Необходимо ввести данные."
   },
@@ -3825,11 +3833,11 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "Новая личность",
+    "message": "Новая личная информация",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Добавление новой личности в хранилище, откроется в новом окне",
+    "message": "Добавление новой личной информации в хранилище, откроется в новом окне",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -4068,7 +4076,7 @@
     "message": "Функция пока не поддерживается"
   },
   "yourPasskeyIsLocked": {
-    "message": "Для использования passkey необходима аутентификация. Для продолжения работы подтвердите свою личность."
+    "message": "Для использования passkey необходима аутентификация. Для продолжения работы подтвердите вашу личность."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"
@@ -5019,6 +5027,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Биометрическая разблокировка в настоящее время недоступна по неизвестной причине."
   },
+  "unlockVault": {
+    "message": "Разблокируйте свое хранилище за считанные секунды"
+  },
+  "unlockVaultDesc": {
+    "message": "Вы можете настроить параметры разблокировки и тайм-аута для более быстрого доступа к хранилищу."
+  },
+  "unlockPinSet": {
+    "message": "Установить PIN--код разблокировки"
+  },
   "authenticating": {
     "message": "Аутентификация"
   },
@@ -5248,7 +5265,7 @@
     "message": "Безопасность, приоритет"
   },
   "securityPrioritizedBody": {
-    "message": "Сохраняйте логины, карты и личные данные в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно."
+    "message": "Сохраняйте логины, карты и личную информацию в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно."
   },
   "quickLogin": {
     "message": "Быстрая и простая авторизация"
@@ -5320,7 +5337,7 @@
     "message": "Упрощение создания аккаунтов"
   },
   "newIdentityNudgeBody": {
-    "message": "С помощью личностей можно быстро заполнять длинные регистрационные или контактные формы."
+    "message": "С помощью личной информации можно быстро заполнять длинные регистрационные или контактные формы."
   },
   "newNoteNudgeTitle": {
     "message": "Храните ваши конфиденциальные данные в безопасности"
@@ -5340,6 +5357,23 @@
     "message": "Узнайте больше об агенте SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Быстрое создание паролей"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку,",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "чтобы обеспечить безопасность ваших логинов.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Легко создавайте надежные и уникальные пароли, нажатием на кнопку 'Сгенерировать пароль', чтобы обеспечить безопасность ваших логинов.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."

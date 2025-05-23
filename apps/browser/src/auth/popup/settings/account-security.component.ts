@@ -480,7 +480,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       });
       await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
     } else {
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.vaultTimeoutSettingsService.clear(userId);
     }
   }
 
