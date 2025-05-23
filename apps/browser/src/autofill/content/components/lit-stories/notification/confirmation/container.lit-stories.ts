@@ -3,7 +3,10 @@ import { Meta, StoryObj } from "@storybook/web-components";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
-import { getConfirmationHeaderMessage } from "../../../../../notification/bar";
+import {
+  getConfirmationHeaderMessage,
+  getNotificationTestId,
+} from "../../../../../notification/bar";
 import {
   NotificationConfirmationContainer,
   NotificationConfirmationContainerProps,
@@ -38,7 +41,8 @@ export default {
 
 const Template = (args: NotificationConfirmationContainerProps) => {
   const headerMessage = getConfirmationHeaderMessage(args.i18n, args.type, args.error);
-  return NotificationConfirmationContainer({ ...args, headerMessage });
+  const notificationTestId = getNotificationTestId(args.type, true);
+  return NotificationConfirmationContainer({ ...args, headerMessage, notificationTestId });
 };
 
 export const Default: StoryObj<NotificationConfirmationContainerProps> = {
