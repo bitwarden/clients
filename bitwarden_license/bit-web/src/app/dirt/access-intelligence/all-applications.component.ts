@@ -21,7 +21,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -74,13 +73,8 @@ export class AllApplicationsComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
-  isCriticalAppsFeatureEnabled = false;
 
   async ngOnInit() {
-    this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
-
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
