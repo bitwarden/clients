@@ -529,7 +529,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       await this.updateBiometric(value);
     } catch (error) {
       this.logService.error("Error updating unlock with biometrics: ", error);
-      this.form.controls.biometric.setValue(!value, { emitEvent: false });
+      this.form.controls.biometric.setValue(false, { emitEvent: false });
       this.validationService.showError(error);
     } finally {
       this.messagingService.send("redrawMenu");
