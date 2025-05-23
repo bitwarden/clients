@@ -24,6 +24,11 @@ const defaultI18n: Partial<Record<CalloutTypes, string>> = {
 // Increments for each instance of this component
 let nextId = 0;
 
+/**
+ * Callouts are used to communicate important information to the user. Callouts should be used
+ * sparingly, as they command a large amount of visual attention. Avoid using more than 1 callout in
+ * the same location.
+ */
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",

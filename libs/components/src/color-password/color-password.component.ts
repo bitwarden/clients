@@ -10,7 +10,11 @@ enum CharacterType {
   Special,
   Number,
 }
-
+/**
+ * The color password is used primarily in the Generator pages and in the Login type form. It includes
+ * the logic for displaying letters as `text-main`, numbers as `primary`, and special symbols as
+ * `danger`.
+ */
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {

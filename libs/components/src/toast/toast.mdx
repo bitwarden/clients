@@ -1,4 +1,4 @@
-import { Meta, Canvas, Source, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./toast.stories";
 
@@ -8,12 +8,16 @@ import * as stories from "./toast.stories";
 import { ToastService } from "@bitwarden/components";
 ```
 
-# Toast
+<Title />
 
-Toasts are ephemeral notifications. They most often communicate the result of a user action. Due to
-their ephemeral nature, long messages and critical alerts should not utilize toasts.
+<Primary />
+<Controls />
 
-<Canvas of={stories.Default} />
+### Variants
+
+<Canvas of={stories.Variants} />
+
+### Long content
 
 <Canvas of={stories.LongContent} />
 
@@ -38,7 +42,7 @@ The following options are accepted:
 
 <Canvas of={stories.Service} />
 
-## Toast container
+### Toast container
 
 `bit-toast-container` should be added to the app root of consuming clients to ensure toasts are
 properly announced to screenreaders.
@@ -48,7 +52,7 @@ properly announced to screenreaders.
 <bit-toast-container></bit-toast-container>
 ```
 
-## Accessibility
+### Accessibility
 
 In addition to the accessibility provided by the `bit-toast-container` component, the toast itself
 will apply `aria-alert="true"` if the toast is of type `error`.

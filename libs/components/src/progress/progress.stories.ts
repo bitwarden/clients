@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+
 import { ProgressComponent } from "./progress.component";
 
 export default {
@@ -20,19 +22,34 @@ export default {
 
 type Story = StoryObj<ProgressComponent>;
 
-export const Empty: Story = {
+export const Base: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-progress ${formatArgsForCodeSnippet(args)}></bit-progress>
+    `,
+  }),
   args: {
-    barWidth: 0,
+    barWidth: 50,
+  },
+};
+
+export const Empty: Story = {
+  ...Base,
+  args: {
+    barWidth: 100,
   },
 };
 
 export const Full: Story = {
+  ...Base,
   args: {
     barWidth: 100,
   },
 };
 
 export const CustomText: Story = {
+  ...Base,
   args: {
     barWidth: 25,
     text: "Loading...",

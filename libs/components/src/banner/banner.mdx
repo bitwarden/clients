@@ -1,25 +1,16 @@
-import { Meta, Controls, Canvas, Primary } from "@storybook/addon-docs";
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs";
 
 import * as stories from "./banner.stories";
 
 <Meta of={stories} />
 
-# Banner
+```ts
+import { BannerModule } from "@bitwarden/components";
+```
 
-Banners are used for important communication with the user that needs to be seen right away, but has
-little effect on the experience. Banners appear at the top of the user's screen on page load and
-persist across all pages a user navigates to.
-
-- They should always be dismissible and never use a timeout. If a user dismisses a banner, it should
-  not reappear during that same active session.
-- Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their
-  effectiveness may decrease if too many are used.
-- Avoid stacking multiple banners.
-- Banners can contain a button or anchor that uses the `bitLink` directive with
-  `linkType="secondary"`.
-
+<Title />
+<Description />
 <Primary />
-
 <Controls />
 
 ## Types
@@ -56,5 +47,5 @@ Rarely used, but may be used to alert users over critical messages or very outda
 ## Accessibility
 
 Banners sets the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
-announce the content prior to the test of the page. This behaviour can be disabled by setting
+announce the content prior to the test of the page. This behavior can be disabled by setting
 `[useAlertRole]="false"`.

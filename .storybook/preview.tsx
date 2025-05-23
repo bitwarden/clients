@@ -41,7 +41,12 @@ const preview: Preview = {
         order: ["Documentation", ["Introduction", "Colors", "Icons"], "Component Library"],
       },
     },
-    docs: { source: { type: "dynamic", excludeDecorators: true } },
+    docs: {
+      source: {
+        type: "dynamic",
+        excludeDecorators: true,
+      },
+    },
     backgrounds: {
       disable: true,
     },
