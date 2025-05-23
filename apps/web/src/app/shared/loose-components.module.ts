@@ -53,10 +53,8 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
-import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
 import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
@@ -82,6 +80,7 @@ import { SharedModule } from "./shared.module";
     OrganizationLayoutComponent,
     VerifyRecoverDeleteOrgComponent,
     VaultTimeoutInputComponent,
+    PremiumBadgeComponent,
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
@@ -95,7 +94,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    FolderAddEditComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -103,10 +101,8 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
@@ -136,7 +132,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessConfirmComponent,
     EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
-    FolderAddEditComponent,
     OrganizationLayoutComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
@@ -148,7 +143,6 @@ import { SharedModule } from "./shared.module";
     PremiumBadgeComponent,
     ProfileComponent,
     ChangeAvatarDialogComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
