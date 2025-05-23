@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Jauns vienums, atvērsies jaunā logā",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Labot pirms saglabāšanas",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1117,7 +1121,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Jāatslēdz, lai saglabātu šo pieteikšanās vienumu",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -3010,14 +3014,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nav atrasts neviens neatkārtojams identifikators"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Galvenā parole vairs nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju."
+  },
+  "organizationName": {
+    "message": "Apvienības nosaukums"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domēns"
   },
   "leaveOrganization": {
     "message": "Pamest apvienību"
@@ -3609,6 +3613,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Send ir izmantojams, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Drošā veidā nosūti jūtīgu informāciju",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Drošā veidā kopīgo datnes un datus ar ikvienu jebkurā platformā! Tava informācija paliks pilnībā šifrēta, vienlaikus ierobežojot riskantumu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5015,6 +5027,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Atslēgšana ar biometriju pašlaik nav pieejama nezināma iemesla dēļ."
   },
+  "unlockVault": {
+    "message": "Atslēdz savu glabātavu dažās sekundēs"
+  },
+  "unlockVaultDesc": {
+    "message": "Tu vari pielāgot savus atslēgšanas un noildzes iestatījumus, lai ātrāk piekļūtu savai glabātavai."
+  },
+  "unlockPinSet": {
+    "message": "Atslēgšanas PIN iestatīts"
+  },
   "authenticating": {
     "message": "Autentificē"
   },
@@ -5336,6 +5357,23 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Ātra paroļu izveidošana"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", lai palīdzētu uzturērt pieteikšanās vienumus drošus.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."

@@ -15,6 +15,8 @@ import {
   Environment,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { ButtonModule } from "@bitwarden/components";
 
 // FIXME: remove `/apps` import from `/libs`

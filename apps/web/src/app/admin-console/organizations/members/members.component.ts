@@ -46,7 +46,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -102,6 +104,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
@@ -135,6 +138,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -229,6 +233,17 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    // Setup feature flag-dependent observables
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
+    );
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {

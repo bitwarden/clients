@@ -3,11 +3,15 @@
 import { matches, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   UserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";

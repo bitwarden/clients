@@ -933,7 +933,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
       availableCollections = this.allCollections.filter(
-        (c) => c.organizationId === organization.id && !c.readOnly,
+        (c) => c.organizationId === organization.id,
       );
     }
 

@@ -2512,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Ana parol silindi."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$, self-hosted açar serveri ilə SSO istifadə edir. Bu təşkilatın üzvlərinin giriş etməsi üçün artıq ana parol tələb edilməyəcək.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Aşağıdakı təşkilatların üzvləri üçün artıq ana parol tələb olunmur. Lütfən aşağıdakı domeni təşkilatınızın inzibatçısı ilə təsdiqləyin."
+  },
+  "organizationName": {
+    "message": "Təşkilat adı"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domeni"
   },
   "leaveOrganization": {
     "message": "Təşkilatı tərk et"
@@ -3703,17 +3703,26 @@
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Daşı"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Yeni qovluq"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Qovluq adı"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"
