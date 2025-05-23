@@ -20,7 +20,7 @@ export const formatArgsForCodeSnippet = <ComponentType>(args: RenderArgType<Comp
         return `[${key}]="${value}"`;
       }
 
-      if (typeof value === "object" && Array.isArray(value)) {
+      if (Array.isArray(value)) {
         const formattedArray = value.map((v) => `'${v}'`).join(", ");
         return `[${key}]="[${formattedArray}]"`;
       }
