@@ -1239,7 +1239,6 @@ export default class MainBackground {
       this.autofillService,
       this.scriptInjectorService,
       this.authService,
-      this.configService,
       this.platformUtilsService,
       this.policyService,
       this.accountService,
