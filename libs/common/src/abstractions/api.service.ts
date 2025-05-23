@@ -149,6 +149,7 @@ export abstract class ApiService {
     IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   >;
   refreshIdentityToken: () => Promise<any>;
+  getCredentials: () => Promise<RequestCredentials | undefined>;
 
   getProfile: () => Promise<ProfileResponse>;
   getUserSubscription: () => Promise<SubscriptionResponse>;

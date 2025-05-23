@@ -7,4 +7,5 @@ export enum ClientType {
   // Mobile = "mobile",
   Cli = "cli",
   // DirectoryConnector = "connector",
+  Send = "send",
 }
