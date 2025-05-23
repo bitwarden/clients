@@ -92,7 +92,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       clientSecret,
     ]);
 
-    await this.keyService.refreshAdditionalKeys();
+    await this.keyService.refreshAdditionalKeys(userId);
   }
 
   availableVaultTimeoutActions$(userId?: string): Observable<VaultTimeoutAction[]> {
