@@ -32,6 +32,8 @@ import {
   DesktopFido2UserInterfaceSession,
 } from "../../services/desktop-fido2-user-interface.service";
 
+import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
+
 @Component({
   standalone: true,
   imports: [
@@ -55,6 +57,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
   readonly Icons = { BitwardenShield };
+  protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
 
   constructor(
     private readonly desktopSettingsService: DesktopSettingsService,
