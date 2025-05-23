@@ -13,7 +13,7 @@ mod util;
 //
 
 // TODO: It's possible that there might be multiple possible data directories, depending on the installation method (e.g., snap, flatpak, etc.).
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 3] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: ".config/google-chrome",
@@ -24,7 +24,11 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 3] = [
     },
     BrowserConfig {
         name: "Brave",
-        data_dir: "snap/brave/current/.config/BraveSoftware/Brave-Browser/",
+        data_dir: "snap/brave/current/.config/BraveSoftware/Brave-Browser",
+    },
+    BrowserConfig {
+        name: "Opera",
+        data_dir: "snap/opera/current/.config/opera",
     },
 ];
 
@@ -62,6 +66,10 @@ const KEYRING_CONFIG: [KeyringConfig; SUPPORTED_BROWSERS.len()] = [
     KeyringConfig {
         browser: "Brave",
         application_id: "brave",
+    },
+    KeyringConfig {
+        browser: "Opera",
+        application_id: "opera",
     },
 ];
 
