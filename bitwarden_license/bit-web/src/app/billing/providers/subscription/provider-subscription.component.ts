@@ -13,8 +13,6 @@ import {
   ProviderPlanResponse,
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
@@ -39,10 +37,6 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
 
   protected readonly TaxInformation = TaxInformation;
 
-  protected readonly allowProviderPaymentMethod$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM18794_ProviderPaymentMethod,
-  );
-
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private i18nService: I18nService,
@@ -50,7 +44,6 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     private billingNotificationService: BillingNotificationService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
