@@ -84,7 +84,7 @@ export function lockGuard(): CanActivateFn {
     }
 
     // If authN user with TDE directly navigates to lock, reject that navigation
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
     if (tdeEnabled && !everHadUserKey) {
       return false;
     }

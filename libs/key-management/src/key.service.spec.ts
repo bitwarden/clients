@@ -34,7 +34,6 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
   FakeStateProvider,
-  FakeActiveUserState,
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -190,28 +189,28 @@ describe("keyService", () => {
   });
 
   describe("everHadUserKey$", () => {
-    let everHadUserKeyState: FakeActiveUserState<boolean>;
+    let everHadUserKeyState: FakeSingleUserState<boolean>;
 
     beforeEach(() => {
-      everHadUserKeyState = stateProvider.activeUser.getFake(USER_EVER_HAD_USER_KEY);
+      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
     });
 
     it("should return true when stored value is true", async () => {
       everHadUserKeyState.nextState(true);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(true);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(true);
     });
 
     it("should return false when stored value is false", async () => {
       everHadUserKeyState.nextState(false);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(false);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
     });
 
     it("should return false when stored value is null", async () => {
       everHadUserKeyState.nextState(null);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(false);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
     });
   });
 
