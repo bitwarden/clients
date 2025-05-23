@@ -620,6 +620,9 @@
   "close": {
     "message": "Close"
   },
+  "select": {
+    "message": "Select"
+  },
   "minNumbers": {
     "message": "Minimum numbers"
   },
