@@ -28,7 +28,6 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -147,6 +146,10 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     return this.params.organizationId;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return !!this.groupForm.get("externalId")?.value;
+  }
+
   protected get editMode(): boolean {
     return this.groupId != null;
   }
@@ -226,10 +229,6 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
     this.allowAdminAccessToAllCollectionItems$,
     this.groupDetails$,
   ]).pipe(map(([allowAdminAccess, groupDetails]) => !allowAdminAccess && groupDetails != null));
-
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(map((isEnabled) => !isEnabled || !!this.groupForm.get("externalId")?.value));
 
   constructor(
     @Inject(DIALOG_DATA) private params: GroupAddEditDialogParams,

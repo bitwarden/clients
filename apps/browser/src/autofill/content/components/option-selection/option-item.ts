@@ -13,6 +13,7 @@ const { css } = createEmotion({
 });
 
 export type OptionItemProps = Option & {
+  id: string;
   contextLabel?: string;
   theme: Theme;
   handleSelection: () => void;
@@ -20,6 +21,7 @@ export type OptionItemProps = Option & {
 
 export function OptionItem({
   contextLabel,
+  id,
   icon,
   text,
   theme,
@@ -44,6 +46,7 @@ export function OptionItem({
 
   return html`<div
     class=${optionItemStyles}
+    data-testid="${id}-option-item"
     key=${value}
     tabindex="0"
     title=${text}
