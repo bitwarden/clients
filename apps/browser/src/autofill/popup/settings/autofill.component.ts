@@ -334,11 +334,20 @@ export class AutofillComponent implements OnInit {
     return null;
   }
 
-  get spotlightButtonText() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
-      return this.i18nService.t("turnOffAutofill");
+  get browserClientVendorExtended() {
+    if (this.browserClientVendor !== BrowserClientVendors.Unknown) {
+      return this.browserClientVendor;
     }
-    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
+    if (this.platformUtilsService.isFirefox()) {
+      return "Firefox";
+    }
+    if (this.platformUtilsService.isSafari()) {
+      return "Safari";
+    }
+  }
+
+  get spotlightButtonText() {
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
   }
 
   async dismissSpotlight() {
