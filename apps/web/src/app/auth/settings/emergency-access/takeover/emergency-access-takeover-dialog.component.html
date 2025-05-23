@@ -28,7 +28,13 @@
   </div>
 
   <ng-container bitDialogFooter>
-    <button type="button" bitButton buttonType="primary" (click)="handlePrimaryButtonClick()">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="submitting$ | async"
+      (click)="handlePrimaryButtonClick()"
+    >
       {{ "save" | i18n }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>

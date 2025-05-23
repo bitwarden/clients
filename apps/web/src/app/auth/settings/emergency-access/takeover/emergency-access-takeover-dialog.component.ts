@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit, ViewChild } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { AfterViewInit, Component, Inject, OnInit, ViewChild } from "@angular/core";
+import { BehaviorSubject, combineLatest, map } from "rxjs";
 
 import {
   InputPasswordComponent,
@@ -10,7 +10,6 @@ import {
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -61,9 +60,12 @@ type EmergencyAccessTakeoverDialogResultType =
     InputPasswordComponent,
   ],
 })
-export class EmergencyAccessTakeoverDialogComponent implements OnInit {
+export class EmergencyAccessTakeoverDialogComponent implements OnInit, AfterViewInit {
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent!: InputPasswordComponent;
+
+  private submittingBehaviorSubject = new BehaviorSubject(false);
+  submitting$ = this.submittingBehaviorSubject.asObservable();
 
   initializing = true;
   inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
@@ -93,11 +95,25 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
     this.initializing = false;
   }
 
+  ngAfterViewInit() {
+    this.submitting$ = combineLatest([
+      this.submittingBehaviorSubject.asObservable(),
+      this.inputPasswordComponent.submitting$,
+    ]).pipe(
+      map(
+        ([dialogCompIsSubmitting, inputPasswordCompIsSubmitting]) =>
+          dialogCompIsSubmitting || inputPasswordCompIsSubmitting,
+      ),
+    );
+  }
+
   protected handlePrimaryButtonClick = async () => {
     await this.inputPasswordComponent.submit();
   };
 
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
+    this.submittingBehaviorSubject.next(true);
+
     try {
       await this.emergencyAccessService.takeover(
         this.dialogData.emergencyAccessId,
@@ -112,6 +128,8 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("unexpectedError"),
       });
+    } finally {
+      this.submittingBehaviorSubject.next(false);
     }
 
     this.dialogRef.close(EmergencyAccessTakeoverDialogResultTypes.Done);
