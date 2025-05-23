@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
   AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
@@ -49,6 +48,7 @@ export enum FeatureFlag {
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
+  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
   ItemShare = "item-share",
@@ -83,7 +83,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SsoExternalIdVisibility]: FALSE,
   [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
@@ -135,6 +134,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
+  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

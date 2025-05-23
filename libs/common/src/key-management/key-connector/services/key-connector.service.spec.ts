@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { firstValueFrom, of, timeout, TimeoutError } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
@@ -20,11 +21,7 @@ import { MasterKey } from "../../../types/key";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 
-import {
-  USES_KEY_CONNECTOR,
-  CONVERT_ACCOUNT_TO_KEY_CONNECTOR,
-  KeyConnectorService,
-} from "./key-connector.service";
+import { USES_KEY_CONNECTOR, KeyConnectorService } from "./key-connector.service";
 
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
@@ -47,6 +44,8 @@ describe("KeyConnectorService", () => {
   const mockMasterKeyResponse: KeyConnectorUserKeyResponse = new KeyConnectorUserKeyResponse({
     key: "eO9nVlVl3I3sU6O+CyK0kEkpGtl/auT84Hig2WTXmZtDTqYtKpDvUPfjhgMOHf+KQzx++TVS2AOLYq856Caa7w==",
   });
+
+  const keyConnectorUrl = "https://key-connector-url.com";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -73,32 +72,69 @@ describe("KeyConnectorService", () => {
     expect(keyConnectorService).not.toBeFalsy();
   });
 
-  describe("setUsesKeyConnector()", () => {
-    it("should update the usesKeyConnectorState with the provided value", async () => {
-      const state = stateProvider.activeUser.getFake(USES_KEY_CONNECTOR);
+  describe("setUsesKeyConnector", () => {
+    it("should update the usesKeyConnectorState with the provided false value", async () => {
+      const state = stateProvider.singleUser.getFake(mockUserId, USES_KEY_CONNECTOR);
       state.nextState(false);
 
-      const newValue = true;
+      await keyConnectorService.setUsesKeyConnector(true, mockUserId);
 
-      await keyConnectorService.setUsesKeyConnector(newValue, mockUserId);
+      expect(await firstValueFrom(state.state$)).toBe(true);
+    });
 
-      expect(await keyConnectorService.getUsesKeyConnector(mockUserId)).toBe(newValue);
+    it("should update the usesKeyConnectorState with the provided true value", async () => {
+      const state = stateProvider.singleUser.getFake(mockUserId, USES_KEY_CONNECTOR);
+      state.nextState(true);
+
+      await keyConnectorService.setUsesKeyConnector(false, mockUserId);
+
+      expect(await firstValueFrom(state.state$)).toBe(false);
     });
   });
 
-  describe("getManagingOrganization()", () => {
+  describe("getUsesKeyConnector", () => {
+    it("should return false when uses key connector state is not set", async () => {
+      const state = stateProvider.singleUser.getFake(mockUserId, USES_KEY_CONNECTOR);
+      state.nextState(null);
+
+      const usesKeyConnector = await keyConnectorService.getUsesKeyConnector(mockUserId);
+
+      expect(usesKeyConnector).toEqual(false);
+    });
+
+    it("should return false when uses key connector state is set to false", async () => {
+      stateProvider.getUserState$(USES_KEY_CONNECTOR, mockUserId);
+      const state = stateProvider.singleUser.getFake(mockUserId, USES_KEY_CONNECTOR);
+      state.nextState(false);
+
+      const usesKeyConnector = await keyConnectorService.getUsesKeyConnector(mockUserId);
+
+      expect(usesKeyConnector).toEqual(false);
+    });
+
+    it("should return true when uses key connector state is set to true", async () => {
+      const state = stateProvider.singleUser.getFake(mockUserId, USES_KEY_CONNECTOR);
+      state.nextState(true);
+
+      const usesKeyConnector = await keyConnectorService.getUsesKeyConnector(mockUserId);
+
+      expect(usesKeyConnector).toEqual(true);
+    });
+  });
+
+  describe("getManagingOrganization", () => {
     it("should return the managing organization with key connector enabled", async () => {
       // Arrange
       const orgs = [
-        organizationData(true, true, "https://key-connector-url.com", 2, false),
-        organizationData(false, true, "https://key-connector-url.com", 2, false),
-        organizationData(true, false, "https://key-connector-url.com", 2, false),
-        organizationData(true, true, "https://other-url.com", 2, false),
+        organizationData(true, true, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(false, true, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(true, false, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(true, true, "https://other-url.com", OrganizationUserType.User, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toEqual(orgs[0]);
@@ -107,13 +143,13 @@ describe("KeyConnectorService", () => {
     it("should return undefined if no managing organization with key connector enabled is found", async () => {
       // Arrange
       const orgs = [
-        organizationData(true, false, "https://key-connector-url.com", 2, false),
-        organizationData(false, false, "https://key-connector-url.com", 2, false),
+        organizationData(true, false, keyConnectorUrl, OrganizationUserType.User, false),
+        organizationData(false, false, keyConnectorUrl, OrganizationUserType.User, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
@@ -122,13 +158,13 @@ describe("KeyConnectorService", () => {
     it("should return undefined if user is Owner or Admin", async () => {
       // Arrange
       const orgs = [
-        organizationData(true, true, "https://key-connector-url.com", 0, false),
-        organizationData(true, true, "https://key-connector-url.com", 1, false),
+        organizationData(true, true, keyConnectorUrl, 0, false),
+        organizationData(true, true, keyConnectorUrl, 1, false),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
@@ -137,78 +173,23 @@ describe("KeyConnectorService", () => {
     it("should return undefined if user is a Provider", async () => {
       // Arrange
       const orgs = [
-        organizationData(true, true, "https://key-connector-url.com", 2, true),
-        organizationData(false, true, "https://key-connector-url.com", 2, true),
+        organizationData(true, true, keyConnectorUrl, OrganizationUserType.User, true),
+        organizationData(false, true, keyConnectorUrl, OrganizationUserType.User, true),
       ];
       organizationService.organizations$.mockReturnValue(of(orgs));
 
       // Act
-      const result = await keyConnectorService.getManagingOrganization();
+      const result = await keyConnectorService.getManagingOrganization(mockUserId);
 
       // Assert
       expect(result).toBeUndefined();
     });
   });
 
-  describe("setConvertAccountRequired()", () => {
-    it("should update the convertAccountToKeyConnectorState with the provided value", async () => {
-      const state = stateProvider.activeUser.getFake(CONVERT_ACCOUNT_TO_KEY_CONNECTOR);
-      state.nextState(false);
-
-      const newValue = true;
-
-      await keyConnectorService.setConvertAccountRequired(newValue);
-
-      expect(await keyConnectorService.getConvertAccountRequired()).toBe(newValue);
-    });
-
-    it("should remove the convertAccountToKeyConnectorState", async () => {
-      const state = stateProvider.activeUser.getFake(CONVERT_ACCOUNT_TO_KEY_CONNECTOR);
-      state.nextState(false);
-
-      const newValue: boolean = null;
-
-      await keyConnectorService.setConvertAccountRequired(newValue);
-
-      expect(await keyConnectorService.getConvertAccountRequired()).toBe(newValue);
-    });
-  });
-
-  describe("userNeedsMigration()", () => {
-    it("should return true if the user needs migration", async () => {
-      // token
-      tokenService.getIsExternal.mockResolvedValue(true);
-
-      // create organization object
-      const data = organizationData(true, true, "https://key-connector-url.com", 2, false);
-      organizationService.organizations$.mockReturnValue(of([data]));
-
-      // uses KeyConnector
-      const state = stateProvider.activeUser.getFake(USES_KEY_CONNECTOR);
-      state.nextState(false);
-
-      const result = await keyConnectorService.userNeedsMigration(mockUserId);
-
-      expect(result).toBe(true);
-    });
-
-    it("should return false if the user does not need migration", async () => {
-      tokenService.getIsExternal.mockResolvedValue(false);
-      const data = organizationData(false, false, "https://key-connector-url.com", 2, false);
-      organizationService.organizations$.mockReturnValue(of([data]));
-
-      const state = stateProvider.activeUser.getFake(USES_KEY_CONNECTOR);
-      state.nextState(true);
-      const result = await keyConnectorService.userNeedsMigration(mockUserId);
-
-      expect(result).toBe(false);
-    });
-  });
-
   describe("setMasterKeyFromUrl", () => {
     it("should set the master key from the provided URL", async () => {
       // Arrange
-      const url = "https://key-connector-url.com";
+      const url = keyConnectorUrl;
 
       apiService.getMasterKeyFromKeyConnector.mockResolvedValue(mockMasterKeyResponse);
 
@@ -221,15 +202,12 @@ describe("KeyConnectorService", () => {
 
       // Assert
       expect(apiService.getMasterKeyFromKeyConnector).toHaveBeenCalledWith(url);
-      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
-        masterKey,
-        expect.any(String),
-      );
+      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(masterKey, mockUserId);
     });
 
     it("should handle errors thrown during the process", async () => {
       // Arrange
-      const url = "https://key-connector-url.com";
+      const url = keyConnectorUrl;
 
       const error = new Error("Failed to get master key");
       apiService.getMasterKeyFromKeyConnector.mockRejectedValue(error);
@@ -246,26 +224,23 @@ describe("KeyConnectorService", () => {
     });
   });
 
-  describe("migrateUser()", () => {
+  describe("migrateUser", () => {
     it("should migrate the user to the key connector", async () => {
       // Arrange
-      const organization = organizationData(true, true, "https://key-connector-url.com", 2, false);
       const masterKey = getMockMasterKey();
       masterPasswordService.masterKeySubject.next(masterKey);
       const keyConnectorRequest = new KeyConnectorUserKeyRequest(
         Utils.fromBufferToB64(masterKey.inner().encryptionKey),
       );
 
-      jest.spyOn(keyConnectorService, "getManagingOrganization").mockResolvedValue(organization);
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
 
       // Act
-      await keyConnectorService.migrateUser();
+      await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
 
       // Assert
-      expect(keyConnectorService.getManagingOrganization).toHaveBeenCalled();
       expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-        organization.keyConnectorUrl,
+        keyConnectorUrl,
         keyConnectorRequest,
       );
       expect(apiService.postConvertToKeyConnector).toHaveBeenCalled();
@@ -273,31 +248,156 @@ describe("KeyConnectorService", () => {
 
     it("should handle errors thrown during migration", async () => {
       // Arrange
-      const organization = organizationData(true, true, "https://key-connector-url.com", 2, false);
       const masterKey = getMockMasterKey();
       const keyConnectorRequest = new KeyConnectorUserKeyRequest(
         Utils.fromBufferToB64(masterKey.inner().encryptionKey),
       );
-      const error = new Error("Failed to post user key to key connector");
-      organizationService.organizations$.mockReturnValue(of([organization]));
-
       masterPasswordService.masterKeySubject.next(masterKey);
-      jest.spyOn(keyConnectorService, "getManagingOrganization").mockResolvedValue(organization);
+      const error = new Error("Failed to post user key to key connector");
       jest.spyOn(apiService, "postUserKeyToKeyConnector").mockRejectedValue(error);
       jest.spyOn(logService, "error");
 
       try {
         // Act
-        await keyConnectorService.migrateUser();
+        await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
       } catch {
         // Assert
         expect(logService.error).toHaveBeenCalledWith(error);
-        expect(keyConnectorService.getManagingOrganization).toHaveBeenCalled();
         expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-          organization.keyConnectorUrl,
+          keyConnectorUrl,
           keyConnectorRequest,
         );
       }
+    });
+  });
+
+  describe("convertAccountRequired$", () => {
+    beforeEach(async () => {
+      const organization = organizationData(
+        true,
+        true,
+        keyConnectorUrl,
+        OrganizationUserType.User,
+        false,
+      );
+      organizationService.organizations$.mockReturnValue(of([organization]));
+      await stateProvider.getUser(mockUserId, USES_KEY_CONNECTOR).update(() => false);
+      tokenService.getIsExternal.mockResolvedValue(true);
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
+    });
+
+    it("should return true when user logged in with sso, belong to organization using key connector and user does not use key connector", async () => {
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(true);
+    });
+
+    it("should return false when user logged in with password", async () => {
+      tokenService.getIsExternal.mockResolvedValue(false);
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should return false when organization's key connector disabled", async () => {
+      const organization = organizationData(
+        true,
+        false,
+        keyConnectorUrl,
+        OrganizationUserType.User,
+        false,
+      );
+      organizationService.organizations$.mockReturnValue(of([organization]));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should return false when user is admin of the organization", async () => {
+      const organization = organizationData(
+        true,
+        true,
+        keyConnectorUrl,
+        OrganizationUserType.Admin,
+        false,
+      );
+      organizationService.organizations$.mockReturnValue(of([organization]));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should return false when user is owner of the organization", async () => {
+      const organization = organizationData(
+        true,
+        true,
+        keyConnectorUrl,
+        OrganizationUserType.Owner,
+        false,
+      );
+      organizationService.organizations$.mockReturnValue(of([organization]));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should return false when user is provider user of the organization", async () => {
+      const organization = organizationData(
+        true,
+        true,
+        keyConnectorUrl,
+        OrganizationUserType.User,
+        true,
+      );
+      organizationService.organizations$.mockReturnValue(of([organization]));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should return false when user already uses key connector", async () => {
+      await stateProvider.getUser(mockUserId, USES_KEY_CONNECTOR).update(() => true);
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).resolves.toEqual(false);
+    });
+
+    it("should not return any value when user not logged in", async () => {
+      await accountService.switchAccount(null as unknown as UserId);
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).rejects.toBeInstanceOf(TimeoutError);
+    });
+
+    it("should not return any value when organization state is empty", async () => {
+      organizationService.organizations$.mockReturnValue(of(null as unknown as Organization[]));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).rejects.toBeInstanceOf(TimeoutError);
+    });
+
+    it("should not return any value when user is not using key connector", async () => {
+      await stateProvider.getUser(mockUserId, USES_KEY_CONNECTOR).update(() => null);
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).rejects.toBeInstanceOf(TimeoutError);
+    });
+
+    it("should not return any value when user does not have access token", async () => {
+      tokenService.hasAccessToken$.mockReturnValue(of(false));
+
+      await expect(
+        firstValueFrom(keyConnectorService.convertAccountRequired$.pipe(timeout(100))),
+      ).rejects.toBeInstanceOf(TimeoutError);
     });
   });
 

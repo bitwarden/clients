@@ -3707,13 +3707,13 @@
     "message": "移动"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "新增文件夹"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "文件夹名称"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"

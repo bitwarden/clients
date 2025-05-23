@@ -3707,13 +3707,13 @@
     "message": "Verschieben"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Neuer Ordner"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Ordnername"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Verschachtel einen Ordner, indem du den Namen des übergeordneten Ordners hinzufügst, gefolgt von einem „/“. Beispiel: Sozial/Foren"
   },
   "newLoginNudgeTitle": {
     "message": "Spare Zeit mit Auto-Ausfüllen"

@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Neuer Eintrag, öffnet sich in neuem Fenster",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Vor dem Speichern bearbeiten",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1097,7 +1101,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "$ITEMTYPE$, $ITEMNAME$ auswählen",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1117,7 +1121,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Entsperren, um diese Zugangsdaten zu speichern",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -5265,7 +5269,7 @@
     "message": "Speicher eine unbegrenzte Anzahl von Passwörtern auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 Benachrichtigung"
   },
   "emptyVaultNudgeTitle": {
     "message": "Vorhandene Passwörter importieren"
@@ -5280,13 +5284,13 @@
     "message": "Willkommen in deinem Tresor!"
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Einträge für die aktuelle Seite automatisch ausfüllen"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Favoriten-Einträge für einfachen Zugriff"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Deinen Tresor nach etwas anderem durchsuchen"
   },
   "newLoginNudgeTitle": {
     "message": "Spare Zeit mit Auto-Ausfüllen"
@@ -5338,6 +5342,6 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "Du hast keine Berechtigung, diese Seite anzuzeigen. Versuche dich mit einem anderen Konto anzumelden."
   }
 }

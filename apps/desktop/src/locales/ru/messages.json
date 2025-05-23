@@ -3707,13 +3707,13 @@
     "message": "Переместить"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Новая папка"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Название папки"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Создайте вложенную папку, добавив название родительской папки и символ \"/\". Пример: Сообщества/Форумы"
   },
   "newLoginNudgeTitle": {
     "message": "Экономьте время с помощью автозаполнения"
