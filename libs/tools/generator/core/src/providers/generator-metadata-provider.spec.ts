@@ -75,6 +75,7 @@ const SystemProvider = {
   } as LegacyEncryptorProvider,
   state: SomeStateProvider,
   log: disabledSemanticLoggerProvider,
+  now: Date.now,
 } as UserStateSubjectDependencyProvider;
 
 const SomeSiteId: SiteId = Site.forwarder;
@@ -415,14 +416,14 @@ describe("GeneratorMetadataProvider", () => {
       await expect(firstValueFrom(result)).resolves.toEqual(plusAddress.id);
     });
 
-    it("emits undefined when the user's preference is unavailable and there is no metadata", async () => {
+    it("emits the original preference when the user's preference is unavailable and there is no metadata", async () => {
       SomePolicyService.policiesByType$.mockReturnValue(new BehaviorSubject([]));
       const provider = new GeneratorMetadataProvider(SystemProvider, ApplicationProvider, []);
       const result = new ReplaySubject<CredentialAlgorithm | undefined>(1);
 
       provider.preference$(Type.email, { account$: SomeAccount$ }).subscribe(result);
 
-      await expect(firstValueFrom(result)).resolves.toBeUndefined();
+      await expect(firstValueFrom(result)).resolves.toEqual(preferences[Type.email].algorithm);
     });
   });
 

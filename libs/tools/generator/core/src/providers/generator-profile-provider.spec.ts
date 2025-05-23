@@ -67,6 +67,7 @@ const dependencyProvider: UserStateSubjectDependencyProvider = {
   encryptor: encryptorProvider,
   state: stateProvider,
   log: disabledSemanticLoggerProvider,
+  now: Date.now,
 };
 
 // settings storage location

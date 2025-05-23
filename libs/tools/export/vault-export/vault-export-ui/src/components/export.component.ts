@@ -57,7 +57,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
-import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { ExportedVault, VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
@@ -248,7 +248,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
     );
     this.generatorService
-      .generate$(Generators.password, { on$: this.onGenerate$, account$ })
+      .generate$({ on$: this.onGenerate$, account$ })
       .pipe(takeUntil(this.destroy$))
       .subscribe((generated) => {
         this.exportForm.patchValue({
@@ -379,7 +379,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   generatePassword = async () => {
-    this.onGenerate$.next({ source: "export" });
+    this.onGenerate$.next({ source: "export", type: Type.password });
   };
 
   submit = async () => {

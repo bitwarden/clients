@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
+import { Type } from "../metadata";
 import {
   CatchallGenerationOptions,
   CredentialGenerator,
@@ -128,7 +129,7 @@ export class EmailRandomizer
 
       return new GeneratedCredential(
         email,
-        "catchall",
+        Type.email,
         Date.now(),
         request.source,
         request.website,
@@ -138,7 +139,7 @@ export class EmailRandomizer
 
       return new GeneratedCredential(
         email,
-        "subaddress",
+        Type.email,
         Date.now(),
         request.source,
         request.website,

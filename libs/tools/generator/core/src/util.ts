@@ -14,7 +14,11 @@ import {
   DefaultPassphraseGenerationOptions,
   DefaultPasswordGenerationOptions,
 } from "./data";
-import { PassphraseGenerationOptions, PasswordGenerationOptions } from "./types";
+import {
+  PassphraseGenerationOptions,
+  PasswordGenerationOptions,
+  GeneratorConstraints,
+} from "./types";
 
 /** construct a method that outputs a copy of `defaultValue` as an observable. */
 export function observe$PerUserId<Value>(
@@ -134,4 +138,31 @@ export function optionsToEffWordListRequest(options: PassphraseGenerationOptions
   };
 
   return request;
+}
+
+export function equivalent<T>(lhs: GeneratorConstraints<T>, rhs: GeneratorConstraints<T>): boolean {
+  if (lhs.constraints.policyInEffect !== rhs.constraints.policyInEffect) {
+    return false;
+  }
+
+  // safe because `Constraints<T>` shares keys with `T`
+  const keys = Object.keys(lhs.constraints) as (keyof T)[];
+
+  // use `for` loop so that `equivalent` can return as soon as the constraints
+  // differ. Using `array.xyz` would evaluate the whole key list eagerly
+  for (const k of keys) {
+    if (!(k in rhs.constraints)) {
+      return false;
+    }
+
+    const lhsConstraints: any = lhs.constraints[k] ?? {};
+    const rhsConstraints: any = rhs.constraints[k] ?? {};
+
+    const innerKeys = Object.keys(lhsConstraints);
+    if (innerKeys.some((k) => lhsConstraints[k] !== rhsConstraints[k])) {
+      return false;
+    }
+  }
+
+  return true;
 }
