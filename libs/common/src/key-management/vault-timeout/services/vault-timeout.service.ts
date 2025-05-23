@@ -3,8 +3,8 @@
 import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
 import { BiometricsService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { SearchService } from "../../../abstractions/search.service";
 import { AccountService } from "../../../auth/abstractions/account.service";

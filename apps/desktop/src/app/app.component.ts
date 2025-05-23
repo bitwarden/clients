@@ -27,7 +27,7 @@ import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
+import { DESKTOP_SSO_CALLBACK } from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -65,6 +65,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";

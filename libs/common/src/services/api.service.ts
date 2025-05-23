@@ -8,7 +8,7 @@ import {
   CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";

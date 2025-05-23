@@ -26,7 +26,8 @@
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
       "@bitwarden/key-management": ["../../libs/key-management/src"],
-      "@bitwarden/node/*": ["../../libs/node/src/*"]
+      "@bitwarden/node/*": ["../../libs/node/src/*"],
+      "@bitwarden/logout": ["../../libs/logout/src"]
     },
     "plugins": [
       {

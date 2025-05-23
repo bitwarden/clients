@@ -3,11 +3,11 @@ import { of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import {
-  LogoutReason,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { KeyService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";

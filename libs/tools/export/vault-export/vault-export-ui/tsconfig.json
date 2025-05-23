@@ -18,7 +18,8 @@
       "@bitwarden/ui-common": ["../../../../ui/common/src"],
       "@bitwarden/vault-export-core": [
         "../../../../tools/export/vault-export/vault-export-core/src"
-      ]
+      ],
+      "@bitwarden/logout": ["../../../../logout/src"]
     }
   },
   "include": ["src"],

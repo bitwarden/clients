@@ -32,8 +32,8 @@
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/vault": ["../../libs/vault/src"],
       "@bitwarden/web-vault/*": ["../../apps/web/src/*"],
-
-      "@bitwarden/bit-common/*": ["../bit-common/src/*"]
+      "@bitwarden/bit-common/*": ["../bit-common/src/*"],
+      "@bitwarden/logout": ["../../libs/logout/src"]
     }
   },
   "files": [

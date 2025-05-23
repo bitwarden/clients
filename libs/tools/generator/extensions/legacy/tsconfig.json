@@ -8,7 +8,8 @@
       "@bitwarden/generator-core": ["../../../../tools/generator/core/src"],
       "@bitwarden/generator-history": ["../../../../tools/generator/extensions/history/src"],
       "@bitwarden/generator-navigation": ["../../../../tools/generator/extensions/navigation/src"],
-      "@bitwarden/key-management": ["../../../../key-management/src"]
+      "@bitwarden/key-management": ["../../../../key-management/src"],
+      "@bitwarden/logout": ["../../../../logout/src"]
     }
   },
   "include": ["src"],

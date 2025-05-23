@@ -4,8 +4,8 @@ import { MockProxy, any, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { LogoutReason } from "@bitwarden/auth/common";
 import { BiometricsService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
 import { SearchService } from "../../../abstractions/search.service";

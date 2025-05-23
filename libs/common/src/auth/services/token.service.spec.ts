@@ -3,7 +3,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";

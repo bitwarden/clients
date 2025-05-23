@@ -43,7 +43,6 @@ import {
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
-  LogoutReason,
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
@@ -315,6 +314,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {

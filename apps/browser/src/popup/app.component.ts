@@ -6,7 +6,6 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -24,6 +23,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";

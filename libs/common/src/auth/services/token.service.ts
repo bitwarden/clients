@@ -3,7 +3,8 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
-import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {

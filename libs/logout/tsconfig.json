@@ -1,0 +1,10 @@
+{
+  "extends": "../shared/tsconfig",
+  "include": ["src"],
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "dist"]
+}

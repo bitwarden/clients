@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { combineLatest, filter, firstValueFrom, Observable, of, switchMap } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   Argon2KdfConfig,
@@ -11,6 +10,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";

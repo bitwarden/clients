@@ -11,7 +11,6 @@ import {
   DefaultLockService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
-  LogoutReason,
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
@@ -228,6 +227,7 @@ import {
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   IndividualVaultExportService,

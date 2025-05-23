@@ -7,7 +7,8 @@
       // TODO: Remove once circular dependencies in admin-console, auth and key-management are resolved
       "@bitwarden/common/*": ["../common/src/*"],
       "@bitwarden/key-management": ["../key-management/src"],
-      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"]
+      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"],
+      "@bitwarden/logout": ["../logout/src"]
     }
   },
   "include": ["src", "spec", "./custom-matchers.d.ts", "../key-management/src/index.ts"],

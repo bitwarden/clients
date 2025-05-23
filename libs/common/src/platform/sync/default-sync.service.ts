@@ -8,13 +8,11 @@ import {
   CollectionService,
 } from "@bitwarden/admin-console/common";
 import { KeyService } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";

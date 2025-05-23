@@ -38,7 +38,8 @@
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
       "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/vault": ["../../libs/vault/src"]
+      "@bitwarden/vault": ["../../libs/vault/src"],
+      "@bitwarden/logout": ["../../libs/logout/src"]
     },
     "plugins": [
       {

@@ -11,7 +11,7 @@ import {
   switchMap,
 } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";

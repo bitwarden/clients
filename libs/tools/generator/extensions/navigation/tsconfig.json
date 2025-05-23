@@ -6,7 +6,8 @@
       "@bitwarden/auth/common": ["../../../../auth/src/common"],
       "@bitwarden/common/*": ["../../../../common/src/*"],
       "@bitwarden/generator-core": ["../../../../tools/generator/core/src"],
-      "@bitwarden/key-management": ["../../../../key-management/src"]
+      "@bitwarden/key-management": ["../../../../key-management/src"],
+      "@bitwarden/logout": ["../../../../logout/src"]
     }
   },
   "include": ["src"],

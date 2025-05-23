@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, Subject } from "rxjs";
 
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { awaitAsync } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
