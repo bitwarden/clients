@@ -4,13 +4,17 @@ import { firstValueFrom } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService, Translation } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
+import { LockIcon } from "../icons";
 import {
   InputPasswordComponent,
   InputPasswordFlow,
@@ -30,35 +34,80 @@ export class ChangePasswordComponent implements OnInit {
 
   activeAccount: Account | null = null;
   email?: string;
-  userId?: UserId;
+  activeUserId?: UserId;
   masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   initializing = true;
   submitting = false;
+  formPromise?: Promise<any>;
+  forceSetPasswordReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
+  warningText?: Translation;
 
   constructor(
     private accountService: AccountService,
     private changePasswordService: ChangePasswordService,
     private i18nService: I18nService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
     private policyService: PolicyService,
     private toastService: ToastService,
     private syncService: SyncService,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
     this.activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    this.userId = this.activeAccount?.id;
+    this.activeUserId = this.activeAccount?.id;
     this.email = this.activeAccount?.email;
 
-    if (!this.userId) {
+    if (!this.activeUserId) {
       throw new Error("userId not found");
     }
 
     this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(this.userId),
+      this.policyService.masterPasswordPolicyOptions$(this.activeUserId),
+    );
+
+    this.forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(this.activeUserId),
     );
 
     this.initializing = false;
+
+    if (this.masterPasswordPolicyOptions?.enforceOnLogin) {
+      this.warningText = { key: "masterPasswordInvalidWarning" };
+    }
+
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageIcon: LockIcon,
+        pageTitle: { key: "updateMasterPassword" },
+        pageSubtitle: { key: "accountRecoveryUpdateMasterPasswordSubtitle" },
+        hideFooter: true,
+        maxWidth: "lg",
+      });
+    } else if (this.forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageIcon: LockIcon,
+        pageTitle: { key: "updateMasterPassword" },
+        pageSubtitle: { key: "updateMasterPasswordSubtitle" },
+        hideFooter: true,
+        maxWidth: "lg",
+      });
+    }
+  }
+
+  async logOut() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "logOut" },
+      content: { key: "logOutConfirmation" },
+      acceptButtonText: { key: "logOut" },
+      type: "warning",
+    });
+
+    if (confirmed) {
+      this.messagingService.send("logout");
+    }
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
@@ -83,11 +132,18 @@ export class ChangePasswordComponent implements OnInit {
           passwordInputResult.newPasswordHint,
         );
       } else {
-        if (!this.userId) {
+        if (!this.activeUserId) {
           throw new Error("userId not found");
         }
 
-        await this.changePasswordService.changePassword(passwordInputResult, this.userId);
+        if (this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
+          await this.changePasswordService.changePasswordForAccountRecovery(
+            passwordInputResult,
+            this.activeUserId,
+          );
+        } else {
+          await this.changePasswordService.changePassword(passwordInputResult, this.activeUserId);
+        }
 
         this.toastService.showToast({
           variant: "success",

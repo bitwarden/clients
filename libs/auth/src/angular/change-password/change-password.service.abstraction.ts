@@ -33,4 +33,9 @@ export abstract class ChangePasswordService {
    * @throws if the `userId`, `currentMasterKey`, or `currentServerMasterKeyHash` is not found
    */
   abstract changePassword(passwordInputResult: PasswordInputResult, userId: UserId): Promise<void>;
+
+  abstract changePasswordForAccountRecovery(
+    passwordInputResult: PasswordInputResult,
+    userId: UserId,
+  ): Promise<void>;
 }
