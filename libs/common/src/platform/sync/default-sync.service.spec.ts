@@ -130,23 +130,23 @@ describe("DefaultSyncService", () => {
 
   const user1 = "user1" as UserId;
 
+  const emptySyncResponse = new SyncResponse({
+    profile: {
+      id: user1,
+    },
+    folders: [],
+    collections: [],
+    ciphers: [],
+    sends: [],
+    domains: [],
+    policies: [],
+  });
+
   describe("fullSync", () => {
     beforeEach(() => {
       accountService.activeAccount$ = of({ id: user1 } as Account);
       Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
-      apiService.getSync.mockResolvedValue(
-        new SyncResponse({
-          profile: {
-            id: user1,
-          },
-          folders: [],
-          collections: [],
-          ciphers: [],
-          sends: [],
-          domains: [],
-          policies: [],
-        }),
-      );
+      apiService.getSync.mockResolvedValue(emptySyncResponse);
       Matrix.autoMockMethod(userDecryptionOptionsService.userDecryptionOptionsById$, () =>
         of({ hasMasterPassword: true } satisfies UserDecryptionOptions),
       );
@@ -200,6 +200,45 @@ describe("DefaultSyncService", () => {
 
       expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
       expect(apiService.getSync).toHaveBeenCalledTimes(1);
+    });
+
+    describe("in-flight syncs", () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("does not call getSync when one is already in progress", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+
+        jest.advanceTimersByTime(100);
+
+        await Promise.all(fullSyncPromises);
+
+        expect(apiService.getSync).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not call refreshIdentityToken when one is already in progress", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(false), sut.fullSync(false)];
+
+        jest.advanceTimersByTime(100);
+
+        await Promise.all(fullSyncPromises);
+
+        expect(apiService.refreshIdentityToken).toHaveBeenCalledTimes(1);
+      });
+
+      it("resets the in-flight properties when the complete", async () => {
+        const fullSyncPromises = [sut.fullSync(true), sut.fullSync(true)];
+
+        await Promise.all(fullSyncPromises);
+
+        expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
+        expect(sut["inFlightApiCalls"].sync).toBeNull();
+      });
     });
   });
 });
