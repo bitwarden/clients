@@ -89,6 +89,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
       map((options) => {
+        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+        // eslint-disable-next-line no-constant-binary-expression
         return options?.trustedDeviceOption != null ?? false;
       }),
     );
@@ -97,6 +99,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
     return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
       map((options) => {
+        // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+        // eslint-disable-next-line no-constant-binary-expression
         return options?.trustedDeviceOption != null ?? false;
       }),
     );

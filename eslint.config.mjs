@@ -1,5 +1,5 @@
 // @ts-check
-
+import { fixupPluginRules } from "@eslint/compat";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import angular from "angular-eslint";
@@ -31,8 +31,8 @@ export default tseslint.config(
       reportUnusedDisableDirectives: "error",
     },
     plugins: {
-      rxjs: rxjs,
-      "rxjs-angular": angularRxjs,
+      rxjs: fixupPluginRules(rxjs),
+      "rxjs-angular": fixupPluginRules(angularRxjs),
       "@bitwarden/platform": platformPlugins,
     },
     languageOptions: {

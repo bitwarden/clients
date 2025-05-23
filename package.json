@@ -47,6 +47,7 @@
     "@compodoc/compodoc": "1.1.26",
     "@electron/notarize": "2.5.0",
     "@electron/rebuild": "3.7.2",
+    "@eslint/compat": "1.2.9",
     "@lit-labs/signals": "0.1.2",
     "@ngtools/webpack": "18.2.19",
     "@storybook/addon-a11y": "8.6.12",
@@ -102,7 +103,7 @@
     "electron-reload": "2.0.0-alpha.1",
     "electron-store": "8.2.0",
     "electron-updater": "6.6.4",
-    "eslint": "8.57.1",
+    "eslint": "9.26.0",
     "eslint-config-prettier": "10.1.2",
     "eslint-import-resolver-typescript": "4.3.4",
     "eslint-plugin-import": "2.31.0",
@@ -207,6 +208,12 @@
     "zxcvbn": "4.4.2"
   },
   "overrides": {
+    "eslint-plugin-rxjs": {
+      "eslint": "$eslint"
+    },
+    "eslint-plugin-rxjs-angular": {
+      "eslint": "$eslint"
+    },
     "tailwindcss": "$tailwindcss",
     "@storybook/angular": {
       "zone.js": "$zone.js"
