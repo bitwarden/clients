@@ -225,6 +225,14 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return true;
   }
 
+  supportsAutofill(): boolean {
+    return true;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
+  }
+
   abstract showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,
