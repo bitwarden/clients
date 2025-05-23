@@ -439,7 +439,10 @@ export class VaultPopupListFiltersService {
           previousFilter.organization?.id === currentFilter.organization?.id,
       ),
     ),
-    this.collectionService.decryptedCollections$,
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    ),
   ]).pipe(
     map(([filters, allCollections]) => {
       const organizationId = filters.organization?.id ?? null;
@@ -452,7 +455,7 @@ export class VaultPopupListFiltersService {
       return collections;
     }),
     switchMap(async (collections) => {
-      const nestedCollections = await this.collectionService.getAllNested(collections);
+      const nestedCollections = this.collectionService.getAllNested(collections);
 
       return new DynamicTreeNode<CollectionView>({
         fullList: collections,
