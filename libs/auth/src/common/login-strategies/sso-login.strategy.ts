@@ -260,7 +260,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       }
 
-      if (await this.keyService.hasUserKey()) {
+      if (await this.keyService.hasUserKey(userId)) {
         // Now that we have a decrypted user key in memory, we can check if we
         // need to establish trust on the current device
         await this.deviceTrustService.trustDeviceIfRequired(userId);
