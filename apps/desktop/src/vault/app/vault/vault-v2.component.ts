@@ -675,9 +675,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   private async handleSuccessfulShare(cipher: CipherView) {
     await this.viewCipher(cipher);
-    await this.vaultItemsComponent.refresh();
-    await this.cipherService.clearCache(this.activeUserId);
-    await this.vaultItemsComponent.load(this.activeFilter.buildFilter());
+    await this.vaultItemsComponent?.refresh();
+    this.collections = await firstValueFrom(
+      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
+    );
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
