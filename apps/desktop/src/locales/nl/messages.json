@@ -2512,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Hoofdwachtwoord verwijderd."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ gebruikt SSO met een zelf gehoste sleutelserver. Leden van deze organisatie kunnen inloggen zonder hoofdwachtwoord.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
+  },
+  "organizationName": {
+    "message": "Organisatienaam"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector-domein"
   },
   "leaveOrganization": {
     "message": "Organisatie verlaten"
@@ -3702,6 +3702,15 @@
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "move": {
     "message": "Verplaatsen"
