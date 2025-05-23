@@ -1,27 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ContentChild, Directive, ElementRef, HostBinding } from "@angular/core";
+import { Directive, ElementRef, HostBinding, contentChild } from "@angular/core";
 
 import { FocusableElement } from "../shared/focusable-element";
 
 @Directive({
-  selector: "bitA11yCell",
+  selector: "[bitA11yCell]",
   standalone: true,
   providers: [{ provide: FocusableElement, useExisting: A11yCellDirective }],
 })
 export class A11yCellDirective implements FocusableElement {
   @HostBinding("attr.role")
-  role: "gridcell" | null;
+  role?: "gridcell" | null;
 
-  @ContentChild(FocusableElement)
-  private focusableChild: FocusableElement;
+  private focusableChild = contentChild(FocusableElement);
 
   getFocusTarget() {
-    let focusTarget: HTMLElement;
-    if (this.focusableChild) {
-      focusTarget = this.focusableChild.getFocusTarget();
+    let focusTarget: HTMLElement | undefined | null;
+    if (this.focusableChild()) {
+      focusTarget = this.focusableChild()!.getFocusTarget();
     } else {
-      focusTarget = this.elementRef.nativeElement.querySelector("button, a");
+      focusTarget = this.elementRef.nativeElement.querySelector<HTMLElement>("button, a");
     }
 
     if (!focusTarget) {
