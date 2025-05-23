@@ -7,7 +7,7 @@ export class FieldData {
   type: FieldType;
   name: string;
   value: string;
-  linkedId: LinkedIdType;
+  linkedId: LinkedIdType | null;
 
   constructor(response?: FieldApi) {
     if (response == null) {

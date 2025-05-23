@@ -69,8 +69,9 @@ describe("NotificationBackground", () => {
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
 
+  const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
-    id: "testId" as UserId,
+    id: userId,
     email: "test@example.com",
     emailVerified: true,
     name: "Test User",
@@ -1141,8 +1142,11 @@ describe("NotificationBackground", () => {
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
           cipherEncryptSpy.mockResolvedValueOnce({
-            ...cipherView,
-            id: "testId",
+            cipher: {
+              ...cipherView,
+              id: "testId",
+            },
+            encryptedFor: userId,
           });
 
           sendMockExtensionMessage(message, sender);
@@ -1188,6 +1192,13 @@ describe("NotificationBackground", () => {
           folderExistsSpy.mockResolvedValueOnce(true);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
+          cipherEncryptSpy.mockResolvedValueOnce({
+            cipher: {
+              ...cipherView,
+              id: "testId",
+            },
+            encryptedFor: userId,
+          });
           const errorMessage = "fetch error";
           createWithServerSpy.mockImplementation(() => {
             throw new Error(errorMessage);

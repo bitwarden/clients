@@ -29,19 +29,20 @@ export class DefaultCipherFormService implements CipherFormService {
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
     // Passing the original cipher is important here as it is responsible for appending to password history
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const encryptedCipher = await this.cipherService.encrypt(
+    const encrypted = await this.cipherService.encrypt(
       cipher,
       activeUserId,
       null,
       null,
       config.originalCipher ?? null,
     );
+    const encryptedCipher = encrypted.cipher;
 
     let savedCipher: Cipher;
 
     // Creating a new cipher
     if (cipher.id == null) {
-      savedCipher = await this.cipherService.createWithServer(encryptedCipher, config.admin);
+      savedCipher = await this.cipherService.createWithServer(encrypted, config.admin);
       return await this.cipherService.decrypt(savedCipher, activeUserId);
     }
 
@@ -64,13 +65,13 @@ export class DefaultCipherFormService implements CipherFormService {
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
-      savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
+      savedCipher = await this.cipherService.updateWithServer(encrypted, config.admin);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
       encryptedCipher.collectionIds = config.originalCipher.collectionIds;
       await this.cipherService.updateWithServer(
-        encryptedCipher,
+        encrypted,
         config.admin || originalCollectionIds.size === 0,
       );
 

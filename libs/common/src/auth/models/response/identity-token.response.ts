@@ -5,6 +5,7 @@
 import { KdfType } from "@bitwarden/key-management";
 
 import { BaseResponse } from "../../../models/response/base.response";
+import { UserId } from "../../../types/guid";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
 import { UserDecryptionOptionsResponse } from "./user-decryption-options/user-decryption-options.response";
@@ -29,6 +30,7 @@ export class IdentityTokenResponse extends BaseResponse {
   keyConnectorUrl: string;
 
   userDecryptionOptions: UserDecryptionOptionsResponse;
+  userId: UserId | undefined;
 
   constructor(response: any) {
     super(response);
@@ -57,5 +59,6 @@ export class IdentityTokenResponse extends BaseResponse {
         this.getResponseProperty("UserDecryptionOptions"),
       );
     }
+    this.userId = this.getResponseProperty("UserId");
   }
 }

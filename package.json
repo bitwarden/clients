@@ -159,7 +159,7 @@
     "@angular/platform-browser": "18.2.13",
     "@angular/platform-browser-dynamic": "18.2.13",
     "@angular/router": "18.2.13",
-    "@bitwarden/sdk-internal": "0.2.0-main.168",
+    "@bitwarden/sdk-internal": "0.2.0-main.177",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "3.1.0",
