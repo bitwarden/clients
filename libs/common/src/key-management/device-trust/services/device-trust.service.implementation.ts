@@ -196,7 +196,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     oldUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ): Promise<DeviceKeysUpdateRequest[]> {
+  ): Promise<OtherDeviceKeysUpdateRequest[]> {
     if (!userId) {
       throw new Error("UserId is required. Cannot get rotated data.");
     }
