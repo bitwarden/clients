@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -122,7 +122,13 @@ export class CollectionsComponent implements OnInit {
   }
 
   protected async loadCollections() {
-    const allCollections = await this.collectionService.getAllDecrypted();
+    const allCollections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    );
+
     return allCollections.filter(
       (c) => !c.readOnly && c.organizationId === this.cipher.organizationId,
     );

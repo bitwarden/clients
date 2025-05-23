@@ -724,7 +724,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   protected async loadCollections() {
-    const allCollections = await this.collectionService.getAllDecrypted();
+    const allCollections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    );
+
     return allCollections.filter((c) => !c.readOnly);
   }
 
