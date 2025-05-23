@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Nevažeći kôd za provjeru"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ koristi jedinstvenu prijavu SSO s vlastitim poslužiteljem. Članovima organizacije glavna lozinka više nije potrebna.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Napusti organizaciju"

@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ utilise le SSO avec un serveur de clés auto-hébergé. Un mot de passe principal n'est plus nécessaire aux membres de cette organisation pour se connecter.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Un mot de passe maître n'est plus requis pour les membres de l'organisation suivante. Veuillez confirmer le domaine ci-dessous avec l'administrateur de votre organisation."
+  },
+  "keyConnectorDomain": {
+    "message": "Domaine Key Connector"
   },
   "leaveOrganization": {
     "message": "Quitter l'organisation"
