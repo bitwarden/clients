@@ -12,13 +12,19 @@ import {
   of,
   takeWhile,
   throwIfEmpty,
+  firstValueFrom,
 } from "rxjs";
 
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { ENCRYPTED_CIPHERS } from "@bitwarden/common/vault/services/key-state/ciphers.state";
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
   BitwardenClient,
   ClientSettings,
+  Cipher as SdkCipher,
   DeviceType as SdkDeviceType,
+  Repository as SdkRepository,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -34,6 +40,7 @@ import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.ser
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
+import { StateProvider, UserKeyDefinition } from "../../state";
 
 // A symbol that represents an overriden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -66,6 +73,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private stateProvider?: StateProvider,
     private userAgent: string | null = null,
   ) {}
 
@@ -150,7 +158,15 @@ export class DefaultSdkService implements SdkService {
             const settings = this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(settings);
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              privateKey,
+              userKey,
+              orgKeys,
+            );
 
             return client;
           };
@@ -180,6 +196,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async initializeClient(
+    userId: UserId,
     client: BitwardenClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
@@ -214,6 +231,21 @@ export class DefaultSdkService implements SdkService {
           .map(([k, v]) => [k, v.key]),
       ),
     });
+
+    // This is optional to avoid having to mock it on the server
+    if (this.stateProvider) {
+      client
+        .platform()
+        .repository()
+        .register_cipher_repository(
+          new RepositoryRecordImpl(
+            userId,
+            this.stateProvider,
+            ENCRYPTED_CIPHERS,
+            new CipherMapper(),
+          ),
+        );
+    }
   }
 
   private toSettings(env: Environment): ClientSettings {
@@ -280,5 +312,62 @@ export class DefaultSdkService implements SdkService {
       default:
         return "SDK";
     }
+  }
+}
+
+interface SdkMapper<ClientType, SdkType> {
+  toSdk(value: ClientType): SdkType;
+  fromSdk(value: SdkType): ClientType;
+}
+
+class RepositoryRecordImpl<ClientType, SdkType> implements SdkRepository<SdkType> {
+  constructor(
+    private userId: UserId,
+    private stateProvider: StateProvider,
+    private userKeyDefinition: UserKeyDefinition<Record<string, ClientType>>,
+    private mapper: SdkMapper<ClientType, SdkType>,
+  ) {}
+
+  async get(id: string): Promise<SdkType | null> {
+    const prov = this.stateProvider.getUser(this.userId, this.userKeyDefinition);
+    const data = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
+
+    const cipher = data[id];
+    if (!cipher) {
+      return null;
+    }
+
+    return this.mapper.toSdk(cipher);
+  }
+  async list(): Promise<SdkType[]> {
+    const prov = this.stateProvider.getUser(this.userId, this.userKeyDefinition);
+    const ciphers = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
+
+    return Object.values(ciphers).map((cipher) => this.mapper.toSdk(cipher));
+  }
+  async set(id: string, value: SdkType): Promise<void> {
+    const prov = this.stateProvider.getUser(this.userId, this.userKeyDefinition);
+    const ciphers = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
+    ciphers[id] = this.mapper.fromSdk(value);
+    await prov.update(() => ciphers);
+  }
+  async remove(id: string): Promise<void> {
+    const prov = this.stateProvider.getUser(this.userId, this.userKeyDefinition);
+    const ciphers = await firstValueFrom(prov.state$.pipe(map((data) => data ?? {})));
+    if (!ciphers[id]) {
+      return;
+    }
+    delete ciphers[id];
+    await prov.update(() => ciphers);
+  }
+}
+
+class CipherMapper implements SdkMapper<CipherData, SdkCipher> {
+  toSdk(value: CipherData): SdkCipher {
+    return new Cipher(value).toSdkCipher();
+  }
+
+  fromSdk(value: SdkCipher): CipherData {
+    throw new Error("Cipher.fromSdk is not implemented yet");
   }
 }
