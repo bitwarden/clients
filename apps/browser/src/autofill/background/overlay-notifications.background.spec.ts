@@ -1,9 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CLEAR_NOTIFICATION_LOGIN_DATA_DURATION } from "@bitwarden/common/autofill/constants";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EnvironmentServerConfigData } from "@bitwarden/common/platform/models/data/server-config.data";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import AutofillField from "../models/autofill-field";
@@ -24,6 +27,9 @@ import { OverlayNotificationsBackground } from "./overlay-notifications.backgrou
 describe("OverlayNotificationsBackground", () => {
   let logService: MockProxy<LogService>;
   let notificationBackground: NotificationBackground;
+  let taskService: TaskService;
+  let accountService: AccountService;
+  let cipherService: CipherService;
   let getEnableChangedPasswordPromptSpy: jest.SpyInstance;
   let getEnableAddedLoginPromptSpy: jest.SpyInstance;
   let overlayNotificationsBackground: OverlayNotificationsBackground;
@@ -32,6 +38,9 @@ describe("OverlayNotificationsBackground", () => {
     jest.useFakeTimers();
     logService = mock<LogService>();
     notificationBackground = mock<NotificationBackground>();
+    taskService = mock<TaskService>();
+    accountService = mock<AccountService>();
+    cipherService = mock<CipherService>();
     getEnableChangedPasswordPromptSpy = jest
       .spyOn(notificationBackground, "getEnableChangedPasswordPrompt")
       .mockResolvedValue(true);
@@ -41,6 +50,9 @@ describe("OverlayNotificationsBackground", () => {
     overlayNotificationsBackground = new OverlayNotificationsBackground(
       logService,
       notificationBackground,
+      taskService,
+      accountService,
+      cipherService,
     );
     await overlayNotificationsBackground.init();
   });
@@ -329,8 +341,11 @@ describe("OverlayNotificationsBackground", () => {
         tab: { id: 1 },
         url: "https://example.com",
       });
-      notificationChangedPasswordSpy = jest.spyOn(notificationBackground, "changedPassword");
-      notificationAddLoginSpy = jest.spyOn(notificationBackground, "addLogin");
+      notificationChangedPasswordSpy = jest.spyOn(
+        notificationBackground,
+        "triggerChangedPasswordNotification",
+      );
+      notificationAddLoginSpy = jest.spyOn(notificationBackground, "triggerAddLoginNotification");
 
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: pageDetails },
