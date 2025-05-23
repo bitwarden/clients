@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Yeni kayıt"
   },
-  "addNewFolder": {
-    "message": "Yeni klasör"
-  },
   "view": {
     "message": "Görüntüle"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Dosya parolası\" ile \"Dosya parolasını onaylayın\" eşleşmiyor."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha adresi",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Erişilebilirlik çerezini yükle"
-  },
-  "registerAccessibilityUser": {
-    "message": "Erişilebilirlik kullanıcısı olarak kaydolun:",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "E-postanıza gönderilen bağlantıyı kopyalayıp aşağıya yapıştırın"
-  },
-  "enterhCaptchaUrl": {
-    "message": "hCaptcha erişilebilirlik çerezini yüklemek için adresi yazın",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha adresi gereklidir",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Geçersiz adres"
-  },
   "done": {
     "message": "Tamam"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Erişilebilirlik çerezi kaydedildi."
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Erişilebilirlik çerezi kaydedilmedi"
   },
   "warning": {
     "message": "UYARI",
@@ -2546,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Ana parola kaldırıldı"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin artık ana parola kullanması gerekmiyor.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Kuruluş adı"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector alan adı"
   },
   "leaveOrganization": {
     "message": "Kuruluştan ayrıl"
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Kayıt ayrıntıları"
+  },
+  "itemName": {
+    "message": "Kayıt adı"
+  },
+  "loginCredentials": {
+    "message": "Hesap bilgileri"
+  },
+  "additionalOptions": {
+    "message": "Ek seçenekler"
+  },
+  "itemHistory": {
+    "message": "Kayıt geçmişi"
+  },
+  "lastEdited": {
+    "message": "Son düzenlenme"
+  },
+  "upload": {
+    "message": "Yükle"
+  },
   "authorize": {
     "message": "Yetkilendir"
   },
@@ -3716,8 +3703,26 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Taşı"
+  },
+  "newFolder": {
+    "message": "Yeni klasör"
+  },
+  "folderName": {
+    "message": "Klasör adı"
+  },
+  "folderHintText": {
+    "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"

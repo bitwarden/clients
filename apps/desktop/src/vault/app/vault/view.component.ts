@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   NgZone,
   OnChanges,
   OnDestroy,
@@ -42,9 +43,11 @@ const BroadcasterSubscriptionId = "ViewComponent";
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
+  standalone: false,
 })
 export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
 
   constructor(
     cipherService: CipherService,
@@ -72,7 +75,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     accountService: AccountService,
     toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
-    private configService: ConfigService,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -100,6 +103,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       billingAccountProfileStateService,
       toastService,
       cipherAuthorizationService,
+      configService,
     );
   }
 
@@ -118,6 +122,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         }
       });
     });
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   ngOnDestroy() {
@@ -132,6 +137,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       });
       return;
     }
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   viewHistory() {

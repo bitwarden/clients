@@ -35,6 +35,7 @@ import {
 @Component({
   selector: "app-org-manage-domain-verification",
   templateUrl: "domain-verification.component.html",
+  standalone: false,
 })
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   private componentDestroyed$ = new Subject<void>();

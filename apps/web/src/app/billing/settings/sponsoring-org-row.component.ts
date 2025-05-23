@@ -18,6 +18,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
+  standalone: false,
 })
 export class SponsoringOrgRowComponent implements OnInit {
   @Input() sponsoringOrg: Organization = null;
@@ -109,7 +110,7 @@ export class SponsoringOrgRowComponent implements OnInit {
       return;
     }
 
-    await this.apiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
+    await this.organizationSponsorshipApiService.deleteRevokeSponsorship(this.sponsoringOrg.id);
     this.toastService.showToast({
       variant: "success",
       title: null,

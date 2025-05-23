@@ -30,6 +30,8 @@ export interface GeneratorDialogResult {
   generatedValue?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum GeneratorDialogAction {
   Selected = "selected",
   Canceled = "canceled",

@@ -23,6 +23,12 @@ type BaseCacheOptions<T> = {
    * Optional flag to persist the cached value between navigation events.
    */
   persistNavigation?: boolean;
+
+  /**
+   * When set, the cached value will be cleared when the user changes tabs.
+   * @optional
+   */
+  clearOnTabChange?: true;
 } & (T extends JsonValue ? Deserializer<T> : Required<Deserializer<T>>);
 
 export type SignalCacheOptions<T> = BaseCacheOptions<T> & {
@@ -42,7 +48,7 @@ export type FormCacheOptions<TFormGroup extends FormGroup> = BaseCacheOptions<
 /**
  * Cache for temporary component state
  *
- * [Read more](./view-cache.md)
+ * [Read more](./README.md)
  *
  * #### Implementations
  * - browser extension popup: used to persist UI between popup open and close

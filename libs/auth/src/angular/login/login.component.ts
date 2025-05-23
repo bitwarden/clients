@@ -29,6 +29,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -46,6 +48,8 @@ import { LoginComponentService, PasswordPolicies } from "./login-component.servi
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
   EMAIL_ENTRY = "EmailEntry",
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",

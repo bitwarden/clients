@@ -35,6 +35,7 @@ import {
 
 @Component({
   templateUrl: "payment-method.component.html",
+  standalone: false,
 })
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;

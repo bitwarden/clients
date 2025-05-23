@@ -30,6 +30,8 @@ export interface AdjustPaymentDialogParams {
   providerId?: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AdjustPaymentDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -37,6 +39,7 @@ export enum AdjustPaymentDialogResultType {
 
 @Component({
   templateUrl: "./adjust-payment-dialog.component.html",
+  standalone: false,
 })
 export class AdjustPaymentDialogComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;

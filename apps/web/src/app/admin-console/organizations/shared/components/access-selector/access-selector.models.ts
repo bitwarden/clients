@@ -15,6 +15,8 @@ import { GroupView } from "../../../core";
 /**
  * Permission options that replace/correspond with manage, readOnly, and hidePassword server fields.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionPermission {
   View = "view",
   ViewExceptPass = "viewExceptPass",
@@ -23,6 +25,8 @@ export enum CollectionPermission {
   Manage = "manage",
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AccessItemType {
   Collection,
   Group,

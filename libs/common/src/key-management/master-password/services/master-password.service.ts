@@ -166,7 +166,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     masterKey: MasterKey,
     userId: UserId,
     userKey?: EncString,
-  ): Promise<UserKey> {
+  ): Promise<UserKey | null> {
     userKey ??= await this.getMasterKeyEncryptedUserKey(userId);
     masterKey ??= await firstValueFrom(this.masterKey$(userId));
 
@@ -177,16 +177,26 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     let decUserKey: SymmetricCryptoKey;
 
     if (userKey.encryptionType === EncryptionType.AesCbc256_B64) {
-      decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
+      try {
+        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, masterKey);
+      } catch {
+        this.logService.warning("Failed to decrypt user key with master key.");
+        return null;
+      }
     } else if (userKey.encryptionType === EncryptionType.AesCbc256_HmacSha256_B64) {
-      const newKey = await this.keyGenerationService.stretchKey(masterKey);
-      decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
+      try {
+        const newKey = await this.keyGenerationService.stretchKey(masterKey);
+        decUserKey = await this.encryptService.unwrapSymmetricKey(userKey, newKey);
+      } catch {
+        this.logService.warning("Failed to decrypt user key with stretched master key.");
+        return null;
+      }
     } else {
       throw new Error("Unsupported encryption type.");
     }
 
     if (decUserKey == null) {
-      this.logService.warning("Failed to decrypt user key with master key.");
+      this.logService.warning("Failed to decrypt user key with master key, user key is null.");
       return null;
     }
 

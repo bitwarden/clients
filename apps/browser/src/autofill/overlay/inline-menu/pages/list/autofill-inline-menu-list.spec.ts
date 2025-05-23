@@ -21,10 +21,16 @@ describe("AutofillInlineMenuList", () => {
     disconnect: jest.fn(),
   }));
 
-  let autofillInlineMenuList: AutofillInlineMenuList;
+  let autofillInlineMenuList: AutofillInlineMenuList | null;
   const portKey: string = "inlineMenuListPortKey";
+  const events: { eventName: any; callback: any }[] = [];
 
   beforeEach(() => {
+    const oldEv = globalThis.addEventListener;
+    globalThis.addEventListener = (eventName: any, callback: any) => {
+      events.push({ eventName, callback });
+      oldEv.call(globalThis, eventName, callback);
+    };
     document.body.innerHTML = `<autofill-inline-menu-list></autofill-inline-menu-list>`;
     autofillInlineMenuList = document.querySelector("autofill-inline-menu-list");
     jest.spyOn(globalThis.document, "createElement");
@@ -33,6 +39,9 @@ describe("AutofillInlineMenuList", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    events.forEach(({ eventName, callback }) => {
+      globalThis.removeEventListener(eventName, callback);
+    });
   });
 
   describe("initAutofillInlineMenuList", () => {

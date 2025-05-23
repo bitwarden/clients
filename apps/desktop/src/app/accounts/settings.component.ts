@@ -54,6 +54,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
+  standalone: false,
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
@@ -505,7 +506,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.updateRequirePasswordOnStart();
       }
 
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.vaultTimeoutSettingsService.clear(userId);
     }
 
     this.messagingService.send("redrawMenu");

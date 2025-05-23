@@ -14,6 +14,7 @@ import { OrganizationInvite } from "./organization-invite";
 
 @Component({
   templateUrl: "accept-organization.component.html",
+  standalone: false,
 })
 export class AcceptOrganizationComponent extends BaseAcceptComponent {
   orgName$ = this.acceptOrganizationInviteService.orgName$;

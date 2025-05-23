@@ -11,6 +11,7 @@ import { SearchBarService, SearchBarState } from "./search-bar.service";
 @Component({
   selector: "app-search",
   templateUrl: "search.component.html",
+  standalone: false,
 })
 export class SearchComponent implements OnInit, OnDestroy {
   state: SearchBarState;
