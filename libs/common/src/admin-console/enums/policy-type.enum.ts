@@ -16,4 +16,5 @@ export enum PolicyType {
   AutomaticAppLogIn = 12, // Enables automatic log in of apps from configured identity provider
   FreeFamiliesSponsorshipPolicy = 13, // Disables free families plan for organization
   RemoveUnlockWithPin = 14, // Do not allow members to unlock their account with a PIN.
+  HelpUsersUpdatePasswords = 15, // Navigate users directly to the change password page for a cipher.
 }

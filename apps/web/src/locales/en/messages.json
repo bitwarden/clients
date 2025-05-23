@@ -10554,6 +10554,21 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "helpUsersUpdatePasswordsTitle": {
+    "message": "Automatically direct users to password change pages"
+  },
+  "helpUsersUpdatePasswordsDesc": {
+    "message": "Help users update their passwords when identified as at-risk in Risk Insights by directing them directly to the appropriate password change page."
+  },
+  "helpUsersUpdatePasswordsListDesc" :{
+    "message": "Guides users directly to the password change page for faster updates of at-risk credentials."
+  },
+  "helpUsersUpdatePasswordInfoCallout": {
+    "message": "When enabled, login page URLs are shared with the server to help locate the specific password change page. No sensitive credentials are shared, and Bitwarden does not store the URLs or use them for any purpose other than identifying the password change page."
+  },
+  "helpUsersUpdatePasswordWarningCallout": {
+    "message": "If this setting is turned off, users will be directed to the account's main login page and need to manually navigate to the password change section."
+  },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
