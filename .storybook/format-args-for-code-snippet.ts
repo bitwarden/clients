@@ -7,20 +7,26 @@ export const formatArgsForCodeSnippet = <ComponentType>(args: RenderArgType<Comp
     ([_, value]) => value !== null && value !== undefined,
   );
   const functionArgs = nonNullArgs.filter(([_, value]) => typeof value === "function");
+  // const argsWithObjectValues = nonNullArgs.filter(([_, value]) => typeof value === "object");
+  const argsToFormat = nonNullArgs.filter(([_, value]) => typeof value !== "function");
 
-  const nonFunctionArgs = nonNullArgs.filter(([_, value]) => typeof value !== "function");
-  const functionArgKeys = [...functionArgs].map(
+  const argsToTemplateIncludeKeys = [...functionArgs].map(
     ([key, _]) => key as keyof RenderArgType<ComponentType>,
   );
 
-  const formattedNonFunctionArgs = nonFunctionArgs
+  const formattedNonFunctionArgs = argsToFormat
     .map(([key, value]) => {
       if (typeof value === "boolean") {
         return `[${key}]="${value}"`;
+      }
+
+      if (typeof value === "object" && Array.isArray(value)) {
+        const formattedArray = value.map((v) => `'${v}'`).join(", ");
+        return `[${key}]="[${formattedArray}]"`;
       }
       return `${key}="${value}"`;
     })
     .join(" ");
 
-  return `${formattedNonFunctionArgs} ${argsToTemplate(args, { include: functionArgKeys })}`;
+  return `${formattedNonFunctionArgs} ${argsToTemplate(args, { include: argsToTemplateIncludeKeys })}`;
 };
