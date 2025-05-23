@@ -21,18 +21,6 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 
   * A variance in color across the avatar component is important as it is used in Account Switching as a
   * visual indicator to recognize which of a personal or work account a user is logged into.
-  * 
-  * Example usage
-  * 
-  * ```html
-  * <bit-avatar
-  *   [color]="#175ddc"
-  *   [id]="some-id"
-  *   [text]="Walt Walterson"
-  *   [size]="default"
-  * >
-  * </bit-avatar>
-  * ```
 */
 @Component({
   selector: "bit-avatar",
