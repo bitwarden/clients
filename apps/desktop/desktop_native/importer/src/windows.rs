@@ -1,6 +1,7 @@
 use aes_gcm::aead::Aead;
 use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
+use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 
 use winapi::shared::minwindef::{BOOL, BYTE, DWORD};
@@ -62,8 +63,9 @@ impl WindowsCryptoService {
     }
 }
 
+#[async_trait]
 impl CryptoService for WindowsCryptoService {
-    fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
+    async fn decrypt_to_string(&mut self, encrypted: &[u8]) -> Result<String> {
         if encrypted.is_empty() {
             return Ok(String::new());
         }
