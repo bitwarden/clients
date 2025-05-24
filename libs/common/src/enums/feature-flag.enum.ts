@@ -131,7 +131,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
 
   /* Platform */
-  [FeatureFlag.IpcChannelFramework]: FALSE,
+  [FeatureFlag.IpcChannelFramework]: true,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
