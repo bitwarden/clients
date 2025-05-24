@@ -5,17 +5,17 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { BitwardenClient, VerifyAsymmetricKeysResponse } from "@bitwarden/sdk-internal";
+import { VerifyAsymmetricKeysResponse } from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";
 import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
@@ -24,24 +24,17 @@ import { DefaultUserAsymmetricKeysRegenerationService } from "./default-user-asy
 
 function setupVerificationResponse(
   mockVerificationResponse: VerifyAsymmetricKeysResponse,
-  sdkService: MockProxy<SdkService>,
+  sdkService: MockSdkService,
 ) {
   const mockKeyPairResponse = {
     userPublicKey: "userPublicKey",
     userKeyEncryptedPrivateKey: "userKeyEncryptedPrivateKey",
   };
 
-  sdkService.client$ = of({
-    crypto: () => ({
-      verify_asymmetric_keys: jest.fn().mockReturnValue(mockVerificationResponse),
-      make_key_pair: jest.fn().mockReturnValue(mockKeyPairResponse),
-    }),
-    free: jest.fn(),
-    echo: jest.fn(),
-    version: jest.fn(),
-    throw: jest.fn(),
-    catch: jest.fn(),
-  } as unknown as BitwardenClient);
+  sdkService.client.crypto
+    .mockDeep()
+    .verify_asymmetric_keys.mockReturnValue(mockVerificationResponse);
+  sdkService.client.crypto.mockDeep().make_key_pair.mockReturnValue(mockKeyPairResponse);
 }
 
 function setupUserKeyValidation(
@@ -74,7 +67,7 @@ describe("regenerateIfNeeded", () => {
   let cipherService: MockProxy<CipherService>;
   let userAsymmetricKeysRegenerationApiService: MockProxy<UserAsymmetricKeysRegenerationApiService>;
   let logService: MockProxy<LogService>;
-  let sdkService: MockProxy<SdkService>;
+  let sdkService: MockSdkService;
   let apiService: MockProxy<ApiService>;
   let configService: MockProxy<ConfigService>;
   let encryptService: MockProxy<EncryptService>;
@@ -84,7 +77,7 @@ describe("regenerateIfNeeded", () => {
     cipherService = mock<CipherService>();
     userAsymmetricKeysRegenerationApiService = mock<UserAsymmetricKeysRegenerationApiService>();
     logService = mock<LogService>();
-    sdkService = mock<SdkService>();
+    sdkService = new MockSdkService();
     apiService = mock<ApiService>();
     configService = mock<ConfigService>();
     encryptService = mock<EncryptService>();
