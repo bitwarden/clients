@@ -365,4 +365,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
     return "";
   }
+
+  async openPopupToPath() {
+    await chrome.action.openPopup();
+  }
 }
