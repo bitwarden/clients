@@ -11,7 +11,9 @@ export class ScrollLayoutDirective extends CdkVirtualScrollable {
   private mainRef: ElementRef<HTMLElement>;
 
   constructor(scrollDispatcher: ScrollDispatcher, ngZone: NgZone, @Optional() dir: Directionality) {
-    const mainEl = document.querySelector("main")!;
+    const mainEl = document.querySelector<HTMLElement>(
+      ".bit-virtual-scrollable.cdk-virtual-scrollable",
+    )!;
     if (!mainEl) {
       // eslint-disable-next-line no-console
       console.error("HTML main element must be an ancestor of [bitScrollLayout]");
