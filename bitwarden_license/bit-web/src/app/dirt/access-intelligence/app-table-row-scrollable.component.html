@@ -32,7 +32,7 @@
         <i class="bwi bwi-star-f" *ngIf="row.isMarkedAsCritical"></i>
       </td>
       <td bitCell>
-        <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+        <app-vault-icon *ngIf="row.ciphers.length > 0" [cipher]="row.ciphers[0]"></app-vault-icon>
       </td>
       <td
         class="tw-cursor-pointer"
