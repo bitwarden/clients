@@ -3,17 +3,21 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendComponent as BaseSendComponent } from "@bitwarden/angular/tools/send/send.component";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -24,6 +28,7 @@ import { NavComponent } from "../../layout/nav.component";
 import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
+import { NewSendDropdownComponent } from "./new-send/new-send-dropdown.component";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -39,13 +44,23 @@ const BroadcasterSubscriptionId = "SendComponent";
   selector: "app-send",
   templateUrl: "send.component.html",
   standalone: true,
-  imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
+  imports: [
+    CommonModule,
+    JslibModule,
+    FormsModule,
+    NavComponent,
+    AddEditComponent,
+    NewSendDropdownComponent,
+  ],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
 
   sendId: string;
   action: Action = Action.None;
+
+  /* Observable that represents if the Desktop Send UI Refresh feature flag is enabled or not */
+  protected isDesktopSendUIRefreshEnabled$: Observable<boolean>;
 
   constructor(
     sendService: SendService,
@@ -62,6 +77,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     dialogService: DialogService,
     toastService: ToastService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     super(
       sendService,
@@ -77,6 +93,10 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       toastService,
       accountService,
     );
+    this.isDesktopSendUIRefreshEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.DesktopSendUIRefresh,
+    );
+
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.searchBarService.searchText$.subscribe((searchText) => {
       this.searchText = searchText;
@@ -110,7 +130,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     this.searchBarService.setEnabled(false);
   }
 
-  async addSend() {
+  async addSend(sendType?: SendType) {
     this.action = Action.Add;
     if (this.addEditComponent != null) {
       await this.addEditComponent.resetAndLoad();
