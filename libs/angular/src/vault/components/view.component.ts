@@ -54,6 +54,8 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "BaseViewComponent";
@@ -95,7 +97,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   cipherType = CipherType;
 
   private previousCipherId: string;
-  private passwordReprompted = false;
+  protected passwordReprompted = false;
 
   /**
    * Represents TOTP information including display formatting and timing

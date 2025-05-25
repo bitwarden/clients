@@ -25,8 +25,10 @@ export type NotificationConfirmationContainerProps = NotificationBarIframeInitDa
   handleOpenTasks: (e: Event) => void;
 } & {
   error?: string;
+  headerMessage?: string;
   i18n: I18n;
   itemName: string;
+  notificationTestId: string;
   task?: NotificationTaskInfo;
   type: NotificationType;
 };
@@ -36,13 +38,14 @@ export function NotificationConfirmationContainer({
   handleCloseNotification,
   handleOpenVault,
   handleOpenTasks,
+  headerMessage,
   i18n,
   itemName,
+  notificationTestId,
   task,
   theme = ThemeTypes.Light,
   type,
 }: NotificationConfirmationContainerProps) {
-  const headerMessage = getHeaderMessage(i18n, type, error);
   const confirmationMessage = getConfirmationMessage(i18n, type, error);
   const buttonText = error ? i18n.newItem : i18n.view;
   const buttonAria = error
@@ -67,7 +70,7 @@ export function NotificationConfirmationContainer({
   }
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,
@@ -124,21 +127,4 @@ function getConfirmationMessage(i18n: I18n, type?: NotificationType, error?: str
   return type === NotificationTypes.Add
     ? i18n.notificationLoginSaveConfirmation
     : i18n.notificationLoginUpdatedConfirmation;
-}
-
-function getHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
-  if (error) {
-    return i18n.saveFailure;
-  }
-
-  switch (type) {
-    case NotificationTypes.Add:
-      return i18n.loginSaveSuccess;
-    case NotificationTypes.Change:
-      return i18n.loginUpdateSuccess;
-    case NotificationTypes.Unlock:
-      return "";
-    default:
-      return undefined;
-  }
 }
