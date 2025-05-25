@@ -8,6 +8,7 @@ import { firstValueFrom } from "rxjs";
 
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isFlatpak, isLinux, isSnapStore } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -23,8 +24,11 @@ export class MessagingMain {
 
   async init() {
     this.scheduleNextSync();
-    if (process.platform === "linux") {
-      await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+    if (isLinux()) {
+      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
+      if (!isFlatpak() && !isSnapStore()) {
+        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+      }
     } else {
       const loginSettings = app.getLoginItemSettings();
       await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
