@@ -14,10 +14,14 @@ import {
   tap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
@@ -287,7 +291,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return availableActions;
   }
 
-  async clear(userId?: string): Promise<void> {
+  async clear(userId: UserId): Promise<void> {
     await this.keyService.clearPinKeys(userId);
   }
 
