@@ -110,10 +110,10 @@ export const Block: Story = {
     template: `
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
-        <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
+        <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ms-2">[block]="true" Link</a>
 
-        <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
-        <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
+        <button bitButton [buttonType]="buttonType" block class="tw-ms-2">block Button</button>
+        <a bitButton [buttonType]="buttonType" block href="#" class="tw-ms-2">block Link</a>
       </span>
     `,
   }),
