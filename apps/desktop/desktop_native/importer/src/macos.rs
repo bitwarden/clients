@@ -10,10 +10,14 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 7] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",
+    },
+    BrowserConfig {
+        name: "Chromium",
+        data_dir: "Library/Application Support/Chromium",
     },
     BrowserConfig {
         name: "Microsoft Edge",
@@ -65,6 +69,11 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
         browser: "Chrome",
         service: "Chrome Safe Storage",
         account: "Chrome",
+    },
+    KeychainConfig {
+        browser: "Chromium",
+        service: "Chromium Safe Storage",
+        account: "Chromium",
     },
     KeychainConfig {
         browser: "Microsoft Edge",
