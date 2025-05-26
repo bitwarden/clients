@@ -1,4 +1,4 @@
-import { mergeMap } from "rxjs";
+import { mergeMap, Subscription } from "rxjs";
 
 import {
   BADGE_MEMORY,
@@ -29,8 +29,14 @@ export class BadgeService {
     private badgeApi: BadgeBrowserApi,
   ) {
     this.states = this.stateProvider.getGlobal(BADGE_STATES);
+  }
 
-    this.states.state$
+  /**
+   * Start listening for badge state changes.
+   * Without this the service will not be able to update the badge state.
+   */
+  startListening(): Subscription {
+    return this.states.state$
       .pipe(
         mergeMap(async (states) => {
           const state = this.calculateState(states ?? {});

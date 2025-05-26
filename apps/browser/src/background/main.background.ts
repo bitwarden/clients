@@ -1421,6 +1421,7 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     await this.ipcService.init();
+    this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
