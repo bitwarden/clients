@@ -197,15 +197,15 @@ export const Custom: Story = {
       <div class="tw-flex tw-flex-col tw-w-32">
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           A-Z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           a-z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           0-9
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
+          <input class="tw-ms-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
       </div>
     `,
