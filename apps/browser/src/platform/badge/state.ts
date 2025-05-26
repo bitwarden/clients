@@ -1,3 +1,5 @@
+import { BadgeIcon } from "./icon";
+
 export const Unset = Symbol("Unset badge state");
 export type Unset = typeof Unset;
 
@@ -26,10 +28,5 @@ export type BadgeState = {
    * If this is set to `undefined`, a lower priority state may be used.
    * If no lower priority state is set, the default icon will be used.
    */
-  icon?: Unset | IconPaths;
-};
-
-export type IconPaths = {
-  19: string;
-  38: string;
+  icon?: Unset | BadgeIcon;
 };

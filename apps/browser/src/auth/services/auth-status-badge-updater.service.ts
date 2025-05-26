@@ -5,25 +5,11 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { BadgeService } from "../../platform/badge/badge.service";
+import { BadgeIcon } from "../../platform/badge/icon";
 import { BadgeStatePriority } from "../../platform/badge/priority";
-import { IconPaths, Unset } from "../../platform/badge/state";
+import { Unset } from "../../platform/badge/state";
 
 const StateName = "auth-status";
-
-const LoggedOutIcon: IconPaths = {
-  19: "/images/icon19_gray.png",
-  38: "/images/icon38_gray.png",
-};
-
-const LockedIcon: IconPaths = {
-  19: "/images/icon19_locked.png",
-  38: "/images/icon38_locked.png",
-};
-
-const UnlockedIcon: IconPaths = {
-  19: "/images/icon19.png",
-  38: "/images/icon38.png",
-};
 
 export class AuthStatusBadgeUpdaterService {
   constructor(
@@ -42,7 +28,7 @@ export class AuthStatusBadgeUpdaterService {
           switch (authStatus) {
             case AuthenticationStatus.LoggedOut: {
               await this.badgeService.setState(StateName, BadgeStatePriority.High, {
-                icon: LoggedOutIcon,
+                icon: BadgeIcon.LoggedOut,
                 backgroundColor: Unset,
                 text: Unset,
               });
@@ -50,7 +36,7 @@ export class AuthStatusBadgeUpdaterService {
             }
             case AuthenticationStatus.Locked: {
               await this.badgeService.setState(StateName, BadgeStatePriority.High, {
-                icon: LockedIcon,
+                icon: BadgeIcon.Locked,
                 backgroundColor: Unset,
                 text: Unset,
               });
@@ -58,7 +44,7 @@ export class AuthStatusBadgeUpdaterService {
             }
             case AuthenticationStatus.Unlocked: {
               await this.badgeService.setState(StateName, BadgeStatePriority.Low, {
-                icon: UnlockedIcon,
+                icon: BadgeIcon.Unlocked,
               });
               break;
             }
