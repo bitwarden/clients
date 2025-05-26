@@ -86,27 +86,21 @@
       </div>
     </div>
 
-    <div
-      *ngIf="vaultState === null"
-      cdkVirtualScrollingElement
-      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-    >
-      <div class="tw-max-w-screen-sm tw-mx-auto">
-        <app-autofill-vault-list-items></app-autofill-vault-list-items>
-        <app-vault-list-items-container
-          [title]="'favorites' | i18n"
-          [ciphers]="(favoriteCiphers$ | async) || []"
-          id="favorites"
-          collapsibleKey="favorites"
-        ></app-vault-list-items-container>
-        <app-vault-list-items-container
-          [title]="'allItems' | i18n"
-          [ciphers]="(remainingCiphers$ | async) || []"
-          id="allItems"
-          disableSectionMargin
-          collapsibleKey="allItems"
-        ></app-vault-list-items-container>
-      </div>
+    <div *ngIf="vaultState === null" class="tw-h-full">
+      <app-autofill-vault-list-items></app-autofill-vault-list-items>
+      <app-vault-list-items-container
+        [title]="'favorites' | i18n"
+        [ciphers]="(favoriteCiphers$ | async) || []"
+        id="favorites"
+        collapsibleKey="favorites"
+      ></app-vault-list-items-container>
+      <app-vault-list-items-container
+        [title]="'allItems' | i18n"
+        [ciphers]="(remainingCiphers$ | async) || []"
+        id="allItems"
+        disableSectionMargin
+        collapsibleKey="allItems"
+      ></app-vault-list-items-container>
     </div>
   </ng-container>
 </popup-page>

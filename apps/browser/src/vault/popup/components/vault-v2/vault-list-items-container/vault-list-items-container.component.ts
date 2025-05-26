@@ -42,6 +42,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -75,6 +76,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     DisclosureComponent,
     DisclosureTriggerForDirective,
     DecryptionFailureDialogComponent,
+    ScrollLayoutDirective,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -299,6 +301,8 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+
+    this.rerenderViewport();
   }
 
   async primaryActionOnSelect(cipher: CipherView) {
@@ -392,7 +396,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   protected rerenderViewport() {
     setTimeout(() => {
-      this.viewPort.checkViewportSize();
+      this.viewPort?.checkViewportSize();
     });
   }
 }
