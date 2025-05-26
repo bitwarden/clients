@@ -3,7 +3,7 @@
     <small #actionSpinner [appApiAction]="actionPromise">
       <ng-container *ngIf="$any(actionSpinner).loading">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
@@ -186,7 +186,7 @@
     <div class="no-items" *ngIf="filteredSends && !filteredSends.length">
       <ng-container *ngIf="!loaded">
         <i
-          class="bwi bwi-spinner bwi-spin text-muted"
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
           aria-hidden="true"
         ></i>
