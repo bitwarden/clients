@@ -12,17 +12,27 @@ export class UserNotLoggedInError extends Error {
   }
 }
 
-// Converts a string to UUID. Will throw an error if the UUID is non valid.
-export function uuid<T extends Uuid>(uuid: string): T {
+export class InvalidUuid extends Error {
+  constructor(uuid: string) {
+    super(`Invalid UUID: ${uuid}`);
+  }
+}
+
+/**
+ * Converts a string to UUID. Will throw an error if the UUID is non valid.
+ */
+export function asUuid<T extends Uuid>(uuid: string): T {
   if (Utils.isGuid(uuid)) {
     return uuid as T;
   }
 
-  throw new Error(`Invalid UUID: ${uuid}`);
+  throw new InvalidUuid(uuid);
 }
 
-// Converts a UUID to the string representation.
-export function uuid_to_string<T extends Uuid>(uuid: T): string {
+/**
+ * Converts a UUID to the string representation.
+ */
+export function uuidToString<T extends Uuid>(uuid: T): string {
   return uuid as unknown as string;
 }
 
