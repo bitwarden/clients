@@ -10,7 +10,7 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",
@@ -26,6 +26,10 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Arc",
         data_dir: "Library/Application Support/Arc/User Data",
+    },
+    BrowserConfig {
+        name: "Opera",
+        data_dir: "Library/Application Support/com.operasoftware.Opera",
     },
 ];
 
@@ -72,6 +76,11 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
         browser: "Arc",
         service: "Arc Safe Storage",
         account: "Arc",
+    },
+    KeychainConfig {
+        browser: "Opera",
+        service: "Opera Safe Storage",
+        account: "Opera",
     },
 ];
 
