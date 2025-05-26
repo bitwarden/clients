@@ -17,10 +17,14 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "AppData/Local/Google/Chrome/User Data",
+    },
+    BrowserConfig {
+        name: "Chromium",
+        data_dir: "AppData/Local/Chromium/User Data",
     },
     BrowserConfig {
         name: "Microsoft Edge",
