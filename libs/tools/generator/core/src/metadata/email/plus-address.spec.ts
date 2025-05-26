@@ -19,11 +19,13 @@ describe("email - plus address generator metadata", () => {
   });
 
   describe("profiles[account]", () => {
-    let accountProfile: CoreProfileMetadata<SubaddressGenerationOptions> = null;
+    let accountProfile: CoreProfileMetadata<SubaddressGenerationOptions> = null!;
     beforeEach(() => {
       const profile = plusAddress.profiles[Profile.account];
-      if (isCoreProfile(profile)) {
+      if (isCoreProfile(profile!)) {
         accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
       }
     });
 

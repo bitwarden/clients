@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
@@ -21,7 +20,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
@@ -34,6 +33,7 @@ type BulkConfirmDialogParams = {
 
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
+  standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
   organizationId: string;

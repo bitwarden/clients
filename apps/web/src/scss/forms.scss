@@ -98,58 +98,6 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.form-control.stripe-form-control:not(.v2) {
-  padding-top: 0.55rem;
-
-  &.is-focused {
-    outline: 0;
-    @include themify($themes) {
-      background-color: themed("inputBackgroundColor");
-      border-color: themed("inputBorderColor");
-      box-shadow: 0 0 0 $input-focus-width
-        rgba(mix(color-yiq(themed("primary")), themed("primary"), 15%), 0.5);
-      color: themed("inputTextColor");
-    }
-
-    &.is-invalid {
-      opacity: 0.75;
-      @include themify($themes) {
-        box-shadow: 0 0 0 $input-focus-width themed("danger");
-      }
-    }
-  }
-
-  &.is-invalid {
-    @include themify($themes) {
-      border-color: themed("danger");
-    }
-  }
-}
-
-.form-control.stripe-form-control.v2 {
-  padding: 0.6875rem 0.875rem;
-  border-radius: 0.5rem;
-  border-color: rgb(var(--color-text-muted));
-  height: unset;
-  font-weight: 500;
-  color: rgb(var(--color-text-main));
-  background-color: rgb(var(--color-background));
-
-  &:hover {
-    border-color: rgb(var(--color-primary-600));
-  }
-
-  &.is-focused {
-    outline: 0;
-    border-color: rgb(var(--color-primary-600));
-  }
-
-  &.is-invalid {
-    color: rgb(var(--color-text-main));
-    border-color: rgb(var(--color-danger-600));
-  }
-}
-
 .dropdown-menu,
 .dropdown-item {
   @include themify($themes) {

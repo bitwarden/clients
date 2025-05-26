@@ -5,7 +5,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { Utils } from "../../platform/misc/utils";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
-import { SecretVerificationRequest } from "../models/request/secret-verification.request";
+import { UntrustDevicesRequestModel } from "../models/request/untrust-devices.request";
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
@@ -90,14 +90,11 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
     );
   }
 
-  async getDeviceKeys(
-    deviceIdentifier: string,
-    secretVerificationRequest: SecretVerificationRequest,
-  ): Promise<ProtectedDeviceResponse> {
+  async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {
     const result = await this.apiService.send(
       "POST",
       `/devices/${deviceIdentifier}/retrieve-keys`,
-      secretVerificationRequest,
+      null,
       true,
       true,
     );
@@ -120,5 +117,15 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
 
   async deactivateDevice(deviceId: string): Promise<void> {
     await this.apiService.send("POST", `/devices/${deviceId}/deactivate`, null, true, false);
+  }
+
+  async untrustDevices(deviceIds: string[]): Promise<void> {
+    await this.apiService.send(
+      "POST",
+      "/devices/untrust",
+      new UntrustDevicesRequestModel(deviceIds),
+      true,
+      false,
+    );
   }
 }

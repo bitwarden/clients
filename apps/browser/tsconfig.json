@@ -29,6 +29,7 @@
       "@bitwarden/key-management": ["../../libs/key-management/src"],
       "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
       "@bitwarden/platform": ["../../libs/platform/src"],
+      "@bitwarden/platform/*": ["../../libs/platform/src/*"],
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
       "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/ui-common": ["../../libs/ui/common/src"],

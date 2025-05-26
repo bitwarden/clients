@@ -37,6 +37,7 @@ import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
+  standalone: false,
 })
 export class OrganizationPaymentMethodComponent implements OnDestroy {
   organizationId: string;
@@ -222,9 +223,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       case PaymentMethodType.Card:
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
-        return ["bwi-bank"];
       case PaymentMethodType.Check:
-        return ["bwi-money"];
+        return ["bwi-billing"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:

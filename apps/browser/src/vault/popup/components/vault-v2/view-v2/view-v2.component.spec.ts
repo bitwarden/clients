@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,7 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -51,6 +51,8 @@ describe("ViewV2Component", () => {
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
   const stop = jest.fn();
   const showToast = jest.fn();
+  const showPasswordPrompt = jest.fn().mockResolvedValue(true);
+  const getFeatureFlag$ = jest.fn().mockReturnValue(of(true));
 
   const mockCipher = {
     id: "122-333-444",
@@ -63,6 +65,9 @@ describe("ViewV2Component", () => {
     },
   } as unknown as CipherView;
 
+  const mockPasswordRepromptService = {
+    showPasswordPrompt,
+  };
   const mockVaultPopupAutofillService = {
     doAutofill,
   };
@@ -77,6 +82,7 @@ describe("ViewV2Component", () => {
     getKeyForCipherKeyDecryption: jest.fn().mockResolvedValue({}),
     deleteWithServer: jest.fn().mockResolvedValue(undefined),
     softDeleteWithServer: jest.fn().mockResolvedValue(undefined),
+    decrypt: jest.fn().mockResolvedValue(mockCipher),
   };
 
   beforeEach(async () => {
@@ -90,6 +96,7 @@ describe("ViewV2Component", () => {
     openSimpleDialog.mockClear();
     back.mockClear();
     showToast.mockClear();
+    showPasswordPrompt.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [ViewV2Component],
@@ -105,6 +112,7 @@ describe("ViewV2Component", () => {
         { provide: VaultPopupScrollPositionService, useValue: { stop } },
         { provide: VaultPopupAutofillService, useValue: mockVaultPopupAutofillService },
         { provide: ToastService, useValue: { showToast } },
+        { provide: ConfigService, useValue: { getFeatureFlag$ } },
         {
           provide: I18nService,
           useValue: {
@@ -129,6 +137,10 @@ describe("ViewV2Component", () => {
         {
           provide: CopyCipherFieldService,
           useValue: mockCopyCipherFieldService,
+        },
+        {
+          provide: PasswordRepromptService,
+          useValue: mockPasswordRepromptService,
         },
       ],
     })

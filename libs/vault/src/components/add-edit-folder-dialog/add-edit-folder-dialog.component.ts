@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
@@ -21,6 +20,8 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
@@ -33,6 +34,8 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddEditFolderDialogResult {
   Created = "created",
   Deleted = "deleted",

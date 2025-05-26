@@ -8,8 +8,9 @@ import {
   NavigationEnd,
   Router,
   UrlSerializer,
+  UrlTree,
 } from "@angular/router";
-import { filter, first, firstValueFrom, map, Observable, switchMap, tap } from "rxjs";
+import { filter, first, firstValueFrom, map, Observable, of, switchMap, tap } from "rxjs";
 
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
@@ -30,6 +31,11 @@ export class PopupRouterCacheService {
   private location = inject(Location);
 
   private hasNavigated = false;
+
+  private _hasRestoredCache = false;
+  get hasRestoredCache() {
+    return this._hasRestoredCache;
+  }
 
   constructor() {
     // init history with existing state
@@ -107,14 +113,26 @@ export class PopupRouterCacheService {
     // if no history is present, fallback to vault page
     await this.router.navigate([""]);
   }
+
+  /**
+   * Mark the cache as restored to prevent the router `popupRouterCacheGuard` from
+   * redirecting to the last visited route again this session.
+   */
+  markCacheRestored() {
+    this._hasRestoredCache = true;
+  }
 }
 
 /**
  * Redirect to the last visited route. Should be applied to root route.
  **/
-export const popupRouterCacheGuard = (() => {
+export const popupRouterCacheGuard = ((): Observable<true | UrlTree> => {
   const popupHistoryService = inject(PopupRouterCacheService);
   const urlSerializer = inject(UrlSerializer);
+
+  if (popupHistoryService.hasRestoredCache) {
+    return of(true);
+  }
 
   return popupHistoryService.last$().pipe(
     map((url: string) => {
@@ -122,6 +140,7 @@ export const popupRouterCacheGuard = (() => {
         return true;
       }
 
+      popupHistoryService.markCacheRestored();
       return urlSerializer.parse(url);
     }),
   );

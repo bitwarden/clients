@@ -13,6 +13,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-premium",
   templateUrl: "premium.component.html",
+  standalone: false,
 })
 export class PremiumComponent extends BasePremiumComponent {
   constructor(

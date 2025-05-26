@@ -840,7 +840,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    const clonedNode = formFieldElement.cloneNode() as FillableFormFieldElement;
+    const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
     const identityLoginFields: AutofillFieldQualifierType[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
@@ -1128,6 +1128,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private qualifyAccountCreationFieldType(autofillFieldData: AutofillField) {
+    if (this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+      return;
+    }
+
     if (!this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
       autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
       return;

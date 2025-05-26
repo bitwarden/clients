@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -9,6 +8,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,

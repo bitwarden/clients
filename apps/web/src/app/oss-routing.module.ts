@@ -2,7 +2,6 @@ import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
-import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
@@ -11,7 +10,6 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -42,11 +40,7 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import {
-  NewDeviceVerificationNoticePageOneComponent,
-  NewDeviceVerificationNoticePageTwoComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
+import { VaultIcons } from "@bitwarden/vault";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -54,18 +48,16 @@ import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/m
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
-import { deepLinkGuard } from "./auth/guards/deep-link.guard";
+import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
 import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
-import { RemovePasswordComponent } from "./auth/remove-password.component";
 import { SetPasswordComponent } from "./auth/set-password.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
-import { TwoFactorComponentV1 } from "./auth/two-factor-v1.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
@@ -75,6 +67,8 @@ import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/com
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
+import { ReportsModule } from "./dirt/reports";
+import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
@@ -82,7 +76,6 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
-import { ReportsModule } from "./tools/reports";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -378,51 +371,28 @@ const routes: Routes = [
           },
         ],
       },
-      ...unauthUiRefreshSwap(
-        TwoFactorComponentV1,
-        TwoFactorAuthComponent,
-        {
-          path: "2fa",
-          canActivate: [unauthGuardFn()],
-          children: [
-            {
-              path: "",
-              component: TwoFactorComponentV1,
-            },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "verifyYourIdentity",
-            },
-          } satisfies RouteDataProperties & AnonLayoutWrapperData,
-        },
-        {
-          path: "2fa",
-          canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
-          children: [
-            {
-              path: "",
-              component: TwoFactorAuthComponent,
-            },
-            {
-              path: "",
-              component: EnvironmentSelectorComponent,
-              outlet: "environment-selector",
-            },
-          ],
-          data: {
-            pageTitle: {
-              key: "verifyYourIdentity",
-            },
-            titleAreaMaxWidth: "md",
-          } satisfies RouteDataProperties & AnonLayoutWrapperData,
-        },
-      ),
+      {
+        path: "2fa",
+        component: TwoFactorAuthComponent,
+        canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+          {
+            path: "",
+            component: EnvironmentSelectorComponent,
+            outlet: "environment-selector",
+          },
+        ],
+        data: {
+          pageTitle: {
+            key: "verifyYourIdentity",
+          },
+          titleAreaMaxWidth: "md",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
       {
         path: "lock",
         canActivate: [deepLinkGuard(), lockGuard()],
@@ -612,36 +582,9 @@ const routes: Routes = [
     ],
   },
   {
-    path: "new-device-notice",
-    component: AnonLayoutWrapperComponent,
-    canActivate: [],
-    children: [
-      {
-        path: "",
-        component: NewDeviceVerificationNoticePageOneComponent,
-        data: {
-          pageIcon: VaultIcons.ExclamationTriangle,
-          pageTitle: {
-            key: "importantNotice",
-          },
-        },
-      },
-      {
-        path: "setup",
-        component: NewDeviceVerificationNoticePageTwoComponent,
-        data: {
-          pageIcon: VaultIcons.UserLock,
-          pageTitle: {
-            key: "setupTwoStepLogin",
-          },
-        },
-      },
-    ],
-  },
-  {
     path: "",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), authGuard, NewDeviceVerificationNoticeGuard],
+    canActivate: [deepLinkGuard(), authGuard],
     children: [
       {
         path: "vault",

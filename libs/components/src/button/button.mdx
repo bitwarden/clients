@@ -73,6 +73,27 @@ where the width is fixed and the text wraps to 2 lines if exceeding the buttonâ€
 
 <Canvas of={stories.Block} />
 
+## With Icon
+
+To ensure consistent icon spacing, the icon should have .5rem spacing on left or right(depending on
+placement).
+
+> NOTE: Use logical css properties to ensure LTR/RTL support.
+
+**If icon is placed before button label**
+
+```html
+<i class="bwi bwi-plus tw-me-2"></i>
+```
+
+**If icon is placed after button label**
+
+```html
+<i class="bwi bwi-plus tw-ms-2"></i>
+```
+
+<Canvas of={stories.WithIcon} />
+
 ## Accessibility
 
 Please follow these guidelines to ensure that buttons are accessible to all users.

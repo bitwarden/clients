@@ -1,12 +1,16 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   PinLockType,
   PinServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricsService,
   BiometricsStatus,
@@ -224,6 +228,8 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
+          kdfConfig: "kdfConfig",
+          email: "email",
         });
       });
 
@@ -282,6 +288,8 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
+          kdfConfig: "kdfConfig",
+          email: "email",
         });
       });
 

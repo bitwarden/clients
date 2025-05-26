@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate napi_derive;
 
+mod passkey_authenticator_internal;
 mod registry;
 
 #[napi]
@@ -477,6 +478,16 @@ pub mod ipc {
 }
 
 #[napi]
+pub mod autostart {
+    #[napi]
+    pub async fn set_autostart(autostart: bool, params: Vec<String>) -> napi::Result<()> {
+        desktop_core::autostart::set_autostart(autostart, params)
+            .await
+            .map_err(|e| napi::Error::from_reason(format!("Error setting autostart - {e} - {e:?}")))
+    }
+}
+
+#[napi]
 pub mod autofill {
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::threadsafe_function::{
@@ -518,6 +529,14 @@ pub mod autofill {
     #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
+    pub struct Position {
+        pub x: i32,
+        pub y: i32,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationRequest {
         pub rp_id: String,
         pub user_name: String,
@@ -525,6 +544,7 @@ pub mod autofill {
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
         pub supported_algorithms: Vec<i32>,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -542,12 +562,25 @@ pub mod autofill {
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionRequest {
         pub rp_id: String,
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+        pub allowed_credentials: Vec<Vec<u8>>,
+        pub window_xy: Position,
+        //extension_input: Vec<u8>, TODO: Implement support for extensions
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
+        pub rp_id: String,
         pub credential_id: Vec<u8>,
         pub user_name: String,
         pub user_handle: Vec<u8>,
         pub record_identifier: Option<String>,
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
+        pub window_xy: Position,
     }
 
     #[napi(object)]
@@ -592,6 +625,13 @@ pub mod autofill {
                 (u32, u32, PasskeyAssertionRequest),
                 ErrorStrategy::CalleeHandled,
             >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
+            )]
+            assertion_without_user_interface_callback: ThreadsafeFunction<
+                (u32, u32, PasskeyAssertionWithoutUserInterfaceRequest),
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
@@ -620,6 +660,25 @@ pub mod autofill {
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message1: {e}");
+                                }
+                            }
+
+                            match serde_json::from_str::<
+                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
+                            >(&message)
+                            {
+                                Ok(msg) => {
+                                    let value = msg
+                                        .value
+                                        .map(|value| (client_id, msg.sequence_number, value))
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
+                                    assertion_without_user_interface_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
                                     continue;
                                 }
@@ -746,5 +805,73 @@ pub mod crypto {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
             .map(|v| v.to_vec())
             .map(Buffer::from)
+    }
+}
+
+#[napi]
+pub mod passkey_authenticator {
+    #[napi]
+    pub fn register() -> napi::Result<()> {
+        crate::passkey_authenticator_internal::register().map_err(|e| {
+            napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
+        })
+    }
+}
+
+#[napi]
+pub mod logging {
+    use log::{Level, Metadata, Record};
+    use napi::threadsafe_function::{
+        ErrorStrategy::CalleeHandled, ThreadsafeFunction, ThreadsafeFunctionCallMode,
+    };
+    use std::sync::OnceLock;
+    struct JsLogger(OnceLock<ThreadsafeFunction<(LogLevel, String), CalleeHandled>>);
+    static JS_LOGGER: JsLogger = JsLogger(OnceLock::new());
+
+    #[napi]
+    pub enum LogLevel {
+        Trace,
+        Debug,
+        Info,
+        Warn,
+        Error,
+    }
+
+    impl From<Level> for LogLevel {
+        fn from(level: Level) -> Self {
+            match level {
+                Level::Trace => LogLevel::Trace,
+                Level::Debug => LogLevel::Debug,
+                Level::Info => LogLevel::Info,
+                Level::Warn => LogLevel::Warn,
+                Level::Error => LogLevel::Error,
+            }
+        }
+    }
+
+    #[napi]
+    pub fn init_napi_log(js_log_fn: ThreadsafeFunction<(LogLevel, String), CalleeHandled>) {
+        let _ = JS_LOGGER.0.set(js_log_fn);
+        let _ = log::set_logger(&JS_LOGGER);
+        log::set_max_level(log::LevelFilter::Debug);
+    }
+
+    impl log::Log for JsLogger {
+        fn enabled(&self, metadata: &Metadata) -> bool {
+            metadata.level() <= log::max_level()
+        }
+
+        fn log(&self, record: &Record) {
+            if !self.enabled(record.metadata()) {
+                return;
+            }
+            let Some(logger) = self.0.get() else {
+                return;
+            };
+            let msg = (record.level().into(), record.args().to_string());
+            let _ = logger.call(Ok(msg), ThreadsafeFunctionCallMode::NonBlocking);
+        }
+
+        fn flush(&self) {}
     }
 }

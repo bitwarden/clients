@@ -1,32 +1,34 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { border, themes, typography, spacing } from "../constants/styles";
 
+export type ActionButtonProps = {
+  buttonText: string | TemplateResult;
+  disabled?: boolean;
+  theme: Theme;
+  handleClick: (e: Event) => void;
+};
+
 export function ActionButton({
-  buttonAction,
   buttonText,
   disabled = false,
   theme,
-}: {
-  buttonAction: (e: Event) => void;
-  buttonText: string;
-  disabled?: boolean;
-  theme: Theme;
-}) {
+  handleClick,
+}: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (!disabled) {
-      buttonAction(event);
+      handleClick(event);
     }
   };
 
   return html`
     <button
-      type="button"
-      title=${buttonText}
       class=${actionButtonStyles({ disabled, theme })}
+      title=${buttonText}
+      type="button"
       @click=${handleButtonClick}
     >
       ${buttonText}
@@ -62,5 +64,14 @@ const actionButtonStyles = ({ disabled, theme }: { disabled: boolean; theme: The
       background-color: ${themes[theme].primary["700"]};
       color: ${themes[theme].text.contrast};
     }
+    :focus {
+      outline: 2px solid ${themes[theme].primary["600"]};
+      outline-offset: 1px;
+    }
   `}
+
+  svg {
+    width: fit-content;
+    height: 16px;
+  }
 `;

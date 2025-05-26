@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, HostBinding, OnDestroy, OnInit } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
 
 import { WebauthnLoginAdminService } from "../../core";
@@ -21,6 +23,7 @@ import { openEnableCredentialDialogComponent } from "./enable-encryption-dialog/
   host: {
     "aria-live": "polite",
   },
+  standalone: false,
 })
 export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -35,6 +38,7 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
     private webauthnService: WebauthnLoginAdminService,
     private dialogService: DialogService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {}
 
   @HostBinding("attr.aria-busy")
@@ -57,9 +61,14 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   requireSsoPolicyEnabled = false;
 
   ngOnInit(): void {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.RequireSso)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((enabled) => {
         this.requireSsoPolicyEnabled = enabled;
       });

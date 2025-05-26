@@ -114,11 +114,13 @@ export class CredentialGeneratorService {
     const algorithms$ = dependencies.account$.pipe(
       distinctUntilChanged(),
       switchMap((account) => {
-        const policies$ = this.policyService.getAll$(PolicyType.PasswordGenerator, account.id).pipe(
-          map((p) => new Set(availableAlgorithms(p))),
-          // complete policy emissions otherwise `switchMap` holds `algorithms$` open indefinitely
-          takeUntil(anyComplete(dependencies.account$)),
-        );
+        const policies$ = this.policyService
+          .policiesByType$(PolicyType.PasswordGenerator, account.id)
+          .pipe(
+            map((p) => new Set(availableAlgorithms(p))),
+            // complete policy emissions otherwise `switchMap` holds `algorithms$` open indefinitely
+            takeUntil(anyComplete(dependencies.account$)),
+          );
         return policies$;
       }),
       map((available) => {
@@ -280,7 +282,7 @@ export class CredentialGeneratorService {
       switchMap(({ userId, email }) => {
         // complete policy emissions otherwise `switchMap` holds `policies$` open indefinitely
         const policies$ = this.policyService
-          .getAll$(configuration.policy.type, userId)
+          .policiesByType$(configuration.policy.type, userId)
           .pipe(
             mapPolicyToConstraints(configuration.policy, email),
             takeUntil(anyComplete(dependencies.account$)),

@@ -1,16 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BitValidators, ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
@@ -25,6 +26,7 @@ export interface ServiceAccountOperation {
 
 @Component({
   templateUrl: "./service-account-dialog.component.html",
+  standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(

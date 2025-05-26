@@ -1,14 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, OnInit, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogConfig, DialogRef, DIALOG_DATA, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessConfirmDialogResult {
   Confirmed = "confirmed",
 }
@@ -25,6 +26,7 @@ type EmergencyAccessConfirmDialogData = {
 @Component({
   selector: "emergency-access-confirm",
   templateUrl: "emergency-access-confirm.component.html",
+  standalone: false,
 })
 export class EmergencyAccessConfirmComponent implements OnInit {
   loading = true;

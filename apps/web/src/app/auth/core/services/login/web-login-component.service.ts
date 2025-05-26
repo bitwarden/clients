@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   DefaultLoginComponentService,
@@ -12,8 +12,10 @@ import {
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -39,6 +41,7 @@ export class WebLoginComponentService
     platformUtilsService: PlatformUtilsService,
     ssoLoginService: SsoLoginServiceAbstraction,
     private router: Router,
+    private accountService: AccountService,
   ) {
     super(
       cryptoFunctionService,
@@ -93,7 +96,10 @@ export class WebLoginComponentService
         resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
       const enforcedPasswordPolicyOptions = await firstValueFrom(
-        this.policyService.masterPasswordPolicyOptions$(policies),
+        this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
+        ),
       );
 
       return {

@@ -1,4 +1,4 @@
-<bit-section *ngIf="showPersonalDetails">
+<section *ngIf="hasPersonalDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "personalDetails" | i18n }}</h2>
   </bit-section-header>
@@ -64,9 +64,9 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>
 
-<bit-section *ngIf="showIdentificationDetails">
+<section *ngIf="hasIdentificationDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "identification" | i18n }}</h2>
   </bit-section-header>
@@ -153,9 +153,9 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>
 
-<bit-section *ngIf="showContactDetails">
+<section *ngIf="hasContactDetails" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "contactInfo" | i18n }}</h2>
   </bit-section-header>
@@ -212,4 +212,4 @@
       ></button>
     </bit-form-field>
   </read-only-cipher-card>
-</bit-section>
+</section>

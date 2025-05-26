@@ -33,6 +33,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -139,6 +140,7 @@ describe("SettingsComponent", () => {
     desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
+    desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
     desktopSettingsService.preventScreenshots$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);
@@ -153,7 +155,7 @@ describe("SettingsComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -164,7 +166,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -175,7 +177,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -184,7 +186,7 @@ describe("SettingsComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -201,7 +203,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -218,7 +220,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
     await component.ngOnInit();
@@ -236,7 +238,7 @@ describe("SettingsComponent", () => {
     const policy = new Policy();
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -248,6 +250,7 @@ describe("SettingsComponent", () => {
   describe("biometrics enabled", () => {
     beforeEach(() => {
       desktopBiometricsService.getBiometricsStatus.mockResolvedValue(BiometricsStatus.Available);
+      desktopBiometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 
@@ -255,7 +258,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = false;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {
@@ -290,7 +293,7 @@ describe("SettingsComponent", () => {
       const policy = new Policy();
       policy.type = PolicyType.RemoveUnlockWithPin;
       policy.enabled = true;
-      policyService.get$.mockReturnValue(of(policy));
+      policyService.policiesByType$.mockReturnValue(of([policy]));
       platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
       i18nService.t.mockImplementation((id: string) => {
         if (id === "requirePasswordOnStart") {

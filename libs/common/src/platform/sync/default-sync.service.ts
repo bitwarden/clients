@@ -2,11 +2,15 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
-  CollectionService,
   CollectionData,
   CollectionDetailsResponse,
+  CollectionService,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
@@ -51,10 +55,10 @@ import { FolderResponse } from "../../vault/models/response/folder.response";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 import { MessageSender } from "../messaging";
-import { sequentialize } from "../misc/sequentialize";
 import { StateProvider } from "../state";
 
 import { CoreSyncService } from "./core-sync.service";
+import { SyncOptions } from "./sync.service";
 
 export class DefaultSyncService extends CoreSyncService {
   syncInProgress = false;
@@ -103,13 +107,20 @@ export class DefaultSyncService extends CoreSyncService {
     );
   }
 
-  @sequentialize(() => "fullSync")
-  override async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  override async fullSync(
+    forceSync: boolean,
+    allowThrowOnErrorOrOptions?: boolean | SyncOptions,
+  ): Promise<boolean> {
+    const { allowThrowOnError = false, skipTokenRefresh = false } =
+      typeof allowThrowOnErrorOrOptions === "boolean"
+        ? { allowThrowOnError: allowThrowOnErrorOrOptions }
+        : (allowThrowOnErrorOrOptions ?? {});
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     this.syncStarted();
     const authStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
     if (authStatus === AuthenticationStatus.LoggedOut) {
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     const now = new Date();
@@ -118,18 +129,20 @@ export class DefaultSyncService extends CoreSyncService {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       }
     }
 
     if (!needsSync) {
       await this.setLastSync(now, userId);
-      return this.syncCompleted(false);
+      return this.syncCompleted(false, userId);
     }
 
     try {
-      await this.apiService.refreshIdentityToken();
+      if (!skipTokenRefresh) {
+        await this.apiService.refreshIdentityToken();
+      }
       const response = await this.apiService.getSync();
 
       await this.syncProfile(response.profile);
@@ -141,13 +154,13 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncPolicies(response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
-      return this.syncCompleted(true);
+      return this.syncCompleted(true, userId);
     } catch (e) {
       if (allowThrowOnError) {
-        this.syncCompleted(false);
+        this.syncCompleted(false, userId);
         throw e;
       } else {
-        return this.syncCompleted(false);
+        return this.syncCompleted(false, userId);
       }
     }
   }
@@ -215,13 +228,8 @@ export class DefaultSyncService extends CoreSyncService {
 
     await this.syncProfileOrganizations(response, response.id);
 
-    if (await this.keyConnectorService.userNeedsMigration(response.id)) {
-      await this.keyConnectorService.setConvertAccountRequired(true, response.id);
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       this.messageSender.send("convertAccountToKeyConnector");
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.keyConnectorService.removeConvertAccountRequired(response.id);
     }
   }
 

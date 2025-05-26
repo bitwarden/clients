@@ -1,7 +1,7 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { DialogRef, DIALOG_DATA } from "@bitwarden/components";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportErrorLine } from "../models/error/sm-import-error-line";
@@ -12,6 +12,7 @@ export interface SecretsManagerImportErrorDialogOperation {
 
 @Component({
   templateUrl: "./sm-import-error-dialog.component.html",
+  standalone: false,
 })
 export class SecretsManagerImportErrorDialogComponent {
   errorLines: SecretsManagerImportErrorLine[];

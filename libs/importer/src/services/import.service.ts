@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionService,
   CollectionWithIdRequest,
@@ -239,6 +241,7 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "edgecsv":
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":

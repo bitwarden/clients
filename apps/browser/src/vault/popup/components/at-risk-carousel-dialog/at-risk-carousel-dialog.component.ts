@@ -1,10 +1,17 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Component, inject, signal } from "@angular/core";
 
-import { ButtonModule, DialogModule, DialogService, TypographyModule } from "@bitwarden/components";
+import {
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { DarkImageSourceDirective, VaultCarouselModule } from "@bitwarden/vault";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AtRiskCarouselDialogResult {
   Dismissed = "dismissed",
 }

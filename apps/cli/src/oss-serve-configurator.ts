@@ -127,6 +127,8 @@ export class OssServeConfigurator {
     this.restoreCommand = new RestoreCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.cipherAuthorizationService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
@@ -142,9 +144,9 @@ export class OssServeConfigurator {
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
-      this.serviceContainer.syncService,
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
+      this.serviceContainer.i18nService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(

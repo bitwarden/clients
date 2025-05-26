@@ -1,3 +1,7 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-cli-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build CLI
 
 on:
@@ -8,12 +12,13 @@ on:
       - 'cf-pages'
     paths:
       - 'apps/cli/**'
+      - 'bitwarden_license/bit-cli/**'
+      - 'bitwarden_license/bit-common/**'
       - 'libs/**'
       - '*'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-cli.yml'
-      - 'bitwarden_license/bit-cli/**'
   push:
     branches:
       - 'main'
@@ -21,12 +26,13 @@ on:
       - 'hotfix-rc-cli'
     paths:
       - 'apps/cli/**'
+      - 'bitwarden_license/bit-cli/**'
+      - 'bitwarden_license/bit-common/**'
       - 'libs/**'
       - '*'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-cli.yml'
-      - 'bitwarden_license/bit-cli/**'
   workflow_call:
     inputs: {}
   workflow_dispatch:
@@ -83,6 +89,7 @@ jobs:
         os:
          [
           { base: "linux", distro: "ubuntu-22.04", target_suffix: "" },
+          { base: "linux", distro: "ubuntu-22.04-arm", target_suffix: "-arm64" },
           { base: "mac", distro: "macos-13", target_suffix: "" },
           { base: "mac", distro: "macos-14", target_suffix: "-arm64" }
          ]
@@ -126,7 +133,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}
@@ -302,7 +309,7 @@ jobs:
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build-wasm-internal.yml
           workflow_conclusion: success
           branch: ${{ inputs.sdk_branch }}

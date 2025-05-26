@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, ElementRef, Inject, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
@@ -16,12 +15,14 @@ import { BitPayInvoiceRequest } from "@bitwarden/common/billing/models/request/b
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 export interface AddCreditDialogData {
   organizationId: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddCreditDialogResult {
   Added = "added",
   Cancelled = "cancelled",
@@ -34,6 +35,7 @@ export type PayPalConfig = {
 
 @Component({
   templateUrl: "add-credit-dialog.component.html",
+  standalone: false,
 })
 export class AddCreditDialogComponent implements OnInit {
   @ViewChild("ppButtonForm", { read: ElementRef, static: true }) ppButtonFormRef: ElementRef;
@@ -77,7 +79,7 @@ export class AddCreditDialogComponent implements OnInit {
   async ngOnInit() {
     if (this.organizationId != null) {
       if (this.creditAmount == null) {
-        this.creditAmount = "20.00";
+        this.creditAmount = "0.00";
       }
       this.ppButtonCustomField = "organization_id:" + this.organizationId;
       const userId = await firstValueFrom(
@@ -94,7 +96,7 @@ export class AddCreditDialogComponent implements OnInit {
       }
     } else {
       if (this.creditAmount == null) {
-        this.creditAmount = "10.00";
+        this.creditAmount = "0.00";
       }
       const [userId, email] = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),

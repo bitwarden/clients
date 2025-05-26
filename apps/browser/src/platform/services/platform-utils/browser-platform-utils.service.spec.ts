@@ -185,7 +185,9 @@ describe("Browser Utils Service", () => {
   describe("copyToClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
+    const clipboardServiceCopySpy = jest
+      .spyOn(BrowserClipboardService, "copy")
+      .mockResolvedValue(undefined);
     let triggerOffscreenCopyToClipboardSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -281,7 +283,9 @@ describe("Browser Utils Service", () => {
   describe("readFromClipboard", () => {
     const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
     const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
-    const clipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
+    const clipboardServiceReadSpy = jest
+      .spyOn(BrowserClipboardService, "read")
+      .mockResolvedValue("");
 
     beforeEach(() => {
       getManifestVersionSpy.mockReturnValue(2);

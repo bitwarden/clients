@@ -1,7 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { FallbackRequestedError } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
-
 import { Message, MessageType } from "./message";
 
 const SENDER = "bitwarden-webauthn";
@@ -126,17 +124,11 @@ export class Messenger {
         }
       };
 
-      let onDestroyListener;
-      const destroyPromise: Promise<never> = new Promise((_, reject) => {
-        onDestroyListener = () => reject(new FallbackRequestedError());
-        this.onDestroy.addEventListener("destroy", onDestroyListener);
-      });
+      const onDestroyListener = () => abortController.abort();
+      this.onDestroy.addEventListener("destroy", onDestroyListener);
 
       try {
-        const handlerResponse = await Promise.race([
-          this.handler(message, abortController),
-          destroyPromise,
-        ]);
+        const handlerResponse = await this.handler(message, abortController);
         port.postMessage({ ...handlerResponse, SENDER });
       } catch (error) {
         port.postMessage({

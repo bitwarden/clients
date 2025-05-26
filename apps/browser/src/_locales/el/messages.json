@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Λογότυπο του Bitwarden"
+  },
   "extName": {
     "message": "Διαχειριστής Κωδικών Πρόσβασης Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -186,7 +189,7 @@
     "message": "Αντιγραφή σημειώσεων"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Αντιγραφή",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -380,7 +383,7 @@
     "message": "Επεξεργασία φακέλου"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Επεξεργασία φακέλου: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -883,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "restartRegistration": {
     "message": "Επανεκκίνηση εγγραφής"
   },
@@ -905,7 +911,7 @@
     "message": "Όχι"
   },
   "location": {
-    "message": "Location"
+    "message": "Τοποθεσία"
   },
   "unexpectedError": {
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
@@ -1056,23 +1062,55 @@
   "notificationAddSave": {
     "message": "Ναι, Αποθήκευση Τώρα"
   },
-  "loginSaveSuccessDetails": {
-    "message": "$USERNAME$ saved to Bitwarden.",
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
     "placeholders": {
-      "username": {
+      "itemName": {
         "content": "$1"
       }
     },
-    "description": "Shown to user after login is saved."
+    "description": "Aria label for the view button in notification bar confirmation message"
   },
-  "loginUpdatedSuccessDetails": {
-    "message": "$USERNAME$ updated in Bitwarden.",
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "New notification"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
-      "username": {
-        "content": "$1"
+      "label": {
+        "content": "$1",
+        "example": "Login"
       }
-    },
-    "description": "Shown to user after login is updated."
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
@@ -1082,12 +1120,16 @@
     "message": "Update login",
     "description": "Button text for updating an existing login entry."
   },
-  "saveLoginPrompt": {
-    "message": "Save login?",
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Save login",
     "description": "Prompt asking the user if they want to save their login details."
   },
-  "updateLoginPrompt": {
-    "message": "Update existing login?",
+  "updateLogin": {
+    "message": "Update existing login",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1097,6 +1139,31 @@
   "loginUpdateSuccess": {
     "message": "Login updated",
     "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
     "message": "Error saving",
@@ -1391,23 +1458,11 @@
   "premiumRequiredDesc": {
     "message": "Για να χρησιμοποιήσετε αυτή τη λειτουργία, απαιτείται συνδρομή Premium."
   },
-  "enterVerificationCodeApp": {
-    "message": "Εισάγετε τον 6ψήφιο κωδικό από την εφαρμογή επαλήθευσης."
-  },
   "authenticationTimeout": {
     "message": "Χρονικό όριο επαλήθευσης"
   },
   "authenticationSessionTimedOut": {
     "message": "Λήξη χρονικού ορίου συνεδρίας επαλήθευσης. Παρακαλώ επανεκκινήστε τη διαδικασία σύνδεσης."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Εισάγετε τον 6ψήφιο κωδικό επαλήθευσης τον οποίο λάβατε στο $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Εστάλη email επαλήθευσης στο $EMAIL$.",
@@ -1418,17 +1473,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Να με θυμάσαι"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Don't ask again on this device for 30 days"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Αποστολή email κωδικού επαλήθευσης ξανά"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Χρήση άλλης μεθόδου σύνδεσης δύο παραγόντων"
   },
   "selectAnotherMethod": {
     "message": "Select another method",
@@ -1437,20 +1483,11 @@
   "useYourRecoveryCode": {
     "message": "Use your recovery code"
   },
-  "insertYubiKey": {
-    "message": "Τοποθετήστε το YubiKey στη θύρα USB του υπολογιστή σας και έπειτα κάντε κλικ στο κουμπί του."
-  },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
   },
-  "webAuthnNewTab": {
-    "message": "Συνεχίστε την επαλήθευση WebAuthn 2FA στη νέα καρτέλα."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Άνοιγμα νέας καρτέλας"
-  },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Άνοιγμα σε νέα καρτέλα"
   },
   "webAuthnAuthenticate": {
     "message": "Ταυτοποίηση WebAuthn"
@@ -1561,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Πρόταση αυτόματης συμπλήρωσης"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Απενεργοποίηση αυτόματης συμπλήρωσης"
   },
   "showInlineMenuLabel": {
     "message": "Εμφάνιση μενού αυτόματης συμπλήρωσης στα πεδία της φόρμας"
@@ -2172,15 +2227,6 @@
   "vaultTimeoutAction1": {
     "message": "Ενέργεια κατά τη λήξη χρονικού ορίου"
   },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
-  },
   "lock": {
     "message": "Κλείδωμα",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2326,6 +2372,9 @@
   },
   "privacyPolicy": {
     "message": "Πολιτική Απορρήτου"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "Η υπόδειξη κωδικού πρόσβασης, δεν μπορεί να είναι η ίδια με τον κωδικό πρόσβασης σας."
@@ -2534,15 +2583,15 @@
     "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Illustration of a list of logins that are at-risk"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
   },
   "generatePasswordSlideDesc": {
     "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Illustration of the Bitwarden autofill menu displaying a generated password"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
     "message": "Update in Bitwarden"
@@ -2551,8 +2600,8 @@
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
   },
   "turnOnAutofill": {
     "message": "Ενεργοποίηση αυτόματης συμπλήρωσης"
@@ -2965,14 +3014,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Δε βρέθηκε μοναδικό αναγνωριστικό."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ χρησιμοποιεί SSO με έναν αυτοεξυπηρετητή κλειδιών. Ένας κύριος κωδικός πρόσβασης δεν απαιτείται πλέον για να συνδεθείτε για τα μέλη αυτού του οργανισμού.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Αποχώρηση από τον οργανισμό"
@@ -3000,6 +3049,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Μόνο τα ατομικά αντικείμενα θησαυ/κίου που σχετίζονται με το $EMAIL$ θα εξαχθούν. Τα αντικείμενα θησαυ/κίου του οργανισμού δε θα συμπεριληφθούν. Μόνο πληροφορίες αντικειμένων θησαυ/κίου θα εξαχθούν και δε θα περιλαμβάνουν συσχετιζόμενα συνημμένα.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3525,12 +3583,44 @@
   "deviceTrusted": {
     "message": "Αξιόπιστη συσκευή"
   },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
   "sendsNoItemsTitle": {
     "message": "Κανένα ενεργό Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
     "message": "Χρήση Send για ασφαλή κοινοποίηση κρυπτογραφημένων πληροφοριών με οποιονδήποτε.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3839,14 +3929,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Σφάλμα κατά τη σύνδεση με την υπηρεσία Duo. Χρησιμοποιήστε μια διαφορετική μέθοδο σύνδεσης δύο βημάτων ή επικοινωνήστε με την Duo για βοήθεια."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Εκκινήστε το Duo και ακολουθήστε τα βήματα για να ολοκληρώσετε τη σύνδεση."
-  },
   "duoRequiredForAccount": {
     "message": "Απαιτείται σύνδεση δύο βημάτων Duo για το λογαριασμό σας."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Ανοίξτε την επέκταση σε νέο παράθυρο για να ολοκληρώσετε τη σύνδεση."
   },
   "popoutExtension": {
     "message": "Άνοιγμα επέκτασης σε νέο παράθυρο"
@@ -4080,7 +4164,7 @@
     "message": "Ενεργός λογαριασμός"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Λογαριασμός Bitwarden"
   },
   "availableAccounts": {
     "message": "Διαθέσιμοι λογαριασμοί"
@@ -4270,6 +4354,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Προβολή στοιχείου - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Αυτόματη συμπλήρωση - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4277,6 +4375,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Αυτόματη συμπλήρωση - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4426,6 +4538,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Λήψη του Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Είστε σίγουροι ότι θέλετε να διαγράψετε οριστικά αυτό το συνημμένο;"
@@ -4733,15 +4872,6 @@
   "nothingSelected": {
     "message": "Δεν έχετε επιλέξει τίποτα."
   },
-  "movedItemsToOrg": {
-    "message": "Τα επιλεγμένα αντικείμενα μετακινήθηκαν στο $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
-  },
   "itemsMovedToOrg": {
     "message": "Τα αντικείμενα μεταφέρθηκαν στο $ORGNAME$",
     "placeholders": {
@@ -4897,6 +5027,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
   "authenticating": {
     "message": "Ταυτοποίηση"
   },
@@ -4908,8 +5047,8 @@
     "message": "Ο κωδικός επαναδημιουργήθηκε",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Αποθήκευση σύνδεσης στο Bitwarden;",
+  "saveToBitwarden": {
+    "message": "Αποθήκευση στο Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5059,42 +5198,6 @@
   "beta": {
     "message": "Beta (Δοκιμαστική)"
   },
-  "importantNotice": {
-    "message": "Σημαντική ειδοποίηση"
-  },
-  "setupTwoStepLogin": {
-    "message": "Ρύθμιση σύνδεσης δύο βημάτων"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Το Bitwarden θα στείλει έναν κωδικό στο ηλ. ταχυδρομείο του λογαριασμού σας για να επαληθεύσει τις συνδέσεις από τις νέες συσκευές που ξεκινούν τον Φεβρουάριο του 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Μπορείτε να ορίσετε σύνδεση δύο βημάτων ως εναλλακτικό τρόπο προστασίας του λογαριασμού σας ή να αλλάξετε το ηλ. ταχυδρομείο σας σε ένα που μπορείτε να έχετε πρόσβαση."
-  },
-  "remindMeLater": {
-    "message": "Υπενθύμιση αργότερα"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Έχετε αξιόπιστη πρόσβαση στο ηλ. ταχυδρομείο σας, $EMAIL$;",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Όχι, δεν έχω"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ναι, μπορώ να συνδεθώ αξιόπιστα στο ηλ. ταχυδρομείο μου"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ενεργοποίηση σύνδεσης δύο βημάτων"
-  },
-  "changeAcctEmail": {
-    "message": "Αλλαγή ηλ. ταχυδρομείου λογαριασμού"
-  },
   "extensionWidth": {
     "message": "Πλάτος εφαρμογής"
   },
@@ -5108,10 +5211,10 @@
     "message": "The password you entered is incorrect."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Εισαγωγή"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Επιβεβαίωση κωδικού πρόσβασης"
   },
   "enterSshKeyPasswordDesc": {
     "message": "Enter the password for the SSH key."
@@ -5148,5 +5251,131 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Εισαγωγή τώρα"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Ιστότοπος",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

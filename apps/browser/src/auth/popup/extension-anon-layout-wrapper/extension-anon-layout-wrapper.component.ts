@@ -12,6 +12,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Icon, IconModule, Translation } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -26,6 +27,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
+  hideIcon?: boolean;
 }
 
 @Component({
@@ -35,6 +37,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
     AnonLayoutComponent,
     CommonModule,
     CurrentAccountComponent,
+    I18nPipe,
     IconModule,
     PopOutComponent,
     PopupPageComponent,
@@ -48,6 +51,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showAcctSwitcher: boolean;
   protected showBackButton: boolean;
   protected showLogo: boolean = true;
+  protected hideIcon: boolean = false;
 
   protected pageTitle: string;
   protected pageSubtitle: string;
@@ -129,6 +133,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (firstChildRouteData["showLogo"] !== undefined) {
       this.showLogo = Boolean(firstChildRouteData["showLogo"]);
     }
+
+    if (firstChildRouteData["hideIcon"] !== undefined) {
+      this.hideIcon = Boolean(firstChildRouteData["hideIcon"]);
+    }
   }
 
   private listenForServiceDataChanges() {
@@ -179,6 +187,10 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
 
     if (data.showLogo !== undefined) {
       this.showLogo = data.showLogo;
+    }
+
+    if (data.hideIcon !== undefined) {
+      this.hideIcon = data.hideIcon;
     }
   }
 

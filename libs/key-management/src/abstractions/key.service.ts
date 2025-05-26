@@ -327,6 +327,28 @@ export abstract class KeyService {
   abstract userPrivateKeyWithLegacySupport$(userId: UserId): Observable<UserPrivateKey | null>;
 
   /**
+   * Gets an observable stream of the given users decrypted private key and public key, guaranteed to be consistent.
+   * Will emit null if the user doesn't have a userkey to decrypt the encrypted private key, or null if the user doesn't have a private key
+   * at all.
+   *
+   * @param userId The user id of the user to get the data for.
+   */
+  abstract userEncryptionKeyPair$(
+    userId: UserId,
+  ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
+
+  /**
+   * Gets an observable stream of the given users decrypted private key and public key, guaranteed to be consistent.
+   * Will emit null if the user doesn't have a userkey to decrypt the encrypted private key, or null if the user doesn't have a private key
+   * at all.
+   *
+   * @param userId The user id of the user to get the data for.
+   */
+  abstract userEncryptionKeyPair$(
+    userId: UserId,
+  ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
+
+  /**
    * Generates a fingerprint phrase for the user based on their public key
    *
    * @throws Error when publicKey is null and there is no active user, or the active user does not have a public key
@@ -348,8 +370,9 @@ export abstract class KeyService {
    * Note: This will remove the stored pin and as a result,
    * disable pin protection for the user
    * @param userId The desired user
+   * @throws Error when provided userId is null or undefined
    */
-  abstract clearPinKeys(userId?: string): Promise<void>;
+  abstract clearPinKeys(userId: UserId): Promise<void>;
   /**
    * @param keyMaterial The key material to derive the send key from
    * @returns A new send key
@@ -358,8 +381,9 @@ export abstract class KeyService {
   /**
    * Clears all of the user's keys from storage
    * @param userId The user's Id
+   * @throws Error when provided userId is null or undefined
    */
-  abstract clearKeys(userId?: string): Promise<any>;
+  abstract clearKeys(userId: UserId): Promise<void>;
   abstract randomNumber(min: number, max: number): Promise<number>;
   /**
    * Generates a new cipher key
@@ -379,14 +403,6 @@ export abstract class KeyService {
     publicKey: string;
     privateKey: EncString;
   }>;
-  /**
-   * Previously, the master key was used for any additional key like the biometrics or pin key.
-   * We have switched to using the user key for these purposes. This method is for clearing the state
-   * of the older keys on logout or post migration.
-   * @param keySuffix The desired type of key to clear
-   * @param userId The desired user
-   */
-  abstract clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
 
   /**
    * Retrieves all the keys needed for decrypting Ciphers

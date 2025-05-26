@@ -1,11 +1,16 @@
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AddableOrganizationResponse } from "@bitwarden/common/admin-console/models/response/addable-organization.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 
@@ -13,6 +18,8 @@ export type AddExistingOrganizationDialogParams = {
   provider: Provider;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum AddExistingOrganizationDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
@@ -20,6 +27,7 @@ export enum AddExistingOrganizationDialogResultType {
 
 @Component({
   templateUrl: "./add-existing-organization-dialog.component.html",
+  standalone: false,
 })
 export class AddExistingOrganizationDialogComponent implements OnInit {
   protected loading: boolean = true;

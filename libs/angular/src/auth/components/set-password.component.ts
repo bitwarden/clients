@@ -5,10 +5,14 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, of } from "rxjs";
 import { filter, first, switchMap, tap } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -178,7 +182,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
         const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
         newKeyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
+          await this.encryptService.wrapDecapsulationKey(existingUserPrivateKey, userKey[0]),
         ];
       } else {
         newKeyPair = await this.keyService.makeKeyPair(userKey[0]);
@@ -211,7 +215,10 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
 
             // RSA Encrypt user key with organization public key
             const userKey = await this.keyService.getUserKey();
-            const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+            const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+              userKey,
+              publicKey,
+            );
 
             const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
             resetRequest.masterPasswordHash = masterPasswordHash;

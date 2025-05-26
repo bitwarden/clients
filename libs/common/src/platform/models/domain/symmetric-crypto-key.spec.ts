@@ -1,7 +1,8 @@
 import { makeStaticByteArray } from "../../../../spec";
 import { EncryptionType } from "../../enums";
+import { Utils } from "../../misc/utils";
 
-import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+import { Aes256CbcHmacKey, SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 describe("SymmetricCryptoKey", () => {
   it("errors if no key", () => {
@@ -18,12 +19,11 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        encKey: key,
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: EncryptionType.AesCbc256_B64,
-        key: key,
         keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        macKey: null,
+        innerKey: {
+          type: EncryptionType.AesCbc256_B64,
+          encryptionKey: key,
+        },
       });
     });
 
@@ -32,14 +32,13 @@ describe("SymmetricCryptoKey", () => {
       const cryptoKey = new SymmetricCryptoKey(key);
 
       expect(cryptoKey).toEqual({
-        encKey: key.slice(0, 32),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
-        encType: EncryptionType.AesCbc256_HmacSha256_B64,
-        key: key,
         keyB64:
           "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
-        macKey: key.slice(32, 64),
-        macKeyB64: "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
+        innerKey: {
+          type: EncryptionType.AesCbc256_HmacSha256_B64,
+          encryptionKey: key.slice(0, 32),
+          authenticationKey: key.slice(32),
+        },
       });
     });
 
@@ -48,7 +47,7 @@ describe("SymmetricCryptoKey", () => {
         new SymmetricCryptoKey(makeStaticByteArray(30));
       };
 
-      expect(t).toThrowError("Unable to determine encType.");
+      expect(t).toThrowError(`Unsupported encType/key length 30`);
     });
   });
 
@@ -67,6 +66,41 @@ describe("SymmetricCryptoKey", () => {
 
     expect(actual).toEqual(expected);
     expect(actual).toBeInstanceOf(SymmetricCryptoKey);
+  });
+
+  it("inner returns inner key", () => {
+    const key = new SymmetricCryptoKey(makeStaticByteArray(64));
+    const actual = key.inner();
+
+    expect(actual).toEqual({
+      type: EncryptionType.AesCbc256_HmacSha256_B64,
+      encryptionKey: key.inner().encryptionKey,
+      authenticationKey: (key.inner() as Aes256CbcHmacKey).authenticationKey,
+    });
+  });
+
+  it("toEncoded returns encoded key for AesCbc256_B64", () => {
+    const key = new SymmetricCryptoKey(makeStaticByteArray(32));
+    const actual = key.toEncoded();
+
+    expect(actual).toEqual(key.inner().encryptionKey);
+  });
+
+  it("toEncoded returns encoded key for AesCbc256_HmacSha256_B64", () => {
+    const keyBytes = makeStaticByteArray(64);
+    const key = new SymmetricCryptoKey(keyBytes);
+    const actual = key.toEncoded();
+
+    expect(actual).toEqual(keyBytes);
+  });
+
+  it("toBase64 returns base64 encoded key", () => {
+    const keyBytes = makeStaticByteArray(64);
+    const keyB64 = Utils.fromBufferToB64(keyBytes);
+    const key = new SymmetricCryptoKey(keyBytes);
+    const actual = key.toBase64();
+
+    expect(actual).toEqual(keyB64);
   });
 
   describe("fromString", () => {

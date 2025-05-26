@@ -1,8 +1,9 @@
-import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { DIALOG_DATA, ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
 
 export type FingerprintDialogData = {
   fingerprint: string[];

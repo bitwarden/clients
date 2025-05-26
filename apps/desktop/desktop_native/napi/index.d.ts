@@ -111,12 +111,19 @@ export declare namespace ipc {
     send(message: string): number
   }
 }
+export declare namespace autostart {
+  export function setAutostart(autostart: boolean, params: Array<string>): Promise<void>
+}
 export declare namespace autofill {
   export function runCommand(value: string): Promise<string>
   export const enum UserVerification {
     Preferred = 'preferred',
     Required = 'required',
     Discouraged = 'discouraged'
+  }
+  export interface Position {
+    x: number
+    y: number
   }
   export interface PasskeyRegistrationRequest {
     rpId: string
@@ -125,6 +132,7 @@ export declare namespace autofill {
     clientDataHash: Array<number>
     userVerification: UserVerification
     supportedAlgorithms: Array<number>
+    windowXy: Position
   }
   export interface PasskeyRegistrationResponse {
     rpId: string
@@ -134,12 +142,20 @@ export declare namespace autofill {
   }
   export interface PasskeyAssertionRequest {
     rpId: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+    allowedCredentials: Array<Array<number>>
+    windowXy: Position
+  }
+  export interface PasskeyAssertionWithoutUserInterfaceRequest {
+    rpId: string
     credentialId: Array<number>
     userName: string
     userHandle: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification
+    windowXy: Position
   }
   export interface PasskeyAssertionResponse {
     rpId: string
@@ -156,7 +172,7 @@ export declare namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void): Promise<IpcServer>
     /** Return the path to the IPC server. */
     getPath(): string
     /** Stop the IPC server. */
@@ -168,4 +184,17 @@ export declare namespace autofill {
 }
 export declare namespace crypto {
   export function argon2(secret: Buffer, salt: Buffer, iterations: number, memory: number, parallelism: number): Promise<Buffer>
+}
+export declare namespace passkey_authenticator {
+  export function register(): void
+}
+export declare namespace logging {
+  export const enum LogLevel {
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4
+  }
+  export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }

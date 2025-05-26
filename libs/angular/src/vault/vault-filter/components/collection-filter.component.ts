@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
@@ -10,7 +12,7 @@ import { TopLevelTreeNode } from "../models/top-level-tree-node.model";
 import { VaultFilter } from "../models/vault-filter.model";
 
 @Directive()
-export class CollectionFilterComponent implements OnInit {
+export class CollectionFilterComponent {
   @Input() hide = false;
   @Input() collapsedFilterNodes: Set<string>;
   @Input() collectionNodes: DynamicTreeNode<CollectionView>;
@@ -50,14 +52,5 @@ export class CollectionFilterComponent implements OnInit {
 
   async toggleCollapse(node: ITreeNodeObject) {
     this.onNodeCollapseStateChange.emit(node);
-  }
-
-  ngOnInit() {
-    // Populate the set with all node IDs so all nodes are collapsed initially.
-    if (this.collectionNodes?.fullList) {
-      this.collectionNodes.fullList.forEach((node) => {
-        this.collapsedFilterNodes.add(node.id);
-      });
-    }
   }
 }

@@ -2,7 +2,7 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/../spec/fake-account-service";
-import { FakeActiveUserState } from "@bitwarden/common/../spec/fake-state";
+import { FakeSingleUserState } from "@bitwarden/common/../spec/fake-state";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, ReplaySubject } from "rxjs";
@@ -42,7 +42,7 @@ describe("vault filter service", () => {
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
-  let collapsedGroupingsState: FakeActiveUserState<string[]>;
+  let collapsedGroupingsState: FakeSingleUserState<string[]>;
 
   beforeEach(() => {
     organizationService = mock<OrganizationService>();
@@ -65,11 +65,11 @@ describe("vault filter service", () => {
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.PersonalOwnership)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.PersonalOwnership, mockUserId)
       .mockReturnValue(personalOwnershipPolicy);
-    policyService.policyAppliesToActiveUser$
-      .calledWith(PolicyType.SingleOrg)
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
     cipherService.cipherViews$.mockReturnValue(cipherViews);
 
@@ -83,21 +83,21 @@ describe("vault filter service", () => {
       collectionService,
       accountService,
     );
-    collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
+    collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
   });
 
   describe("collapsed filter nodes", () => {
     const nodes = new Set(["1", "2"]);
 
     it("should update the collapsedFilterNodes$", async () => {
-      await vaultFilterService.setCollapsedFilterNodes(nodes);
+      await vaultFilterService.setCollapsedFilterNodes(nodes, mockUserId);
 
-      const collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
-      expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
-      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith([
+      const collapsedGroupingsState = stateProvider.singleUser.getFake(
         mockUserId,
-        Array.from(nodes),
-      ]);
+        COLLAPSED_GROUPINGS,
+      );
+      expect(await firstValueFrom(collapsedGroupingsState.state$)).toEqual(Array.from(nodes));
+      expect(collapsedGroupingsState.nextMock).toHaveBeenCalledWith(Array.from(nodes));
     });
 
     it("loads from state on initialization", async () => {

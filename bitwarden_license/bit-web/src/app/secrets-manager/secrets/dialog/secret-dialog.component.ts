@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom, lastValueFrom, Subject, takeUntil } from "rxjs";
@@ -14,7 +13,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService, BitValidators, ToastService } from "@bitwarden/components";
+import {
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  BitValidators,
+  ToastService,
+} from "@bitwarden/components";
 
 import { SecretAccessPoliciesView } from "../../models/view/access-policies/secret-access-policies.view";
 import { ProjectListView } from "../../models/view/project-list.view";
@@ -39,11 +44,15 @@ import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum SecretDialogTabType {
   NameValuePair = 0,
   People = 1,
@@ -60,6 +69,7 @@ export interface SecretOperation {
 
 @Component({
   templateUrl: "./secret-dialog.component.html",
+  standalone: false,
 })
 export class SecretDialogComponent implements OnInit, OnDestroy {
   loading = true;

@@ -1,5 +1,7 @@
 import { CredentialAlgorithm, CredentialType } from "./type";
 
+type I18nKeyOrLiteral = string | { literal: string };
+
 /** Credential generator metadata common across credential generators */
 export type AlgorithmMetadata = {
   /** Uniquely identifies the credential configuration
@@ -23,25 +25,25 @@ export type AlgorithmMetadata = {
   /** Localization keys */
   i18nKeys: {
     /** descriptive name of the algorithm */
-    name: string;
+    name: I18nKeyOrLiteral;
 
     /** explanatory text for the algorithm  */
-    description?: string;
+    description?: I18nKeyOrLiteral;
 
     /** labels the generate action */
-    generateCredential: string;
+    generateCredential: I18nKeyOrLiteral;
 
     /** message informing users when the generator produces a new credential */
-    credentialGenerated: string;
+    credentialGenerated: I18nKeyOrLiteral;
 
     /* labels the action that assigns a generated value to a domain object */
-    useCredential: string;
+    useCredential: I18nKeyOrLiteral;
 
     /** labels the generated output */
-    credentialType: string;
+    credentialType: I18nKeyOrLiteral;
 
     /** labels the copy output action */
-    copyCredential: string;
+    copyCredential: I18nKeyOrLiteral;
   };
 
   /** fine-tunings for generator user experiences */

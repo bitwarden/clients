@@ -1,12 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -42,6 +45,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.isSafariBrowser = this.platformUtilsService.isSafari();
   }
@@ -56,8 +60,14 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
       FeatureFlag.IdpAutoSubmitLogin,
     );
     if (featureFlagEnabled) {
-      this.policyService
-        .get$(PolicyType.AutomaticAppLogIn)
+      this.accountService.activeAccount$
+        .pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService.policiesByType$(PolicyType.AutomaticAppLogIn, userId),
+          ),
+          getFirstPolicy,
+        )
         .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
     }
   }
@@ -86,7 +96,12 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
    */
   private applyPolicyToActiveUser = async (policy: Policy) => {
     const policyAppliesToUser = await firstValueFrom(
-      this.policyService.policyAppliesToActiveUser$(PolicyType.AutomaticAppLogIn),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.AutomaticAppLogIn, userId),
+        ),
+      ),
     );
 
     if (!policyAppliesToUser) {

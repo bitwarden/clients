@@ -5,8 +5,12 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
-import { NotificationConfirmationContainer } from "../content/components/notification/confirmation-container";
+import { NotificationCipherData } from "../content/components/cipher/types";
+import { CollectionView, I18n, OrgView } from "../content/components/common-types";
+import { NotificationConfirmationContainer } from "../content/components/notification/confirmation/container";
 import { NotificationContainer } from "../content/components/notification/container";
+import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
+import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
 import { buildSvgDomElement } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
@@ -15,6 +19,7 @@ import {
   NotificationBarWindowMessage,
   NotificationBarIframeInitData,
   NotificationType,
+  NotificationTypes,
 } from "./abstractions/notification-bar";
 
 const logService = new ConsoleLogService(false);
@@ -39,6 +44,7 @@ function load() {
     applyNotificationBarStyle();
   });
 }
+
 function applyNotificationBarStyle() {
   if (!useComponentBar) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -51,28 +57,39 @@ function getI18n() {
   return {
     appName: chrome.i18n.getMessage("appName"),
     close: chrome.i18n.getMessage("close"),
+    collection: chrome.i18n.getMessage("collection"),
     folder: chrome.i18n.getMessage("folder"),
     loginSaveSuccess: chrome.i18n.getMessage("loginSaveSuccess"),
-    loginSaveSuccessDetails: chrome.i18n.getMessage("loginSaveSuccessDetails"),
     loginUpdateSuccess: chrome.i18n.getMessage("loginUpdateSuccess"),
-    loginUpdateSuccessDetails: chrome.i18n.getMessage("loginUpdatedSuccessDetails"),
+    loginUpdateTaskSuccess: chrome.i18n.getMessage("loginUpdateTaskSuccess"),
+    loginUpdateTaskSuccessAdditional: chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional"),
+    nextSecurityTaskAction: chrome.i18n.getMessage("nextSecurityTaskAction"),
     newItem: chrome.i18n.getMessage("newItem"),
     never: chrome.i18n.getMessage("never"),
+    myVault: chrome.i18n.getMessage("myVault"),
     notificationAddDesc: chrome.i18n.getMessage("notificationAddDesc"),
     notificationAddSave: chrome.i18n.getMessage("notificationAddSave"),
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
-    notificationChangeSave: chrome.i18n.getMessage("notificationChangeSave"),
+    notificationUpdate: chrome.i18n.getMessage("notificationChangeSave"),
     notificationEdit: chrome.i18n.getMessage("edit"),
+    notificationEditTooltip: chrome.i18n.getMessage("notificationEditTooltip"),
+    notificationLoginSaveConfirmation: chrome.i18n.getMessage("notificationLoginSaveConfirmation"),
+    notificationLoginUpdatedConfirmation: chrome.i18n.getMessage(
+      "notificationLoginUpdatedConfirmation",
+    ),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    notificationViewAria: chrome.i18n.getMessage("notificationViewAria"),
     saveAction: chrome.i18n.getMessage("notificationAddSave"),
     saveAsNewLoginAction: chrome.i18n.getMessage("saveAsNewLoginAction"),
     saveFailure: chrome.i18n.getMessage("saveFailure"),
     saveFailureDetails: chrome.i18n.getMessage("saveFailureDetails"),
-    saveLoginPrompt: chrome.i18n.getMessage("saveLoginPrompt"),
+    saveLogin: chrome.i18n.getMessage("saveLogin"),
     typeLogin: chrome.i18n.getMessage("typeLogin"),
+    unlockToSave: chrome.i18n.getMessage("unlockToSave"),
     updateLoginAction: chrome.i18n.getMessage("updateLoginAction"),
-    updateLoginPrompt: chrome.i18n.getMessage("updateLoginPrompt"),
+    updateLogin: chrome.i18n.getMessage("updateLogin"),
+    vault: chrome.i18n.getMessage("vault"),
     view: chrome.i18n.getMessage("view"),
   };
 }
@@ -97,6 +114,89 @@ const findElementById = <ElementType extends HTMLElement>(
 };
 
 /**
+ * Returns the localized header message for the notification bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getNotificationHeaderMessage(i18n: I18n, type?: NotificationType) {
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.saveLogin,
+        [NotificationTypes.Change]: i18n.updateLogin,
+        [NotificationTypes.Unlock]: i18n.unlockToSave,
+      }[type]
+    : undefined;
+}
+
+/**
+ * Returns the localized header message for the confirmation message bar based on the notification type.
+ *
+ * @returns The localized header message string, or undefined if the type is not recognized.
+ */
+export function getConfirmationHeaderMessage(i18n: I18n, type?: NotificationType, error?: string) {
+  if (error) {
+    return i18n.saveFailure;
+  }
+
+  return type
+    ? {
+        [NotificationTypes.Add]: i18n.loginSaveSuccess,
+        [NotificationTypes.Change]: i18n.loginUpdateSuccess,
+        [NotificationTypes.Unlock]: "",
+      }[type]
+    : undefined;
+}
+
+/**
+ * Appends the header message to the document title.
+ * If the header message is already present, it avoids duplication.
+ */
+export function appendHeaderMessageToTitle(headerMessage?: string) {
+  if (!headerMessage) {
+    return;
+  }
+  const baseTitle = document.title.split(" - ")[0];
+  document.title = `${baseTitle} - ${headerMessage}`;
+}
+
+/**
+ * Determines the effective notification type to use based on initialization data.
+ *
+ * If the vault is locked, the notification type will be set to `Unlock`.
+ * Otherwise, the type provided in the init data is returned.
+ *
+ * @returns The resolved `NotificationType` to be used for rendering logic.
+ */
+function resolveNotificationType(initData: NotificationBarIframeInitData): NotificationType {
+  if (initData.isVaultLocked) {
+    return NotificationTypes.Unlock;
+  }
+
+  return initData.type as NotificationType;
+}
+
+/**
+ * Returns the appropriate test ID based on the resolved notification type.
+ *
+ * @param type - The resolved NotificationType.
+ * @param isConfirmation - Optional flag for confirmation vs. notification container.
+ */
+export function getNotificationTestId(
+  notificationType: NotificationType,
+  isConfirmation = false,
+): string {
+  if (isConfirmation) {
+    return "confirmation-notification-bar";
+  }
+
+  return {
+    [NotificationTypes.Unlock]: "unlock-notification-bar",
+    [NotificationTypes.Add]: "save-notification-bar",
+    [NotificationTypes.Change]: "update-notification-bar",
+  }[notificationType];
+}
+
+/**
  * Sets the text content of an element identified by ID within a template's content.
  *
  * @param template - The template whose content will be searched for the element.
@@ -115,34 +215,89 @@ function setElementText(template: HTMLTemplateElement, elementId: string, text: 
   }
 }
 
-function initNotificationBar(message: NotificationBarWindowMessage) {
+async function initNotificationBar(message: NotificationBarWindowMessage) {
   const { initData } = message;
   if (!initData) {
     return;
   }
 
   notificationBarIframeInitData = initData;
-  const { isVaultLocked, theme } = notificationBarIframeInitData;
+  const {
+    isVaultLocked,
+    removeIndividualVault: personalVaultDisallowed, // renamed to avoid local method collision
+    theme,
+  } = notificationBarIframeInitData;
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
   if (useComponentBar) {
+    const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+    const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
+    const notificationTestId = getNotificationTestId(resolvedType);
+    appendHeaderMessageToTitle(headerMessage);
+
     document.body.innerHTML = "";
     // Current implementations utilize a require for scss files which creates the need to remove the node.
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
-    sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, (cipherData) => {
+    if (isVaultLocked) {
+      return render(
+        NotificationContainer({
+          ...notificationBarIframeInitData,
+          headerMessage,
+          type: resolvedType,
+          notificationTestId,
+          theme: resolvedTheme,
+          personalVaultIsAllowed: !personalVaultDisallowed,
+          handleCloseNotification,
+          handleSaveAction: (e) => {
+            sendSaveCipherMessage(true);
+
+            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
+          },
+          handleEditOrUpdateAction,
+          i18n,
+        }),
+        document.body,
+      );
+    }
+
+    const orgId = selectedVaultSignal.get();
+    await Promise.all([
+      new Promise<OrgView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetOrgData" }, resolve),
+      ),
+      new Promise<FolderView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetFolderData" }, resolve),
+      ),
+      new Promise<NotificationCipherData[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetDecryptedCiphers" }, resolve),
+      ),
+      new Promise<CollectionView[]>((resolve) =>
+        sendPlatformMessage({ command: "bgGetCollectionData", orgId }, resolve),
+      ),
+    ]).then(([organizations, folders, ciphers, collections]) => {
+      notificationBarIframeInitData = {
+        ...notificationBarIframeInitData,
+        organizations,
+        folders,
+        ciphers,
+        collections,
+      };
+
       // @TODO use context to avoid prop drilling
       return render(
         NotificationContainer({
           ...notificationBarIframeInitData,
-          type: notificationBarIframeInitData.type as NotificationType,
+          headerMessage,
+          type: resolvedType,
           theme: resolvedTheme,
+          notificationTestId,
+          personalVaultIsAllowed: !personalVaultDisallowed,
           handleCloseNotification,
           handleSaveAction,
           handleEditOrUpdateAction,
           i18n,
-          ciphers: cipherData,
         }),
         document.body,
       );
@@ -154,7 +309,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
       ? chrome.runtime.getURL("images/icon38_locked.png")
       : chrome.runtime.getURL("images/icon38.png");
 
-    setupLogoLink(i18n);
+    setupLogoLink(i18n.appName);
 
     // i18n for "Add" template
     const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
@@ -180,7 +335,7 @@ function initNotificationBar(message: NotificationBarWindowMessage) {
     const changeTemplate = document.getElementById("template-change") as HTMLTemplateElement;
 
     const changeButton = findElementById<HTMLSelectElement>(changeTemplate, "change-save");
-    changeButton.textContent = i18n.notificationChangeSave;
+    changeButton.textContent = i18n.notificationUpdate;
 
     const changeEditButton = findElementById<HTMLButtonElement>(changeTemplate, "change-edit");
     changeEditButton.textContent = i18n.notificationEdit;
@@ -229,9 +384,21 @@ function handleCloseNotification(e: Event) {
 }
 
 function handleSaveAction(e: Event) {
+  const selectedVault = selectedVaultSignal.get();
+  const selectedFolder = selectedFolderSignal.get();
+
+  if (selectedVault.length > 1) {
+    openAddEditVaultItemPopout(e, {
+      organizationId: selectedVault,
+      ...(selectedFolder?.length > 1 ? { folder: selectedFolder } : {}),
+    });
+    handleCloseNotification(e);
+    return;
+  }
+
   e.preventDefault();
 
-  sendSaveCipherMessage(removeIndividualVault());
+  sendSaveCipherMessage(removeIndividualVault(), selectedFolder);
   if (removeIndividualVault()) {
     return;
   }
@@ -326,32 +493,55 @@ function handleSaveCipherAttemptCompletedMessage(message: NotificationBarWindowM
   );
 }
 
-function openViewVaultItemPopout(e: Event, cipherId: string) {
+function openAddEditVaultItemPopout(
+  e: Event,
+  options: {
+    cipherId?: string;
+    organizationId?: string;
+    folder?: string;
+  },
+) {
   e.preventDefault();
   sendPlatformMessage({
-    command: "bgOpenVault",
+    command: "bgOpenAddEditVaultItemPopout",
+    ...options,
+  });
+}
+
+function openViewVaultItemPopout(cipherId: string) {
+  sendPlatformMessage({
+    command: "bgOpenViewVaultItemPopout",
     cipherId,
   });
 }
 
 function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const { theme, type } = notificationBarIframeInitData;
-  const { error, username, cipherId } = message;
+  const { error, data } = message;
+  const { cipherId, task, itemName } = data || {};
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
+  const resolvedType = resolveNotificationType(notificationBarIframeInitData);
+  const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
+  const notificationTestId = getNotificationTestId(resolvedType, true);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
   return render(
     NotificationConfirmationContainer({
       ...notificationBarIframeInitData,
-      type: type as NotificationType,
-      theme: resolvedTheme,
-      handleCloseNotification,
-      i18n,
       error,
-      username: username ?? i18n.typeLogin,
-      handleOpenVault: (e) => cipherId && openViewVaultItemPopout(e, cipherId),
+      handleCloseNotification,
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
+      handleOpenVault: (e: Event) =>
+        cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
+      headerMessage,
+      i18n,
+      itemName: itemName ?? i18n.typeLogin,
+      notificationTestId,
+      task,
+      theme: resolvedTheme,
+      type: type as NotificationType,
     }),
     document.body,
   );
@@ -456,9 +646,9 @@ function handleWindowMessage(event: MessageEvent) {
   handler({ message });
 }
 
-function setupLogoLink(i18n: Record<string, string>) {
+function setupLogoLink(linkText: string) {
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
+  logoLink.title = linkText;
   const setWebVaultUrlLink = (webVaultURL: string) => {
     const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
     if (newVaultURL && newVaultURL !== logoLink.href) {
@@ -490,10 +680,6 @@ function setNotificationBarTheme() {
   const theme = getTheme(globalThis, notificationBarIframeInitData.theme);
 
   document.documentElement.classList.add(`theme_${theme}`);
-
-  if (notificationBarIframeInitData.applyRedesign) {
-    document.body.classList.add("notification-bar-redesign");
-  }
 }
 
 function postMessageToParent(message: NotificationBarWindowMessage) {

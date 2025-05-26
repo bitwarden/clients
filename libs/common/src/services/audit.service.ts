@@ -1,8 +1,8 @@
 import { ApiService } from "../abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "../abstractions/audit.service";
+import { CryptoFunctionService } from "../key-management/crypto/abstractions/crypto-function.service";
 import { BreachAccountResponse } from "../models/response/breach-account.response";
 import { ErrorResponse } from "../models/response/error.response";
-import { CryptoFunctionService } from "../platform/abstractions/crypto-function.service";
 import { throttle } from "../platform/misc/throttle";
 import { Utils } from "../platform/misc/utils";
 

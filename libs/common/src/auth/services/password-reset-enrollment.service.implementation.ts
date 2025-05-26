@@ -2,10 +2,14 @@
 // @ts-strict-ignore
 import { firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -51,7 +55,7 @@ export class PasswordResetEnrollmentServiceImplementation
       userId ?? (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
     userKey = userKey ?? (await this.keyService.getUserKey(userId));
     // RSA Encrypt user's userKey.key with organization public key
-    const encryptedKey = await this.encryptService.rsaEncrypt(userKey.key, orgPublicKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, orgPublicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.resetPasswordKey = encryptedKey.encryptedString;

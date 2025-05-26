@@ -116,13 +116,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
-      keyToEncrypt = masterKey.encKey;
+      keyToEncrypt = masterKey;
     } else {
-      const userKey = await this.keyService.getUserKey();
-      keyToEncrypt = userKey.key;
+      keyToEncrypt = await this.keyService.getUserKey();
     }
 
-    const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(
+      keyToEncrypt as SymmetricCryptoKey,
+      pubKey,
+    );
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
@@ -171,12 +173,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
-    const decryptedUserKeyBytes = await this.encryptService.rsaDecrypt(
+    return (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedUserKey),
       privateKey,
-    );
-
-    return new SymmetricCryptoKey(decryptedUserKeyBytes) as UserKey;
+    )) as UserKey;
   }
 
   async decryptPubKeyEncryptedMasterKeyAndHash(
@@ -184,17 +184,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
-    const decryptedMasterKeyArrayBuffer = await this.encryptService.rsaDecrypt(
+    const masterKey = (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedMasterKey),
       privateKey,
-    );
+    )) as MasterKey;
 
     const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKeyHash),
       privateKey,
     );
-
-    const masterKey = new SymmetricCryptoKey(decryptedMasterKeyArrayBuffer) as MasterKey;
     const masterKeyHash = Utils.fromBufferToUtf8(decryptedMasterKeyHashArrayBuffer);
 
     return {

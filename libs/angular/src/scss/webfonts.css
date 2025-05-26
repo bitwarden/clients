@@ -1,8 +1,8 @@
 @font-face {
-  font-family: "DM Sans";
+  font-family: Roboto;
   src:
-    url("webfonts/dm-sans.woff2") format("woff2 supports variations"),
-    url("webfonts/dm-sans.woff2") format("woff2-variations");
+    url("webfonts/roboto.woff2") format("woff2 supports variations"),
+    url("webfonts/roboto.woff2") format("woff2-variations");
   font-display: swap;
   font-weight: 100 900;
 }

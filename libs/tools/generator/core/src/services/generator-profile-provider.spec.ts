@@ -155,7 +155,7 @@ const NoPolicyProfile: CoreProfileMetadata<SomeSettings> = {
 
 describe("GeneratorProfileProvider", () => {
   beforeEach(async () => {
-    policyService.getAll$.mockImplementation(() => new BehaviorSubject([]).asObservable());
+    policyService.policiesByType$.mockImplementation(() => new BehaviorSubject([]).asObservable());
     const encryptor$ = new BehaviorSubject({ userId: SomeUser, encryptor });
     encryptorProvider.userEncryptor$.mockReturnValue(encryptor$);
     jest.clearAllMocks();
@@ -211,7 +211,7 @@ describe("GeneratorProfileProvider", () => {
       const profileProvider = new GeneratorProfileProvider(dependencyProvider, policyService);
       const account$ = new BehaviorSubject(accounts[SomeUser]).asObservable();
       const policy$ = new BehaviorSubject([somePolicy]);
-      policyService.getAll$.mockReturnValue(policy$);
+      policyService.policiesByType$.mockReturnValue(policy$);
 
       const result = await firstValueFrom(profileProvider.constraints$(SomeProfile, { account$ }));
 
@@ -223,7 +223,7 @@ describe("GeneratorProfileProvider", () => {
       const account$ = new BehaviorSubject(accounts[SomeUser]).asObservable();
       const expectedPolicy = [somePolicy];
       const policy$ = new BehaviorSubject(expectedPolicy);
-      policyService.getAll$.mockReturnValue(policy$);
+      policyService.policiesByType$.mockReturnValue(policy$);
 
       await firstValueFrom(profileProvider.constraints$(SomeProfile, { account$ }));
 
@@ -284,7 +284,7 @@ describe("GeneratorProfileProvider", () => {
       const account = new BehaviorSubject(accounts[SomeUser]);
       const account$ = account.asObservable();
       const somePolicySubject = new BehaviorSubject([somePolicy]);
-      policyService.getAll$.mockReturnValueOnce(somePolicySubject.asObservable());
+      policyService.policiesByType$.mockReturnValueOnce(somePolicySubject.asObservable());
       const emissions: GeneratorConstraints<SomeSettings>[] = [];
       const sub = profileProvider
         .constraints$(SomeProfile, { account$ })

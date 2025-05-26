@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -12,12 +11,19 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 @Component({
   selector: "app-folder-add-edit",
   templateUrl: "folder-add-edit.component.html",
+  standalone: false,
 })
 export class FolderAddEditComponent extends BaseFolderAddEditComponent {
   protected override componentName = "app-folder-add-edit";
@@ -108,6 +114,8 @@ export interface FolderAddEditDialogParams {
   folderId: string;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FolderAddEditDialogResult {
   Deleted = "deleted",
   Canceled = "canceled",

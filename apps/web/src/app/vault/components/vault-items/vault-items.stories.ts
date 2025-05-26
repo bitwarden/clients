@@ -117,6 +117,12 @@ export default {
             canDeleteCipher$() {
               return of(true);
             },
+            canRestoreCipher$() {
+              return of(true);
+            },
+            canCloneCipher$() {
+              return of(true);
+            },
           },
         },
       ],

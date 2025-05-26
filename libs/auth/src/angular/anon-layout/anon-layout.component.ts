@@ -39,6 +39,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() showReadonlyHostname: boolean;
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
+  @Input() hideIcon: boolean = false;
 
   /**
    * Max width of the title area content

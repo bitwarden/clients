@@ -32,8 +32,7 @@ type ItemPermission = CollectionPermission | "NoAccess";
 @Component({
   selector: "app-vault-items",
   templateUrl: "vault-items.component.html",
-  // TODO: Improve change detection, see: https://bitwarden.atlassian.net/browse/TDL-220
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class VaultItemsComponent {
   protected RowHeight = RowHeight;
@@ -85,6 +84,7 @@ export class VaultItemsComponent {
   protected selection = new SelectionModel<VaultItem>(true, [], true);
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
+  protected disableMenu$: Observable<boolean>;
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
@@ -137,6 +137,21 @@ export class VaultItemsComponent {
         );
 
         return canRestore$;
+      }),
+      map((canRestore) => canRestore && this.showBulkTrashOptions),
+    );
+
+    this.disableMenu$ = combineLatest([this.limitItemDeletion$, this.canDeleteSelected$]).pipe(
+      map(([enabled, canDelete]) => {
+        if (enabled) {
+          return (
+            !this.bulkMoveAllowed &&
+            !this.showAssignToCollections() &&
+            !canDelete &&
+            !this.showBulkEditCollectionAccess
+          );
+        }
+        return false;
       }),
     );
   }

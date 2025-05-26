@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Bütün tətbiqlər"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden loqosu"
+  },
   "criticalApplications": {
     "message": "Kritik tətbiqlər"
   },
@@ -95,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Tətbiqi kritik olaraq işarələ"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritik olaraq işarələnmiş tətbiqlər"
   },
   "application": {
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Bu üzvlər, tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Tətbiqlərə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edən üzv yoxdur."
+  },
   "atRiskApplicationsDescription": {
     "message": "Bu tətbiqlər zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahibdir."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Zəif, ifşa olunmuş və ya təkrar istifadə edilmiş parollara sahib tətbiq yoxdur."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Bu üzvlər, $APPNAME$ tətbiqinə zəif, ifşa olunmuş və ya təkrar istifadə olunan parollarla giriş edir.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ üçün risk altında olan üzv yoxdur.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Qovluq"
   },
-  "newCustomField": {
-    "message": "Yeni özəl xana"
-  },
   "value": {
     "message": "Dəyər"
-  },
-  "dragToSort": {
-    "message": "Sıralamaq üçün sürüklə"
-  },
-  "dragToReorder": {
-    "message": "Yenidən sıralamaq üçün sürüklə"
   },
   "cfTypeText": {
     "message": "Mətn"
@@ -879,9 +888,6 @@
   "filter": {
     "message": "Filtr"
   },
-  "moveSelectedToOrg": {
-    "message": "Seçiləni təşkilata daşı"
-  },
   "deleteSelected": {
     "message": "Seçiləni sil"
   },
@@ -933,15 +939,6 @@
       },
       "orgname": {
         "content": "$2",
-        "example": "Company Name"
-      }
-    }
-  },
-  "movedItemsToOrg": {
-    "message": "Seçilən elementlər $ORGNAME$ təşkilatına daşınıldı",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
         "example": "Company Name"
       }
     }
@@ -1373,7 +1370,7 @@
     "message": "İndi kilidlə"
   },
   "noItemsInList": {
-    "message": "Siyahılanacaq heç bir element yoxdur."
+    "message": "Sadalanacaq heç bir element yoxdur."
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Bu kolleksiyadakı bütün elementlərə baxmaq üçün icazəniz yoxdur."
@@ -1382,19 +1379,19 @@
     "message": "Bu kolleksiyaya icazəniz yoxdur"
   },
   "noCollectionsInList": {
-    "message": "Siyahılanacaq heç bir kolleksiya yoxdur."
+    "message": "Sadalanacaq heç bir kolleksiya yoxdur."
   },
   "noGroupsInList": {
     "message": "Sihayıda heç bir məhsul yoxdur."
   },
   "noUsersInList": {
-    "message": "Siyahılanacaq heç bir element yoxdur."
+    "message": "Sadalanacaq heç bir istifadəçi yoxdur."
   },
   "noMembersInList": {
-    "message": "Siyahılanacaq heç bir üzv yoxdur."
+    "message": "Sadalanacaq heç bir üzv yoxdur."
   },
   "noEventsInList": {
-    "message": "Siyahılanacaq heç bir element yoxdur."
+    "message": "Sadalanacaq heç bir tədbir yoxdur."
   },
   "newOrganization": {
     "message": "Yeni təşkilat"
@@ -1447,18 +1444,6 @@
       }
     }
   },
-  "enterVerificationCodeApp": {
-    "message": "Kimlik doğrulayıcı tətbiqindən 6 rəqəmli doğrulama kodunu daxil edin."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "$EMAIL$ ünvanına göndərilən e-poçtdakı 6 rəqəmli doğrulama kodunu daxil edin.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
-  },
   "verificationCodeEmailSent": {
     "message": "Doğrulama poçtu $EMAIL$ ünvanına göndərildi.",
     "placeholders": {
@@ -1468,17 +1453,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Məni xatırla"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Bu cihazda 30 gün ərzində soruşulmasın"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Doğrulama kodu olan e-poçtu yenidən göndər"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Başqa bir iki addımlı giriş üsulu istifadə edin"
   },
   "selectAnotherMethod": {
     "message": "Başqa üsul seçin",
@@ -1486,9 +1462,6 @@
   },
   "useYourRecoveryCode": {
     "message": "Geri qaytarma kodunuzu istifadə edin"
-  },
-  "insertYubiKey": {
-    "message": "\"YubiKey\"i kompüterinizin USB portuna taxın, daha sonra düyməsinə toxunun."
   },
   "insertU2f": {
     "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
@@ -1571,9 +1544,6 @@
   "moveToOrgDesc": {
     "message": "Bu elementi daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementə birbaşa sahibliyiniz olmayacaq."
   },
-  "moveManyToOrgDesc": {
-    "message": "Bu elementləri daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementlərə birbaşa sahibliyiniz olmayacaq."
-  },
   "collectionsDesc": {
     "message": "Bu elementin paylaşıldığı kolleksiyalara düzəliş edin. Yalnız bu kolleksiyalara müraciəti olan təşkilat istifadəçiləri bu elementi görə bilər."
   },
@@ -1604,23 +1574,6 @@
       "count": {
         "content": "$1",
         "example": "150"
-      }
-    }
-  },
-  "moveSelectedItemsCountDesc": {
-    "message": "$COUNT$ element seçdiniz. $MOVEABLE_COUNT$ element bir təşkilata daşınıla bilər, $NONMOVEABLE_COUNT$ ədədi isə daşınıla bilməz.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      },
-      "moveable_count": {
-        "content": "$2",
-        "example": "8"
-      },
-      "nonmoveable_count": {
-        "content": "$3",
-        "example": "2"
       }
     }
   },
@@ -1792,7 +1745,7 @@
     "message": "Davam etsəniz, yaradıcı tarixçəsindəki bütün girişlər həmişəlik silinəcək. Davam etmək istədiyinizə əminsiniz?"
   },
   "noPasswordsInList": {
-    "message": "Siyahılanacaq heç bir parol yoxdur."
+    "message": "Sadalanacaq heç bir parol yoxdur."
   },
   "clearHistory": {
     "message": "Tarixçəni təmizlə"
@@ -3371,13 +3324,19 @@
     "message": "Bir üzv ləğv edildikdə, artıq həmin üzv təşkilat datasına müraciət edə bilmir. Üzv müraciətini daha tez bərpa etmək üçün, Ləğv edilənlər vərəqinə gedin."
   },
   "removeUserConfirmationKeyConnector": {
-    "message": "Xəbərdarlıq! Bu istifadəçi, şifrələmələrini idarə etmək üçün Açar Bağlayıcı tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik sıradan çıxarılacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
+    "message": "Xəbərdarlıq! Bu istifadəçi, şifrələmələrini idarə etmək üçün Key Connector tələb edir. Bu istifadəçini təşkilatınızdan silsəniz, hesabı birdəfəlik sıradan çıxarılacaq. Bu əməliyyatın geri dönüşü yoxdur. Davam etmək istəyirsiniz?"
   },
   "externalId": {
     "message": "Xarici kimlik"
   },
   "externalIdDesc": {
-    "message": "Xarici kimlik, referans olaraq və ya bu mənbəni istifadəçi kataloqu kimi xarici bir sistemə bağlamaq üçün istifadə edilir."
+    "message": "Xarici kimlik, Bitwarden Directory Connector və API tərəfindən istifadə edilən şifrələnməmiş istinaddır."
+  },
+  "ssoExternalId": {
+    "message": "SSO Xarici Kimlik"
+  },
+  "ssoExternalIdDesc": {
+    "message": "SSO Xarici Kimlik, Bitwarden və konfiqurasiya edilmiş SSO provayderiniz arasında şifrələnməmiş referansdır."
   },
   "nestCollectionUnder": {
     "message": "Kolleksiyanı bunun altında yerləşdir"
@@ -4122,8 +4081,8 @@
   "updateBrowser": {
     "message": "Brauzeri güncəllə"
   },
-  "generatingRiskInsights": {
-    "message": "Risk təhlilləriniz yaradılır..."
+  "generatingYourRiskInsights": {
+    "message": "Risk Təhlilləriniz yaradılır..."
   },
   "updateBrowserDesc": {
     "message": "Dəstəklənməyən bir veb brauzer istifadə edirsiniz. Veb seyf düzgün işləməyə bilər."
@@ -4589,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) dataların zədələnməsi ilə nəticələnə bilər. Avtomatik olaraq çıxış etməyə çalışacağıq, bu gecikə bilər."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Saxladığınız bütün şifrələmə ixracları da yararsız olacaq."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
   },
   "subscription": {
     "message": "Abunəlik"
@@ -5110,9 +5069,6 @@
   "singleOrgBlockCreateMessage": {
     "message": "Hazırkı təşkilatınızın, bir neçə təşkilata qoşulmasına icazə verməyən bir siyasəti var. Lütfən təşkilat adminləri ilə əlaqə saxlayın və ya fərqli bir Bitwarden hesabı ilə qeydiyyatdan keçin."
   },
-  "singleOrgPolicyWarning": {
-    "message": "Sahib və ya administrator olmayan və hal-hazırda başqa bir təşkilatın üzvü olan istifadəçilər təşkilatınızdan çıxarılacaq."
-  },
   "singleOrgPolicyMemberWarning": {
     "message": "Uyumlu olmayan üzvlər, digər bütün təşkilatları tərk edənə qədər rədd edilmiş statusa daxil ediləcək. Administratorlar azaddır və uyum təmin edildikdən sonra üzvləri bərpa edə bilər."
   },
@@ -5283,7 +5239,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "noSendsInList": {
-    "message": "Siyahılanacaq heç bir \"Send\" yoxdur.",
+    "message": "Sadalanacaq heç bir \"Send\" yoxdur.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emergencyAccess": {
@@ -5741,6 +5697,9 @@
   "webAuthnSuccess": {
     "message": "WebAuthn kimliyi doğrulaması uğurlu oldu! Bu vərəqi bağlaya bilərsiniz."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
+  },
   "hintEqualsPassword": {
     "message": "Parol məsləhəti, parolunuzla eyni ola bilməz."
   },
@@ -5936,14 +5895,8 @@
   "fingerprint": {
     "message": "Barmaq izi"
   },
-  "removeUsers": {
-    "message": "İstifadəçiləri çıxart"
-  },
-  "revokeUsers": {
-    "message": "İstifadəçiləri ləğv et"
-  },
-  "restoreUsers": {
-    "message": "İstifadəçiləri bərpa et"
+  "fingerprintPhrase": {
+    "message": "Barmaq izi ifadəsi:"
   },
   "error": {
     "message": "Xəta"
@@ -6349,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Ödənişsiz Bitwarden Ailələri"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsorlu ailələr"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Sponsorlu ailələr yoxdur"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsorlu üzv olmayan ailələr planı burada görünəcək"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Bitwarden təşkilatınızın üzvü olmayan işçilər üçün \"Ödənişsiz Bitwarden Ailələr\"ə sponsor ola bilərsiniz. Üzv olmayan birinə sponsorluq etmək üçün təşkilatınızda mövcud yer olmalıdır."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Aktiv bir sponsorluğu ləğv etdiyiniz zaman, sponsorlu təşkilatınızın yenilənmə tarixindən sonra təşkilatınızda bir yer mövcud olacaq."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Siz və ailəniz Ödənişsiz Bitwarden Ailələri üçün uyğunsunuz. İşdə olmadığınız vaxtlarda belə datanızı güvənli saxlamaq üçün özəl e-poçtunuzu istifadə edin."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "İşdə olmadığınız vaxtlarda belə datanızı güvənli saxlamaq üçün Ailələr üçün nəzərdə tutulan Ödənişsiz Bitwarden planını bu gün istifadə edin."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "Ailələr üçün Bitwarden planı bunları ehtiva edir"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "6 istifadəçiyə qədər Premium müraciət"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Ailə sirləri üçün paylaşılan kolleksiyalar"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Ailə üzvləri üçün paylaşılan kolleksiyalar"
+  },
+  "memberFamilies": {
+    "message": "Üzv ailələr"
+  },
+  "noMemberFamilies": {
+    "message": "Üzv olan ailə yoxdur"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Ailə planlarını götürən üzvlər burada görünəcək"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Təşkilatınızın üzvləri Ödənişsiz Bitwarden Ailələr planından yararlana bilər. Burada Ailələr təşkilatına sponsorluq edən üzvləri görə bilərsiniz."
+  },
+  "organizationHasMemberMessage": {
+    "message": "$EMAIL$ ünvanına sponsorluq göndərilə bilmir, çünki təşkilatınızın üzvü deyil.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Keçid, artıq etibarlı deyil. Lütfən sponsorun təklifi yenidən göndərməsini təmin edin."
@@ -6415,7 +6404,7 @@
   "redeemedAccount": {
     "message": "İstifadə edilən hesab"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "$NAME$ hesabını ləğv et",
     "placeholders": {
       "name": {
@@ -6458,10 +6447,10 @@
     "message": "Sponsorluq silindi"
   },
   "ssoKeyConnectorError": {
-    "message": "Açar bağlayıcı xətası: Açar Bağlayıcının mövcud olduğuna və düzgün işlədiyinə əmin olun."
+    "message": "Key Connector xətası: \"Key Connector\"un mövcud olduğuna və düzgün işlədiyinə əmin olun."
   },
   "keyConnectorUrl": {
-    "message": "Açar Bağlayıcı URL-si"
+    "message": "Key Connector URL-si"
   },
   "sendVerificationCode": {
     "message": "Doğrulama kodunu e-poçtunuza göndərin"
@@ -6487,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$, self-hosted açar serveri ilə SSO istifadə edir. Bu təşkilatın üzvlərinin giriş etməsi üçün artıq ana parol tələb edilməyəcək.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Aşağıdakı təşkilatların üzvləri üçün artıq ana parol tələb olunmur. Lütfən aşağıdakı domeni təşkilatınızın inzibatçısı ilə təsdiqləyin."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domeni"
   },
   "leaveOrganization": {
     "message": "Təşkilatı tərk et"
@@ -6530,7 +6516,7 @@
     "message": "Kimlik doğrulandıqdan sonra üzvlər, ana parollarını istifadə edərək seyf datalarının şifrəsini aça biləcək."
   },
   "keyConnector": {
-    "message": "Açar Bağlayıcı"
+    "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
     "message": "SSO ilə Girişi, self-hosted şifrə açma açar serverinizə bağlayın. Bu seçimi istifadə edərək, üzvlərin seyf datasının şifrəsini açmaq üçün ana parollarını istifadə etməsinə ehtiyac qalmayacaq.",
@@ -6541,11 +6527,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "Açar Bağlayıcı şifrə açmanı quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
+    "message": "Key Connector şifrə açmanı quraşdırmaq üçün tələb olunur. Quraşdırma üzrə kömək üçün Bitwarden Dəstək ilə əlaqə saxlayın.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
-    "message": "\"SSO və Açar Bağlayıcı Şifrə Açma ilə Giriş\" fəaldır. Bu siyasət yalnız Sahiblər və Adminlər üçün etibarlıdır."
+    "message": "\"SSO və Key Connector Şifrə Açma ilə Giriş\" fəaldır. Bu siyasət yalnız sahiblər və adminlər üçün etibarlıdır."
   },
   "enabledSso": {
     "message": "SSO fəaldır"
@@ -6554,16 +6540,16 @@
     "message": "SSO sıradan çıxarılıb"
   },
   "enabledKeyConnector": {
-    "message": "Açar Bağlayıcı fəaldır"
+    "message": "Key Connector aktivdir"
   },
   "disabledKeyConnector": {
-    "message": "Açar Bağlayıcı sıradan çıxarılıb"
+    "message": "Key Connector deaktivdir"
   },
   "keyConnectorWarning": {
-    "message": "Açar Bağlayıcı qurulduqdan sonra, Üzv şifrə açma seçimləri dəyişdirilə bilməz."
+    "message": "Üzvlər \"Key Connector\"u istifadə etməyə başladıqdan sonra, təşkilatınız ana parol ilə şifrə açma proseduruna geri qaytarıla bilməz. Yalnız bir açar serverini deploy və idarə etmə üçün uyğun olduqda davam edin."
   },
   "migratedKeyConnector": {
-    "message": "Açar Bağlayıcıya daşındı"
+    "message": "\"Key Connector\"a daşındı"
   },
   "paymentSponsored": {
     "message": "Lütfən təşkilatla əlaqələndirmək üçün bir ödəniş metodu təqdim edin. Narahat olmayın, əlavə özəllikləri seçmədiyiniz və ya sponsorluğunuz bitmədiyi müddətcə sizdən heç bir ödəniş tutulmayacaq. "
@@ -6584,10 +6570,10 @@
     "message": "Test"
   },
   "keyConnectorTestSuccess": {
-    "message": "Uğurlu! Açar Bağlayıcı əlçatandır."
+    "message": "Uğurlu! Key Connector əlçatandır."
   },
   "keyConnectorTestFail": {
-    "message": "Açar Bağlayıcıya müraciət edilə bilmir. URL-ni yoxlayın."
+    "message": "\"Key Connector\"a müraciət edilə bilmir. URL-ni yoxlayın."
   },
   "sponsorshipTokenHasExpired": {
     "message": "Sponsorluq təklifinin müddəti bitdi."
@@ -6766,6 +6752,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş fərdi seyf elementləri xaricə köçürüləcək. Təşkilat seyf elementləri daxil edilməyəcək. Yalnız seyf element məlumatları xaricə köçürüləcək və əlaqələndirilmiş qoşmalar daxil edilməyəcək.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7275,9 +7270,6 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "DUO-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
-  },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız üçün DUO iki addımlı giriş tələb olunur."
   },
@@ -7286,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "DUO-nu başlat"
@@ -7841,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Bir domenin bağlantı qurması, üzvlərin SSO ilə Giriş etməsi zamanı SSO identifikatoru xanasını ötürməsinə icazə verir."
   },
-  "verifyDomain": {
-    "message": "Domeni doğrula"
-  },
-  "reverifyDomain": {
-    "message": "Domeni yenidən doğrula"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT qeydini kopyala"
   },
@@ -7855,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "TXT qeydini DNS Provayderinizə kopyalayıb yapışdırın."
-  },
-  "domainNameInputHint": {
-    "message": "Nümunə: mydomain.com. Alt domenlərin doğrulanması üçün ayrıca girişlər tələb olunur."
-  },
-  "automaticDomainVerification": {
-    "message": "Avtomatik Domen Doğrulaması"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden, ilk 72 saat ərzində domeni 3 dəfə doğrulamağa çalışacaq. Əgər domen doğrulana bilməsə, \"host\"unuzdakı DNS qeydini yoxlayıb əllə doğrulayın. Domen doğrulanmasa, 7 gün ərzində təşkilatınızdan silinəcək"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Giriş, yararlı bir format deyil. Format: mydomain.com. Alt domenlərin doğrulanması üçün ayrıca girişlər tələb olunur."
   },
   "removeDomain": {
     "message": "Domeni sil"
@@ -7880,9 +7857,6 @@
   "domainSaved": {
     "message": "Domen saxlanıldı"
   },
-  "domainVerified": {
-    "message": "Domen doğrulandı"
-  },
   "duplicateDomainError": {
     "message": "Eyni domeni iki dəfə tələb edə bilməzsiniz."
   },
@@ -7894,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ doğrulanmadı. DNS qeydinizi yoxlayın.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Doğrulandı"
-  },
-  "domainStatusUnverified": {
-    "message": "Doğrulanmadı"
   },
   "domainNameTh": {
     "message": "Ad"
@@ -7936,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domeni silindi",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulandı",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ doğrulanmadı",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -8020,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Üzv dəvət et"
+  },
+  "addSponsorship": {
+    "message": "Sponsorluq əlavə et"
   },
   "needsConfirmation": {
     "message": "Təsdiqləmə lazımdır"
@@ -8758,8 +8702,8 @@
   "limitCollectionDeletionDesc": {
     "message": "Kolleksiya silinməsini sahibləri və adminləri ilə məhdudlaşdır"
   },
-  "limitItemDeletionDesc": {
-    "message": "Elementin silinməsini \"İdarə edə bilər\" icazəsinə sahib üzvlərlə məhdudlaşdır"
+  "limitItemDeletionDescription": {
+    "message": "Element silməni, \"Kolleksiyanı idarə et\" icazəsinə sahib üzvlərlə məhdudlaşdır"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
@@ -9481,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Fakturanı \"Provayder Portalı\"ndan idarə et"
   },
+  "continueSettingUp": {
+    "message": "Bitwarden-i qurmağa davam edin"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Ödənişsiz Bitwarden sınağınızı qurmağa davam edin"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "\"Bitwarden Parol Meneceri\"ni qurmağa davam edin"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Ödənişsiz Bitwarden Parol Meneceri sınağınızı qurmağa davam edin"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "\"Bitwarden Sirr Meneceri\"ni qurmağa davam edin"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Ödənişsiz Bitwarden Sirr Meneceri sınağınızı qurmağa davam edin"
@@ -10247,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Vacib bildiriş"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki addımlı girişi qur"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra xatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Xeyr, edə bilmirəm"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki addımlı girişi işə sal"
-  },
-  "changeAcctEmail": {
-    "message": "Hesabın e-poçtunu dəyişdir"
-  },
   "removeMembers": {
     "message": "Üzvləri çıxart"
   },
@@ -10379,6 +10296,39 @@
   },
   "organizationNameMaxLength": {
     "message": "Təşkilat adı 50 xarakterdən çox ola bilməz."
+  },
+  "rotationCompletedTitle": {
+    "message": "Açar döndərmə uğurludur"
+  },
+  "rotationCompletedDesc": {
+    "message": "Ana parol və şifrələmə açarınız güncəllənib. Digər cihazlarınızda hesabdan çıxış edildi."
+  },
+  "trustUserEmergencyAccess": {
+    "message": "İstifadəçiyə güvən və təsdiqlə"
+  },
+  "trustOrganization": {
+    "message": "Təşkilata güvən"
+  },
+  "trust": {
+    "message": "Güvən"
+  },
+  "doNotTrust": {
+    "message": "Güvənmə"
+  },
+  "organizationNotTrusted": {
+    "message": "Təşkilata güvənilmir"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu istifadəçiyə fövqəladə hal müraciəti icazəsini verdiyinizi və onun barmaq izinin hesabında görünən barmaq izi ilə uyuşduğunu təsdiqləyin"
+  },
+  "orgTrustWarning": {
+    "message": "Hesabınızın təhlükəsizliyi üçün yalnız bu təşkilatın üzvüsünüzsə, hesab geri qaytarma fəaldırsa və aşağıda görünən barmaq izi təşkilatın barmaq izi ilə uyuşursa davam edin."
+  },
+  "orgTrustWarning1": {
+    "message": "Bu təşkilat, sahib olduğu Müəssisə siyasəti ilə sizi hesabın qaytarılması prosesinə yazdıracaq. Yazılma, təşkilat inzibatçılarının parolunuzu dəyişdirməsinə imkan verəcək. Yalnız bu təşkilatı tanıyırsınızsa və aşağıda görünən barmaq izi ifadəsi, təşkilatın barmaq izi ifadəsi ilə uyuşursa davam edin."
+  },
+  "trustUser": {
+    "message": "İstifadəçiyə güvən"
   },
   "sshKeyWrongPassword": {
     "message": "Daxil etdiyiniz parol yanlışdır."
@@ -10549,6 +10499,30 @@
   "assignedExceedsAvailable": {
     "message": "Təyin edilmiş yer sayı, boş yer sayından çoxdur."
   },
+  "userkeyRotationDisclaimerEmergencyAccessText": {
+    "message": "Fövqəladə hal müraciətini fəallaşdırdığınız $NUM_USERS$ kontakt üçün barmaq izi ifadəsi.",
+    "placeholders": {
+      "num_users": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
+    "message": "Hesab geri qaytarma seçimini fəallaşdırdığınız $ORG_NAME$ təşkilatı üçün barmaq izi ifadəsi.",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My org"
+      }
+    }
+  },
+  "userkeyRotationDisclaimerDescription": {
+    "message": "Şifrələmə açarlarını döndərmək, sizdən hesabınızı geri qaytara biləcək istənilən təşkilatın açarlarına və fövqəladə hal müraciətini fəallaşdırdığınız istənilən kontakta güvənməyinizi tələb edəcək. Davam etmək üçün əmin olun ki, aşağıdakıları doğrulaya bilirsiniz:"
+  },
+  "userkeyRotationDisclaimerTitle": {
+    "message": "Güvənilməyən şifrələmə açarları"
+  },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
   },
@@ -10558,25 +10532,83 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ planında real event log-larına müraciət yoxdur",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event log-ları təşkilatınız üçün saxlanılmır. Təşkilatın event log-larına tam müraciət əldə etmək üçün Teams və ya Enterprise planına yüksəldin."
   },
-  "upgradeForFullEvents": {
-    "message": "Teams və ya Enterprise planına yüksəldərək təşkilatın event log-larına tam müraciət əldə edin."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Real event log dataları üçün yüksəlt"
+  "upgradeEventLogTitleMessage": {
+    "message": "Təşkilatınızın event log-larını görmək üçün yüksəldin."
   },
   "upgradeEventLogMessage": {
     "message": "Bu event-lər sadəcə nümunədir və Bitwarden təşkilatınızdakı real event-ləri əks etdirmir."
   },
   "cannotCreateCollection": {
     "message": "Ödənişsiz təşkilatların ən çox 2 kolleksiyası ola bilər. Daha çox kolleksiya əlavə etmək üçün ödənişli bir plana yüksəldin."
+  },
+  "businessUnit": {
+    "message": "Biznes vahidi"
+  },
+  "businessUnits": {
+    "message": "Biznes vahidləri"
+  },
+  "newBusinessUnit": {
+    "message": "Yeni biznes vahidi"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Avto-doldurma ilə vaxta qənaət edin"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bir veb sayt",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "daxil edin ki,",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "bu giriş məlumatları avto-doldurma təklifi kimi görünsün.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Problemsiz onlayn ödəniş"
+  },
+  "newCardNudgeBody": {
+    "message": "Kartlarla, ödəniş xanalarını təhlükəsiz və doğru şəkildə avtomatik doldurun."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Hesab yaratmanı sadələşdirin"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Kimliklərinizlə, uzun qeydiyyat və ya əlaqə xanalarını daha tez avtomatik doldurun."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Həssas datalarınızı güvənli şəkildə saxlayın"
+  },
+  "newNoteNudgeBody": {
+    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas dataları təhlükəsiz saxlayın."
+  },
+  "newSshNudgeTitle": {
+    "message": "Gəlişdirici dostu SSH müraciəti"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Açarlarınızı saxlayın və sürətli, şifrələnmiş kimlik doğrulama üçün SSH agentinə bağlayın.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "SSH agenti barədə daha ətraflı",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Yenidən başlat"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu təşkilatın abunəlik səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+  },
+  "clickPayWithPayPal": {
+    "message": "Ödəniş üsulunuzu əlavə etmək üçün lütfən Paypal ilə ödəniş et düyməsinə klikləyin."
   }
 }

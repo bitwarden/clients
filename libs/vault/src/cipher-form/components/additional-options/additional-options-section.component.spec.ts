@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
@@ -18,7 +18,9 @@ import { AdditionalOptionsSectionComponent } from "./additional-options-section.
   selector: "vault-custom-fields",
   template: "",
 })
-class MockCustomFieldsComponent {}
+class MockCustomFieldsComponent {
+  @Input() disableSectionMargin: boolean;
+}
 
 describe("AdditionalOptionsSectionComponent", () => {
   let component: AdditionalOptionsSectionComponent;

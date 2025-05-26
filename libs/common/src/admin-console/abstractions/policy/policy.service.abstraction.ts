@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
@@ -11,43 +9,27 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
 
 export abstract class PolicyService {
   /**
-   * All policies for the active user from sync data.
+   * All policies for the provided user from sync data.
    * May include policies that are disabled or otherwise do not apply to the user. Be careful using this!
-   * Consider using {@link get$} or {@link getAll$} instead, which will only return policies that should be enforced against the user.
+   * Consider {@link policiesByType$} instead, which will only return policies that should be enforced against the user.
    */
-  policies$: Observable<Policy[]>;
+  abstract policies$: (userId: UserId) => Observable<Policy[]>;
 
   /**
-   * @returns the first {@link Policy} found that applies to the active user.
+   * @returns all {@link Policy} objects of a given type that apply to the specified user.
    * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
    * @param policyType the {@link PolicyType} to search for
-   * @see {@link getAll$} if you need all policies of a given type
+   * @param userId the {@link UserId} to search against
    */
-  get$: (policyType: PolicyType) => Observable<Policy>;
+  abstract policiesByType$: (policyType: PolicyType, userId: UserId) => Observable<Policy[]>;
 
   /**
-   * @returns all {@link Policy} objects of a given type that apply to the specified user (or the active user if not specified).
+   * @returns true if a policy of the specified type applies to the specified user, otherwise false.
    * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
-   * @param policyType the {@link PolicyType} to search for
-   */
-  getAll$: (policyType: PolicyType, userId: UserId) => Observable<Policy[]>;
-
-  /**
-   * All {@link Policy} objects for the specified user (from sync data).
-   * May include policies that are disabled or otherwise do not apply to the user.
-   * Consider using {@link getAll$} instead, which will only return policies that should be enforced against the user.
-   */
-  getAll: (policyType: PolicyType) => Promise<Policy[]>;
-
-  /**
-   * @returns true if a policy of the specified type applies to the active user, otherwise false.
-   * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
-   * This does not take into account the policy's configuration - if that is important, use {@link getAll$} to get the
+   * This does not take into account the policy's configuration - if that is important, use {@link policiesByType$} to get the
    * {@link Policy} objects and then filter by Policy.data.
    */
-  policyAppliesToActiveUser$: (policyType: PolicyType) => Observable<boolean>;
-
-  policyAppliesToUser: (policyType: PolicyType) => Promise<boolean>;
+  abstract policyAppliesToUser$: (policyType: PolicyType, userId: UserId) => Observable<boolean>;
 
   // Policy specific interfaces
 
@@ -56,28 +38,31 @@ export abstract class PolicyService {
    * @returns a set of options which represent the minimum Master Password settings that the user must
    * comply with in order to comply with **all** Master Password policies.
    */
-  masterPasswordPolicyOptions$: (policies?: Policy[]) => Observable<MasterPasswordPolicyOptions>;
+  abstract masterPasswordPolicyOptions$: (
+    userId: UserId,
+    policies?: Policy[],
+  ) => Observable<MasterPasswordPolicyOptions | undefined>;
 
   /**
    * Evaluates whether a proposed Master Password complies with all Master Password policies that apply to the user.
    */
-  evaluateMasterPassword: (
+  abstract evaluateMasterPassword: (
     passwordStrength: number,
     newPassword: string,
     enforcedPolicyOptions?: MasterPasswordPolicyOptions,
   ) => boolean;
 
   /**
-   * @returns Reset Password policy options for the specified organization and a boolean indicating whether the policy
+   * @returns {@link ResetPasswordPolicyOptions} for the specified organization and a boolean indicating whether the policy
    * is enabled
    */
-  getResetPasswordPolicyOptions: (
+  abstract getResetPasswordPolicyOptions: (
     policies: Policy[],
     orgId: string,
   ) => [ResetPasswordPolicyOptions, boolean];
 }
 
 export abstract class InternalPolicyService extends PolicyService {
-  upsert: (policy: PolicyData) => Promise<void>;
-  replace: (policies: { [id: string]: PolicyData }, userId: UserId) => Promise<void>;
+  abstract upsert: (policy: PolicyData, userId: UserId) => Promise<void>;
+  abstract replace: (policies: { [id: string]: PolicyData }, userId: UserId) => Promise<void>;
 }

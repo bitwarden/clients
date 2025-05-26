@@ -28,8 +28,8 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -139,12 +139,14 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -237,7 +239,7 @@ export class ServiceContainer {
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
-  policyService: PolicyService;
+  policyService: DefaultPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
@@ -283,6 +285,8 @@ export class ServiceContainer {
   cipherAuthorizationService: CipherAuthorizationService;
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
+  bulkEncryptService: FallbackBulkEncryptService;
+  cipherEncryptionService: CipherEncryptionService;
 
   constructor() {
     let p = null;
@@ -314,6 +318,7 @@ export class ServiceContainer {
       this.logService,
       true,
     );
+    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
     this.storageService = new LowdbStorageService(this.logService, null, p, false, true);
     this.secureStorageService = new NodeEnvSecureStorageService(
       this.storageService,
@@ -436,9 +441,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.keyGenerationService,
       this.logService,
-      this.masterPasswordService,
       this.stateProvider,
-      this.stateService,
     );
 
     this.keyService = new KeyService(
@@ -469,7 +472,7 @@ export class ServiceContainer {
     this.ssoUrlService = new SsoUrlService();
 
     this.organizationService = new DefaultOrganizationService(this.stateProvider);
-    this.policyService = new PolicyService(this.stateProvider, this.organizationService);
+    this.policyService = new DefaultPolicyService(this.stateProvider, this.organizationService);
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
@@ -560,7 +563,11 @@ export class ServiceContainer {
 
     this.providerService = new ProviderService(this.stateProvider);
 
-    this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
+    this.policyApiService = new PolicyApiService(
+      this.policyService,
+      this.apiService,
+      this.accountService,
+    );
 
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
@@ -672,6 +679,12 @@ export class ServiceContainer {
     this.autofillSettingsService = new AutofillSettingsService(
       this.stateProvider,
       this.policyService,
+      this.accountService,
+    );
+
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
     );
 
     this.cipherService = new CipherService(
@@ -683,11 +696,13 @@ export class ServiceContainer {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
-      new FallbackBulkEncryptService(this.encryptService),
+      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
       this.accountService,
+      this.logService,
+      this.cipherEncryptionService,
     );
 
     this.folderService = new FolderService(
@@ -795,6 +810,7 @@ export class ServiceContainer {
       this.cryptoFunctionService,
       this.kdfConfigService,
       this.accountService,
+      this.apiService,
     );
 
     this.organizationExportService = new OrganizationVaultExportService(
@@ -858,7 +874,7 @@ export class ServiceContainer {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     await Promise.all([
       this.eventUploadService.uploadEvents(userId as UserId),
-      this.keyService.clearKeys(),
+      this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),
@@ -881,6 +897,12 @@ export class ServiceContainer {
     await this.sdkLoadService.loadAndInit();
     await this.storageService.init();
     await this.stateService.init();
+    this.configService.serverConfig$.subscribe((newConfig) => {
+      if (newConfig != null) {
+        this.encryptService.onServerConfigChange(newConfig);
+        this.bulkEncryptService.onServerConfigChange(newConfig);
+      }
+    });
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();

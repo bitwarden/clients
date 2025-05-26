@@ -10,7 +10,6 @@ use rand::RngCore;
 use sha2::{Digest, Sha256};
 use windows::{
     core::{factory, h, HSTRING},
-    Foundation::IAsyncOperation,
     Security::{
         Credentials::{
             KeyCredentialCreationOption, KeyCredentialManager, KeyCredentialStatus, UI::*,
@@ -19,6 +18,7 @@ use windows::{
     },
     Win32::{Foundation::HWND, System::WinRT::IUserConsentVerifierInterop},
 };
+use windows_future::IAsyncOperation;
 
 use crate::{
     biometric::{KeyMaterial, OsDerivedKey},
@@ -174,7 +174,7 @@ impl super::BiometricTrait for Biometric {
 
 fn random_challenge() -> [u8; 16] {
     let mut challenge = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut challenge);
+    rand::rng().fill_bytes(&mut challenge);
     challenge
 }
 

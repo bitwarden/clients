@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
@@ -13,6 +12,8 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
+  filter,
 } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -37,9 +38,16 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SelectModule, BitValidators, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  SelectModule,
+  BitValidators,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
 import { SharedModule } from "../../../../../shared";
@@ -56,6 +64,8 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
@@ -67,6 +77,8 @@ export enum CollectionDialogTabType {
  * @readonly
  * @enum {string}
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ButtonType {
   /** Displayed when the user has reached the maximum number of collections allowed for the organization. */
   Upgrade = "upgrade",
@@ -86,6 +98,7 @@ export interface CollectionDialogParams {
   limitNestedCollections?: boolean;
   readonly?: boolean;
   isAddAccessCollection?: boolean;
+  isAdminConsoleActive?: boolean;
 }
 
 export interface CollectionDialogResult {
@@ -93,6 +106,8 @@ export interface CollectionDialogResult {
   collection: CollectionResponse | CollectionView;
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum CollectionDialogAction {
   Saved = "saved",
   Canceled = "canceled",
@@ -119,7 +134,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: "",
+    externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "",
@@ -139,7 +154,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private groupService: GroupApiService,
     private collectionAdminService: CollectionAdminService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -189,10 +203,29 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.updateValueAndValidity();
     }
 
-    this.organizationSelected.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((_) => {
-      this.organizationSelected.markAsTouched();
-      this.formGroup.updateValueAndValidity();
-    });
+    this.organizationSelected.valueChanges
+      .pipe(
+        tap((_) => {
+          if (this.organizationSelected.errors?.cannotCreateCollections) {
+            this.buttonDisplayName = ButtonType.Upgrade;
+          } else {
+            this.buttonDisplayName = ButtonType.Save;
+          }
+        }),
+        filter(() => this.organizationSelected.errors?.cannotCreateCollections),
+        switchMap((value) => this.findOrganizationById(value)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((org) => {
+        this.orgExceedingCollectionLimit = org;
+        this.organizationSelected.markAsTouched();
+        this.formGroup.updateValueAndValidity();
+      });
+  }
+
+  async findOrganizationById(orgId: string): Promise<Organization | undefined> {
+    const organizations = await firstValueFrom(this.organizations$);
+    return organizations.find((org) => org.id === orgId);
   }
 
   async loadOrg(orgId: string) {
@@ -307,6 +340,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
   get organizationSelected() {
     return this.formGroup.controls.selectedOrg;
+  }
+
+  protected get isExternalIdVisible(): boolean {
+    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
   }
 
   protected get collectionId() {
@@ -445,12 +482,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
       this.formGroup.controls.name.disable();
-      this.formGroup.controls.externalId.disable();
       this.formGroup.controls.parent.disable();
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-      this.formGroup.controls.externalId.enable();
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }

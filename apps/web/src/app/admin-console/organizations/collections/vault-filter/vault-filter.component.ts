@@ -5,6 +5,7 @@ import { firstValueFrom, Subject } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,6 +26,7 @@ import { CollectionFilter } from "../../../../vault/individual-vault/vault-filte
   selector: "app-organization-vault-filter",
   templateUrl:
     "../../../../vault/individual-vault/vault-filter/components/vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
@@ -48,6 +50,7 @@ export class VaultFilterComponent
     protected billingApiService: BillingApiServiceAbstraction,
     protected dialogService: DialogService,
     protected configService: ConfigService,
+    protected accountService: AccountService,
   ) {
     super(
       vaultFilterService,
@@ -58,6 +61,7 @@ export class VaultFilterComponent
       billingApiService,
       dialogService,
       configService,
+      accountService,
     );
   }
 
@@ -86,8 +90,8 @@ export class VaultFilterComponent
     const collapsedNodes = await firstValueFrom(this.vaultFilterService.collapsedFilterNodes$);
 
     collapsedNodes.delete("AllCollections");
-
-    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes);
+    const userId = await firstValueFrom(this.activeUserId$);
+    await this.vaultFilterService.setCollapsedFilterNodes(collapsedNodes, userId);
   }
 
   protected async addCollectionFilter(): Promise<VaultFilterSection> {
@@ -102,14 +106,14 @@ export class VaultFilterComponent
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection",
+            icon: "bwi-collection-shared",
           },
         ],
       ),

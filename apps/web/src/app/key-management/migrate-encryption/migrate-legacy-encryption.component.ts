@@ -64,7 +64,7 @@ export class MigrateFromLegacyEncryptionComponent {
     try {
       await this.syncService.fullSync(false, true);
 
-      await this.keyRotationService.rotateUserKeyAndEncryptedData(masterPassword, activeUser);
+      await this.keyRotationService.rotateUserKeyAndEncryptedDataLegacy(masterPassword, activeUser);
 
       this.toastService.showToast({
         variant: "success",

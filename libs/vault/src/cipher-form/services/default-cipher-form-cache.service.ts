@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -27,6 +27,7 @@ export class CipherFormCacheService {
     key: CIPHER_FORM_CACHE_KEY,
     initialValue: null,
     deserializer: CipherView.fromJSON,
+    clearOnTabChange: true,
   });
 
   constructor() {

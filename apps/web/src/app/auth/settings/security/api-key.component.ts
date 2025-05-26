@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
@@ -8,7 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "@bitwarden/common/auth/models/response/api-key.response";
 import { Verification } from "@bitwarden/common/auth/types/verification";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
 
 export type ApiKeyDialogData = {
   keyType: string;
@@ -24,6 +23,7 @@ export type ApiKeyDialogData = {
 @Component({
   selector: "app-api-key",
   templateUrl: "api-key.component.html",
+  standalone: false,
 })
 export class ApiKeyComponent {
   clientId: string;

@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, firstValueFrom, merge, Observable, ReplaySubject, scan, startWith } from "rxjs";
-import { pairwise } from "rxjs/operators";
+import {
+  filter,
+  firstValueFrom,
+  merge,
+  Observable,
+  ReplaySubject,
+  scan,
+  startWith,
+  timer,
+} from "rxjs";
+import { map, pairwise, share, takeUntil } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -146,7 +155,19 @@ export default class AutofillService implements AutofillServiceInterface {
       pageDetailsFallback$.next([]);
     }
 
-    return merge(pageDetailsFromTab$, pageDetailsFallback$);
+    // Share the pageDetailsFromTab$ observable so that multiple subscribers don't trigger multiple executions.
+    const sharedPageDetailsFromTab$ = pageDetailsFromTab$.pipe(share());
+
+    // Create a timeout observable that emits an empty array if pageDetailsFromTab$ hasn't emitted within 1 second.
+    const pageDetailsTimeout$ = timer(1000).pipe(
+      map(() => []),
+      takeUntil(sharedPageDetailsFromTab$),
+    );
+
+    // Merge the responses so that if pageDetailsFromTab$ emits, that value is used.
+    // Otherwise, if it doesn't emit in time, the timeout observable emits an empty array.
+    // Also, pageDetailsFallback$ will emit in error cases.
+    return merge(sharedPageDetailsFromTab$, pageDetailsFallback$, pageDetailsTimeout$);
   }
 
   /**
@@ -215,13 +236,8 @@ export default class AutofillService implements AutofillServiceInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
     let autoFillOnPageLoadIsEnabled = false;
-    const addLoginImprovementsFlagActive = await this.configService.getFeatureFlag(
-      FeatureFlag.NotificationBarAddLoginImprovements,
-    );
 
-    const injectedScripts = [
-      await this.getBootstrapAutofillContentScript(activeAccount, addLoginImprovementsFlagActive),
-    ];
+    const injectedScripts = [await this.getBootstrapAutofillContentScript(activeAccount)];
 
     if (activeAccount && accountIsUnlocked) {
       autoFillOnPageLoadIsEnabled = await this.getAutofillOnPageLoad();
@@ -236,10 +252,6 @@ export default class AutofillService implements AutofillServiceInterface {
         tabId: tab.id,
         injectDetails: { file: "content/content-message-handler.js", runAt: "document_start" },
       });
-    }
-
-    if (!addLoginImprovementsFlagActive) {
-      injectedScripts.push("notificationBar.js");
     }
 
     injectedScripts.push("contextMenuHandler.js");
@@ -262,25 +274,14 @@ export default class AutofillService implements AutofillServiceInterface {
    * enabled.
    *
    * @param activeAccount - The active account
-   * @param addLoginImprovementsFlagActive - Whether the add login improvements feature flag is active
    */
   private async getBootstrapAutofillContentScript(
     activeAccount: { id: UserId | undefined } & AccountInfo,
-    addLoginImprovementsFlagActive = false,
   ): Promise<string> {
     let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
 
     if (activeAccount) {
       inlineMenuVisibility = await this.getInlineMenuVisibility();
-    }
-
-    const inlineMenuPositioningImprovements = await this.configService.getFeatureFlag(
-      FeatureFlag.InlineMenuPositioningImprovements,
-    );
-    if (!inlineMenuPositioningImprovements) {
-      return !inlineMenuVisibility
-        ? "bootstrap-autofill.js"
-        : "bootstrap-legacy-autofill-overlay.js";
     }
 
     const enableChangedPasswordPrompt = await firstValueFrom(
@@ -289,8 +290,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const enableAddedLoginPrompt = await firstValueFrom(
       this.userNotificationSettingsService.enableAddedLoginPrompt$,
     );
-    const isNotificationBarEnabled =
-      addLoginImprovementsFlagActive && (enableChangedPasswordPrompt || enableAddedLoginPrompt);
+    const isNotificationBarEnabled = enableChangedPasswordPrompt || enableAddedLoginPrompt;
 
     if (!inlineMenuVisibility && !isNotificationBarEnabled) {
       return "bootstrap-autofill.js";
@@ -593,15 +593,20 @@ export default class AutofillService implements AutofillServiceInterface {
    *
    * @param cipher - The cipher to autofill
    * @param tab - The tab to autofill
+   * @param action - override for default action once reprompt is completed successfully
    */
-  async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
+  async isPasswordRepromptRequired(
+    cipher: CipherView,
+    tab: chrome.tabs.Tab,
+    action?: string,
+  ): Promise<boolean> {
     const userHasMasterPasswordAndKeyHash =
       await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
     if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
-          action: "autofill",
+          action: action ?? "autofill",
         });
       }
 
@@ -931,28 +936,37 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (!passwordFields.length) {
-      // No password fields on this page. Let's try to just fuzzy fill the username.
-      pageDetails.fields.forEach((f) => {
-        if (
-          !options.skipUsernameOnlyFill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "email" || f.type === "tel") &&
-          AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.UsernameFieldNames)
-        ) {
-          usernames.push(f);
+      // If there are no passwords, username or TOTP fields may be present.
+      // username and TOTP fields are mutually exclusive
+      pageDetails.fields.forEach((field) => {
+        if (!field.viewable) {
+          return;
         }
 
-        if (
+        const isFillableTotpField =
           options.allowTotpAutofill &&
-          f.viewable &&
-          (f.type === "text" || f.type === "number") &&
-          (AutofillService.fieldIsFuzzyMatch(f, [
+          ["number", "tel", "text"].some((t) => t === field.type) &&
+          (AutofillService.fieldIsFuzzyMatch(field, [
             ...AutoFillConstants.TotpFieldNames,
             ...AutoFillConstants.AmbiguousTotpFieldNames,
           ]) ||
-            f.autoCompleteType === "one-time-code")
-        ) {
-          totps.push(f);
+            field.autoCompleteType === "one-time-code");
+
+        const isFillableUsernameField =
+          !options.skipUsernameOnlyFill &&
+          ["email", "tel", "text"].some((t) => t === field.type) &&
+          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+
+        // Prefer more uniquely keyworded fields first.
+        switch (true) {
+          case isFillableTotpField:
+            totps.push(field);
+            return;
+          case isFillableUsernameField:
+            usernames.push(field);
+            return;
+          default:
+            return;
         }
       });
     }
@@ -2903,52 +2917,46 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Accepts a field and returns true if the field contains a
    * value that matches any of the names in the provided list.
+   *
+   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
+   *
    * @param {AutofillField} field
    * @param {string[]} names
-   * @returns {boolean}
+   * @param {boolean} showMatch
+   * @returns {boolean | [boolean, { attr: string; value: string }?]}
    */
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean {
-    if (AutofillService.hasValue(field.htmlID) && this.fuzzyMatch(names, field.htmlID)) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.htmlName) && this.fuzzyMatch(names, field.htmlName)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-tag"]) &&
-      this.fuzzyMatch(names, field["label-tag"])
-    ) {
-      return true;
-    }
-    if (AutofillService.hasValue(field.placeholder) && this.fuzzyMatch(names, field.placeholder)) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-left"]) &&
-      this.fuzzyMatch(names, field["label-left"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-top"]) &&
-      this.fuzzyMatch(names, field["label-top"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field["label-aria"]) &&
-      this.fuzzyMatch(names, field["label-aria"])
-    ) {
-      return true;
-    }
-    if (
-      AutofillService.hasValue(field.dataSetValues) &&
-      this.fuzzyMatch(names, field.dataSetValues)
-    ) {
-      return true;
-    }
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: true,
+  ): [boolean, { attr: string; value: string }?];
+  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
+  static fieldIsFuzzyMatch(
+    field: AutofillField,
+    names: string[],
+    showMatch: boolean = false,
+  ): boolean | [boolean, { attr: string; value: string }?] {
+    const attrs = [
+      "htmlID",
+      "htmlName",
+      "label-tag",
+      "placeholder",
+      "label-left",
+      "label-top",
+      "label-aria",
+      "dataSetValues",
+    ];
 
-    return false;
+    for (const attr of attrs) {
+      const value = field[attr];
+      if (!AutofillService.hasValue(value)) {
+        continue;
+      }
+      if (this.fuzzyMatch(names, value)) {
+        return showMatch ? [true, { attr, value }] : true;
+      }
+    }
+    return showMatch ? [false] : false;
   }
 
   /**

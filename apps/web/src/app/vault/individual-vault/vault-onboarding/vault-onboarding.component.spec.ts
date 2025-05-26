@@ -142,13 +142,13 @@ describe("VaultOnboardingComponent", () => {
   });
 
   describe("individualVaultPolicyCheck", () => {
-    it("should set isIndividualPolicyVault to true", async () => {
+    it("should set isIndividualPolicyVault to true", () => {
       individualVaultPolicyCheckSpy.mockRestore();
       const spy = jest
-        .spyOn((component as any).policyService, "policyAppliesToActiveUser$")
+        .spyOn((component as any).policyService, "policyAppliesToUser$")
         .mockReturnValue(of(true));
 
-      await component.individualVaultPolicyCheck();
+      component.individualVaultPolicyCheck();
       fixture.detectChanges();
       expect(spy).toHaveBeenCalled();
     });

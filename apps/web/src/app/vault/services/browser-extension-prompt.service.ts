@@ -7,6 +7,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BrowserPromptState {
   Loading = "loading",
   Error = "error",
@@ -54,8 +56,18 @@ export class BrowserExtensionPromptService {
   }
 
   /** Post a message to the extension to open */
-  openExtension() {
-    window.postMessage({ command: VaultMessages.OpenPopup });
+  openExtension(setManualErrorTimeout = false) {
+    window.postMessage({ command: VaultMessages.OpenAtRiskPasswords });
+
+    // Optionally, configure timeout to show the manual open error state if
+    // the extension does not open within one second.
+    if (setManualErrorTimeout) {
+      this.clearExtensionCheckTimeout();
+
+      this.extensionCheckTimeout = window.setTimeout(() => {
+        this.setErrorState(BrowserPromptState.ManualOpen);
+      }, 750);
+    }
   }
 
   /** Send message checking for the browser extension */

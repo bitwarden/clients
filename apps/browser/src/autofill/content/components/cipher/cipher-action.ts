@@ -3,29 +3,38 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { BadgeButton } from "../../../content/components/buttons/badge-button";
 import { EditButton } from "../../../content/components/buttons/edit-button";
 import { NotificationTypes } from "../../../notification/abstractions/notification-bar";
+import { I18n } from "../common-types";
+
+export type CipherActionProps = {
+  handleAction?: (e: Event) => void;
+  i18n: I18n;
+  itemName: string;
+  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
+  theme: Theme;
+  username?: string;
+};
 
 export function CipherAction({
   handleAction = () => {
     /* no-op */
   },
+  i18n,
+  itemName,
   notificationType,
   theme,
-}: {
-  handleAction?: (e: Event) => void;
-  notificationType: typeof NotificationTypes.Change | typeof NotificationTypes.Add;
-  theme: Theme;
-}) {
+  username,
+}: CipherActionProps) {
   return notificationType === NotificationTypes.Change
     ? BadgeButton({
         buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Update item",
+        buttonText: i18n.notificationUpdate,
+        itemName,
         theme,
+        username,
       })
     : EditButton({
         buttonAction: handleAction,
-        // @TODO localize
-        buttonText: "Edit item",
+        buttonText: i18n.notificationEditTooltip,
         theme,
       });
 }
