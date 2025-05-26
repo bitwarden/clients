@@ -60,14 +60,14 @@
         data-default-content
         [ngClass]="[
           prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-pl-3',
-          suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pr-3',
+          suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pe-3',
         ]"
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
       <div
         #suffixContainer
-        class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+        class="tw-flex tw-items-center tw-gap-1 tw-pe-3 tw-py-2"
         [hidden]="!suffixHasChildren()"
       >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
@@ -105,7 +105,7 @@
       <div
         #suffixContainer
         [hidden]="!suffixHasChildren()"
-        class="tw-flex tw-items-center tw-gap-1 tw-pr-1"
+        class="tw-flex tw-items-center tw-gap-1 tw-pe-1"
       >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
       </div>
