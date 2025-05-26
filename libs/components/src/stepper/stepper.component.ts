@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, ElementRef, Input, QueryList } from "@angular/core";
 
 import { ResizeObserverDirective } from "../resize-observer";
+import { TypographyModule } from "../typography";
 
 import { StepComponent } from "./step.component";
 
@@ -15,7 +16,7 @@ import { StepComponent } from "./step.component";
   selector: "bit-stepper",
   templateUrl: "stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
-  imports: [CommonModule, ResizeObserverDirective],
+  imports: [CommonModule, ResizeObserverDirective, TypographyModule],
   standalone: true,
 })
 export class StepperComponent extends CdkStepper {

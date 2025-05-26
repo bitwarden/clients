@@ -36,10 +36,12 @@
               </span>
             }
             <div class="tw-leading-snug tw-text-left">
-              <p class="tw-m-0 tw-text-main">{{ step.label }}</p>
+              <p bitTypography="body1" class="tw-m-0">{{ step.label }}</p>
 
               @if (step.subLabel()) {
-                <p class="tw-m-0 tw-mt-1 tw-text-muted">{{ step.subLabel() }}</p>
+                <p bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">
+                  {{ step.subLabel() }}
+                </p>
               }
             </div>
           </button>
@@ -92,10 +94,12 @@
           </span>
         }
         <div class="tw-leading-snug tw-text-left">
-          <p class="tw-m-0 tw-text-main">{{ step.label }}</p>
+          <p bitTypography="body1" class="tw-m-0">{{ step.label }}</p>
 
           @if (step.subLabel()) {
-            <p class="small tw-m-0 tw-mt-1 tw-text-muted">{{ step.subLabel() }}</p>
+            <div bitTypography="body2" class="tw-m-0 tw-mt-1 tw-text-muted">
+              {{ step.subLabel() }}
+            </div>
           }
         </div>
       </button>
