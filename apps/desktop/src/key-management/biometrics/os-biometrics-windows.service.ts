@@ -101,7 +101,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     return await biometrics.prompt(hwnd, this.i18nService.t("windowsHelloConsentMessage"));
   }
 
-  private async getStorageDetails({
+  async getStorageDetails({
     clientKeyHalfB64,
   }: {
     clientKeyHalfB64: string | undefined;
@@ -159,7 +159,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
 
   // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
   // when we want to force a re-derive of the key material.
-  private setIv(iv?: string) {
+  setIv(iv?: string) {
     this._iv = iv ?? null;
     this._osKeyHalf = null;
   }
