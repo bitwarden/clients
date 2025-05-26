@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async" disablePadding>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <div *ngIf="vaultState === null" class="tw-h-full">
+    <ng-container *ngIf="vaultState === null">
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
@@ -101,6 +101,6 @@
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
-    </div>
+    </ng-container>
   </ng-container>
 </popup-page>
