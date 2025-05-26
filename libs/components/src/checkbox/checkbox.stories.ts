@@ -232,7 +232,7 @@ export const InTableRow: Story = {
                 type="checkbox"
                 bitCheckbox
                 id="checkAll"
-                class="tw-mr-2"
+                class="tw-me-2"
               />
               <label for="checkAll" class="tw-mb-0">
                 All

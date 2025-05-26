@@ -88,13 +88,13 @@ export const DisabledWithAttribute: Story = {
     props: args,
     template: `
       @if (disabled) {
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       } @else {
-        <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       }
     `,
   }),
