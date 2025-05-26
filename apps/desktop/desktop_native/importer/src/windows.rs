@@ -23,7 +23,7 @@ pub const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
         data_dir: "AppData/Local/Google/Chrome/User Data",
     },
     BrowserConfig {
-        name: "Edge",
+        name: "Microsoft Edge",
         data_dir: "AppData/Local/Microsoft/Edge/User Data",
     },
     BrowserConfig {
