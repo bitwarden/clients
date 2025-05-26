@@ -10,7 +10,7 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 6] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",
@@ -30,6 +30,10 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
     BrowserConfig {
         name: "Opera",
         data_dir: "Library/Application Support/com.operasoftware.Opera",
+    },
+    BrowserConfig {
+        name: "Vivaldi",
+        data_dir: "Library/Application Support/Vivaldi",
     },
 ];
 
@@ -81,6 +85,11 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
         browser: "Opera",
         service: "Opera Safe Storage",
         account: "Opera",
+    },
+    KeychainConfig {
+        browser: "Vivaldi",
+        service: "Vivaldi Safe Storage",
+        account: "Vivaldi",
     },
 ];
 
