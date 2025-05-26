@@ -1,14 +1,29 @@
 import { Observable } from "rxjs";
 
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { BitwardenClient, Uuid } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../../types/guid";
 import { Rc } from "../../misc/reference-counting/rc";
+import { Utils } from "../../misc/utils";
 
 export class UserNotLoggedInError extends Error {
   constructor(userId: UserId) {
     super(`User (${userId}) is not logged in`);
   }
+}
+
+// Converts a string to UUID. Will throw an error if the UUID is non valid.
+export function uuid<T extends Uuid>(uuid: string): T {
+  if (Utils.isGuid(uuid)) {
+    return uuid as T;
+  }
+
+  throw new Error(`Invalid UUID: ${uuid}`);
+}
+
+// Converts a UUID to the string representation.
+export function uuid_to_string<T extends Uuid>(uuid: T): string {
+  return uuid as unknown as string;
 }
 
 export abstract class SdkService {
