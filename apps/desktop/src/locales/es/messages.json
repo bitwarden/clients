@@ -232,7 +232,7 @@
     "message": "Habilitar agente SSH"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Activa el agente SSH para firmar peticiones SSH directamente desde tu caja fuerte de Bitwarden."
   },
   "enableSshAgentHelp": {
     "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
@@ -434,28 +434,28 @@
     "message": "Website added"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Añadir página web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Eliminar página web"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Propietario"
   },
   "addField": {
     "message": "Añadir campo"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Editar campo"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "¿Estás seguro de que quieres eliminar permanentemente este adjunto?"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Tipo de campo"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Etiqueta del campo"
   },
   "add": {
     "message": "Añadir"
@@ -931,11 +931,11 @@
     "message": "No volver a preguntar en este dispositivo durante 30 días"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Selecciona otro método",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Usar tu código de recuperación"
   },
   "insertU2f": {
     "message": "Inserta tu llave de seguridad en el puerto USB de tu equipo. Si tiene un botón, púlsalo."
@@ -1028,7 +1028,7 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "URL del servidor autoalojado",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -2001,10 +2001,10 @@
     "message": "Free organizations cannot use attachments"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 campo necesita tu atención."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ campos necesitan tu atención.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2013,10 +2013,10 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Tarjeta expirada"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Si la has renovado, actualiza la información de la tarjeta"
   },
   "verificationRequired": {
     "message": "Verificación requerida",
@@ -2167,10 +2167,10 @@
     "message": "La biometría del navegador requiere habilitar primero la biometría de escritorio en los ajustes."
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatic setup not available"
+    "message": "Configuración automática no disponible"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "Debido al método de instalación, el soporte biométrico no pudo activarse automáticamente. ¿Quieres abrir la documentación sobre cómo hacerlo manualmente?"
   },
   "personalOwnershipSubmitError": {
     "message": "Debido a una política de organización, tiene restringido el guardar elementos a su caja fuerte personal. Cambie la configuración de propietario a organización y elija entre las colecciones disponibles."
@@ -2188,13 +2188,13 @@
     "message": "Una política organizacional ha bloqueado la importación de elementos a su caja fuerte personal."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Datos personales"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identificación"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Información de contacto"
   },
   "allSends": {
     "message": "Todos los Send",
@@ -2363,7 +2363,7 @@
     "message": "Leer clave de seguridad"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Esperando interacción de la clave de seguridad..."
   },
   "hideEmail": {
     "message": "Ocultar mi dirección de correo electrónico a los destinatarios."
@@ -2512,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Contraseña maestra eliminada."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ está usando SSO con un servidor de claves autoalojado. Los miembros de esta organización ya no necesitarán una contraseña maestra para iniciar sesión.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Nombre de la organización"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Abandonar organización"
@@ -2946,7 +2946,7 @@
     "message": "Are you trying to access your account?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Intento de acceso de $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3016,7 +3016,7 @@
     "message": "Inicio de sesión solicitado"
   },
   "accountAccessRequested": {
-    "message": "Account access requested"
+    "message": "Acceso a la cuenta solicitado"
   },
   "creatingAccountOn": {
     "message": "Creando una cuenta en"
@@ -3161,10 +3161,10 @@
     "message": "Trust organization"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Confiar"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "No confiar"
   },
   "organizationNotTrusted": {
     "message": "Organization is not trusted"
@@ -3623,7 +3623,7 @@
     "message": "Login credentials"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Opciones adicionales"
   },
   "itemHistory": {
     "message": "Item history"
@@ -3659,10 +3659,10 @@
     "message": "authenticate to a server"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "firmar un mensaje"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "firmar una confirmación git"
   },
   "unknownApplication": {
     "message": "Una aplicación"
@@ -3683,7 +3683,7 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Permitir captura de pantalla"
   },
   "allowScreenshotsDesc": {
     "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
@@ -3703,11 +3703,20 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Mover"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Nueva carpeta"
   },
   "folderName": {
     "message": "Folder Name"
@@ -3724,7 +3733,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Página web",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
