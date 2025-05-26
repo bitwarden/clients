@@ -3,35 +3,38 @@ import { CdkVirtualScrollable, ScrollDispatcher, VIRTUAL_SCROLLABLE } from "@ang
 import { Directive, ElementRef, NgZone, Optional } from "@angular/core";
 
 @Directive({
-  selector: "cdk-virtual-scroll-viewport[bitScrollLayout]",
+  selector: "[bitScrollLayout]",
   standalone: true,
   providers: [{ provide: VIRTUAL_SCROLLABLE, useExisting: ScrollLayoutDirective }],
 })
 export class ScrollLayoutDirective extends CdkVirtualScrollable {
-  private mainRef: ElementRef<HTMLElement>;
+  private scrollableRef: ElementRef<HTMLElement>;
 
   constructor(scrollDispatcher: ScrollDispatcher, ngZone: NgZone, @Optional() dir: Directionality) {
-    const mainEl = document.querySelector<HTMLElement>(
+    const scrollableEl = document.querySelector<HTMLElement>(
       ".bit-virtual-scrollable.cdk-virtual-scrollable",
     )!;
-    if (!mainEl) {
+    if (!scrollableEl) {
       // eslint-disable-next-line no-console
-      console.error("HTML main element must be an ancestor of [bitScrollLayout]");
+      console.error(
+        "Element with `.bit-virtual-scrollable.cdk-virtual-scrollable` must be an ancestor of [bitScrollLayout]",
+      );
     }
-    const mainRef = new ElementRef(mainEl);
-    super(mainRef, scrollDispatcher, ngZone, dir);
-    this.mainRef = mainRef;
+    const scrollableRef = new ElementRef(scrollableEl);
+    super(scrollableRef, scrollDispatcher, ngZone, dir);
+    this.scrollableRef = scrollableRef;
   }
 
   override getElementRef(): ElementRef<HTMLElement> {
-    return this.mainRef;
+    return this.scrollableRef;
   }
 
   override measureBoundingClientRectWithScrollOffset(
     from: "left" | "top" | "right" | "bottom",
   ): number {
     return (
-      this.mainRef.nativeElement.getBoundingClientRect()[from] - this.measureScrollOffset(from)
+      this.scrollableRef.nativeElement.getBoundingClientRect()[from] -
+      this.measureScrollOffset(from)
     );
   }
 }
