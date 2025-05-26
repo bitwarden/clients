@@ -10,18 +10,22 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 3] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "Library/Application Support/Google/Chrome",
     },
     BrowserConfig {
-        name: "Edge",
-        data_dir: "Library/Application Support/Microsoft/Edge",
+        name: "Microsoft Edge",
+        data_dir: "Library/Application Support/Microsoft Edge",
     },
     BrowserConfig {
         name: "Brave",
         data_dir: "Library/Application Support/BraveSoftware/Brave-Browser",
+    },
+    BrowserConfig {
+        name: "Arc",
+        data_dir: "Library/Application Support/Arc/User Data",
     },
 ];
 
@@ -55,7 +59,7 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
         account: "Chrome",
     },
     KeychainConfig {
-        browser: "Edge",
+        browser: "Microsoft Edge",
         service: "Microsoft Edge Safe Storage",
         account: "Microsoft Edge",
     },
@@ -63,6 +67,11 @@ const KEYCHAIN_CONFIG: [KeychainConfig; SUPPORTED_BROWSERS.len()] = [
         browser: "Brave",
         service: "Brave Safe Storage",
         account: "Brave",
+    },
+    KeychainConfig {
+        browser: "Arc",
+        service: "Arc Safe Storage",
+        account: "Arc",
     },
 ];
 
