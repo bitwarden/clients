@@ -107,10 +107,35 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     clientKeyHalfB64: string | undefined;
   }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
     if (this._osKeyHalf == null) {
-      // Prompts Windows Hello
-      const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
-      this._osKeyHalf = keyMaterial.keyB64;
-      this._iv = keyMaterial.ivB64;
+      // Ensures that the Windows Hello popup is in the foreground, by bringing the desktop app window to the foreground.
+      const windowFocused = this.windowMain.win.isFocused();
+      const alwaysOnTop = this.windowMain.win.isAlwaysOnTop();
+      if (!windowFocused) {
+        // Show the window in case it was hidden (in tray icon)
+        this.windowMain.win.showInactive();
+        // There is no reliable way to bring the desktop app and Windows Hello popup to foreground.
+        // We go around this problem by bringing the windows to always be on top (to foreground) and then resetting this back.
+        // At this point the window is already in the foreground, even though the always on top is disabled.
+        // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
+        await this.windowMain.toggleAlwaysOnTop();
+        await this.windowMain.toggleAlwaysOnTop();
+        // Windows Hello popup won't be visible when always on top was already enabled in the app settings.
+        // We disable this setting temporarily for the duration of Windows Hello popup confirmation.
+        if (alwaysOnTop) {
+          await this.windowMain.toggleAlwaysOnTop();
+        }
+        this.windowMain.win.focus();
+      }
+      try {
+        // Prompts Windows Hello
+        const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
+        this._osKeyHalf = keyMaterial.keyB64;
+        this._iv = keyMaterial.ivB64;
+      } finally {
+        if (!windowFocused && alwaysOnTop) {
+          await this.windowMain.toggleAlwaysOnTop();
+        }
+      }
     }
 
     if (this._iv == null) {
