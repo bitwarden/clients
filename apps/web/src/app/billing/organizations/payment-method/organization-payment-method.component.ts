@@ -87,6 +87,9 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     // incase the above state is undefined or null we use redundantState
     const redundantState: any = location.getState();
+    const queryParam = this.activatedRoute.snapshot.queryParamMap.get(
+      "launchPaymentModalAutomatically",
+    );
     if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
       this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
     } else if (
@@ -94,6 +97,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
     ) {
       this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
+    } else if (queryParam === "true") {
+      this.launchPaymentModalAutomatically = true;
     } else {
       this.launchPaymentModalAutomatically = false;
     }
