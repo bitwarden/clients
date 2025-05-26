@@ -117,7 +117,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
       <bit-popover [title]="'Password help'" #myPopover>
         <div>A strong password has the following:</div>
-        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Letters</li>
           <li>Numbers</li>
           <li>Special characters</li>
