@@ -17,7 +17,7 @@ mod util;
 // Public API
 //
 
-pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
+pub const SUPPORTED_BROWSERS: [BrowserConfig; 5] = [
     BrowserConfig {
         name: "Chrome",
         data_dir: "AppData/Local/Google/Chrome/User Data",
@@ -33,6 +33,10 @@ pub const SUPPORTED_BROWSERS: [BrowserConfig; 4] = [
     BrowserConfig {
         name: "Opera",
         data_dir: "AppData/Roaming/Opera Software/Opera Stable",
+    },
+    BrowserConfig {
+        name: "Vivaldi",
+        data_dir: "AppData/Local/Vivaldi/User Data",
     },
 ];
 
