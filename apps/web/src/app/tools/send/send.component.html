@@ -183,7 +183,7 @@
         </tr>
       </ng-template>
     </bit-table>
-    <div class="no-items" *ngIf="filteredSends && !filteredSends.length">
+    <div *ngIf="filteredSends && !filteredSends.length">
       <ng-container *ngIf="!loaded">
         <i
           class="bwi bwi-spinner bwi-spin tw-text-muted"
