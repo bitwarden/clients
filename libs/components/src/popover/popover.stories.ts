@@ -62,7 +62,7 @@ type Story = StoryObj<PopoverTriggerForDirective>;
 const popoverContent = `
   <bit-popover [title]="'Example Title'" #myPopover>
     <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
-    <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+    <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
       <li>Dolor sit amet consectetur</li>
       <li>Esse labore veniam tempora</li>
       <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
@@ -96,7 +96,7 @@ export const Open: Story = {
     template: `
       <bit-popover [title]="'Example Title'" #myPopover="popoverComponent">
         <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
-        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Dolor sit amet consectetur</li>
           <li>Esse labore veniam tempora</li>
           <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>
@@ -118,7 +118,7 @@ export const OpenLongTitle: Story = {
     template: `
       <bit-popover [title]="'Example Title that is really long it wraps 2 lines'" #myPopover="popoverComponent">
         <div>Lorem ipsum dolor <a href="#">adipisicing elit</a>.</div>
-        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Dolor sit amet consectetur</li>
           <li>Esse labore veniam tempora</li>
           <li>Adipisicing elit ipsum <a href="#">iustolaborum</a></li>

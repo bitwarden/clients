@@ -112,7 +112,7 @@ export const NavigationTabs: Story = {
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
         <bit-tab-link [route]="['item-with-child-counter']">
           Item With Counter
-          <div slot="end" class="tw-pl-2 tw-text-muted">
+          <div slot="end" class="tw-ps-2 tw-text-muted">
             42
           </div>
         </bit-tab-link>
