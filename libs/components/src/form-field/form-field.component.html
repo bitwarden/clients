@@ -20,7 +20,7 @@
     <div class="tw-absolute tw-size-full tw-top-0 tw-pointer-events-none tw-z-20">
       <div class="tw-size-full tw-flex">
         <div
-          class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-l-lg"
+          class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-s-lg"
           [ngClass]="inputBorderClasses"
         ></div>
         <div
@@ -40,7 +40,7 @@
           </label>
         </div>
         <div
-          class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-r-lg"
+          class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-e-lg"
           [ngClass]="inputBorderClasses"
         ></div>
       </div>
@@ -59,8 +59,8 @@
         class="tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
         data-default-content
         [ngClass]="[
-          prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-ps-3',
-          suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pe-3',
+          prefixHasChildren() ? '' : 'tw-rounded-s-lg tw-ps-3',
+          suffixHasChildren() ? '' : 'tw-rounded-e-lg tw-pe-3',
         ]"
       >
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
