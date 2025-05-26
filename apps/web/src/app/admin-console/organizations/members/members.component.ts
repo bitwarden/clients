@@ -45,6 +45,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -110,8 +111,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
+  private _sponsorshipCount = 0;
+
   get occupiedSeatCount(): number {
-    return this.dataSource.activeUserCount;
+    return this.dataSource.activeUserCount + this._sponsorshipCount;
   }
 
   constructor(
@@ -139,6 +142,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
+    private organizationSponsorship: OrganizationSponsorshipApiServiceAbstraction,
   ) {
     super(
       apiService,
@@ -186,6 +190,12 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       .pipe(
         concatMap(async ([qParams, policies, organization]) => {
           this.organization = organization;
+
+          // Get sponsorship count
+          const sponsorship = await this.organizationSponsorship.getOrganizationSponsorship(
+            this.organization.id,
+          );
+          this._sponsorshipCount = sponsorship?.data?.length ?? 0;
 
           // Backfill pub/priv key if necessary
           if (
