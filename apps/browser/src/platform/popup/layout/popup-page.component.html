@@ -13,7 +13,8 @@
     <ng-content select="[slot=above-scroll-area]"></ng-content>
   </div>
   <div
-    class="bit-virtual-scrollable cdk-virtual-scrollable tw-max-w-screen-sm tw-mx-auto tw-overflow-y-auto tw-flex tw-flex-col tw-size-full tw-styled-scrollbar"
+    bitScrollLayoutHost
+    class="tw-max-w-screen-sm tw-mx-auto tw-overflow-y-auto tw-flex tw-flex-col tw-size-full tw-styled-scrollbar"
     data-testid="popup-layout-scroll-region"
     (scroll)="handleScroll($event)"
     [ngClass]="{ 'tw-invisible': loading }"
