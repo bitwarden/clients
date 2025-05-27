@@ -14,6 +14,7 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -378,6 +379,45 @@ describe("keyService", () => {
       await keyService.setUserKeys(mockUserKey, mockEncPrivateKey, mockUserId);
 
       expect(setEncryptedPrivateKeySpy).toHaveBeenCalledWith(mockEncPrivateKey, mockUserId);
+    });
+  });
+
+  describe("clearStoredUserKey", () => {
+    describe("input validation", () => {
+      const invalidUserIdTestCases = [
+        { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
+      ];
+      test.each(invalidUserIdTestCases)(
+        "throws when keySuffix is $keySuffix and userId is $userId",
+        async ({ keySuffix, userId }) => {
+          await expect(keyService.clearStoredUserKey(keySuffix, userId)).rejects.toThrow(
+            "UserId is required",
+          );
+        },
+      );
+    });
+
+    describe("with Auto key suffix", () => {
+      it("UserKeyAutoUnlock is cleared and pin keys are not cleared", async () => {
+        await keyService.clearStoredUserKey(KeySuffixOptions.Auto, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
+          userId: mockUserId,
+        });
+        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("with PIN key suffix", () => {
+      it("pin keys are cleared and user key auto unlock not", async () => {
+        await keyService.clearStoredUserKey(KeySuffixOptions.Pin, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).not.toHaveBeenCalled();
+        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
+      });
     });
   });
 
