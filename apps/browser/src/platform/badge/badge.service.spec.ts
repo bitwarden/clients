@@ -1,29 +1,39 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { Subscription } from "rxjs";
 
 import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 
 import { BadgeBrowserApi } from "./badge-browser-api";
 import { BadgeService } from "./badge.service";
 import { DefaultBadgeState } from "./consts";
+import { BadgeIcon } from "./icon";
 import { BadgeStatePriority } from "./priority";
-import { BadgeState, IconPaths, Unset } from "./state";
+import { BadgeState, Unset } from "./state";
 
 describe("BadgeService", () => {
   let badgeApi: MockProxy<BadgeBrowserApi>;
   let stateProvider: FakeStateProvider;
   let badgeService!: BadgeService;
 
+  let badgeServiceSubscription: Subscription;
+
   beforeEach(() => {
     badgeApi = mock<BadgeBrowserApi>();
     stateProvider = new FakeStateProvider(new FakeAccountService({}));
     badgeService = new BadgeService(stateProvider, badgeApi);
+
+    badgeServiceSubscription = badgeService.startListening();
+  });
+
+  afterEach(() => {
+    badgeServiceSubscription.unsubscribe();
   });
 
   it("sets provided state when no other state has been set", async () => {
     const state: BadgeState = {
       text: "text",
       backgroundColor: "color",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     };
 
     await badgeService.setState("state-name", BadgeStatePriority.Default, state);
@@ -51,7 +61,7 @@ describe("BadgeService", () => {
       backgroundColor: "#fff",
     });
     await badgeService.setState("state-3", BadgeStatePriority.Default, {
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
 
     expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
@@ -67,7 +77,7 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
   });
 
@@ -75,7 +85,7 @@ describe("BadgeService", () => {
     await badgeService.setState("state-1", BadgeStatePriority.Low, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
     await badgeService.setState("state-2", BadgeStatePriority.Default, {
       text: "override",
@@ -85,17 +95,17 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
     expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "override",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
     expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "override",
       backgroundColor: "#aaa",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
   });
 
@@ -103,7 +113,7 @@ describe("BadgeService", () => {
     await badgeService.setState("state-1", BadgeStatePriority.Low, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
     await badgeService.setState("state-2", BadgeStatePriority.Default, {
       text: "override",
@@ -113,17 +123,17 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
     expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "override",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
     expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
   });
 
@@ -131,7 +141,7 @@ describe("BadgeService", () => {
     await badgeService.setState("state-1", BadgeStatePriority.Low, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
     await badgeService.setState("state-2", BadgeStatePriority.Default, {
       text: "override",
@@ -150,7 +160,7 @@ describe("BadgeService", () => {
     await badgeService.setState("state-1", BadgeStatePriority.Low, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
     await badgeService.setState("state-3", BadgeStatePriority.High, {
       icon: Unset,
@@ -159,7 +169,7 @@ describe("BadgeService", () => {
     expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     } satisfies BadgeState);
     expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
       text: "text",
@@ -172,26 +182,19 @@ describe("BadgeService", () => {
     await badgeService.setState("state-1", BadgeStatePriority.Low, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("icon"),
+      icon: BadgeIcon.Locked,
     });
     await badgeService.setState("state-3", BadgeStatePriority.Default, {
       icon: Unset,
     });
     await badgeService.setState("state-3", BadgeStatePriority.High, {
-      icon: icon("override"),
+      icon: BadgeIcon.Unlocked,
     });
 
     expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
       text: "text",
       backgroundColor: "#fff",
-      icon: icon("override"),
+      icon: BadgeIcon.Unlocked,
     } satisfies BadgeState);
   });
 });
-
-function icon(path: string): IconPaths {
-  return {
-    19: path,
-    38: path,
-  };
-}
