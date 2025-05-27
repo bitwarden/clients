@@ -6,6 +6,10 @@ mod registry;
 
 #[napi]
 pub mod passwords {
+    /// The error message returned when a password is not found during retrieval or deletion.
+    #[napi]
+    pub const PASSWORD_NOT_FOUND: &'static str = desktop_core::password::PASSWORD_NOT_FOUND;
+
     /// Fetch the stored password from the keychain.
     #[napi]
     pub async fn get_password(service: String, account: String) -> napi::Result<String> {

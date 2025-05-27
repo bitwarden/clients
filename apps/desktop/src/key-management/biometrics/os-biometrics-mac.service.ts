@@ -1,12 +1,16 @@
 import { systemPreferences } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { passwords } from "@bitwarden/desktop-napi";
 
 import { OsBiometricService } from "./os-biometrics.service";
 
 export default class OsBiometricsServiceMac implements OsBiometricService {
-  constructor(private i18nservice: I18nService) {}
+  constructor(
+    private i18nservice: I18nService,
+    private logService: LogService,
+  ) {}
 
   async osSupportsBiometric(): Promise<boolean> {
     return systemPreferences.canPromptTouchID();
@@ -40,7 +44,14 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
   }
 
   async deleteBiometricKey(service: string, key: string): Promise<void> {
-    return await passwords.deletePassword(service, key);
+    try {
+      await passwords.deletePassword(service, key);
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+      }
+      throw e;
+    }
   }
 
   private async valueUpToDate(service: string, key: string, value: string): Promise<boolean> {

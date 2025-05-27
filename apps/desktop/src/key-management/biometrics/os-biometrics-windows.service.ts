@@ -92,8 +92,24 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   }
 
   async deleteBiometricKey(service: string, key: string): Promise<void> {
-    await passwords.deletePassword(service, key);
-    await passwords.deletePassword(service, key + KEY_WITNESS_SUFFIX);
+    try {
+      await passwords.deletePassword(service, key);
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+      }
+      throw e;
+    }
+    try {
+      await passwords.deletePassword(service, key + KEY_WITNESS_SUFFIX);
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          `Biometric witness key ${key + KEY_WITNESS_SUFFIX} not found for service ${service}.`,
+        );
+      }
+      throw e;
+    }
   }
 
   async authenticateBiometric(): Promise<boolean> {

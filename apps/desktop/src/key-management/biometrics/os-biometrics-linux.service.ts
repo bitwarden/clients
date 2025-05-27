@@ -1,10 +1,9 @@
 import { spawn } from "child_process";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
-import { WindowMain } from "../../main/window.main";
 import { isFlatpak, isLinux, isSnapStore } from "../../utils";
 
 import { OsBiometricService } from "./os-biometrics.service";
@@ -29,10 +28,7 @@ const policyFileName = "com.bitwarden.Bitwarden.policy";
 const policyPath = "/usr/share/polkit-1/actions/";
 
 export default class OsBiometricsServiceLinux implements OsBiometricService {
-  constructor(
-    private i18nservice: I18nService,
-    private windowMain: WindowMain,
-  ) {}
+  constructor(private logService: LogService) {}
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
@@ -52,8 +48,16 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       storageDetails.ivB64,
     );
   }
+
   async deleteBiometricKey(service: string, key: string): Promise<void> {
-    await passwords.deletePassword(service, key);
+    try {
+      await passwords.deletePassword(service, key);
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+      }
+      throw e;
+    }
   }
 
   async getBiometricKey(
