@@ -18,13 +18,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import {
-  BadgeModule,
-  CardComponent,
-  ItemModule,
-  ToastService,
-  TypographyModule,
-} from "@bitwarden/components";
+import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
@@ -33,7 +27,7 @@ import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/f
   standalone: true,
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
-  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule, CardComponent],
+  imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule],
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */

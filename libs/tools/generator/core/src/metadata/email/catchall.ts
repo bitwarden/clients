@@ -4,17 +4,14 @@ import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { EmailRandomizer } from "../../engine";
 import { CatchallConstraints } from "../../policies/catchall-constraints";
-import {
-  CatchallGenerationOptions,
-  CredentialGenerator,
-  GeneratorDependencyProvider,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CatchallGenerationOptions, CredentialGenerator } from "../../types";
 import { Algorithm, Type, Profile } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const catchall: GeneratorMetadata<CatchallGenerationOptions> = deepFreeze({
   id: Algorithm.catchall,
-  category: Type.email,
+  type: Type.email,
   weight: 210,
   i18nKeys: {
     name: "catchallEmail",

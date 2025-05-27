@@ -13,6 +13,7 @@ aes = "=0.8.4"
 anyhow = "=1.0.94"
 arboard = { version = "=3.5.0", default-features = false }
 argon2 = "=0.5.3" 
+ashpd = "=0.11.0"
 base64 = "=0.22.1"
 bindgen = "=0.71.1"
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "3d48f140fd506412d186203238993163a8c4e536" }

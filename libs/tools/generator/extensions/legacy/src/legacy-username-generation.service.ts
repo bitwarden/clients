@@ -3,6 +3,7 @@
 import { zip, firstValueFrom, map, concatMap, combineLatest } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Vendor } from "@bitwarden/common/tools/extension/vendor/data";
 import { IntegrationRequest } from "@bitwarden/common/tools/integration/rpc";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -14,13 +15,13 @@ import {
   GeneratorService,
   CatchallGenerationOptions,
   EffUsernameGenerationOptions,
-  Forwarders,
   SubaddressGenerationOptions,
   UsernameGeneratorType,
   ForwarderId,
 } from "@bitwarden/generator-core";
 import { GeneratorNavigationService, GeneratorNavigation } from "@bitwarden/generator-navigation";
 
+import { Forwarders } from "./forwarders";
 import { UsernameGeneratorOptions } from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
 
@@ -89,12 +90,14 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
     const stored = this.toStoredOptions(options);
     switch (options.forwardedService) {
       case Forwarders.AddyIo.id:
+      case Vendor.addyio:
         return this.addyIo.generate(stored.forwarders.addyIo);
       case Forwarders.DuckDuckGo.id:
         return this.duckDuckGo.generate(stored.forwarders.duckDuckGo);
       case Forwarders.Fastmail.id:
         return this.fastmail.generate(stored.forwarders.fastmail);
       case Forwarders.FirefoxRelay.id:
+      case Vendor.mozilla:
         return this.firefoxRelay.generate(stored.forwarders.firefoxRelay);
       case Forwarders.ForwardEmail.id:
         return this.forwardEmail.generate(stored.forwarders.forwardEmail);
@@ -232,22 +235,24 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
     options: MappedOptions,
   ) {
     switch (forwarder) {
-      case "anonaddy":
+      case Forwarders.AddyIo.id:
+      case Vendor.addyio:
         await this.addyIo.saveOptions(account, options.forwarders.addyIo);
         return true;
-      case "duckduckgo":
+      case Forwarders.DuckDuckGo.id:
         await this.duckDuckGo.saveOptions(account, options.forwarders.duckDuckGo);
         return true;
-      case "fastmail":
+      case Forwarders.Fastmail.id:
         await this.fastmail.saveOptions(account, options.forwarders.fastmail);
         return true;
-      case "firefoxrelay":
+      case Forwarders.FirefoxRelay.id:
+      case Vendor.mozilla:
         await this.firefoxRelay.saveOptions(account, options.forwarders.firefoxRelay);
         return true;
-      case "forwardemail":
+      case Forwarders.ForwardEmail.id:
         await this.forwardEmail.saveOptions(account, options.forwarders.forwardEmail);
         return true;
-      case "simplelogin":
+      case Forwarders.SimpleLogin.id:
         await this.simpleLogin.saveOptions(account, options.forwarders.simpleLogin);
         return true;
       default:
