@@ -77,7 +77,7 @@ export class VaultFilter {
   }
 
   get cipherType(): CipherType {
-    return this.selectedCipherTypeNode?.node.type in CipherType
+    return this.selectedCipherTypeNode?.node.type in Object.values(CipherType)
       ? (this.selectedCipherTypeNode?.node.type as CipherType)
       : null;
   }
