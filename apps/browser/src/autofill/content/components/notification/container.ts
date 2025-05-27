@@ -31,6 +31,7 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   i18n: I18n;
   organizations?: OrgView[];
   personalVaultIsAllowed?: boolean;
+  notificationTestId: string;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
 };
 
@@ -45,13 +46,14 @@ export function NotificationContainer({
   i18n,
   organizations,
   personalVaultIsAllowed = true,
+  notificationTestId,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
   const showBody = type !== NotificationTypes.Unlock;
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,
