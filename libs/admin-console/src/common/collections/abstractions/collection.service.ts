@@ -25,7 +25,7 @@ export abstract class CollectionService {
    */
   abstract decryptMany: (
     collections: Collection[],
-    orgKeys: Record<OrganizationId, OrgKey> | null,
+    orgKeys: Record<OrganizationId, OrgKey>,
     userId: UserId,
   ) => Promise<CollectionView[]>;
   abstract clear: (userId: UserId) => Promise<void>;

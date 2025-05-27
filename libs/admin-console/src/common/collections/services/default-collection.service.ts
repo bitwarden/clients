@@ -3,11 +3,9 @@ import {
   filter,
   firstValueFrom,
   map,
-  merge,
   Observable,
   of,
   shareReplay,
-  Subject,
   switchMap,
 } from "rxjs";
 
@@ -29,21 +27,26 @@ import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./
 const NestingDelimiter = "/";
 
 export class DefaultCollectionService implements CollectionService {
-  private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
-
-  /**
-   * Used to force the collectionViews$ Observable to re-emit with a provided value.
-   * Required because shareReplay with refCount: false maintains last emission.
-   * Used during cleanup to force emit empty arrays, ensuring stale data isn't retained.
-   */
-  private forceCollectionViews: Record<UserId, Subject<CollectionView[]>> = {};
-
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
   ) {}
+
+  /**
+   * @returns a SingleUserState for encrypted collection data.
+   */
+  private encryptedState(userId: UserId) {
+    return this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY);
+  }
+
+  /**
+   * @returns a SingleUserState for decrypted collection data.
+   */
+  private decryptedState(userId: UserId) {
+    return this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY);
+  }
 
   encryptedCollections$(userId: UserId) {
     return this.encryptedState(userId).state$.pipe(
@@ -59,7 +62,22 @@ export class DefaultCollectionService implements CollectionService {
 
   decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
     return (
-      this.collectionViews$(userId).pipe(shareReplay({ refCount: true, bufferSize: 1 })) ?? of([])
+      this.decryptedState(userId).state$.pipe(
+        switchMap((decryptedCollections) =>
+          decryptedCollections
+            ? of(decryptedCollections)
+            : combineLatest([
+                this.encryptedCollections$(userId),
+                this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+              ]).pipe(
+                switchMap(
+                  async ([collections, orgKeys]) =>
+                    await this.decryptMany(collections, orgKeys, userId),
+                ),
+              ),
+        ),
+        shareReplay({ refCount: false, bufferSize: 1 }),
+      ) ?? of([])
     );
   }
 
@@ -95,8 +113,6 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   async clear(userId: UserId): Promise<void> {
-    this.forceCollectionViews[userId]?.next([]);
-
     await this.encryptedState(userId).update(() => null);
     await this.clearDecryptedState(userId);
   }
@@ -142,21 +158,9 @@ export class DefaultCollectionService implements CollectionService {
   // See https://bitwarden.atlassian.net/browse/PM-12375
   async decryptMany(
     collections: Collection[],
-    orgKeys: Record<OrganizationId, OrgKey> | null,
+    orgKeys: Record<OrganizationId, OrgKey>,
     userId: UserId,
   ): Promise<CollectionView[]> {
-    const decrypted = await firstValueFrom(
-      this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY).state$,
-    );
-
-    if (decrypted?.length) {
-      return decrypted;
-    }
-
-    if (collections === null || collections.length === 0 || orgKeys === null) {
-      return [];
-    }
-
     const decCollections: CollectionView[] = [];
     const promises: Promise<any>[] = [];
 
@@ -196,40 +200,6 @@ export class DefaultCollectionService implements CollectionService {
       nestedCollections,
       id,
     ) as TreeNode<CollectionView>;
-  }
-
-  /**
-   * @returns a SingleUserState for encrypted collection data.
-   */
-  private encryptedState(userId: UserId) {
-    return this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY);
-  }
-
-  /**
-   * Returns an Observable of decrypted Collection Views for the given userId.
-   * Uses collectionViewCache to maintain a single Observable instance per user,
-   * combining normal collection state updates with forced updates.
-   */
-  collectionViews$(userId: UserId): Observable<CollectionView[]> {
-    if (!this.collectionViewCache.has(userId)) {
-      if (!this.forceCollectionViews[userId]) {
-        this.forceCollectionViews[userId] = new Subject<CollectionView[]>();
-      }
-
-      const observable = merge(
-        this.forceCollectionViews[userId],
-        combineLatest([
-          this.encryptedCollections$(userId),
-          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-        ]).pipe(
-          switchMap(([collections, orgKeys]) => this.decryptMany(collections, orgKeys, userId)),
-        ),
-      ).pipe(shareReplay({ refCount: false, bufferSize: 1 }));
-
-      this.collectionViewCache.set(userId, observable);
-    }
-
-    return this.collectionViewCache.get(userId) ?? of([]);
   }
 
   /**
