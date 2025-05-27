@@ -70,9 +70,8 @@ export class DefaultCollectionService implements CollectionService {
                 this.encryptedCollections$(userId),
                 this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
               ]).pipe(
-                switchMap(
-                  async ([collections, orgKeys]) =>
-                    await this.decryptMany(collections, orgKeys, userId),
+                switchMap(([collections, orgKeys]) =>
+                  this.decryptMany(collections, orgKeys, userId),
                 ),
               ),
         ),
