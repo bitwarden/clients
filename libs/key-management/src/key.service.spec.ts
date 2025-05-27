@@ -368,7 +368,7 @@ describe("keyService", () => {
   });
 
   describe("makeSendKey", () => {
-    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockRandomBytes = new Uint8Array(16) as CsprngArray;
     it("calls keyGenerationService with expected hard coded parameters", async () => {
       await keyService.makeSendKey(mockRandomBytes);
 
