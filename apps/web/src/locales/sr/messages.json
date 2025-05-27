@@ -99,7 +99,7 @@
     "message": "Означите апликацију као критичну"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "Апликације означене као критичне"
   },
   "application": {
     "message": "Апликација"
@@ -141,13 +141,13 @@
     "message": "Ови чланови се пријављују у апликације са слабим, откривеним или поново коришћеним лозинкама."
   },
   "atRiskMembersDescriptionNone": {
-    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+    "message": "Нема чланова пријављена у апликације са слабим, откривеним или поново коришћеним лозинкама."
   },
   "atRiskApplicationsDescription": {
     "message": "Ове апликације имају слабу, проваљену или често коришћену лозинку."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "These are no applications with weak, exposed, or reused passwords."
+    "message": "Ове апликације немају слабу, проваљену или често коришћену лозинку."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ови чланови се пријављују у $APPNAME$ са слабим, откривеним или поново коришћеним лозинкама.",
@@ -4549,7 +4549,7 @@
     "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Сваки рачун са ограничен извоз који сте сачували постаће неважећи."
   },
   "subscription": {
     "message": "Претплата"
@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Неисправан верификациони код"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације."
+  },
+  "keyConnectorDomain": {
+    "message": "Домен конектора кључа"
   },
   "leaveOrganization": {
     "message": "Напусти организацију"
@@ -9429,19 +9426,19 @@
     "message": "Управљајте наплатом из Provider Portal"
   },
   "continueSettingUp": {
-    "message": "Continue setting up Bitwarden"
+    "message": "Наставити са подешавањем Bitwarden-а"
   },
   "continueSettingUpFreeTrial": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden-а"
   },
   "continueSettingUpPasswordManager": {
-    "message": "Continue setting up Bitwarden Password Manager"
+    "message": "Наставите са подешавањем Bitwarden менаџер лозинки"
   },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden менаџер лозинки"
   },
   "continueSettingUpSecretsManager": {
-    "message": "Continue setting up Bitwarden Secrets Manager"
+    "message": "Наставите са подешавањем Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Наставите са подешавањем бесплатне пробне верзије Bitwarden Secrets Manager"
@@ -10560,17 +10557,17 @@
     "message": "Уштедите време са ауто-пуњењем"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Укључите",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Веб сајт",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "тако да се ова пријава појављује као предлог за ауто-пуњење.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -10596,12 +10593,12 @@
     "message": "Лак SSH приступ"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Чувајте кључеве и повежите се са SSH агент за брзу, шифровану аутентификацију.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "Сазнајте више о SSH агенту",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -10612,6 +10609,6 @@
     "message": "Плаћање са банковним рачуном доступно је само купцима у Сједињеним Државама. Од вас ће бити потребно да проверите свој банковни рачун. Направит ћемо микро депозит у наредних 1-2 радна дана. Унесите кôд за дескриптор изјаве са овог депозита на претплатничкој страници провајдера да бисте потврдили банковни рачун. Неуспех у верификацији банковног рачуна резултираће пропуштеним плаћањем и претплатом је суспендовано."
   },
   "clickPayWithPayPal": {
-    "message": "Please click the Pay with PayPal button to add your payment method."
+    "message": "Кликните на Pay with PayPal да бисте додали начин лпаћања."
   }
 }

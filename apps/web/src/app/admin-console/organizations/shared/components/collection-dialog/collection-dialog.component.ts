@@ -134,7 +134,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: "",
+    externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "",
@@ -143,16 +143,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showDeleteButton = false;
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(
-      map((isEnabled) => {
-        return (
-          !isEnabled ||
-          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
-        );
-      }),
-    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -347,6 +337,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.formGroup.controls.selectedOrg;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -483,23 +477,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
       this.formGroup.controls.name.disable();
-      this.formGroup.controls.externalId.disable();
       this.formGroup.controls.parent.disable();
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-
-      this.configService
-        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((isEnabled) => {
-          if (isEnabled) {
-            this.formGroup.controls.externalId.disable();
-          } else {
-            this.formGroup.controls.externalId.enable();
-          }
-        });
-
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }
