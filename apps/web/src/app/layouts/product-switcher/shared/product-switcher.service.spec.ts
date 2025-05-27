@@ -7,6 +7,7 @@ import { Observable, firstValueFrom, of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -27,6 +28,7 @@ describe("ProductSwitcherService", () => {
   let accountService: FakeAccountService;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
+  let singleOrgPolicyEnabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
 
@@ -76,6 +78,12 @@ describe("ProductSwitcherService", () => {
         {
           provide: SyncService,
           useValue: { getLastSync },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(singleOrgPolicyEnabled),
+          },
         },
       ],
     });
@@ -183,6 +191,14 @@ describe("ProductSwitcherService", () => {
 
         expect(products.bento.find((p) => p.name === "Admin Console")).toBeDefined();
         expect(products.other.find((p) => p.name === "Organizations")).toBeUndefined();
+      });
+
+      it("does not include Organizations when the user's single org policy is enabled", async () => {
+        singleOrgPolicyEnabled = true;
+        initiateService();
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
       });
     });
 
