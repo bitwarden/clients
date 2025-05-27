@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Bagong item"
   },
-  "addNewFolder": {
-    "message": "Bagong folder"
-  },
   "view": {
     "message": "Tanaw"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "I-load ang accessibility cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Magrehistro bilang isang gumagamit ng accessibility sa",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopyahin at i paste ang link na ipinadala sa iyong email sa ibaba"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Ipasok ang URL upang i load ang accessibility cookie para sa hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha Url ay kinakailangan",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Imbalidong URL"
-  },
   "done": {
     "message": "Tapos na"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Nai-save ang Accessibility cookie!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Walang na-save na accessibility cookie"
   },
   "warning": {
     "message": "BABALA",
@@ -2546,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Tinanggal ang password ng master"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ ay gumagamit ng SSO na may self-hosted key server. Ang isang master password ay hindi na kinakailangan upang mag log in para sa mga miyembro ng organisasyong ito.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Umalis sa organisasyon"
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3716,8 +3703,26 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

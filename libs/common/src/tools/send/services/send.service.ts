@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -292,8 +294,9 @@ export class SendService implements InternalSendServiceAbstraction {
   ) {
     const requests = await Promise.all(
       sends.map(async (send) => {
-        const sendKey = await this.encryptService.unwrapSymmetricKey(send.key, originalUserKey);
-        send.key = await this.encryptService.wrapSymmetricKey(sendKey, rotateUserKey);
+        // Send key is not a key but a 16 byte seed used to derive the key
+        const sendKey = await this.encryptService.decryptBytes(send.key, originalUserKey);
+        send.key = await this.encryptService.encryptBytes(sendKey, rotateUserKey);
         return new SendWithIdRequest(send);
       }),
     );

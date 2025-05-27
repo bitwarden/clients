@@ -11,13 +11,11 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
-  SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
-  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
 
   /* Auth */
+  PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
   /* Autofill */
@@ -48,6 +46,7 @@ export enum FeatureFlag {
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
+  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
   ItemShare = "item-share",
@@ -57,6 +56,7 @@ export enum FeatureFlag {
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   SecurityTasks = "security-tasks",
+  PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
@@ -80,10 +80,7 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
-  [FeatureFlag.SsoExternalIdVisibility]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
 
   /* Autofill */
@@ -111,8 +108,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
+  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
   /* Billing */
@@ -129,6 +128,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
+  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

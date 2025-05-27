@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
   OnInit,
@@ -17,10 +15,12 @@ import { takeUntil, Subject, map, filter, tap, skip, ReplaySubject, withLatestFr
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  Generators,
   CredentialGeneratorService,
   PasswordGenerationOptions,
+  BuiltIn,
 } from "@bitwarden/generator-core";
+
+import { hasRangeOfValues } from "./util";
 
 const Controls = Object.freeze({
   length: "length",
@@ -37,6 +37,7 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-password-settings",
   templateUrl: "password-settings.component.html",
+  standalone: false,
 })
 export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
@@ -51,9 +52,11 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   /** Binds the component to a specific user's settings.
+   *  @remarks this is initialized to null but since it's a required input it'll
+   *     never have that value in practice.
    */
   @Input({ required: true })
-  account: Account;
+  account: Account = null!;
 
   protected account$ = new ReplaySubject<Account>(1);
 
@@ -77,40 +80,40 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Emits settings updates and completes if the settings become unavailable.
    * @remarks this does not emit the initial settings. If you would like
    *   to receive live settings updates including the initial update,
-   *   use `CredentialGeneratorService.settings$(...)` instead.
+   *   use `CredentialGeneratorService.settings(...)` instead.
    */
   @Output()
   readonly onUpdated = new EventEmitter<PasswordGenerationOptions>();
 
   protected settings = this.formBuilder.group({
-    [Controls.length]: [Generators.password.settings.initial.length],
-    [Controls.uppercase]: [Generators.password.settings.initial.uppercase],
-    [Controls.lowercase]: [Generators.password.settings.initial.lowercase],
-    [Controls.number]: [Generators.password.settings.initial.number],
-    [Controls.special]: [Generators.password.settings.initial.special],
-    [Controls.minNumber]: [Generators.password.settings.initial.minNumber],
-    [Controls.minSpecial]: [Generators.password.settings.initial.minSpecial],
-    [Controls.avoidAmbiguous]: [!Generators.password.settings.initial.ambiguous],
+    [Controls.length]: [0],
+    [Controls.uppercase]: [false],
+    [Controls.lowercase]: [false],
+    [Controls.number]: [false],
+    [Controls.special]: [false],
+    [Controls.minNumber]: [0],
+    [Controls.minSpecial]: [0],
+    [Controls.avoidAmbiguous]: [false],
   });
 
   private get numbers() {
-    return this.settings.get(Controls.number);
+    return this.settings.get(Controls.number)!;
   }
 
   private get special() {
-    return this.settings.get(Controls.special);
+    return this.settings.get(Controls.special)!;
   }
 
   private get minNumber() {
-    return this.settings.get(Controls.minNumber);
+    return this.settings.get(Controls.minNumber)!;
   }
 
   private get minSpecial() {
-    return this.settings.get(Controls.minSpecial);
+    return this.settings.get(Controls.minSpecial)!;
   }
 
   async ngOnInit() {
-    const settings = await this.generatorService.settings(Generators.password, {
+    const settings = await this.generatorService.settings(BuiltIn.password, {
       account$: this.account$,
     });
 
@@ -129,13 +132,13 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe(([state, constraints]) => {
         let boundariesHint = this.i18nService.t(
           "spinboxBoundariesHint",
-          constraints.length.min?.toString(),
-          constraints.length.max?.toString(),
+          constraints.length?.min?.toString(),
+          constraints.length?.max?.toString(),
         );
-        if (state.length <= (constraints.length.recommendation ?? 0)) {
+        if (state.length <= (constraints.length?.recommendation ?? 0)) {
           boundariesHint += this.i18nService.t(
             "passwordLengthRecommendationHint",
-            constraints.length.recommendation?.toString(),
+            constraints.length?.recommendation?.toString(),
           );
         }
         this.lengthBoundariesHint.next(boundariesHint);
@@ -146,19 +149,25 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
 
     // explain policy & disable policy-overridden fields
     this.generatorService
-      .policy$(Generators.password, { account$: this.account$ })
+      .policy$(BuiltIn.password, { account$: this.account$ })
       .pipe(takeUntil(this.destroyed$))
       .subscribe(({ constraints }) => {
-        this.policyInEffect = constraints.policyInEffect;
+        this.policyInEffect = constraints.policyInEffect ?? false;
 
         const toggles = [
-          [Controls.length, constraints.length.min < constraints.length.max],
+          [Controls.length, hasRangeOfValues(constraints.length?.min, constraints.length?.max)],
           [Controls.uppercase, !constraints.uppercase?.readonly],
           [Controls.lowercase, !constraints.lowercase?.readonly],
           [Controls.number, !constraints.number?.readonly],
           [Controls.special, !constraints.special?.readonly],
-          [Controls.minNumber, constraints.minNumber.min < constraints.minNumber.max],
-          [Controls.minSpecial, constraints.minSpecial.min < constraints.minSpecial.max],
+          [
+            Controls.minNumber,
+            hasRangeOfValues(constraints.minNumber?.min, constraints.minNumber?.max),
+          ],
+          [
+            Controls.minSpecial,
+            hasRangeOfValues(constraints.minSpecial?.min, constraints.minSpecial?.max),
+          ],
         ] as [keyof typeof Controls, boolean][];
 
         for (const [control, enabled] of toggles) {
@@ -171,7 +180,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
     let lastMinNumber = 1;
     this.numbers.valueChanges
       .pipe(
-        filter((checked) => !(checked && this.minNumber.value > 0)),
+        filter((checked) => !(checked && (this.minNumber.value ?? 0) > 0)),
         map((checked) => (checked ? lastMinNumber : 0)),
         takeUntil(this.destroyed$),
       )
@@ -179,8 +188,11 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
 
     this.minNumber.valueChanges
       .pipe(
-        map((value) => [value, value > 0] as const),
-        tap(([value, checkNumbers]) => (lastMinNumber = checkNumbers ? value : lastMinNumber)),
+        map((value) => [value, (value ?? 0) > 0] as const),
+        tap(
+          ([value, checkNumbers]) =>
+            (lastMinNumber = checkNumbers && value ? value : lastMinNumber),
+        ),
         takeUntil(this.destroyed$),
       )
       .subscribe(([, checkNumbers]) => this.numbers.setValue(checkNumbers, { emitEvent: false }));
@@ -188,7 +200,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
     let lastMinSpecial = 1;
     this.special.valueChanges
       .pipe(
-        filter((checked) => !(checked && this.minSpecial.value > 0)),
+        filter((checked) => !(checked && (this.minSpecial.value ?? 0) > 0)),
         map((checked) => (checked ? lastMinSpecial : 0)),
         takeUntil(this.destroyed$),
       )
@@ -196,8 +208,11 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
 
     this.minSpecial.valueChanges
       .pipe(
-        map((value) => [value, value > 0] as const),
-        tap(([value, checkSpecial]) => (lastMinSpecial = checkSpecial ? value : lastMinSpecial)),
+        map((value) => [value, (value ?? 0) > 0] as const),
+        tap(
+          ([value, checkSpecial]) =>
+            (lastMinSpecial = checkSpecial && value ? value : lastMinSpecial),
+        ),
         takeUntil(this.destroyed$),
       )
       .subscribe(([, checkSpecial]) => this.special.setValue(checkSpecial, { emitEvent: false }));
@@ -229,7 +244,7 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /** display binding for enterprise policy notice */
-  protected policyInEffect: boolean;
+  protected policyInEffect: boolean = false;
 
   private lengthBoundariesHint = new ReplaySubject<string>(1);
 
@@ -238,9 +253,9 @@ export class PasswordSettingsComponent implements OnInit, OnChanges, OnDestroy {
 
   private toggleEnabled(setting: keyof typeof Controls, enabled: boolean) {
     if (enabled) {
-      this.settings.get(setting).enable({ emitEvent: false });
+      this.settings.get(setting)?.enable({ emitEvent: false });
     } else {
-      this.settings.get(setting).disable({ emitEvent: false });
+      this.settings.get(setting)?.disable({ emitEvent: false });
     }
   }
 

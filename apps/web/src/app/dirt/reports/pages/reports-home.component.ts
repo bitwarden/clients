@@ -12,6 +12,7 @@ import { ReportEntry, ReportVariant } from "../shared";
 @Component({
   selector: "app-reports-home",
   templateUrl: "reports-home.component.html",
+  standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
   reports: ReportEntry[];

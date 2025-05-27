@@ -58,6 +58,7 @@ describe("ORGANIZATIONS state", () => {
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
         useRiskInsights: false,
+        useOrganizationDomains: false,
         useAdminSponsoredFamilies: false,
         isAdminInitiated: false,
       },

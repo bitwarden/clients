@@ -24,6 +24,7 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
 @Component({
   selector: "organization-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
+  standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
   /**

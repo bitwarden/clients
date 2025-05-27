@@ -41,6 +41,7 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
 export class AccountComponent implements OnInit, OnDestroy {
   selfHosted = false;

@@ -33,6 +33,7 @@ type BulkConfirmDialogParams = {
 
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
+  standalone: false,
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
   organizationId: string;

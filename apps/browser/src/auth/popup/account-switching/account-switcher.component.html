@@ -57,19 +57,19 @@
           [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
           [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
         >
-          <i slot="start" class="bwi bwi-lock tw-text-2xl tw-text-main" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
           {{ "lockNow" | i18n }}
         </button>
       </bit-item>
       <bit-item>
         <button type="button" bit-item-content (click)="logOut(currentAccount.id)">
-          <i slot="start" class="bwi bwi-sign-out tw-text-2xl tw-text-main" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-sign-out tw-text-lg tw-text-main" aria-hidden="true"></i>
           {{ "logOut" | i18n }}
         </button>
       </bit-item>
       <bit-item *ngIf="showLockAll$ | async">
         <button type="button" bit-item-content (click)="lockAll()">
-          <i slot="start" class="bwi bwi-lock tw-text-2xl tw-text-main" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
           {{ "lockAll" | i18n }}
         </button>
       </bit-item>

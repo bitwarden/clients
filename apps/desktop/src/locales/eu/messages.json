@@ -1103,9 +1103,6 @@
   "addNewItem": {
     "message": "Gehitu elementu berria"
   },
-  "addNewFolder": {
-    "message": "Karpeta berria gehitu"
-  },
   "view": {
     "message": "Erakutsi"
   },
@@ -1725,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha Url",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Kargatu erabilerraztasun Cookie-ak"
-  },
-  "registerAccessibilityUser": {
-    "message": "Erabilerraztasun erabiltzaile erregistratu",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopiatu eta itsatsi bidalitako esteka zure emailera"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Sartu hCaptcha helbidearen cookiea kargatzeko URLa",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha Url behar da",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Baliogabeko Url-a"
-  },
   "done": {
     "message": "Egina"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Erabilerraztasun cookie-a gordeta!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ez da erabilerraztasun cookie-rik gorde"
   },
   "warning": {
     "message": "KONTUZ",
@@ -2546,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Pasahitz nagusia ezabatua."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ ostatatze propioko gako-zerbitzari batekin SSO erabiltzen ari da. Dagoeneko ez da pasahitz nagusirik behar erakunde honetako kideentzat saioa hasteko.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Utzi erakundea"
@@ -3647,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3716,8 +3703,26 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

@@ -14,6 +14,8 @@ import {
   throwIfEmpty,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
   BitwardenClient,
@@ -150,7 +152,15 @@ export class DefaultSdkService implements SdkService {
             const settings = this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(settings);
 
-            await this.initializeClient(client, account, kdfParams, privateKey, userKey, orgKeys);
+            await this.initializeClient(
+              userId,
+              client,
+              account,
+              kdfParams,
+              privateKey,
+              userKey,
+              orgKeys,
+            );
 
             return client;
           };
@@ -180,6 +190,7 @@ export class DefaultSdkService implements SdkService {
   }
 
   private async initializeClient(
+    userId: UserId,
     client: BitwardenClient,
     account: AccountInfo,
     kdfParams: KdfConfig,
@@ -188,6 +199,7 @@ export class DefaultSdkService implements SdkService {
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
+      userId,
       email: account.email,
       method: { decryptedKey: { decrypted_user_key: userKey.keyB64 } },
       kdfParams:

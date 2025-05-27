@@ -19,6 +19,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-adjust-subscription",
   templateUrl: "adjust-subscription.component.html",
+  standalone: false,
 })
 export class AdjustSubscription implements OnInit, OnDestroy {
   @Input() organizationId: string;

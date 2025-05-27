@@ -5,5 +5,6 @@ import { CollectionFilterComponent as BaseCollectionFilterComponent } from "@bit
 @Component({
   selector: "app-collection-filter",
   templateUrl: "collection-filter.component.html",
+  standalone: false,
 })
 export class CollectionFilterComponent extends BaseCollectionFilterComponent {}

@@ -48,6 +48,7 @@ type PayPalConfig = {
 
 @Component({
   templateUrl: "./add-account-credit-dialog.component.html",
+  standalone: false,
 })
 export class AddAccountCreditDialogComponent implements OnInit {
   @ViewChild("payPalForm", { read: ElementRef, static: true }) payPalForm: ElementRef;

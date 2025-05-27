@@ -5,5 +5,6 @@ import { RemovePasswordComponent as BaseRemovePasswordComponent } from "@bitward
 @Component({
   selector: "app-remove-password",
   templateUrl: "remove-password.component.html",
+  standalone: false,
 })
 export class RemovePasswordComponent extends BaseRemovePasswordComponent {}
