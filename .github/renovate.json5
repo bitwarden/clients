@@ -405,6 +405,12 @@
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
     },
+    {
+      // Any versions of lowdb above 1.0.0 are not compatible with CommonJS.
+      matchPackageNames: ["lowdb"],
+      allowedVersions: "1.0.0",
+      description: "Higher versions of lowdb are not compatible with CommonJS",
+    },
   ],
   ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "@bitwarden/sdk-internal"],
 }
