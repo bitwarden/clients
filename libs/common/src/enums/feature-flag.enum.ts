@@ -12,8 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
-  SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
-  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
 
   /* Auth */
@@ -83,8 +81,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.LimitItemDeletion]: FALSE,
-  [FeatureFlag.SsoExternalIdVisibility]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
 
   /* Autofill */

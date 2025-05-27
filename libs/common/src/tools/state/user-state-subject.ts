@@ -477,7 +477,12 @@ export class UserStateSubject<
    * @returns the subscription
    */
   subscribe(observer?: Partial<Observer<State>> | ((value: State) => void) | null): Subscription {
-    return this.output.pipe(map((wc) => wc.state)).subscribe(observer);
+    return this.output
+      .pipe(
+        map((wc) => wc.state),
+        distinctUntilChanged(),
+      )
+      .subscribe(observer);
   }
 
   // using subjects to ensure the right semantics are followed;
