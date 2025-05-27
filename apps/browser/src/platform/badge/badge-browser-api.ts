@@ -3,12 +3,12 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BrowserApi } from "../browser/browser-api";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
-import { IconPaths } from "./icon";
+import { BadgeIcon, IconPaths } from "./icon";
 
 export interface RawBadgeState {
   text: string;
   backgroundColor: string;
-  icon: IconPaths;
+  icon: BadgeIcon;
 }
 
 export class BadgeBrowserApi {

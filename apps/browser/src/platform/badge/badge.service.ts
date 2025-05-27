@@ -84,27 +84,35 @@ export class BadgeService {
     const mergedState = stateValues
       .map((s) => s.state)
       .reduce<Partial<RawBadgeState>>((acc: Partial<RawBadgeState>, state: BadgeState) => {
-        const merged = { ...acc };
+        const newState = { ...acc };
 
         for (const k in state) {
-          const key = k as keyof BadgeState;
-
-          if (state[key] === Unset) {
-            delete merged[key];
-          } else if (key === "icon") {
-            // Weird if-check but TS doesn't understand that the types are compatible otherwise
-            merged[key] = state[key];
-          } else {
-            merged[key] = state[key];
-          }
+          const key = k as keyof BadgeState & keyof RawBadgeState;
+          setStateValue(newState, state, key);
         }
 
-        return merged;
+        return newState;
       }, DefaultBadgeState);
 
     return {
       ...DefaultBadgeState,
       ...mergedState,
     };
+  }
+}
+
+/**
+ * Helper value to modify the state variable.
+ * TS doesn't like it when this is being doine inline.
+ */
+function setStateValue<Key extends keyof BadgeState & keyof RawBadgeState>(
+  newState: Partial<RawBadgeState>,
+  state: BadgeState,
+  key: Key,
+) {
+  if (state[key] === Unset) {
+    delete newState[key];
+  } else if (state[key] !== undefined) {
+    newState[key] = state[key] as RawBadgeState[Key];
   }
 }
