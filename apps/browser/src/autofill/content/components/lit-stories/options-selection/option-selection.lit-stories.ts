@@ -16,6 +16,7 @@ const mockOptions: Option[] = [
 
 type ComponentProps = {
   disabled?: boolean;
+  id: string;
   label?: string;
   options: Option[];
   theme: Theme;
@@ -31,16 +32,18 @@ export default {
   },
   args: {
     disabled: false,
+    id: "example-id",
     label: undefined,
     options: mockOptions,
     theme: ThemeTypes.Light,
   },
 } as Meta<ComponentProps>;
 
-const BaseComponent = ({ disabled, label, options, theme }: ComponentProps) => {
+const BaseComponent = ({ disabled, id, label, options, theme }: ComponentProps) => {
   return html`
     <option-selection
       .disabled=${disabled}
+      .id=${id}
       .label="${label}"
       .options=${options}
       theme=${theme}

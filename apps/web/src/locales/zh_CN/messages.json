@@ -1870,7 +1870,7 @@
     "message": "取消会话授权"
   },
   "deauthorizeSessionsDesc": {
-    "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
+    "message": "您是否担心自己的账户在其他设备上登录过？继续下面的操作以取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
   },
   "deauthorizeSessionsWarning": {
     "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -1885,10 +1885,10 @@
     "message": "启用新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以停用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以停用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以启用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以启用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "停用新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
@@ -1918,10 +1918,10 @@
     "message": "密码库被提供商访问。"
   },
   "purgeVaultDesc": {
-    "message": "接下来的操作会删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
+    "message": "继续下面的操作以删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
   },
   "purgeOrgVaultDesc": {
-    "message": "接下来的操作会删除组织密码库中的所有项目。"
+    "message": "继续下面的操作以删除组织密码库中的所有项目。"
   },
   "purgeVaultWarning": {
     "message": "清空密码库是永久性操作，无法撤销！"
@@ -1933,7 +1933,7 @@
     "message": "删除账户"
   },
   "deleteAccountDesc": {
-    "message": "接下来的操作会删除您的账户和所有密码库数据。"
+    "message": "继续下面的操作以删除您的账户和所有密码库数据。"
   },
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
@@ -4549,7 +4549,7 @@
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "您已保存的所有账户限制的导出文件将失效。"
+    "message": "所有您已保存的账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"

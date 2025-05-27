@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Maling verification code"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ ay gumagamit ng SSO na may sariling-hosted na key server. Walang kinakailangang master password para mag-log in para sa mga miyembro ng organisasyon na ito.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Umalis sa organisasyon"
