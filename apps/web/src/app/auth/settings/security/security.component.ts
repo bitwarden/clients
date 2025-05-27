@@ -4,10 +4,13 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
+
 @Component({
-  selector: "app-security",
   templateUrl: "security.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule, HeaderModule],
 })
 export class SecurityComponent implements OnInit {
   showChangePassword = true;
