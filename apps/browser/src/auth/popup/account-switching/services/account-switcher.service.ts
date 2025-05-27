@@ -12,6 +12,7 @@ import {
   timeout,
 } from "rxjs";
 
+import { NewActiveUser } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -43,7 +44,7 @@ export class AccountSwitcherService {
   SPECIAL_ADD_ACCOUNT_ID = "addAccount";
   availableAccounts$: Observable<AvailableAccount[]>;
 
-  switchAccountFinished$: Observable<{ userId: UserId; status: AuthenticationStatus }>;
+  switchAccountFinished$: Observable<NewActiveUser | null>;
 
   constructor(
     private accountService: AccountService,
@@ -118,7 +119,7 @@ export class AccountSwitcherService {
       [message: { command: string; userId: UserId; status: AuthenticationStatus }]
     >(chrome.runtime.onMessage).pipe(
       filter(([message]) => message.command === "switchAccountFinish"),
-      map(([message]) => ({ userId: message.userId, status: message.status })),
+      map(([message]) => ({ userId: message.userId, authenticationStatus: message.status })),
     );
   }
 
@@ -143,29 +144,9 @@ export class AccountSwitcherService {
     return await switchAccountFinishedPromise;
   }
 
-  /**
-   *
-   * @param userId the user id to logout
-   * @returns the userId and status of the that has been switch to due to the logout. null on errors.
-   */
-  async logoutAccount(
-    userId: UserId,
-  ): Promise<{ newUserId: UserId; status: AuthenticationStatus } | null> {
-    // logout creates an account switch to the next up user, which may be null
-    const switchPromise = this.listenForSwitchAccountFinish(null);
-
-    await this.messagingService.send("logout", { userId });
-
-    // wait for account switch to happen, the result will be the new user id and status
-    const result = await switchPromise;
-    return { newUserId: result.userId, status: result.status };
-  }
-
   // Listens for the switchAccountFinish message and returns the userId from the message
   // Optionally filters switchAccountFinish to an expected userId
-  private listenForSwitchAccountFinish(
-    expectedUserId: UserId | null,
-  ): Promise<{ userId: UserId; status: AuthenticationStatus } | null> {
+  listenForSwitchAccountFinish(expectedUserId: UserId | null): Promise<NewActiveUser | null> {
     return firstValueFrom(
       this.switchAccountFinished$.pipe(
         filter(({ userId }) => (expectedUserId ? userId === expectedUserId : true)),
