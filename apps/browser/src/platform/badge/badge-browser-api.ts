@@ -3,7 +3,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BrowserApi } from "../browser/browser-api";
 import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
-import { IconPaths } from "./state";
+import { IconPaths } from "./icon";
 
 export interface RawBadgeState {
   text: string;
