@@ -168,10 +168,9 @@ describe("ImportService", () => {
     mockCollection1.organizationId = organizationId;
 
     it("passing importTarget adds it to collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-      ]);
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([mockImportTargetCollection, mockCollection1]),
+      );
 
       await importService["setImportTarget"](
         importResult,
@@ -183,11 +182,9 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([mockImportTargetCollection, mockCollection1, mockCollection2]),
+      );
 
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
@@ -228,11 +225,9 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget, collectionRelationship has the expected values", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([mockImportTargetCollection, mockCollection1, mockCollection2]),
+      );
 
       importResult.ciphers.push(createCipher({ name: "cipher1" }));
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
