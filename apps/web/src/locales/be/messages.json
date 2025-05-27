@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Памылковы праверачны код"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ выкарыстоўвае SSO з уласным серверам ключоў. Асноўны пароль для ўдзельнікаў гэтай арганізацыі больш не патрабуецца.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Выйсці з арганізацыі"
