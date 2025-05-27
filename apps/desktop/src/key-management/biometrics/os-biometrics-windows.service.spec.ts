@@ -163,7 +163,7 @@ describe("OsBiometricsServiceWindows", function () {
         expect(sut["_iv"]).toEqual(derivedKeyMaterial.ivB64);
         expect(browserWindow.showInactive).not.toHaveBeenCalled();
         expect(browserWindow.focus).not.toHaveBeenCalled();
-        expect(windowMain.toggleAlwaysOnTop).not.toHaveBeenCalled();
+        expect(windowMain.win.setAlwaysOnTop).not.toHaveBeenCalled();
       },
     );
 
@@ -175,7 +175,8 @@ describe("OsBiometricsServiceWindows", function () {
 
       expect(browserWindow.showInactive).toHaveBeenCalled();
       expect(browserWindow.focus).toHaveBeenCalled();
-      expect(windowMain.toggleAlwaysOnTop).toHaveBeenCalledTimes(2);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(1, true);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(2, false);
     });
 
     it("should bring the window to foreground and focus the window then bring back always on top setting when not focused and always on top setting was true", async () => {
@@ -186,7 +187,10 @@ describe("OsBiometricsServiceWindows", function () {
 
       expect(browserWindow.showInactive).toHaveBeenCalled();
       expect(browserWindow.focus).toHaveBeenCalled();
-      expect(windowMain.toggleAlwaysOnTop).toHaveBeenCalledTimes(4);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(1, false);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(2, true);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(3, false);
+      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(4, true);
     });
 
     it("should throw an error when deriving key material and returned iv is null", async () => {
@@ -195,7 +199,7 @@ describe("OsBiometricsServiceWindows", function () {
 
       const derivedKeyMaterial = {
         keyB64: "derivedKeyB64",
-        ivB64: null,
+        ivB64: null as string | undefined | null,
       };
       biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue(derivedKeyMaterial);
 

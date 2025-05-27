@@ -117,13 +117,14 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
         // We go around this problem by bringing the windows to always be on top (to foreground) and then resetting this back.
         // At this point the window is already in the foreground, even though the always on top is disabled.
         // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
-        await this.windowMain.toggleAlwaysOnTop();
-        await this.windowMain.toggleAlwaysOnTop();
-        // Windows Hello popup won't be visible when always on top was already enabled in the app settings.
-        // We disable this setting temporarily for the duration of Windows Hello popup confirmation.
         if (alwaysOnTop) {
-          await this.windowMain.toggleAlwaysOnTop();
+          // Windows Hello popup won't be visible when always on top was already enabled in the app settings.
+          // We disable this setting temporarily for the duration of Windows Hello popup confirmation.
+          this.windowMain.win.setAlwaysOnTop(false);
         }
+        this.windowMain.win.setAlwaysOnTop(true);
+        this.windowMain.win.setAlwaysOnTop(false);
+
         this.windowMain.win.focus();
       }
       try {
@@ -133,7 +134,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
         this._iv = keyMaterial.ivB64;
       } finally {
         if (!windowFocused && alwaysOnTop) {
-          await this.windowMain.toggleAlwaysOnTop();
+          this.windowMain.win.setAlwaysOnTop(true);
         }
       }
     }
