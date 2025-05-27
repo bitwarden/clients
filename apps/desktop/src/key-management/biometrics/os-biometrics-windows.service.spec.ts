@@ -31,12 +31,13 @@ describe("OsBiometricsServiceWindows", function () {
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
   const browserWindow = mock<BrowserWindow>();
-  // TODO is before each ?
-  const sut = new OsBiometricsServiceWindows(i18nService, windowMain, logService);
+
+  let sut: OsBiometricsServiceWindows;
 
   beforeEach(function () {
     windowMain.win = browserWindow;
     jest.clearAllMocks();
+    sut = new OsBiometricsServiceWindows(i18nService, windowMain, logService);
   });
 
   describe("osSupportsBiometric", () => {
@@ -127,6 +128,103 @@ describe("OsBiometricsServiceWindows", function () {
       });
       expect(sut.setIv).toHaveBeenCalledWith("testId");
       expect(biometrics.setBiometricSecret).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getStorageDetails", () => {
+    it.each([
+      ["testClientKeyHalfB64", "testIvB64"],
+      [undefined, "testIvB64"],
+      ["testClientKeyHalfB64", null],
+      [undefined, null],
+    ])(
+      "should derive key material and ivB64 and return it when os key half not saved yet",
+      async (clientKeyHalfB64, ivB64) => {
+        browserWindow.isFocused.mockReturnValue(true);
+        sut["_iv"] = ivB64;
+
+        const derivedKeyMaterial = {
+          keyB64: "derivedKeyB64",
+          ivB64: "derivedIvB64",
+        };
+        biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue(derivedKeyMaterial);
+
+        const result = await sut.getStorageDetails({ clientKeyHalfB64 });
+
+        expect(result).toEqual({
+          key_material: {
+            osKeyPartB64: derivedKeyMaterial.keyB64,
+            clientKeyPartB64: clientKeyHalfB64,
+          },
+          ivB64: derivedKeyMaterial.ivB64,
+        });
+        expect(biometrics.deriveKeyMaterial).toHaveBeenCalledWith(ivB64);
+        expect(sut["_osKeyHalf"]).toEqual(derivedKeyMaterial.keyB64);
+        expect(sut["_iv"]).toEqual(derivedKeyMaterial.ivB64);
+        expect(browserWindow.showInactive).not.toHaveBeenCalled();
+        expect(browserWindow.focus).not.toHaveBeenCalled();
+        expect(windowMain.toggleAlwaysOnTop).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should bring the window to foreground and focus the window when not focused", async () => {
+      browserWindow.isFocused.mockReturnValue(false);
+      browserWindow.isAlwaysOnTop.mockReturnValue(false);
+
+      await sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" });
+
+      expect(browserWindow.showInactive).toHaveBeenCalled();
+      expect(browserWindow.focus).toHaveBeenCalled();
+      expect(windowMain.toggleAlwaysOnTop).toHaveBeenCalledTimes(2);
+    });
+
+    it("should bring the window to foreground and focus the window then bring back always on top setting when not focused and always on top setting was true", async () => {
+      browserWindow.isFocused.mockReturnValue(false);
+      browserWindow.isAlwaysOnTop.mockReturnValue(true);
+
+      await sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" });
+
+      expect(browserWindow.showInactive).toHaveBeenCalled();
+      expect(browserWindow.focus).toHaveBeenCalled();
+      expect(windowMain.toggleAlwaysOnTop).toHaveBeenCalledTimes(4);
+    });
+
+    it("should throw an error when deriving key material and returned iv is null", async () => {
+      browserWindow.isFocused.mockReturnValue(true);
+      sut["_iv"] = "testIvB64";
+
+      const derivedKeyMaterial = {
+        keyB64: "derivedKeyB64",
+        ivB64: null,
+      };
+      biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue(derivedKeyMaterial);
+
+      await expect(
+        sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" }),
+      ).rejects.toThrow("Initialization Vector is null");
+
+      expect(biometrics.deriveKeyMaterial).toHaveBeenCalledWith("testIvB64");
+    });
+  });
+
+  describe("setIv", () => {
+    it("should set the iv and reset the osKeyHalf", () => {
+      const iv = "testIv";
+      sut["_osKeyHalf"] = "testOsKeyHalf";
+
+      sut.setIv(iv);
+
+      expect(sut["_iv"]).toBe(iv);
+      expect(sut["_osKeyHalf"]).toBeNull();
+    });
+
+    it("should set the iv to null when iv is undefined and reset the osKeyHalf", () => {
+      sut["_osKeyHalf"] = "testOsKeyHalf";
+
+      sut.setIv(undefined);
+
+      expect(sut["_iv"]).toBeNull();
+      expect(sut["_osKeyHalf"]).toBeNull();
     });
   });
 });
