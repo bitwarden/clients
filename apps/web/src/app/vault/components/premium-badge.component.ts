@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
+import { SharedModule } from "../../shared";
+
 @Component({
   selector: "app-premium-badge",
   template: `
@@ -9,7 +11,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
       {{ "premium" | i18n }}
     </button>
   `,
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule],
 })
 export class PremiumBadgeComponent {
   constructor(private messagingService: MessagingService) {}

@@ -16,11 +16,6 @@ import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
-import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
-import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
-import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
-import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
-import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
@@ -68,14 +63,10 @@ import { SharedModule } from "./shared.module";
     OrganizationLayoutComponent,
     VerifyRecoverDeleteOrgComponent,
     VaultTimeoutInputComponent,
+    PremiumBadgeComponent,
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
-    EmergencyAccessViewComponent,
     FolderAddEditComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
@@ -84,7 +75,6 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    PremiumBadgeComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
@@ -101,11 +91,6 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    EmergencyAccessAddEditComponent,
-    EmergencyAccessComponent,
-    EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
-    EmergencyAccessViewComponent,
     FolderAddEditComponent,
     OrganizationLayoutComponent,
     OrgEventsComponent,
@@ -130,6 +115,7 @@ import { SharedModule } from "./shared.module";
     VerifyRecoverDeleteComponent,
     HeaderModule,
     DangerZoneComponent,
+    PremiumBadgeComponent,
   ],
 })
 export class LooseComponentsModule {}
