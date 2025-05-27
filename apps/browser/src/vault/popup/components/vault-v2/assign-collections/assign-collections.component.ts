@@ -72,13 +72,12 @@ export class AssignCollections {
       ),
     );
 
-    combineLatest([
-      cipher$,
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
-      ),
-    ])
+    const decryptedCollection$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    );
+
+    combineLatest([cipher$, decryptedCollection$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
         let availableCollections = collections.filter((c) => !c.readOnly);

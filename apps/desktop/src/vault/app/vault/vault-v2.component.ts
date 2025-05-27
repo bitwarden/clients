@@ -27,6 +27,7 @@ import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broa
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -562,6 +563,12 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (!this.activeUserId) {
       throw new Error("No userId provided.");
     }
+
+    this.collections = await firstValueFrom(
+      this.collectionService
+        .decryptedCollections$(this.activeUserId)
+        .pipe(getByIds(cipher.collectionIds)),
+    );
 
     this.cipherId = cipher.id;
     this.cipher = cipher;
