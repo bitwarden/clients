@@ -29,6 +29,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -95,29 +96,29 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VaultItemDialogResult {
+export const VaultItemDialogResult = {
   /**
    * A cipher was saved (created or updated).
    */
-  Saved = "saved",
+  Saved: "saved",
 
   /**
    * A cipher was deleted.
    */
-  Deleted = "deleted",
+  Deleted: "deleted",
 
   /**
    * The dialog was closed to navigate the user the premium upgrade page.
    */
-  PremiumUpgrade = "premiumUpgrade",
+  PremiumUpgrade: "premiumUpgrade",
 
   /**
    * A cipher was restored
    */
-  Restored = "restored",
-}
+  Restored: "restored",
+} as const;
+
+export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
 
 @Component({
   selector: "app-vault-item-dialog",
