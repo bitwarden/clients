@@ -343,9 +343,13 @@ export class AutofillComponent implements OnInit {
     if (this.platformUtilsService.isSafari()) {
       return "Safari";
     }
+    return BrowserClientVendors.Unknown;
   }
 
   get spotlightButtonText() {
+    if (this.browserClientVendorExtended === BrowserClientVendors.Unknown) {
+      return this.i18nService.t("turnOffAutofill");
+    }
     return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
   }
 
