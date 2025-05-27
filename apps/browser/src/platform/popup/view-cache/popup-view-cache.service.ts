@@ -19,7 +19,7 @@ import {
   FormCacheOptions,
   SignalCacheOptions,
   ViewCacheService,
-} from "@bitwarden/angular/platform/abstractions/view-cache.service";
+} from "@bitwarden/angular/platform/view-cache";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
@@ -81,14 +81,16 @@ export class PopupViewCacheService implements ViewCacheService {
       injector = inject(Injector),
       initialValue,
       persistNavigation,
+      clearOnTabChange,
     } = options;
-    const cachedValue = this.cache[key]
+    const cachedValue = this.cache[key]?.value
       ? deserializer(JSON.parse(this.cache[key].value))
       : initialValue;
     const _signal = signal(cachedValue);
 
     const viewCacheOptions = {
       ...(persistNavigation && { persistNavigation }),
+      ...(clearOnTabChange && { clearOnTabChange }),
     };
 
     effect(

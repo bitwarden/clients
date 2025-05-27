@@ -36,7 +36,7 @@
         [subtitle]="'emptyVaultNudgeBody' | i18n"
         [buttonText]="'emptyVaultNudgeButton' | i18n"
         (onButtonClick)="navigateToImport()"
-        (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.EmptyVaultNudge)"
+        (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.EmptyVaultNudge)"
       >
       </bit-spotlight>
     </ng-container>
@@ -44,9 +44,13 @@
       <div class="tw-mb-4" *ngIf="showHasItemsVaultSpotlight$ | async">
         <bit-spotlight
           [title]="'hasItemsVaultNudgeTitle' | i18n"
-          [subtitle]="'hasItemsVaultNudgeBody' | i18n"
-          (onDismiss)="dismissVaultNudgeSpotlight(VaultNudgeType.HasVaultItems)"
+          (onDismiss)="dismissVaultNudgeSpotlight(NudgeType.HasVaultItems)"
         >
+          <ul class="tw-pl-4 tw-text-main" bitTypography="body2">
+            <li>{{ "hasItemsVaultNudgeBodyOne" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyTwo" | i18n }}</li>
+            <li>{{ "hasItemsVaultNudgeBodyThree" | i18n }}</li>
+          </ul>
         </bit-spotlight>
       </div>
       <vault-at-risk-password-callout
@@ -103,5 +107,4 @@
       ></app-vault-list-items-container>
     </div>
   </ng-container>
-  <new-settings-callout></new-settings-callout>
 </popup-page>

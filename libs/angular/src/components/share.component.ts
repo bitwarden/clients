@@ -3,6 +3,8 @@
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
@@ -76,9 +78,7 @@ export class ShareComponent implements OnInit, OnDestroy {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
-    this.cipher = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
-    );
+    this.cipher = await this.cipherService.decrypt(cipherDomain, activeUserId);
   }
 
   filterCollections() {
@@ -105,9 +105,7 @@ export class ShareComponent implements OnInit, OnDestroy {
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
-    const cipherView = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
-    );
+    const cipherView = await this.cipherService.decrypt(cipherDomain, activeUserId);
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
       orgs.find((o) => o.id === this.organizationId)?.name ?? this.i18nService.t("organization");

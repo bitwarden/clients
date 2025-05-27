@@ -21,6 +21,7 @@ export class OrganizationData {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -61,6 +62,7 @@ export class OrganizationData {
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
   useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -86,6 +88,7 @@ export class OrganizationData {
     this.use2fa = response.use2fa;
     this.useApi = response.useApi;
     this.useSso = response.useSso;
+    this.useOrganizationDomains = response.useOrganizationDomains;
     this.useKeyConnector = response.useKeyConnector;
     this.useScim = response.useScim;
     this.useCustomPermissions = response.useCustomPermissions;
@@ -124,6 +127,7 @@ export class OrganizationData {
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useRiskInsights = response.useRiskInsights;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
+    this.isAdminInitiated = response.isAdminInitiated;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

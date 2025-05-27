@@ -94,8 +94,7 @@ describe("NewItemDropdownV2Component", () => {
         collectionId: "777-888-999",
         organizationId: "444-555-666",
         folderId: "222-333-444",
-        uri: "https://example.com",
-        name: "example.com",
+        prefillNameAndURIFromTab: "true",
       });
     });
 

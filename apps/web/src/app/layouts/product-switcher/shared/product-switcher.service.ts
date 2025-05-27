@@ -6,6 +6,7 @@ import {
   combineLatest,
   concatMap,
   filter,
+  firstValueFrom,
   map,
   Observable,
   ReplaySubject,
@@ -18,10 +19,12 @@ import {
   canAccessOrgAdmin,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderType } from "@bitwarden/common/admin-console/enums";
+import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
@@ -104,6 +107,7 @@ export class ProductSwitcherService {
     private syncService: SyncService,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
+    private policyService: PolicyService,
   ) {
     this.pollUntilSynced();
   }
@@ -235,7 +239,15 @@ export class ProductSwitcherService {
       if (acOrg) {
         bento.push(products.ac);
       } else {
-        other.push(products.orgs);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        const userHasSingleOrgPolicy = await firstValueFrom(
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, activeUserId),
+        );
+        if (!userHasSingleOrgPolicy) {
+          other.push(products.orgs);
+        }
       }
 
       if (providers.length > 0) {

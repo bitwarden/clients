@@ -130,16 +130,6 @@ const plugins = [
     chunks: ["connectors/redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha.html",
-    filename: "captcha-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha-mobile.html",
-    filename: "captcha-mobile-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
     template: "./src/connectors/duo-redirect.html",
     filename: "duo-redirect-connector.html",
     chunks: ["connectors/duo-redirect", "styles"],
@@ -344,7 +334,6 @@ const webpackConfig = {
     "connectors/webauthn": "./src/connectors/webauthn.ts",
     "connectors/webauthn-fallback": "./src/connectors/webauthn-fallback.ts",
     "connectors/sso": "./src/connectors/sso.ts",
-    "connectors/captcha": "./src/connectors/captcha.ts",
     "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
     "connectors/redirect": "./src/connectors/redirect.ts",
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],

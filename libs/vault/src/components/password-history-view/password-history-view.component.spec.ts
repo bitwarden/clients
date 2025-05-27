@@ -68,7 +68,7 @@ describe("PasswordHistoryViewComponent", () => {
     it("renders all passwords", () => {
       const passwords = fixture.debugElement.queryAll(By.directive(ColorPasswordComponent));
 
-      expect(passwords.map((password) => password.componentInstance.password)).toEqual([
+      expect(passwords.map((password) => password.componentInstance.password())).toEqual([
         "bad-password-1",
         "bad-password-2",
       ]);

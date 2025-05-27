@@ -37,6 +37,7 @@ import { ProjectService } from "../project.service";
 @Component({
   selector: "sm-project",
   templateUrl: "./project.component.html",
+  standalone: false,
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   protected project$: Observable<ProjectView>;

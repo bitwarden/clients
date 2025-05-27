@@ -8,6 +8,7 @@ import { postLogoutMessageListener$ } from "./utils/post-logout-message-listener
 @Component({
   selector: "app-update-temp-password",
   templateUrl: "update-temp-password.component.html",
+  standalone: false,
 })
 export class UpdateTempPasswordComponent extends BaseUpdateTempPasswordComponent {
   onSuccessfulChangePassword: () => Promise<void> = this.doOnSuccessfulChangePassword.bind(this);

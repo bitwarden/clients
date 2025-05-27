@@ -26,6 +26,7 @@ import { CollectionFilter } from "../../../../vault/individual-vault/vault-filte
   selector: "app-organization-vault-filter",
   templateUrl:
     "../../../../vault/individual-vault/vault-filter/components/vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
@@ -105,14 +106,14 @@ export class VaultFilterComponent
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection",
+            icon: "bwi-collection-shared",
           },
         ],
       ),
