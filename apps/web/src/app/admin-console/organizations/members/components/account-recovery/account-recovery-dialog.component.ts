@@ -8,7 +8,6 @@ import {
   PasswordInputResult,
 } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -84,7 +83,6 @@ export class AccountRecoveryDialogComponent {
   inputPasswordComponent!: InputPasswordComponent;
 
   inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
-  masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
   receivedPasswordInputResult = false;
   submitting = false;
 
