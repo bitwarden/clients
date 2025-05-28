@@ -47,6 +47,7 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
 import { VersionMain } from "./platform/main/version.main";
+import { ChromiumImporterService } from "./platform/services/chromium-importer.service";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -280,6 +281,8 @@ export class Main {
       this.messagingService,
       this.ssoUrlService,
     );
+
+    new ChromiumImporterService();
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();

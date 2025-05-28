@@ -175,16 +175,30 @@
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
-          See detailed instructions on our help site at
-          <a
-            bitLink
-            linkType="primary"
-            target="_blank"
-            rel="noreferrer"
-            href="https://bitwarden.com/help/import-from-chrome/"
-          >
-            https://bitwarden.com/help/import-from-chrome/</a
-          >
+          <p>
+            See detailed instructions on our help site at
+            <a
+              bitLink
+              linkType="primary"
+              target="_blank"
+              rel="noreferrer"
+              href="https://bitwarden.com/help/import-from-chrome/"
+            >
+              https://bitwarden.com/help/import-from-chrome/</a
+            >
+          </p>
+          <bit-radio-group *ngIf="showChromeToggle" formControlName="chromeType">
+            <bit-radio-button
+              class="tw-block"
+              id="import_bit-radio-button_chrome-direct"
+              value="direct"
+            >
+              <bit-label>{{ "importDirectlyFromBrowser" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button class="tw-block" id="import_bit-radio-button_chrome-csv" value="csv">
+              <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </ng-container>
         <ng-container *ngIf="format === 'firefoxcsv'">
           See detailed instructions on our help site at
@@ -434,7 +448,12 @@
         [formGroup]="formGroup"
         (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
       ></import-lastpass>
-      <div [hidden]="showLastPassOptions">
+      <import-chrome
+        *ngIf="showChromeOptions"
+        [formGroup]="formGroup"
+        (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+      ></import-chrome>
+      <div [hidden]="showLastPassOptions || showChromeOptions">
         <bit-form-field>
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
           <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
