@@ -1,7 +1,7 @@
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../browser/browser-api";
-import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { BadgeIcon, IconPaths } from "./icon";
 
@@ -14,6 +14,8 @@ export interface RawBadgeState {
 export class BadgeBrowserApi {
   private badgeAction = BrowserApi.getBrowserAction();
   private sidebarAction = BrowserApi.getSidebarAction(self);
+
+  constructor(private platformUtilsService: PlatformUtilsService) {}
 
   async setState(state: RawBadgeState): Promise<void> {
     await Promise.all([
@@ -94,7 +96,7 @@ export class BadgeBrowserApi {
   }
 
   private get useSyncApiCalls() {
-    return BrowserPlatformUtilsService.isFirefox() || BrowserPlatformUtilsService.isSafari(self);
+    return this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari();
   }
 
   private isOperaSidebar(

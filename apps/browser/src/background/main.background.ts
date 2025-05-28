@@ -1350,7 +1350,10 @@ export default class MainBackground {
       this.logService,
     );
 
-    this.badgeService = new BadgeService(this.stateProvider, new BadgeBrowserApi());
+    this.badgeService = new BadgeService(
+      this.stateProvider,
+      new BadgeBrowserApi(this.platformUtilsService),
+    );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
       this.badgeService,
       this.accountService,
