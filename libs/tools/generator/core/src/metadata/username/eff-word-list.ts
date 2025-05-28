@@ -4,17 +4,14 @@ import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state
 import { deepFreeze } from "@bitwarden/common/tools/util";
 
 import { UsernameRandomizer } from "../../engine";
-import {
-  CredentialGenerator,
-  EffUsernameGenerationOptions,
-  GeneratorDependencyProvider,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CredentialGenerator, EffUsernameGenerationOptions } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const effWordList: GeneratorMetadata<EffUsernameGenerationOptions> = deepFreeze({
   id: Algorithm.username,
-  category: Type.username,
+  type: Type.username,
   weight: 400,
   i18nKeys: {
     name: "randomWord",
