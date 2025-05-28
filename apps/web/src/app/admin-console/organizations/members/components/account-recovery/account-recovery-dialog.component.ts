@@ -80,7 +80,7 @@ type AccountRecoveryDialogResultType =
 })
 export class AccountRecoveryDialogComponent {
   @ViewChild(InputPasswordComponent)
-  inputPasswordComponent!: InputPasswordComponent;
+  inputPasswordComponent: InputPasswordComponent | undefined = undefined;
 
   private parentSubmittingBehaviorSubject = new BehaviorSubject(false);
   parentSubmitting$ = this.parentSubmittingBehaviorSubject.asObservable();
@@ -115,6 +115,10 @@ export class AccountRecoveryDialogComponent {
   ) {}
 
   handlePrimaryButtonClick = async () => {
+    if (!this.inputPasswordComponent) {
+      throw new Error("InputPasswordComponent is not initialized");
+    }
+
     await this.inputPasswordComponent.submit();
   };
 
