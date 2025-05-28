@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -380,16 +382,12 @@ describe("keyService", () => {
   });
 
   describe("clearKeys", () => {
-    it("resolves active user id when called with no user id", async () => {
-      let callCount = 0;
-      stateProvider.activeUserId$ = stateProvider.activeUserId$.pipe(tap(() => callCount++));
-
-      await keyService.clearKeys();
-      expect(callCount).toBe(1);
-
-      // revert to the original state
-      accountService.activeAccount$ = accountService.activeAccountSubject.asObservable();
-    });
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.clearKeys(userId)).rejects.toThrow("UserId is required");
+      },
+    );
 
     describe.each([
       USER_ENCRYPTED_ORGANIZATION_KEYS,
@@ -397,14 +395,6 @@ describe("keyService", () => {
       USER_ENCRYPTED_PRIVATE_KEY,
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
-      it(`clears ${key.key} for active user when unspecified`, async () => {
-        await keyService.clearKeys();
-
-        const encryptedOrgKeyState = stateProvider.singleUser.getFake(mockUserId, key);
-        expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
-        expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledWith(null);
-      });
-
       it(`clears ${key.key} for the specified user when specified`, async () => {
         const userId = "someOtherUser" as UserId;
         await keyService.clearKeys(userId);
@@ -413,6 +403,24 @@ describe("keyService", () => {
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledWith(null);
       });
+    });
+  });
+
+  describe("clearPinKeys", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.clearPinKeys(userId)).rejects.toThrow("UserId is required");
+      },
+    );
+    it("calls pin service to clear", async () => {
+      const userId = "someOtherUser" as UserId;
+
+      await keyService.clearPinKeys(userId);
+
+      expect(pinService.clearPinKeyEncryptedUserKeyPersistent).toHaveBeenCalledWith(userId);
+      expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(userId);
+      expect(pinService.clearUserKeyEncryptedPin).toHaveBeenCalledWith(userId);
     });
   });
 

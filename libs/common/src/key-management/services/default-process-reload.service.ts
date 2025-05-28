@@ -2,7 +2,11 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { BiometricStateService } from "@bitwarden/key-management";
 
 import { AccountService } from "../../auth/abstractions/account.service";
