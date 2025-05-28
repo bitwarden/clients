@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async">
+<popup-page [loading]="loading$ | async" disablePadding>
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -86,7 +86,11 @@
       </div>
     </div>
 
-    <ng-container *ngIf="vaultState === null">
+    <div
+      *ngIf="vaultState === null"
+      cdkVirtualScrollingElement
+      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
+    >
       <app-autofill-vault-list-items></app-autofill-vault-list-items>
       <app-vault-list-items-container
         [title]="'favorites' | i18n"
@@ -101,6 +105,6 @@
         disableSectionMargin
         collapsibleKey="allItems"
       ></app-vault-list-items-container>
-    </ng-container>
+    </div>
   </ng-container>
 </popup-page>

@@ -89,8 +89,10 @@
         </h3>
       </ng-container>
 
-      <!-- class="tw-overflow-visible [&>.cdk-virtual-scroll-content-wrapper]:[contain:layout_style]" -->
-      <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
+      <cdk-virtual-scroll-viewport
+        [itemSize]="itemHeight$ | async"
+        class="tw-overflow-visible [&>.cdk-virtual-scroll-content-wrapper]:[contain:layout_style]"
+      >
         <bit-item *cdkVirtualFor="let cipher of group.ciphers">
           <button
             bit-item-content
