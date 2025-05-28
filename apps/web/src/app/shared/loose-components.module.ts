@@ -37,6 +37,7 @@ import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
+import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
@@ -114,6 +115,7 @@ import { SharedModule } from "./shared.module";
     SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,

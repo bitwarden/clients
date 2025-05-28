@@ -6,4 +6,3 @@ export * from "./generator";
 export * from "./send";
 export * from "./settings";
 export * from "./vault";
-export * from "./empty";
