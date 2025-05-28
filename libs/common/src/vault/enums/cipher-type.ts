@@ -15,10 +15,10 @@ export const CipherType = {
  */
 export const CipherTypeNames = {
   1: "Login",
-  2: "Secure Note",
+  2: "SecureNote",
   3: "Card",
   4: "Identity",
-  5: "SSH Key",
+  5: "SshKey",
 } as const;
 
 export type CipherType = UnionOfValues<typeof CipherType>;
