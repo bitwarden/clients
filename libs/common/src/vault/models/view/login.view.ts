@@ -118,7 +118,7 @@ export class LoginView extends ItemView {
 
     const passwordRevisionDate =
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
-    const uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri));
+    const uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
 
     return Object.assign(new LoginView(), obj, {
       passwordRevisionDate,
