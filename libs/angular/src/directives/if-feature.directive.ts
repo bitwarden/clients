@@ -14,6 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
  */
 @Directive({
   selector: "[appIfFeature]",
+  standalone: false,
 })
 export class IfFeatureDirective implements OnInit {
   /**

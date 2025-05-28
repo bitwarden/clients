@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "标记应用程序为关键"
   },
-  "appsMarkedAsCritical": {
-    "message": "应用程序已标记为关键"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "标记为关键的应用程序"
   },
   "application": {
     "message": "应用程序"
@@ -138,13 +138,28 @@
     }
   },
   "atRiskMembersDescription": {
-    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到应用程序。"
+    "message": "这些成员正登录到具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
+  "atRiskMembersDescriptionNone": {
+    "message": "没有成员登录到具有弱的、暴露的或重复使用的密码的应用程序。"
   },
   "atRiskApplicationsDescription": {
     "message": "这些应用程序具有弱的、暴露的或重复使用的密码。"
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "没有具有弱的、暴露的或重复使用的密码的应用程序。"
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "$APPNAME$ 中没有存在风险的成员。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -1515,7 +1530,7 @@
     "message": "电子邮箱"
   },
   "emailDescV2": {
-    "message": "请输入发送到您的电子邮箱的代码。"
+    "message": "输入发送到您的电子邮箱的代码。"
   },
   "continue": {
     "message": "继续"
@@ -1855,7 +1870,7 @@
     "message": "取消会话授权"
   },
   "deauthorizeSessionsDesc": {
-    "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
+    "message": "您是否担心自己的账户在其他设备上登录过？继续下面的操作以取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
   },
   "deauthorizeSessionsWarning": {
     "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -1870,10 +1885,10 @@
     "message": "启用新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以停用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以停用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以启用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以启用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "停用新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
@@ -1903,10 +1918,10 @@
     "message": "密码库被提供商访问。"
   },
   "purgeVaultDesc": {
-    "message": "接下来的操作会删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
+    "message": "继续下面的操作以删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
   },
   "purgeOrgVaultDesc": {
-    "message": "接下来的操作会删除组织密码库中的所有项目。"
+    "message": "继续下面的操作以删除组织密码库中的所有项目。"
   },
   "purgeVaultWarning": {
     "message": "清空密码库是永久性操作，无法撤销！"
@@ -1918,7 +1933,7 @@
     "message": "删除账户"
   },
   "deleteAccountDesc": {
-    "message": "接下来的操作会删除您的账户和所有密码库数据。"
+    "message": "继续下面的操作以删除您的账户和所有密码库数据。"
   },
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
@@ -2821,7 +2836,7 @@
     "message": "支付卡"
   },
   "paypalClickSubmit": {
-    "message": "点击 PayPal 按钮登录您的 PayPal 账户，然后点击下面的提交按钮继续。"
+    "message": "选择 PayPal 按钮登录您的 PayPal 账户，然后点击下面的「提交」按钮继续。"
   },
   "cancelSubscription": {
     "message": "取消订阅"
@@ -4533,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "您保存的任何已加密导出也将变为无效。"
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "所有您已保存的账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -5053,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
-  },
-  "singleOrgPolicyWarning": {
-    "message": "不是所有者或管理员并且已是其他组织的成员的组织成员将从您的组织中移除。"
   },
   "singleOrgPolicyMemberWarning": {
     "message": "不符合要求的成员将被置于已撤销状态，直到他们退出所有其他组织，管理员不受此约束。达到要求后，管理员可以恢复他们的成员资格。"
@@ -5886,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "指纹短语："
   },
-  "removeUsers": {
-    "message": "移除用户"
-  },
-  "revokeUsers": {
-    "message": "撤销用户"
-  },
-  "restoreUsers": {
-    "message": "恢复用户"
-  },
   "error": {
     "message": "错误"
   },
@@ -6473,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -7836,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "连接域名允许成员在使用 SSO 登录时跳过 SSO 标识符字段。"
   },
-  "verifyDomain": {
-    "message": "验证域名"
-  },
-  "reverifyDomain": {
-    "message": "重新验证域名"
-  },
   "copyDnsTxtRecord": {
     "message": "复制 DNS TXT 记录"
   },
@@ -7850,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "复制并粘贴 TXT 记录到您的 DNS 提供商。"
-  },
-  "domainNameInputHint": {
-    "message": "示例：mydomain.com。子域名需要单独的条目进行验证。"
-  },
-  "automaticDomainVerification": {
-    "message": "自动域名验证"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden 将在最初的 72 小时内尝试验证域名 3 次。如果此域名无法验证，请检查您主机中的 DNS 记录并手动验证。如果此域名在 7 天内未验证，它将被从您的组织中移除。"
-  },
-  "invalidDomainNameMessage": {
-    "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行验证。"
   },
   "removeDomain": {
     "message": "移除域名"
@@ -7875,9 +7857,6 @@
   "domainSaved": {
     "message": "域名已保存"
   },
-  "domainVerified": {
-    "message": "域名已验证"
-  },
   "duplicateDomainError": {
     "message": "您不能两次声明同一个域名。"
   },
@@ -7889,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ 无法验证。请检查您的 DNS 记录。",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "已验证"
-  },
-  "domainStatusUnverified": {
-    "message": "未验证"
   },
   "domainNameTh": {
     "message": "域名"
@@ -7931,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "移除了域名 $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ 已验证",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ 无法验证",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "从提供商门户管理账单"
   },
+  "continueSettingUp": {
+    "message": "继续设置 Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "继续设置您的免费试用版 Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "继续设置 Bitwarden 密码管理器"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "继续设置 Bitwarden 机密管理器"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
@@ -10245,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您能正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "removeMembers": {
     "message": "移除成员"
   },
@@ -10637,8 +10556,20 @@
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
-  "newLoginNudgeBody": {
-    "message": "请包含网站，以便将此登录显示为自动填充建议。"
+  "newLoginNudgeBodyOne": {
+    "message": "包含",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "网站",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "以便将此登录显示为自动填充建议。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "无缝在线结账"
@@ -10661,13 +10592,23 @@
   "newSshNudgeTitle": {
     "message": "开发人员友好的 SSH 访问权限"
   },
-  "newSshNudgeBody": {
-    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。"
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "重新启动"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"
+  },
+  "clickPayWithPayPal": {
+    "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
   }
 }

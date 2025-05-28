@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Her zaman"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Hiçbir zaman"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Premium gerekli"
   },
@@ -427,6 +445,12 @@
   "addField": {
     "message": "Alan ekle"
   },
+  "editField": {
+    "message": "Alanı düzenle"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Bu dosyayı kalıcı olarak silmek istediğinizden emin misiniz?"
+  },
   "fieldType": {
     "message": "Alan türü"
   },
@@ -539,7 +563,7 @@
     "message": "Regenerate SSH key"
   },
   "copySshPrivateKey": {
-    "message": "Copy SSH private key"
+    "message": "SSH özel anahtarını kopyala"
   },
   "copyPassphrase": {
     "message": "Parolayı kopyala",
@@ -716,7 +740,7 @@
     "message": "Kimlik doğrulama uygulamanızdaki kodu girin"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Doğrulamak için Yubikey'inize basın"
   },
   "logInWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
@@ -907,7 +931,7 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Başka bir yöntem seç",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
@@ -1078,9 +1102,6 @@
   },
   "addNewItem": {
     "message": "Yeni kayıt"
-  },
-  "addNewFolder": {
-    "message": "Yeni klasör"
   },
   "view": {
     "message": "Görüntüle"
@@ -1701,39 +1722,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Dosya parolası\" ile \"Dosya parolasını onaylayın\" eşleşmiyor."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha adresi",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Erişilebilirlik çerezini yükle"
-  },
-  "registerAccessibilityUser": {
-    "message": "Erişilebilirlik kullanıcısı olarak kaydolun:",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "E-postanıza gönderilen bağlantıyı kopyalayıp aşağıya yapıştırın"
-  },
-  "enterhCaptchaUrl": {
-    "message": "hCaptcha erişilebilirlik çerezini yüklemek için adresi yazın",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha adresi gereklidir",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Geçersiz adres"
-  },
   "done": {
     "message": "Tamam"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Erişilebilirlik çerezi kaydedildi."
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Erişilebilirlik çerezi kaydedilmedi"
   },
   "warning": {
     "message": "UYARI",
@@ -2522,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Ana parola kaldırıldı"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin artık ana parola kullanması gerekmiyor.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Kuruluş adı"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector alan adı"
   },
   "leaveOrganization": {
     "message": "Kuruluştan ayrıl"
@@ -3623,6 +3613,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Kayıt ayrıntıları"
+  },
+  "itemName": {
+    "message": "Kayıt adı"
+  },
+  "loginCredentials": {
+    "message": "Hesap bilgileri"
+  },
+  "additionalOptions": {
+    "message": "Ek seçenekler"
+  },
+  "itemHistory": {
+    "message": "Kayıt geçmişi"
+  },
+  "lastEdited": {
+    "message": "Son düzenlenme"
+  },
+  "upload": {
+    "message": "Yükle"
+  },
   "authorize": {
     "message": "Yetkilendir"
   },
@@ -3671,63 +3682,6 @@
   "fileSavedToDevice": {
     "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."
   },
-  "importantNotice": {
-    "message": "Önemli uyarı"
-  },
-  "setupTwoStepLogin": {
-    "message": "İki adımlı girişi ayarlayın"
-  },
-  "itemDetails": {
-    "message": "Kayıt ayrıntıları"
-  },
-  "itemName": {
-    "message": "Kayıt adı"
-  },
-  "loginCredentials": {
-    "message": "Hesap bilgileri"
-  },
-  "additionalOptions": {
-    "message": "Ek seçenekler"
-  },
-  "itemHistory": {
-    "message": "Kayıt geçmişi"
-  },
-  "lastEdited": {
-    "message": "Son düzenlenme"
-  },
-  "upload": {
-    "message": "Yükle"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız."
-  },
-  "remindMeLater": {
-    "message": "Daha sonra hatırlat"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "$EMAIL$ adresinize sağlıklı bir şekilde erişebiliyor musunuz?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Hayır, erişemiyorum"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "İki adımlı girişi etkinleştir"
-  },
-  "changeAcctEmail": {
-    "message": "Hesap e-postasını değiştir"
-  },
   "allowScreenshots": {
     "message": "Ekran kaydına izin ver"
   },
@@ -3749,14 +3703,44 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Taşı"
+  },
+  "newFolder": {
+    "message": "Yeni klasör"
+  },
+  "folderName": {
+    "message": "Klasör adı"
+  },
+  "folderHintText": {
+    "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Bu hesabın otomatik doldurma önerisi olarak görünmesi için bir",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web sitesi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "ekleyin.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Kesintisiz çevrimiçi alışveriş"
@@ -3779,7 +3763,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

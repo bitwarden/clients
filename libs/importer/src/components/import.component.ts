@@ -18,6 +18,8 @@ import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
 import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -49,7 +51,6 @@ import {
   ButtonModule,
   CalloutModule,
   CardComponent,
-  ContainerComponent,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -119,7 +120,6 @@ const safeProviders: SafeProvider[] = [
     ImportLastPassComponent,
     RadioButtonModule,
     CardComponent,
-    ContainerComponent,
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,

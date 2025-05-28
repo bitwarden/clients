@@ -14,6 +14,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -40,6 +41,7 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
@@ -70,6 +72,7 @@ class QueryParams {
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
+    this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
   }
 
   /**
@@ -116,6 +119,12 @@ class QueryParams {
    * Optional name to pre-fill for the cipher.
    */
   name?: string;
+
+  /**
+   * Optional flag to pre-fill the name and URI from the current tab.
+   * NOTE: This will override the `uri` and `name` query parameters if set to true.
+   */
+  prefillNameAndURIFromTab?: true;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -281,8 +290,7 @@ export class AddEditV2Component implements OnInit {
           if (config.mode === "edit" && !config.originalCipher.edit) {
             config.mode = "partial-edit";
           }
-
-          config.initialValues = this.setInitialValuesFromParams(params);
+          config.initialValues = await this.setInitialValuesFromParams(params);
 
           const activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
@@ -326,7 +334,7 @@ export class AddEditV2Component implements OnInit {
       });
   }
 
-  setInitialValuesFromParams(params: QueryParams) {
+  async setInitialValuesFromParams(params: QueryParams) {
     const initialValues = {} as OptionalInitialValues;
     if (params.folderId) {
       initialValues.folderId = params.folderId;
@@ -346,6 +354,14 @@ export class AddEditV2Component implements OnInit {
     if (params.name) {
       initialValues.name = params.name;
     }
+
+    if (params.prefillNameAndURIFromTab) {
+      const tab = await BrowserApi.getTabFromCurrentWindow();
+
+      initialValues.loginUri = tab.url;
+      initialValues.name = Utils.getHostname(tab.url);
+    }
+
     return initialValues;
   }
 

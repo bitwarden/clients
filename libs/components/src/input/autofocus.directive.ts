@@ -19,6 +19,7 @@ import { FocusableElement } from "../shared/focusable-element";
  */
 @Directive({
   selector: "[appAutofocus], [bitAutofocus]",
+  standalone: false,
 })
 export class AutofocusDirective implements AfterContentChecked {
   @Input() set appAutofocus(condition: boolean | string) {
