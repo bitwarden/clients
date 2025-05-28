@@ -335,7 +335,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
         await this.viewCipher(cipherView).catch(() => {});
       }
     } else if (params.action === "add") {
-      this.addType = Number(params.addType);
+      this.addType = Number(params.addType) as CipherType;
       await this.addCipher(this.addType).catch(() => {});
     }
 

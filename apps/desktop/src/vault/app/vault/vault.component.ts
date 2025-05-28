@@ -282,7 +282,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           await this.viewCipher(cipherView);
         }
       } else if (params.action === "add") {
-        this.addType = Number(params.addType);
+        this.addType = Number(params.addType) as CipherType;
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.addCipher(this.addType);
@@ -291,7 +291,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.activeFilter = new VaultFilter({
         status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
         cipherType:
-          params.action === "add" || params.type == null ? null : parseInt(params.type, null),
+          params.action === "add" || params.type == null
+            ? null
+            : (parseInt(params.type, null) as CipherType),
         selectedFolderId: params.folderId,
         selectedCollectionId: params.selectedCollectionId,
         selectedOrganizationId: params.selectedOrganizationId,
