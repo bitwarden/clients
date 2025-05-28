@@ -1725,10 +1725,10 @@ export class ApiService implements ApiServiceAbstraction {
       const responseJson = await response.json();
       const tokenResponse = new IdentityTokenResponse(responseJson);
 
-      // Prefer getting the account from the token response, fallback to access token stub
-      const userId =
-        tokenResponse.userId ??
-        ((await this.tokenService.decodeAccessToken(tokenResponse.accessToken)).sub as UserId);
+      const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
+        tokenResponse.accessToken,
+      );
+      const userId = newDecodedAccessToken.sub;
 
       const vaultTimeoutAction = await firstValueFrom(
         this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
@@ -1768,10 +1768,8 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("Invalid response received when refreshing api token");
     }
 
-    // Prefer getting the account from the token response, fallback to access token stub
-    const userId =
-      response.userId ??
-      ((await this.tokenService.decodeAccessToken(response.accessToken)).sub as UserId);
+    const newDecodedAccessToken = await this.tokenService.decodeAccessToken(response.accessToken);
+    const userId = newDecodedAccessToken.sub;
 
     const vaultTimeoutAction = await firstValueFrom(
       this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),

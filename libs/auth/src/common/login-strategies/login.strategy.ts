@@ -182,8 +182,7 @@ export abstract class LoginStrategy {
    */
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse): Promise<UserId> {
     const accountInformation = await this.tokenService.decodeAccessToken(tokenResponse.accessToken);
-    // Prefer getting the account from the token response, fallback to access token stub
-    const userId = tokenResponse.userId ?? (accountInformation.sub as UserId);
+    const userId = accountInformation.sub as UserId;
 
     await this.accountService.addAccount(userId, {
       name: accountInformation.name,
