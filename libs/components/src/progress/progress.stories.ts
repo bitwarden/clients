@@ -26,7 +26,7 @@ export const Base: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-progress ${formatArgsForCodeSnippet(args)}></bit-progress>
+      <bit-progress ${formatArgsForCodeSnippet<ProgressComponent>(args)}></bit-progress>
     `,
   }),
   args: {
@@ -37,7 +37,7 @@ export const Base: Story = {
 export const Empty: Story = {
   ...Base,
   args: {
-    barWidth: 100,
+    barWidth: 0,
   },
 };
 

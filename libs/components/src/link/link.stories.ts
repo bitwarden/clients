@@ -31,7 +31,7 @@ type Story = StoryObj<ButtonLinkDirective>;
 export const Default: Story = {
   render: (args) => ({
     template: /*html*/ `
-      <a bitLink ${formatArgsForCodeSnippet(args)}>Your text here</a>
+      <a bitLink ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
     `,
   }),
 };

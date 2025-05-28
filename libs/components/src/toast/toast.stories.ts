@@ -76,7 +76,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-        <bit-toast ${formatArgsForCodeSnippet(args)}></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
     `,
   }),
 };
@@ -86,10 +86,10 @@ export const Variants: Story = {
     props: args,
     template: `
       <div class="tw-flex tw-flex-col tw-min-w tw-max-w-[--bit-toast-width] tw-gap-2">
-        <bit-toast ${formatArgsForCodeSnippet(args)} variant="success"></bit-toast>
-        <bit-toast ${formatArgsForCodeSnippet(args)} variant="info"></bit-toast>
-        <bit-toast ${formatArgsForCodeSnippet(args)} variant="warning"></bit-toast>
-        <bit-toast ${formatArgsForCodeSnippet(args)} variant="error"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="success"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="info"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="warning"></bit-toast>
+        <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)} variant="error"></bit-toast>
       </div>
     `,
   }),

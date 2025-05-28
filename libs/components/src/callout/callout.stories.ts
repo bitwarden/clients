@@ -39,7 +39,7 @@ export const Info: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout ${formatArgsForCodeSnippet(args)}>Content</bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>Content</bit-callout>
     `,
   }),
   args: {

@@ -27,7 +27,7 @@ export const ColorPassword: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-color-password ${formatArgsForCodeSnippet(args)}></bit-color-password>
+      <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
     `,
   }),
 };
@@ -37,7 +37,7 @@ export const WrappedColorPassword: Story = {
     props: args,
     template: `
       <div class="tw-max-w-32">
-        <bit-color-password ${formatArgsForCodeSnippet(args)}></bit-color-password>
+        <bit-color-password ${formatArgsForCodeSnippet<ColorPasswordComponent>(args)}></bit-color-password>
       </div>
     `,
   }),

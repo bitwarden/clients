@@ -29,7 +29,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button ${formatArgsForCodeSnippet(args)}>Button</button>
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     `,
   }),
 };
@@ -83,7 +83,7 @@ export const Light: Story = {
     template: /*html*/ `
     <div class="tw-bg-background-alt2 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet(args)}>Button</button>
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),
@@ -98,7 +98,7 @@ export const Contrast: Story = {
     template: /*html*/ `
     <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
       <!-- <div> used only to provide dark background color -->
-      <button ${formatArgsForCodeSnippet(args)}>Button</button>
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
     </div>
       `,
   }),

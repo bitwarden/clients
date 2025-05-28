@@ -40,7 +40,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet(args)}></bit-search>
+      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet<SearchComponent>(args)}></bit-search>
     `,
   }),
   args: {},

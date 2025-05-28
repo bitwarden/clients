@@ -31,13 +31,13 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button bitButton ${formatArgsForCodeSnippet(args)}>Button</button>
+      <button bitButton ${formatArgsForCodeSnippet<ButtonComponent>(args)}>Button</button>
     `,
   }),
   args: {
     buttonType: "secondary",
   },
-}
+};
 
 export const Primary: Story = {
   ...Default,
