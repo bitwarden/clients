@@ -98,7 +98,7 @@ export class BadgeComponent implements FocusableElement {
     if (this.title !== undefined) {
       return this.title;
     }
-    return this.truncate ? this.el.nativeElement.textContent.trim() : null;
+    return this.truncate ? this?.el?.nativeElement?.textContent?.trim() : null;
   }
 
   /**
