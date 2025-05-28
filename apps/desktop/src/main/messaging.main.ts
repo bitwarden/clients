@@ -6,8 +6,11 @@ import * as path from "path";
 import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { autostart } from "@bitwarden/desktop-napi";
+
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { isFlatpak } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -122,20 +125,24 @@ export class MessagingMain {
 
   private addOpenAtLogin() {
     if (process.platform === "linux") {
-      const data = `[Desktop Entry]
-Type=Application
-Version=${app.getVersion()}
-Name=Bitwarden
-Comment=Bitwarden startup script
-Exec=${app.getPath("exe")}
-StartupNotify=false
-Terminal=false`;
+      if (isFlatpak()) {
+        autostart.setAutostart(true, []).catch((e) => {});
+      } else {
+        const data = `[Desktop Entry]
+  Type=Application
+  Version=${app.getVersion()}
+  Name=Bitwarden
+  Comment=Bitwarden startup script
+  Exec=${app.getPath("exe")}
+  StartupNotify=false
+  Terminal=false`;
 
-      const dir = path.dirname(this.linuxStartupFile());
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+        const dir = path.dirname(this.linuxStartupFile());
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
+        fs.writeFileSync(this.linuxStartupFile(), data);
       }
-      fs.writeFileSync(this.linuxStartupFile(), data);
     } else {
       app.setLoginItemSettings({ openAtLogin: true });
     }
@@ -143,8 +150,12 @@ Terminal=false`;
 
   private removeOpenAtLogin() {
     if (process.platform === "linux") {
-      if (fs.existsSync(this.linuxStartupFile())) {
-        fs.unlinkSync(this.linuxStartupFile());
+      if (isFlatpak()) {
+        autostart.setAutostart(false, []).catch((e) => {});
+      } else {
+        if (fs.existsSync(this.linuxStartupFile())) {
+          fs.unlinkSync(this.linuxStartupFile());
+        }
       }
     } else {
       app.setLoginItemSettings({ openAtLogin: false });

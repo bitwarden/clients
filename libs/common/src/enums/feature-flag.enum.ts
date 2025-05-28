@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
-  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
 
   /* Auth */
@@ -23,7 +22,6 @@ export enum FeatureFlag {
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
@@ -82,14 +80,12 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.LimitItemDeletion]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,

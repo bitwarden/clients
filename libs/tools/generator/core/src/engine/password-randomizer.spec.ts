@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 
 import { Randomizer } from "../abstractions";
+import { Algorithm, Type } from "../metadata";
 
 import { Ascii } from "./data";
 import { PasswordRandomizer } from "./password-randomizer";
@@ -341,32 +342,32 @@ describe("PasswordRandomizer", () => {
       const password = new PasswordRandomizer(randomizer);
 
       const result = await password.generate(
-        {},
+        { algorithm: Algorithm.password },
         {
           length: 10,
         },
       );
 
-      expect(result.category).toEqual("password");
+      expect(result.category).toEqual(Type.password);
     });
 
     it("processes passphrase generation options", async () => {
       const password = new PasswordRandomizer(randomizer);
 
       const result = await password.generate(
-        {},
+        { algorithm: Algorithm.passphrase },
         {
           numWords: 10,
         },
       );
 
-      expect(result.category).toEqual("passphrase");
+      expect(result.category).toEqual(Type.password);
     });
 
     it("throws when it cannot recognize the options type", async () => {
       const password = new PasswordRandomizer(randomizer);
 
-      const result = password.generate({}, {});
+      const result = password.generate({ algorithm: Algorithm.username }, {});
 
       await expect(result).rejects.toBeInstanceOf(Error);
     });
