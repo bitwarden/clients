@@ -69,7 +69,7 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
  * A responsive position strategy that adjusts the dialog position based on the screen size.
  */
 class ResponsivePositionStrategy extends GlobalPositionStrategy {
-  resizeObserver: ResizeObserver;
+  onResizeListener: () => void | null = null;
 
   /**
    * The previous breakpoint to avoid unnecessary updates.
@@ -79,24 +79,24 @@ class ResponsivePositionStrategy extends GlobalPositionStrategy {
 
   constructor() {
     super();
-    this.resizeObserver = new ResizeObserver(() => {
-      this.updatePosition();
-    });
-    this.resizeObserver.observe(document.body);
+    this.onResizeListener = this.updatePosition.bind(this);
+    this.updatePosition(); // Initial position update
+    window.addEventListener("resize", this.onResizeListener);
   }
 
   override dispose() {
-    this.resizeObserver.disconnect();
-    this.resizeObserver = null;
+    window.removeEventListener("resize", this.onResizeListener);
+    this.onResizeListener = null;
     super.dispose();
   }
 
   updatePosition() {
     const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
-    if (this.prevBreakpoint === (isSmallScreen ? "small" : "large")) {
+    const currentBreakpoint = isSmallScreen ? "small" : "large";
+    if (this.prevBreakpoint === currentBreakpoint) {
       return; // No change in breakpoint, no need to update position
     }
-    this.prevBreakpoint = isSmallScreen ? "small" : "large";
+    this.prevBreakpoint = currentBreakpoint;
     if (isSmallScreen) {
       this.bottom().centerHorizontally();
     } else {

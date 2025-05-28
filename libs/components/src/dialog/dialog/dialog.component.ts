@@ -129,7 +129,7 @@ export class DialogComponent {
   }
 
   get animationClasses() {
-    switch (this.dialogSize) {
+    switch (this.dialogSize()) {
       case "small":
         return ["tw-animate-slide-down"];
       default:
