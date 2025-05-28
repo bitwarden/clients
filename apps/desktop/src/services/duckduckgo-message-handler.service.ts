@@ -235,14 +235,14 @@ export class DuckDuckGoMessageHandlerService {
   }
 
   /*
-   * Bitwarden type 2 (AES256-CBC-HMAC256) use PKCS7 padding.
+   * Bitwarden type 2 (AES256-CBC-HMAC256) uses PKCS7 padding.
    * DuckDuckGo does not use PKCS7 padding; and instead fills the last CBC block with null bytes.
    * ref: https://github.com/duckduckgo/apple-browsers/blob/04d678b447869c3a640714718a466b36407db8b6/macOS/DuckDuckGo/PasswordManager/Bitwarden/Services/BWEncryption.m#L141
    *
    * This is incompatible which means the default encryptService cannot be used to decrypt the message,
-   * A custom EncString decrypt operation is needed, and encryptService cannot be used.
+   * a custom EncString decrypt operation is needed.
    *
-   * This function also trims null characters that are a result of the lack of padding from the end of the message.
+   * This function also trims null characters that are a result of the null-padding from the end of the message.
    */
   private async decryptDuckDuckGoEncString(
     encString: EncString,
@@ -271,8 +271,9 @@ export class DuckDuckGoMessageHandlerService {
     return this.trimNullCharsFromMessage(decryptedPaddedString);
   }
 
-  // DuckDuckGo does not use PKCS7 padding, but instead leaves the values to null
-  // so null characters need to be trimmed from the end of the message. This means that
+  // DuckDuckGo does not use PKCS7 padding, but instead leaves the values as null,
+  // so null characters need to be trimmed from the end of the message for the last
+  // CBC-block.
   private trimNullCharsFromMessage(message: string): string {
     const charNull = 0;
     const charRightCurlyBrace = 125;
