@@ -122,6 +122,7 @@ import { SharedModule } from "./shared.module";
     RemovePasswordComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
+    FreeBitwardenFamiliesComponent,
     SponsoringOrgRowComponent,
     UpdateTempPasswordComponent,
     UpdatePasswordComponent,
