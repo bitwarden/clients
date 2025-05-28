@@ -51,6 +51,7 @@ describe("AddEditV2Component", () => {
   const disable = jest.fn();
   const navigate = jest.fn();
   const back = jest.fn().mockResolvedValue(null);
+  const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
@@ -70,7 +71,7 @@ describe("AddEditV2Component", () => {
       providers: [
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
