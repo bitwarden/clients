@@ -140,22 +140,6 @@
 
   <ng-container *ngIf="organization$ | async as organization">
     <bit-banner
-      *ngIf="showAccountDeprovisioningBanner$ | async"
-      (onClose)="bannerService.hideBanner(organization)"
-      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-    >
-      {{ "accountDeprovisioningNotification" | i18n }}
-      <a
-        href="https://bitwarden.com/help/claimed-accounts"
-        bitLink
-        linkType="contrast"
-        target="_blank"
-        rel="noreferrer"
-      >
-        {{ "learnMore" | i18n }}
-      </a>
-    </bit-banner>
-    <bit-banner
       *ngIf="organization.isProviderUser"
       [showClose]="false"
       class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
