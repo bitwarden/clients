@@ -66,7 +66,7 @@ export class NordPassCsvImporter extends BaseImporter implements Importer {
         const customFieldsParsed: NordPassCustomField[] = JSON.parse(record.custom_fields);
         if (customFieldsParsed && customFieldsParsed.length > 0) {
           customFieldsParsed.forEach((field) => {
-            let fieldType = FieldType.Text;
+            let fieldType: FieldType = FieldType.Text;
 
             if (field.type == "hidden") {
               fieldType = FieldType.Hidden;

@@ -64,7 +64,7 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.type = params.type != undefined ? (parseInt(params.type, null) as CipherType) : undefined;
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
