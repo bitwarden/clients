@@ -1,4 +1,18 @@
-import { ForwarderMetadata } from "../types";
+import { IntegrationId } from "@bitwarden/common/tools/integration";
+
+export type ForwarderId = IntegrationId;
+
+/** Metadata format for email forwarding services. */
+export type ForwarderMetadata = {
+  /** The unique identifier for the forwarder. */
+  id: ForwarderId;
+
+  /** The name of the service the forwarder queries. */
+  name: string;
+
+  /** Whether the forwarder is valid for self-hosted instances of Bitwarden. */
+  validForSelfHosted: boolean;
+};
 
 /** Metadata about an email forwarding service.
  *  @remarks This is used to populate the forwarder selection list

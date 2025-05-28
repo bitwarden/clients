@@ -1,12 +1,4 @@
-import {
-  Observable,
-  combineLatestWith,
-  distinctUntilChanged,
-  map,
-  shareReplay,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { Observable, distinctUntilChanged, map, shareReplay, switchMap, takeUntil } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,7 +6,7 @@ import { BoundDependency } from "@bitwarden/common/tools/dependencies";
 import { ExtensionSite } from "@bitwarden/common/tools/extension";
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
-import { anyComplete, pin } from "@bitwarden/common/tools/rx";
+import { anyComplete, memoizedMap, pin } from "@bitwarden/common/tools/rx";
 import { UserStateSubject } from "@bitwarden/common/tools/state/user-state-subject";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
 
@@ -29,7 +21,7 @@ import {
   Algorithms,
   Types,
 } from "../metadata";
-import { availableAlgorithms_vNext } from "../policies/available-algorithms-policy";
+import { AvailableAlgorithmsConstraint, availableAlgorithms } from "../policies";
 import { CredentialPreference } from "../types";
 import {
   AlgorithmRequest,
@@ -148,8 +140,15 @@ export class GeneratorMetadataProvider {
         const policies$ = this.application.policy
           .policiesByType$(PolicyType.PasswordGenerator, id)
           .pipe(
-            map((p) => availableAlgorithms_vNext(p).filter((a) => this._metadata.has(a))),
-            map((p) => new Set(p)),
+            map((p) =>
+              availableAlgorithms(p)
+                .filter((a) => this._metadata.has(a))
+                .sort(),
+            ),
+            // interning the set transformation lets `distinctUntilChanged()` eliminate
+            // repeating policy emissions using reference equality
+            memoizedMap((a) => new Set(a), { key: (a) => a.join(":") }),
+            distinctUntilChanged(),
             // complete policy emissions otherwise `switchMap` holds `available$` open indefinitely
             takeUntil(anyComplete(id$)),
           );
@@ -211,24 +210,7 @@ export class GeneratorMetadataProvider {
     const account$ = dependencies.account$.pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
     const algorithm$ = this.preferences({ account$ }).pipe(
-      combineLatestWith(this.isAvailable$({ account$ })),
-      map(([preferences, isAvailable]) => {
-        const algorithm: CredentialAlgorithm = preferences[type].algorithm;
-        if (isAvailable(algorithm)) {
-          return algorithm;
-        }
-
-        const algorithms = type ? this.algorithms({ type: type }) : [];
-        // `?? null` because logging types must be `Jsonify<T>`
-        const defaultAlgorithm = algorithms.find(isAvailable) ?? null;
-        this.log.debug(
-          { algorithm, defaultAlgorithm, credentialType: type },
-          "preference not available; defaulting the generator algorithm",
-        );
-
-        // `?? undefined` so that interface is ADR-14 compliant
-        return defaultAlgorithm ?? undefined;
-      }),
+      map((preferences) => preferences[type].algorithm),
       distinctUntilChanged(),
     );
 
@@ -246,8 +228,16 @@ export class GeneratorMetadataProvider {
   preferences(
     dependencies: BoundDependency<"account", Account>,
   ): UserStateSubject<CredentialPreference> {
-    // FIXME: enforce policy
-    const subject = new UserStateSubject(PREFERENCES, this.system, dependencies);
+    const account$ = dependencies.account$.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+
+    const constraints$ = this.isAvailable$({ account$ }).pipe(
+      map(
+        (isAvailable) =>
+          new AvailableAlgorithmsConstraint(this.algorithms.bind(this), isAvailable, this.system),
+      ),
+    );
+
+    const subject = new UserStateSubject(PREFERENCES, this.system, { account$, constraints$ });
 
     return subject;
   }
