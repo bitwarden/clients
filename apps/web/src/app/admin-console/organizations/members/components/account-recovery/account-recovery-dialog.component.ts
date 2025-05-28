@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, ViewChild } from "@angular/core";
-import { switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, map, switchMap } from "rxjs";
 
 import {
   InputPasswordComponent,
@@ -82,14 +82,22 @@ export class AccountRecoveryDialogComponent {
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent!: InputPasswordComponent;
 
-  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
-  receivedPasswordInputResult = false;
-  submitting = false;
+  private parentSubmittingBehaviorSubject = new BehaviorSubject(false);
+  parentSubmitting$ = this.parentSubmittingBehaviorSubject.asObservable();
+
+  private childSubmittingBehaviorSubject = new BehaviorSubject(false);
+  childSubmitting$ = this.childSubmittingBehaviorSubject.asObservable();
+
+  submitting$ = combineLatest([this.parentSubmitting$, this.childSubmitting$]).pipe(
+    map(([parentIsSubmitting, childIsSubmitting]) => parentIsSubmitting || childIsSubmitting),
+  );
 
   masterPasswordPolicyOptions$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
   );
+
+  inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
 
   get loggedOutWarningName() {
     return this.dialogData.name != null ? this.dialogData.name : this.i18nService.t("thisUser");
@@ -107,23 +115,11 @@ export class AccountRecoveryDialogComponent {
   ) {}
 
   handlePrimaryButtonClick = async () => {
-    try {
-      this.submitting = true;
-      await this.inputPasswordComponent.submit();
-    } catch {
-      // Flip to false if submit() throws an error
-      this.submitting = false;
-    }
-
-    // Flip to false if submit() returns early without a PasswordInputResult
-    // emission due to form validation errors or new password doesn't meet org policy reqs.
-    if (!this.receivedPasswordInputResult) {
-      this.submitting = false;
-    }
+    await this.inputPasswordComponent.submit();
   };
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
-    this.receivedPasswordInputResult = Boolean(passwordInputResult);
+    this.parentSubmittingBehaviorSubject.next(true);
 
     try {
       await this.resetPasswordService.resetMasterPassword(
@@ -140,9 +136,15 @@ export class AccountRecoveryDialogComponent {
       });
     } catch (e) {
       this.logService.error(e);
+    } finally {
+      this.parentSubmittingBehaviorSubject.next(false);
     }
 
     this.dialogRef.close(AccountRecoveryDialogResultTypes.Ok);
+  }
+
+  protected handleIsSubmittingChange(isSubmitting: boolean) {
+    this.childSubmittingBehaviorSubject.next(isSubmitting);
   }
 
   /**

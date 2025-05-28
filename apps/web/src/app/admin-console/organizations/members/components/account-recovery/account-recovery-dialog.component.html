@@ -9,27 +9,19 @@
       [message]="'resetPasswordMasterPasswordPolicyInEffect'"
       [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
       (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+      (isSubmitting)="handleIsSubmittingChange($event)"
     ></auth-input-password>
   </ng-container>
 
   <ng-container bitDialogFooter>
     <button
-      class="tw-relative"
       type="button"
       bitButton
       buttonType="primary"
-      [disabled]="submitting"
+      [disabled]="submitting$ | async"
       (click)="handlePrimaryButtonClick()"
     >
-      <span
-        [ngClass]="{ 'tw-invisible': !submitting }"
-        class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center"
-      >
-        <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
-      </span>
-      <span [ngClass]="{ 'tw-invisible': submitting }">
-        {{ "save" | i18n }}
-      </span>
+      {{ "save" | i18n }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}
