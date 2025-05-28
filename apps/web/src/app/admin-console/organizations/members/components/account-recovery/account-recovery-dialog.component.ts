@@ -152,9 +152,12 @@ export class AccountRecoveryDialogComponent {
    */
   static open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<AccountRecoveryDialogData>,
+    dialogConfig: DialogConfig<
+      AccountRecoveryDialogData,
+      DialogRef<AccountRecoveryDialogResultType, unknown>
+    >,
   ) => {
-    return dialogService.open<AccountRecoveryDialogResultType>(
+    return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
       AccountRecoveryDialogComponent,
       dialogConfig,
     );
