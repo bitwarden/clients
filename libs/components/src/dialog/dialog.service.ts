@@ -65,6 +65,47 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   responsive?: boolean;
 };
 
+/**
+ * A responsive position strategy that adjusts the dialog position based on the screen size.
+ */
+class ResponsivePositionStrategy extends GlobalPositionStrategy {
+  resizeObserver: ResizeObserver;
+
+  /**
+   * The previous breakpoint to avoid unnecessary updates.
+   * `null` means no previous breakpoint has been set.
+   */
+  prevBreakpoint: "small" | "large" | null = null;
+
+  constructor() {
+    super();
+    this.resizeObserver = new ResizeObserver(() => {
+      this.updatePosition();
+    });
+    this.resizeObserver.observe(document.body);
+  }
+
+  override dispose() {
+    this.resizeObserver.disconnect();
+    this.resizeObserver = null;
+    super.dispose();
+  }
+
+  updatePosition() {
+    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+    if (this.prevBreakpoint === (isSmallScreen ? "small" : "large")) {
+      return; // No change in breakpoint, no need to update position
+    }
+    this.prevBreakpoint = isSmallScreen ? "small" : "large";
+    if (isSmallScreen) {
+      this.bottom().centerHorizontally();
+    } else {
+      this.centerVertically().centerHorizontally();
+    }
+    this.apply();
+  }
+}
+
 class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
 
@@ -171,16 +212,15 @@ export class DialogService {
     });
 
     const responsive = config?.responsive ?? true;
-    const isSmallScreen = responsive && window.matchMedia("(max-width: 768px)").matches;
 
     // Merge the custom config with the default config
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
-      positionStrategy: isSmallScreen
-        ? new GlobalPositionStrategy().bottom().centerHorizontally()
-        : new GlobalPositionStrategy().centerVertically().centerHorizontally(),
       injector,
+      positionStrategy: responsive
+        ? new ResponsivePositionStrategy()
+        : new GlobalPositionStrategy().centerHorizontally().centerVertically(),
       ...config,
     };
 
