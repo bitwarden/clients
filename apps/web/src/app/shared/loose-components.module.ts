@@ -15,23 +15,12 @@ import { AcceptFamilySponsorshipComponent } from "../admin-console/organizations
 import { RecoverDeleteComponent } from "../auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
-import { AccountComponent } from "../auth/settings/account/account.component";
-import { ChangeAvatarDialogComponent } from "../auth/settings/account/change-avatar-dialog.component";
-import { ChangeEmailComponent } from "../auth/settings/account/change-email.component";
 import { DangerZoneComponent } from "../auth/settings/account/danger-zone.component";
-import { DeauthorizeSessionsComponent } from "../auth/settings/account/deauthorize-sessions.component";
-import { DeleteAccountDialogComponent } from "../auth/settings/account/delete-account-dialog.component";
-import { ProfileComponent } from "../auth/settings/account/profile.component";
-import { SelectableAvatarComponent } from "../auth/settings/account/selectable-avatar.component";
 import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
 import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
-import { ApiKeyComponent } from "../auth/settings/security/api-key.component";
-import { ChangeKdfModule } from "../auth/settings/security/change-kdf/change-kdf.module";
-import { SecurityKeysComponent } from "../auth/settings/security/security-keys.component";
-import { SecurityComponent } from "../auth/settings/security/security.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
@@ -39,7 +28,6 @@ import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component"
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
-import { DynamicAvatarComponent } from "../components/dynamic-avatar.component";
 // eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
 import { ExposedPasswordsReportComponent as OrgExposedPasswordsReportComponent } from "../dirt/reports/pages/organizations/exposed-passwords-report.component";
 // eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
@@ -68,8 +56,6 @@ import { SharedModule } from "./shared.module";
   imports: [
     SharedModule,
     UserVerificationModule,
-    ChangeKdfModule,
-    DynamicAvatarComponent,
     AccountFingerprintComponent,
     OrganizationBadgeModule,
     PipesModule,
@@ -85,11 +71,6 @@ import { SharedModule } from "./shared.module";
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
-    AccountComponent,
-    ApiKeyComponent,
-    ChangeEmailComponent,
-    DeauthorizeSessionsComponent,
-    DeleteAccountDialogComponent,
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
@@ -104,15 +85,10 @@ import { SharedModule } from "./shared.module";
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
-    ProfileComponent,
-    ChangeAvatarDialogComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SecurityComponent,
-    SecurityKeysComponent,
-    SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
@@ -125,12 +101,6 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    AccountComponent,
-    ApiKeyComponent,
-    ChangeEmailComponent,
-    DeauthorizeSessionsComponent,
-    DeleteAccountDialogComponent,
-    DynamicAvatarComponent,
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
@@ -146,15 +116,10 @@ import { SharedModule } from "./shared.module";
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
-    ProfileComponent,
-    ChangeAvatarDialogComponent,
     PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
-    SecurityComponent,
-    SecurityKeysComponent,
-    SelectableAvatarComponent,
     SetPasswordComponent,
     SponsoredFamiliesComponent,
     FreeBitwardenFamiliesComponent,
