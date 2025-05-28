@@ -49,8 +49,9 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
     } catch (e) {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
         this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+      } else {
+        throw e;
       }
-      throw e;
     }
   }
 

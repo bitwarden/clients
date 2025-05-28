@@ -97,8 +97,9 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     } catch (e) {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
         this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+      } else {
+        throw e;
       }
-      throw e;
     }
     try {
       await passwords.deletePassword(service, key + KEY_WITNESS_SUFFIX);
@@ -107,8 +108,9 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
         this.logService.debug(
           `Biometric witness key ${key + KEY_WITNESS_SUFFIX} not found for service ${service}.`,
         );
+      } else {
+        throw e;
       }
-      throw e;
     }
   }
 
@@ -219,8 +221,14 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
         storageKey + KEY_WITNESS_SUFFIX,
         witnessKeyMaterial,
       );
-    } catch {
-      this.logService.debug("Error retrieving witness key, assuming value is not up to date.");
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          `Biometric witness key ${storageKey + KEY_WITNESS_SUFFIX} not found for service ${service}, value is not up to date.`,
+        );
+      } else {
+        this.logService.error("Error retrieving witness key, assuming value is not up to date.", e);
+      }
       return false;
     }
 
