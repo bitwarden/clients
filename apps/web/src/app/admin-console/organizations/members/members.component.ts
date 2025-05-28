@@ -772,20 +772,22 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       if (result === AccountRecoveryDialogResultTypes.Ok) {
         await this.load();
       }
-    } else {
-      const dialogRef = ResetPasswordComponent.open(this.dialogService, {
-        data: {
-          name: this.userNamePipe.transform(user),
-          email: user != null ? user.email : null,
-          organizationId: this.organization.id,
-          id: user != null ? user.id : null,
-        },
-      });
 
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === ResetPasswordDialogResult.Ok) {
-        await this.load();
-      }
+      return;
+    }
+
+    const dialogRef = ResetPasswordComponent.open(this.dialogService, {
+      data: {
+        name: this.userNamePipe.transform(user),
+        email: user != null ? user.email : null,
+        organizationId: this.organization.id,
+        id: user != null ? user.id : null,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === ResetPasswordDialogResult.Ok) {
+      await this.load();
     }
   }
 
