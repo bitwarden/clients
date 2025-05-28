@@ -103,7 +103,7 @@ export class ServiceUtils {
       // 1, *1.2, 1.2.1 becomes
       // 1, *1.2/1.2.1
       const newPartName = partName + delimiter + parts[partIndex + 1];
-      ServiceUtils.nestedTraverse(
+      ServiceUtils.nestedTraverse_vNext(
         nodeTree,
         0,
         [newPartName, ...parts.slice(partIndex + 2)],
@@ -113,7 +113,7 @@ export class ServiceUtils {
       );
     } else {
       // There is a node here with the same name, descend into it
-      ServiceUtils.nestedTraverse(
+      ServiceUtils.nestedTraverse_vNext(
         matchingNodes[0].children,
         partIndex + 1,
         parts,
