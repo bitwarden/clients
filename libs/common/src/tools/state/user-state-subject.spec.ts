@@ -90,6 +90,7 @@ const SomeProvider = {
   } as LegacyEncryptorProvider,
   state: SomeStateProvider,
   log: disabledSemanticLoggerProvider,
+  now: () => 100,
 };
 
 function fooMaxLength(maxLength: number): StateConstraints<TestType> {
