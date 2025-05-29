@@ -403,13 +403,6 @@ describe("KeyRotationService", () => {
       ).rejects.toThrow();
     });
 
-    it("legacy throws if no private key is found", async () => {
-      privateKey.next(null);
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
-      ).rejects.toThrow();
-    });
 
     it("throws if no private key is found", async () => {
       keyPair.next(null);
@@ -420,16 +413,6 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if master password is incorrect", async () => {
-      mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
-        new Error("Invalid master password"),
-      );
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
@@ -444,14 +427,6 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if server rotation fails", async () => {
-      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
