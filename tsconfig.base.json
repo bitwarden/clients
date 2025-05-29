@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "allowJs": true,
-    "sourceMap": true,
     "paths": {
       "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
       "@bitwarden/angular/*": ["./libs/angular/src/*"],
@@ -36,6 +35,7 @@
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
+      "@bitwarden/logout": ["./libs/logout/src"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
@@ -43,9 +43,9 @@
       "@bitwarden/tools-card": ["./libs/tools/card/src"],
       "@bitwarden/ui-common": ["./libs/ui/common/src"],
       "@bitwarden/ui-common/setup-jest": ["./libs/ui/common/src/setup-jest"],
+      "@bitwarden/vault": ["./libs/vault/src"],
       "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/vault": ["./libs/vault/src"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"]
     },
     "plugins": [

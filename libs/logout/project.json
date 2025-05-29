@@ -1,0 +1,20 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "logout",
+  "projectType": "library",
+  "sourceRoot": "libs/logout/src",
+  "tags": [],
+  "importPath": "@bitwarden/logout",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/logout",
+        "main": "libs/logout/src/index.ts",
+        "tsConfig": "libs/logout/tsconfig.json",
+        "assets": ["libs/logout/*.md"]
+      }
+    }
+  }
+}

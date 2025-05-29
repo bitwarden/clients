@@ -3,8 +3,7 @@
 import { Observable, Subject } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+
 import { ClientType } from "@bitwarden/common/enums";
 import { VaultTimeout } from "@bitwarden/common/key-management/vault-timeout";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -16,6 +15,7 @@ import { Theme } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message } from "@bitwarden/common/platform/messaging";
 import { HttpOperations } from "@bitwarden/common/services/api.service";
+import { LogoutReason } from "@bitwarden/logout";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // Re-export the SafeInjectionToken from ui-common
 export { SafeInjectionToken } from "@bitwarden/ui-common";

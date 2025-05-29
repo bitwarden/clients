@@ -144,6 +144,7 @@
         "@electron/notarize",
         "@electron/rebuild",
         "@ngtools/webpack",
+        "@nx/js",
         "@types/chrome",
         "@types/firefox-webext-browser",
         "@types/glob",

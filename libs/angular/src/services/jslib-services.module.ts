@@ -49,7 +49,6 @@ import {
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
   LoginSuccessHandlerService,
-  LogoutReason,
   PinService,
   PinServiceAbstraction,
   UserDecryptionOptionsService,
@@ -321,6 +320,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { LogoutReason } from "@bitwarden/logout";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
