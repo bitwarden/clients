@@ -147,6 +147,7 @@
         "@nx/devkit",
         "@nx/eslint",
         "@nx/jest",
+        "@nx/js",
         "@types/chrome",
         "@types/firefox-webext-browser",
         "@types/glob",
