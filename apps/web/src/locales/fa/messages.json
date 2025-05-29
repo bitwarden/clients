@@ -1,30 +1,30 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "همه‌ برنامه‌ها"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "لوگو Bitwarden"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "برنامه‌های حیاتی"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "هیچ برنامه حیاتی در معرض خطر نیست"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "دسترسی به هوش مصنوعی"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "دیدگاه‌های خطر"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "خطر کلمه عبور"
   },
   "reviewAtRiskPasswords": {
-    "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "کلمات عبور در معرض خطر (ضعیف، افشا شده یا تکراری) را در برنامه‌ها بررسی کنید. برنامه‌های حیاتی خود را انتخاب کنید تا اقدامات امنیتی را برای کاربران‌تان اولویت‌بندی کنید و به کلمات عبور در معرض خطر رسیدگی کنید."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "آخرین به‌روزرسانی داده‌ها: \\$DATE\\$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -33,19 +33,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "اعضای مطلع شده"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "حذف اعضا"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "بازیابی اعضا"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "امکان بازیابی دسترسی به سازمان وجود ندارد"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "تمام برنامه‌ها ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -54,10 +54,10 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "ایجاد مورد ورود جدید"
   },
   "criticalApplicationsWithCount": {
-    "message": "Critical applications ($COUNT$)",
+    "message": "برنامه‌های حیاتی ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -102,13 +102,13 @@
     "message": "Applications marked as critical"
   },
   "application": {
-    "message": "Application"
+    "message": "اپلیکیشن"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "کلمات عبور در معرض خطر"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "درخواست تغییر کلمه عبور"
   },
   "totalPasswords": {
     "message": "Total passwords"
@@ -220,10 +220,10 @@
     "message": "یادداشت‌ها"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "یادداشت خصوصی"
   },
   "note": {
-    "message": "Note"
+    "message": "یادداشت"
   },
   "customFields": {
     "message": "فیلدهای سفارشی"
@@ -232,19 +232,19 @@
     "message": "نام صاحب کارت"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "اطلاعات ورود"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "جزئیات شخصی"
   },
   "identification": {
-    "message": "Identification"
+    "message": "شناسایی"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "اطلاعات مخاطب"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "جزئیات کارت"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -450,17 +450,17 @@
     "message": "منطقی"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "کادر انتخاب"
   },
   "cfTypeLinked": {
     "message": "پیوند شده",
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "نوع فیلد"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "برچسب فیلد"
   },
   "remove": {
     "message": "حذف"
@@ -473,7 +473,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "شما",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -496,7 +496,7 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "پوشه جدید"
   },
   "folderName": {
     "message": "Folder name"
@@ -687,7 +687,7 @@
     "message": "نام کامل"
   },
   "address": {
-    "message": "Address"
+    "message": "نشانی"
   },
   "address1": {
     "message": "نشانی ۱"
@@ -732,7 +732,7 @@
     "message": "مشاهده مورد"
   },
   "newItemHeader": {
-    "message": "New $TYPE$",
+    "message": "$TYPE$ جدید",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -741,7 +741,7 @@
     }
   },
   "editItemHeader": {
-    "message": "Edit $TYPE$",
+    "message": "ویرایش $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -750,7 +750,7 @@
     }
   },
   "viewItemType": {
-    "message": "View $ITEMTYPE$",
+    "message": "مشاهده $ITEMTYPE$",
     "placeholders": {
       "itemtype": {
         "content": "$1",
@@ -766,10 +766,10 @@
     "message": "مورد"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "جزئیات مورد"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "نام مورد"
   },
   "ex": {
     "message": "مثال.",
@@ -795,7 +795,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "کپی موفق بود"
   },
   "copyValue": {
     "message": "کپی مقدار",
@@ -806,11 +806,11 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "کپی عبارت عبور",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "کلمه عبور کپی شد"
   },
   "copyUsername": {
     "message": "کپی نام کاربری",
@@ -829,7 +829,7 @@
     "description": "Copy URI to clipboard"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "کپی $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -838,34 +838,34 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "کپی وب‌سایت"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "کپی یادداشت‌ها"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "کپی نشانی"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "کپی تلفن"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "کپی ایمیل"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "کپی شرکت"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "کپی شماره کد ملی"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "کپی شماره گذرنامه"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "کپی شماره گواهینامه"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "کپی نام"
   },
   "me": {
     "message": "من"
@@ -944,7 +944,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "موارد به $ORGNAME$ منتقل شدند",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -953,7 +953,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "مورد به $ORGNAME$ منتقل شد",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1019,16 +1019,16 @@
     "message": "نشست ورود شما منقضی شده است."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "ثبت‌نام را دوباره آغاز کنید"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "پیوند منقضی شد"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "لطفاً ثبت نام را مجدداً شروع کنید یا دوباره وارد شوید."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "ممکن است قبلاً حساب کاربری داشته باشید"
   },
   "logOutConfirmation": {
     "message": "آیا مطمئنید که می‌خواهید خارج شوید؟"
@@ -1046,7 +1046,7 @@
     "message": "خیر"
   },
   "location": {
-    "message": "Location"
+    "message": "موقعیت"
   },
   "loginOrCreateNewAccount": {
     "message": "وارد شوید یا یک حساب کاربری بسازید تا به گاوصندوق امن‌تان دسترسی یابید."
@@ -1058,28 +1058,28 @@
     "message": "ورود به سیستم با دستگاه باید در تنظیمات برنامه‌ی Bitwarden تنظیم شود. به گزینه دیگری نیاز دارید؟"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "به گزینه دیگری نیاز دارید؟"
   },
   "loginWithMasterPassword": {
     "message": "با کلمه عبور اصلی وارد شوید"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "خواندن کلید عبور..."
   },
   "readingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "این پنجره را باز نگه دارید و دستورهای مرورگر خود را دنبال کنید."
   },
   "useADifferentLogInMethod": {
     "message": "Use a different log in method"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "با کلید عبور وارد شوید"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "استفاده از ورود تک مرحله‌ای"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "خوش آمدید"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Invalid Passkey. Please try again."
@@ -1163,13 +1163,13 @@
     "message": "ایجاد حساب کاربری"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "در Bitwarden تازه وارد هستید؟"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "تنظیم کلمه عبور قوی"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "ایجاد حساب کاربری خود را با تنظیم کلمه عبور تکمیل کنید"
   },
   "newAroundHere": {
     "message": "اینجا تازه واردی؟"
@@ -1181,22 +1181,22 @@
     "message": "ورود"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "وارد Bitwarden شوید"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "کدی را که به ایمیل شما ارسال شده وارد کنید"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "کد سامانه تأیید کننده را وارد نمایید"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "برای احراز هویت، کلید YubiKey خود را فشار دهید"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "پایان زمان احراز هویت"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "نشست احراز هویت منقضی شد. لطفاً فرایند ورود را دوباره شروع کنید."
   },
   "verifyYourIdentity": {
     "message": "Verify your Identity"
@@ -1736,25 +1736,25 @@
     "message": "تاریخچه کلمه عبور"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "تاریخچه تولید کننده"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "پاک کردن تاریخچه تولید کننده"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "اگر ادامه دهید، تمام ورودی‌ها به‌طور دائمی از تاریخچه تولید کننده حذف خواهند شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"
   },
   "noPasswordsInList": {
     "message": "هیچ کلمه عبوری برای فهرست کردن وجود ندارد."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "پاک کردن تاریخچه"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "چیزی برای نشان دادن موجود نیست"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "شما اخیراً چیزی تولید نکرده‌اید"
   },
   "clear": {
     "message": "پاک کردن",
@@ -1794,10 +1794,10 @@
     "message": "لطفاً دوباره وارد شوید."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "نشست کنونی"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "درخواست در حال انتظار است"
   },
   "logBackInOthersToo": {
     "message": "لطفاً دوباره وارد شوید. اگر از سایر برنامه‌های Bitwarden استفاده می‌کنید، از سیستم خارج شوید و دوباره به آن‌ها وارد شوید."
@@ -1961,11 +1961,11 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "new item",
+    "message": "مورد جدید",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
-    "message": "new login",
+    "message": "ورود جدید",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
@@ -2016,7 +2016,7 @@
     "message": "خطا در رمزگشایی پرونده‌ی درون ریزی شده. کلید رمزگذاری شما با کلید رمزگذاری استفاده شده برای درون ریزی داده‌ها مطابقت ندارد."
   },
   "destination": {
-    "message": "Destination"
+    "message": "مقصد"
   },
   "learnAboutImportOptions": {
     "message": "درباره گزینه‌های برون ریزی خود بیاموزید"
@@ -2201,16 +2201,16 @@
     "message": "مدیریت"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "مدیریت مجموعه"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "مشاهده موارد"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "ویرایش موارد"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
@@ -2222,7 +2222,7 @@
     "message": "لغو دسترسی"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "لغو"
   },
   "twoStepLoginProviderEnabled": {
     "message": "این ارائه دهنده ورود به سیستم دو مرحله ای در حساب شما فعال است."
@@ -2237,7 +2237,7 @@
     "message": ","
   },
   "twoStepAuthenticatorInstructionInfix2": {
-    "message": "or"
+    "message": "یا"
   },
   "twoStepAuthenticatorInstructionSuffix": {
     "message": "."
@@ -2255,10 +2255,10 @@
     "message": "You are leaving Bitwarden and launching an external website in a new window."
   },
   "twoStepContinueToBitwardenUrlTitle": {
-    "message": "Continue to bitwarden.com?"
+    "message": "به bitwarden.com ادامه می‌دهید؟"
   },
   "twoStepContinueToBitwardenUrlDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website."
+    "message": "احراز هویت کننده Bitwarden به شما امکان می‌دهد کلیدهای احراز هویت را ذخیره کرده و کدهای TOTP را برای فرآیندهای تأیید دومرحله‌ای تولید کنید. برای اطلاعات بیشتر به وب‌سایت bitwarden.com مراجعه کنید."
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Scan the QR code below with your authenticator app or enter the key."
@@ -2270,7 +2270,7 @@
     "message": "کلید"
   },
   "twoStepAuthenticatorEnterCodeV2": {
-    "message": "Verification code"
+    "message": "کد تأیید"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "در صورت نیاز به افزودن آن به دستگاه دیگر، کد QR (یا کلید) مورد نیاز برنامه احراز هویت شما در زیر آمده است."
@@ -2351,7 +2351,7 @@
     "message": "اطلاعات برنامه Bitwarden را از پنل مدیریت Duo خود وارد کنید."
   },
   "twoFactorDuoClientId": {
-    "message": "Client Id"
+    "message": "شناسه کاربر"
   },
   "twoFactorDuoClientSecret": {
     "message": "Client Secret"
@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "کد تأیید نامعتبر است"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ در حال استفاده از SSO با یک سرور کلید خود میزبان است. برای ورود اعضای این سازمان دیگر نیازی به کلمه عبور اصلی نیست.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "ترک سازمان"

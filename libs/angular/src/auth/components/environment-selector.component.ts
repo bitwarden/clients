@@ -4,6 +4,8 @@ import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from "@angu
 import { ActivatedRoute } from "@angular/router";
 import { Observable, map, Subject, takeUntil } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
 import {
   EnvironmentService,

@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
@@ -130,15 +132,13 @@ describe("DefaultSdkService", () => {
           );
           keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
-          const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-          service.userClient$(userId).subscribe(subject);
-          await new Promise(process.nextTick);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
 
           userKey$.next(undefined);
-          await new Promise(process.nextTick);
+          await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);
-          expect(subject.value).toBe(undefined);
         });
       });
 
