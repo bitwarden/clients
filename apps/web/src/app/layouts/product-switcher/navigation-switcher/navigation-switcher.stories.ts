@@ -5,6 +5,7 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -128,6 +129,12 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService(translations);
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(false),
           },
         },
       ],

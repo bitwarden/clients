@@ -34,7 +34,13 @@ export function NotificationFooter({
   handleSaveAction,
 }: NotificationFooterProps) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
-  const primaryButtonText = i18n.saveAction;
+  const isUnlockNotification = notificationType === NotificationTypes.Unlock;
+
+  let primaryButtonText = i18n.saveAction;
+
+  if (isUnlockNotification) {
+    primaryButtonText = i18n.notificationUnlock;
+  }
 
   return html`
     <div class=${notificationFooterStyles({ isChangeNotification })}>
