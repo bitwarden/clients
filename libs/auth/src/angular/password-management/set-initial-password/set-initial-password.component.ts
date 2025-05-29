@@ -162,6 +162,7 @@ export class SetInitialPasswordComponent implements OnInit {
         "userId, orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
       );
     }
+
     if (
       this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER ||
       this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP
