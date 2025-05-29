@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
+  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
 
   /* Auth */
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
@@ -82,6 +83,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
+  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
