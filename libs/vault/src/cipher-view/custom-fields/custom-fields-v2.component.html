@@ -1,4 +1,4 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
   </bit-section-header>
@@ -52,6 +52,20 @@
           vaultAutosizeReadOnlyTextArea
         ></textarea>
         <button
+          *ngIf="canViewPassword && revealedHiddenFields.includes(i)"
+          bitIconButton="bwi-numbered-list"
+          bitSuffix
+          type="button"
+          data-testid="toggle-hidden-field-value-count"
+          [appA11yTitle]="
+            (showHiddenValueCountFields.includes(i) ? 'hideCharacterCount' : 'showCharacterCount')
+              | i18n
+          "
+          [attr.aria-expanded]="showHiddenValueCountFields.includes(i)"
+          appStopClick
+          (click)="toggleCharacterCount(i)"
+        ></button>
+        <button
           bitSuffix
           type="button"
           bitIconButton
@@ -71,6 +85,12 @@
           (click)="logCopyEvent()"
         ></button>
       </bit-form-field>
+      <div
+        *ngIf="showHiddenValueCountFields.includes(i) && revealedHiddenFields.includes(i)"
+        [ngClass]="{ 'tw-mt-3': true, 'tw-mb-2': true }"
+      >
+        <bit-color-password [password]="field.value" [showCount]="true"></bit-color-password>
+      </div>
       <bit-form-control *ngIf="field.type === fieldType.Boolean">
         <input
           bitCheckbox
@@ -95,4 +115,4 @@
       </bit-form-field>
     </div>
   </bit-card>
-</bit-section>
+</section>

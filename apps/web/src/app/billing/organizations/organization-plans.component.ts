@@ -626,7 +626,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (this.createOrganization) {
         const orgKey = await this.keyService.makeOrgKey<OrgKey>();
         const key = orgKey[0].encryptedString;
-        const collection = await this.encryptService.encrypt(
+        const collection = await this.encryptService.encryptString(
           this.i18nService.t("defaultCollection"),
           orgKey[1],
         );
@@ -812,7 +812,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       );
       const providerKey = await this.keyService.getProviderKey(this.providerId);
       providerRequest.organizationCreateRequest.key = (
-        await this.encryptService.encrypt(orgKey.key, providerKey)
+        await this.encryptService.wrapSymmetricKey(orgKey, providerKey)
       ).encryptedString;
       const orgId = (
         await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)

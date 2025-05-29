@@ -3,6 +3,21 @@ const child_process = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const process = require("process");
+
+// Map of the Node arch equivalents for the rust target triplets, used to move the file to the correct location
+const rustTargetsMap = {
+    "i686-pc-windows-msvc":       { nodeArch: 'ia32',  platform: 'win32'  },
+    "x86_64-pc-windows-msvc":     { nodeArch: 'x64',   platform: 'win32'  },
+    "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
+    "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
+    "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
+    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+}
+
+// Ensure the dist directory exists
+fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
+
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
 const targetArg = args.find(arg => arg.startsWith("--target="));
@@ -13,13 +28,25 @@ let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platfo
 function buildNapiModule(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    return child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
+    child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
 }
 
 function buildProxyBin(target, release = true) {
     const targetArg = target ? `--target ${target}` : "";
     const releaseArg = release ? "--release" : "";
-    return child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
+    child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
+    
+    if (target) {
+        // Copy the resulting binary to the dist folder
+        const targetFolder = release ? "release" : "debug";
+        const ext = process.platform === "win32" ? ".exe" : "";
+        const nodeArch = rustTargetsMap[target].nodeArch;
+        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
+    }
+}
+
+function installTarget(target) {
+    child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
 }
 
 if (!crossPlatform && !target) {
@@ -31,50 +58,24 @@ if (!crossPlatform && !target) {
 
 if (target) {
     console.log(`Building for target: ${target} in ${mode} mode`);
+    installTarget(target);
     buildNapiModule(target, mode === "release");
     buildProxyBin(target, mode === "release");
     return;
 }
 
-// Note that targets contains pairs of [rust target, node arch]
-// We do this to move the output binaries to a location that can
-// be easily accessed from electron-builder using ${os} and ${arch}
-let targets = [];
-switch (process.platform) {
-    case "win32":
-        targets = [
-            ["i686-pc-windows-msvc", 'ia32'],
-            ["x86_64-pc-windows-msvc", 'x64'],
-            ["aarch64-pc-windows-msvc", 'arm64']
-        ];
-    break;
+// Filter the targets based on the current platform, and build for each of them
+let platformTargets = Object.entries(rustTargetsMap).filter(([_, { platform: p }]) => p === process.platform);
+console.log("Cross building native modules for the targets: ", platformTargets.map(([target, _]) => target).join(", "));
 
-    case "darwin":
-        targets = [
-            ["x86_64-apple-darwin", 'x64'],
-            ["aarch64-apple-darwin", 'arm64']
-        ];
-    break;
-
-    default:
-        targets = [
-            ['x86_64-unknown-linux-musl', 'x64'],
-            ['aarch64-unknown-linux-musl', 'arm64']
-        ];
-
-        process.env["PKG_CONFIG_ALLOW_CROSS"] = "1";
-        process.env["PKG_CONFIG_ALL_STATIC"] = "1";
-    break;
+// When building for Linux, we need to set some environment variables to allow cross-compilation
+if (process.platform === "linux") {
+    process.env["PKG_CONFIG_ALLOW_CROSS"] = "1";
+    process.env["PKG_CONFIG_ALL_STATIC"] = "1";
 }
 
-console.log("Cross building native modules for the targets: ", targets.map(([target, _]) => target).join(", "));
-
-fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
-
-targets.forEach(([target, nodeArch]) => {
+platformTargets.forEach(([target, _]) => {
+    installTarget(target);
     buildNapiModule(target);
     buildProxyBin(target);
-
-    const ext = process.platform === "win32" ? ".exe" : "";
-    fs.copyFileSync(path.join(__dirname, "target", target, "release", `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
 });

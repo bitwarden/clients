@@ -50,6 +50,7 @@ export class VaultPopupItemsService {
   private cachedSearchText = inject(PopupViewCacheService).signal<string>({
     key: "vault-search-text",
     initialValue: "",
+    persistNavigation: true,
   });
 
   readonly searchText$ = toObservable(this.cachedSearchText);

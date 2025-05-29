@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Všechny aplikace"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "criticalApplications": {
     "message": "Kritické aplikace"
   },
@@ -95,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Označit aplikaci jako kritickou"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikace označené jako kritické"
   },
   "application": {
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Tito členové se přihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Žádní členové se nepřihlašují do aplikací se slabými, odhalenými nebo znovu použitými hesly."
+  },
   "atRiskApplicationsDescription": {
     "message": "Tyto aplikace mají slabá, odhalená nebo opakovaně používaná hesla."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Žádné aplikace, které mají slabá, odhalená nebo opakovaně používaná hesla."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Tito členové se přihlašují do $APPNAME$ se slabými, odhalenými nebo znovu použitými hesly.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Žádní ohrožení členové pro $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Složka"
   },
-  "newCustomField": {
-    "message": "Nové vlastní pole"
-  },
   "value": {
     "message": "Hodnota"
-  },
-  "dragToSort": {
-    "message": "Přetáhnutím seřadíte"
-  },
-  "dragToReorder": {
-    "message": "Přesuňte tažením"
   },
   "cfTypeText": {
     "message": "Text"
@@ -4072,7 +4081,7 @@
   "updateBrowser": {
     "message": "Aktualizovat prohlížeč"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Generování poznatků o rizicích..."
   },
   "updateBrowserDesc": {
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Jakékoli šifrované exporty, které jste uložili, budou také neplatné."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všechny uložené exporty s omezením účtu se stanou neplatnými."
   },
   "subscription": {
     "message": "Předplatné"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Vaše aktuální organizace má pravidla, která Vám nedovolují připojit se k více než jedné organizaci. Obraťte se na administrátory organizace nebo se zaregistrujte z jiného účtu na Bitwardenu."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Členové organizace, kteří nejsou vlastníky nebo administrátory a jsou již členy jiné organizace, budou odebrání z Vaší organizace."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Nevyhovující členové budou zařazeni do statusu odvolaných členů, dokud neopustí všechny ostatní organizace. Správci jsou osvobozeni a mohou obnovit členy, jakmile je splněna podmínka shody."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fráze otisku prstu:"
   },
-  "removeUsers": {
-    "message": "Odebrat uživatele"
-  },
-  "revokeUsers": {
-    "message": "Odvolat uživatele"
-  },
-  "restoreUsers": {
-    "message": "Obnovit uživatele"
-  },
   "error": {
     "message": "Chyba"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Bitwarden pro rodinu zdarma"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponzorované rodiny"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Žádné sponzorované rodiny"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Členové vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Vy a Vaše rodina máte nárok na Bitwarden pro rodinu zdarma. Nárok můžete uplatnit Vaším osobním e-mailem, abyste zajistili bezpečnost Vašich dat, i když nejste v práci."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Uplatněte ještě dnes svůj plán Bitwarden pro rodinu zdarma, aby byla Vaše data bezpečná, i když nejste v práci."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Plán Bitwarden pro rodinu zdarma obsahuje"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "Plán Bitwarden pro rodiny zahrnuje"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémiový přístup až pro 6 uživatelů"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Sdílené kolekce pro tajné klíče rodiny"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Sdílené kolekce pro členy rodiny"
+  },
+  "memberFamilies": {
+    "message": "Rodiny členů"
+  },
+  "noMemberFamilies": {
+    "message": "Žádné rodiny členů"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Zde se zobrazí členové, kteří využili rodinné plány"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Zde můžete vidět členy, kteří sponzorovali organizaci rodin."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Sponzorství nemůže být odesláno do $EMAIL$, protože je členem Vaší organizace.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Odkaz již není platný. Požádejte sponzora o opakované odeslání nabídky."
@@ -6371,7 +6404,7 @@
   "redeemedAccount": {
     "message": "Účet byl uplatněn"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Odvolat účet $NAME$",
     "placeholders": {
       "name": {
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace."
+  },
+  "keyConnectorDomain": {
+    "message": "Doména Key Connectoru"
   },
   "leaveOrganization": {
     "message": "Opustit organizaci"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Postupujte podle kroků níže pro dokončení přihlášení."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Postupujte podle následujících kroků pro dokončení přihlášení Vaším bezpečnostním klíčem."
+  },
   "launchDuo": {
     "message": "Spustit Duo"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Připojení domény umožňuje členům přeskočit pole identifikátoru SSO během přihlašování pomocí SSO."
   },
-  "verifyDomain": {
-    "message": "Ověřit doménu"
-  },
-  "reverifyDomain": {
-    "message": "Znovu ověřit doménu"
-  },
   "copyDnsTxtRecord": {
     "message": "Kopírovat TXT záznam DNS"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Zkopírujte a vložte TXT záznam do poskytovatele DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Příklad: mydomain.com. Poddomény vyžadují samostatné záznamy, které je třeba ověřit."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatické ověření domény"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden se pokusí ověřit doménu třikrát během prvních 72 hodin. Pokud doménu nelze ověřit, zkontrolujte záznam DNS v hostitelském počítači a ověřte ji ručně. Pokud se doména nepodaří ověřit, bude z Vaší organizace odebrána do 7 dnů."
-  },
-  "invalidDomainNameMessage": {
-    "message": "Vstup není platný formát. Příklad: mydomain.com. Poddomény vyžadují samostatné záznamy, které je třeba ověřit."
   },
   "removeDomain": {
     "message": "Odebrat doménu"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Doména byla uložena"
   },
-  "domainVerified": {
-    "message": "Doména byla ověřena"
-  },
   "duplicateDomainError": {
     "message": "Nemůžete nárokovat stejnou doménu dvakrát."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nebyla ověřena. Zkontrolujte Váš DNS záznam.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Ověřeno"
-  },
-  "domainStatusUnverified": {
-    "message": "Neověřeno"
   },
   "domainNameTh": {
     "message": "Název"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "Odebrána doména $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ byla ověřena",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nebyla ověřena",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Pozvat uživatele"
+  },
+  "addSponsorship": {
+    "message": "Přidat sponzorství"
   },
   "needsConfirmation": {
     "message": "Vyžaduje potvrzení"
@@ -8400,31 +8382,31 @@
     "message": "Důvěryhodná zařízení"
   },
   "memberDecryptionOptionTdeDescPart1": {
-    "message": "Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The",
+    "message": "Při přihlašování pomocí SSO nebudou členové potřebovat hlavní heslo. Hlavní heslo je nahrazeno šifrovacím klíčem uloženým v zařízení, čímž se toto zařízení stane důvěryhodným. Důvěryhodné bude první zařízení, na kterém si člen vytvoří účet a do kterého se přihlásí. Nová",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink1": {
-    "message": "single organization",
+    "message": "zařízení budou muset být schválena",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "stávajícím důvěryhodným zařízením",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
-    "message": "SSO required",
+    "message": "nebo správcem. Při",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart3": {
-    "message": "policy, and",
+    "message": "použití této možnosti se zapne zásada jednotné organizace, zásada",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink3": {
-    "message": "account recovery administration",
+    "message": "požadovaného SSO a ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart4": {
-    "message": "policy will turn on when this option is used.",
+    "message": "zásada správy obnovení účtu.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Spravovat fakturaci z portálu poskytovatele"
   },
+  "continueSettingUp": {
+    "message": "Pokračovat v nastavení Bitwardenu"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Pokračujte v nastavení zkušební verze aplikace Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Pokračujte v nastavení Správce hesel Bitwarden"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Pokračujte v nastavení bezplatného zkušebního období Správce hesel Bitwarden"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Pokračujte v nastavení Správce tajných klíčů Bitwarden"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Pokračujte v nastavení bezplatného zkušebního období Správce tajných klíčů Bitwarden"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Důležité upozornění"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastavit dvoufázové přihlášení"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat."
-  },
-  "remindMeLater": {
-    "message": "Připomenout později"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte spolehlivý přístup ke svému e-mailu $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ano, ke svému e-mailu mám přístup"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnout dvoufázové přihlášení"
-  },
-  "changeAcctEmail": {
-    "message": "Změnit e-mail účtu"
-  },
   "removeMembers": {
     "message": "Odebrat členy"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Nedůvěřovat"
   },
+  "organizationNotTrusted": {
+    "message": "Organizace není důvěryhodná"
+  },
   "emergencyAccessTrustWarning": {
     "message": "Pro zabezpečení Vašeho účtu potvrďte jen v případě, že jste tomuto uživateli udělili nouzový přístup a jeho otisk prstu odpovídá tomu, co je zobrazeno v jeho účtu."
   },
   "orgTrustWarning": {
     "message": "Pro zabezpečení Vašeho účtu pokračujte jen v případě, že jste členem této organizace, máte povoleno obnovení účtu a zobrazený otisk prstu níže odpovídá otisku prstu organizace."
+  },
+  "orgTrustWarning1": {
+    "message": "Tato organizace má firemní zásady, které Vás zapíšou do obnovy účtu. Zápis umožní správcům organizace změnit Vaše heslo. Pokračujte jen v případě, že znáte tuto organizaci a fráze otisku prstu zobrazenou níže odpovídá otisku prstu organizace."
   },
   "trustUser": {
     "message": "Důvěřovat uživateli"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
   },
-  "limitedEventLogs": {
-    "message": "Plány $PRODUCT_TYPE$ nemají přístup k protokolům reálných událostí",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Logy událostí nejsou uloženy pro Vaši organizaci. Aktualizujte na Týmy nebo plán Enterprise a získejte plný přístup k logům událostí."
   },
-  "upgradeForFullEvents": {
-    "message": "Získejte plný přístup k protokolům událostí organizace aktualizací do týmů nebo plánu Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Aktualizovat pro reálná data protokolu událostí"
+  "upgradeEventLogTitleMessage": {
+    "message": "Aktualizujte pro zobrazení logů událostí z Vaší organizace."
   },
   "upgradeEventLogMessage": {
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "Nová obchodní jednotka"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetřete čas s automatickým vyplňováním"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrne",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webovou stránku, ",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "takže se toto přihlášení objeví jako návrh automatického vyplňování.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online pokladna"
+  },
+  "newCardNudgeBody": {
+    "message": "Karty - snadné, bezpečné a přesné vyplňování platebních formulářů."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Jednodušší vytváření účtů"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Identity - rychlé automatické vyplňování dlouhých registračních nebo kontaktních formulářů."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svá citlivá data v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Poznámky - bezpečné ukládání citlivých údajů, jako jsou bankovní nebo pojišťovací údaje."
+  },
+  "newSshNudgeTitle": {
+    "message": "Přístup SSH pro vývojáře"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Uložte své klíče a připojte se k SSH agentovi pro rychlé a šifrované ověření.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Další informace o SSH agentovi",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Restartovat"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření svého bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z této zálohy na stránce předplatného poskytovatele. Pokud bankovní účet neověříte, bude to mít za následek zmeškání platby a pozastavení předplatného."
+  },
+  "clickPayWithPayPal": {
+    "message": "Pro přidání způsobu platby klepněte na tlačítko \"Pay with PayPal\"."
   }
 }

@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Sve aplikacije"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Kritične aplikacije"
   },
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Označi aplikacije kao kritične"
   },
-  "appsMarkedAsCritical": {
-    "message": "Aplikacije označene kao kritične"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Aplikacija"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ovi članovi se prijavljuju u aplikacije slabim, izloženim ili ponovno korištenim lozinkama."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ove aplikacije imaju slabe, izložene ili ponovno korištene lozinke."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ovi članovi se u $APPNAME$ prijavljuju slabim, izloženim ili ponovno korištenim lozinkama.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Mapa"
   },
-  "newCustomField": {
-    "message": "Novo prilagođeno polje"
-  },
   "value": {
     "message": "Vrijednost"
-  },
-  "dragToSort": {
-    "message": "Povuci za sortiranje"
-  },
-  "dragToReorder": {
-    "message": "Povuci za premještanje"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -3324,7 +3333,7 @@
     "message": "Vanjski id je nešifrirana referenca koju koristi Bitwarden Directory Connector i API."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "SSO vanjski Id"
   },
   "ssoExternalIdDesc": {
     "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
@@ -4072,8 +4081,8 @@
   "updateBrowser": {
     "message": "Ažuriraj preglednik"
   },
-  "generatingRiskInsights": {
-    "message": "Stvaranje tvojih uvida u rizik..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Koristiš nepodržani preglednik. Web trezor možda neće ispravno raditi."
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Nakon ažuriranja svojeg ključa za šifriranje, obavezno se trebaš odjaviti i ponovno prijaviti u sve Bitwarden aplikacije koje trenutno koristiš (npr. mobilna aplikacija, proširenje preglednika, ...). Ako se ne odjaviš i ponovno prijaviš (čime se preuzima tvoj novi ključ za šifriranje) može doći do oštećenja spremljenih podataka. Pokušati ćemo te automatski odjaviti, no, to bi možda moglo potrajati."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Svi spremljeni šifrirani izvozi također će postati nevažeći."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Pretplata"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Tvoja organizacija ima pravilo koje ti ne dozvoljava pridruživanje drugim organizacijama. Molimo kontaktiraj administratora svoje organizacije ili se prijavi s privatnim Bitwarden računom."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Članovi organizacije koji nisu Vlasnici ili Administratori, a već su članovi neke druge organizacije, biti će uklonjeni iz tvoje organizacije."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Nesukladni članovi bit će opozvani dok ne napuste sve druge organizacije. Administratori su izuzeti i mogu vratiti članove nakon što se ispuni usklađenost."
@@ -5890,16 +5896,7 @@
     "message": "Otisak prsta"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Ukloni korisnike"
-  },
-  "revokeUsers": {
-    "message": "Opozovi korisnike"
-  },
-  "restoreUsers": {
-    "message": "Obnovi korisnike"
+    "message": "Jedinstvena fraza:"
   },
   "error": {
     "message": "Greška"
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Besplatan Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponzorirani obiteljski paket"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Ti i tvoja obitelj ispunjavate uvjete za besplatni Bitwarden Families. Iskoristiti ponudu svojom e-poštom kako bi zaštitio svoje podatke čak i kada nisi na poslu."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Iskoristi svoju ponudu za besplatni Bitwarden Families paket već danas kako bi tvoji podaci bili sigurni čak i kada nisi na poslu."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Bitwarden Families paket uključuje"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium pristup do 6 korisnika"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Dijeljene zbirke za obiteljske tajne"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Veza više nije valjana. Zamoli sponzora da pošalje novu ponudu."
@@ -6371,8 +6404,8 @@
   "redeemedAccount": {
     "message": "Račun iskorišten"
   },
-  "revokeAccount": {
-    "message": "Opozovi račun $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Nevažeći kôd za provjeru"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ koristi jedinstvenu prijavu SSO s vlastitim poslužiteljem. Članovima organizacije glavna lozinka više nije potrebna.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Napusti organizaciju"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Prati korake za dovršetak prijave."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Pokreni Duo"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Povezivanje domene omogućuje članovima da preskoče polje SSO identifikatora tijekom SSO prijave."
   },
-  "verifyDomain": {
-    "message": "Potvrdi domenu"
-  },
-  "reverifyDomain": {
-    "message": "Ponovno potvrdi domenu"
-  },
   "copyDnsTxtRecord": {
     "message": "Kopiraj DNS TXT record"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Kopiraj i zalijepi TXT zapis kod svog DNS pružatelja usluga."
-  },
-  "domainNameInputHint": {
-    "message": "Primjer: mojadomena.hr Poddomene zahtijevaju zasebne unose za provjeru."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatska potvrda domene"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden će pokušati potvrditi domenu 3 puta tijekom prva 72 sata. Ako se domena ne može potvrditi, provjeri DNS zapis na svom poslužitelju i ručno potvrdi. Domena će, ako se ne potvrdi, biti uklonjena iz vaše organizacije nakon 7 dana"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Unos nije važeći. Format: mojadomena.hr Poddomene zahtijevaju zasebne unose za provjeru."
   },
   "removeDomain": {
     "message": "Ukloni domenu"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Domena spremljena"
   },
-  "domainVerified": {
-    "message": "Domena potvrđena"
-  },
   "duplicateDomainError": {
     "message": "Ne možeš dvaput zatražiti istu domenu."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nije potvrđena. Provjeri svoj DNS zapis.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Potvrđena"
-  },
-  "domainStatusUnverified": {
-    "message": "Nije potvrđena"
   },
   "domainNameTh": {
     "message": "Naziv"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domena uklonjena",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ potvrđena",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nije potvrđena",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Pozovi člana"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Treba potvrdu"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Upravljanje naplatom s Portala pružatelja usluga"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Nastavi s postavljanjem besplatne probe Bitwardena"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Nastavi s postavljanjem besplatne probe Bitwarden Upravitelja Lozinki"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Nastavi s postavljanjem besplatne probe Btwarden Secrets Managera"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Važna napomena"
-  },
-  "setupTwoStepLogin": {
-    "message": "Postavi dvostruku autentifikaciju"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti."
-  },
-  "remindMeLater": {
-    "message": "Podsjeti me kasnije"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Imaš li pouzdan pristup svojoj e-pošti: $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ne, nemam"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Da, pouzdano mogu pristupiti svojoj e-pošti"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Uključi prijavu dvostrukom autentifikacijom"
-  },
-  "changeAcctEmail": {
-    "message": "Promjeni e-poštu računa"
-  },
   "removeMembers": {
     "message": "Ukloni članove"
   },
@@ -10349,22 +10304,28 @@
     "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Vjeruj i potvrdi korisnika"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Vjeruj organizaciji"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Vjeruj"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Nemoj vjerovati"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Ne dozvoli članovima otključavanje računa PIN-om."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ planovi nemaju pristup stvarnim zapisima događaja",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Omogući puni pristup zapisnicima događaja organizacije nadogradnjom na plan Teams ili Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Nadogradi za stvarne podatke dnevnika događaja"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "Ovi događaji su samo primjeri i ne odražavaju stvarne događaje unutar tvoje Bitwarden organizacije."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Uštedi vrijeme s auto-ispunom"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Uključi",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "web stranicu",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "kako bi ova prijava bila predložena u auto-ispuni.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "S karticama jednostavno i sigurno automatski ispunjavaš obrasce za plaćanje."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Pojednostavi stvaranje računa"
+  },
+  "newIdentityNudgeBody": {
+    "message": "S identitetima brzo automatski ispunjavaš duge registracijske i kontaktne obrasce."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Čuvaj svoje osjetljive podatke na sigurnom"
+  },
+  "newNoteNudgeBody": {
+    "message": "S bilješkama sigurno pohrani svoje osjetljive podatke poput podataka o banci ili osiguranju."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Pohrani svoje ključeve i poveži se sa SSH agentom za brzu, šifriranu autentifikaciju.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Saznaj više o SSH agentu",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Saznaj više o SSH agentu"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

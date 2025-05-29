@@ -1,8 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
+import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -18,8 +16,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -34,10 +34,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
+import { TwoFactorAuthComponentCacheService } from "./two-factor-auth-component-cache.service";
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
@@ -72,6 +75,8 @@ describe("TwoFactorAuthComponent", () => {
   let anonLayoutWrapperDataService: MockProxy<AnonLayoutWrapperDataService>;
   let mockEnvService: MockProxy<EnvironmentService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
+  let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
+  let mockAuthService: MockProxy<AuthService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -106,11 +111,16 @@ describe("TwoFactorAuthComponent", () => {
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
+    mockAuthService = mock<AuthService>();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
 
     anonLayoutWrapperDataService = mock<AnonLayoutWrapperDataService>();
+
+    mockTwoFactorAuthCompCacheService = mock<TwoFactorAuthComponentCacheService>();
+    mockTwoFactorAuthCompCacheService.getCachedData.mockReturnValue(null);
+    mockTwoFactorAuthCompCacheService.init.mockResolvedValue();
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -155,7 +165,9 @@ describe("TwoFactorAuthComponent", () => {
       }),
     };
 
-    selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(undefined);
+    selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(
+      mockUserDecryptionOpts.withMasterPassword,
+    );
     mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
 
     TestBed.configureTestingModule({
@@ -194,6 +206,11 @@ describe("TwoFactorAuthComponent", () => {
         { provide: EnvironmentService, useValue: mockEnvService },
         { provide: AnonLayoutWrapperDataService, useValue: anonLayoutWrapperDataService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
+        {
+          provide: TwoFactorAuthComponentCacheService,
+          useValue: mockTwoFactorAuthCompCacheService,
+        },
+        { provide: AuthService, useValue: mockAuthService },
       ],
     });
 
@@ -250,7 +267,6 @@ describe("TwoFactorAuthComponent", () => {
         // Assert
         expect(mockLoginStrategyService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          "",
         );
       });
 
@@ -286,6 +302,7 @@ describe("TwoFactorAuthComponent", () => {
 
       it("navigates to the component's defined success route (vault is default) when the login is successful", async () => {
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
+        mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
 
         // Act
         await component.submit("testToken");
@@ -307,13 +324,14 @@ describe("TwoFactorAuthComponent", () => {
         async (authType, expectedRoute) => {
           mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
           currentAuthTypeSubject.next(authType);
+          mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
 
           // Act
           await component.submit("testToken");
 
           // Assert
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-          expect(mockRouter.navigate).toHaveBeenCalledWith(["lock"], {
+          expect(mockRouter.navigate).toHaveBeenCalledWith([expectedRoute], {
             queryParams: {
               identifier: component.orgSsoIdentifier,
             },

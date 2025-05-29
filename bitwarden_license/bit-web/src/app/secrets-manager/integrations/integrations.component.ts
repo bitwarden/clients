@@ -6,6 +6,7 @@ import { Integration } from "@bitwarden/web-vault/app/admin-console/organization
 @Component({
   selector: "sm-integrations",
   templateUrl: "./integrations.component.html",
+  standalone: false,
 })
 export class IntegrationsComponent {
   private integrationsAndSdks: Integration[] = [];

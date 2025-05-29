@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всички приложения"
   },
+  "appLogoLabel": {
+    "message": "Лого на Битуорден"
+  },
   "criticalApplications": {
     "message": "Важни приложения"
   },
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Отбелязване на приложението като важно"
   },
-  "appsMarkedAsCritical": {
-    "message": "Приложения, отбелязани като важни"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Приложение"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Тези членове се вписват в приложенията със слаби, преизползвани или разобличени пароли."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Няма членове, които се вписват в приложенията със слаби, преизползвани или разобличени пароли."
+  },
   "atRiskApplicationsDescription": {
     "message": "Тези приложения имат слаби, преизползвани или разобличени пароли."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Няма приложения със слаби, преизползвани или разобличени пароли."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Тези членове се вписват в $APPNAME$ със слаби, преизползвани или разобличени пароли.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Няма членове в риск за $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Папка"
   },
-  "newCustomField": {
-    "message": "Ново допълнително поле"
-  },
   "value": {
     "message": "Стойност"
-  },
-  "dragToSort": {
-    "message": "Подредба чрез влачене"
-  },
-  "dragToReorder": {
-    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -4072,7 +4081,7 @@
   "updateBrowser": {
     "message": "Обновяване на браузъра"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Създаване на Вашата информация относно рисковете…"
   },
   "updateBrowserDesc": {
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "След смяната на ключа за шифриране ще трябва да се отпишете и след това да се впишете в регистрацията си във всички приложения на Битуорден, които ползвате (като мобилното приложение и разширенията за браузъри). Ако не се отпишете и впишете повторно (за да получите достъп до новия ключ), рискувате да повредите записите си. Сега ще се пробва да бъдете отписани автоматично, това обаче може да се забави."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Всички шифрирани вече изнесени данни ще станат безполезни."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Всички изнасяния ограничени от акаунта, които сте запазили, ще станат невалидни."
   },
   "subscription": {
     "message": "Абонамент"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Вашата настояща организация има политика, която не позволява да участвате в повече от една организация. Моля свържете се с администратора на организацията или се впишете с друг Bitwarden потребител."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Членовете, които не са собственици или администратори и са членове на други организации ще бъдат премахнати от тази организация."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "На членовете, които не отговарят на това условие, ще бъдат отнети правомощията, докато не напуснат всички останали организации. Администраторите не подлежат на това ограничение, така че те ще могат да възстановяват правомощията на членовете, след като отговорят на условието."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Уникална фраза:"
   },
-  "removeUsers": {
-    "message": "Премахване на потребителите"
-  },
-  "revokeUsers": {
-    "message": "Отнемане на достъпа на потребители"
-  },
-  "restoreUsers": {
-    "message": "Възстановяване на достъпа на потребители"
-  },
   "error": {
     "message": "Грешка"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Free Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Няма спонсорирани семейни планове"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Спонсорираните семейни планове за не-членове ще се показват тук"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Членовете на организацията Ви могат да се възползват от безплатен семеен план за Битуорден. Можете да спонсорирате безплатния семеен план и за служителите, които не са членове на организацията Ви в Битуорден. Спонсорирането на не-членове изисква свободно място в организацията Ви."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "You and your family are eligible for Free Bitwarden Families. Redeem with your personal email to keep your data secure even when you are not at work."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Redeem your Free Bitwarden for Families plan today to keep your data secure even when you are not at work."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "Семейният план на Битуорден включва"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium access for up to 6 users"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Споделени колекции за семейни тайни"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Споделени колекции за членове на семейството"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Не можете да приложите спонсориране към $EMAIL$, тъй като този потребител е член на организацията Ви.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Връзката е с изтекла давност. Помолете спонсора да изпрати отново предложението."
@@ -6371,8 +6404,8 @@
   "redeemedAccount": {
     "message": "Регистрацията е присвоена"
   },
-  "revokeAccount": {
-    "message": "Revoke account $NAME$",
+  "revokeAccountMessage": {
+    "message": "Отнемане на достъпа на $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ използва еднократно удостоверяване със собствен сървър за ключове. Членовете на тази организация вече нямат нужда от главна парола за вписване.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си."
+  },
+  "keyConnectorDomain": {
+    "message": "Домейн на конектора за ключове"
   },
   "leaveOrganization": {
     "message": "Напускане на организацията"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Следвайте стъпките по-долу, за да завършите вписването."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването си чрез устройството за удостоверяване."
+  },
   "launchDuo": {
     "message": "Стартиране на DUO"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Свързването на домейн позволява на членовете да пропускат полето за идентификатор за еднократно удостоверяване по време на вписване чрез този метод."
   },
-  "verifyDomain": {
-    "message": "Потвърждаване на домейна"
-  },
-  "reverifyDomain": {
-    "message": "Повторно потвърждаване на домейна"
-  },
   "copyDnsTxtRecord": {
     "message": "Копирайте записа TXT от DNS"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Копирайте и поставете записа TXT в системата на своя доставчик на DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде потвърден."
-  },
-  "automaticDomainVerification": {
-    "message": "Автоматично потвърждаване на домейн"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Битуорден ще се опита да потвърди домейна 3 пъти през първите 72 часа. Ако той не може да бъде потвърден, проверете записа за DNS в сървъра си и направете потвърждаването ръчно. Домейнът ще бъде премахнат от организацията Ви след 7 дни, ако не бъде потвърден."
-  },
-  "invalidDomainNameMessage": {
-    "message": "Неправилен формат. Пример: mydomain.com. Под-домейните изискват всеки отделен запис да бъде потвърден."
   },
   "removeDomain": {
     "message": "Премахване на домейна"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Домейнът е запазен"
   },
-  "domainVerified": {
-    "message": "Домейнът е потвърден"
-  },
   "duplicateDomainError": {
     "message": "Не може да заявите един и същ домейн повече от веднъж."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "Домейнът $DOMAIN$ не е потвърден. Проверете записа в DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Потвърден"
-  },
-  "domainStatusUnverified": {
-    "message": "Непотвърден"
   },
   "domainNameTh": {
     "message": "Име"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "Премахнат е домейн $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "Домейнът $DOMAIN$ е потвърден",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "Домейнът $DOMAIN$ не е потвърден",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Покана на член"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Изисква потвърждение"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Управление на плащанията от Портала за доставчици"
   },
+  "continueSettingUp": {
+    "message": "Продължете настройването на Битуорден"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Продължете настройването на безплатния пробен период на Буторден"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Продължете настройването на Управителя на пароли Битуорден"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на пароли на Буторден"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Продължете настройването на Управлелието на тайни в Битуорден"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Продължете настройването на безплатния пробен период на Управлението на тайни на Буторден"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "removeMembers": {
     "message": "Премахване на членовете"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Да не се дава доверие"
   },
+  "organizationNotTrusted": {
+    "message": "Организацията не е доверена"
+  },
   "emergencyAccessTrustWarning": {
     "message": "С оглед на сигурността на акаунта Ви, потвърдете само, ако сте дали на този потребител достъп за спешни случаи и ако отпечатъкът му съвпада с това, което се вижда в акаунта му"
   },
   "orgTrustWarning": {
     "message": "С оглед на сигурността на акаунта Ви, продължете само, ако сте член на тази организация, ако възстановяването на акаунта Ви е включено и ако отпечатъкът показан по-долу съвпада с този на организацията."
+  },
+  "orgTrustWarning1": {
+    "message": "Тази организация има политика от плана за големи организации, която ще Ви включи в схемата за възстановяване на акаунти. Това включване ще позволи на администраторите да променят паролата Ви. Продължете само, ако разпознавате тази организация и уникалната фраза показана по-долу съвпада с отпечатъка на организацията."
   },
   "trustUser": {
     "message": "Даване на доверие на потребителя"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
   },
-  "limitedEventLogs": {
-    "message": "Плановете от тип „$PRODUCT_TYPE$“ нямат достъп до истинските журнали на събитията",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "За Вашата организация не се съхраняват журнали за събитията. Надградете до Екипния план или този за големи организации, за да получите пълен достъп до журналите на организацията."
   },
-  "upgradeForFullEvents": {
-    "message": "Получете пълен достъп до журналите на събитията за организациите като надградите до Екипния план или този за Големи организации."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Надградете за достъп до истинските журнали на събитията"
+  "upgradeEventLogTitleMessage": {
+    "message": "Надградете, за да виждате журналите за събития от организацията си."
   },
   "upgradeEventLogMessage": {
     "message": "Тези събития са само за пример и не отразяват истинските събития във Вашата организация."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "Нова бизнес единица"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Спестете време с автоматично попълване"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Безпроблемни плащания"
+  },
+  "newCardNudgeBody": {
+    "message": "С възможността за запазване на карти, можете лесно да ги попълвате автоматично във формулярите – сигурно и точно."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Опростено създаване на акаунти"
+  },
+  "newIdentityNudgeBody": {
+    "message": "С възможността за запазване на самоличности, можете лесно да попълвате автоматично дълги формуляри за регистрация или връзка с уеб сайт."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Пазете тайните си на сигурно място"
+  },
+  "newNoteNudgeBody": {
+    "message": "С възможността за запазване на бележки, можете да съхранявате тайна информация, като например банкови и застрахователни данни."
+  },
+  "newSshNudgeTitle": {
+    "message": "Улеснен достъп за разработчици чрез SSH"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Повторно пускане"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Въведете кода от описанието на трансакцията в страницата за абонаменти на доставчика, за да потвърдите банковата сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
+  },
+  "clickPayWithPayPal": {
+    "message": "Моля, натиснете бутона за плащане с PayPal, за да добавите платежния си метод."
   }
 }

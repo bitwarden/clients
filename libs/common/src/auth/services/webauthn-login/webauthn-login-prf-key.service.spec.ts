@@ -21,7 +21,7 @@ describe("WebAuthnLoginPrfKeyService", () => {
 
       const result = await service.createSymmetricKeyFromPrf(randomBytes(32));
 
-      expect(result.key.length).toBe(64);
+      expect(result.toEncoded().length).toBe(64);
     });
   });
 });

@@ -1,6 +1,9 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "Kõik rakendused"
+  },
+  "appLogoLabel": {
+    "message": "Bitwardeni logo"
   },
   "criticalApplications": {
     "message": "Critical applications"
@@ -21,7 +24,7 @@
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
   "dataLastUpdated": {
-    "message": "Data last updated: $DATE$",
+    "message": "Viimati uuendatud: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -30,19 +33,19 @@
     }
   },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "Teavitatud liikmed"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Lõpeta liikmesus"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Taasta liikmesus"
   },
   "cannotRestoreAccessError": {
-    "message": "Cannot restore organization access"
+    "message": "Ei õnnestunud taastada ligipääsu organisatsioonile"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "Kõik rakendused ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -51,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Loo uus kirje"
   },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
@@ -63,7 +66,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "Teavitatud liikmed ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Application"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -312,7 +330,7 @@
     "message": "Kaardi turvakood (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "Kaardi turvakood / CVV"
   },
   "identityName": {
     "message": "Identiteedi nimi"
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Kaust"
   },
-  "newCustomField": {
-    "message": "Uus kohandatud väli"
-  },
   "value": {
     "message": "Väärtus"
-  },
-  "dragToSort": {
-    "message": "Lohista sorteerimiseks"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Tekst"
@@ -441,7 +450,7 @@
     "message": "Boolean"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Märkeruut"
   },
   "cfTypeLinked": {
     "message": "Seotud",
@@ -487,7 +496,7 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Uus kaust"
   },
   "folderName": {
     "message": "Folder name"
@@ -838,25 +847,25 @@
     "message": "Copy address"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopeeri telefoninumber"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopeeri e-posti aadress"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopeeri firma nimi"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopeeri isikukood"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopeeri passi number"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopeeri litsentsi number"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Kopeeri nimi"
   },
   "me": {
     "message": "Mina"
@@ -1037,7 +1046,7 @@
     "message": "Ei"
   },
   "location": {
-    "message": "Location"
+    "message": "Asukoht"
   },
   "loginOrCreateNewAccount": {
     "message": "Logi sisse või loo uus konto."
@@ -1064,13 +1073,13 @@
     "message": "Kasuta teist logimismeetodit"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Logi sisse pääsuvõtmega"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Tere tulemast tagasi"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Vigane pääsuvõti. Palun proovi uuesti."
@@ -1154,7 +1163,7 @@
     "message": "Konto loomine"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Esimest korda siin?"
   },
   "setAStrongPassword": {
     "message": "Määra tugev parool"
@@ -1172,16 +1181,16 @@
     "message": "Logi sisse"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Logi sisse Bitwardenisse"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Sisesta oma emailile saadetud kood"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Sisesta kood oma autentimisrakendusest"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Autentimiseks vajuta nuppu oma YubiKey'l"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1190,25 +1199,25 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Kinnitage oma Identiteet"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Me ei tunne seda seadet. Enda identiteedi kinnitamiseks palun sisesta oma emailile saadetud kood."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Jätka sisse logimist"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Mis asi on seade?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Seade on ainulaadne Bitwardeni rakendus, kus sa oled sisse logitud. Rakenduse uuesti installimine, andmete kustutamine või küpsiste kustutamine võib tekitada olukorra, kus üks seade esineb mitu korda."
   },
   "logInInitiated": {
     "message": "Sisselogimine käivitatud"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Päring saadetud"
   },
   "submit": {
     "message": "Kinnita"
@@ -1263,16 +1272,16 @@
     "message": "Seaded"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "Konto e-maili aadress"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "Küsi vihjet"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "Küsi parooli vihjet"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
+    "message": "Sisesta oma e-maili aadress ja sulle saadetakse sinna parooli vihje"
   },
   "getMasterPasswordHint": {
     "message": "Tuleta ülemparooli vihjega meelde"
@@ -1330,7 +1339,7 @@
     "message": "Sinu hoidla on lukus."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Sinu konto on lukustatud"
   },
   "uuid": {
     "message": "UUID"
@@ -1397,7 +1406,7 @@
     "message": "Unlock Bitwarden on your device or on the "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Kas sa püüad praegu oma kontole sisse logida?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -1409,13 +1418,13 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Kinnita juurdepääs"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Keeldu juurdepääsu andmast"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "veebirakendus"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1424,7 +1433,7 @@
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Sinu seadmele saadeti teavitus"
   },
   "versionNumber": {
     "message": "Versioon $VERSION_NUMBER$",
@@ -1445,14 +1454,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ära küsi 30 päeva jooksul uuesti"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Vali teine meetod",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Kasuta taastamise koodi"
   },
   "insertU2f": {
     "message": "Sisesta oma turvaline võti arvuti USB porti. Kui sellel on nupp, siis vajuta seda."
@@ -1470,7 +1479,7 @@
     "message": "Kaheastmelise sisselogimise valikud"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Vali kaheastmelise sisselogimise meetod"
   },
   "recoveryCodeDesc": {
     "message": "Sul ei ole ligipääsu ühelegi kaheastmelise kinnitamise teenusele? Kasuta taastamise koodi, et kaheastmeline kinnitamine oma kontol välja lülitada."
@@ -1515,7 +1524,7 @@
     "message": "(pärineb FIDO'lt)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Ava uuel vahelehel"
   },
   "emailTitle": {
     "message": "E-post"
@@ -1682,7 +1691,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Väldi raskesti eristatavaid tähti ja sümboleid",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
@@ -3913,7 +3922,7 @@
     "message": "Device Type"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP aadress"
   },
   "confirmLogIn": {
     "message": "Confirm login"
@@ -4072,8 +4081,8 @@
   "updateBrowser": {
     "message": "Uuenda brauserit"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Kasutad brauserit, mida ei toetata. Veebihoidla ei pruugi hästi töötada."
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Pärast krüpteerimisvõtme uuendamist pead kõikides seadmetes, kus Bitwardeni rakendust kasutad, oma kontosse uuesti sisse logima (nt nutitelefonis ja brauseris). Välja- ja sisselogimise (mis ühtlasi laadib ka uue krüpteerimisvõtme) nurjumine võib tingida andmete riknemise. Üritame sinu seadmetest ise välja logida, aga see võib võtta natukene aega."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Mistahes krüpteeritud, eksporditud andmed muutuvad samuti vigaseks."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Tellimus"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Sinu praeguse organisatsiooni poliitika kohaselt ei saa sa olla rohkem kui ühe organisatsiooni liige. Palun kontakteeru oma praeguse organisatsiooni administraatoritega või kasuta liitumiseks teist Bitwardeni kontot."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Sisselülitamisel eemaldatakse organisatsioonist liikmed, kes on juba mõne teise organisatsiooniga liitunud. See ei puuduta liikmeid, kelle staatus on Omanik või Administraator."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "Kasutajate eemaldamine"
-  },
-  "revokeUsers": {
-    "message": "Revoke users"
-  },
-  "restoreUsers": {
-    "message": "Restore users"
-  },
   "error": {
     "message": "Viga"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Tasuta Bitwarden Families pakett"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Sina ja su pere olete valitud tasuta Bitwarden Families paketi saamiseks. Lunasta see läbi oma emaili, et hoida oma andmed ohutus kohas isegi kui sa ei ole tööl."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Lunasta tasuta pakett Bitwarden for Families juba täna, et kaitsta oma andmeid isegi siis, kui sa ei ole tööl."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Pakett Bitwarden for Families sisaldab"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Ligipääs Preemiumile kuni kuuele inimesele"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Jagatud kogumikud pere saladuste talletamiseks"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "See link ei ole enam aktiivne. Uue lingi saamiseks kontakteeruge oma sponsoriga, et ta saadaks pakkumise uuesti."
@@ -6371,7 +6404,7 @@
   "redeemedAccount": {
     "message": "Account redeemed"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Vale kinnituskood"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Lahku organisatsioonist"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Launch Duo"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Connecting a domain allows members to skip the SSO identifier field during Login with SSO."
   },
-  "verifyDomain": {
-    "message": "Verify domain"
-  },
-  "reverifyDomain": {
-    "message": "Reverify domain"
-  },
   "copyDnsTxtRecord": {
     "message": "Copy DNS TXT record"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copy and paste the TXT record into your DNS Provider."
-  },
-  "domainNameInputHint": {
-    "message": "Example: mydomain.com. Subdomains require separate entries to be verified."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatic Domain Verification"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden will attempt to verify the domain 3 times during the first 72 hours. If the domain can’t be verified, check the DNS record in your host and manually verify. The domain will be removed from your organization in 7 days if it is not verified"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be verified."
   },
   "removeDomain": {
     "message": "Remove domain"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Domain saved"
   },
-  "domainVerified": {
-    "message": "Domain verified"
-  },
   "duplicateDomainError": {
     "message": "You can't claim the same domain twice."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ not verified. Check your DNS record.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Verified"
-  },
-  "domainStatusUnverified": {
-    "message": "Unverified"
   },
   "domainNameTh": {
     "message": "Name"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "Removed domain $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ verified",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ not verified",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Invite member"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Needs confirmation"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continue setting up your free trial of Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continue setting up your free trial of Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continue setting up your free trial of Bitwarden Secrets Manager"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "Remove members"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

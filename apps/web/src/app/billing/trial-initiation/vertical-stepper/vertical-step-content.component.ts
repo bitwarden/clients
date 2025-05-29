@@ -7,6 +7,7 @@ import { VerticalStep } from "./vertical-step.component";
 @Component({
   selector: "app-vertical-step-content",
   templateUrl: "vertical-step-content.component.html",
+  standalone: false,
 })
 export class VerticalStepContentComponent {
   @Output() onSelectStep = new EventEmitter<void>();

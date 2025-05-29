@@ -16,24 +16,21 @@ export type Aes256CbcKey = {
   encryptionKey: Uint8Array;
 };
 
+export type CoseKey = {
+  type: EncryptionType.CoseEncrypt0;
+  // Encryption key here refers to the cose-encoded and padded key. This MAY later be refactored to contain the actual key bytes, as is the case in the SDK
+  encryptionKey: Uint8Array;
+};
+
 /**
  *  A symmetric crypto key represents a symmetric key usable for symmetric encryption and decryption operations.
  *  The specific algorithm used is private to the key, and should only be exposed to encrypt service implementations.
  *  This can be done via `inner()`.
  */
 export class SymmetricCryptoKey {
-  private innerKey: Aes256CbcHmacKey | Aes256CbcKey;
-
-  key: Uint8Array;
-  encKey: Uint8Array;
-  macKey?: Uint8Array;
-  encType: EncryptionType;
+  private innerKey: Aes256CbcHmacKey | Aes256CbcKey | CoseKey;
 
   keyB64: string;
-  encKeyB64: string;
-  macKeyB64: string;
-
-  meta: any;
 
   /**
    * @param key The key in one of the permitted serialization formats
@@ -48,30 +45,20 @@ export class SymmetricCryptoKey {
         type: EncryptionType.AesCbc256_B64,
         encryptionKey: key,
       };
-      this.encType = EncryptionType.AesCbc256_B64;
-      this.key = key;
-      this.keyB64 = Utils.fromBufferToB64(this.key);
-
-      this.encKey = key;
-      this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
-
-      this.macKey = null;
-      this.macKeyB64 = undefined;
+      this.keyB64 = this.toBase64();
     } else if (key.byteLength === 64) {
       this.innerKey = {
         type: EncryptionType.AesCbc256_HmacSha256_B64,
         encryptionKey: key.slice(0, 32),
         authenticationKey: key.slice(32),
       };
-      this.encType = EncryptionType.AesCbc256_HmacSha256_B64;
-      this.key = key;
-      this.keyB64 = Utils.fromBufferToB64(this.key);
-
-      this.encKey = key.slice(0, 32);
-      this.encKeyB64 = Utils.fromBufferToB64(this.encKey);
-
-      this.macKey = key.slice(32);
-      this.macKeyB64 = Utils.fromBufferToB64(this.macKey);
+      this.keyB64 = this.toBase64();
+    } else if (key.byteLength > 64) {
+      this.innerKey = {
+        type: EncryptionType.CoseEncrypt0,
+        encryptionKey: key,
+      };
+      this.keyB64 = this.toBase64();
     } else {
       throw new Error(`Unsupported encType/key length ${key.byteLength}`);
     }
@@ -88,7 +75,7 @@ export class SymmetricCryptoKey {
    *
    * @returns The inner key instance that can be directly used for encryption primitives
    */
-  inner(): Aes256CbcHmacKey | Aes256CbcKey {
+  inner(): Aes256CbcHmacKey | Aes256CbcKey | CoseKey {
     return this.innerKey;
   }
 
@@ -115,6 +102,8 @@ export class SymmetricCryptoKey {
       encodedKey.set(this.innerKey.encryptionKey, 0);
       encodedKey.set(this.innerKey.authenticationKey, 32);
       return encodedKey;
+    } else if (this.innerKey.type === EncryptionType.CoseEncrypt0) {
+      return this.innerKey.encryptionKey;
     } else {
       throw new Error("Unsupported encryption type.");
     }

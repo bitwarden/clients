@@ -2,7 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
+
 import { View } from "../../../models/view/view";
+import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Attachment } from "../domain/attachment";
 
@@ -13,6 +16,10 @@ export class AttachmentView implements View {
   sizeName: string = null;
   fileName: string = null;
   key: SymmetricCryptoKey = null;
+  /**
+   * The SDK returns an encrypted key for the attachment.
+   */
+  encryptedKey: EncString | undefined;
 
   constructor(a?: Attachment) {
     if (!a) {
@@ -39,5 +46,38 @@ export class AttachmentView implements View {
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
     const key = obj.key == null ? null : SymmetricCryptoKey.fromJSON(obj.key);
     return Object.assign(new AttachmentView(), obj, { key: key });
+  }
+
+  /**
+   * Converts the AttachmentView to a SDK AttachmentView.
+   */
+  toSdkAttachmentView(): SdkAttachmentView {
+    return {
+      id: this.id,
+      url: this.url,
+      size: this.size,
+      sizeName: this.sizeName,
+      fileName: this.fileName,
+      key: this.encryptedKey?.toJSON(),
+    };
+  }
+
+  /**
+   * Converts the SDK AttachmentView to a AttachmentView.
+   */
+  static fromSdkAttachmentView(obj: SdkAttachmentView): AttachmentView | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const view = new AttachmentView();
+    view.id = obj.id ?? null;
+    view.url = obj.url ?? null;
+    view.size = obj.size ?? null;
+    view.sizeName = obj.sizeName ?? null;
+    view.fileName = obj.fileName ?? null;
+    view.encryptedKey = new EncString(obj.key);
+
+    return view;
   }
 }

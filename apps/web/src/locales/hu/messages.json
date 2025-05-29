@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Összes alkalmazás"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logó"
+  },
   "criticalApplications": {
     "message": "Kritikus alkalmazások"
   },
@@ -95,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
   },
   "application": {
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ezek a tagok gyenge, nyílt vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Ezek nem olyan tagok, akik gyenge, kitett vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ezeknél az alkalmazásoknál gyenge, nyílt vagy újra felhasznált jelszavak vannak."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Ezek nem gyenge, kitett vagy újrafelhasznált jelszavakkal rendelkező alkalmazások."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ezek a tagok gyenge, nyilvános vagy újrahasznált jelszavakkal jelentkeznek be $APPNAME$ alkalmazásba.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Nincsenek veszélyeztetett tagok $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Mappa"
   },
-  "newCustomField": {
-    "message": "Új egyedi mező"
-  },
   "value": {
     "message": "Érték"
-  },
-  "dragToSort": {
-    "message": "Húzás a rendezéshez"
-  },
-  "dragToReorder": {
-    "message": "Átrendezés áthúzással"
   },
   "cfTypeText": {
     "message": "Szöveg"
@@ -4072,7 +4081,7 @@
   "updateBrowser": {
     "message": "Böngésző frissítése"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "A kockázati betekintések generálása..."
   },
   "updateBrowserDesc": {
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Az el nem mentett titkosított exportok szintén érvénytelenné válnak."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
   },
   "subscription": {
     "message": "Előfizetés"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Jelenlegi szervezetének van olyan irányelve, amely nem engedélyezi, hogy több szervezethez csatlakozzunk. Lépjünk kapcsolatba szervezetünk adminisztrátorával vagy regisztráljunk egy másik Bitwarden fiókból."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "A szervezet azon tagjait, akik nem tulajdonosok vagy rendszergazdák, és már egy másik szervezet tagjai, eltávolítjáara kerülnek a szervezetből."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "A nem megfelelő tagok visszavont státuszba kerülnek mindaddig, amíg ki nem lépnek az összes többi szervezetből. Az adminisztrátorok mentesülnek és visszaállíthatják a tagokat, ha megfelelnek a megfelelőségnek."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Ujjlenyomat kifejezés:"
   },
-  "removeUsers": {
-    "message": "Felhasználók eltávolítása"
-  },
-  "revokeUsers": {
-    "message": "Felhasználók visszavonása"
-  },
-  "restoreUsers": {
-    "message": "Felhasználók helyreállítása"
-  },
   "error": {
     "message": "Hiba"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Díjmentes Bitwarden családi csomag"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Szponzorált családok"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Nincsenek szponzorált családok."
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "A szponzorált, nem-tag családok csomagjai itt jelennek meg."
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "A szervezet tagjai jogosultak a Free Bitwarden Families programra. Ingyenes Bitwarden Családokat szponzorálhatunk olyan alkalmazottak számára, akik nem tagjai Bitwarden szervezetének. A nem-tag szponzorálásához a szervezeten belül rendelkezésre álló hely szükséges."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Amikor eltávolítunk egy aktív szponzorációt, a szponzorált szervezet megújítási dátuma után elérhető lesz egy hely a szervezeten belül."
+  },
   "sponsoredFamiliesEligible": {
     "message": "A felhasználó és családja jogosult az ingyenes Bitwarden családok programra. Váltsuk ezt be személyes email címmel, hogy az adatok biztonságban legyenek még akkor is, amikor éppen nem dolgozunk."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Váltsuk be ingyenes Bitwarden családoknak előfizetést még ma, hogy az adatok biztonságban legyenek, még akkor is, amikor éppen nem dolgozunk."
   },
-  "sponsoredFamiliesInclude": {
+  "sponsoredFamiliesIncludeMessage": {
     "message": "A Bitwarden családoknak csomag tartalmazza:"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémium hozzáférés legfeljebb 6 felhasználónak"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Megosztott gyűjtemények a családi titkoknak"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Megosztott gyűjtemények a családi tagoknak"
+  },
+  "memberFamilies": {
+    "message": "Tag családok"
+  },
+  "noMemberFamilies": {
+    "message": "Nincsenek tag családok."
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Itt jelennek meg azok a tagok, akik beváltották a családi csomagokat."
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "A szervezet tagjai jogosultak a Free Bitwarden Families programra. Itt láthatjuk azokat a tagokat, akik szponzoráltak egy Családok szervezetet."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Nem lehet szponzorációt küldeni $EMAIL$ címre, mert az illető a szervezet tagja.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "A hivatkozás már nem érvényes. Kérjük a szponzortól az ajánlat újraküldését."
@@ -6371,7 +6404,7 @@
   "redeemedAccount": {
     "message": "Beváltott fiók"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "$NAME$ fiók visszavonása",
     "placeholders": {
       "name": {
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector tartomány"
   },
   "leaveOrganization": {
     "message": "Szervezet elhagyása"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Kövessük az alábbi lépéseket a bejelentkezés befejezéséhez."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Kövessük az alábbi lépéseket a biztonsági kulccsal bejelentkezés befejezéséhez."
+  },
   "launchDuo": {
     "message": "Duo indítása"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "A domain csatlakoztatása lehetővé teszi a tagoknak, hogy kihagyják az SSO azonosító mezőt az SSO-val bejelentkezés során."
   },
-  "verifyDomain": {
-    "message": "Domain ellenőrzése"
-  },
-  "reverifyDomain": {
-    "message": "Domain ismételt ellenőrzése"
-  },
   "copyDnsTxtRecord": {
     "message": "DNS TXT rekord másolása"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "A TXT rekord másolása és bellesztése a DNS szolgáltatóba."
-  },
-  "domainNameInputHint": {
-    "message": "Példa: mydomain.com. Az aldomainekhez külön bejegyzések szükségesek az ellenőrzéshez."
-  },
-  "automaticDomainVerification": {
-    "message": "Automatikus domain ellenőrzés"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "A Bitwarden az első 72 óra során háromszor kísérli meg a domain ellenőrzését. Ha a domain nem ellenőrizhető, ellenőrizzük a DNS rekordot a kiszolgálón és ellenőrizzük azt  manuálisan. A domain 7 napon belül eltávolításra kerül, ha nem kerül ellenőrzésre."
-  },
-  "invalidDomainNameMessage": {
-    "message": "A bemeneti formátum nem érvényes. Formátum: mydomain.com. Az aldomainekhez külön bejegyzések szükségesek az ellenőrzéshez."
   },
   "removeDomain": {
     "message": "Domain eltávolítása"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "A domain mentésre került."
   },
-  "domainVerified": {
-    "message": "A domain ellenőrzésre került."
-  },
   "duplicateDomainError": {
     "message": "Nem igényelhető kétszer ugyanaz a domain."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ nincs ellenőrizve. Ellenőrizzük a DNS rekordot.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Ellenőrzött"
-  },
-  "domainStatusUnverified": {
-    "message": "Nem ellenőrzött"
   },
   "domainNameTh": {
     "message": "Név"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "$DOMAIN$ domain eltávolításra került.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ ellenőrzésre került.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ nem lett ellenőrizve.",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Tag meghívása"
+  },
+  "addSponsorship": {
+    "message": "Szponzorálás hozzáadása"
   },
   "needsConfirmation": {
     "message": "Jóváhagyás szükséges"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "A számlázás kezelése a szolgáltatói portálon keresztül"
   },
+  "continueSettingUp": {
+    "message": "A Bitwarden beüzemelésének folytatása"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Folytassuk a Bitwarden ingyenes próbaverziójának beállítását."
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Folytassuk a Bitwarden jelszókezelő beüzemelését."
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Folytassuk a Bitwarden jelszókezelő ingyenes próbaverziójának beállítását."
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Folytassuk a Bitwarden titkos kód kezelő beüzemelését."
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Folytassuk a Bitwarden titkos kód kezelő ingyenes próbaverziójának beállítását."
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Fontos megjegyzés"
-  },
-  "setupTwoStepLogin": {
-    "message": "Kétfaktoros bejelentkezés beállítása"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email-címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre."
-  },
-  "remindMeLater": {
-    "message": "Emlékeztetés később"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Megbízható a hozzáférés $EMAIL$ email címhez?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nem, nem érem el"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Igen, megbízhatóan hozzáférek az emailjeimhez"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Kétlépéses bejelentkezés bekapcsolása"
-  },
-  "changeAcctEmail": {
-    "message": "Fiók email cím megváltoztatása"
-  },
   "removeMembers": {
     "message": "Tagok eltávolítása"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Nincs bizalom"
   },
+  "organizationNotTrusted": {
+    "message": "A szervezet nem megbízható."
+  },
   "emergencyAccessTrustWarning": {
     "message": "A ióka biztonság érdekében csak akkor erősítsük meg, ha vészhelyzeti hozzáférést biztosítottunk ehhez a felhasználóhoz és az ujjlenyomata megegyezik a fiókban megjelenítettekkel."
   },
   "orgTrustWarning": {
     "message": "A fiók biztonsága érdekében csak akkor folytassuk, ha tagja vagyunk ennek a szervezetnek, engedélyezve van a fiók helyreállítása és az alább megjelenített ujjlenyomat megegyezik a szervezet ujjlenyomatával."
+  },
+  "orgTrustWarning1": {
+    "message": "Ennek a szervezetnek van egy vállalati szabályzata, amely regisztrál bennünket a fiók helyreállítási szolgáltatásba. A regisztráció lehetővé teszi a szervezet rendszergazdái számára, hogy megváltoztassák a jelszavunkat. Csak akkor folytassuk, ha felismerjük ezt a szervezetet és az alább megjelenített ujjlenyomat-kifejezés megegyezik a szervezet ujjlenyomatával."
   },
   "trustUser": {
     "message": "Bizalom a felhasználónál"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nem engedjük meg a tagoknak, hogy PIN kóddal oldják fel fiókjuk zárolását."
   },
-  "limitedEventLogs": {
-    "message": "A $PRODUCT_TYPE$ csomagok nem férnek hozzá a valós eseménynaplókhoz.",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "A szervezet eseménynaplói nem tárolódnak. Váltsunk Teams vagy Enterprise csomagra, hogy teljes hozzáférést kapjunk a szervezet eseménynaplóihoz."
   },
-  "upgradeForFullEvents": {
-    "message": "Teljes hozzáférést kaphatunk a szervezeti eseménynaplókhoz, ha Teams vagy Enterprise csomagra térünk át."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Áttérés valós eseménynapló adatokhoz"
+  "upgradeEventLogTitleMessage": {
+    "message": "Frissítsünk, hogy megtekinthessük a szervezet eseménynaplóit."
   },
   "upgradeEventLogMessage": {
     "message": "Ezek az események csak példák és nem tükröznek valós eseményeket a Bitwarden szervezetén belül."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "Új üzleti egység"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Bevonás:",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Webhely",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "így ez a bejelentkezés automatikus kitöltési javaslatként jelenik meg.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Tároljuk el a kulcsokat és csatlakozzunk az SSH ügynökhöz a gyors, titkosított hitelesítéshez.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "További információ az SSH ügynökről",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Újraindítás"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "A bankszámlával történő fizetés csak az Egyesült Államokban élő ügyfelek számára érhető el. A bankszámlát igazolni kell. A fejlesztők a következő 1-2 munkanapon belül mikrobetétet teljesítenek. A bankszámla ellenőrzéséhez írjuk be az utalás leíró kódját a szervezet számlázási oldalán. Ha elmulasztjuk a bankszámla igazolását, az a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
+  },
+  "clickPayWithPayPal": {
+    "message": "Kattintás a Pay with PayPal gombra a fizetési mód hozzáadásához."
   }
 }

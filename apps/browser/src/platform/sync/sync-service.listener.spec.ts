@@ -3,6 +3,8 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { tagAsExternal } from "@bitwarden/common/platform/messaging/helpers";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
@@ -27,11 +29,18 @@ describe("SyncServiceListener", () => {
         const emissionPromise = firstValueFrom(listener);
 
         syncService.fullSync.mockResolvedValueOnce(value);
-        messages.next({ forceSync: true, allowThrowOnError: false, requestId: "1" });
+        messages.next({
+          forceSync: true,
+          options: { allowThrowOnError: false, skipTokenRefresh: false },
+          requestId: "1",
+        });
 
         await emissionPromise;
 
-        expect(syncService.fullSync).toHaveBeenCalledWith(true, false);
+        expect(syncService.fullSync).toHaveBeenCalledWith(true, {
+          allowThrowOnError: false,
+          skipTokenRefresh: false,
+        });
         expect(messageSender.send).toHaveBeenCalledWith(FULL_SYNC_FINISHED, {
           successfully: value,
           errorMessage: null,
@@ -45,11 +54,18 @@ describe("SyncServiceListener", () => {
       const emissionPromise = firstValueFrom(listener);
 
       syncService.fullSync.mockRejectedValueOnce(new Error("SyncError"));
-      messages.next({ forceSync: true, allowThrowOnError: false, requestId: "1" });
+      messages.next({
+        forceSync: true,
+        options: { allowThrowOnError: false, skipTokenRefresh: false },
+        requestId: "1",
+      });
 
       await emissionPromise;
 
-      expect(syncService.fullSync).toHaveBeenCalledWith(true, false);
+      expect(syncService.fullSync).toHaveBeenCalledWith(true, {
+        allowThrowOnError: false,
+        skipTokenRefresh: false,
+      });
       expect(messageSender.send).toHaveBeenCalledWith(FULL_SYNC_FINISHED, {
         successfully: false,
         errorMessage: "SyncError",

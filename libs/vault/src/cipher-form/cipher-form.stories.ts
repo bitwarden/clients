@@ -12,8 +12,11 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { ViewCacheService } from "@bitwarden/angular/platform/abstractions/view-cache.service";
+import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -47,6 +50,7 @@ import { CipherFormService } from "./abstractions/cipher-form.service";
 import { TotpCaptureService } from "./abstractions/totp-capture.service";
 import { CipherFormModule } from "./cipher-form.module";
 import { CipherFormComponent } from "./components/cipher-form.component";
+import { NewItemNudgeComponent } from "./components/new-item-nudge/new-item-nudge.component";
 import { CipherFormCacheService } from "./services/default-cipher-form-cache.service";
 
 const defaultConfig: CipherFormConfig = {
@@ -132,8 +136,23 @@ export default {
   component: CipherFormComponent,
   decorators: [
     moduleMetadata({
-      imports: [CipherFormModule, AsyncActionsModule, ButtonModule, ItemModule],
+      imports: [
+        CipherFormModule,
+        AsyncActionsModule,
+        ButtonModule,
+        ItemModule,
+        NewItemNudgeComponent,
+      ],
       providers: [
+        {
+          provide: NudgesService,
+          useValue: {
+            showNudge$: new BehaviorSubject({
+              hasBadgeDismissed: true,
+              hasSpotlightDismissed: true,
+            } as NudgeStatus),
+          },
+        },
         {
           provide: CipherFormService,
           useClass: TestAddEditFormService,

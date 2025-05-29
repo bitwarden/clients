@@ -12,6 +12,7 @@ import {
 
 @Component({
   templateUrl: "organization-billing-history-view.component.html",
+  standalone: false,
 })
 export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   loading = false;

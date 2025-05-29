@@ -26,6 +26,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -41,6 +43,8 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
   NewUser,
   ExistingUserUntrustedDevice,
@@ -284,7 +288,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -297,7 +300,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
   }
 

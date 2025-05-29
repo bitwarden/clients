@@ -17,7 +17,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class WebAuthnLoginStrategyData implements LoginStrategyData {
   tokenRequest: WebAuthnLoginTokenRequest;
-  captchaBypassToken?: string;
   credentials: WebAuthnLoginCredentials;
 
   static fromJSON(obj: Jsonify<WebAuthnLoginStrategyData>): WebAuthnLoginStrategyData {
@@ -82,7 +81,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
       }
 
       // decrypt prf encrypted private key
-      const privateKey = await this.encryptService.decryptToBytes(
+      const privateKey = await this.encryptService.unwrapDecapsulationKey(
         webAuthnPrfOption.encryptedPrivateKey,
         credentials.prfKey,
       );

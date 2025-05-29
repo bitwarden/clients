@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "כל היישומים"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "יישומים קריטיים"
   },
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "סמן יישום כקריטי"
   },
-  "appsMarkedAsCritical": {
-    "message": "יישומים המסומנים כקריטיים"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "יישום"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "חברים אלה נכנסו אל יישומים עם סיסמאות חלשות, חשופות, או משומשות."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "ליישומים האלה יש סיסמאות חלשות, חשופות, או משומשות."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "החברים האלה נכנסו אל $APPNAME$ עם סיסמאות חלשות, חשופות, או משומשות.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "תיקייה"
   },
-  "newCustomField": {
-    "message": "שדה מותאם אישית חדש"
-  },
   "value": {
     "message": "ערך"
-  },
-  "dragToSort": {
-    "message": "גרור כדי למיין"
-  },
-  "dragToReorder": {
-    "message": "גרור כדי לסדר מחדש"
   },
   "cfTypeText": {
     "message": "טקסט"
@@ -4072,8 +4081,8 @@
   "updateBrowser": {
     "message": "עדכן דפדפן"
   },
-  "generatingRiskInsights": {
-    "message": "יוצר את תובנות הסיכון שלך..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "אתה משתמש בדפדפן אינטרנט שאיננו נתמך. כספת הרשת עלולה שלא לפעול כראוי."
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "לאחר עדכון מפתחות ההצפנה שלך, תתבקש לצאת ולהכנס שוב בכל אפליקציות Bitwarden שאתה משתמש בהן (האפליקציה לפלאפון או ההרחבה לדפדפן). אם לא תצא ותכנס שוב (פעולת הכניסה מורידה את המפתח החדש), יתכן שתתקל במידע שגוי. אנו ננסה לגרום ליציאה אוטומטית, אך יתכן שהדבר לא יקרה מיידית."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "כל הייצואים המוצפנים ששמרת יהפכו גם הם ללא תקפים."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "מנוי"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "לפי מדיניות הארגון שלך, אין באפשרותך להצטרף ליותר מארגון אחד. אנא צור קשר עם מנהלי הארגון שלך, או לחלופין - צור חשבון Bitwarden נפרד."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "חברי ארגון שאינם בעלים או מנהלים ושכבר חברים בארגון אחר יוסרו מהארגון שלך."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "חברים שאינם עומדים בדרישות במצב מבוטל עד שיעזבו את כל שאר הארגונים. מנהלים הם פטורים ויכולים לשחזר חברים ברגע שיעמדו בדרישות."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "הסר משתמשים"
-  },
-  "revokeUsers": {
-    "message": "בטל משתמשים"
-  },
-  "restoreUsers": {
-    "message": "שחזר משתמשים"
-  },
   "error": {
     "message": "שגיאה"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Bitwarden למשפחות בחינם"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "אתה והמשפחה שלך זכאים ל־Bitwarden למשפחות בחינם. ממש עם הדוא\"ל האישי שלך כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "ממש את תוכנית Bitwarden למשפחות בחינם שלך היום כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "התוכנית Bitwarden למשפחות כוללת"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "גישת פרימיום עד 6 משתמשים"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "אוספים משותפים עבור סודות משפחה"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "הקישור אינו חוקי עוד. אנא בקש מנותן החסות לשלוח שוב את ההצעה."
@@ -6371,8 +6404,8 @@
   "redeemedAccount": {
     "message": "החשבון מומש"
   },
-  "revokeAccount": {
-    "message": "בטל חשבון $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "קוד אימות שגוי"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ משתמש/ת ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית כבר לא נדרשת כדי להיכנס עבור חברים של ארגון זה.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "עזוב ארגון"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "פתח את Duo"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "חיבור דומיין מאפשר לחברים לדלג על שדה מזהה SSO במהלך כניסה עם SSO."
   },
-  "verifyDomain": {
-    "message": "אמת דומיין"
-  },
-  "reverifyDomain": {
-    "message": "אמת מחדש דומיין"
-  },
   "copyDnsTxtRecord": {
     "message": "העתק רשומת DNS TXT"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "העתק והדבק את רשומת ה־TXT אל ספק ה־DNS שלך."
-  },
-  "domainNameInputHint": {
-    "message": "דוגמה: mydomain.com. תת-דומיינים דורשים שרשומות נפרדות יאומתו."
-  },
-  "automaticDomainVerification": {
-    "message": "אימות דומיין אוטומטי"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden ינסה לאמת את הדומיין 3 פעמים במהלך 72 השעות הראשונות. אם הדומיין אינו ניתן לאימות, בדוק את רשומת ה־DNS במארח שלך ואמת באופן ידני. הדומיין יוסר מהארגון שלך תוך 7 ימים אם הוא לא מאומת"
-  },
-  "invalidDomainNameMessage": {
-    "message": "הקלט אינו בפורמט תקין. פורמט: mydomain.com. תת-דומיינים דורשים שרשומות נפרדות יאומתו."
   },
   "removeDomain": {
     "message": "הסר דומיין"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "דומיין נשמר"
   },
-  "domainVerified": {
-    "message": "דומיין אומת"
-  },
   "duplicateDomainError": {
     "message": "אתה לא יכול לדרוש את אותו הדומיין פעמיים."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ אינו מאומת. בדוק את רשומת ה־DNS שלך.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "מאומת"
-  },
-  "domainStatusUnverified": {
-    "message": "לא מאומת"
   },
   "domainNameTh": {
     "message": "שם"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "דומיין $DOMAIN$ הוסר",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ מאומת",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ אינו מאומת",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "הזמן חבר"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "צריך אישור"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "נהל חיובים מפורטל הספקים"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "המשך בהגדרת הניסיון החינמי של Bitwarden שלך"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "המשך בהגדרת הניסיון החינמי של מנהל הסיסמאות Bitwarden שלך"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "המשך בהגדרת הניסיון החינמי של מנהל הסודות Bitwarden שלך"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "הודעה חשובה"
-  },
-  "setupTwoStepLogin": {
-    "message": "הגדר כניסה דו־שלבית"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden ישלח קוד לדוא\"ל החשבון שלך כדי לאמת כניסות ממכשירים חדשים החל מפברואר 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "אתה יכול להגדיר כניסה דו־שלבית כדרך חלופית להגן על החשבון שלך או לשנות את הדוא\"ל שלך לאחד שאתה יכול לגשת אליו."
-  },
-  "remindMeLater": {
-    "message": "הזכר לי מאוחר יותר"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "יש לך גישה מהימנה לדוא\"ל שלך, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "לא, אין לי"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "כן, אני יכול לגשת לדוא\"ל שלי באופן מהימן"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "הפעל כניסה דו־שלבית"
-  },
-  "changeAcctEmail": {
-    "message": "שנה דוא\"ל חשבון"
-  },
   "removeMembers": {
     "message": "הסר חברים"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "אל תאפשר לחברים לבטל את נעילת החשבון שלהם עם PIN."
   },
-  "limitedEventLogs": {
-    "message": "לתוכניות מסוג $PRODUCT_TYPE$ אין גישה ליומני אירועים אמיתיים",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "קבל גישה מלאה ליומני אירועים של ארגון על ידי שדרוג לתוכנית לצוותים או ארגונים."
-  },
-  "upgradeEventLogTitle": {
-    "message": "שדרג עבור נתוני יומן אירועים אמיתיים"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "האירועים האלה הם דוגמאות בלבד ולא משקפים אירועים אמיתיים בתוך ארגון ה־Bitwarden שלך."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

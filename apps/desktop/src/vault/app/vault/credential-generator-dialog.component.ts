@@ -10,6 +10,7 @@ import {
   DialogService,
   ItemModule,
   LinkModule,
+  DialogRef,
 } from "@bitwarden/components";
 import {
   CredentialGeneratorHistoryDialogComponent,
@@ -19,9 +20,23 @@ import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 type CredentialGeneratorParams = {
-  onCredentialGenerated: (value?: string) => void;
+  /** @deprecated Prefer use of dialogRef.closed to retreive the generated value */
+  onCredentialGenerated?: (value?: string) => void;
   type: "password" | "username";
+  uri?: string;
 };
+
+export interface CredentialGeneratorDialogResult {
+  action: CredentialGeneratorDialogAction;
+  generatedValue?: string;
+}
+
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
+export enum CredentialGeneratorDialogAction {
+  Selected = "selected",
+  Canceled = "canceled",
+}
 
 @Component({
   standalone: true,
@@ -45,6 +60,7 @@ export class CredentialGeneratorDialogComponent {
   constructor(
     @Inject(DIALOG_DATA) protected data: CredentialGeneratorParams,
     private dialogService: DialogService,
+    private dialogRef: DialogRef<CredentialGeneratorDialogResult>,
     private i18nService: I18nService,
   ) {}
 
@@ -59,11 +75,15 @@ export class CredentialGeneratorDialogComponent {
   };
 
   applyCredentials = () => {
-    this.data.onCredentialGenerated(this.credentialValue);
+    this.data.onCredentialGenerated?.(this.credentialValue);
+    this.dialogRef.close({
+      action: CredentialGeneratorDialogAction.Selected,
+      generatedValue: this.credentialValue,
+    });
   };
 
   clearCredentials = () => {
-    this.data.onCredentialGenerated();
+    this.data.onCredentialGenerated?.();
   };
 
   onCredentialGenerated = (value: string) => {
@@ -75,9 +95,12 @@ export class CredentialGeneratorDialogComponent {
     this.dialogService.open(CredentialGeneratorHistoryDialogComponent);
   };
 
-  static open = (dialogService: DialogService, data: CredentialGeneratorParams) => {
-    dialogService.open(CredentialGeneratorDialogComponent, {
-      data,
-    });
-  };
+  static open(dialogService: DialogService, data: CredentialGeneratorParams) {
+    return dialogService.open<CredentialGeneratorDialogResult, CredentialGeneratorParams>(
+      CredentialGeneratorDialogComponent,
+      {
+        data,
+      },
+    );
+  }
 }

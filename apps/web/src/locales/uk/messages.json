@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Всі програми"
   },
+  "appLogoLabel": {
+    "message": "Логотип Bitwarden"
+  },
   "criticalApplications": {
     "message": "Критичні програми"
   },
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Позначити програму критичною"
   },
-  "appsMarkedAsCritical": {
-    "message": "Позначені критичні програми"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Програма"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ці учасники використовують у програмах слабкі, викриті, або повторювані паролі."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ці учасники використовують у $APPNAME$ слабкі, викриті, або повторювані паролі.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Тека"
   },
-  "newCustomField": {
-    "message": "Нове власне поле"
-  },
   "value": {
     "message": "Значення"
-  },
-  "dragToSort": {
-    "message": "Перетягніть, щоб відсортувати"
-  },
-  "dragToReorder": {
-    "message": "Потягніть, щоб упорядкувати"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -3324,10 +3333,10 @@
     "message": "Зовнішній ID – це незашифроване посилання, призначене для використання Bitwarden Directory Connector і API."
   },
   "ssoExternalId": {
-    "message": "SSO External ID"
+    "message": "Зовнішній ID SSO"
   },
   "ssoExternalIdDesc": {
-    "message": "SSO External ID is an unencrypted reference between Bitwarden and your configured SSO provider."
+    "message": "Зовнішній ID SSO – це незашифроване посилання між Bitwarden і вашим налаштованим провайдером SSO."
   },
   "nestCollectionUnder": {
     "message": "Розмістити збірку під"
@@ -4072,7 +4081,7 @@
   "updateBrowser": {
     "message": "Оновити браузер"
   },
-  "generatingRiskInsights": {
+  "generatingYourRiskInsights": {
     "message": "Генерується інформація щодо ризиків..."
   },
   "updateBrowserDesc": {
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте. Збій при виході та повторному вході може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Будь-які зашифровані експортування, які ви зберегли, також стануть недійсними."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Передплата"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Ваша організація має політику, що не дозволяє вам приєднуватися до більш, ніж однієї організації. Будь ласка, зв'яжіться з адміністратором вашої організації, або увійдіть з іншим обліковим записом Bitwarden."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Учасники організації, які не є власниками чи адміністраторами, але вже є учасниками іншої організації, будуть вилучені з вашої організації."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Учасникам, які не відповідають вимогам, буде призначено стан \"відкликано\" доки вони не покинуть інші організації. Адміністратори є винятком і можуть відновити учасників у разі відповідності вимогам."
@@ -5692,7 +5698,7 @@
     "message": "WebAuthn успішно підтверджено! Ви можете закрити цю вкладку."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "Новий пароль повинен відрізнятися від поточного."
   },
   "hintEqualsPassword": {
     "message": "Підказка повинна відрізнятися від пароля."
@@ -5890,16 +5896,7 @@
     "message": "Цифровий відбиток"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase:"
-  },
-  "removeUsers": {
-    "message": "Вилучити користувачів"
-  },
-  "revokeUsers": {
-    "message": "Відкликати користувачів"
-  },
-  "restoreUsers": {
-    "message": "Відновити користувачів"
+    "message": "Фраза відбитка:"
   },
   "error": {
     "message": "Помилка"
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Bitwarden Families безплатно"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Спонсоровані родини"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "Немає спонсорованих родин"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Тут буде показано спонсоровані плани родин, які не є учасниками"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Ви можете спонсорувати безплатні плани Bitwarden Families для співробітників, які не є учасниками вашої організації Bitwarden. Для спонсорування користувачів, які не є учасниками організації, необхідні вільні місця в межах вашої організації."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "Якщо вилучити активне спонсорство, місце у вашій організації стане доступним після дати оновлення спонсорованої організації."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Ви та ваша сім'я маєте право на Bitwarden Families безплатно. Активуйте доступ з особистою електронною адресою, щоб зберігати свої дані захищеними навіть коли ви не на роботі."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Активуйте сьогодні безплатний тарифний план Bitwarden Families, щоб зберігати свої дані захищеними, навіть коли ви не на роботі."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Тариф Bitwarden Families включає"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "План Bitwarden Families включає"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Преміумдоступ до 6 користувачів"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Спільні збірки для обміну паролями"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Спільні збірки для учасників родини"
+  },
+  "memberFamilies": {
+    "message": "Родини учасників"
+  },
+  "noMemberFamilies": {
+    "message": "Родини, які не є учасниками"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Тут показуватимуться учасники, які скористалися родинним планом"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Учасники вашої організації мають право на безплатний план Bitwarden Families. Тут ви можете переглянути учасників, які спонсорують родинну організацію."
+  },
+  "organizationHasMemberMessage": {
+    "message": "Спонсорство не можна надіслати на $EMAIL$, оскільки цей користувач є учасником вашої організації.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Посилання більше не дійсне. Попросіть спонсора повторно надіслати пропозицію."
@@ -6371,7 +6404,7 @@
   "redeemedAccount": {
     "message": "Обліковий запис активовано"
   },
-  "revokeAccount": {
+  "revokeAccountMessage": {
     "message": "Відкликати обліковий запис $NAME$",
     "placeholders": {
       "name": {
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Покинути організацію"
@@ -6730,7 +6760,7 @@
     }
   },
   "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "message": "Будуть експортовані лише записи особистого сховища включно з вкладеннями, пов'язані з $EMAIL$. Записи сховища організації не експортуватимуться.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7248,6 +7278,9 @@
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Виконайте наведені нижче кроки, щоб завершити вхід."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Виконайте наведені нижче кроки, щоб завершити вхід за допомогою ключа безпеки."
   },
   "launchDuo": {
     "message": "Запустити Duo"
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Під'єднання домену дозволяє учасникам не використовувати поле ідентифікатора SSO під час входу з SSO."
   },
-  "verifyDomain": {
-    "message": "Підтвердити домен"
-  },
-  "reverifyDomain": {
-    "message": "Повторно підтвердити домен"
-  },
   "copyDnsTxtRecord": {
     "message": "Копіювати TXT-запис для DNS"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Скопіюйте і вставте TXT-запис у відповідне поле свого DNS-провайдера."
-  },
-  "domainNameInputHint": {
-    "message": "Зразок: mydomain.com. Для піддоменів потрібно підтвердити окремі записи."
-  },
-  "automaticDomainVerification": {
-    "message": "Автоматичне підтвердження доменів"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden намагатиметься підтвердити домен 3 рази впродовж 72 годин. Якщо не вдасться підтвердити домен, перевірте DNS-запис у вашого провайдера й підтвердьте його вручну. Якщо домен не буде підтверджено протягом 7 днів, його буде вилучено з вашої організації"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Неправильний формат введення. Правильний формат: mydomain.com. Для підтвердження піддоменів потрібно ввести окремі записи."
   },
   "removeDomain": {
     "message": "Вилучити домен"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Домен збережено"
   },
-  "domainVerified": {
-    "message": "Домен підтверджено"
-  },
   "duplicateDomainError": {
     "message": "Не можна запитати той самий домен двічі."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ не підтверджено. Перевірте свій DNS-запис.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Підтверджено"
-  },
-  "domainStatusUnverified": {
-    "message": "Не підтверджено"
   },
   "domainNameTh": {
     "message": "Ім'я"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "Домен $DOMAIN$ вилучено",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "Домен $DOMAIN$ підтверджено",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "Домен $DOMAIN$ не підтверджено",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Запросити учасника"
+  },
+  "addSponsorship": {
+    "message": "Додати спонсорство"
   },
   "needsConfirmation": {
     "message": "Потребує підтвердження"
@@ -8721,7 +8703,7 @@
     "message": "Дозволити видалення збірок лише власникам та адміністраторам"
   },
   "limitItemDeletionDescription": {
-    "message": "Limit item deletion to members with the Manage collection permissions"
+    "message": "Обмежити видалення записів для учасників, які мають дозвіл на керування збірками"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Керування рахунками на порталі провайдера"
   },
+  "continueSettingUp": {
+    "message": "Продовжити налаштування Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Продовжити налаштування безплатної пробної версії Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Продовжити налаштування менеджера паролів Bitwarden"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Продовжити налаштування безплатної пробної версії менеджера паролів Bitwarden"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Продовжити налаштування менеджера секретів Bitwarden"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Продовжити налаштування безплатної пробної версії менеджера секретів Bitwarden"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Важлива інформація"
-  },
-  "setupTwoStepLogin": {
-    "message": "Налаштувати двоетапну перевірку"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden надсилатиме код підтвердження на електронну пошту вашого облікового запису під час входу з нових пристроїв, починаючи з лютого 2025 року."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ви можете налаштувати двоетапну перевірку як альтернативний спосіб захисту свого облікового запису, або змінити електронну пошту на таку, до якої ви маєте доступ."
-  },
-  "remindMeLater": {
-    "message": "Нагадати пізніше"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Ви маєте постійний доступ до своєї електронної пошти $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ні, не маю"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Так, я маю постійний доступ до своєї електронної пошти"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Увімкнути двоетапну перевірку"
-  },
-  "changeAcctEmail": {
-    "message": "Змінити адресу е-пошти"
-  },
   "removeMembers": {
     "message": "Вилучити учасників"
   },
@@ -10343,31 +10298,37 @@
     "message": "Назва організації не може перевищувати 50 символів."
   },
   "rotationCompletedTitle": {
-    "message": "Key rotation successful"
+    "message": "Оновлення ключа пройшло успішно"
   },
   "rotationCompletedDesc": {
-    "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
+    "message": "Ваш головний пароль і ключі шифрування оновлено. Сеанси на всіх інших пристроях завершено."
   },
   "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
+    "message": "Підтвердити й довіряти користувачу"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Довіряти організації"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Довіряти"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Не довіряти"
+  },
+  "organizationNotTrusted": {
+    "message": "Це не довірена організація"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "Щоб захистити свій обліковий запис, підтверджуйте лише якщо ви надали цьому користувачу екстрений доступ, і його цифровий відбиток збігається з показаним в його обліковому записі."
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "Щоб захистити свій обліковий запис, продовжуйте лише якщо ви є учасником цієї організації, маєте ввімкнене відновлення облікового запису, і показаний нижче цифровий відбиток збігається з відбитком організації."
+  },
+  "orgTrustWarning1": {
+    "message": "Ця організація має політику компанії, яка розгорне для вас відновлення облікового запису. Розгортання дасть змогу адміністраторам організації змінювати ваш пароль. Продовжуйте тільки якщо ви впізнаєте організацію і наведена нижче фраза відбитка відповідає відбитку організації."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Довіряти користувачу"
   },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
@@ -10539,7 +10500,7 @@
     "message": "Призначені місця перевищують доступні місця."
   },
   "userkeyRotationDisclaimerEmergencyAccessText": {
-    "message": "Fingerprint phrase for $NUM_USERS$ contacts for which you have enabled emergency access.",
+    "message": "Фраза відбитка для контактів ($NUM_USERS$), яким ви активували екстрений доступ.",
     "placeholders": {
       "num_users": {
         "content": "$1",
@@ -10548,7 +10509,7 @@
     }
   },
   "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
-    "message": "Fingerprint phrase for the organization $ORG_NAME$ for which you have enabled account recovery.",
+    "message": "Фраза відбитка для організації $ORG_NAME$, якій ви активували відновлення облікового запису.",
     "placeholders": {
       "org_name": {
         "content": "$1",
@@ -10557,10 +10518,10 @@
     }
   },
   "userkeyRotationDisclaimerDescription": {
-    "message": "Rotating your encryption keys will require you to trust keys of any organizations that can recover your account, and any contacts that you have enabled emergency access for. To continue, make sure you can verify the following:"
+    "message": "Оновлення ваших ключів шифрування потребуватиме довіри ключам будь-яких організацій, які можуть відновлювати ваш обліковий запис, а також будь-яких контактів, яким ви активували екстрений доступ. Щоб продовжити, переконайтеся, що ви можете перевірити зазначене нижче:"
   },
   "userkeyRotationDisclaimerTitle": {
-    "message": "Untrusted encryption keys"
+    "message": "Недовірені ключі шифрування"
   },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Не дозволяти учасникам розблокувати свій обліковий запис за допомогою PIN-коду."
   },
-  "limitedEventLogs": {
-    "message": "Тарифні плани $PRODUCT_TYPE$ не мають доступу до реальних журналів подій",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Для вашої організації не зберігаються записи подій. Перейдіть на план Teams або Enterprise, щоб отримати повний доступ до подій організації."
   },
-  "upgradeForFullEvents": {
-    "message": "Отримайте повний доступ до журналу подій організації, передплативши тарифний план Teams або Enterprise."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Оновіть тарифний план, щоб переглядати реальні дані журналу подій"
+  "upgradeEventLogTitleMessage": {
+    "message": "Перейдіть на вищий тарифний план для доступу до записів подій вашої організації."
   },
   "upgradeEventLogMessage": {
     "message": "Ці події є лише зразками. Вони не відображають реальних подій у вашій організації Bitwarden."
@@ -10593,12 +10545,70 @@
     "message": "Безплатні організації можуть мати до 2 збірок. Передплатіть тарифний план, щоб додати більше збірок."
   },
   "businessUnit": {
-    "message": "Business Unit"
+    "message": "Бізнес-підрозділ"
   },
   "businessUnits": {
-    "message": "Business Units"
+    "message": "Бізнес-підрозділи"
   },
   "newBusinessUnit": {
-    "message": "New business unit"
+    "message": "Новий бізнес-підрозділ"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Заощаджуйте час з автозаповненням"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Включити",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Вебсайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "щоб цей запис з'являвся у пропозиціях автозаповнення.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Швидке оформлення замовлень"
+  },
+  "newCardNudgeBody": {
+    "message": "За допомогою записів для карток можна безпечно й точно заповнювати платіжні форми."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Спростіть створення облікових записів"
+  },
+  "newIdentityNudgeBody": {
+    "message": "За допомогою записів для посвідчень можна швидко заповнювати форми реєстрації чи контактів."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Захистіть свої конфіденційні дані"
+  },
+  "newNoteNudgeBody": {
+    "message": "За допомогою нотаток можна надійно зберігати конфіденційні дані, як-от банківську інформацію або страхування."
+  },
+  "newSshNudgeTitle": {
+    "message": "SSH-доступ для розробників"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Зберігайте свої ключі та під'єднуйтеся за допомогою SSH-агента для швидкої зашифрованої автентифікації.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Докладніше про SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Перезапустити"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Оплата з банківським рахунком доступна тільки для клієнтів у США. Вам необхідно буде підтвердити свій банківський рахунок. Ми здійснимо мікродепозит протягом наступних 1–2 робочих днів. Введіть код дескриптора з цього депозиту на сторінці передплати провайдера, щоб підтвердити банківський рахунок. Неможливість засвідчення банківського рахунку призведе до втрати платежу та припинення вашої передплати."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

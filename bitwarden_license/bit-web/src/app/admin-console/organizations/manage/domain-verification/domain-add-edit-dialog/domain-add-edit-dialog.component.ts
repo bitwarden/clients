@@ -2,19 +2,15 @@
 // @ts-strict-ignore
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { Subject, takeUntil, Observable, firstValueFrom } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrgDomainServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationDomainResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain.response";
 import { OrganizationDomainRequest } from "@bitwarden/common/admin-console/services/organization-domain/requests/organization-domain.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
@@ -28,11 +24,11 @@ export interface DomainAddEditDialogData {
 
 @Component({
   templateUrl: "domain-add-edit-dialog.component.html",
+  standalone: false,
 })
 export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   private componentDestroyed$: Subject<void> = new Subject();
 
-  accountDeprovisioningEnabled$: Observable<boolean>;
   domainForm: FormGroup;
 
   get domainNameCtrl(): FormControl {
@@ -50,20 +46,13 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     public dialogRef: DialogRef,
     @Inject(DIALOG_DATA) public data: DomainAddEditDialogData,
     private formBuilder: FormBuilder,
-    private cryptoFunctionService: CryptoFunctionServiceAbstraction,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private orgDomainService: OrgDomainServiceAbstraction,
     private validationService: ValidationService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private configService: ConfigService,
-  ) {
-    this.accountDeprovisioningEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AccountDeprovisioning,
-    );
-  }
+  ) {}
 
   // Angular Method Implementations
 
@@ -73,11 +62,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
         "",
         [
           Validators.required,
-          domainNameValidator(
-            (await firstValueFrom(this.accountDeprovisioningEnabled$))
-              ? this.i18nService.t("invalidDomainNameClaimMessage")
-              : this.i18nService.t("invalidDomainNameMessage"),
-          ),
+          domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
           uniqueInArrayValidator(
             this.data.existingDomainNames,
             this.i18nService.t("duplicateDomainError"),
@@ -223,22 +208,13 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t(
-            (await firstValueFrom(this.accountDeprovisioningEnabled$))
-              ? "domainClaimed"
-              : "domainVerified",
-          ),
+          message: this.i18nService.t("domainClaimed"),
         });
         this.dialogRef.close();
       } else {
         this.domainNameCtrl.setErrors({
           errorPassthrough: {
-            message: this.i18nService.t(
-              (await firstValueFrom(this.accountDeprovisioningEnabled$))
-                ? "domainNotClaimed"
-                : "domainNotVerified",
-              this.domainNameCtrl.value,
-            ),
+            message: this.i18nService.t("domainNotClaimed", this.domainNameCtrl.value),
           },
         });
         // For the case where user opens dialog and reverifies when domain name formControl disabled.

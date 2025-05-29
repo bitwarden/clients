@@ -1,5 +1,7 @@
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum DuoLaunchAction {
   DIRECT_LAUNCH,
   SINGLE_ACTION_POPOUT,

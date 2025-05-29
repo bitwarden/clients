@@ -4,13 +4,12 @@ import "zone.js";
 import "../platform/app/locales";
 
 import { NgModule } from "@angular/core";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { CalloutModule, DialogModule } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent } from "@bitwarden/vault";
 
-import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -27,6 +26,7 @@ import { PasswordHistoryComponent } from "../vault/app/vault/password-history.co
 import { ShareComponent } from "../vault/app/vault/share.component";
 import { VaultFilterModule } from "../vault/app/vault/vault-filter/vault-filter.module";
 import { VaultItemsComponent } from "../vault/app/vault/vault-items.component";
+import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 import { ViewCustomFieldsComponent } from "../vault/app/vault/view-custom-fields.component";
 import { ViewComponent } from "../vault/app/vault/view.component";
@@ -44,6 +44,8 @@ import { SharedModule } from "./shared/shared.module";
 
 @NgModule({
   imports: [
+    BrowserAnimationsModule,
+
     SharedModule,
     AppRoutingModule,
     VaultFilterModule,
@@ -52,17 +54,15 @@ import { SharedModule } from "./shared/shared.module";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
-    DecryptionFailureDialogComponent,
     NavComponent,
+    VaultV2Component,
   ],
   declarations: [
-    AccessibilityCookieComponent,
     AccountSwitcherComponent,
     AddEditComponent,
     AddEditCustomFieldsComponent,
     AppComponent,
     AttachmentsComponent,
-    VaultItemsComponent,
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
@@ -77,9 +77,10 @@ import { SharedModule } from "./shared/shared.module";
     ShareComponent,
     UpdateTempPasswordComponent,
     VaultComponent,
+    VaultItemsComponent,
     VaultTimeoutInputComponent,
-    ViewComponent,
     ViewCustomFieldsComponent,
+    ViewComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],

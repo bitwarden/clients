@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import {
   CdkVirtualScrollViewport,
-  CdkVirtualScrollableWindow,
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
+  CdkVirtualScrollableWindow,
 } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {

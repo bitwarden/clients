@@ -22,6 +22,8 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -30,7 +32,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DeviceType } from "@bitwarden/common/enums";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -97,6 +98,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SpotlightComponent,
     TypographyModule,
     VaultTimeoutInputComponent,
   ],
@@ -110,7 +112,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   hasVaultTimeoutPolicy = false;
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
-  showAutoPrompt = true;
   pinEnabled$: Observable<boolean> = of(true);
 
   form = this.formBuilder.group({
@@ -121,6 +122,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
   });
+
+  protected showAccountSecurityNudge$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.vaultNudgesService.showNudgeSpotlight$(NudgeType.AccountSecurity, userId),
+      ),
+    );
 
   private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -144,14 +153,10 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
+    private vaultNudgesService: NudgesService,
   ) {}
 
   async ngOnInit() {
-    // Firefox popup closes when unfocused by biometrics, blocking all unlock methods
-    if (this.platformUtilsService.getDevice() === DeviceType.FirefoxExtension) {
-      this.showAutoPrompt = false;
-    }
-
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
     const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
@@ -409,6 +414,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected async dismissAccountSecurityNudge() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      return;
+    }
+    await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
+  }
+
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {
     if (value === VaultTimeoutAction.LogOut) {
       const confirmed = await this.dialogService.openSimpleDialog({
@@ -460,8 +473,15 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
       const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unlockPinSet"),
+      });
+      await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
     } else {
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.vaultTimeoutSettingsService.clear(userId);
     }
   }
 

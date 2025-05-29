@@ -2,6 +2,9 @@
   "allApplications": {
     "message": "Όλες οι εφαρμογές"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden logo"
+  },
   "criticalApplications": {
     "message": "Κρίσιμες εφαρμογές"
   },
@@ -95,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Applications marked as critical"
   },
   "application": {
     "message": "Εφαρμογή"
@@ -137,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -419,17 +437,8 @@
   "folder": {
     "message": "Φάκελος"
   },
-  "newCustomField": {
-    "message": "Νέο προσαρμοσμένο πεδίο"
-  },
   "value": {
     "message": "Τιμή"
-  },
-  "dragToSort": {
-    "message": "Σύρετε για ταξινόμηση"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Κείμενο"
@@ -4072,8 +4081,8 @@
   "updateBrowser": {
     "message": "Ενημερώστε τον Browser"
   },
-  "generatingRiskInsights": {
-    "message": "Generating your risk insights..."
+  "generatingYourRiskInsights": {
+    "message": "Generating your Risk Insights..."
   },
   "updateBrowserDesc": {
     "message": "Χρησιμοποιείτε ένα μη υποστηριζόμενο browser. Το web vault ενδέχεται να μην λειτουργεί σωστά."
@@ -4539,8 +4548,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Μετά την ενημέρωση του κλειδιού κρυπτογράφησης, πρέπει να αποσυνδεθείτε και να επιστρέψετε σε όλες τις εφαρμογές Bitwarden που χρησιμοποιείτε αυτήν τη στιγμή (όπως η εφαρμογή για κινητά ή οι επεκτάσεις του προγράμματος περιήγησης). Η αποτυχία αποσύνδεσης και επαναφοράς (στην οποία γίνεται λήψη του νέου κλειδιού κρυπτογράφησης) ενδέχεται να προκαλέσει καταστροφή δεδομένων. Θα προσπαθήσουμε να αποσυνδεθείτε αυτόματα, ωστόσο αυτό μπορεί να καθυστερήσει."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Οποιεσδήποτε κρυπτογραφημένες εξαγωγές που έχετε αποθηκεύσει θα είναι επίσης άκυρες."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
   },
   "subscription": {
     "message": "Συνδρομή"
@@ -5059,9 +5068,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Ο τρέχων οργανισμός σας έχει μια πολιτική που δεν σας επιτρέπει να συμμετάσχετε σε περισσότερους από έναν οργανισμούς. Επικοινωνήστε με τους διαχειριστές του οργανισμού σας ή εγγραφείτε από διαφορετικό λογαριασμό Bitwarden."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Τα μέλη του οργανισμού που δεν είναι κάτοχοι ή διαχειριστές και είναι ήδη μέλη άλλου οργανισμού θα αφαιρεθούν από τον οργανισμό σας."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Non-compliant members will be placed in revoked status until they leave all other organizations. Administrators are exempt and can restore members once compliance is met."
@@ -5892,15 +5898,6 @@
   "fingerprintPhrase": {
     "message": "Fingerprint phrase:"
   },
-  "removeUsers": {
-    "message": "Αφαίρεση Χρηστών"
-  },
-  "revokeUsers": {
-    "message": "Ανάκληση χρηστών"
-  },
-  "restoreUsers": {
-    "message": "Επαναφορά χρηστών"
-  },
   "error": {
     "message": "Σφάλμα"
   },
@@ -6305,20 +6302,56 @@
   "sponsoredFamilies": {
     "message": "Δωρεάν Bitwarden Families"
   },
+  "sponsoredBitwardenFamilies": {
+    "message": "Sponsored families"
+  },
+  "noSponsoredFamiliesMessage": {
+    "message": "No sponsored families"
+  },
+  "nosponsoredFamiliesDetails": {
+    "message": "Sponsored non-member families plans will display here"
+  },
+  "sponsorshipFreeBitwardenFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organization. Sponsoring a non-member requires an available seat within your organization."
+  },
+  "sponsoredFamiliesRemoveActiveSponsorship": {
+    "message": "When you remove an active sponsorship, a seat within your organization will be available after the renewal date of the sponsored organization."
+  },
   "sponsoredFamiliesEligible": {
     "message": "Εσείς και η οικογένεια σας έχετε δικαίωμα για Δωρεάν Bitwarden Families. Εξαργυρώστε με το προσωπικό σας email για να διατηρείτε τα δεδομένα σας ασφαλή ακόμα και όταν δεν εργάζεστε."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Εξαργυρώστε το Δωρεάν Bitwarden Families σήμερα για να διατηρήσουν τα δεδομένα σας ασφαλή ακόμα και όταν δεν είστε στη δουλειά."
   },
-  "sponsoredFamiliesInclude": {
-    "message": "Το πλάνο Bitwarden Families περιλαμβάνει"
+  "sponsoredFamiliesIncludeMessage": {
+    "message": "The Bitwarden for Families plan includes"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Premium πρόσβαση για έως 6 χρήστες"
   },
-  "sponsoredFamiliesSharedCollections": {
-    "message": "Κοινές συλλογές για οικογενειακά μυστικά"
+  "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
+    "message": "Shared collections for family members"
+  },
+  "memberFamilies": {
+    "message": "Member families"
+  },
+  "noMemberFamilies": {
+    "message": "No member families"
+  },
+  "noMemberFamiliesDescription": {
+    "message": "Members who have redeemed family plans will display here"
+  },
+  "membersWithSponsoredFamilies": {
+    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
+  },
+  "organizationHasMemberMessage": {
+    "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
   },
   "badToken": {
     "message": "Ο σύνδεσμος δεν είναι πλέον έγκυρος. Παρακαλώ στείλτε ξανά την προσφορά."
@@ -6371,8 +6404,8 @@
   "redeemedAccount": {
     "message": "Εξαργυρωμένος Λογαριασμός"
   },
-  "revokeAccount": {
-    "message": "Ανάκληση λογαριασμού $NAME$",
+  "revokeAccountMessage": {
+    "message": "Revoke account $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6443,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ χρησιμοποιεί SSO με έναν αυτοεξυπηρετητή κλειδιών. Ένας κύριος κωδικός πρόσβασης δεν απαιτείται πλέον για να συνδεθείτε για τα μέλη αυτού του οργανισμού.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Αποχώρηση από τον οργανισμό"
@@ -7249,6 +7279,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Follow the steps below to finish logging in."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
   "launchDuo": {
     "message": "Εκκίνηση Duo"
   },
@@ -7803,12 +7836,6 @@
   "noDomainsSubText": {
     "message": "Connecting a domain allows members to skip the SSO identifier field during Login with SSO."
   },
-  "verifyDomain": {
-    "message": "Επαλήθευση τομέα"
-  },
-  "reverifyDomain": {
-    "message": "Επανάληψη επαλήθευσης τομέα"
-  },
   "copyDnsTxtRecord": {
     "message": "Αντιγραφή εγγραφής DNS TXT"
   },
@@ -7817,18 +7844,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Αντιγράψτε και επικολλήστε το αρχείο TXT στον πάροχο DNS σας."
-  },
-  "domainNameInputHint": {
-    "message": "Παράδειγμα: mydomain.com. Οι υπο-τομείς απαιτούν την επαλήθευση ξεχωριστών καταχωρήσεων."
-  },
-  "automaticDomainVerification": {
-    "message": "Αυτόματη Επαλήθευση Τομέα"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden will attempt to verify the domain 3 times during the first 72 hours. If the domain can’t be verified, check the DNS record in your host and manually verify. The domain will be removed from your organization in 7 days if it is not verified"
-  },
-  "invalidDomainNameMessage": {
-    "message": "Input is not a valid format. Format: mydomain.com. Subdomains require separate entries to be verified."
   },
   "removeDomain": {
     "message": "Αφαίρεση τομέα"
@@ -7842,9 +7857,6 @@
   "domainSaved": {
     "message": "Ο τομέας αποθηκεύτηκε"
   },
-  "domainVerified": {
-    "message": "Ο τομέας επαληθεύτηκε"
-  },
   "duplicateDomainError": {
     "message": "Δεν μπορείτε να διεκδικήσετε τον ίδιο τομέα δύο φορές."
   },
@@ -7856,21 +7868,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ not verified. Check your DNS record.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Επαληθευμένος"
-  },
-  "domainStatusUnverified": {
-    "message": "Μη επαληθευμένος"
   },
   "domainNameTh": {
     "message": "Όνομα"
@@ -7898,24 +7895,6 @@
   },
   "removedDomain": {
     "message": "Αφαιρέθηκε ο τομέας $DOMAIN$",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "Το $DOMAIN$ επαληθεύτηκε",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "Το $DOMAIN$ δεν επαληθεύτηκε",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -7982,6 +7961,9 @@
   },
   "inviteMember": {
     "message": "Πρόσκληση μέλους"
+  },
+  "addSponsorship": {
+    "message": "Add sponsorship"
   },
   "needsConfirmation": {
     "message": "Χρειάζεται επιβεβαίωση"
@@ -9443,11 +9425,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "continueSettingUp": {
+    "message": "Continue setting up Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Συνεχίστε τη ρύθμιση της δωρεάν δοκιμής σας στο Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continue setting up Bitwarden Password Manager"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Συνεχίστε τη ρύθμιση της δωρεάν δοκιμής σας στο Bitwarden Password Manager"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continue setting up Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Συνεχίστε τη ρύθμιση της δωρεάν δοκιμής σας στο Bitwarden Secrets Manager"
@@ -10209,42 +10200,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Important notice"
-  },
-  "setupTwoStepLogin": {
-    "message": "Set up two-step login"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
   "removeMembers": {
     "message": "Remove members"
   },
@@ -10360,11 +10315,17 @@
   "doNotTrust": {
     "message": "Do not trust"
   },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
   },
   "orgTrustWarning": {
     "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
     "message": "Trust user"
@@ -10571,20 +10532,11 @@
   "removeUnlockWithPinPolicyDesc": {
     "message": "Do not allow members to unlock their account with a PIN."
   },
-  "limitedEventLogs": {
-    "message": "$PRODUCT_TYPE$ plans do not have access to real event logs",
-    "placeholders": {
-      "product_type": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
+  "upgradeForFullEventsMessage": {
+    "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
   },
-  "upgradeForFullEvents": {
-    "message": "Get full access to organization event logs by upgrading to a Teams or Enterprise plan."
-  },
-  "upgradeEventLogTitle": {
-    "message": "Upgrade for real event log data"
+  "upgradeEventLogTitleMessage": {
+    "message": "Upgrade to see event logs from your organization."
   },
   "upgradeEventLogMessage": {
     "message": "These events are examples only and do not reflect real events within your Bitwarden organization."
@@ -10600,5 +10552,63 @@
   },
   "newBusinessUnit": {
     "message": "New business unit"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "restart": {
+    "message": "Restart"
+  },
+  "verifyProviderBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
   }
 }

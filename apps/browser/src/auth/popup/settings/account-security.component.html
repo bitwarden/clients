@@ -5,6 +5,13 @@
     </ng-container>
   </popup-header>
 
+  <bit-spotlight
+    *ngIf="showAccountSecurityNudge$ | async"
+    [title]="'unlockVault' | i18n"
+    [subtitle]="'unlockVaultDesc' | i18n"
+    (onDismiss)="dismissAccountSecurityNudge()"
+    class="tw-mb-6"
+  ></bit-spotlight>
   <div [formGroup]="form">
     <bit-section>
       <bit-section-header>
@@ -23,7 +30,7 @@
         <bit-form-control
           class="tw-pl-5"
           [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
-          *ngIf="this.form.value.biometric && showAutoPrompt"
+          *ngIf="this.form.value.biometric"
         >
           <input
             bitCheckbox

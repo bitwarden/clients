@@ -39,7 +39,6 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -184,6 +183,7 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -192,10 +192,15 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  DefaultEndUserNotificationService,
+  EndUserNotificationService,
+} from "@bitwarden/common/vault/notifications";
+import {
   CipherAuthorizationService,
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -402,8 +407,10 @@ export default class MainBackground {
   sdkService: SdkService;
   sdkLoadService: SdkLoadService;
   cipherAuthorizationService: CipherAuthorizationService;
+  endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
+  cipherEncryptionService: CipherEncryptionService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -716,6 +723,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -851,6 +859,11 @@ export default class MainBackground {
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -866,6 +879,7 @@ export default class MainBackground {
       this.stateProvider,
       this.accountService,
       this.logService,
+      this.cipherEncryptionService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1201,6 +1215,7 @@ export default class MainBackground {
       this.authService,
       this.autofillService,
       this.cipherService,
+      this.collectionService,
       this.configService,
       this.domainSettingsService,
       this.environmentService,
@@ -1320,6 +1335,14 @@ export default class MainBackground {
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.logService);
+
+    this.endUserNotificationService = new DefaultEndUserNotificationService(
+      this.stateProvider,
+      this.apiService,
+      this.notificationsService,
+      this.authService,
+      this.logService,
+    );
   }
 
   async bootstrap() {
@@ -1406,6 +1429,9 @@ export default class MainBackground {
           this.taskService.listenForTaskNotifications();
         }
 
+        if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
+          this.endUserNotificationService.listenForEndUserNotifications();
+        }
         resolve();
       }, 500);
     });
@@ -1494,9 +1520,6 @@ export default class MainBackground {
       }
 
       nextAccountStatus = await this.authService.getAuthStatus(userId);
-      const forcePasswordReset =
-        (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
-        ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
 
@@ -1504,8 +1527,6 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
-      } else if (forcePasswordReset) {
-        this.messagingService.send("update-temp-password", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
