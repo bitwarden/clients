@@ -27,7 +27,7 @@
     "message": "Ghi chú bảo mật"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "Khóa SSH"
   },
   "folders": {
     "message": "Thư mục"
@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Chào mừng bạn trở lại"
   },
   "moveToOrgDesc": {
     "message": "Chọn một tổ chức mà bạn muốn chuyển mục này đến. Việc chuyển đến một tổ chức sẽ chuyển quyền sở hữu mục này cho tổ chức đó. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này khi đã chuyển."
@@ -181,16 +181,16 @@
     "message": "Địa chỉ"
   },
   "sshPrivateKey": {
-    "message": "Private key"
+    "message": "Khóa riêng SSH"
   },
   "sshPublicKey": {
-    "message": "Public key"
+    "message": "Khóa công khai SSH"
   },
   "sshFingerprint": {
-    "message": "Fingerprint"
+    "message": "Mã vân tay SSH"
   },
   "sshKeyAlgorithm": {
-    "message": "Key type"
+    "message": "Loại thuật toán"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -205,55 +205,55 @@
     "message": "RSA 4096-Bit"
   },
   "sshKeyGenerated": {
-    "message": "A new SSH key was generated"
+    "message": "Khóa SSH mới đã được tạo"
   },
   "sshKeyWrongPassword": {
-    "message": "The password you entered is incorrect."
+    "message": "Mật khẩu bạn đã nhập không chính xác."
   },
   "importSshKey": {
-    "message": "Import"
+    "message": "Nhập khóa"
   },
   "confirmSshKeyPassword": {
-    "message": "Confirm password"
+    "message": "Xác nhận mật khẩu"
   },
   "enterSshKeyPasswordDesc": {
-    "message": "Enter the password for the SSH key."
+    "message": "Nhập mật khẩu cho khóa SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Enter password"
+    "message": "Nhập mật khẩu"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Vui lòng mở khóa kho lưu trữ của bạn để phê duyệt yêu cầu khóa SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "Hết thời gian chờ yêu cầu khóa SSH."
   },
   "enableSshAgent": {
-    "message": "Enable SSH agent"
+    "message": "Bật SSH agent"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Bật SSH agent để ký các yêu cầu SSH ngay từ kho lưu trữ Bitwarden của bạn."
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "SSH agent là một dịch vụ hướng tới các nhà phát triển, cho phép bạn ký các yêu cầu SSH trực tiếp từ kho lưu trữ Bitwarden của mình."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Yêu cầu cấp quyền khi sử dụng SSH agent"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Chọn cách xử lý các yêu cầu cấp quyền của SSH-agent."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "Ghi nhớ các quyền SSH"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Luôn luôn"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "Không bao giờ"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Ghi nhớ cho đến khi kho lưu trữ bị khóa"
   },
   "premiumRequired": {
     "message": "Cần có tài khoản cao cấp"
@@ -268,17 +268,17 @@
     "message": "Lỗi"
   },
   "decryptionError": {
-    "message": "Decryption error"
+    "message": "Lỗi giải mã"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden không thể giải mã các kho lưu trữ được liệt kê dưới đây."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "Contact customer success",
+    "message": "Liên hệ hỗ trợ khách hàng thành công",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "để tránh mất mát thêm dữ liệu.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
@@ -355,7 +355,7 @@
     "message": "Tạo mật khẩu"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Tạo cụm mật khẩu"
   },
   "type": {
     "message": "Loại"
@@ -412,16 +412,16 @@
     "message": "Khóa xác thực (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Khóa xác thực"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Tùy chọn tự động điền"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Trang web (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Trang web (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -431,46 +431,46 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Đã thêm trang web"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Thêm trang web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Xóa trang web"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Chủ sở hữu"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Thêm trường"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Chỉnh sửa trường"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Bạn có chắc muốn xóa vĩnh viễn tệp đính kèm này không?"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Loại trường"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Nhãn trường"
   },
   "add": {
-    "message": "Add"
+    "message": "Thêm"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Sử dụng các trường văn bản cho dữ liệu như câu hỏi bảo mật"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Sử dụng trường ẩn cho dữ liệu nhạy cảm như mật khẩu"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Dùng các ô tích chọn nếu bạn muốn tự động điền vào ô tích chọn của biểu mẫu, chẳng hạn như ghi nhớ email"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Sử dụng trường liên kết khi bạn gặp sự cố tự động điền trên một trang web cụ thể."
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
@@ -1184,7 +1184,7 @@
     "message": "Unlock with biometrics"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Mở khóa bằng mật khẩu chính"
   },
   "unlock": {
     "message": "Mở khóa"
@@ -1508,13 +1508,13 @@
     "message": "Chưa có mật khẩu."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Xóa lịch sử"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Không có gì để hiển thị"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Bạn chưa tạo gì gần đây"
   },
   "undo": {
     "message": "Hoàn tác"
@@ -1591,7 +1591,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Sao chép thành công"
   },
   "errorRefreshingAccessToken": {
     "message": "Lỗi làm mới khoá truy cập"
@@ -1824,13 +1824,13 @@
     "message": "Yêu cầu mật khẩu hoặc mã PIN khi mở"
   },
   "requirePasswordWithoutPinOnStart": {
-    "message": "Require password on app start"
+    "message": "Yêu cầu mật khẩu khi khởi động ứng dụng"
   },
   "recommendedForSecurity": {
     "message": "Đề xuất để tăng cường bảo mật."
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Lock with master password on restart"
+    "message": "Khóa bằng mật khẩu chính khi khởi động lại"
   },
   "deleteAccount": {
     "message": "Xóa tài khoản"
@@ -1842,10 +1842,10 @@
     "message": "Việc xóa tài khoản là vĩnh viễn và không thể hoàn tác."
   },
   "cannotDeleteAccount": {
-    "message": "Cannot delete account"
+    "message": "Không thể xóa tài khoản"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Không thể thực hiện hành động này vì tài khoản của bạn thuộc sở hữu của một tổ chức. Liên hệ với quản trị viên tổ chức của bạn để biết thêm chi tiết."
   },
   "accountDeleted": {
     "message": "Đã xóa tài khoản"
@@ -1958,7 +1958,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "out of $TOTAL$",
+    "message": "trong tổng số $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -1967,10 +1967,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Thông tin thẻ"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Chi tiết của $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1979,32 +1979,32 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Tìm hiểu thêm về các công cụ xác thực"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Sao chép khóa xác thực (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Làm cho xác thực 2 bước trở nên liền mạch"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden có thể lưu trữ và điền mã xác thực 2 bước. Hãy sao chép và dán khóa vào trường này."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden có thể lưu trữ và điền mã xác thực 2 bước. Hãy chọn biểu tượng máy ảnh để chụp mã QR xác thực trên trang web này, hoặc sao chép và dán khóa vào trường này."
   },
   "premium": {
-    "message": "Premium",
+    "message": "Phiên bản cao cấp",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Các tổ chức miễn phí không thể sử dụng tệp đính kèm"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 trường cần bạn chú ý."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ trường cần bạn chú ý.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2013,10 +2013,10 @@
     }
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Thẻ hết hạn"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Nếu bạn đã gia hạn, hãy cập nhật thông tin thẻ"
   },
   "verificationRequired": {
     "message": "Yêu cầu xác minh",
@@ -2512,14 +2512,14 @@
   "removedMasterPassword": {
     "message": "Đã xóa mật khẩu chính"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ đang sử dụng SSO với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Rời khỏi tổ chức"
@@ -2606,7 +2606,7 @@
     "message": "Đã khóa"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Kho lưu trữ đã bị khóa"
   },
   "unlocked": {
     "message": "Đã mở khóa"
@@ -3067,7 +3067,7 @@
     "message": "Quan trọng:"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Đang truy cập"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Bạn đã bị đăng xuất do khoá truy cập của bạn không thể giải mã. Vui lòng đăng nhập lại để khắc phục sự cố này."
@@ -3702,6 +3702,15 @@
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
   },
   "move": {
     "message": "Move"
