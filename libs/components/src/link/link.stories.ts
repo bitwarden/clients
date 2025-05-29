@@ -104,7 +104,7 @@ export const Anchors: StoryObj<AnchorLinkDirective> = {
     template: /*html*/ `
     <div class="tw-p-2" [ngClass]="{ 'tw-bg-transparent': linkType != 'contrast', 'tw-bg-primary-600': linkType === 'contrast' }">
       <div class="tw-block tw-p-2">
-        <a bitLink [linkType]="linkType" href="#">Anchor</a>
+        <a disabled bitLink [linkType]="linkType" href="#">Anchor</a>
       </div>
       <div class="tw-block tw-p-2">
         <a bitLink [linkType]="linkType" href="#">
