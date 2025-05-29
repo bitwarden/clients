@@ -233,7 +233,8 @@
     "depends": ["libnotify4", "libxtst6", "libnss3", "libxss1"]
   },
   "appImage": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "compression": "gzip"
   },
   "rpm": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
