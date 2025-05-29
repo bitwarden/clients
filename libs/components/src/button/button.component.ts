@@ -67,16 +67,6 @@ const buttonStyles: Record<ButtonType, string[]> = {
   },
 })
 export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
-  // @HostListener('click', ['$event'])
-  // onClick(event: KeyboardEvent | MouseEvent) {
-  //   if (this.disabledAttr()) {
-  //     console.log({event})
-  //     console.log('should prevent')
-  //     event.stopPropagation();
-  //     return false
-  //   }
-  // }
-
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",

@@ -1,4 +1,12 @@
-import { Input, HostBinding, Directive } from "@angular/core";
+import {
+  Input,
+  HostBinding,
+  Directive,
+  inject,
+  ElementRef,
+  AfterViewInit,
+  Renderer2,
+} from "@angular/core";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -88,10 +96,37 @@ export class AnchorLinkDirective extends LinkDirective {
 @Directive({
   selector: "button[bitLink]",
 })
-export class ButtonLinkDirective extends LinkDirective {
+export class ButtonLinkDirective extends LinkDirective implements AfterViewInit {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType] ?? []);
+  }
+
+  private el = inject(ElementRef<HTMLElement>);
+  private renderer = inject(Renderer2);
+
+  private disabledClasses = [
+    "tw-no-underline",
+    "tw-cursor-not-allowed",
+    "!tw-text-secondary-300",
+    "hover:!tw-text-secondary-300",
+    "hover:tw-no-underline",
+  ];
+
+  ngAfterViewInit() {
+    const element = this.el.nativeElement;
+
+    const isDisabled = (element as HTMLButtonElement).disabled || element.hasAttribute("disabled");
+
+    if (isDisabled) {
+      this.renderer.removeAttribute(element, "disabled");
+
+      this.renderer.setAttribute(element, "aria-disabled", "true");
+
+      this.disabledClasses.forEach((className) => {
+        this.renderer.addClass(element, className);
+      });
+    }
   }
 }
