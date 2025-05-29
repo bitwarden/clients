@@ -174,20 +174,50 @@ When the browser extension is popped out, the "popout" button should not be pass
 
 ## With Virtual Scroll
 
-If you are using a virtual scrolling container inside of the popup page (aka replacing the default
-popup page scrolling container with a virtual scroll container), you'll want to configure the
-component in the following ways:
-
-- Use the `disablePadding` input on the `popup-page`
-- Add padding and scrollbar to the virtual scrolling element to match the default behavior of the
-  popup page scroll container, which ensures that the scrollbar is at the far right edge of the
-  popup
-- Add max width to the child of the virtual scroll element, matching the max width breakpoints used
-  in the `popup-page`
+If you are using a virtual scrolling container inside of the popup page, you'll want to apply the
+`bitScrollLayout` directive to the `cdk-virtual-scroll-viewport` element. This tells the virtual
+scroll viewport to use the popup page's scroll layout div as the scrolling container.
 
 See the code in the example below.
 
 <Canvas of={stories.WithVirtualScrollChild} />
+
+### Known Virtual Scroll Issues
+
+Virtual scroll will not work in this specific case, where the `bitScrollLayout` is a child of the
+`popup-page` within the same template file:
+
+```
+<popup-page>
+  <cdk-virtual-scroll-viewport bitScrollLayout>
+    // virtual scroll implementation here
+  </div>
+</popup-page>
+```
+
+This is due to the way Angular initializes components. In this particular composition, the child
+gets constructed before the `popup-page` and thus has no scroll container to reference. Workarounds
+are:
+
+1. Wrap the child in another component
+
+```
+<popup-page>
+  <component-that-contains-bitScrollLayout></component-that-contains-bitScrollLayout>
+</popup-page>
+```
+
+2. Use a `defer` block
+
+```
+<popup-page>
+  @defer (on immediate) {
+    <cdk-virtual-scroll-viewport bitScrollLayout>
+      // virtual scroll implementation here
+    </div>
+  }
+</popup-page>
+```
 
 # Other stories
 

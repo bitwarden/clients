@@ -42,6 +42,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -74,6 +75,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
+    ScrollLayoutDirective,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",

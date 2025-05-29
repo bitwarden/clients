@@ -1,4 +1,4 @@
-<popup-page [loading]="loading$ | async" disablePadding>
+<popup-page [loading]="loading$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
@@ -84,27 +84,21 @@
       </div>
     </div>
 
-    <div
-      *ngIf="vaultState === null"
-      cdkVirtualScrollingElement
-      class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-    >
-      <div class="tw-max-w-screen-sm tw-mx-auto">
-        <app-autofill-vault-list-items></app-autofill-vault-list-items>
-        <app-vault-list-items-container
-          [title]="'favorites' | i18n"
-          [ciphers]="(favoriteCiphers$ | async) || []"
-          id="favorites"
-          collapsibleKey="favorites"
-        ></app-vault-list-items-container>
-        <app-vault-list-items-container
-          [title]="'allItems' | i18n"
-          [ciphers]="(remainingCiphers$ | async) || []"
-          id="allItems"
-          disableSectionMargin
-          collapsibleKey="allItems"
-        ></app-vault-list-items-container>
-      </div>
-    </div>
+    <ng-container *ngIf="vaultState === null">
+      <app-autofill-vault-list-items></app-autofill-vault-list-items>
+      <app-vault-list-items-container
+        [title]="'favorites' | i18n"
+        [ciphers]="(favoriteCiphers$ | async) || []"
+        id="favorites"
+        collapsibleKey="favorites"
+      ></app-vault-list-items-container>
+      <app-vault-list-items-container
+        [title]="'allItems' | i18n"
+        [ciphers]="(remainingCiphers$ | async) || []"
+        id="allItems"
+        disableSectionMargin
+        collapsibleKey="allItems"
+      ></app-vault-list-items-container>
+    </ng-container>
   </ng-container>
 </popup-page>

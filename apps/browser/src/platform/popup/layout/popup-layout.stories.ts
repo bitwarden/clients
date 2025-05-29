@@ -19,6 +19,7 @@ import {
   NoItemsModule,
   SearchModule,
   SectionComponent,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -305,6 +306,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        ScrollLayoutDirective,
         PopupTabNavigationComponent,
         PopupHeaderComponent,
         PopupPageComponent,
@@ -643,53 +645,48 @@ export const WithVirtualScrollChild: Story = {
     props: { ...args, data: Array.from(Array(20).keys()) },
     template: /* HTML */ `
       <extension-popped-container>
-        <popup-page disablePadding>
+        <popup-page>
           <popup-header slot="header" pageTitle="Test"> </popup-header>
           <mock-search slot="above-scroll-area"></mock-search>
-          <div
-            cdkVirtualScrollingElement
-            class="tw-h-full tw-p-3 bit-compact:tw-p-2 tw-styled-scrollbar"
-          >
-            <div class="tw-max-w-screen-sm tw-mx-auto">
-              <bit-section>
-                <bit-item-group aria-label="Mock Vault Items">
-                  <cdk-virtual-scroll-viewport itemSize="55">
-                    <bit-item *cdkVirtualFor="let item of data; index as i">
-                      <button type="button" bit-item-content>
-                        <i
-                          slot="start"
-                          class="bwi bwi-globe tw-text-3xl tw-text-muted"
-                          aria-hidden="true"
-                        ></i>
-                        {{ i }} of {{ data.length - 1 }}
-                        <span slot="secondary">Bar</span>
-                      </button>
+          <bit-section>
+            @defer (on immediate) {
+            <bit-item-group aria-label="Mock Vault Items">
+              <cdk-virtual-scroll-viewport itemSize="61" bitScrollLayout>
+                <bit-item *cdkVirtualFor="let item of data; index as i">
+                  <button type="button" bit-item-content>
+                    <i
+                      slot="start"
+                      class="bwi bwi-globe tw-text-3xl tw-text-muted"
+                      aria-hidden="true"
+                    ></i>
+                    {{ i }} of {{ data.length - 1 }}
+                    <span slot="secondary">Bar</span>
+                  </button>
 
-                      <ng-container slot="end">
-                        <bit-item-action>
-                          <button type="button" bitBadge variant="primary">Fill</button>
-                        </bit-item-action>
-                        <bit-item-action>
-                          <button
-                            type="button"
-                            bitIconButton="bwi-clone"
-                            aria-label="Copy item"
-                          ></button>
-                        </bit-item-action>
-                        <bit-item-action>
-                          <button
-                            type="button"
-                            bitIconButton="bwi-ellipsis-v"
-                            aria-label="More options"
-                          ></button>
-                        </bit-item-action>
-                      </ng-container>
-                    </bit-item>
-                  </cdk-virtual-scroll-viewport>
-                </bit-item-group>
-              </bit-section>
-            </div>
-          </div>
+                  <ng-container slot="end">
+                    <bit-item-action>
+                      <button type="button" bitBadge variant="primary">Fill</button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button
+                        type="button"
+                        bitIconButton="bwi-clone"
+                        aria-label="Copy item"
+                      ></button>
+                    </bit-item-action>
+                    <bit-item-action>
+                      <button
+                        type="button"
+                        bitIconButton="bwi-ellipsis-v"
+                        aria-label="More options"
+                      ></button>
+                    </bit-item-action>
+                  </ng-container>
+                </bit-item>
+              </cdk-virtual-scroll-viewport>
+            </bit-item-group>
+            }
+          </bit-section>
         </popup-page>
       </extension-popped-container>
     `,
