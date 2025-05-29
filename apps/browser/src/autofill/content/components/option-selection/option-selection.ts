@@ -21,6 +21,9 @@ export class OptionSelection extends LitElement {
   disabled: boolean = false;
 
   @property()
+  id: string = "";
+
+  @property()
   label?: string;
 
   @property({ type: Array })
@@ -130,6 +133,7 @@ export class OptionSelection extends LitElement {
         ${OptionSelectionButton({
           disabled: this.disabled,
           icon: this.selection?.icon,
+          id: this.id,
           text: this.selection?.text,
           theme: this.theme,
           toggledOn: this.showMenu,
@@ -137,6 +141,7 @@ export class OptionSelection extends LitElement {
         })}
         ${this.showMenu
           ? OptionItems({
+              id: this.id,
               label: this.label,
               options: this.options,
               theme: this.theme,

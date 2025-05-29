@@ -186,6 +186,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
         ...this.cache.value,
         forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
       });
+      return;
     }
 
     // Authentication was successful, save the force update password options with the state service
