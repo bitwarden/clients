@@ -18,6 +18,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -42,7 +43,7 @@ describe("VaultPopupListFiltersService", () => {
   };
 
   const collectionService = {
-    decryptedCollections$,
+    decryptedCollections$: () => decryptedCollections$,
     getAllNested: () => Promise.resolve([]),
   } as unknown as CollectionService;
 
@@ -85,7 +86,7 @@ describe("VaultPopupListFiltersService", () => {
       signal: jest.fn(() => mockCachedSignal),
     };
 
-    collectionService.getAllNested = () => Promise.resolve([]);
+    collectionService.getAllNested = () => [];
     TestBed.configureTestingModule({
       providers: [
         {
@@ -332,14 +333,7 @@ describe("VaultPopupListFiltersService", () => {
     beforeEach(() => {
       decryptedCollections$.next(testCollections);
 
-      collectionService.getAllNested = () =>
-        Promise.resolve(
-          testCollections.map((c) => ({
-            children: [],
-            node: c,
-            parent: null,
-          })),
-        );
+      collectionService.getAllNested = () => testCollections.map((c) => new TreeNode(c, null));
     });
 
     it("returns all collections", (done) => {
@@ -655,15 +649,13 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const collectionServiceMock = {
-    decryptedCollections$: seededCollections$,
+    decryptedCollections$: () => seededCollections$,
     getAllNested: () =>
-      Promise.resolve(
-        seededCollections$.value.map((c) => ({
-          children: [],
-          node: c,
-          parent: null,
-        })),
-      ),
+      seededCollections$.value.map((c) => ({
+        children: [],
+        node: c,
+        parent: null,
+      })),
   } as any;
 
   const folderServiceMock = {
