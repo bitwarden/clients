@@ -1,0 +1,10 @@
+{
+  "name": "@bitwarden/<%= name %>",
+  "version": "0.0.0",
+  "description": "<%= description %>",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "<%= team %>"
+}
