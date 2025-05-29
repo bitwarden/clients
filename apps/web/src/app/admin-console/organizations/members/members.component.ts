@@ -69,7 +69,7 @@ import { openEntityEventsDialog } from "../manage/entity-events.component";
 
 import {
   AccountRecoveryDialogComponent,
-  AccountRecoveryDialogResultTypes,
+  AccountRecoveryDialogResultType,
 } from "./components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
@@ -769,7 +769,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       });
 
       const result = await lastValueFrom(dialogRef.closed);
-      if (result === AccountRecoveryDialogResultTypes.Ok) {
+      if (result === AccountRecoveryDialogResultType.Ok) {
         await this.load();
       }
 

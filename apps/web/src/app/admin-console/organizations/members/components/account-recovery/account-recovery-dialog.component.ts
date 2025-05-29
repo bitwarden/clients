@@ -53,12 +53,12 @@ export type AccountRecoveryDialogData = {
   organizationId: OrganizationId;
 };
 
-export const AccountRecoveryDialogResultTypes = {
+export const AccountRecoveryDialogResultType = {
   Ok: "ok",
 } as const;
 
-type AccountRecoveryDialogResultType =
-  (typeof AccountRecoveryDialogResultTypes)[keyof typeof AccountRecoveryDialogResultTypes];
+export type AccountRecoveryDialogResultType =
+  (typeof AccountRecoveryDialogResultType)[keyof typeof AccountRecoveryDialogResultType];
 
 /**
  * Used in a dialog for initiating the account recovery process against a
@@ -144,7 +144,7 @@ export class AccountRecoveryDialogComponent {
       this.parentSubmittingBehaviorSubject.next(false);
     }
 
-    this.dialogRef.close(AccountRecoveryDialogResultTypes.Ok);
+    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   }
 
   protected handleIsSubmittingChange(isSubmitting: boolean) {
