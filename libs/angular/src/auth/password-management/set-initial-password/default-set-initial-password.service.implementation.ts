@@ -251,10 +251,19 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
   async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult, userId: UserId) {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
     const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
       passwordInputResult.newMasterKey,
       userKey,
     );
+
+    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
+      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
+    }
 
     const request = new UpdateTdeOffboardingPasswordRequest();
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
