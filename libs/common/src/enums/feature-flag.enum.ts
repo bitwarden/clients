@@ -22,7 +22,6 @@ export enum FeatureFlag {
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
@@ -60,6 +59,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
+  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -87,7 +87,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
@@ -109,6 +108,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
+  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,

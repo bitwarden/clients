@@ -19,6 +19,7 @@ import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/stat
 
 import { ProfileContext, CoreProfileMetadata, ProfileMetadata } from "../metadata";
 import { GeneratorConstraints } from "../types/generator-constraints";
+import { equivalent } from "../util";
 
 /** Surfaces contextual information to credential generators */
 export class GeneratorProfileProvider {
@@ -99,7 +100,10 @@ export class GeneratorProfileProvider {
 
         const constraints$ = policies$.pipe(
           map((policies) => profile.constraints.create(policies, context)),
-          tap(() => this.log.debug("constraints created")),
+          distinctUntilChanged((previous, next) => {
+            return equivalent(previous, next);
+          }),
+          tap((constraints) => this.log.debug(constraints as object, "constraints updated")),
         );
 
         return constraints$;

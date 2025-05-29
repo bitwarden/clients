@@ -14,10 +14,13 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../shared";
+
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {
   tokenSent = false;
