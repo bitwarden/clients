@@ -111,6 +111,9 @@ export declare namespace ipc {
     send(message: string): number
   }
 }
+export declare namespace autostart {
+  export function setAutostart(autostart: boolean, params: Array<string>): Promise<void>
+}
 export declare namespace autofill {
   export function runCommand(value: string): Promise<string>
   export const enum UserVerification {

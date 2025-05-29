@@ -24,6 +24,8 @@ import {
   tap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -125,6 +127,12 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     selectedOrg: [null],
     collections: [<SelectItemView[]>[], [Validators.required]],
   });
+
+  /**
+   * Collections that are already assigned to the cipher and are read-only. These cannot be removed.
+   * @protected
+   */
+  protected readOnlyCollectionNames: string[] = [];
 
   protected totalItemCount: number;
   protected editableItemCount: number;
@@ -300,6 +308,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     const org = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
+
+    await this.setReadOnlyCollectionNames();
 
     this.availableCollections = this.params.availableCollections
       .filter((collection) => {
@@ -502,5 +512,26 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     } else {
       await this.cipherService.saveCollectionsWithServer(cipher, userId);
     }
+  }
+
+  /**
+   * Only display collections that are read-only and are assigned to the ciphers.
+   */
+  private async setReadOnlyCollectionNames() {
+    const { availableCollections, ciphers } = this.params;
+
+    const organization = await firstValueFrom(
+      this.organizations$.pipe(map((orgs) => orgs.find((o) => o.id === this.selectedOrgId))),
+    );
+
+    this.readOnlyCollectionNames = availableCollections
+      .filter((c) => {
+        return (
+          c.readOnly &&
+          ciphers.some((cipher) => cipher.collectionIds.includes(c.id)) &&
+          !c.canEditItems(organization)
+        );
+      })
+      .map((c) => c.name);
   }
 }

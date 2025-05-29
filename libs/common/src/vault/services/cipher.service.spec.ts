@@ -2,6 +2,8 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";

@@ -3014,14 +3014,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Unikal identifikator tapılmadı."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$, self-hosted açar serveri ilə SSO istifadə edir. Bu təşkilatın üzvlərinin giriş etməsi üçün artıq ana parol tələb edilməyəcək.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Aşağıdakı təşkilatların üzvləri üçün artıq ana parol tələb olunmur. Lütfən aşağıdakı domeni təşkilatınızın inzibatçısı ilə təsdiqləyin."
+  },
+  "organizationName": {
+    "message": "Təşkilat adı"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domeni"
   },
   "leaveOrganization": {
     "message": "Təşkilatı tərk et"
@@ -3613,6 +3613,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Şifrələnmiş məlumatları hər kəslə güvənli şəkildə paylaşmaq üçün \"Send\"i istifadə edin.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Send, həssas məlumatlar təhlükəsizdir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "İstənilən platformada faylları və dataları hər kəslə paylaşın. İfşa olunmağı məhdudlaşdıraraq məlumatlarınız ucdan-uca şifrələnmiş qalacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5019,6 +5027,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
+  "unlockVault": {
+    "message": "Seyfinizin kilidini saniyələr ərzində açın"
+  },
+  "unlockVaultDesc": {
+    "message": "Seyfinizə daha cəld müraciət etmək üçün kilid açma və bitmə vaxtı ayarlarını özəlləşdirə bilərsiniz."
+  },
+  "unlockPinSet": {
+    "message": "PIN ilə kilid açma təyini"
+  },
   "authenticating": {
     "message": "Kimlik doğrulama"
   },
@@ -5340,6 +5357,23 @@
     "message": "SSH agenti barədə daha ətraflı",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Cəld parol yaradın"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Klikləyərək güclü və unikal parolları asanlıqla yaradın",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "və girişlərinizi güvənli şəkildə saxlayın.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."

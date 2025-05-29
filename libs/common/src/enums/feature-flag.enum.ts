@@ -11,10 +11,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  VerifiedSsoDomainEndpoint = "pm-12337-refactor-sso-details-endpoint",
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
-  SsoExternalIdVisibility = "pm-18630-sso-external-id-visibility",
-  AccountDeprovisioningBanner = "pm-17120-account-deprovisioning-admin-console-banner",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
 
   /* Auth */
@@ -25,7 +22,6 @@ export enum FeatureFlag {
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
   DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   IdpAutoSubmitLogin = "idp-auto-submit-login",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
@@ -49,6 +45,7 @@ export enum FeatureFlag {
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
+  EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
   ItemShare = "item-share",
@@ -82,17 +79,13 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.VerifiedSsoDomainEndpoint]: FALSE,
   [FeatureFlag.LimitItemDeletion]: FALSE,
-  [FeatureFlag.SsoExternalIdVisibility]: FALSE,
-  [FeatureFlag.AccountDeprovisioningBanner]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
   [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
@@ -133,6 +126,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
+  [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

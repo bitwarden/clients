@@ -12,6 +12,8 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
