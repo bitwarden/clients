@@ -8,6 +8,7 @@ import { DrawerService } from "../drawer/drawer.service";
 import { LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { SharedModule } from "../shared";
+
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
 @Component({
