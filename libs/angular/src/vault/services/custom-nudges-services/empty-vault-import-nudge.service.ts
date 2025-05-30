@@ -50,19 +50,21 @@ export class EmptyVaultImportNudgeService extends DefaultSingleNudgeService {
           (c) => c.manage && orgIds.has(c.organizationId),
         );
 
-        // Do not show nudge when
-        // user has previously dismissed nudge
-        // OR
-        // user belongs to an organization and cannot create collections || manage collections
-        if (
-          hasBadgeDismissed ||
-          hasSpotlightDismissed ||
-          hasManageCollections ||
-          canCreateCollections
-        ) {
+        // When the user has dismissed the nudge or spotlight, return the nudge status directly
+        if (hasBadgeDismissed || hasSpotlightDismissed) {
           return of(nudgeStatus);
         }
 
+        // When the user belongs to an organization and cannot create collections or manage collections,
+        // hide the nudge and spotlight
+        if (!hasManageCollections && !canCreateCollections) {
+          return of({
+            hasSpotlightDismissed: true,
+            hasBadgeDismissed: true,
+          });
+        }
+
+        // Otherwise, return the nudge status based on the vault contents
         return of({
           hasSpotlightDismissed: vaultHasMoreThanOneItem,
           hasBadgeDismissed: vaultHasMoreThanOneItem,
