@@ -6,6 +6,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -20,6 +21,7 @@ import {
   BiometricsService,
   BiometricsStatus,
   KeyService,
+  SyncedUnlockStateCommands,
 } from "@bitwarden/key-management";
 
 import { BrowserSyncVerificationDialogComponent } from "../app/components/browser-sync-verification-dialog.component";
@@ -89,6 +91,7 @@ export class BiometricMessageHandlerService {
     private authService: AuthService,
     private ngZone: NgZone,
     private i18nService: I18nService,
+    private vaultTimeoutService: VaultTimeoutService,
   ) {
     combineLatest([
       this.desktopSettingService.browserIntegrationEnabled$,
@@ -254,6 +257,69 @@ export class BiometricMessageHandlerService {
           },
           appId,
         );
+      }
+      case SyncedUnlockStateCommands.SendLockToDesktop: {
+        const userId = message.userId as UserId;
+        await this.send(
+          {
+            command: SyncedUnlockStateCommands.SendLockToDesktop,
+            messageId,
+            response: true,
+          },
+          appId,
+        );
+        if (userId != null) {
+          await this.vaultTimeoutService.lock(userId);
+        }
+        break;
+      }
+      case SyncedUnlockStateCommands.GetUserKeyFromDesktop: {
+        if (!(await this.validateFingerprint(appId))) {
+          this.logService.info("[Native Messaging IPC] Fingerprint validation failed.");
+          return await this.send(
+            {
+              command: SyncedUnlockStateCommands.GetUserKeyFromDesktop,
+              messageId,
+              response: null,
+            },
+            appId,
+          );
+        }
+
+        const userId = message.userId as UserId;
+        if (userId != null) {
+          const key = await this.keyService.getUserKey(userId);
+          if (key != null) {
+            return await this.send(
+              {
+                command: SyncedUnlockStateCommands.GetUserKeyFromDesktop,
+                messageId,
+                response: key.keyB64,
+              },
+              appId,
+            );
+          }
+        }
+        break;
+      }
+      case SyncedUnlockStateCommands.GetUserStatusFromDesktop: {
+        const userId = message.userId as UserId;
+        if (userId != null) {
+          const status = await firstValueFrom(this.authService.authStatusFor$(userId));
+          return await this.send(
+            {
+              command: SyncedUnlockStateCommands.GetUserStatusFromDesktop,
+              messageId,
+              response: status,
+            },
+            appId,
+          );
+        }
+        break;
+      }
+      case SyncedUnlockStateCommands.FocusDesktopApp: {
+        this.messagingService.send("setFocus");
+        break;
       }
       default:
         this.logService.error("NativeMessage, got unknown command: " + message.command);

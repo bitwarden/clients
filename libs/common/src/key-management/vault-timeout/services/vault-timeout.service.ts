@@ -4,7 +4,8 @@ import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { LogoutReason } from "@bitwarden/auth/common";
-import { BiometricsService } from "@bitwarden/key-management";
+import { ClientType } from "@bitwarden/common/enums";
+import { BiometricsService, SyncedUnlockStateServiceAbstraction } from "@bitwarden/key-management";
 
 import { SearchService } from "../../../abstractions/search.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -20,12 +21,14 @@ import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
+import { SyncedUnlockService } from "../../synced-unlock/abstractions/synced-unlock.service";
 import { VaultTimeoutSettingsService } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../abstractions/vault-timeout.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 
 export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   private inited = false;
+  private isDesktopAppConnected = false;
 
   constructor(
     private accountService: AccountService,
@@ -43,6 +46,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
     private biometricService: BiometricsService,
+    private syncedUnlockStateService: SyncedUnlockStateServiceAbstraction,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (
       logoutReason: LogoutReason,
@@ -74,7 +78,20 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     );
   }
 
+  // This is needed to prevent dependency cycle between vault timeout and synced unlock service
+  setDesktopAppConnected(isConnected: boolean): void {
+    this.isDesktopAppConnected = isConnected;
+  }
+
   async checkVaultTimeout(): Promise<void> {
+    if (
+      (await firstValueFrom(this.syncedUnlockStateService.syncedUnlockEnabled$)) &&
+      this.platformUtilsService.getClientType() === ClientType.Browser &&
+      this.isDesktopAppConnected
+    ) {
+      return;
+    }
+
     // Get whether or not the view is open a single time so it can be compared for each user
     const isViewOpen = await this.platformUtilsService.isViewOpen();
 

@@ -67,6 +67,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -151,6 +152,7 @@ import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
+import { ForegroundSyncedUnlockService } from "../../key-management/synced-unlock/foreground-synced-unlock.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
@@ -320,6 +322,11 @@ const safeProviders: SafeProvider[] = [
     provide: BiometricsService,
     useClass: ForegroundBrowserBiometricsService,
     deps: [PlatformUtilsService],
+  }),
+  safeProvider({
+    provide: SyncedUnlockService,
+    useClass: ForegroundSyncedUnlockService,
+    deps: [LogService],
   }),
   safeProvider({
     provide: SyncService,

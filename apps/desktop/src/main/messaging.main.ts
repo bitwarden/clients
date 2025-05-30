@@ -157,6 +157,7 @@ Terminal=false`;
 
   private setFocus() {
     this.main.trayMain.restoreFromTray();
+    this.main.windowMain.win.focus();
     this.main.windowMain.win.focusOnWebView();
   }
 

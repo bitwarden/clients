@@ -84,6 +84,7 @@ import { KeyConnectorService } from "@bitwarden/common/key-management/key-connec
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
 import {
   DefaultVaultTimeoutSettingsService,
   VaultTimeoutSettingsService,
@@ -225,6 +226,7 @@ import {
   DefaultBiometricStateService,
   DefaultKdfConfigService,
   DefaultKeyService,
+  DefaultSyncedUnlockStateService,
   KdfConfigService,
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
@@ -261,6 +263,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BackgroundSyncedUnlockService } from "../key-management/synced-unlock/background-synced-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
@@ -388,6 +391,7 @@ export default class MainBackground {
   vaultSettingsService: VaultSettingsServiceAbstraction;
   biometricStateService: BiometricStateService;
   biometricsService: BiometricsService;
+  syncedUnlockService: SyncedUnlockService;
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
@@ -914,6 +918,7 @@ export default class MainBackground {
 
     this.vaultSettingsService = new VaultSettingsService(this.stateProvider);
 
+    const syncedUnlockStateService = new DefaultSyncedUnlockStateService(this.stateProvider);
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
@@ -930,9 +935,21 @@ export default class MainBackground {
       this.taskSchedulerService,
       this.logService,
       this.biometricsService,
+      syncedUnlockStateService,
       lockedCallback,
       logoutCallback,
     );
+
+    this.syncedUnlockService = new BackgroundSyncedUnlockService(
+      runtimeNativeMessagingBackground,
+      this.logService,
+      this.keyService,
+      this.accountService,
+      this.authService,
+      this.vaultTimeoutService,
+      syncedUnlockStateService,
+    );
+
     this.containerService = new ContainerService(this.keyService, this.encryptService);
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);

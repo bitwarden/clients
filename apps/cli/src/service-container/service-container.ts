@@ -167,6 +167,7 @@ import {
   DefaultKeyService as KeyService,
   BiometricStateService,
   DefaultBiometricStateService,
+  DefaultSyncedUnlockStateService,
 } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
@@ -733,6 +734,7 @@ export class ServiceContainer {
     );
 
     const biometricService = new CliBiometricsService();
+    const syncedUnlockStateService = new DefaultSyncedUnlockStateService(this.stateProvider);
 
     this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
@@ -750,6 +752,7 @@ export class ServiceContainer {
       this.taskSchedulerService,
       this.logService,
       biometricService,
+      syncedUnlockStateService,
       lockedCallback,
       undefined,
     );

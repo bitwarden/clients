@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, concatMap, firstValueFrom, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -74,6 +74,7 @@ type SecureChannel = {
 export class NativeMessagingBackground {
   connected = false;
   private connecting: boolean = false;
+  private connected$ = new BehaviorSubject<boolean>(false);
   private port?: browser.runtime.Port | chrome.runtime.Port;
   private appId?: string;
 
@@ -81,6 +82,7 @@ export class NativeMessagingBackground {
 
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
+
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -102,6 +104,22 @@ export class NativeMessagingBackground {
         }
       });
     }
+
+    timer(0, 5000)
+      .pipe(
+        concatMap(async () => {
+          if (!this.connected) {
+            if (await this.hasPermission()) {
+              await this.connect();
+            }
+          }
+        }),
+      )
+      .subscribe();
+  }
+
+  async hasPermission(): Promise<boolean> {
+    return await BrowserApi.permissionsGranted(["nativeMessaging"]);
   }
 
   async connect() {
@@ -127,6 +145,7 @@ export class NativeMessagingBackground {
           );
         }
         this.connected = true;
+        this.connected$.next(true);
         this.connecting = false;
         resolve();
       };
@@ -149,6 +168,7 @@ export class NativeMessagingBackground {
               reject(new Error("startDesktop"));
             }
             this.connected = false;
+            this.connected$.next(false);
             port.disconnect();
             // reject all
             for (const callback of this.callbacks.values()) {
@@ -199,6 +219,7 @@ export class NativeMessagingBackground {
 
             this.secureChannel = undefined;
             this.connected = false;
+            this.connected$.next(false);
 
             if (message.messageId != null) {
               if (this.callbacks.has(message.messageId)) {
@@ -262,6 +283,7 @@ export class NativeMessagingBackground {
 
         this.secureChannel = undefined;
         this.connected = false;
+        this.connected$.next(false);
 
         this.logService.error("NativeMessaging port disconnected because of error: " + error);
 
@@ -276,18 +298,18 @@ export class NativeMessagingBackground {
 
     const callback = new Promise((resolver, rejecter) => {
       this.callbacks.set(messageId, { resolver, rejecter });
+      message.messageId = messageId;
+      this.send(message)
+        .then(() => {})
+        .catch((e) => {
+          this.logService.error(
+            `[Native Messaging IPC] Error sending message of type ${message.command} to Bitwarden Desktop app. Error: ${e}`,
+          );
+          const callback = this.callbacks.get(messageId);
+          this.callbacks.delete(messageId);
+          callback?.rejecter("errorConnecting");
+        });
     });
-    message.messageId = messageId;
-    try {
-      await this.send(message);
-    } catch (e) {
-      this.logService.info(
-        `[Native Messaging IPC] Error sending message of type ${message.command} to Bitwarden Desktop app. Error: ${e}`,
-      );
-      const callback = this.callbacks.get(messageId);
-      this.callbacks.delete(messageId);
-      callback?.rejecter("errorConnecting");
-    }
 
     setTimeout(() => {
       if (this.callbacks.has(messageId)) {

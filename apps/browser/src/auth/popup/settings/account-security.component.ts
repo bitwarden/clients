@@ -30,6 +30,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -63,6 +64,7 @@ import {
   BiometricsService,
   BiometricStateService,
   BiometricsStatus,
+  SyncedUnlockStateServiceAbstraction,
 } from "@bitwarden/key-management";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
@@ -110,6 +112,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
+  isConnected = false;
 
   form = this.formBuilder.group({
     vaultTimeout: [null as VaultTimeout | null],
@@ -118,6 +121,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     pinLockWithMasterPassword: false,
     biometric: false,
     enableAutoBiometricsPrompt: true,
+    syncUnlockWithDesktop: false,
   });
 
   private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
@@ -142,6 +146,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
+    private syncedUnlockService: SyncedUnlockService,
+    private syncedUnlockStateService: SyncedUnlockStateServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -219,12 +225,59 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       enableAutoBiometricsPrompt: await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       ),
+      syncUnlockWithDesktop: await firstValueFrom(
+        this.syncedUnlockStateService.syncedUnlockEnabled$,
+      ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
+
+    this.form.controls.syncUnlockWithDesktop.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          if (enabled) {
+            const granted = await BrowserApi.requestPermission({
+              permissions: ["nativeMessaging"],
+            });
+            if (!granted) {
+              this.form.controls.syncUnlockWithDesktop.setValue(false);
+              return;
+            }
+          }
+
+          await this.syncedUnlockStateService.setSyncedUnlockEnabled(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+    this.syncedUnlockStateService.syncedUnlockEnabled$
+      .pipe(
+        map((enabled) => {
+          if (enabled) {
+            this.form.controls.pin.disable({ emitEvent: false });
+            this.form.controls.pinLockWithMasterPassword.disable({ emitEvent: false });
+            this.form.controls.biometric.disable({ emitEvent: false });
+            this.form.controls.enableAutoBiometricsPrompt.disable({ emitEvent: false });
+            this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
+          } else {
+            this.form.controls.pin.enable({ emitEvent: false });
+            this.form.controls.pinLockWithMasterPassword.enable({ emitEvent: false });
+            this.form.controls.biometric.enable({ emitEvent: false });
+            this.form.controls.enableAutoBiometricsPrompt.enable({ emitEvent: false });
+            this.form.controls.vaultTimeoutAction.enable({ emitEvent: false });
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     timer(0, 1000)
       .pipe(
         switchMap(async () => {
+          if (this.form.controls.syncUnlockWithDesktop.value) {
+            this.form.controls.biometric.disable({ emitEvent: false });
+            return;
+          }
+
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
           if (!biometricSettingAvailable) {
@@ -364,6 +417,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(([availableActions, policy]) => {
+        if (this.form.controls.syncUnlockWithDesktop.value) {
+          this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
+          return;
+        }
+
         if (policy?.data?.action || availableActions.length <= 1) {
           this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
         } else {
@@ -373,6 +431,10 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async saveVaultTimeout(previousValue: VaultTimeout, newValue: VaultTimeout) {
+    if (newValue == null) {
+      return;
+    }
+
     if (newValue === VaultTimeoutStringType.Never) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },

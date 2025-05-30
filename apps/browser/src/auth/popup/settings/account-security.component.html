@@ -11,7 +11,20 @@
         <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
-        <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="syncUnlockWithDesktop"
+            type="checkbox"
+            formControlName="syncUnlockWithDesktop"
+          />
+          <bit-label for="syncUnlockWithDesktop" class="tw-whitespace-normal">
+            {{ "syncUnlockWithDesktop" | i18n }}
+          </bit-label>
+        </bit-form-control>
+        <bit-form-control
+          [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
+        >
           <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
           <bit-label for="biometric" class="tw-whitespace-normal">{{
             "unlockWithBiometrics" | i18n
@@ -37,7 +50,9 @@
         </bit-form-control>
         <bit-form-control
           [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
-          *ngIf="(pinEnabled$ | async) || this.form.value.pin"
+          *ngIf="
+            ((pinEnabled$ | async) || this.form.value.pin)
+          "
         >
           <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
           <bit-label for="pin" class="tw-whitespace-normal">{{ "unlockWithPin" | i18n }}</bit-label>
@@ -45,7 +60,10 @@
         <bit-form-control
           class="tw-pl-5"
           disableMargin
-          *ngIf="this.form.value.pin && showMasterPasswordOnClientRestartOption"
+          *ngIf="
+            this.form.value.pin &&
+            showMasterPasswordOnClientRestartOption
+          "
         >
           <input
             bitCheckbox
@@ -69,7 +87,8 @@
         <auth-vault-timeout-input
           [vaultTimeoutOptions]="vaultTimeoutOptions"
           [formControl]="form.controls.vaultTimeout"
-          ngDefaultControl
+          [disabled]="form.controls.syncUnlockWithDesktop.value"
+          ngDefaultControl 
         >
         </auth-vault-timeout-input>
 
@@ -89,7 +108,10 @@
           </bit-hint>
         </bit-form-field>
 
-        <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
+        <bit-hint
+          *ngIf="hasVaultTimeoutPolicy"
+          class="tw-mt-4"
+        >
           {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
         </bit-hint>
       </bit-card>

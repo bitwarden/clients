@@ -8,6 +8,7 @@ import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { SyncedUnlockService } from "@bitwarden/common/key-management/synced-unlock/abstractions/synced-unlock.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutService,
@@ -70,6 +71,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private authService: AuthService,
     private lockService: LockService,
+    private foregroundSyncedUnlockService: SyncedUnlockService,
   ) {}
 
   get accountLimit() {
@@ -120,6 +122,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async lock(userId: string) {
     this.loading = true;
+    await this.foregroundSyncedUnlockService.lock(userId as UserId);
     await this.vaultTimeoutService.lock(userId);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -128,6 +131,12 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async lockAll() {
     this.loading = true;
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    for (const userId of Object.keys(accounts) as UserId[]) {
+      await this.foregroundSyncedUnlockService.lock(userId);
+    }
+
     await this.lockService.lockAll();
     await this.router.navigate(["lock"]);
   }

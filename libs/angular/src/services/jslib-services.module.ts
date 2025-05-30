@@ -308,10 +308,12 @@ import {
   DefaultBiometricStateService,
   DefaultKdfConfigService,
   DefaultKeyService,
+  DefaultSyncedUnlockStateService,
   DefaultUserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationService,
   KdfConfigService,
   KeyService,
+  SyncedUnlockStateServiceAbstraction,
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
@@ -824,6 +826,7 @@ const safeProviders: SafeProvider[] = [
       TaskSchedulerService,
       LogService,
       BiometricsService,
+      SyncedUnlockStateServiceAbstraction,
       LOCKED_CALLBACK,
       LOGOUT_CALLBACK,
     ],
@@ -1295,6 +1298,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricStateService,
     useClass: DefaultBiometricStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: SyncedUnlockStateServiceAbstraction,
+    useClass: DefaultSyncedUnlockStateService,
     deps: [StateProvider],
   }),
   safeProvider({

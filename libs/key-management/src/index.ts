@@ -2,6 +2,10 @@ export {
   BiometricStateService,
   DefaultBiometricStateService,
 } from "./biometrics/biometric-state.service";
+export {
+  SyncedUnlockStateServiceAbstraction,
+  DefaultSyncedUnlockStateService,
+} from "./biometrics/synced-unlock-state.service";
 export { BiometricsStatus } from "./biometrics/biometrics-status";
 export { BiometricsCommands } from "./biometrics/biometrics-commands";
 export { BiometricsService } from "./biometrics/biometric.service";
@@ -20,5 +24,6 @@ export {
 export { KdfConfigService } from "./abstractions/kdf-config.service";
 export { DefaultKdfConfigService } from "./kdf-config.service";
 export { KdfType } from "./enums/kdf-type.enum";
+export { SyncedUnlockStateCommands } from "./biometrics/synced-unlock-commands";
 
 export * from "./user-asymmetric-key-regeneration";

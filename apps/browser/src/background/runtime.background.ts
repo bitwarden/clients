@@ -18,7 +18,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
-import { BiometricsCommands } from "@bitwarden/key-management";
+import { BiometricsCommands, SyncedUnlockStateCommands } from "@bitwarden/key-management";
 
 import {
   closeUnlockPopout,
@@ -80,6 +80,12 @@ export default class RuntimeBackground {
         BiometricsCommands.UnlockWithBiometricsForUser,
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
+        SyncedUnlockStateCommands.IsConnected,
+        SyncedUnlockStateCommands.SendLockToDesktop,
+        SyncedUnlockStateCommands.GetUserKeyFromDesktop,
+        SyncedUnlockStateCommands.GetUserStatusFromDesktop,
+        SyncedUnlockStateCommands.FocusDesktopApp,
+        SyncedUnlockStateCommands.IsConnectionTrusted,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getUserPremiumStatus",
       ];
@@ -204,6 +210,24 @@ export default class RuntimeBackground {
       }
       case BiometricsCommands.CanEnableBiometricUnlock: {
         return await this.main.biometricsService.canEnableBiometricUnlock();
+      }
+      case SyncedUnlockStateCommands.IsConnected: {
+        return await this.main.syncedUnlockService.isConnected();
+      }
+      case SyncedUnlockStateCommands.SendLockToDesktop: {
+        return await this.main.syncedUnlockService.lock(msg.userId);
+      }
+      case SyncedUnlockStateCommands.GetUserKeyFromDesktop: {
+        return await this.main.syncedUnlockService.getUserKeyFromDesktop(msg.userId);
+      }
+      case SyncedUnlockStateCommands.GetUserStatusFromDesktop: {
+        return await this.main.syncedUnlockService.getUserStatusFromDesktop(msg.userId);
+      }
+      case SyncedUnlockStateCommands.FocusDesktopApp: {
+        return await this.main.syncedUnlockService.focusDesktopApp();
+      }
+      case SyncedUnlockStateCommands.IsConnectionTrusted: {
+        return await this.main.syncedUnlockService.isConnectionTrusted();
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(
