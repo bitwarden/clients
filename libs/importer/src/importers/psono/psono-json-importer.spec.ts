@@ -19,7 +19,7 @@ function validateCustomField(
   fields: FieldView[],
   fieldName: string,
   expectedValue: any,
-  fieldType = FieldType.Text,
+  fieldType: FieldType = FieldType.Text,
 ) {
   expect(fields).not.toBeUndefined();
   const customField = fields.find((f) => f.name === fieldName);
