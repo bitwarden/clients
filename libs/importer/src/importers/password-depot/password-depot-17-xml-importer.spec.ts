@@ -105,6 +105,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     expect(cipher.card.cardholderName).toBe("some CC holder");
     expect(cipher.card.number).toBe("4222422242224222");
+    expect(cipher.card.brand).toBe("Visa");
     expect(cipher.card.expMonth).toBe("5");
     expect(cipher.card.expYear).toBe("2026");
     expect(cipher.card.code).toBe("123");

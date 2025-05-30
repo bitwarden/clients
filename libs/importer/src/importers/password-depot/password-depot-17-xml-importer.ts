@@ -278,16 +278,12 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
     if (customField.name === "IDS_CardNumber") {
       cipher.card.number = customField.value;
+      cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
       return true;
     }
 
     if (customField.name === "IDS_CardExpires") {
       this.setCardExpiration(cipher, customField.value);
-      return true;
-    }
-
-    if (customField.name === "IDS_CardCode") {
-      cipher.card.code = customField.value;
       return true;
     }
 
