@@ -587,7 +587,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === CollectionAssignmentResult.Saved) {
-      await this.handleSuccessfulShare(cipher);
+      await this.savedCipher(cipher);
     }
   }
 
@@ -671,14 +671,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
     const organization = this.allOrganizations.find((o) => o.id === orgId);
     return this.allCollections.filter((c) => c.organizationId === organization?.id && !c.readOnly);
-  }
-
-  private async handleSuccessfulShare(cipher: CipherView) {
-    await this.viewCipher(cipher);
-    await this.vaultItemsComponent?.refresh();
-    this.collections = await firstValueFrom(
-      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
-    );
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {
