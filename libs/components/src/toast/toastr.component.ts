@@ -10,6 +10,7 @@ import { ToastComponent } from "./toast.component";
       [title]="options?.payload?.title"
       [variant]="options?.payload?.variant"
       [message]="options?.payload?.message"
+      [icon]="options?.payload?.icon"
       [progressWidth]="width()"
       (onClose)="remove()"
     ></bit-toast>
