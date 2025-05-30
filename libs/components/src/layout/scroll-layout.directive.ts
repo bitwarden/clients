@@ -11,6 +11,9 @@ import {
   inject,
 } from "@angular/core";
 
+/**
+ * A service is needed because we can't inject a directive defined in the template of a parent component. The parent's template is initialized after projected content.
+ **/
 @Injectable({ providedIn: "root" })
 export class ScrollLayoutService {
   private _scrollableRef: ElementRef<HTMLElement> | null = null;
@@ -28,6 +31,11 @@ export class ScrollLayoutService {
   }
 }
 
+/**
+ * Marks the primary scrollable area of a layout component.
+ *
+ * Stores the element reference in a global service so it can be referenced by `ScrollLayoutDirective` even when it isn't a direct child of this directive.
+ **/
 @Directive({
   selector: "[bitScrollLayoutHost]",
   standalone: true,
@@ -48,6 +56,13 @@ export class ScrollLayoutHostDirective implements OnDestroy {
   }
 }
 
+/**
+ * Sets the scroll viewport to the element marked with `ScrollLayoutHostDirective`.
+ *
+ * `ScrollLayoutHostDirective` is set on the primary scrollable area of a layout component (`bit-layout`, `popup-page`, etc).
+ *
+ * @see "Virtual Scrolling" in Storybook.
+ */
 @Directive({
   selector: "[bitScrollLayout]",
   standalone: true,
