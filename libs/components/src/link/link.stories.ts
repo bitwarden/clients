@@ -1,5 +1,7 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+
 import { AnchorLinkDirective, ButtonLinkDirective } from "./link.directive";
 import { LinkModule } from "./link.module";
 
@@ -27,6 +29,14 @@ export default {
 type Story = StoryObj<ButtonLinkDirective>;
 
 export const Default: Story = {
+  render: (args) => ({
+    template: /*html*/ `
+      <a bitLink ${formatArgsForCodeSnippet<ButtonLinkDirective>(args)}>Your text here</a>
+    `,
+  }),
+};
+
+export const InteractionStates: Story = {
   render: () => ({
     template: /*html*/ `
       <div class="tw-flex tw-gap-4 tw-p-2 tw-mb-6">

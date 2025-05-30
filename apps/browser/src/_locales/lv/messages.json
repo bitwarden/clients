@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Izmantot šo paroli"
   },
+  "useThisPassphrase": {
+    "message": "Izmantot šo paroles vārdkopu"
+  },
   "useThisUsername": {
     "message": "Izmantot šo lietotājvārdu"
   },
@@ -5362,7 +5365,7 @@
     "message": "Ātra paroļu izveidošana"
   },
   "generatorNudgeBodyOne": {
-    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu",
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },

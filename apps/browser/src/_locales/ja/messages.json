@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "このパスワードを使用する"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "このユーザー名を使用する"
   },

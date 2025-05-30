@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
+  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
 
   /* Auth */
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
@@ -59,6 +60,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
+  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -81,6 +83,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
+  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -107,6 +110,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
+  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,

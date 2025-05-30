@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Gunakan kata sandi ini"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Gunakan nama pengguna ini"
   },

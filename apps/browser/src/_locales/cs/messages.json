@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Použít toto heslo"
   },
+  "useThisPassphrase": {
+    "message": "Použít tuto heslovou frázi"
+  },
   "useThisUsername": {
     "message": "Použít toto uživatelské jméno"
   },

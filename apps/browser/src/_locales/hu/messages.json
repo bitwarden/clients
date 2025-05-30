@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Jelszó használata"
   },
+  "useThisPassphrase": {
+    "message": "Jelmondat használata"
+  },
   "useThisUsername": {
     "message": "Felhasználónév használata"
   },
