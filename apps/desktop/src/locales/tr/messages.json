@@ -351,12 +351,6 @@
   "other": {
     "message": "Diğer"
   },
-  "generatePassword": {
-    "message": "Parola oluştur"
-  },
-  "generatePassphrase": {
-    "message": "Parola üret"
-  },
   "type": {
     "message": "Tür"
   },
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Kullanıcı adı üreteci"
   },
+  "generatePassword": {
+    "message": "Parola oluştur"
+  },
+  "generatePassphrase": {
+    "message": "Parola üret"
+  },
+  "passwordGenerated": {
+    "message": "Parola üretildi"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Kullanıcı adı üretildi"
+  },
+  "emailGenerated": {
+    "message": "E-posta üretildi"
+  },
   "spinboxBoundariesHint": {
     "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Bu e-postayı kullan"
+  },
+  "useThisPassword": {
+    "message": "Bu parolayı kullan"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Bu kullanıcı adını kullan"
   },
   "random": {
     "message": "Rasgele"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Hem zayıf hem de veri ihlalinde yer alan bir tespit edildi. Hesabınızı korumak için güçlü bir parola seçin ve o parolayı başka yerlerde kullanmayın. Bu parolayı kullanmak istediğinizden emin misiniz?"
-  },
-  "useThisPassword": {
-    "message": "Bu parolayı kullan"
-  },
-  "useThisUsername": {
-    "message": "Bu kullanıcı adını kullan"
   },
   "checkForBreaches": {
     "message": "Bilinen veri ihlallerinde bu parolayı kontrol et"
@@ -3723,6 +3738,31 @@
   },
   "folderHintText": {
     "message": "Üst klasörün adının sonuna “/” ekleyerek klasörleri iç içe koyabilirsiniz. Örnek: Sosyal/Forumlar"
+  },
+  "sendsTitleNoItems": {
+    "message": "Hassas bilgileri güvenle paylaşın",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Hızlıca parola oluşturun"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"

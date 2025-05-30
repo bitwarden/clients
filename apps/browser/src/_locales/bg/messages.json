@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Използване на тази парола"
   },
+  "useThisPassphrase": {
+    "message": "Използване на тази парола-фраза"
+  },
   "useThisUsername": {
     "message": "Използване на това потребителско име"
   },

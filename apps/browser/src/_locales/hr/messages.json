@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Koristi ovu lozinku"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Koristi ovo korisničko ime"
   },

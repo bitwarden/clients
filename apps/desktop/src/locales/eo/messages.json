@@ -27,7 +27,7 @@
     "message": "Sekura noto"
   },
   "typeSshKey": {
-    "message": "SSH key"
+    "message": "SSH-ŝlosilo"
   },
   "folders": {
     "message": "Dosierujoj"
@@ -64,7 +64,7 @@
     }
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Bonrevenon!"
   },
   "moveToOrgDesc": {
     "message": "Elektu organizaĵon, al kiu vi volas movi ĉi tiun eron. Movado al organizaĵo transdonas la posedon de la ero al tiu organizaĵo. Vi ne plu estos la rekta posedanto de la ero post kiam ĝi estos movita."
@@ -351,12 +351,6 @@
   "other": {
     "message": "Alia"
   },
-  "generatePassword": {
-    "message": "Generi pasvorton"
-  },
-  "generatePassphrase": {
-    "message": "Generi pasfrazon"
-  },
   "type": {
     "message": "Tipo"
   },
@@ -421,7 +415,7 @@
     "message": "Website (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Retejo (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -431,7 +425,7 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Retejo aldoniĝos"
   },
   "addWebsite": {
     "message": "Add website"
@@ -440,10 +434,10 @@
     "message": "Delete website"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Posedanto"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Aldoni kampon"
   },
   "editField": {
     "message": "Edit field"
@@ -551,10 +545,10 @@
     "message": "Add folder"
   },
   "editFolder": {
-    "message": "Edit folder"
+    "message": "Redakti la dosierujon"
   },
   "regeneratePassword": {
-    "message": "Regenerate password"
+    "message": "Regeneri la pasvorton"
   },
   "copyPassword": {
     "message": "Copy password"
@@ -566,7 +560,7 @@
     "message": "Copy SSH private key"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "Kopii la pasfrazon",
     "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
@@ -670,7 +664,7 @@
     "message": "Dosierujo por serĉi"
   },
   "searchFavorites": {
-    "message": "Search favorites"
+    "message": "Serĉi favoratojn"
   },
   "searchType": {
     "message": "Tipo por serĉi",
@@ -734,7 +728,7 @@
     "message": "Saluti en Bitwarden'on"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Enmetu la kodon senditan al via retpoŝto"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
@@ -761,7 +755,7 @@
     "message": "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it."
   },
   "masterPassHintDesc": {
-    "message": "A master password hint can help you remember your password if you forget it."
+    "message": "Aludo de ĉefa pasvorto povas helpi vin rememorigi vian pasvorton, se vi forgesas ĝin."
   },
   "reTypeMasterPass": {
     "message": "Re-entajpu la ĉefan pasvorton"
@@ -792,7 +786,7 @@
     "message": "Konfirmi la ĉefan pasvorton"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Aludo de la ĉefa pasvorto"
   },
   "passwordStrengthScore": {
     "message": "Password strength score $SCORE$",
@@ -837,19 +831,19 @@
     "message": "Get master password hint"
   },
   "emailRequired": {
-    "message": "Email address is required."
+    "message": "Retpoŝtadreso estas postulata."
   },
   "invalidEmail": {
     "message": "Invalid email address."
   },
   "masterPasswordRequired": {
-    "message": "Master password is required."
+    "message": "Ĉefa pasvorto estas postulata"
   },
   "confirmMasterPasswordRequired": {
-    "message": "Master password retype is required."
+    "message": "Reentajpi la ĉefan pasvorton estas postulata"
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "La ĉefa pasvorto devas esti apenaŭ $VALUE$ signojn longa.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -868,7 +862,7 @@
     "message": "Master password confirmation does not match."
   },
   "newAccountCreated": {
-    "message": "Via nova konto estas kreita! Vi eble ĵus salutis,"
+    "message": "Via nova konto estas kreita! Vi eble nun salutas,"
   },
   "newAccountCreated2": {
     "message": "Via nova konto estas kreita!"
@@ -877,13 +871,13 @@
     "message": "Vi estas en salutaĵo!"
   },
   "masterPassSent": {
-    "message": "We've sent you an email with your master password hint."
+    "message": "Ni sendis al vi retleteron kun la aludo de via ĉefa pasvorto."
   },
   "unexpectedError": {
     "message": "An unexpected error has occurred."
   },
   "itemInformation": {
-    "message": "Item information"
+    "message": "Informo de ero"
   },
   "noItemsInList": {
     "message": "There are no items to list."
@@ -919,7 +913,7 @@
     "message": "Daŭrigi"
   },
   "verificationCodeEmailSent": {
-    "message": "Verification email sent to $EMAIL$.",
+    "message": "Konfirmiga retletero sendiĝis al $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -928,7 +922,7 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Ne demandu denove ĉe tiu ĉi aparato por 30 tagoj"
   },
   "selectAnotherMethod": {
     "message": "Elekti alian metodon",
@@ -947,10 +941,10 @@
     "message": "Restariga kodo"
   },
   "authenticatorAppTitle": {
-    "message": "Authenticator app"
+    "message": "Aŭtentiga apo"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Enmetu kodon generitan de aŭtentiga apo, kiel Bitwarden-Aŭtentigilo.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -960,7 +954,7 @@
     "message": "Use a YubiKey to access your account. Works with YubiKey 4, 4 Nano, 4C, and NEO devices."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Enmetu kodon generitan de Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -983,13 +977,13 @@
     "message": "Use any WebAuthn compatible security key to access your account."
   },
   "emailTitle": {
-    "message": "Email"
+    "message": "Retpoŝto"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "Enmetu kodon sendiĝis al via retpoŝto."
   },
   "loginUnavailable": {
-    "message": "Login unavailable"
+    "message": "Saluto nedisponeblas"
   },
   "noTwoStepProviders": {
     "message": "This account has two-step login set up, however, none of the configured two-step providers are supported by this device."
@@ -1032,7 +1026,7 @@
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
-    "message": "API server URL"
+    "message": "URL de API-servilo"
   },
   "webVaultUrl": {
     "message": "Web vault server URL"
@@ -1140,13 +1134,13 @@
     "message": "Samhavigi la trezorujon"
   },
   "changeMasterPass": {
-    "message": "Change master password"
+    "message": "Ŝanĝi la ĉefan pasvorton"
   },
   "continueToWebApp": {
     "message": "Daŭrigu en la retumilan apon?"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Vi povas ŝanĝi vian ĉefan pasvorton en la retumila apo de Bitwarden"
+    "message": "Vi povas ŝanĝi vian ĉefan pasvorton en la reteja apo de Bitwarden"
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
@@ -1175,7 +1169,7 @@
     "message": "Via trezorejo estas ŝlosita. Kontrolu vian identecon por daŭrigi."
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Via konto estas ŝlosita"
   },
   "or": {
     "message": "aŭ"
@@ -1184,7 +1178,7 @@
     "message": "Unlock with biometrics"
   },
   "unlockWithMasterPassword": {
-    "message": "Unlock with master password"
+    "message": "Malŝlosi per la ĉefa pasvorto"
   },
   "unlock": {
     "message": "Malŝlosi"
@@ -1209,7 +1203,7 @@
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "twoStepLogin": {
-    "message": "Two-step login"
+    "message": "Duŝtupa salutado"
   },
   "vaultTimeout": {
     "message": "Vault timeout"
@@ -1263,7 +1257,7 @@
     "message": "On system lock"
   },
   "onRestart": {
-    "message": "On restart"
+    "message": "Ĉe relanĉo"
   },
   "never": {
     "message": "Neniam"
@@ -1394,7 +1388,7 @@
     }
   },
   "updateAvailable": {
-    "message": "Update available"
+    "message": "Disponeblas ĝisdatigo"
   },
   "updateAvailableDesc": {
     "message": "An update was found. Do you want to download it now?"
@@ -1546,7 +1540,7 @@
     "message": "Toggle full screen"
   },
   "reload": {
-    "message": "Reload"
+    "message": "Reŝargi"
   },
   "toggleDevTools": {
     "message": "Toggle developer tools"
@@ -1572,7 +1566,7 @@
     "message": "Hide Bitwarden"
   },
   "hideOthers": {
-    "message": "Hide others"
+    "message": "Kaŝi la aliajn"
   },
   "showAll": {
     "message": "Montri ĉiujn"
@@ -1675,7 +1669,7 @@
     "description": "Application window should always stay on top of other windows"
   },
   "dateUpdated": {
-    "message": "Updated",
+    "message": "Ĝisdatigita",
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
@@ -1683,11 +1677,11 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Password updated",
+    "message": "Pasvorto ĝisdatiĝis",
     "description": "ex. Date this password was updated"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Elporti el"
   },
   "exportVault": {
     "message": "Export vault"
@@ -1696,31 +1690,31 @@
     "message": "File format"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "Tiu ĉi dosieriga elporto estos pasvorte protektata kaj postulas la pasvorton de la dosiero por malĉifri."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Pasvorto de la dosiero"
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "Tiu pasvorto estos uzata por elporti kaj enporti tiun dosieron"
   },
   "accountRestrictedOptionDescription": {
     "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "Pasvorte protektata"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "Ŝargi pasvorton al la dosiero por ĉifri la elporton kaj ĝin enporti al ajna konto ĉe Bitwarden uzante la pasvorton por malĉifri."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Tipo de elporto"
   },
   "accountRestricted": {
     "message": "Account restricted"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "Ne akordas la «Pasvorto de la dosiero» kaj «Konfirmu la pasvorton de la dosiero»."
   },
   "done": {
     "message": "Preta"
@@ -2134,7 +2128,7 @@
     "message": "Use hardware acceleration"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "Implicite tiu ĉi agordo estas ŝaltita. Malŝaltu nur se vi spertas grafikajn problemojn. Postulata estas relanĉo."
+    "message": "Tiu ĉi agordo estas implicite ŝaltita. Malŝaltu nur se vi spertas grafikajn problemojn. Necesas relanĉi."
   },
   "approve": {
     "message": "Aprobi"
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "generatePassword": {
+    "message": "Generi pasvorton"
+  },
+  "generatePassphrase": {
+    "message": "Generi pasfrazon"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Uzi ĉi tiun retpoŝton"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
   },
   "random": {
     "message": "Hazarda"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Weak password identified and found in a data breach. Use a strong and unique password to protect your account. Are you sure you want to use this password?"
-  },
-  "useThisPassword": {
-    "message": "Use this password"
-  },
-  "useThisUsername": {
-    "message": "Use this username"
   },
   "checkForBreaches": {
     "message": "Check known data breaches for this password"
@@ -3723,6 +3738,31 @@
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

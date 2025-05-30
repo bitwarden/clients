@@ -13,6 +13,7 @@
       "@bitwarden/bit-common/*": ["../../bitwarden_license/bit-common/src/*"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
       "@bitwarden/components": ["../../libs/components/src"],
+      "@bitwarden/dirt-card": ["../../libs/dirt/card/src"],
       "@bitwarden/generator-components": ["../../libs/tools/generator/components/src"],
       "@bitwarden/generator-core": ["../../libs/tools/generator/core/src"],
       "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
@@ -24,7 +25,6 @@
       "@bitwarden/key-management-ui": ["../../libs/key-management-ui/src"],
       "@bitwarden/platform": ["../../libs/platform/src"],
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
-      "@bitwarden/tools-card": ["../../libs/tools/card/src"],
       "@bitwarden/ui-common": ["../../libs/ui/common/src"],
       "@bitwarden/ui-common/setup-jest": ["../../libs/ui/common/src/setup-jest"],
       "@bitwarden/vault-export-core": [
