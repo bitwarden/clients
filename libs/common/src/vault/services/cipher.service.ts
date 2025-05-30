@@ -862,8 +862,13 @@ export class CipherService implements CipherServiceAbstraction {
     const request = new CipherBulkShareRequest(encCiphers, collectionIds);
     try {
       const response = await this.apiService.putShareCiphers(request);
-      encCiphers.forEach((c) => {
-        c.revisionDate = new Date(response[c.id as CipherId]);
+      const responseMap = new Map(response.map((c) => [c.id, c]));
+
+      encCiphers.forEach((cipher) => {
+        const matchingCipher = responseMap.get(cipher.id);
+        if (matchingCipher) {
+          cipher.revisionDate = new Date(matchingCipher.revisionDate);
+        }
       });
       await this.upsert(encCiphers.map((c) => c.toCipherData()));
     } catch (e) {
