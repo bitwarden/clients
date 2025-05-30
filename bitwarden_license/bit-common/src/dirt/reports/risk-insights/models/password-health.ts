@@ -162,4 +162,40 @@ export enum DrawerType {
   OrgAtRiskApps = 3,
 }
 
+export interface RiskInsightsReport {
+  organizationId: OrganizationId;
+  date: string;
+  reportData: string;
+  totalMembers: number;
+  totalAtRiskMembers: number;
+  totalApplications: number;
+  totalAtRiskApplications: number;
+  totalCriticalApplications: number;
+}
+
+export interface ReportInsightsReportData {
+  data: string;
+  key: string;
+}
+
+export interface SaveRiskInsightsReportRequest {
+  data: RiskInsightsReport;
+}
+
+export interface SaveRiskInsightsReportResponse {
+  id: string;
+}
+
+export interface GetRiskInsightsReportResponse {
+  id: string;
+  organizationId: OrganizationId;
+  reportDate: string;
+  reportData: string;
+  totalMembers: number;
+  totalAtRiskMembers: number;
+  totalApplications: number;
+  totalAtRiskApplications: number;
+  totalCriticalApplications: number;
+}
+
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
