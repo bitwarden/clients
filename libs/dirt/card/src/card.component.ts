@@ -7,7 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TypographyModule } from "@bitwarden/components";
 
 @Component({
-  selector: "tools-card",
+  selector: "dirt-card",
   templateUrl: "./card.component.html",
   standalone: true,
   imports: [CommonModule, TypographyModule, JslibModule],

@@ -351,12 +351,6 @@
   "other": {
     "message": "Cits"
   },
-  "generatePassword": {
-    "message": "Veidot paroli"
-  },
-  "generatePassphrase": {
-    "message": "Izveidot paroles vārdkopu"
-  },
   "type": {
     "message": "Veids"
   },
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Lietotājvārdu veidotājs"
   },
+  "generatePassword": {
+    "message": "Veidot paroli"
+  },
+  "generatePassphrase": {
+    "message": "Izveidot paroles vārdkopu"
+  },
+  "passwordGenerated": {
+    "message": "Parole izveidota"
+  },
+  "passphraseGenerated": {
+    "message": "Paroles vārdkopa izveidota"
+  },
+  "usernameGenerated": {
+    "message": "Lietotājvārds izveidots"
+  },
+  "emailGenerated": {
+    "message": "E-pasta adrese izveidota"
+  },
   "spinboxBoundariesHint": {
     "message": "Vērtībai jābūt starp $MIN$ un $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Izmantot šo e-pasta adresi"
+  },
+  "useThisPassword": {
+    "message": "Izmantot šo paroli"
+  },
+  "useThisPassphrase": {
+    "message": "Izmantot šo paroles vārdkopu"
+  },
+  "useThisUsername": {
+    "message": "Izmantot šo lietotājvārdu"
   },
   "random": {
     "message": "Nejauši"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Noteikta vāja parole, un tā ir atrasta datu noplūdē. Jāizmanto spēcīga un neatkārtojama parole, lai aizsargātu savu kontu. Vai tiešām izmantot šo paroli?"
-  },
-  "useThisPassword": {
-    "message": "Izmantot šo paroli"
-  },
-  "useThisUsername": {
-    "message": "Izmantot šo lietotājvārdu"
   },
   "checkForBreaches": {
     "message": "Meklēt šo paroli zināmās datu noplūdēs"
@@ -3704,7 +3719,7 @@
     "message": "Mainīt riskam pakļautu paroli"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3723,6 +3738,31 @@
   },
   "folderHintText": {
     "message": "Apakšmapes var izveidot, ja pievieno iekļaujošās mapes nosaukumu, aiz kura ir \"/\". Piemēram: Tīklošanās/Forumi"
+  },
+  "sendsTitleNoItems": {
+    "message": "Drošā veidā nosūti jūtīgu informāciju",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Kopīgo datnes un datus drošā veidā ar ikvienu jebkurā platformā! Tava informācija paliks pilnībā šifrēta, vienlaikus ierobežojot riskantumu.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Ātra paroļu izveidošana"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", lai palīdzētu uzturērt pieteikšanās vienumus drošus.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Laika ietaupīšana ar automātisko aizpildi"
