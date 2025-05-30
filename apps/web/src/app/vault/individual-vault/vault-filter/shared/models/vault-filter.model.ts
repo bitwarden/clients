@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType, CipherTypeNames } from "@bitwarden/common/vault/enums";
+import { CipherType, cipherTypeNames } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -77,7 +77,7 @@ export class VaultFilter {
   }
 
   get cipherType(): CipherType {
-    return this.selectedCipherTypeNode?.node.type in CipherTypeNames
+    return this.selectedCipherTypeNode?.node.type in cipherTypeNames
       ? (this.selectedCipherTypeNode?.node.type as CipherType)
       : null;
   }

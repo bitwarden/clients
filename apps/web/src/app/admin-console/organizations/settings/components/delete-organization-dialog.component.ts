@@ -18,7 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType, CipherTypeNames } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DIALOG_DATA,
@@ -163,7 +163,7 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
         organizationContentSummary.itemCountByType.push(
           new OrganizationContentSummaryItem(
             count,
-            this.getOrganizationItemLocalizationKeysByType(CipherTypeNames[cipherType]),
+            this.getOrganizationItemLocalizationKeysByType(toCipherTypeName(cipherType)),
           ),
         );
       }
