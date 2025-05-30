@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -47,7 +48,7 @@ export type ResetPasswordDialogData = {
   /**
    * The organization's `organizationId`
    */
-  organizationId: string;
+  organizationId: OrganizationId;
 };
 
 // FIXME: update to use a const object instead of a typescript enum

@@ -780,7 +780,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       data: {
         name: this.userNamePipe.transform(user),
         email: user != null ? user.email : null,
-        organizationId: this.organization.id,
+        organizationId: this.organization.id as OrganizationId,
         id: user != null ? user.id : null,
       },
     });
