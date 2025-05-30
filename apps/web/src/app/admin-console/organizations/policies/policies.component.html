@@ -30,7 +30,9 @@
           <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{
             "on" | i18n
           }}</span>
-          <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
+          <small class="tw-text-muted tw-block">{{
+            p.listDescriptionOverride ?? p.description | i18n
+          }}</small>
         </td>
       </tr>
     </ng-template>
