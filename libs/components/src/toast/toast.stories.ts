@@ -76,7 +76,9 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
+      <div class="tw-min-w tw-max-w-[--bit-toast-width]">
         <bit-toast ${formatArgsForCodeSnippet<ToastComponent>(args)}></bit-toast>
+      </div>
     `,
   }),
 };
