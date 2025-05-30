@@ -7,15 +7,24 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
 
-type BannerTypes = "premium" | "info" | "warning" | "danger";
+type BannerType = "premium" | "info" | "warning" | "danger";
 
-const defaultIcon: Record<BannerTypes, string> = {
+const defaultIcon: Record<BannerType, string> = {
   premium: "bwi-star",
   info: "bwi-info-circle",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
 };
+/**
+  * Banners are used for important communication with the user that needs to be seen right away, but has
+  * little effect on the experience. Banners appear at the top of the user's screen on page load and
+  * persist across all pages a user navigates to.
 
+  * - They should always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
+  * - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
+  * - Avoid stacking multiple banners.
+  * - Banners can contain a button or anchor that uses the `bitLink` directive with `linkType="secondary"`.
+ */
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
@@ -23,7 +32,7 @@ const defaultIcon: Record<BannerTypes, string> = {
   imports: [CommonModule, IconButtonModule, I18nPipe],
 })
 export class BannerComponent implements OnInit {
-  @Input("bannerType") bannerType: BannerTypes = "info";
+  @Input("bannerType") bannerType: BannerType = "info";
   @Input() icon: string;
   @Input() useAlertRole = true;
   @Input() showClose = true;

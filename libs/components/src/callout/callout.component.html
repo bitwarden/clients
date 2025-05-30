@@ -4,7 +4,10 @@
   [attr.aria-labelledby]="titleId"
 >
   @if (title) {
-    <header id="{{ titleId }}" class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold">
+    <header
+      id="{{ titleId }}"
+      class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-2 tw-items-center"
+    >
       @if (icon) {
         <i class="bwi" [ngClass]="[icon, headerClass]" aria-hidden="true"></i>
       }
