@@ -15,6 +15,7 @@ const { css } = createEmotion({
 });
 
 export type OptionItemsProps = {
+  id: string;
   theme: Theme;
   topOffset: number;
   label?: string;
@@ -23,6 +24,7 @@ export type OptionItemsProps = {
 };
 
 export function OptionItems({
+  id,
   theme,
   topOffset,
   label,
@@ -42,6 +44,7 @@ export function OptionItems({
       <div class=${optionsWrapper({ isSafari, theme })}>
         ${options.map((option) =>
           OptionItem({
+            id,
             ...option,
             theme,
             contextLabel: label,

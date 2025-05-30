@@ -8,6 +8,8 @@ import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -391,7 +393,7 @@ export class Utils {
     return str == null || typeof str !== "string" || str.trim() === "";
   }
 
-  static isNullOrEmpty(str: string): boolean {
+  static isNullOrEmpty(str: string | null): boolean {
     return str == null || typeof str !== "string" || str == "";
   }
 

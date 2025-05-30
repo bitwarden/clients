@@ -6476,14 +6476,11 @@
   "invalidVerificationCode": {
     "message": "קוד אימות שגוי"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ משתמש/ת ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית כבר לא נדרשת כדי להיכנס עבור חברים של ארגון זה.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "עזוב ארגון"
