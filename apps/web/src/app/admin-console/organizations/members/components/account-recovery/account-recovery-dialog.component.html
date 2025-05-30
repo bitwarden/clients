@@ -6,7 +6,6 @@
 
     <auth-input-password
       [flow]="inputPasswordFlow"
-      [message]="'resetPasswordMasterPasswordPolicyInEffect'"
       [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
       (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
       (isSubmitting)="handleIsSubmittingChange($event)"
