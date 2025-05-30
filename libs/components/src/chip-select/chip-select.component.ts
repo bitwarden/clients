@@ -33,6 +33,9 @@ export type ChipSelectOption<T> = Option<T> & {
   children?: ChipSelectOption<T>[];
 };
 
+/**
+ * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
+ */
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",

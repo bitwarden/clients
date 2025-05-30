@@ -2,6 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { CalloutComponent } from "./callout.component";
@@ -24,9 +25,6 @@ export default {
       ],
     }),
   ],
-  args: {
-    type: "warning",
-  },
   parameters: {
     design: {
       type: "figma",
@@ -37,36 +35,35 @@ export default {
 
 type Story = StoryObj<CalloutComponent>;
 
-export const Success: Story = {
+export const Info: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-callout [type]="type" [title]="title">Content</bit-callout>
+      <bit-callout ${formatArgsForCodeSnippet<CalloutComponent>(args)}>Content</bit-callout>
     `,
   }),
   args: {
-    type: "success",
-    title: "Success",
+    title: "Title",
   },
 };
 
-export const Info: Story = {
-  ...Success,
+export const Success: Story = {
+  ...Info,
   args: {
-    type: "info",
-    title: "Info",
+    ...Info.args,
+    type: "success",
   },
 };
 
 export const Warning: Story = {
-  ...Success,
+  ...Info,
   args: {
     type: "warning",
   },
 };
 
 export const Danger: Story = {
-  ...Success,
+  ...Info,
   args: {
     type: "danger",
   },

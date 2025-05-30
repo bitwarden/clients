@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Utilizar esta palavra-passe"
   },
+  "useThisPassphrase": {
+    "message": "Utilizar esta frase de acesso"
+  },
   "useThisUsername": {
     "message": "Utilizar este nome de utilizador"
   },

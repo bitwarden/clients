@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Kasuta seda parooli"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Kasuta seda kasutajanime"
   },
