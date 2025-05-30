@@ -15,3 +15,9 @@ Currently in use by the Bitwarden Web Vault, CLI, desktop app and browser extens
 Package name: `@bitwarden/vault-export-ui`
 
 Contains all UI components used for the vault-export
+
+## Navigation
+
+- [Tools README](../../README.md)
+- [Exporter help](https://bitwarden.com/help/export-your-data/)
+- [Exporter SDK](https://github.com/bitwarden/sdk-internal/tree/main/crates/bitwarden-exporters)
