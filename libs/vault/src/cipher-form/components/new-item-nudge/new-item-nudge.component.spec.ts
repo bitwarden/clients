@@ -3,12 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/sdk-internal";
-
-import { NudgesService, NudgeType } from "../../../services/nudges.service";
 
 import { NewItemNudgeComponent } from "./new-item-nudge.component";
 
