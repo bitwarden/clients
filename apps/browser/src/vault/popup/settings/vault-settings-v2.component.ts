@@ -55,6 +55,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   }
 
   async ngOnDestroy(): Promise<void> {
+    // When a user navigates away from the page, dismiss the empty vault import nudge
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.nudgeService.dismissNudge(NudgeType.EmptyVaultImportNudge, userId);
   }
