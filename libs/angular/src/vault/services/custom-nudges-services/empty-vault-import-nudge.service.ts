@@ -30,8 +30,7 @@ export class EmptyVaultImportNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
-        const filteredCiphers = ciphers?.filter((cipher) => cipher.deletedDate == null);
-        const vaultHasMoreThanOneItem = (filteredCiphers?.length ?? 0) > 1;
+        const vaultHasMoreThanOneItem = (ciphers?.length ?? 0) > 1;
         const { hasBadgeDismissed, hasSpotlightDismissed } = nudgeStatus;
 
         // When the user has no organizations, return the nudge status directly
