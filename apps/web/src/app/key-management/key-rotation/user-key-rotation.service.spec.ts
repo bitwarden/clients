@@ -403,7 +403,6 @@ describe("KeyRotationService", () => {
       ).rejects.toThrow();
     });
 
-
     it("throws if no private key is found", async () => {
       keyPair.next(null);
 
