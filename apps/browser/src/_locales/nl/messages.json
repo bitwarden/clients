@@ -468,7 +468,7 @@
     "message": "Wachtwoord gegenereerd"
   },
   "passphraseGenerated": {
-    "message": "Wachtwoorden gegenereerd"
+    "message": "Wachtwoordzin gegenereerd"
   },
   "usernameGenerated": {
     "message": "Gebruikersnaam gegenereerd"
@@ -2203,6 +2203,9 @@
   },
   "useThisPassword": {
     "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
   },
   "useThisUsername": {
     "message": "Deze gebruikersnaam gebruiken"

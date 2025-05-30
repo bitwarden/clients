@@ -9,6 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
@@ -130,7 +131,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
-  async ngOnChanges() {
+  async ngOnChanges(changes: SimpleChanges) {
     if (this.cipher?.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [this.cipherId as CipherId],
@@ -138,6 +139,12 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       return;
     }
     this.passwordReprompted = this.masterPasswordAlreadyPrompted;
+
+    if (changes["cipherId"]) {
+      if (changes["cipherId"].currentValue !== changes["cipherId"].previousValue) {
+        this.showPrivateKey = false;
+      }
+    }
   }
 
   viewHistory() {

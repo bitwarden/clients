@@ -884,7 +884,7 @@
     "message": "Se requiere inicio de sesión en dos pasos para tu cuenta. Sigue los pasos siguientes para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Sigue los pasos de abajo para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
     "message": "Follow the steps below to finish logging in with your security key."
@@ -2203,6 +2203,9 @@
   },
   "useThisPassword": {
     "message": "Usar esta contraseña"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Usar este nombre de usuario"

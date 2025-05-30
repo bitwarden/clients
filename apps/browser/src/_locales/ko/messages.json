@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "이 비밀번호 사용"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "이 사용자 이름 사용"
   },

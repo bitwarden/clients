@@ -12,6 +12,7 @@ export default {
   argTypes: {
     disabled: { control: "boolean" },
     handleButtonClick: { control: false },
+    id: { control: "text" },
     text: { control: "text" },
     theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     toggledOn: { control: "boolean" },
@@ -19,6 +20,7 @@ export default {
   args: {
     disabled: false,
     handleButtonClick: () => alert("Clicked"),
+    id: "example-id",
     text: "Click Me",
     theme: ThemeTypes.Light,
     toggledOn: false,
