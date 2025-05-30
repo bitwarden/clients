@@ -86,9 +86,9 @@ export const Loading: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
-      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+      <button bitButton [disabled]="disabled" [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
     `,
   }),
   args: {
@@ -110,13 +110,13 @@ export const DisabledWithAttribute: Story = {
     props: args,
     template: `
       @if (disabled) {
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
-        <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button bitButton disabled [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       } @else {
-        <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-mr-2">Primary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-mr-2">Secondary</button>
-        <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-mr-2">Danger</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="primary" class="tw-me-2">Primary</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="secondary" class="tw-me-2">Secondary</button>
+        <button bitButton [loading]="loading" [block]="block" buttonType="danger" class="tw-me-2">Danger</button>
       }
     `,
   }),
@@ -132,10 +132,10 @@ export const Block: Story = {
     template: `
       <span class="tw-flex">
         <button bitButton [buttonType]="buttonType" [block]="block">[block]="true" Button</button>
-        <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ml-2">[block]="true" Link</a>
+        <a bitButton [buttonType]="buttonType" [block]="block" href="#" class="tw-ms-2">[block]="true" Link</a>
 
-        <button bitButton [buttonType]="buttonType" block class="tw-ml-2">block Button</button>
-        <a bitButton [buttonType]="buttonType" block href="#" class="tw-ml-2">block Link</a>
+        <button bitButton [buttonType]="buttonType" block class="tw-ms-2">block Button</button>
+        <a bitButton [buttonType]="buttonType" block href="#" class="tw-ms-2">block Link</a>
       </span>
     `,
   }),

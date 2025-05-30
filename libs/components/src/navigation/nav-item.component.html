@@ -52,7 +52,7 @@
           class="tw-truncate"
           [ngClass]="[
             variant === 'tree' ? 'tw-py-1' : 'tw-py-2',
-            data.open ? 'tw-pr-4' : 'tw-text-center',
+            data.open ? 'tw-pe-4' : 'tw-text-center',
           ]"
         >
           <i
@@ -103,7 +103,7 @@
 
       <div
         *ngIf="data.open"
-        class="tw-flex -tw-ml-3 tw-pr-4 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
+        class="tw-flex -tw-ms-3 tw-pe-4 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
         [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']"
       >
         <ng-content select="[slot=end]"></ng-content>
