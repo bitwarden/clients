@@ -37,7 +37,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   protected emptyVaultImportBadge$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.nudgeService.showNudgeBadge$(NudgeType.EmptyVaultImportNudge, userId),
+      this.nudgeService.showNudgeBadge$(NudgeType.VaultSettingsImportNudge, userId),
     ),
   );
 
@@ -57,7 +57,7 @@ export class VaultSettingsV2Component implements OnInit, OnDestroy {
   async ngOnDestroy(): Promise<void> {
     // When a user navigates away from the page, dismiss the empty vault import nudge
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.nudgeService.dismissNudge(NudgeType.EmptyVaultImportNudge, userId);
+    await this.nudgeService.dismissNudge(NudgeType.VaultSettingsImportNudge, userId);
   }
 
   async import() {

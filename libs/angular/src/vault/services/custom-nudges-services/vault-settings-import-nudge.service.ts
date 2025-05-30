@@ -12,12 +12,12 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
 
 /**
- * Custom Nudge Service Checking Nudge Status For Empty Vault Import
+ * Custom Nudge Service for the vault settings import badge.
  */
 @Injectable({
   providedIn: "root",
 })
-export class EmptyVaultImportNudgeService extends DefaultSingleNudgeService {
+export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
