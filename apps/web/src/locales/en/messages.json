@@ -10651,5 +10651,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }
