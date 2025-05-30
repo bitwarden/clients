@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Defnyddio'r cyfrinair hwn"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Defnyddio'r enw defnyddiwr hwn"
   },
