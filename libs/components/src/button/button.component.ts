@@ -153,6 +153,11 @@ export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
 
   constructor(private elementRef: ElementRef) {
     this.elementRef.nativeElement.addEventListener("click", this.captureClick, true);
+
+    // Remove disabled attribute if present. Will be replaced by aria-disabled
+    if (this.elementRef.nativeElement.hasAttribute("disabled")) {
+      this.elementRef.nativeElement.removeAttribute("disabled");
+    }
   }
 
   ngOnDestroy() {
