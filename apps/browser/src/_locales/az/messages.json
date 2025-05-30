@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Bu parolu istifadə et"
   },
+  "useThisPassphrase": {
+    "message": "Bu keçid ifadəsini istifadə et"
+  },
   "useThisUsername": {
     "message": "Bu istifadəçi adını istifadə et"
   },
