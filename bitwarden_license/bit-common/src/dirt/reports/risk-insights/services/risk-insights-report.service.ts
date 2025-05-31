@@ -20,6 +20,7 @@ import {
   MemberDetailsFlat,
   WeakPasswordDetail,
   WeakPasswordScore,
+  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -162,6 +163,22 @@ export class RiskInsightsReportService {
       totalApplicationCount: reports.length,
       totalAtRiskApplicationCount: reports.filter((app) => app.atRiskPasswordCount > 0).length,
     };
+  }
+
+  async identifyCiphers(
+    data: ApplicationHealthReportDetail[],
+    organizationId: string,
+  ): Promise<ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
+    const cipherViews = await this.cipherService.getAllFromApiForOrganization(organizationId);
+
+    const dataWithCiphers = data.map(
+      (app, index) =>
+        ({
+          ...app,
+          ciphers: cipherViews.filter((c) => app.cipherIds.some((a) => a === c.id)),
+        }) as ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+    );
+    return dataWithCiphers;
   }
 
   /**
@@ -358,7 +375,9 @@ export class RiskInsightsReportService {
       atRiskPasswordCount: existingUriDetail ? existingUriDetail.atRiskPasswordCount : 0,
       atRiskCipherIds: existingUriDetail ? existingUriDetail.atRiskCipherIds : [],
       atRiskMemberCount: existingUriDetail ? existingUriDetail.atRiskMemberDetails.length : 0,
-      cipher: newUriDetail.cipher,
+      cipherIds: existingUriDetail
+        ? existingUriDetail.cipherIds.concat(newUriDetail.cipherId)
+        : [newUriDetail.cipherId],
     } as ApplicationHealthReportDetail;
 
     if (isAtRisk) {
