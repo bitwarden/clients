@@ -20,6 +20,7 @@ import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
   DownloadBitwardenNudgeService,
+  VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { NudgesService, NudgeType } from "./nudges.service";
@@ -63,6 +64,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: VaultSettingsImportNudgeService,
+          useValue: mock<VaultSettingsImportNudgeService>(),
         },
         {
           provide: ApiService,
