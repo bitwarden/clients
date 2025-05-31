@@ -27,6 +27,7 @@ const testStringFeatureValue = "test-value";
       </div>
     </div>
   `,
+  standalone: false,
 })
 class TestComponent {
   testBooleanFeature = testBooleanFeature;

@@ -44,7 +44,7 @@ import { TwoFactorAuthComponentCacheService } from "./two-factor-auth-component-
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
-@Component({})
+@Component({ standalone: false })
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
 describe("TwoFactorAuthComponent", () => {

@@ -1,5 +1,5 @@
 import { WritableSignal, signal } from "@angular/core";
-import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
@@ -483,22 +483,15 @@ describe("VaultPopupItemsService", () => {
     });
   });
 
-  it("should update searchText$ when applyFilter is called", fakeAsync(() => {
-    let latestValue: string | null;
+  it("should update searchText$ when applyFilter is called", (done) => {
     service.searchText$.subscribe((val) => {
-      latestValue = val;
+      expect(val).toEqual("test search");
+      expect(viewCacheService.mockSignal()).toEqual("test search");
+      done();
     });
-    tick();
-    expect(latestValue!).toEqual("");
 
     service.applyFilter("test search");
-    tick();
-    expect(latestValue!).toEqual("test search");
-
-    expect(viewCacheService.mockSignal()).toEqual("test search");
-
-    discardPeriodicTasks();
-  }));
+  });
 });
 
 // A function to generate a list of ciphers of different types

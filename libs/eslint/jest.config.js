@@ -6,6 +6,5 @@ module.exports = {
   testEnvironment: "./fix-jsdom.ts",
   testMatch: ["**/+(*.)+(spec).+(mjs)"],
   displayName: "libs/eslint tests",
-  preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/test.setup.mjs"],
 };

@@ -70,6 +70,7 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": 0,
       "@angular-eslint/no-outputs-metadata-property": 0,
+      "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
       "@bitwarden/platform/required-using": "error",
