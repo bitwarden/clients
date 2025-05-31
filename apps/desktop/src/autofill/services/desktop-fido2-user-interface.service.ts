@@ -339,8 +339,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async ensureUnlockedVault(): Promise<void> {
     this.logService.warning("ensureUnlockedVault");
-    //    const result = screen.getPrimaryDisplay();
-    //    console.log("SCREEN SITE: ", result);
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
