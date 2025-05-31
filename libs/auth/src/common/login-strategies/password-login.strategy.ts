@@ -12,6 +12,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -75,7 +76,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordLoginCredentials) {
+  override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
@@ -167,11 +168,24 @@ export class PasswordLoginStrategy extends LoginStrategy {
     }
 
     // The identity result can contain master password policies for the user's organizations
-    const masterPasswordPolicyOptions =
-      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+    let masterPasswordPolicyOptions;
 
-    if (!masterPasswordPolicyOptions?.enforceOnLogin) {
-      return;
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      masterPasswordPolicyOptions = credentials.masterPasswordPolicies;
+      authResult.orgInviteAndWeakPassword = true;
+
+      if (!masterPasswordPolicyOptions.enforceOnLogin) {
+        return;
+      }
+    } else {
+      masterPasswordPolicyOptions =
+        this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+
+      if (!masterPasswordPolicyOptions?.enforceOnLogin) {
+        return;
+      }
     }
 
     // If there is a policy active, evaluate the supplied password before its no longer in memory

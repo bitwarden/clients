@@ -97,7 +97,7 @@ describe("DefaultChangePasswordService", () => {
 
     it("should throw if a userId was not found", async () => {
       // Arrange
-      const userId: null = null;
+      const userId: undefined = undefined;
 
       // Act
       const testFn = sut.changePassword(passwordInputResult, userId);
@@ -109,7 +109,7 @@ describe("DefaultChangePasswordService", () => {
     it("should throw if a currentMasterKey was not found", async () => {
       // Arrange
       const incorrectPasswordInputResult = { ...passwordInputResult };
-      incorrectPasswordInputResult.currentMasterKey = null;
+      incorrectPasswordInputResult.currentMasterKey = undefined;
 
       // Act
       const testFn = sut.changePassword(incorrectPasswordInputResult, userId);
@@ -123,7 +123,7 @@ describe("DefaultChangePasswordService", () => {
     it("should throw if a currentServerMasterKeyHash was not found", async () => {
       // Arrange
       const incorrectPasswordInputResult = { ...passwordInputResult };
-      incorrectPasswordInputResult.currentServerMasterKeyHash = null;
+      incorrectPasswordInputResult.currentServerMasterKeyHash = undefined;
 
       // Act
       const testFn = sut.changePassword(incorrectPasswordInputResult, userId);
@@ -172,6 +172,45 @@ describe("DefaultChangePasswordService", () => {
       await expect(testFn).rejects.toThrow(
         "rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web",
       );
+    });
+  });
+
+  describe("changePasswordForAccountRecovery()", () => {
+    it("should call the putUpdateTempPassword() API method with the correct UpdateTempPasswordRequest credentials", async () => {
+      // Act
+      await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
+          key: newMasterKeyEncryptedUserKey[1].encryptedString,
+        }),
+      );
+    });
+
+    it("should throw an error if user key decryption fails", async () => {
+      // Arrange
+      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
+
+      // Act
+      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      await expect(testFn).rejects.toThrow("Could not decrypt user key");
+    });
+
+    it("should throw an error if putUpdateTempPassword() fails", async () => {
+      // Arrange
+      masterPasswordApiService.putUpdateTempPassword.mockRejectedValueOnce(new Error("error"));
+
+      // Act
+      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      await expect(testFn).rejects.toThrow("Could not change password");
+      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalled();
     });
   });
 });

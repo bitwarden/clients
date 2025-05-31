@@ -11,11 +11,14 @@ import {
 } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -42,6 +45,7 @@ export class WebLoginComponentService
     ssoLoginService: SsoLoginServiceAbstraction,
     private router: Router,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     super(
       cryptoFunctionService,
@@ -95,12 +99,25 @@ export class WebLoginComponentService
       const isPolicyAndAutoEnrollEnabled =
         resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
-      const enforcedPasswordPolicyOptions = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
-        ),
-      );
+      let enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
+
+      if (
+        await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+      ) {
+        // Properly error if we don't have an org invite with
+        enforcedPasswordPolicyOptions = await firstValueFrom(
+          this.policyService.masterPasswordPolicyOptions$(orgInvite.userId, policies),
+        );
+      } else {
+        enforcedPasswordPolicyOptions = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) =>
+              this.policyService.masterPasswordPolicyOptions$(userId, policies),
+            ),
+          ),
+        );
+      }
 
       return {
         policies,

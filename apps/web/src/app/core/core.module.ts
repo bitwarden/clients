@@ -62,6 +62,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Urls,
@@ -312,6 +313,7 @@ const safeProviders: SafeProvider[] = [
       SsoLoginServiceAbstraction,
       Router,
       AccountService,
+      ConfigService,
     ],
   }),
   safeProvider({

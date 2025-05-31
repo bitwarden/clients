@@ -14,6 +14,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   AnonLayoutWrapperComponent,
@@ -40,6 +41,7 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
+  ChangePasswordComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
@@ -119,7 +121,15 @@ const routes: Routes = [
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
+    canActivate: [
+      canAccessFeature(
+        FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+        false,
+        `/change-password`,
+        false,
+      ),
+      authGuard,
+    ],
   },
   {
     path: "remove-password",
@@ -322,6 +332,12 @@ const routes: Routes = [
             key: "verifyYourIdentity",
           },
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "change-password",
+        component: ChangePasswordComponent,
+        // TODO: Turn this on with PM-22155 and resolve routing complexities.
+        // canActivate: [authGuard],
       },
     ],
   },
