@@ -122,7 +122,11 @@ describe("DefaultSetPasswordJitService", () => {
       };
 
       credentials = {
-        ...passwordInputResult,
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+        newPasswordHint: passwordInputResult.newPasswordHint,
+        kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier,
         orgId,
         resetPasswordAutoEnroll,

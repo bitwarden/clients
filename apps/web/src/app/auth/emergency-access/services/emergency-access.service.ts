@@ -87,7 +87,7 @@ export class EmergencyAccessService
   }
 
   /**
-   * Returns policies that apply to the grantor.
+   * Returns policies that apply to the grantor if the grantor is the owner of an org, otherwise returns null.
    * Intended for grantee.
    * @param id emergency access id
    */

@@ -1,0 +1,46 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "takeover" | i18n }}
+    <small class="tw-text-muted" *ngIf="dialogData.grantorName">{{ dialogData.grantorName }}</small>
+  </span>
+
+  <div bitDialogContent>
+    @if (initializing) {
+      <div class="tw-flex tw-items-center tw-justify-center">
+        <i
+          class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </div>
+    } @else {
+      <!-- TODO: PM-22237 -->
+      <!-- <bit-callout type="warning">{{
+        "emergencyAccessLoggedOutWarning" | i18n: dialogData.grantorName
+      }}</bit-callout> -->
+
+      <auth-input-password
+        [flow]="inputPasswordFlow"
+        [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
+        (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+        (isSubmitting)="handleIsSubmittingChange($event)"
+      ></auth-input-password>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="submitting$ | async"
+      (click)="handlePrimaryButtonClick()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
