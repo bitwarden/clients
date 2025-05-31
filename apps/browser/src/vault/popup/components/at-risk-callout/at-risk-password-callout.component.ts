@@ -1,13 +1,11 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { map, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { AnchorLinkDirective, CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AtRiskPasswordPageService } from "../at-risk-passwords/at-risk-password-page.service";
 
 @Component({
   selector: "vault-at-risk-password-callout",
@@ -16,11 +14,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   templateUrl: "./at-risk-password-callout.component.html",
 })
 export class AtRiskPasswordCalloutComponent {
-  private taskService = inject(TaskService);
-  private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
+  private atRiskPasswordPageService = inject(AtRiskPasswordPageService);
 
-  protected pendingTasks$ = this.activeAccount$.pipe(
-    switchMap((userId) => this.taskService.pendingTasks$(userId)),
-    map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
-  );
+  protected atRiskItems$ = this.atRiskPasswordPageService.atRiskItems$;
 }
