@@ -3,6 +3,7 @@
 import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
+import { uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -234,9 +235,9 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     const cipherView = new CipherView();
-    cipherView.id = obj.id ?? null;
-    cipherView.organizationId = obj.organizationId ?? null;
-    cipherView.folderId = obj.folderId ?? null;
+    cipherView.id = uuidAsString(obj.id) ?? null;
+    cipherView.organizationId = uuidAsString(obj.organizationId) ?? null;
+    cipherView.folderId = uuidAsString(obj.folderId) ?? null;
     cipherView.name = obj.name;
     cipherView.notes = obj.notes ?? null;
     cipherView.type = obj.type;
@@ -260,7 +261,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? null;
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? null;
-    cipherView.collectionIds = obj.collectionIds ?? null;
+    cipherView.collectionIds = (obj.collectionIds ?? null)?.map((id) => uuidAsString(id));
     cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
