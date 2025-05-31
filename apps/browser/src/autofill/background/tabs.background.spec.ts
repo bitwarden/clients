@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import MainBackground from "../../background/main.background";
+import { AutofillBadgeUpdaterService } from "../services/autofill-badge-updater.service";
 import {
   flushPromises,
   triggerTabOnActivatedEvent,
@@ -23,9 +24,15 @@ describe("TabsBackground", () => {
   });
   const notificationBackground = mock<NotificationBackground>();
   const overlayBackground = mock<OverlayBackground>();
+  const badgeUpdater = mock<AutofillBadgeUpdaterService>();
 
   beforeEach(() => {
-    tabsBackground = new TabsBackground(mainBackground, notificationBackground, overlayBackground);
+    tabsBackground = new TabsBackground(
+      mainBackground,
+      notificationBackground,
+      overlayBackground,
+      badgeUpdater,
+    );
   });
 
   afterEach(() => {
@@ -73,7 +80,7 @@ describe("TabsBackground", () => {
         triggerWindowOnFocusedChangedEvent(10);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
+        expect(badgeUpdater.refresh).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -91,7 +98,7 @@ describe("TabsBackground", () => {
         triggerTabOnActivatedEvent({ tabId: 10, windowId: 20 });
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
+        expect(badgeUpdater.refresh).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -127,7 +134,7 @@ describe("TabsBackground", () => {
         triggerTabOnReplacedEvent(10, 20);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
+        expect(badgeUpdater.refresh).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
@@ -160,7 +167,7 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(badgeUpdater.refresh).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -170,7 +177,7 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(badgeUpdater.refresh).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -180,7 +187,7 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(badgeUpdater.refresh).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
@@ -190,7 +197,7 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(badgeUpdater.refresh).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
       });
 
@@ -205,7 +212,7 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).toHaveBeenCalled();
+        expect(badgeUpdater.refresh).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
         expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
