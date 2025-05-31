@@ -37,7 +37,6 @@ export enum FeatureFlag {
   UseOrganizationWarningsService = "use-organization-warnings-service",
 
   /* Data Insights and Reporting */
-  CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
   /* Key Management */
@@ -95,7 +94,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
   /* Data Insights and Reporting */
-  [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
