@@ -17,7 +17,6 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -254,13 +253,10 @@ export abstract class LoginStrategy {
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
     const result = new AuthResult();
 
-    // Old encryption keys must be migrated, but is currently only available on web.
-    // Other clients shouldn't continue the login process.
+    // Encryption key migration of legacy users (with no userkey) is not supported anymore
     if (this.encryptionKeyMigrationRequired(response)) {
       result.requiresEncryptionKeyMigration = true;
-      if (this.platformUtilsService.getClientType() !== ClientType.Web) {
-        return result;
-      }
+      return result;
     }
 
     // Must come before setting keys, user key needs email to update additional keys.

@@ -282,16 +282,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (authResult.requiresEncryptionKeyMigration) {
       /* Legacy accounts used the master key to encrypt data.
-         Migration is required but only performed on Web. */
-      if (this.clientType === ClientType.Web) {
-        await this.router.navigate(["migrate-legacy-encryption"]);
-      } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-      }
+         This is now unsupported and requires a downgraded client */
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccured"),
+        message: this.i18nService.t("legacyEncryptionUnsupported"),
+      });
       return;
     }
 
