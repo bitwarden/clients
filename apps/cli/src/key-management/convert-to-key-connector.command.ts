@@ -1,4 +1,4 @@
-import * as inquirer from "inquirer";
+import * as inquirer from "@inquirer/prompts";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -38,9 +38,7 @@ export class ConvertToKeyConnectorCommand {
 
     const organization = await this.keyConnectorService.getManagingOrganization(this.userId);
 
-    const answer: inquirer.Answers = await inquirer.createPromptModule({ output: process.stderr })({
-      type: "list",
-      name: "convert",
+    const answer = await inquirer.select({
       message: this.i18nService.t(
         "removeMasterPasswordForOrganizationUserKeyConnector",
         organization.name,
@@ -62,7 +60,7 @@ export class ConvertToKeyConnectorCommand {
       ],
     });
 
-    if (answer.convert === "remove") {
+    if (answer === "remove") {
       try {
         await this.keyConnectorService.migrateUser(organization.keyConnectorUrl, this.userId);
       } catch (e) {
@@ -77,7 +75,7 @@ export class ConvertToKeyConnectorCommand {
       await this.environmentService.setEnvironment(Region.SelfHosted, urls);
 
       return Response.success();
-    } else if (answer.convert === "leave") {
+    } else if (answer === "leave") {
       await this.organizationApiService.leave(organization.id);
       return Response.success();
     } else {
