@@ -11,6 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -114,13 +115,13 @@ export interface FolderAddEditDialogParams {
   folderId: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum FolderAddEditDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
-  Saved = "saved",
-}
+export const FolderAddEditDialogResult = {
+  Deleted: "deleted",
+  Canceled: "canceled",
+  Saved: "saved",
+} as const;
+
+export type FolderAddEditDialogResult = UnionOfValues<typeof FolderAddEditDialogResult>;
 
 /**
  * Strongly typed helper to open a FolderAddEdit dialog

@@ -1,8 +1,10 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum FieldType {
-  Text = 0,
-  Hidden = 1,
-  Boolean = 2,
-  Linked = 3,
-}
+import { UnionOfValues } from "../types/union-of-values";
+
+export const FieldType = {
+  Text: 0,
+  Hidden: 1,
+  Boolean: 2,
+  Linked: 3,
+} as const;
+
+export type FieldType = UnionOfValues<typeof FieldType>;

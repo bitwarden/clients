@@ -92,7 +92,7 @@ export class KeePass2XmlImporter extends BaseImporter implements Importer {
         } else if (key === "Notes") {
           cipher.notes += value + "\n";
         } else {
-          let type = FieldType.Text;
+          let type: FieldType = FieldType.Text;
           const attrs = valueEl.attributes as any;
           if (
             attrs.length > 0 &&

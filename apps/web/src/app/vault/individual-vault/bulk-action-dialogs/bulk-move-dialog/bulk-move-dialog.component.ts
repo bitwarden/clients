@@ -11,6 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DialogConfig,
   DialogRef,
@@ -23,12 +24,12 @@ export interface BulkMoveDialogParams {
   cipherIds?: string[];
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum BulkMoveDialogResult {
-  Moved = "moved",
-  Canceled = "canceled",
-}
+export const BulkMoveDialogResult = {
+  Moved: "moved",
+  Canceled: "canceled",
+} as const;
+
+type BulkMoveDialogResult = UnionOfValues<typeof BulkMoveDialogResult>;
 
 /**
  * Strongly typed helper to open a BulkMoveDialog

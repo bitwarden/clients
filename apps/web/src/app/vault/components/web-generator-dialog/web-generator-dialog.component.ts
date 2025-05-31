@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -26,12 +27,12 @@ export interface WebVaultGeneratorDialogResult {
   generatedValue?: string;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum WebVaultGeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const WebVaultGeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type WebVaultGeneratorDialogAction = UnionOfValues<typeof WebVaultGeneratorDialogAction>;
 
 @Component({
   selector: "web-vault-generator-dialog",

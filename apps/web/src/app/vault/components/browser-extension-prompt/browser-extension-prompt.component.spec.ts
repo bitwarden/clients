@@ -16,7 +16,7 @@ describe("BrowserExtensionPromptComponent", () => {
   let component: BrowserExtensionPromptComponent;
   const start = jest.fn();
   const openExtension = jest.fn();
-  const pageState$ = new BehaviorSubject(BrowserPromptState.Loading);
+  const pageState$ = new BehaviorSubject<BrowserPromptState>(BrowserPromptState.Loading);
   const setAttribute = jest.fn();
   const getAttribute = jest.fn().mockReturnValue("width=1010");
 

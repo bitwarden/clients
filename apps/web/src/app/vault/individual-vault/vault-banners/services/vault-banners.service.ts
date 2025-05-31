@@ -15,17 +15,18 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { PBKDF2KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VisibleVaultBanner {
-  KDFSettings = "kdf-settings",
-  OutdatedBrowser = "outdated-browser",
-  Premium = "premium",
-  VerifyEmail = "verify-email",
-  PendingAuthRequest = "pending-auth-request",
-}
+export const VisibleVaultBanner = {
+  KDFSettings: "kdf-settings",
+  OutdatedBrowser: "outdated-browser",
+  Premium: "premium",
+  VerifyEmail: "verify-email",
+  PendingAuthRequest: "pending-auth-request",
+} as const;
+
+export type VisibleVaultBanner = UnionOfValues<typeof VisibleVaultBanner>;
 
 type PremiumBannerReprompt = {
   numberOfDismissals: number;
@@ -34,7 +35,7 @@ type PremiumBannerReprompt = {
 };
 
 /** Banners that will be re-shown on a new session */
-type SessionBanners = Omit<VisibleVaultBanner, VisibleVaultBanner.Premium>;
+type SessionBanners = Omit<VisibleVaultBanner, typeof VisibleVaultBanner.Premium>;
 
 export const PREMIUM_BANNER_REPROMPT_KEY = new UserKeyDefinition<PremiumBannerReprompt>(
   PREMIUM_BANNER_DISK_LOCAL,
