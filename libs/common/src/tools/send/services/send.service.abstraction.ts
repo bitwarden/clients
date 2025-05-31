@@ -54,7 +54,7 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
   /**
    * @deprecated Only use in CLI
    */
-  getAllDecryptedFromState: () => Promise<SendView[]>;
+  getAllDecryptedFromState: (userId: UserId) => Promise<SendView[]>;
 }
 
 export abstract class InternalSendService extends SendService {

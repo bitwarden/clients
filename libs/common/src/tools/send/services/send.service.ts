@@ -199,14 +199,14 @@ export class SendService implements InternalSendServiceAbstraction {
     return response;
   }
 
-  async getAllDecryptedFromState(): Promise<SendView[]> {
+  async getAllDecryptedFromState(userId: UserId): Promise<SendView[]> {
     let decSends = await this.stateProvider.getDecryptedSends();
     if (decSends != null) {
       return decSends;
     }
 
     decSends = [];
-    const hasKey = await this.keyService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey(userId);
     if (!hasKey) {
       throw new Error("No user key found.");
     }
