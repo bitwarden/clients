@@ -89,7 +89,9 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
-    "sign": "./sign.js",
+    "signtoolOptions": {
+      "sign": "./sign.js"
+    },
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
@@ -108,9 +110,11 @@
     ],
     "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
     "desktop": {
-      "Name": "Bitwarden",
-      "Type": "Application",
-      "GenericName": "Password Manager"
+      "entry": {
+        "Name": "Bitwarden",
+        "Type": "Application",
+        "GenericName": "Password Manager"
+      }
     }
   },
   "dmg": {
