@@ -15,13 +15,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
-import {
-  DialogService,
-  IconButtonModule,
-  ItemModule,
-  MenuModule,
-  ToastService,
-} from "@bitwarden/components";
+import { DialogService, IconButtonModule, MenuModule, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -31,7 +25,7 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
-  imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
+  imports: [IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
 export class ItemMoreOptionsComponent implements OnInit {
   private _cipher$ = new BehaviorSubject<CipherView>(undefined);

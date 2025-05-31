@@ -89,9 +89,9 @@ The content can be a button, anchor, or static container.
 Secondary interactive actions can be placed in the item through the `"end"` slot, outside of
 `bit-item-content`.
 
-Each action must be wrapped by `<bit-item-action>`.
-
 Actions are commonly icon buttons or badge buttons.
+
+Each action must be wrapped by `<bit-item-action>`.
 
 ```html
 <bit-item>
@@ -108,6 +108,31 @@ Actions are commonly icon buttons or badge buttons.
       <button type="button" bitIconButton="bwi-ellipsis-v" aria-label="Options"></button>
     </bit-item-action>
   </ng-container>
+</bit-item>
+```
+
+Each action should be a direct descendant of `<bit-item>`--do not wrap actions in another component,
+as this will break accessibility guarantees.
+
+Broken:
+
+```html
+<bit-item>
+  <button bit-item-content>...</button>
+
+  <some-component-that-contains-an-action slot="end"></some-component-that-contains-an-action>
+</bit-item>
+```
+
+Fixed:
+
+```html
+<bit-item>
+  <button bit-item-content>...</button>
+
+  <bit-item-action slot="end">
+    <some-component></some-component>
+  </bit-item-action>
 </bit-item>
 ```
 
@@ -145,8 +170,6 @@ Groups of items can be associated by wrapping them in the `<bit-item-group>`.
 
 ### A11y
 
-Keyboard nav is currently disabled due to a bug when used within a virtual scroll viewport.
-
 Item groups utilize arrow-based keyboard navigation
 ([further reading here](https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/layout-grids/#kbd_label)).
 
@@ -161,5 +184,8 @@ Use `aria-label` or `aria-labelledby` to give groups an accessible name.
 ```
 
 ### Virtual Scrolling
+
+To utilize virtual scrolling, `bit-item-group` should be placed inside of the virtual scroll
+viewport.
 
 <Canvas of={stories.VirtualScrolling} />

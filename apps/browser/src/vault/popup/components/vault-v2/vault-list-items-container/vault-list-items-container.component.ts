@@ -42,8 +42,10 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
+  MenuModule,
 } from "@bitwarden/components";
 import {
+  CopyCipherFieldDirective,
   DecryptionFailureDialogComponent,
   OrgIconDirective,
   PasswordRepromptService,
@@ -52,9 +54,9 @@ import {
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy-buttons.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
-import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
 @Component({
@@ -68,12 +70,14 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     TypographyModule,
     JslibModule,
     SectionHeaderComponent,
-    ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
+    DecryptionFailureDialogComponent,
+    MenuModule,
+    CopyCipherFieldDirective,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -83,6 +87,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+  protected copyButtonsService = inject(VaultPopupCopyButtonsService);
+
+  protected CipherType = CipherType;
 
   @ViewChild(CdkVirtualScrollViewport, { static: false }) viewPort: CdkVirtualScrollViewport;
   @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
