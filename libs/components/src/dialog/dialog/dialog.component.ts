@@ -2,20 +2,18 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, HostBinding, HostListener, Input } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../../icon-button/icon-button.component";
 import { TypographyDirective } from "../../typography/typography.directive";
-import { fadeIn } from "../animations";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 
 @Component({
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
-  animations: [fadeIn],
   standalone: true,
   imports: [
     CommonModule,
@@ -62,11 +60,19 @@ export class DialogComponent {
    */
   @Input() loading = false;
 
+  private animationCompleted = false;
+
   @HostBinding("class") get classes() {
-    // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
-    return ["tw-flex", "tw-flex-col", "tw-w-screen", "tw-p-4", "tw-max-h-[90vh]"].concat(
-      this.width,
-    );
+    return [
+      "tw-flex",
+      "tw-flex-col",
+      "tw-w-screen",
+      "md:tw-p-4",
+      // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
+      "tw-max-h-[90vh]",
+      // Prevent the animation from starting again when the viewport changes since it changes between breakpoints
+      ...(this.animationCompleted ? [] : this.animationClasses),
+    ].concat(this.width);
   }
 
   get width() {
@@ -81,5 +87,19 @@ export class DialogComponent {
         return "tw-max-w-xl";
       }
     }
+  }
+
+  get animationClasses() {
+    switch (this.dialogSize) {
+      case "small":
+        return ["tw-animate-slide-down"];
+      default:
+        return ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+    }
+  }
+
+  @HostListener("animationend")
+  onAnimationEnd() {
+    this.animationCompleted = true;
   }
 }

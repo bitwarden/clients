@@ -7,7 +7,13 @@ import {
   DialogRef,
   DIALOG_SCROLL_STRATEGY,
 } from "@angular/cdk/dialog";
-import { ComponentType, Overlay, OverlayContainer, ScrollStrategy } from "@angular/cdk/overlay";
+import {
+  ComponentType,
+  GlobalPositionStrategy,
+  Overlay,
+  OverlayContainer,
+  ScrollStrategy,
+} from "@angular/cdk/overlay";
 import {
   Inject,
   Injectable,
@@ -46,6 +52,47 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
 
   /** Noop */
   detach() {}
+}
+
+/**
+ * A responsive position strategy that adjusts the dialog position based on the screen size.
+ */
+class ResponsivePositionStrategy extends GlobalPositionStrategy {
+  onResizeListener: () => void | null = null;
+
+  /**
+   * The previous breakpoint to avoid unnecessary updates.
+   * `null` means no previous breakpoint has been set.
+   */
+  prevBreakpoint: "small" | "large" | null = null;
+
+  constructor() {
+    super();
+    this.onResizeListener = this.updatePosition.bind(this);
+    this.updatePosition(); // Initial position update
+    window.addEventListener("resize", this.onResizeListener);
+  }
+
+  override dispose() {
+    window.removeEventListener("resize", this.onResizeListener);
+    this.onResizeListener = null;
+    super.dispose();
+  }
+
+  updatePosition() {
+    const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+    const currentBreakpoint = isSmallScreen ? "small" : "large";
+    if (this.prevBreakpoint === currentBreakpoint) {
+      return; // No change in breakpoint, no need to update position
+    }
+    this.prevBreakpoint = currentBreakpoint;
+    if (isSmallScreen) {
+      this.bottom().centerHorizontally();
+    } else {
+      this.centerVertically().centerHorizontally();
+    }
+    this.apply();
+  }
 }
 
 @Injectable()
@@ -96,9 +143,14 @@ export class DialogService extends Dialog implements OnDestroy {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, DialogRef<R, C>>,
   ): DialogRef<R, C> {
+    const responsive = config?.responsive ?? true;
+
     config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
+      positionStrategy: responsive
+        ? new ResponsivePositionStrategy()
+        : new GlobalPositionStrategy().centerHorizontally().centerVertically(),
       ...config,
     };
 
@@ -131,6 +183,7 @@ export class DialogService extends Dialog implements OnDestroy {
     return this.open<boolean, SimpleDialogOptions>(SimpleConfigurableDialogComponent, {
       data: simpleDialogOptions,
       disableClose: simpleDialogOptions.disableClose,
+      responsive: false,
     });
   }
 
