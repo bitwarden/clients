@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { LooseComponentsModule, SharedModule } from "../../../shared";
 
 import { DisableSendPolicyComponent } from "./disable-send.component";
+import { HelpUsersUpdatePasswordsComponent } from "./help-users-update-passwords.component";
 import { MasterPasswordPolicyComponent } from "./master-password.component";
 import { PasswordGeneratorPolicyComponent } from "./password-generator.component";
 import { PersonalOwnershipPolicyComponent } from "./personal-ownership.component";
@@ -30,6 +31,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     PoliciesComponent,
     PolicyEditComponent,
     RemoveUnlockWithPinPolicyComponent,
+    HelpUsersUpdatePasswordsComponent,
   ],
   exports: [
     DisableSendPolicyComponent,
@@ -44,6 +46,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     PoliciesComponent,
     PolicyEditComponent,
     RemoveUnlockWithPinPolicyComponent,
+    HelpUsersUpdatePasswordsComponent,
   ],
 })
 export class PoliciesModule {}
