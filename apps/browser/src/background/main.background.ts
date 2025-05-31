@@ -437,7 +437,7 @@ export default class MainBackground {
 
   constructor() {
     // Services
-    const lockedCallback = async (userId?: string) => {
+    const lockedCallback = async (userId: UserId) => {
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
