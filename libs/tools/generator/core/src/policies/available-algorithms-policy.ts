@@ -22,7 +22,7 @@ export function availableAlgorithms(policies: Policy[]): CredentialAlgorithm[] {
     ...AlgorithmsByType[Type.username],
   ];
   if (overridePassword) {
-    policy.push(overridePassword);
+    policy.push(overridePassword); //introduce additional password/passphrase stuff
   } else {
     policy.push(...AlgorithmsByType[Type.password]);
   }

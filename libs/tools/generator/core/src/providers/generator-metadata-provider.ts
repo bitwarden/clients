@@ -75,7 +75,7 @@ export class GeneratorMetadataProvider {
 
       result = toForwarderMetadata(extension);
     } else {
-      result = this._metadata.get(algorithm);
+      result = this._metadata.get(algorithm).pipe(first());
     }
 
     if (!result) {
@@ -84,6 +84,25 @@ export class GeneratorMetadataProvider {
 
     return result;
   }
+
+  private metadataBySdkFlag(
+    algorithm: GeneratorMetadata<unknown & object>,
+    useSdkService: boolean,
+  ): GeneratorMetadata<unknown & object> {
+    if (useSdkService) {
+      if (algorithm.id == "password") {
+        return sdkPassword;
+      } else if (algorithm.id == "passphrase") {
+        return sdkPassphrase;
+      }
+    }
+    return algorithm;
+  }
+
+  // metadata$ built by reading config service
+  // use memoizedMap() to wrap call (creating the map)
+  // 86 _metadata, new metadata will be encapsulated in observable
+  // distinctUntilChanged() after memoized map
 
   /** retrieve credential types */
   types(): ReadonlyArray<CredentialType> {

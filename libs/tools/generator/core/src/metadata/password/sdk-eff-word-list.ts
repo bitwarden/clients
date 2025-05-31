@@ -2,7 +2,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkPasswordRandomizer } from "../../engine";
 import { passphraseLeastPrivilege, PassphrasePolicyConstraints } from "../../policies";
@@ -31,7 +30,7 @@ const sdkPassphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PassphraseGenerationOptions> {
-      return new SdkPasswordRandomizer(new BitwardenClient(), Date.now); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(dependencies.sdk, Date.now); // @TODO hook up a real SDK client
     },
   },
   profiles: {
