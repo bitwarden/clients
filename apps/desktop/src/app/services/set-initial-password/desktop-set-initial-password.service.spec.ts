@@ -39,10 +39,10 @@ describe("DesktopSetInitialPasswordService", () => {
   let keyService: MockProxy<KeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let messagingService: MockProxy<MessagingService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
-  let messagingService: MockProxy<MessagingService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -52,10 +52,10 @@ describe("DesktopSetInitialPasswordService", () => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    messagingService = mock<MessagingService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    messagingService = mock<MessagingService>();
 
     sut = new DesktopSetInitialPasswordService(
       apiService,
@@ -65,10 +65,10 @@ describe("DesktopSetInitialPasswordService", () => {
       keyService,
       masterPasswordApiService,
       masterPasswordService,
+      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
-      messagingService,
     );
   });
 
