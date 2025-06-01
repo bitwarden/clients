@@ -32,7 +32,6 @@ import { DefaultSetInitialPasswordService } from "./default-set-initial-password
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -121,7 +120,7 @@ describe("DefaultSetInitialPasswordService", () => {
       orgId = "orgId";
       resetPasswordAutoEnroll = false;
       userId = "userId" as UserId;
-      userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       passwordInputResult = {
         newMasterKey: newMasterKey,
@@ -302,7 +301,8 @@ describe("DefaultSetInitialPasswordService", () => {
     it("should throw if newMasterKeyEncryptedUserKey encryptedString is not found", async () => {
       // Arrange
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(null);
+      userKeyEncString.encryptedString = undefined; // simulate missing encryptedString
+      keyService.encryptUserKeyWithMasterKey.mockResolvedValue([userKey, userKeyEncString]);
 
       // Act
       const testFn = sut.setInitialPasswordTdeOffboarding(passwordInputResult, userId);
