@@ -18,19 +18,19 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { postLogoutMessageListener$ } from "../../../auth/popup/utils/post-logout-message-listener";
 
-export class WebSetInitialPasswordService
+export class ExtensionSetInitialPasswordService
   extends DefaultSetInitialPasswordService
   implements SetInitialPasswordService
 {
   constructor(
     protected apiService: ApiService,
-    protected masterPasswordApiService: MasterPasswordApiService,
-    protected messagingService: MessagingService,
-    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
+    protected keyService: KeyService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -38,13 +38,13 @@ export class WebSetInitialPasswordService
   ) {
     super(
       apiService,
-      masterPasswordApiService,
-      messagingService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
+      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,

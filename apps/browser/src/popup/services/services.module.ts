@@ -3,7 +3,7 @@
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
 import { merge, of, Subject } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -28,8 +28,10 @@ import {
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
+  SetInitialPasswordService,
 } from "@bitwarden/auth/angular";
 import {
+  InternalUserDecryptionOptionsServiceAbstraction,
   LockService,
   LoginEmailService,
   PinServiceAbstraction,
@@ -38,6 +40,7 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import {
@@ -45,6 +48,7 @@ import {
   AccountService as AccountServiceAbstraction,
 } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import {
@@ -149,6 +153,7 @@ import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/exte
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
+import { ExtensionSetInitialPasswordService } from "../../auth/services/set-initial-password/extension-set-initial-password.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
@@ -670,6 +675,24 @@ const safeProviders: SafeProvider[] = [
     provide: NotificationsService,
     useClass: ForegroundNotificationsService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: ExtensionSetInitialPasswordService,
+    deps: [
+      ApiService,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      KeyService,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      MessagingServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      Router,
+    ],
   }),
 ];
 
