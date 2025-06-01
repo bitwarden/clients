@@ -343,4 +343,15 @@ describe("DefaultSetInitialPasswordService", () => {
       );
     });
   });
+
+  describe("logoutAndOptionallyNavigate", () => {
+    it("should logout the user via the messagingService", async () => {
+      // Act
+      await sut.logoutAndOptionallyNavigate();
+
+      // Assert
+      expect(messagingService.send).toHaveBeenCalledTimes(1);
+      expect(messagingService.send).toHaveBeenCalledWith("logout");
+    });
+  });
 });
