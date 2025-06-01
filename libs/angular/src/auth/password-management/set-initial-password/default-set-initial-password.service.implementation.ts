@@ -264,7 +264,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userKey,
     );
 
-    if (!newMasterKeyEncryptedUserKey) {
+    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
       throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
     }
 
