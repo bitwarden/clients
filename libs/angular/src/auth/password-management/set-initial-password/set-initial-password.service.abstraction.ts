@@ -74,7 +74,7 @@ export abstract class SetInitialPasswordService {
   /**
    * Sets an initial password for a user who logs in after their org offboarded from
    * trusted device encryption and is now a master-password-encryption org:
-   * - {@link SetInitialPasswordUserType.OFFBOARDED_TRUSTED_DEVICE_ORG_USER}
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
    * @param userId the account `userId`
