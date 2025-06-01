@@ -15,6 +15,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -34,6 +35,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   constructor(
     protected apiService: ApiService,
     protected masterPasswordApiService: MasterPasswordApiService,
+    protected messagingService: MessagingService,
     protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
@@ -258,7 +260,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     request.masterPasswordHint = passwordInputResult.newPasswordHint;
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
+  async logoutAndOptionallyNavigate() {
+    this.messagingService.send("logout");
   }
 }

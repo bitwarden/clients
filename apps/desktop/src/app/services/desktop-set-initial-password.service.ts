@@ -23,6 +23,7 @@ export class DesktopSetInitialPasswordService
   constructor(
     protected apiService: ApiService,
     protected masterPasswordApiService: MasterPasswordApiService,
+    protected messagingService: MessagingService,
     protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
@@ -31,11 +32,11 @@ export class DesktopSetInitialPasswordService
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    private messagingService: MessagingService,
   ) {
     super(
       apiService,
       masterPasswordApiService,
+      messagingService,
       keyService,
       encryptService,
       i18nService,
