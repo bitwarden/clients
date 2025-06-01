@@ -49,6 +49,7 @@ export class SetInitialPasswordComponent implements OnInit {
   protected submitting = false;
   protected userId?: UserId;
   protected userType?: SetInitialPasswordUserType;
+  protected SetInitialPasswordUserType = SetInitialPasswordUserType;
 
   constructor(
     private accountService: AccountService,
@@ -150,22 +151,25 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    if (
-      !this.userId ||
-      !this.userType ||
-      !this.orgSsoIdentifier ||
-      !this.orgId ||
-      this.resetPasswordAutoEnroll == null
-    ) {
-      throw new Error(
-        "userId, orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
-      );
+    if (!this.userId) {
+      throw new Error("userId not found. Could not set password.");
     }
 
     if (
       this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER ||
       this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP
     ) {
+      if (
+        !this.userType ||
+        !this.orgSsoIdentifier ||
+        !this.orgId ||
+        this.resetPasswordAutoEnroll == null
+      ) {
+        throw new Error(
+          "orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
+        );
+      }
+
       try {
         const credentials: SetInitialPasswordCredentials = {
           newMasterKey: passwordInputResult.newMasterKey,
