@@ -12,7 +12,7 @@ export abstract class IpcService {
   }
 
   private _messages$?: Observable<IncomingMessage>;
-  protected get messages$(): Observable<IncomingMessage> {
+  get messages$(): Observable<IncomingMessage> {
     if (!this._messages$) {
       throw new Error("IpcService not initialized");
     }
