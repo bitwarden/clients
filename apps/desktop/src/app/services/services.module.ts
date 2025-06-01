@@ -405,10 +405,10 @@ const safeProviders: SafeProvider[] = [
       KeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
+      MessagingServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
-      MessagingServiceAbstraction,
     ],
   }),
   safeProvider({

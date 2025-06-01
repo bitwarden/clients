@@ -236,7 +236,7 @@ export class SetInitialPasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordSuccessfullySet"),
         });
 
-        this.messagingService.send("logout");
+        await this.setInitialPasswordService.logoutAndOptionallyNavigate();
       } catch (e) {
         this.validationService.showError(e);
       } finally {

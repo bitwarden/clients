@@ -83,4 +83,10 @@ export abstract class SetInitialPasswordService {
     passwordInputResult: PasswordInputResult,
     userId: UserId,
   ) => Promise<void>;
+
+  /**
+   * Logs the user out and optionally navigates the user after a password is
+   * successfully set.
+   */
+  abstract logoutAndOptionallyNavigate: () => Promise<void> | void;
 }

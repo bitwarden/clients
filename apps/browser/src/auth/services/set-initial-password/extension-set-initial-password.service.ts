@@ -1,10 +1,11 @@
+import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
+
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import {
-  SetInitialPasswordCredentials,
+  DefaultSetInitialPasswordService,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
-} from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
+} from "@bitwarden/auth/angular";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -13,48 +14,54 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-export class DesktopSetInitialPasswordService
+import { postLogoutMessageListener$ } from "../../../auth/popup/utils/post-logout-message-listener";
+
+export class WebSetInitialPasswordService
   extends DefaultSetInitialPasswordService
   implements SetInitialPasswordService
 {
   constructor(
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
+    protected messagingService: MessagingService,
+    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
-    protected keyService: KeyService,
-    protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    private router: Router,
   ) {
     super(
       apiService,
+      masterPasswordApiService,
+      messagingService,
+      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
-      keyService,
-      masterPasswordApiService,
       masterPasswordService,
-      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
     );
   }
 
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
+  override async logoutAndOptionallyNavigate() {
+    // start listening for "switchAccountFinish" or "doneLoggingOut"
+    const messagePromise = firstValueFrom(postLogoutMessageListener$);
+    this.messagingService.send("logout");
 
-    this.messagingService.send("redrawMenu");
+    // wait for messages
+    const command = await messagePromise;
+
+    // doneLoggingOut already has a message handler that will navigate us
+    if (command === "switchAccountFinish") {
+      await this.router.navigate(["/"]);
+    }
   }
 }

@@ -8,6 +8,9 @@ import {
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { PasswordInputResult } from "@bitwarden/auth/angular";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -19,13 +22,12 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
-
-import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import {
   SetInitialPasswordService,
@@ -42,6 +44,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -271,7 +274,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     request.masterPasswordHint = passwordInputResult.newPasswordHint;
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
+  async logoutAndOptionallyNavigate() {
+    this.messagingService.send("logout");
   }
 }

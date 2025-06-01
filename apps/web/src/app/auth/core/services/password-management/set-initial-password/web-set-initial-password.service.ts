@@ -12,6 +12,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { AcceptOrganizationInviteService } from "@bitwarden/web-vault/app/auth/organization-invite/accept-organization.service";
@@ -29,6 +30,7 @@ export class WebSetInitialPasswordService
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -43,6 +45,7 @@ export class WebSetInitialPasswordService
       keyService,
       masterPasswordApiService,
       masterPasswordService,
+      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
