@@ -29,7 +29,6 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
-  SetInitialPasswordUser,
 } from "./set-initial-password.service.abstraction";
 
 @Component({
@@ -78,7 +77,7 @@ export class SetInitialPasswordComponent implements OnInit {
 
     await this.determineUserType();
 
-    if (this.userType !== SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER) {
+    if (this.userType !== SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
       await this.handleQueryParams();
     }
 
@@ -95,7 +94,7 @@ export class SetInitialPasswordComponent implements OnInit {
     );
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
-      this.userType = SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER;
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "setMasterPassword" },
         pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
@@ -104,13 +103,13 @@ export class SetInitialPasswordComponent implements OnInit {
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
-      this.userType = SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP;
+      this.userType = SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "setMasterPassword" },
         pageSubtitle: { key: "orgPermissionsUpdatedMustSetPassword" },
       });
     } else {
-      this.userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
+      this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "joinOrganization" },
         pageSubtitle: { key: "finishJoiningThisOrganizationBySettingAMasterPassword" },
@@ -164,8 +163,8 @@ export class SetInitialPasswordComponent implements OnInit {
     }
 
     if (
-      this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER ||
-      this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP
+      this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER ||
+      this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP
     ) {
       try {
         const credentials: SetInitialPasswordCredentials = {
@@ -185,7 +184,7 @@ export class SetInitialPasswordComponent implements OnInit {
           this.userId,
         );
 
-        if (this.userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
+        if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
           this.toastService.showToast({
             variant: "success",
             title: "",
@@ -199,7 +198,7 @@ export class SetInitialPasswordComponent implements OnInit {
           });
         }
 
-        if (this.userType === SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP) {
+        if (this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP) {
           this.toastService.showToast({
             variant: "success",
             title: "",
@@ -217,7 +216,7 @@ export class SetInitialPasswordComponent implements OnInit {
       return;
     }
 
-    if (this.userType === SetInitialPasswordUser.OFFBOARDED_TDE_ORG_USER) {
+    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
       try {
         await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
           passwordInputResult,
