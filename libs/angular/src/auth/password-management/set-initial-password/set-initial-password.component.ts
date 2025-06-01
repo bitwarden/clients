@@ -236,10 +236,10 @@ export class SetInitialPasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordSuccessfullySet"),
         });
 
-        this.submitting = false;
-        // TODO-rr-bw: logout user?
+        this.messagingService.send("logout");
       } catch (e) {
         this.validationService.showError(e);
+      } finally {
         this.submitting = false;
       }
 
