@@ -15,6 +15,7 @@ export default {
   },
   args: {
     message: "This is a notification message",
+    standalone: true,
     theme: ThemeTypes.Light,
     handleCloseNotification: () => alert("Close Clicked"),
     i18n: mockI18n,
