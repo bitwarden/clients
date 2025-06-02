@@ -241,15 +241,15 @@ export class CipherReportComponent implements OnDestroy {
         await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
       );
 
-      // determine the index of the updated cipher in the report
-      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
-
       // request downstream report status if the cipher was updated
       // this will return a null if the updated cipher does not meet the criteria for the report
       const updatedReportResult = await this.determinedUpdatedCipherReportStatus(
         result,
         updatedCipherView,
       );
+
+      // determine the index of the updated cipher in the report
+      const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
 
       // the updated cipher does not meet the criteria for the report, it returns a null
       if (updatedReportResult === null) {
