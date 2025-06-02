@@ -11,7 +11,6 @@ import { TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
-  standalone: true,
   selector: "nudge-generator-spotlight",
   templateUrl: "nudge-generator-spotlight.component.html",
   imports: [I18nPipe, SpotlightComponent, AsyncPipe, CommonModule, TypographyModule],
