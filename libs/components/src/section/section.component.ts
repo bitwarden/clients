@@ -4,7 +4,6 @@ import { Component, Input } from "@angular/core";
 
 @Component({
   selector: "bit-section",
-  standalone: true,
   imports: [CommonModule],
   template: `
     <section

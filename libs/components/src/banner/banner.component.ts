@@ -28,7 +28,6 @@ const defaultIcon: Record<BannerType, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  standalone: true,
   imports: [CommonModule, IconButtonModule, I18nPipe],
 })
 export class BannerComponent implements OnInit {
