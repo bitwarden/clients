@@ -27,7 +27,7 @@
       "@bitwarden/cli/*": ["./apps/cli/src/*"],
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
-      "@bitwarden/tools-card": ["./libs/dirt/card/src"],
+      "@bitwarden/dirt-card": ["./libs/dirt/card/src"],
       "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],
       "@bitwarden/generator-core": ["./libs/tools/generator/core/src"],
       "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
