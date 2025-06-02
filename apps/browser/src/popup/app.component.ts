@@ -52,9 +52,15 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
     @if (showSdkWarning) {
       <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
         <bit-callout type="danger">
-          Your browser does not support WebAssembly or WebAssembly is disabled. Please enable
-          WebAssembly if you continue to see this error message, please reach out to Bitwarden
-          support.
+          {{ "wasmNotSupported" | i18n }}
+          <a
+            bitLink
+            href="https://bitwarden.com/help/wasm-not-supported/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {{ "learnMore" | i18n }}
+          </a>
         </bit-callout>
       </div>
     } @else {
