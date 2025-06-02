@@ -49,6 +49,7 @@ class MockStateService {
 @Component({
   selector: "product-switcher",
   template: `<button type="button" bitIconButton="bwi-filter"></button>`,
+  standalone: false,
 })
 class MockProductSwitcher {}
 

@@ -351,12 +351,6 @@
   "other": {
     "message": "Egyéb"
   },
-  "generatePassword": {
-    "message": "Jelszó generálása"
-  },
-  "generatePassphrase": {
-    "message": "Jelmondat generálás"
-  },
   "type": {
     "message": "Típus"
   },
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Felhasználónév generátor"
   },
+  "generatePassword": {
+    "message": "Jelszó generálása"
+  },
+  "generatePassphrase": {
+    "message": "Jelmondat generálás"
+  },
+  "passwordGenerated": {
+    "message": "A jelszó generálásra került."
+  },
+  "passphraseGenerated": {
+    "message": "A jelmondat generálásra került."
+  },
+  "usernameGenerated": {
+    "message": "A felhasználónév generálásra került."
+  },
+  "emailGenerated": {
+    "message": "Az email generálásra került."
+  },
   "spinboxBoundariesHint": {
     "message": "Az érték legyen $MIN$ és $MAX$ között.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Ezen email használata"
+  },
+  "useThisPassword": {
+    "message": "Jelszó használata"
+  },
+  "useThisPassphrase": {
+    "message": "Jelmondat használata"
+  },
+  "useThisUsername": {
+    "message": "Felhasználónév használata"
   },
   "random": {
     "message": "Véletlen"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Gyenge jelszó lett azonosítva és megtalálva egy adatvédelmi incidens során. A fók védelme érdekében használjunk erős és egyedi jelszót. Biztosan használni szeretnénk ezt a jelszót?"
-  },
-  "useThisPassword": {
-    "message": "Jelszó használata"
-  },
-  "useThisUsername": {
-    "message": "Felhasználónév használata"
   },
   "checkForBreaches": {
     "message": "Az ehhez a jelszóhoz tartozó ismert adatvédelmi incidensek ellenőrzése"
@@ -3723,6 +3738,31 @@
   },
   "folderHintText": {
     "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
+  },
+  "sendsTitleNoItems": {
+    "message": "Érzékeny információt küldése biztonságosan",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Fájlok vagy adatok megosztása biztonságosan bárkivel, bármilyen platformon. Az információk titkosítva maradnak a végpontokon, korlátozva a kitettséget.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Jelszavak gyors létrehozása"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Könnyen létrehozhatunk erős és egyedi jelszavakat a gombra kattintva",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "a bejelentkezések biztonságának megőrzéséhez.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"

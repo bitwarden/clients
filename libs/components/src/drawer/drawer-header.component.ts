@@ -18,7 +18,7 @@ import { DrawerCloseDirective } from "./drawer-close.directive";
   imports: [CommonModule, DrawerCloseDirective, TypographyModule, IconButtonModule, I18nPipe],
   templateUrl: "drawer-header.component.html",
   host: {
-    class: "tw-block tw-pl-4 tw-pr-2 tw-py-2",
+    class: "tw-block tw-ps-4 tw-pe-2 tw-py-2",
   },
 })
 export class DrawerHeaderComponent {

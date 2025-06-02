@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 
@@ -45,7 +43,18 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
     "hover:!tw-text-contrast",
   ],
 };
+/**
+  * Badges are primarily used as labels, counters, and small buttons.
 
+  * Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the component configurations may be reviewed and adjusted.
+
+  * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
+
+  * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
+  * 
+  * > `NOTE:` The `disabled` state only applies to buttons.
+  * 
+*/
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
   providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
@@ -89,7 +98,7 @@ export class BadgeComponent implements FocusableElement {
     if (this.title !== undefined) {
       return this.title;
     }
-    return this.truncate ? this.el.nativeElement.textContent.trim() : null;
+    return this.truncate ? this?.el?.nativeElement?.textContent?.trim() : null;
   }
 
   /**

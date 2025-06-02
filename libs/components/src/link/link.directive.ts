@@ -66,6 +66,14 @@ abstract class LinkDirective {
   linkType: LinkType = "primary";
 }
 
+/**
+  * Text Links and Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button takes:
+
+  * - if navigating to a new page, use a `<a>`
+  * - if taking an action on the current page, use a `<button>`
+
+  * Text buttons or links are most commonly used in paragraphs of text or in forms to customize actions or show/hide additional form options.
+ */
 @Directive({
   selector: "a[bitLink]",
   standalone: true,
