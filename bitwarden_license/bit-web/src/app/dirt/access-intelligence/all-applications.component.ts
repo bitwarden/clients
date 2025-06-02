@@ -107,14 +107,7 @@ export class AllApplicationsComponent implements OnInit {
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          skipWhile(
-            ([apps, criticalApps, organization]) =>
-              !organization ||
-              !apps ||
-              apps.length === 0 ||
-              !criticalApps ||
-              criticalApps.length === 0,
-          ),
+          skipWhile(([apps, organization]) => !organization || !apps || apps.length === 0),
           map(([applications, criticalApps, organization]) => {
             const criticalUrls = criticalApps.map((ca) => ca.uri);
             const data = applications?.map((app) => ({

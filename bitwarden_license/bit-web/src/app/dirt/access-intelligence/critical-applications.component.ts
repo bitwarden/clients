@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map, skipWhile, switchMap } from "rxjs";
+import { combineLatest, debounceTime, map, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -80,10 +80,6 @@ export class CriticalApplicationsComponent implements OnInit {
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        skipWhile(
-          ([apps, criticalApps]) =>
-            !apps || apps.length === 0 || !criticalApps || criticalApps.length === 0,
-        ),
         map(([applications, criticalApps]) => {
           const criticalUrls = criticalApps.map((ca) => ca.uri);
           const data = applications?.map((app) => ({
