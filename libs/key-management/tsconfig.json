@@ -8,6 +8,6 @@
       "@bitwarden/key-management": ["../key-management/src"]
     }
   },
-  "include": ["src", "spec"],
+  "include": ["src", "spec", "../common/src/key-management/enums/signing-key-type.enum.ts"],
   "exclude": ["node_modules", "dist"]
 }

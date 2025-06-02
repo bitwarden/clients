@@ -225,14 +225,30 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
+    /// Key management initialization
     await this.keyService.setMasterKeyEncryptedUserKey(response.key, response.id);
-    await this.keyService.setPrivateKey(response.privateKey, response.id);
+    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
+    if (response.accountKeys != null) {
+      await this.keyService.setPrivateKey(
+        response.accountKeys.AsymmetricEncryptionKeys.wrappedPrivateKey.encryptedString!,
+        response.id,
+      );
+      if (response.accountKeys.SigningKeys !== null) {
+        await this.keyService.setUserSigningKey(
+          response.accountKeys.SigningKeys.wrappedSigningKey,
+          response.id,
+        );
+      }
+    } else {
+      await this.keyService.setPrivateKey(response.privateKey, response.id);
+    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
       response.providerOrganizations,
       response.id,
     );
+
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);

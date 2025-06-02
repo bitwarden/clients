@@ -8,10 +8,14 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { SigningKey } from "@bitwarden/common/key-management/keys/models/signing-key";
+import { VerifyingKey } from "@bitwarden/common/key-management/keys/models/verifying-key";
+import { SignedPublicKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -77,6 +81,7 @@ export class TestableUserKeyRotationService {
     private configService: ConfigService,
     private cryptoFunctionService: CryptoFunctionService,
     private kdfConfigService: KdfConfigService,
+    private sdkClientFactory: SdkClientFactory,
   ) {}
 
   /**
@@ -126,30 +131,47 @@ export class TestableUserKeyRotationService {
         "User encrypted private key",
       ))!,
     );
+    const currentUserKeyWrappedSigningKey = await firstValueFrom(
+      this.keyService.userSigningKey$(user.id),
+    );
 
     // Update account keys
     // This creates at least a new user key, and possibly upgrades user encryption formats
     let newUserKey: UserKey;
-    let wrappedPrivateKey: EncString;
-    let publicKey: string;
+    let accountKeysRequest: AccountKeysRequest;
     if (upgradeToV2FeatureFlagEnabled) {
       this.logService.info("[Userkey rotation] Using v2 account keys");
-      const { userKey, asymmetricEncryptionKeys } = await this.getNewAccountKeysV2(
-        currentUserKey,
-        currentUserKeyWrappedPrivateKey,
-      );
+      const { userKey, asymmetricEncryptionKeypair, signingKeypair } =
+        await this.getNewAccountKeysV2(
+          currentUserKey,
+          currentUserKeyWrappedPrivateKey,
+          currentUserKeyWrappedSigningKey,
+          user.email,
+          masterKeyKdfConfig,
+          user.id,
+        );
       newUserKey = userKey;
-      wrappedPrivateKey = asymmetricEncryptionKeys.wrappedPrivateKey;
-      publicKey = asymmetricEncryptionKeys.publicKey;
+      accountKeysRequest = new AccountKeysRequest(
+        asymmetricEncryptionKeypair.wrappedPrivateKey.encryptedString!,
+        asymmetricEncryptionKeypair.publicKey,
+        asymmetricEncryptionKeypair.signedPublicKey,
+        signingKeypair.signingKey,
+        signingKeypair.verifyingKey,
+      );
     } else {
       this.logService.info("[Userkey rotation] Using v1 account keys");
-      const { userKey, asymmetricEncryptionKeys } = await this.getNewAccountKeysV1(
+      const { userKey, asymmetricEncryptionKeypair } = await this.getNewAccountKeysV1(
         currentUserKey,
         currentUserKeyWrappedPrivateKey,
       );
       newUserKey = userKey;
-      wrappedPrivateKey = asymmetricEncryptionKeys.wrappedPrivateKey;
-      publicKey = asymmetricEncryptionKeys.publicKey;
+      accountKeysRequest = new AccountKeysRequest(
+        asymmetricEncryptionKeypair.wrappedPrivateKey.encryptedString!,
+        asymmetricEncryptionKeypair.publicKey,
+        null,
+        null,
+        null,
+      );
     }
 
     // Assemble the key rotation request
@@ -167,7 +189,7 @@ export class TestableUserKeyRotationService {
         trustedEmergencyAccessUserPublicKeys,
         trustedOrganizationPublicKeys,
       ),
-      new AccountKeysRequest(wrappedPrivateKey.encryptedString!, publicKey),
+      accountKeysRequest,
       await this.getAccountDataRequest(currentUserKey, newUserKey, user),
       await this.makeServerMasterKeyAuthenticationHash(
         currentMasterPassword,
@@ -205,7 +227,7 @@ export class TestableUserKeyRotationService {
     currentUserKeyWrappedPrivateKey: EncString,
   ): Promise<{
     userKey: UserKey;
-    asymmetricEncryptionKeys: {
+    asymmetricEncryptionKeypair: {
       wrappedPrivateKey: EncString;
       publicKey: string;
     };
@@ -225,13 +247,15 @@ export class TestableUserKeyRotationService {
       privateKey,
       newUserKey,
     );
-    const publicKey = await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
+    const publicKey = Utils.fromBufferToB64(
+      await this.cryptoFunctionService.rsaExtractPublicKey(privateKey),
+    );
 
     return {
       userKey: newUserKey,
-      asymmetricEncryptionKeys: {
+      asymmetricEncryptionKeypair: {
         wrappedPrivateKey: newUserKeyWrappedPrivateKey,
-        publicKey: Utils.fromBufferToB64(publicKey),
+        publicKey: publicKey,
       },
     };
   }
@@ -239,14 +263,168 @@ export class TestableUserKeyRotationService {
   async getNewAccountKeysV2(
     currentUserKey: UserKey,
     currentUserKeyWrappedPrivateKey: EncString,
+    currentUserKeyWrappedSigningKey: SigningKey | undefined,
+    email: string,
+    kdfParams: KdfConfig,
+    userId: UserId,
   ): Promise<{
     userKey: UserKey;
-    asymmetricEncryptionKeys: {
+    asymmetricEncryptionKeypair: {
       wrappedPrivateKey: EncString;
       publicKey: string;
+      signedPublicKey: SignedPublicKey;
+    };
+    signingKeypair: {
+      signingKey: SigningKey;
+      verifyingKey: VerifyingKey;
     };
   }> {
-    throw new Error("User encryption v2 upgrade is not supported yet");
+    if (this.isV1User(currentUserKey)) {
+      return this.upgradeToV2User(
+        currentUserKey,
+        currentUserKeyWrappedPrivateKey,
+        email,
+        kdfParams,
+        userId,
+      );
+    } else {
+      return this.rotateV2User(
+        currentUserKey,
+        currentUserKeyWrappedPrivateKey,
+        currentUserKeyWrappedSigningKey!,
+        email,
+        kdfParams,
+        userId,
+      );
+    }
+  }
+
+  async upgradeToV2User(
+    currentUserKey: UserKey,
+    currentUserKeyWrappedPrivateKey: EncString,
+    email: string,
+    kdfParams: KdfConfig,
+    userId: UserId,
+  ): Promise<{
+    userKey: UserKey;
+    asymmetricEncryptionKeypair: {
+      wrappedPrivateKey: EncString;
+      publicKey: string;
+      signedPublicKey: SignedPublicKey;
+    };
+    signingKeypair: {
+      signingKey: SigningKey;
+      verifyingKey: VerifyingKey;
+    };
+  }> {
+    // A v1 user has: AES256-CBC-HMAC userkey, no signing key, RSA-2048 bit private key for RSA-OAEP-SHA1.
+    // A v2 user has: XChaCha20-Poly1305 userkey, ed25519 signing key, RSA-2048 bit private key for RSA-OAEP-SHA1,
+    // and a copy of the public key, corresponding to the private key, signed by the signing key.
+    // To upgrade, a new userkey is created, and the private key is re-wrapped with the new user key.
+    // The private key is NOT rotated for this migration, but may be rotated in a later migration.
+    // A signing key is generated and wrapped with the new user key.
+
+    // Make new XChaCha20-Poly1305 user key
+    const newUserKey: UserKey = new SymmetricCryptoKey(
+      PureCrypto.make_user_key_xchacha20_poly1305(),
+    ) as UserKey;
+
+    // Re-wrap the user private key with the new user key
+    const privateKey = await this.encryptService.unwrapDecapsulationKey(
+      currentUserKeyWrappedPrivateKey,
+      currentUserKey,
+    );
+    const newUserKeyWrappedPrivateKey = await this.encryptService.wrapDecapsulationKey(
+      privateKey,
+      newUserKey,
+    );
+    const publicKey = Utils.fromBufferToB64(
+      await this.cryptoFunctionService.rsaExtractPublicKey(privateKey),
+    );
+
+    // Make a new signing key pair. For this, we initialize an SDK instance with no signing key,
+    // with the new user key.
+    const sdkClient = await this.sdkClientFactory.createSdkClient();
+    await sdkClient.crypto().initialize_user_crypto({
+      userId: userId,
+      kdfParams: kdfParams.toSdkConfig(),
+      email: email,
+      privateKey: newUserKeyWrappedPrivateKey.encryptedString!,
+      signingKey: undefined,
+      method: {
+        decryptedKey: { decrypted_user_key: newUserKey.toBase64() },
+      },
+    });
+    const makeSigningKeysResult = sdkClient.crypto().make_signing_keys();
+
+    return {
+      userKey: newUserKey,
+      asymmetricEncryptionKeypair: {
+        wrappedPrivateKey: newUserKeyWrappedPrivateKey,
+        publicKey: publicKey,
+        signedPublicKey: makeSigningKeysResult.signedPublicKey,
+      },
+      signingKeypair: {
+        signingKey: new SigningKey(makeSigningKeysResult.signingKey),
+        verifyingKey: new VerifyingKey(makeSigningKeysResult.verifyingKey),
+      },
+    };
+  }
+
+  async rotateV2User(
+    currentUserKey: UserKey,
+    currentUserKeyWrappedPrivateKey: EncString,
+    currentUserKeyWrappedSigningKey: SigningKey,
+    email: string,
+    kdfParams: KdfConfig,
+    userId: UserId,
+  ): Promise<{
+    userKey: UserKey;
+    asymmetricEncryptionKeypair: {
+      wrappedPrivateKey: EncString;
+      publicKey: string;
+      signedPublicKey: SignedPublicKey;
+    };
+    signingKeypair: {
+      signingKey: SigningKey;
+      verifyingKey: VerifyingKey;
+    };
+  }> {
+    // Rotating a v2 user means creating a new XChaCha20-Poly1305 user key, re-wrapping the private key and signing key.
+    // The signature of the public key is also updated. Rotating a v2 user does not change the private key or signing key.
+
+    // Make new XChaCha20-Poly1305 user key
+    const newUserKey: UserKey = new SymmetricCryptoKey(
+      PureCrypto.make_user_key_xchacha20_poly1305(),
+    ) as UserKey;
+
+    // Initialize a new sdk client with the *current* user key. The function to re-wrap takes the current user key.
+    const sdkClient = await this.sdkClientFactory.createSdkClient();
+    await sdkClient.crypto().initialize_user_crypto({
+      userId: userId,
+      kdfParams: kdfParams.toSdkConfig(),
+      email: email,
+      signingKey: currentUserKeyWrappedSigningKey.inner(),
+      privateKey: currentUserKeyWrappedPrivateKey.encryptedString!,
+      method: {
+        decryptedKey: { decrypted_user_key: currentUserKey.toBase64() },
+      },
+    });
+    const rotatedKeys = sdkClient.crypto().rotate_account_keys(newUserKey.toBase64());
+
+    return {
+      userKey: newUserKey,
+      asymmetricEncryptionKeypair: {
+        wrappedPrivateKey: new EncString(rotatedKeys.privateKey),
+        publicKey: rotatedKeys.publicKey,
+        // This contains the same public key, but signed
+        signedPublicKey: rotatedKeys.signedPublicKey,
+      },
+      signingKeypair: {
+        signingKey: new SigningKey(rotatedKeys.signingKey),
+        verifyingKey: new VerifyingKey(rotatedKeys.verifyingKey),
+      },
+    };
   }
 
   async createMasterPasswordUnlockDataRequest(
@@ -461,36 +639,6 @@ export class TestableUserKeyRotationService {
         "User account crypto format is v2, but the feature flag is disabled. User key rotation cannot proceed.",
       );
     }
-  }
-
-  async makeNewUserKeyV2(
-    oldUserKey: UserKey,
-  ): Promise<{ isUpgrading: boolean; newUserKey: UserKey }> {
-    // The user's account format is determined by the user key.
-    // Being tied to the userkey ensures an all-or-nothing approach. A compromised
-    // server cannot downgrade to a previous format (no signing keys) without
-    // completely making the account unusable.
-    //
-    // V0: AES256-CBC (no userkey, directly using masterkey) (pre-2019 accounts)
-    //     This format is unsupported, and not secure; It is being forced migrated, and being removed
-    // V1: AES256-CBC-HMAC userkey, no signing key (2019-2025)
-    //     This format is still supported, but may be migrated in the future
-    // V2: XChaCha20-Poly1305 userkey, signing key, account security version
-    //     This is the new, modern format.
-    const newUserKey: UserKey = new SymmetricCryptoKey(
-      PureCrypto.make_user_key_xchacha20_poly1305(),
-    ) as UserKey;
-    const isUpgrading = this.isV1User(oldUserKey);
-    if (isUpgrading) {
-      this.logService.info(
-        "[Userkey rotation] Existing userkey key is AES256-CBC-HMAC; upgrading to XChaCha20-Poly1305",
-      );
-    } else {
-      this.logService.info(
-        "[Userkey rotation] Existing userkey key is XChaCha20-Poly1305; no upgrade needed",
-      );
-    }
-    return { isUpgrading, newUserKey };
   }
 
   /**

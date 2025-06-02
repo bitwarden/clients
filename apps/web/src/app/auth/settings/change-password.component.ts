@@ -12,7 +12,6 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -47,7 +46,6 @@ export class ChangePasswordComponent
   masterPasswordHint: string;
   checkForBreaches = true;
   characterMinimumMessage = "";
-  userkeyRotationV2 = false;
 
   constructor(
     i18nService: I18nService,
@@ -84,8 +82,6 @@ export class ChangePasswordComponent
   }
 
   async ngOnInit() {
-    this.userkeyRotationV2 = await this.configService.getFeatureFlag(FeatureFlag.UserKeyRotationV2);
-
     if (!(await this.userVerificationService.hasMasterPassword())) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -148,13 +144,9 @@ export class ChangePasswordComponent
   }
 
   async submit() {
-    if (this.userkeyRotationV2) {
-      this.loading = true;
-      await this.submitNew();
-      this.loading = false;
-    } else {
-      await this.submitOld();
-    }
+    this.loading = true;
+    await this.submitNew();
+    this.loading = false;
   }
 
   async submitNew() {
@@ -269,27 +261,6 @@ export class ChangePasswordComponent
         message: this.i18nService.t("errorOccurred"),
       });
     }
-  }
-
-  async submitOld() {
-    if (
-      this.masterPasswordHint != null &&
-      this.masterPasswordHint.toLowerCase() === this.masterPassword.toLowerCase()
-    ) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("hintEqualsPassword"),
-      });
-      return;
-    }
-
-    this.leakedPassword = false;
-    if (this.checkForBreaches) {
-      this.leakedPassword = (await this.auditService.passwordLeaked(this.masterPassword)) > 0;
-    }
-
-    await super.submit();
   }
 
   async setupSubmitActions() {

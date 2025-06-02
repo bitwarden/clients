@@ -9,6 +9,7 @@ import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-time
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -48,6 +49,7 @@ export class UserKeyRotationService {
     configService: ConfigService,
     cryptoFunctionService: CryptoFunctionService,
     kdfConfigService: KdfConfigService,
+    sdkClientFactory: SdkClientFactory,
   ) {
     this.testableUserKeyRotationService = new TestableUserKeyRotationService(
       userVerificationService,
@@ -70,6 +72,7 @@ export class UserKeyRotationService {
       configService,
       cryptoFunctionService,
       kdfConfigService,
+      sdkClientFactory,
     );
   }
 

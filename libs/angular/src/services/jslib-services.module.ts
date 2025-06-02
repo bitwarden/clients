@@ -163,6 +163,8 @@ import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/services/key-connector.service";
+import { KeyApiService } from "@bitwarden/common/key-management/keys/services/abstractions/key-api-service.abstraction";
+import { DefaultKeyApiService } from "@bitwarden/common/key-management/keys/services/default-key-api-service.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -760,6 +762,11 @@ const safeProviders: SafeProvider[] = [
     provide: SendApiServiceAbstraction,
     useClass: SendApiService,
     deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, InternalSendService],
+  }),
+  safeProvider({
+    provide: KeyApiService,
+    useClass: DefaultKeyApiService,
+    deps: [ApiServiceAbstraction],
   }),
   safeProvider({
     provide: SyncService,
