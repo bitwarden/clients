@@ -119,12 +119,6 @@ export default {
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
         ProductSwitcherService,
         {
-          provide: I18nPipe,
-          useFactory: () => ({
-            transform: (key: string) => translations[key],
-          }),
-        },
-        {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService(translations);
