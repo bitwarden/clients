@@ -104,7 +104,7 @@ export class ItemMoreOptionsComponent implements OnInit {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as number[]).includes(
+    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
       this.cipher.type,
     );
   }

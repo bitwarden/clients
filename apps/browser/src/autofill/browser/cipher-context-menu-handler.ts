@@ -97,7 +97,7 @@ export class CipherContextMenuHandler {
   private async updateForCipher(cipher: CipherView) {
     if (
       cipher == null ||
-      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity] as number[]).has(
+      !new Set([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).has(
         cipher.type,
       )
     ) {
