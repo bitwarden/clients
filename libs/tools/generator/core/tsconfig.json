@@ -1,17 +1,5 @@
 {
-  "extends": "../../../shared/tsconfig",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/admin-console/common": ["../../../admin-console/src/common"],
-      "@bitwarden/auth/common": ["../../../auth/src/common"],
-      "@bitwarden/common/*": ["../../../common/src/*"],
-      "@bitwarden/key-management": ["../../../key-management/src"]
-    }
-  },
-  "include": [
-    "src",
-    "../extensions/src/history/generator-history.abstraction.ts",
-    "../extensions/src/navigation/generator-navigation.service.abstraction.ts"
-  ],
+  "extends": "../../../../tsconfig.base",
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

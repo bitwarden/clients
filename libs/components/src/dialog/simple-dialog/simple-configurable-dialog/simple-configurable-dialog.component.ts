@@ -30,7 +30,6 @@ const DEFAULT_COLOR: Record<SimpleDialogType, string> = {
 
 @Component({
   templateUrl: "./simple-configurable-dialog.component.html",
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     BitSubmitDirective,

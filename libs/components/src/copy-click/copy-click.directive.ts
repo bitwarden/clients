@@ -9,7 +9,6 @@ import { ToastService, ToastVariant } from "../";
 
 @Directive({
   selector: "[appCopyClick]",
-  standalone: true,
 })
 export class CopyClickDirective {
   private _showToast = false;

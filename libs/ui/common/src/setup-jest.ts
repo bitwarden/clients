@@ -1,12 +1,3 @@
-import "jest-preset-angular/setup-jest";
-import { getTestBed } from "@angular/core/testing";
-import {
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting,
-} from "@angular/platform-browser-dynamic/testing";
+import { setupZoneTestEnv } from "jest-preset-angular/setup-env/zone";
 
-getTestBed().resetTestEnvironment();
-getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting(), {
-  errorOnUnknownElements: true,
-  errorOnUnknownProperties: true,
-});
+setupZoneTestEnv({ errorOnUnknownElements: true, errorOnUnknownProperties: true });

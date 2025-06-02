@@ -80,7 +80,6 @@ type LoadAction =
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,

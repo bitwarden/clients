@@ -9,7 +9,6 @@ import { SharedModule } from "../../shared.module";
 @Component({
   selector: "app-account-fingerprint",
   templateUrl: "account-fingerprint.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class AccountFingerprintComponent implements OnInit {

@@ -25,7 +25,7 @@ export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
   id: string = null;
-  organizationId: string = null;
+  organizationId: string | undefined = null;
   folderId: string = null;
   name: string = null;
   notes: string = null;

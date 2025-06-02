@@ -20,7 +20,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
 @Component({
   selector: "app-card-details-view",
   templateUrl: "card-details-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

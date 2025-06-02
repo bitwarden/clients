@@ -534,7 +534,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Implicita eltrovo en akordo",
+    "message": "Implicita eltrovado en akordo",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -546,12 +546,6 @@
   "toggleCollapse": {
     "message": "Baskuli Fali",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Generi pasvorton"
-  },
-  "generatePassphrase": {
-    "message": "Generi pasfrazon"
   },
   "checkPassword": {
     "message": "Kontrolu ĉu pasvorto estis elmontrita."
@@ -1873,7 +1867,7 @@
     "message": "Ĉu vi zorgas pri tio, ke via konto estas ensalutinta sur alia aparato? Sekvu sube por senrajtigi ĉiujn komputilojn aŭ aparatojn, kiujn vi antaŭe uzis. Ĉi tiu sekureca paŝo rekomendas se vi antaŭe uzis publikan komputilon aŭ hazarde konservis vian pasvorton sur aparato, kiu ne estas via. Ĉi tiu paŝo ankaŭ malplenigos ĉiujn antaŭe memoritajn du-paŝajn ensalutajn sesiojn. "
   },
   "deauthorizeSessionsWarning": {
-    "message": "Se vi daŭrigos vian adiaŭadon de la nuna seanco, necesos vin saluti denove. Oni ankaŭ demandos de vi du-faktoran aŭtentigon, se tiu elekteblo estas ebligita. La seancoj aktivaj sur aliaj aparatoj povas resti daŭre aktivaj ankoraŭ unu horon."
+    "message": "La daŭrigo ankaŭ elsalutos vin de via nuna sesio, postulante vin denove ensaluti. Oni ankaŭ petos vin du-ŝtupa ensaluto, se ĝi estas ebligita. Aktivaj sesioj sur aliaj aparatoj povas daŭre resti aktivaj ĝis ĝis unu horo. "
   },
   "newDeviceLoginProtection": {
     "message": "Saluto per nova aparato"
@@ -6476,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Leave organization"
@@ -6827,6 +6818,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "Generi pasvorton"
+  },
+  "generatePassphrase": {
+    "message": "Generi pasfrazon"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6889,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -7446,11 +7458,11 @@
     "description": "Label for a secret (key/value pair)"
   },
   "serviceAccount": {
-    "message": "Servila konto",
+    "message": "Konto ĉe servo",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "serviceAccounts": {
-    "message": "Servilaj kontoj",
+    "message": "Kontoj ĉe servo",
     "description": "The title for the section that deals with service accounts."
   },
   "secrets": {
@@ -7474,7 +7486,7 @@
     "description": "Title for creating a new secret."
   },
   "newServiceAccount": {
-    "message": "Nova servila konto",
+    "message": "Nova konto ĉe servo",
     "description": "Title for creating a new service account."
   },
   "secretsNoItemsTitle": {
@@ -7501,7 +7513,7 @@
     "description": "Placeholder text for searching secrets."
   },
   "deleteServiceAccounts": {
-    "message": "Forigi servilajn kontojn",
+    "message": "Forigi kontojn ĉe servo",
     "description": "Title for the action to delete one or multiple service accounts."
   },
   "deleteServiceAccount": {
@@ -7509,7 +7521,7 @@
     "description": "Title for the action to delete a single service account."
   },
   "viewServiceAccount": {
-    "message": "Vidi servilan konton",
+    "message": "Vidi la konton ĉe servo",
     "description": "Action to view the details of a service account."
   },
   "deleteServiceAccountDialogMessage": {
@@ -8170,7 +8182,7 @@
     "message": "This user can access Secrets Manager"
   },
   "important": {
-    "message": "Grave"
+    "message": "Seriozaĵo:"
   },
   "viewAll": {
     "message": "Vidi ĉiujn"
@@ -8220,7 +8232,7 @@
     "message": "Krei projekton"
   },
   "createServiceAccount": {
-    "message": "Krei servilan konton"
+    "message": "Krei konton ĉe servo"
   },
   "downloadThe": {
     "message": "Elŝuti la",
@@ -9077,11 +9089,11 @@
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
-    "message": "Forĵeti maŝinan konton",
+    "message": "Forĵeti maŝinajn kontojn",
     "description": "Title for the action to delete one or multiple machine accounts."
   },
   "deleteMachineAccount": {
-    "message": "Forĵeti maŝinajn kontojn",
+    "message": "Forĵeti maŝinan konton",
     "description": "Title for the action to delete a single machine account."
   },
   "viewMachineAccount": {
@@ -9580,7 +9592,7 @@
     "message": "Vidi sekreton"
   },
   "noClients": {
-    "message": "Estas neniu kliento por listo"
+    "message": "Estas neniu kliento por listi"
   },
   "providerBillingEmailHint": {
     "message": "This email address will receive all invoices pertaining to this provider",
@@ -9732,7 +9744,7 @@
     "message": "Aldoni al dosierujo"
   },
   "selectFolder": {
-    "message": "Elekti dosierujo"
+    "message": "Elekti dosierujon"
   },
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
@@ -10102,7 +10114,7 @@
     "message": "Non-compliant members will be revoked. Administrators can restore members once they leave all other organizations."
   },
   "deleteOrganizationUser": {
-    "message": "Fo",
+    "message": "Forigi $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -10177,7 +10189,7 @@
     "message": "This action is not applicable to any of the selected members."
   },
   "deletedSuccessfully": {
-    "message": "Sukcesis foriĝi"
+    "message": "Sukcese forigis"
   },
   "freeFamiliesSponsorship": {
     "message": "Remove Free Bitwarden Families sponsorship"
@@ -10246,7 +10258,7 @@
     "message": "Claimed"
   },
   "domainStatusUnderVerification": {
-    "message": "Sub aŭtentigo"
+    "message": "En konfirmado"
   },
   "claimedDomainsDesc": {
     "message": "Claim a domain to own all member accounts whose email address matches the domain. Members will be able to skip the SSO identifier when logging in. Administrators will also be able to delete member accounts."
@@ -10556,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10613,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

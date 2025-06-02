@@ -1072,7 +1072,7 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "新增项目，在新窗口中打开",
+    "message": "新增项目（在新窗口中打开）",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
@@ -1101,7 +1101,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "使用此密码"
   },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
+  },
   "useThisUsername": {
     "message": "使用此用户名"
   },
@@ -2674,6 +2677,10 @@
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "已达最大访问次数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "默认隐藏文本"
   },
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "未找到唯一的标识符。"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "organizationName": {
+    "message": "组织名称"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -3613,6 +3620,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "使用 Send 与任何人安全地分享加密信息。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4547,7 +4562,7 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "无需浏览器也可访问您的密码库。在桌面 App 和浏览器扩展中设置生物识别解锁，以实现快速解锁。"
+    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
@@ -4960,7 +4975,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "有更多内容可用"
+    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -5018,6 +5033,15 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "由于某个未知的原因，生物识别解锁当前不可用。"
+  },
+  "unlockVault": {
+    "message": "数秒内解锁您的密码库"
+  },
+  "unlockVaultDesc": {
+    "message": "您可以自定义解锁和超时设置，以便更快速地访问您的密码库。"
+  },
+  "unlockPinSet": {
+    "message": "解锁 PIN 设置"
   },
   "authenticating": {
     "message": "正在验证"
@@ -5218,7 +5242,7 @@
     "message": "SSH 密钥导入成功"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5284,29 +5308,29 @@
     "message": "欢迎来到您的密码库！"
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "自动填充项目用于当前页面"
+    "message": "为当前页面自动填充项目"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "收藏项目用于轻松访问"
+    "message": "收藏项目以便轻松访问"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "搜索密码库用于其他"
+    "message": "在密码库中搜索其他内容"
   },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "包含",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "网站",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "以便将此登录显示为自动填充建议。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5340,6 +5364,23 @@
     "message": "进一步了解 SSH 代理",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"

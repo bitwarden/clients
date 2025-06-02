@@ -16,8 +16,10 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -32,6 +34,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
@@ -40,7 +44,7 @@ import { TwoFactorAuthComponentCacheService } from "./two-factor-auth-component-
 import { TwoFactorAuthComponentService } from "./two-factor-auth-component.service";
 import { TwoFactorAuthComponent } from "./two-factor-auth.component";
 
-@Component({})
+@Component({ standalone: false })
 class TestTwoFactorComponent extends TwoFactorAuthComponent {}
 
 describe("TwoFactorAuthComponent", () => {
@@ -72,6 +76,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockEnvService: MockProxy<EnvironmentService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
+  let mockAuthService: MockProxy<AuthService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -106,6 +111,7 @@ describe("TwoFactorAuthComponent", () => {
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
+    mockAuthService = mock<AuthService>();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -204,6 +210,7 @@ describe("TwoFactorAuthComponent", () => {
           provide: TwoFactorAuthComponentCacheService,
           useValue: mockTwoFactorAuthCompCacheService,
         },
+        { provide: AuthService, useValue: mockAuthService },
       ],
     });
 
@@ -295,6 +302,7 @@ describe("TwoFactorAuthComponent", () => {
 
       it("navigates to the component's defined success route (vault is default) when the login is successful", async () => {
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
+        mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
 
         // Act
         await component.submit("testToken");
@@ -316,13 +324,14 @@ describe("TwoFactorAuthComponent", () => {
         async (authType, expectedRoute) => {
           mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
           currentAuthTypeSubject.next(authType);
+          mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Locked);
 
           // Act
           await component.submit("testToken");
 
           // Assert
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-          expect(mockRouter.navigate).toHaveBeenCalledWith(["lock"], {
+          expect(mockRouter.navigate).toHaveBeenCalledWith([expectedRoute], {
             queryParams: {
               identifier: component.orgSsoIdentifier,
             },

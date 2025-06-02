@@ -547,12 +547,6 @@
     "message": "切换折叠",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "生成密码"
-  },
-  "generatePassphrase": {
-    "message": "生成密码短语"
-  },
   "checkPassword": {
     "message": "检查密码是否已暴露。"
   },
@@ -1870,7 +1864,7 @@
     "message": "取消会话授权"
   },
   "deauthorizeSessionsDesc": {
-    "message": "您是否担心自己的账户在其他设备上登录过？请按照以下步骤取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
+    "message": "您是否担心自己的账户在其他设备上登录过？继续下面的操作以取消对之前使用过的所有计算机或设备的授权。如果您以前使用过公共计算机或不小心曾将密码保存在不属于您的设备上，则建议执行此安全步骤。此步骤还将清除所有以前记住的两步登录会话。"
   },
   "deauthorizeSessionsWarning": {
     "message": "继续操作还将使您退出当前会话，并要求您重新登录。如果有设置两步登录，也需要重新验证。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
@@ -1885,10 +1879,10 @@
     "message": "启用新设备登录保护"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以停用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以停用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "继续下面的操作以启用 Bitwarden 在您从新设备登录时发送验证电子邮件的功能。"
+    "message": "继续下面的操作以启用从新设备登录 Bitwarden 时发送验证电子邮件的功能。"
   },
   "turnOffNewDeviceLoginProtectionWarning": {
     "message": "停用新设备登录保护后，任何拥有您的主密码的人都可以从任何设备访问您的账户。要在没有验证电子邮件的情况下保护您的账户，请设置两步登录。"
@@ -1918,10 +1912,10 @@
     "message": "密码库被提供商访问。"
   },
   "purgeVaultDesc": {
-    "message": "接下来的操作会删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
+    "message": "继续下面的操作以删除密码库中的所有项目和文件夹。属于组织的共享项目将不会被删除。"
   },
   "purgeOrgVaultDesc": {
-    "message": "接下来的操作会删除组织密码库中的所有项目。"
+    "message": "继续下面的操作以删除组织密码库中的所有项目。"
   },
   "purgeVaultWarning": {
     "message": "清空密码库是永久性操作，无法撤销！"
@@ -1933,7 +1927,7 @@
     "message": "删除账户"
   },
   "deleteAccountDesc": {
-    "message": "接下来的操作会删除您的账户和所有密码库数据。"
+    "message": "继续下面的操作以删除您的账户和所有密码库数据。"
   },
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
@@ -4549,7 +4543,7 @@
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "您已保存的所有账户限制的导出文件将失效。"
+    "message": "所有您已保存的账户限制的导出文件将失效。"
   },
   "subscription": {
     "message": "订阅"
@@ -5884,7 +5878,7 @@
     "message": "成功恢复组织的访问权限"
   },
   "bulkFilteredMessage": {
-    "message": "已拒绝，不适用于此操作"
+    "message": "已排除，不适用于此操作"
   },
   "nonCompliantMembersTitle": {
     "message": "不符合要求的成员"
@@ -6315,7 +6309,7 @@
     "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
+    "message": "当您移除某个活动赞助，在被赞助组织的续费日期之后，您的组织中将释放一个可用的席位。"
   },
   "sponsoredFamiliesEligible": {
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
@@ -6476,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "无效的验证码"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -6806,7 +6797,7 @@
     "description": "This is used by screen readers to indicate the organization that is currently being shown to the user."
   },
   "accountLoggedInAsName": {
-    "message": "账户：登录为 $NAME$",
+    "message": "账户：已登录为 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6826,6 +6817,24 @@
   },
   "generateEmail": {
     "message": "生成电子邮箱"
+  },
+  "generatePassword": {
+    "message": "生成密码"
+  },
+  "generatePassphrase": {
+    "message": "生成密码短语"
+  },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
   },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
@@ -6889,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "使用此密码"
+  },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
   },
   "useThisUsername": {
     "message": "使用此用户名"
@@ -8449,7 +8461,7 @@
     "message": "用户更新了通过账户恢复颁发的密码。"
   },
   "activatedAccessToSecretsManager": {
-    "message": "已激活对机密管理器的访问权限",
+    "message": "激活了对机密管理器的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
@@ -10195,7 +10207,7 @@
     "message": "描述符代码"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -10556,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "新增业务单元"
   },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
@@ -10613,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "如果您移除 $EMAIL$，此家庭计划的赞助将结束。在被赞助组织的续费日期 $DATE$ 之后，您的组织中将释放一个可用席位，可供成员或赞助使用。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

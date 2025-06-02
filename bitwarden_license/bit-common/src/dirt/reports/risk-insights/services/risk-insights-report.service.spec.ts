@@ -50,7 +50,7 @@ describe("RiskInsightsReportService", () => {
     let testCase = testCaseResults[0];
     expect(testCase).toBeTruthy();
     expect(testCase.cipherMembers).toHaveLength(2);
-    expect(testCase.trimmedUris).toHaveLength(2);
+    expect(testCase.trimmedUris).toHaveLength(5);
     expect(testCase.weakPasswordDetail).toBeTruthy();
     expect(testCase.exposedPasswordDetail).toBeTruthy();
     expect(testCase.reusedPasswordCount).toEqual(2);
@@ -69,11 +69,15 @@ describe("RiskInsightsReportService", () => {
   it("should generate the raw data + uri report correctly", async () => {
     const result = await firstValueFrom(service.generateRawDataUriReport$("orgId"));
 
-    expect(result).toHaveLength(8);
+    expect(result).toHaveLength(11);
 
     // Two ciphers that have google.com as their uri. There should be 2 results
     const googleResults = result.filter((x) => x.trimmedUri === "google.com");
     expect(googleResults).toHaveLength(2);
+
+    // There is an invalid uri and it should not be trimmed
+    const invalidUriResults = result.filter((x) => x.trimmedUri === "this_is-not|a-valid-uri123@+");
+    expect(invalidUriResults).toHaveLength(1);
 
     // Verify the details for one of the googles matches the password health info
     // expected
@@ -88,7 +92,7 @@ describe("RiskInsightsReportService", () => {
   it("should generate applications health report data correctly", async () => {
     const result = await firstValueFrom(service.generateApplicationsReport$("orgId"));
 
-    expect(result).toHaveLength(5);
+    expect(result).toHaveLength(8);
 
     // Two ciphers have google.com associated with them. The first cipher
     // has 2 members and the second has 4. However, the 2 members in the first
@@ -132,7 +136,7 @@ describe("RiskInsightsReportService", () => {
 
     expect(reportSummary.totalMemberCount).toEqual(7);
     expect(reportSummary.totalAtRiskMemberCount).toEqual(6);
-    expect(reportSummary.totalApplicationCount).toEqual(5);
-    expect(reportSummary.totalAtRiskApplicationCount).toEqual(4);
+    expect(reportSummary.totalApplicationCount).toEqual(8);
+    expect(reportSummary.totalAtRiskApplicationCount).toEqual(7);
   });
 });

@@ -19,7 +19,6 @@ import { PopupPageComponent } from "./popup-page.component";
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  standalone: true,
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {
