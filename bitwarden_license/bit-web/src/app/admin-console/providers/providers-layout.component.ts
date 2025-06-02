@@ -18,7 +18,6 @@ import { WebLayoutModule } from "@bitwarden/web-vault/app/layouts/web-layout.mod
 @Component({
   selector: "providers-layout",
   templateUrl: "providers-layout.component.html",
-  standalone: true,
   imports: [CommonModule, RouterModule, JslibModule, WebLayoutModule, IconModule],
 })
 export class ProvidersLayoutComponent implements OnInit, OnDestroy {
