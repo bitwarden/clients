@@ -6,9 +6,10 @@ import { BrowserApi } from "../browser/browser-api";
 import { BadgeIcon, IconPaths } from "./icon";
 
 export interface RawBadgeState {
-  text: string;
-  backgroundColor: string;
-  icon: BadgeIcon;
+  tabId?: string;
+  text?: string;
+  backgroundColor?: string;
+  icon?: BadgeIcon;
 }
 
 export class BadgeBrowserApi {
@@ -19,9 +20,11 @@ export class BadgeBrowserApi {
 
   async setState(state: RawBadgeState): Promise<void> {
     await Promise.all([
-      this.setIcon(state.icon),
-      this.setText(state.text),
-      this.setBackgroundColor(state.backgroundColor),
+      state.icon !== undefined ? this.setIcon(state.icon) : undefined,
+      state.text !== undefined ? this.setText(state.text) : undefined,
+      state.backgroundColor !== undefined
+        ? this.setBackgroundColor(state.backgroundColor)
+        : undefined,
     ]);
   }
 

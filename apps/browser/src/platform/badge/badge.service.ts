@@ -48,11 +48,12 @@ export class BadgeService {
 
   /**
    * Inform badge service of a new state that the badge should reflect.
-
-   * This will merge the new state with any existing states.
-   * If the new state has a higher priority, it will override any lower priority states.
-   * If the new state has a lower priority, it will be ignored.
-   * If the name of the state is already in use, it will be updated.
+   *
+   * This will merge the new state with any existing states:
+   * - If the new state has a higher priority, it will override any lower priority states.
+   * - If the new state has a lower priority, it will be ignored.
+   * - If the name of the state is already in use, it will be updated.
+   * - States with `tabId` set will always override states without `tabId` set, regardless of priority.
    *
    * @param name The name of the state. This is used to identify the state and will be used to clear it later.
    * @param priority The priority of the state (higher numbers are higher priority, but setting arbitrary numbers is not supported).

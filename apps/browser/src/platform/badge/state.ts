@@ -5,6 +5,13 @@ export type Unset = typeof Unset;
 
 export type BadgeState = {
   /**
+   * Limit this badge state to a specific tab.
+   * If this is set, this state will only be applied to the specified tab.
+   * If this is not set, the state will be applied to all tabs.
+   */
+  tabId?: number;
+
+  /**
    * The text to display in the badge.
    * If this is set to `Unset`, any text set by a lower priority state will be cleared.
    * If this is set to `undefined`, a lower priority state may be used.
