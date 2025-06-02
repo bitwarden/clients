@@ -175,7 +175,7 @@
     "braintree-web-drop-in": "1.44.0",
     "buffer": "6.0.3",
     "bufferutil": "4.0.9",
-    "chalk": "4.1.2",
+    "chalk": "5.4.1",
     "commander": "11.1.0",
     "core-js": "3.42.0",
     "form-data": "4.0.1",

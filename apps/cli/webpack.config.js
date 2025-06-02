@@ -78,7 +78,8 @@ const webpackConfig = {
   externals: [
     nodeExternals({
       modulesDir: "../../node_modules",
-      allowlist: [/@bitwarden/],
+      // Always inline BW, and ESM dependencies
+      allowlist: [/@bitwarden/, "chalk"],
     }),
   ],
   experiments: {

@@ -69,7 +69,6 @@
     "argon2": "0.41.1",
     "big-integer": "1.6.52",
     "browser-hrtime": "1.1.8",
-    "chalk": "4.1.2",
     "commander": "11.1.0",
     "core-js": "3.42.0",
     "form-data": "4.0.1",

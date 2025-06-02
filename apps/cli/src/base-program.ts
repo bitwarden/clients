@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as chalk from "chalk";
+import chalk from "chalk";
 import { firstValueFrom, map } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
