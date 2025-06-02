@@ -102,6 +102,7 @@ export type ExposedPasswordDetail = {
  * organization member to a cipher
  */
 export type MemberDetailsFlat = {
+  userGuid: string;
   userName: string;
   email: string;
   cipherId: string;

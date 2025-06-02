@@ -1621,10 +1621,10 @@
     "message": "Mostra suggeriments d'emplenament automàtic als camps del formulari"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Display identities as suggestions"
+    "message": "Mostra identitats com a suggeriments"
   },
   "showInlineMenuCardsLabel": {
-    "message": "Display cards as suggestions"
+    "message": "Mostra targetes com a suggeriments"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Mostra suggeriments quan la icona està seleccionada"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Utilitzeu aquesta contrasenya"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Utilitzeu aquest nom d'usuari"
   },
@@ -2219,7 +2222,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Personalització de la caixa forta"
   },
   "vaultTimeoutAction": {
     "message": "Acció quan acabe el temps d'espera de la caixa forta"
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Tots els Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Amaga el text per defecte"
@@ -5253,7 +5260,7 @@
     "message": "Change at-risk password"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Opcions de la caixa forta"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
