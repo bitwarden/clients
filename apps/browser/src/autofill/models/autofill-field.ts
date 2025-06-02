@@ -4,7 +4,7 @@ import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
   InlineMenuAccountCreationFieldTypes,
-  InlineMenuFillTypes,
+  InlineMenuFillType,
 } from "../enums/autofill-overlay.enum";
 
 /**
@@ -118,7 +118,7 @@ export default class AutofillField {
 
   checked?: boolean;
 
-  inlineMenuFillType?: InlineMenuFillTypes;
+  inlineMenuFillType?: InlineMenuFillType;
 
   showPasskeys?: boolean;
 
