@@ -49,6 +49,7 @@ export const regularImportOptions = [
   { id: "edgecsv", name: "Edge (csv)" },
   { id: "operacsv", name: "Opera (csv)" },
   { id: "vivaldicsv", name: "Vivaldi (csv)" },
+  { id: "bravecsv", name: "Brave (csv)" },
   { id: "gnomejson", name: "GNOME Passwords and Keys/Seahorse (json)" },
   { id: "blurcsv", name: "Blur (csv)" },
   { id: "passwordagentcsv", name: "Password Agent (csv)" },

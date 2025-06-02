@@ -161,6 +161,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  @Input()
+  onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
+
+  @Input()
+  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
 
@@ -246,6 +252,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       (this.format === "chromecsv" ||
         this.format === "operacsv" ||
         this.format === "vivaldicsv" ||
+        this.format === "bravecsv" ||
         this.format === "edgecsv") &&
       this.platformUtilsService.getClientType() === ClientType.Desktop
     );

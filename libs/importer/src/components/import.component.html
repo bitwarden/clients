@@ -169,6 +169,7 @@
             format === 'chromecsv' ||
             format === 'operacsv' ||
             format === 'vivaldicsv' ||
+            format === 'bravecsv' ||
             format === 'edgecsv'
           "
         >
@@ -451,6 +452,9 @@
       <import-chrome
         *ngIf="showChromeOptions"
         [formGroup]="formGroup"
+        [onImportFromBrowser]="this.onImportFromBrowser"
+        [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+        [format]="this.format"
         (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
       ></import-chrome>
       <div [hidden]="showLastPassOptions || showChromeOptions">

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -10,6 +10,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
+import * as papa from "papaparse";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -22,6 +23,8 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+
+import { ImportType } from "../../models";
 
 @Component({
   selector: "import-chrome",
@@ -53,7 +56,16 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     ],
   });
 
-  profileList = [{ id: "Profile 2", name: "Profile 1" }];
+  profileList: { id: string; name: string }[] = [];
+
+  @Input()
+  format: ImportType;
+
+  @Input()
+  onLoadProfilesFromBrowser: (browser: string) => Promise<any[]>;
+
+  @Input()
+  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
 
   @Output() csvDataLoaded = new EventEmitter<string>();
 
@@ -64,16 +76,10 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this._parentFormGroup = this.controlContainer.control as FormGroup;
     this._parentFormGroup.addControl("chromeOptions", this.formGroup);
-
-    // TODO: how to call desktop IPC platform from here?
-    /*
-    const profiles = await ipc.platform.chromiumImporter.getAvailableProfiles(
-      "Microsoft Edge",
-    );
-    */
+    this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName());
   }
 
   ngOnDestroy(): void {
@@ -88,15 +94,20 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   validateAndEmitData(): AsyncValidatorFn {
     return async () => {
       try {
-        // TODO: how to call desktop IPC platform from here?
-        /*
-        const logins = await ipc.platform.chromiumImporter.importLogins("Microsoft Edge",
-          this.formGroup.controls.profile.value);
-        */
-
-        const csvData = `name,url,username,password,note
-github.com,https://github.com/,testuser6,testpassword8,A note for this login.`;
-
+        const logins = await this.onImportFromBrowser(
+          this.getBrowserName(),
+          this.formGroup.controls.profile.value,
+        );
+        if (logins.length === 0) {
+          throw "nothing to import";
+        }
+        const chromeLogins: ChromeLogin[] = [];
+        for (const l of logins) {
+          if (l.login != null) {
+            chromeLogins.push(new ChromeLogin(l.login));
+          }
+        }
+        const csvData = papa.unparse(chromeLogins);
         this.csvDataLoaded.emit(csvData);
         return null;
       } catch (error) {
@@ -116,5 +127,35 @@ github.com,https://github.com/,testuser6,testpassword8,A note for this login.`;
       default:
         return "errorOccurred";
     }
+  }
+
+  private getBrowserName(): string {
+    if (this.format === "edgecsv") {
+      return "Microsoft Edge";
+    } else if (this.format === "operacsv") {
+      return "Opera";
+    } else if (this.format === "bravecsv") {
+      return "Brave";
+    } else if (this.format === "vivaldicsv") {
+      return "Vivaldi";
+    }
+    return "Chrome";
+  }
+}
+
+class ChromeLogin {
+  name: string;
+  url: string;
+  username: string;
+  password: string;
+  note: string;
+
+  constructor(login: any) {
+    // TODO: format name to hostname?
+    this.name = login.url;
+    this.url = login.url;
+    this.username = login.username;
+    this.password = login.password;
+    this.note = login.note;
   }
 }

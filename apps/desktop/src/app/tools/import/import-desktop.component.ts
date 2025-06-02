@@ -29,4 +29,12 @@ export class ImportDesktopComponent {
   protected async onSuccessfulImport(organizationId: string): Promise<void> {
     this.dialogRef.close();
   }
+
+  protected onLoadProfilesFromBrowser(browser: string): Promise<any[]> {
+    return ipc.platform.chromiumImporter.getAvailableProfiles(browser);
+  }
+
+  protected onImportFromBrowser(browser: string, profile: string): Promise<any[]> {
+    return ipc.platform.chromiumImporter.importLogins(browser, profile);
+  }
 }

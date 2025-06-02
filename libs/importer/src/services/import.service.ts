@@ -245,6 +245,7 @@ export class ImportService implements ImportServiceAbstraction {
       case "chromecsv":
       case "operacsv":
       case "vivaldicsv":
+      case "bravecsv":
         return new ChromeCsvImporter();
       case "firefoxcsv":
         return new FirefoxCsvImporter();
