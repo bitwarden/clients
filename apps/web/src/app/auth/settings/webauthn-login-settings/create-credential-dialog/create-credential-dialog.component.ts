@@ -33,6 +33,7 @@ type Step =
 
 @Component({
   templateUrl: "create-credential-dialog.component.html",
+  standalone: false,
 })
 export class CreateCredentialDialogComponent implements OnInit {
   protected readonly NameMaxCharacters = 50;

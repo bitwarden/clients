@@ -10,7 +10,6 @@ import { SharedModule } from "../shared";
 type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 @Component({
   selector: "dynamic-avatar",
-  standalone: true,
   imports: [SharedModule],
   template: `<span [title]="title">
     <bit-avatar

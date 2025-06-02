@@ -351,12 +351,6 @@
   "other": {
     "message": "Інше"
   },
-  "generatePassword": {
-    "message": "Генерувати пароль"
-  },
-  "generatePassphrase": {
-    "message": "Генерувати парольну фразу"
-  },
   "type": {
     "message": "Тип"
   },
@@ -446,10 +440,10 @@
     "message": "Додати поле"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Редагувати поле"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Ви дійсно хочете остаточно видалити це вкладення?"
   },
   "fieldType": {
     "message": "Тип поля"
@@ -1103,9 +1097,6 @@
   "addNewItem": {
     "message": "Новий запис"
   },
-  "addNewFolder": {
-    "message": "Нова тека"
-  },
   "view": {
     "message": "Переглянути"
   },
@@ -1725,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
-  "hCaptchaUrl": {
-    "message": "URL-адреса hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Завантажити cookie спеціальних можливостей"
-  },
-  "registerAccessibilityUser": {
-    "message": "Реєстрація користувача зі спеціальними можливостями",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Вставте нижче код, надісланий на вашу е-пошту"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Введіть URL-адресу для завантаження cookie спеціальних можливостей для hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Необхідно ввести URL-адресу hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Недійсна URL-адреса"
-  },
   "done": {
     "message": "Виконано"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Cookie спеціальних можливостей збережено!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Немає збережених cookie особливих можливостей"
   },
   "warning": {
     "message": "ПОПЕРЕДЖЕННЯ",
@@ -2546,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Головний пароль вилучено"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації."
+  },
+  "organizationName": {
+    "message": "Назва організації"
+  },
+  "keyConnectorDomain": {
+    "message": "Домен Key Connector"
   },
   "leaveOrganization": {
     "message": "Покинути організацію"
@@ -2667,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Генератор імені користувача"
   },
+  "generatePassword": {
+    "message": "Генерувати пароль"
+  },
+  "generatePassphrase": {
+    "message": "Генерувати парольну фразу"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2719,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Використати цю е-пошту"
+  },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
   },
   "random": {
     "message": "Випадково"
@@ -3084,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
-  },
-  "useThisPassword": {
-    "message": "Використати цей пароль"
-  },
-  "useThisUsername": {
-    "message": "Використати це ім'я користувача"
   },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
@@ -3647,6 +3628,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Біометричне розблокування зараз недоступне з невідомої причини."
   },
+  "itemDetails": {
+    "message": "Подробиці запису"
+  },
+  "itemName": {
+    "message": "Назва запису"
+  },
+  "loginCredentials": {
+    "message": "Облікові дані для входу"
+  },
+  "additionalOptions": {
+    "message": "Додаткові налаштування"
+  },
+  "itemHistory": {
+    "message": "Історія запису"
+  },
+  "lastEdited": {
+    "message": "Востаннє редаговано"
+  },
+  "upload": {
+    "message": "Вивантажити"
+  },
   "authorize": {
     "message": "Авторизувати"
   },
@@ -3716,8 +3718,51 @@
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Перемістити"
+  },
+  "newFolder": {
+    "message": "Нова тека"
+  },
+  "folderName": {
+    "message": "Назва теки"
+  },
+  "folderHintText": {
+    "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
+  },
+  "sendsTitleNoItems": {
+    "message": "Безпечно надсилайте конфіденційну інформацію",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Швидко створюйте паролі"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши на",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "щоб зберегти свої записи в безпеці.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши кнопку Генерувати пароль, щоб зберегти свої записи в безпеці.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"

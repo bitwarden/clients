@@ -11,7 +11,6 @@ import { Icon, isIcon } from "./icon";
     "[innerHtml]": "innerHtml",
   },
   template: ``,
-  standalone: true,
 })
 export class BitIconComponent {
   innerHtml: SafeHtml | null = null;

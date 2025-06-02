@@ -27,6 +27,7 @@ export type ApplicationHealthReportDetail = {
   applicationName: string;
   passwordCount: number;
   atRiskPasswordCount: number;
+  atRiskCipherIds: string[];
   memberCount: number;
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
@@ -96,6 +97,7 @@ export type ExposedPasswordDetail = {
  * organization member to a cipher
  */
 export type MemberDetailsFlat = {
+  userGuid: string;
   userName: string;
   email: string;
   cipherId: string;

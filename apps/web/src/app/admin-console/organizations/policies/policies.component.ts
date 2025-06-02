@@ -31,6 +31,7 @@ import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.compo
 @Component({
   selector: "app-org-policies",
   templateUrl: "policies.component.html",
+  standalone: false,
 })
 export class PoliciesComponent implements OnInit {
   loading = true;

@@ -7,6 +7,7 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 @Component({
   selector: "app-setup-provider",
   templateUrl: "setup-provider.component.html",
+  standalone: false,
 })
 export class SetupProviderComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;

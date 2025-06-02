@@ -16,7 +16,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -30,7 +29,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
   standalone: true,
   imports: [
     CardComponent,
-    SectionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,

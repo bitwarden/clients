@@ -7,7 +7,6 @@ import { DisclosureComponent } from "./disclosure.component";
 @Directive({
   selector: "[bitDisclosureTriggerFor]",
   exportAs: "disclosureTriggerFor",
-  standalone: true,
 })
 export class DisclosureTriggerForDirective {
   /**
