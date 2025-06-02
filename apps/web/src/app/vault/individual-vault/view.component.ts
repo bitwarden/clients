@@ -73,7 +73,6 @@ export interface ViewCipherDialogCloseResult {
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
-  standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },

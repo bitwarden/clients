@@ -1,24 +1,24 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "सर्व अ‍ॅप्लिकेशन्स"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "बिटवॉर्डन चिन्ह"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "महत्त्वाचे अ‍ॅप्लिकेशन्स"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "कोणतेही महत्त्वाचे अ‍ॅप्लिकेशन्स धोक्यात नाहीत"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "अ‍ॅक्सेस इंटेलिजेंस"
   },
   "riskInsights": {
-    "message": "Risk Insights"
+    "message": "जोखीम अंतर्दृष्टी"
   },
   "passwordRisk": {
-    "message": "Password Risk"
+    "message": "पासवर्डचा धोका"
   },
   "reviewAtRiskPasswords": {
     "message": "Review at-risk passwords (weak, exposed, or reused) across applications. Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
@@ -54,7 +54,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "नवीन लॉगिन आयटम तयार करा"
   },
   "criticalApplicationsWithCount": {
     "message": "Critical applications ($COUNT$)",
@@ -96,7 +96,7 @@
     "message": "Mark critical apps"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "अ‍ॅपला गंभीर म्हणून चिन्हांकित करा"
   },
   "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marked as critical"
@@ -105,13 +105,13 @@
     "message": "Application"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "धोकादायक पासवर्ड"
   },
   "requestPasswordChange": {
-    "message": "Request password change"
+    "message": "पासवर्ड बदलण्याची विनंती करा"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "एकूण पासवर्ड"
   },
   "searchApps": {
     "message": "Search applications"
@@ -120,7 +120,7 @@
     "message": "At-risk members"
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "जोखीम गटातील सदस्य ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -186,7 +186,7 @@
     "message": "What type of item is this?"
   },
   "name": {
-    "message": "Name"
+    "message": "नाव"
   },
   "uri": {
     "message": "URI"
@@ -205,13 +205,13 @@
     "message": "New URI"
   },
   "username": {
-    "message": "Username"
+    "message": "वापरकर्तानाव"
   },
   "password": {
-    "message": "Password"
+    "message": "पासवर्ड"
   },
   "newPassword": {
-    "message": "New password"
+    "message": "नवीन पासवर्ड"
   },
   "passphrase": {
     "message": "Passphrase"
@@ -232,7 +232,7 @@
     "message": "Cardholder name"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "लॉगिन क्रेडेन्शियल्स"
   },
   "personalDetails": {
     "message": "Personal details"
@@ -241,13 +241,13 @@
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "संपर्क माहिती"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "कार्ड तपशील"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ ची माहिती",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -259,16 +259,16 @@
     "message": "Item history"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "ऑथेंटिकेटर की"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "ऑटोफिल पर्याय"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "वेबसाइट (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "वेबसाइट (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -318,25 +318,25 @@
     "message": "Autofill on page load?"
   },
   "number": {
-    "message": "Number"
+    "message": "क्रमांक"
   },
   "brand": {
-    "message": "Brand"
+    "message": "ब्रँड"
   },
   "expiration": {
-    "message": "Expiration"
+    "message": "कालबाह्यता"
   },
   "securityCode": {
-    "message": "Security code (CVV)"
+    "message": "सुरक्षा कोड (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "सुरक्षा कोड / CVV"
   },
   "identityName": {
     "message": "Identity name"
   },
   "company": {
-    "message": "Company"
+    "message": "कंपनी"
   },
   "ssn": {
     "message": "Social Security number"
@@ -348,46 +348,46 @@
     "message": "License number"
   },
   "email": {
-    "message": "Email"
+    "message": "ईमेल"
   },
   "phone": {
     "message": "Phone"
   },
   "january": {
-    "message": "January"
+    "message": "जानेवरी"
   },
   "february": {
-    "message": "February"
+    "message": "फेब्रुवरी"
   },
   "march": {
-    "message": "March"
+    "message": "मार्च"
   },
   "april": {
-    "message": "April"
+    "message": "एप्रिल"
   },
   "may": {
-    "message": "May"
+    "message": "मे"
   },
   "june": {
-    "message": "June"
+    "message": "जून"
   },
   "july": {
-    "message": "July"
+    "message": "जुलै"
   },
   "august": {
-    "message": "August"
+    "message": "ऑगस्ट"
   },
   "september": {
-    "message": "September"
+    "message": "सेप्टेंबर"
   },
   "october": {
-    "message": "October"
+    "message": "ऑक्टोबर"
   },
   "november": {
-    "message": "November"
+    "message": "नोवेंबर"
   },
   "december": {
-    "message": "December"
+    "message": "डिसेंबर"
   },
   "title": {
     "message": "Title"
@@ -414,13 +414,13 @@
     "message": "If you've renewed it, update the card's information"
   },
   "expirationMonth": {
-    "message": "Expiration month"
+    "message": "कालबाह्यता महिना"
   },
   "expirationYear": {
-    "message": "Expiration year"
+    "message": "कालबाह्यता वर्ष"
   },
   "authenticatorKeyTotp": {
-    "message": "Authenticator key (TOTP)"
+    "message": "ऑथेंटिकेटर की (TOTP)"
   },
   "totpHelperTitle": {
     "message": "Make 2-step verification seamless"
@@ -547,14 +547,8 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Generate password"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
-  },
   "checkPassword": {
-    "message": "Check if password has been exposed."
+    "message": "पासवर्ड उघड झाला आहे का तपासा."
   },
   "passwordExposed": {
     "message": "This password has been exposed $VALUE$ time(s) in data breaches. You should change it.",
@@ -566,13 +560,13 @@
     }
   },
   "passwordSafe": {
-    "message": "This password was not found in any known data breaches. It should be safe to use."
+    "message": "हा पासवर्ड कोणत्याही c डेटा उल्लंघनात आढळला नाही. तो वापरण्यास सुरक्षित असावा."
   },
   "save": {
-    "message": "Save"
+    "message": "जतन करा"
   },
   "cancel": {
-    "message": "Cancel"
+    "message": "रद्द करा"
   },
   "canceled": {
     "message": "Canceled"
@@ -6476,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Leave organization"
@@ -6827,6 +6818,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "Generate password"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6889,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -10556,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10613,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

@@ -15,6 +15,7 @@ import { filter, firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -56,7 +57,6 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { SpotlightComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -66,7 +66,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 @Component({
   templateUrl: "autofill.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,
@@ -334,11 +333,24 @@ export class AutofillComponent implements OnInit {
     return null;
   }
 
+  get browserClientVendorExtended() {
+    if (this.browserClientVendor !== BrowserClientVendors.Unknown) {
+      return this.browserClientVendor;
+    }
+    if (this.platformUtilsService.isFirefox()) {
+      return "Firefox";
+    }
+    if (this.platformUtilsService.isSafari()) {
+      return "Safari";
+    }
+    return BrowserClientVendors.Unknown;
+  }
+
   get spotlightButtonText() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
+    if (this.browserClientVendorExtended === BrowserClientVendors.Unknown) {
       return this.i18nService.t("turnOffAutofill");
     }
-    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendor);
+    return this.i18nService.t("turnOffBrowserAutofill", this.browserClientVendorExtended);
   }
 
   async dismissSpotlight() {

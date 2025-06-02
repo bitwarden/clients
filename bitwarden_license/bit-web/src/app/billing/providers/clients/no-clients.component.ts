@@ -24,7 +24,6 @@ const gearIcon = svgIcon`
 
 @Component({
   selector: "app-no-clients",
-  standalone: true,
   imports: [SharedOrganizationModule],
   template: `<div class="tw-flex tw-flex-col tw-items-center tw-text-info">
     <bit-icon [icon]="icon"></bit-icon>

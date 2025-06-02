@@ -147,7 +147,13 @@ const sizes: Record<IconButtonSize, string[]> = {
   default: ["tw-px-2.5", "tw-py-1.5"],
   small: ["tw-leading-none", "tw-text-base", "tw-p-1"],
 };
+/**
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
 
+  * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
+
+  * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
+ */
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
   templateUrl: "icon-button.component.html",
@@ -155,7 +161,6 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  standalone: true,
   imports: [NgClass],
   host: {
     "[attr.disabled]": "disabledAttr()",

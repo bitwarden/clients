@@ -23,7 +23,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
 
 @Component({
-  standalone: true,
   selector: "vault-autofill-options",
   template: "",
 })

@@ -1072,7 +1072,7 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "Uusi kohde, avautuu uudessa ikkunassa",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
@@ -1606,7 +1606,7 @@
     "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Poista automaattitäyttö käytöstä selaimessa $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1615,7 +1615,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "Poista automaattitäyttö käytöstä"
   },
   "showInlineMenuLabel": {
     "message": "Näytä automaattitäytön ehdotukset lomakekentissä"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Käytä tätä salasanaa"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Käytä tätä käyttäjätunnusta"
   },
@@ -2674,6 +2677,10 @@
     "message": "Kaikki Sendit",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Piilota teksti oletuksena"
   },
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Yksilöllistä tunnistetta ei löytynyt."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ käyttää kertakirjautumista (SSO) itse ylläpidetyllä avainpalvelimella. Organisaation jäsenet eivät enää tarvitse pääsalasanaa kirjautumiseen.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organisaation nimi"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Poistu organisaatiosta"
@@ -3584,16 +3591,16 @@
     "message": "Laitteeseen luotettu"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Luota organisaatioon"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Luota"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Älä luota"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Organisaatio ei ole luotettu"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -3605,7 +3612,7 @@
     "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
   },
   "trustUser": {
-    "message": "Trust user"
+    "message": "Luota käyttäjään"
   },
   "sendsNoItemsTitle": {
     "message": "Aktiivisia Sendejä ei ole",
@@ -3613,6 +3620,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Sendillä voit jakaa salattuja tietoja turvallisesti kenelle tahansa.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4532,19 +4547,19 @@
     }
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "Lataa Bitwarden"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Lataa Bitwarden kaikille laitteille"
   },
   "getTheMobileApp": {
-    "message": "Get the mobile app"
+    "message": "Hanki mobiilisovellus"
   },
   "getTheMobileAppDesc": {
     "message": "Access your passwords on the go with the Bitwarden mobile app."
   },
   "getTheDesktopApp": {
-    "message": "Get the desktop app"
+    "message": "Hanki työpöytäsovellus"
   },
   "getTheDesktopAppDesc": {
     "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
@@ -4553,10 +4568,10 @@
     "message": "Download from bitwarden.com now"
   },
   "getItOnGooglePlay": {
-    "message": "Get it on Google Play"
+    "message": "Hanki se Google Playstä"
   },
   "downloadOnTheAppStore": {
-    "message": "Download on the App Store"
+    "message": "Lataa App Storesta"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Haluatko varmasti poistaa liitteen pysyvästi?"
@@ -5019,6 +5034,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrinen avaus ei ole tällä hetkellä käytettävissä tuntemattomasta syystä."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
   "authenticating": {
     "message": "Todennetaan"
   },
@@ -5236,7 +5260,7 @@
     "message": "Vaihda vaarantunut salasana"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Holvin asetukset"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5269,19 +5293,19 @@
     "message": "Tallenna rajattomasti salasanoja, rajattomalla määrällä laitteita, Bitwardenin mobiili-, selain- ja työpöytäsovelluksilla."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 ilmoitus"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "Tuo olemassa olevat salasanat"
   },
   "emptyVaultNudgeBody": {
     "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
   },
   "emptyVaultNudgeButton": {
-    "message": "Import now"
+    "message": "Tuo nyt"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Tervetuloa holviisi!"
   },
   "hasItemsVaultNudgeBodyOne": {
     "message": "Autofill items for the current page"
@@ -5293,7 +5317,7 @@
     "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Säästä aikaa automaattitäytöllä"
   },
   "newLoginNudgeBodyOne": {
     "message": "Include a",
@@ -5301,7 +5325,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Verkkosivusto",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5340,6 +5364,23 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

@@ -547,12 +547,6 @@
     "message": "Přepnout sbalení",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Vygenerovat heslo"
-  },
-  "generatePassphrase": {
-    "message": "Vygenerovat heslovou frázi"
-  },
   "checkPassword": {
     "message": "Zkontrolujte, zda nedošlo k úniku hesla."
   },
@@ -6476,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace."
+  },
+  "keyConnectorDomain": {
+    "message": "Doména Key Connectoru"
   },
   "leaveOrganization": {
     "message": "Opustit organizaci"
@@ -6827,6 +6818,24 @@
   "generateEmail": {
     "message": "Vygenerovat e-mail"
   },
+  "generatePassword": {
+    "message": "Vygenerovat heslo"
+  },
+  "generatePassphrase": {
+    "message": "Vygenerovat heslovou frázi"
+  },
+  "passwordGenerated": {
+    "message": "Heslo bylo vygenerováno"
+  },
+  "passphraseGenerated": {
+    "message": "Heslová fráze byla vygenerována"
+  },
+  "usernameGenerated": {
+    "message": "Uživatelské jméno bylo vygenerováno"
+  },
+  "emailGenerated": {
+    "message": "E-mail byl vygenerován"
+  },
   "spinboxBoundariesHint": {
     "message": "Hodnota musí být mezi $MIN$ a $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6889,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Použít toto heslo"
+  },
+  "useThisPassphrase": {
+    "message": "Použít tuto heslovou frázi"
   },
   "useThisUsername": {
     "message": "Použít toto uživatelské jméno"
@@ -10556,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "Nová obchodní jednotka"
   },
+  "sendsTitleNoItems": {
+    "message": "Posílejte citlivé informace bezpečně",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Sdílejte bezpečně soubory a data s kýmkoli na libovolné platformě. Vaše informace zůstanou šifrovány a zároveň omezují expozici.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Rychlé vytvoření hesla"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Jednoduše vytvořte silná a unikátní hesla klepnutím na",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "aby Vám pomohlo udržet Vaše přihlašovací údaje v bezpečí.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Jednoduše vytvořte silná a unikátní hesla klepnutím na tlačítko Generovat heslo, které Vám pomůže udržet Vaše přihlašovací údaje v bezpečí.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Ušetřete čas s automatickým vyplňováním"
   },
@@ -10613,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Pro přidání způsobu platby klepněte na tlačítko \"Pay with PayPal\"."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Pokud odeberete $EMAIL$, sponzorství pro tento plán rodiny skončí. Volné místo ve Vaší organizaci bude k dispozici pro členy nebo sponzory po datu obnovení sponzorované organizace na $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

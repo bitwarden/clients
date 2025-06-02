@@ -27,7 +27,6 @@ export enum AtRiskCarouselDialogResult {
     DarkImageSourceDirective,
     I18nPipe,
   ],
-  standalone: true,
 })
 export class AtRiskCarouselDialogComponent {
   private dialogRef = inject(DialogRef);

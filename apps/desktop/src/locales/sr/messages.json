@@ -238,22 +238,22 @@
     "message": "SSH агент је услуга намењена програмерима која вам омогућава да потпишете SSH захтеве директно из вашег Bitwarden сефа."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Затражите ауторизацију када користите SSH агент"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Изаберите како поднети захтеве за ауторизацију SSH-агента."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "Запамти SSH дозволе"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Увек"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "Никада"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Запамти док сеф није блокиран"
   },
   "premiumRequired": {
     "message": "Потребан Премијум"
@@ -351,12 +351,6 @@
   "other": {
     "message": "Остало"
   },
-  "generatePassword": {
-    "message": "Генерисање лозинке"
-  },
-  "generatePassphrase": {
-    "message": "Генеришите приступну фразу"
-  },
   "type": {
     "message": "Тип"
   },
@@ -446,10 +440,10 @@
     "message": "Додај поље"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Уреди поље"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Да ли сте сигурни да желите да трајно избришете овај прилог?"
   },
   "fieldType": {
     "message": "Врста поља"
@@ -2512,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Главна лозинка уклоњена"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ користи SSO уз сопствени сервер за кључеве. Главна лозинка за пријаву више није неопходна за чланове ове организације.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације."
+  },
+  "organizationName": {
+    "message": "Назив организације"
+  },
+  "keyConnectorDomain": {
+    "message": "Домен конектора кључа"
   },
   "leaveOrganization": {
     "message": "Напусти организацију"
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Генератор корисничког имена"
   },
+  "generatePassword": {
+    "message": "Генерисање лозинке"
+  },
+  "generatePassphrase": {
+    "message": "Генеришите приступну фразу"
+  },
+  "passwordGenerated": {
+    "message": "Лозинка генерисана"
+  },
+  "passphraseGenerated": {
+    "message": "Приступна фраза је генерисана"
+  },
+  "usernameGenerated": {
+    "message": "Корисничко име генерисано"
+  },
+  "emailGenerated": {
+    "message": "Имејл генерисан"
+  },
   "spinboxBoundariesHint": {
     "message": "Вредност мора бити између $MIN$ и $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Користи овај имејл"
+  },
+  "useThisPassword": {
+    "message": "Употреби ову лозинку"
+  },
+  "useThisPassphrase": {
+    "message": "Употреби ову приступну фразу"
+  },
+  "useThisUsername": {
+    "message": "Употреби ово корисничко име"
   },
   "random": {
     "message": "Случајно"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Идентификована је слаба лозинка и пронађена у упаду података. Користите јаку и јединствену лозинку да заштитите свој налог. Да ли сте сигурни да желите да користите ову лозинку?"
-  },
-  "useThisPassword": {
-    "message": "Употреби ову лозинку"
-  },
-  "useThisUsername": {
-    "message": "Употреби ово корисничко име"
   },
   "checkForBreaches": {
     "message": "Проверите познате упада података за ову лозинку"
@@ -3614,25 +3629,25 @@
     "message": "Биометријско откључавање није доступно из непознатог разлога."
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Детаљи ставке"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Име ставке"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Акредитиве за пријављивање"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Додатне опције"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Историја предмета"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Последња измена"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Отпреми"
   },
   "authorize": {
     "message": "Ауторизуј"
@@ -3703,33 +3718,67 @@
   "changeAtRiskPassword": {
     "message": "Променити ризичну лозинку"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете уклонити колекције са дозволама само за приказ: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Премести"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Нова фасцикла"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Име фасцикле"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Угнездите фасциклу додавањем имена надређене фасцкле праћеног знаком „/“. Пример: Друштвени/Форуми"
+  },
+  "sendsTitleNoItems": {
+    "message": "Шаљите бзбедно осетљиве информације",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Делите датотеке и податке безбедно са било ким, на било којој платформи. Ваше информације ће остати шифроване од почетка-до-краја уз ограничење изложености.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Брзо креирајте лозинке"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "да вам помогне да задржите своје пријаве сигурно.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на дугме „Генерирате лозинку“ да вам помогне да чувате своје пријаве на сигурно.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Уштедите време са ауто-пуњењем"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Укључите",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Веб сајт",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "тако да се ова пријава појављује као предлог за ауто-пуњење.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -3755,12 +3804,12 @@
     "message": "Лак SSH приступ"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Чувајте кључеве и повежите се са SSH агент за брзу, шифровану аутентификацију.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "Сазнајте више о SSH агенту",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
