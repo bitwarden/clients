@@ -80,7 +80,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
       this.cipherService
         .getAllDecryptedForIds(activeUserId, cipherIds || [])
         .then((ciphers) => {
-          this.ciphersSubject.next(ciphers);
+          this.ciphersSubject.next(ciphers.filter((cipher) => !cipher.deletedDate));
         })
         .catch((error) => this.logService.error(error));
     });

@@ -94,7 +94,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
           return (
             cipher.login.matchesUri(rpid, equivalentDomains) &&
-            Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle)
+            Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
+            !cipher.deletedDate
           );
         });
         this.ciphersSubject.next(relevantCiphers);
