@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Utilizar esta palavra-passe"
   },
+  "useThisPassphrase": {
+    "message": "Utilizar esta frase de acesso"
+  },
   "useThisUsername": {
     "message": "Utilizar este nome de utilizador"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Todos os Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Número máximo de acessos atingido",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Ocultar texto por predefinição"

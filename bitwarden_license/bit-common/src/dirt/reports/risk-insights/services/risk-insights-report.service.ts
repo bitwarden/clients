@@ -48,7 +48,9 @@ export class RiskInsightsReportService {
     const results$ = zip(allCiphers$, memberCiphers$).pipe(
       map(([allCiphers, memberCiphers]) => {
         const details: MemberDetailsFlat[] = memberCiphers.flatMap((dtl) =>
-          dtl.cipherIds.map((c) => this.getMemberDetailsFlat(dtl.userName, dtl.email, c)),
+          dtl.cipherIds.map((c) =>
+            this.getMemberDetailsFlat(dtl.userGuid, dtl.userName, dtl.email, c),
+          ),
         );
         return [allCiphers, details] as const;
       }),
@@ -408,11 +410,13 @@ export class RiskInsightsReportService {
   }
 
   private getMemberDetailsFlat(
+    userGuid: string,
     userName: string,
     email: string,
     cipherId: string,
   ): MemberDetailsFlat {
     return {
+      userGuid: userGuid,
       userName: userName,
       email: email,
       cipherId: cipherId,
@@ -433,7 +437,7 @@ export class RiskInsightsReportService {
     const cipherUris: string[] = [];
     const uris = cipher.login?.uris ?? [];
     uris.map((u: { uri: string }) => {
-      const uri = Utils.getDomain(u.uri);
+      const uri = Utils.getDomain(u.uri) ?? u.uri;
       if (!cipherUris.includes(uri)) {
         cipherUris.push(uri);
       }

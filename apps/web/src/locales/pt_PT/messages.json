@@ -547,12 +547,6 @@
     "message": "Alternar colapso",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Gerar palavra-passe"
-  },
-  "generatePassphrase": {
-    "message": "Gerar frase de acesso"
-  },
   "checkPassword": {
     "message": "Verificar se a palavra-passe foi exposta."
   },
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "Gerar e-mail"
   },
+  "generatePassword": {
+    "message": "Gerar palavra-passe"
+  },
+  "generatePassphrase": {
+    "message": "Gerar frase de acesso"
+  },
+  "passwordGenerated": {
+    "message": "Palavra-passe gerada"
+  },
+  "passphraseGenerated": {
+    "message": "Frase de acesso gerada"
+  },
+  "usernameGenerated": {
+    "message": "Nome de utilizador gerado"
+  },
+  "emailGenerated": {
+    "message": "E-mail gerado"
+  },
   "spinboxBoundariesHint": {
     "message": "O valor deve estar entre $MIN$ e $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Utilizar esta palavra-passe"
+  },
+  "useThisPassphrase": {
+    "message": "Utilizar esta frase de acesso"
   },
   "useThisUsername": {
     "message": "Utilizar este nome de utilizador"
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "Nova unidade de negócio"
   },
+  "sendsTitleNoItems": {
+    "message": "Envie informações sensíveis com segurança",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Partilhe ficheiros e dados de forma segura com qualquer pessoa, em qualquer plataforma. As suas informações permanecerão encriptadas ponto a ponto, limitando a exposição.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Criar rapidamente palavras-passe"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Crie facilmente palavras-passe fortes e únicas clicando em",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "para o ajudar a manter as suas credenciais seguras.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Crie facilmente palavras-passe fortes e únicas clicando no botão Gerar palavra-passe para o ajudar a manter as suas credenciais seguras.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Poupe tempo com o preenchimento automático"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Por favor, clique no botão Pagar com PayPal para adicionar o seu método de pagamento."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Se remover $EMAIL$, o patrocínio para este plano Familiar termina. Um lugar na sua organização ficará disponível para membros ou patrocínios após a data de renovação da organização patrocinada a $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Използване на тази парола"
   },
+  "useThisPassphrase": {
+    "message": "Използване на тази парола-фраза"
+  },
   "useThisUsername": {
     "message": "Използване на това потребителско име"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Всички изпращания",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Достигнат е максималният брой достъпвания",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Скриване на текста по подразбиране"

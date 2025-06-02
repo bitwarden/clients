@@ -19,7 +19,6 @@ import { UserKeyRotationService } from "../key-rotation/user-key-rotation.servic
 // The master key was originally used to encrypt user data, before the user key was introduced.
 // This component is used to migrate from the old encryption scheme to the new one.
 @Component({
-  standalone: true,
   imports: [SharedModule, UserKeyRotationModule],
   templateUrl: "migrate-legacy-encryption.component.html",
 })
