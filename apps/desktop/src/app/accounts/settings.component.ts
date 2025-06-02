@@ -487,7 +487,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
   }
 
-  private async updatePinHandler(value: boolean) {
+  async updatePinHandler(value: boolean) {
     try {
       await this.updatePin(value);
     } catch (error) {
@@ -524,7 +524,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async updateBiometricHandler(value: boolean) {
+  async updateBiometricHandler(value: boolean) {
     try {
       await this.updateBiometric(value);
     } catch (error) {
