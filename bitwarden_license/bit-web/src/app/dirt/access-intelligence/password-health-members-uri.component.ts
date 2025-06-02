@@ -29,7 +29,6 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 @Component({
-  standalone: true,
   selector: "tools-password-health-members-uri",
   templateUrl: "password-health-members-uri.component.html",
   imports: [

@@ -9,7 +9,6 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 
 @Component({
   selector: "app-table-row-scrollable",
-  standalone: true,
   imports: [CommonModule, JslibModule, TableModule, SharedModule, PipesModule, MenuModule],
   templateUrl: "./app-table-row-scrollable.component.html",
 })
