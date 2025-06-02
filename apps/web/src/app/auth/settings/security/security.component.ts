@@ -9,7 +9,6 @@ import { SharedModule } from "../../../shared";
 
 @Component({
   templateUrl: "security.component.html",
-  standalone: true,
   imports: [SharedModule, HeaderModule],
 })
 export class SecurityComponent implements OnInit {
