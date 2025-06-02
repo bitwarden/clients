@@ -74,7 +74,6 @@ interface ViewData {
 @Component({
   selector: "app-fido2",
   templateUrl: "fido2.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
