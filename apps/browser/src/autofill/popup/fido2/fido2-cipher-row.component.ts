@@ -10,8 +10,6 @@ import {
   ButtonModule,
   IconButtonModule,
   ItemModule,
-  SectionComponent,
-  SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -27,8 +25,6 @@ import {
     IconButtonModule,
     ItemModule,
     JslibModule,
-    SectionComponent,
-    SectionHeaderComponent,
     TypographyModule,
   ],
 })

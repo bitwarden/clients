@@ -74,7 +74,6 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
-    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",

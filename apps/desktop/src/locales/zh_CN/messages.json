@@ -247,7 +247,7 @@
     "message": "记住 SSH 授权"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "总是"
+    "message": "始终"
   },
   "sshAgentPromptBehaviorNever": {
     "message": "从不"
@@ -350,12 +350,6 @@
   },
   "other": {
     "message": "其他"
-  },
-  "generatePassword": {
-    "message": "生成密码"
-  },
-  "generatePassphrase": {
-    "message": "生成密码短语"
   },
   "type": {
     "message": "类型"
@@ -1836,7 +1830,7 @@
     "message": "删除账户"
   },
   "deleteAccountDesc": {
-    "message": "接下来的操作会删除您的账户和所有密码库数据。"
+    "message": "继续下面的操作以删除您的账户和所有密码库数据。"
   },
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
@@ -2363,7 +2357,7 @@
     "message": "读取安全密钥"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "等待安全密钥交互……"
+    "message": "等待安全密钥交互..."
   },
   "hideEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
@@ -2512,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "主密码已移除"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "organizationName": {
+    "message": "组织名称"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "用户名生成器"
   },
+  "generatePassword": {
+    "message": "生成密码"
+  },
+  "generatePassphrase": {
+    "message": "生成密码短语"
+  },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
+  },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "使用此电子邮箱"
+  },
+  "useThisPassword": {
+    "message": "使用此密码"
+  },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
+  },
+  "useThisUsername": {
+    "message": "使用此用户名"
   },
   "random": {
     "message": "随机"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
-  },
-  "useThisPassword": {
-    "message": "使用此密码"
-  },
-  "useThisUsername": {
-    "message": "使用此用户名"
   },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
@@ -3703,6 +3718,15 @@
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "移动"
   },
@@ -3715,21 +3739,46 @@
   "folderHintText": {
     "message": "通过在父文件夹名后面添加「/」来嵌套文件夹。示例：Social/Forums"
   },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "包含",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "网站",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "以便将此登录显示为自动填充建议。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },

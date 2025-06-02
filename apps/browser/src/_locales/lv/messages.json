@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Izmantot šo paroli"
   },
+  "useThisPassphrase": {
+    "message": "Izmantot šo paroles vārdkopu"
+  },
   "useThisUsername": {
     "message": "Izmantot šo lietotājvārdu"
   },
@@ -2674,6 +2677,10 @@
     "message": "Visi Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Pēc noklusējuma paslēpt tekstu"
   },
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nav atrasts neviens neatkārtojams identifikators"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Galvenā parole vairs nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju."
+  },
+  "organizationName": {
+    "message": "Apvienības nosaukums"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domēns"
   },
   "leaveOrganization": {
     "message": "Pamest apvienību"
@@ -3613,6 +3620,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Send ir izmantojams, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Drošā veidā nosūti jūtīgu informāciju",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Drošā veidā kopīgo datnes un datus ar ikvienu jebkurā platformā! Tava informācija paliks pilnībā šifrēta, vienlaikus ierobežojot riskantumu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5019,6 +5034,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Atslēgšana ar biometriju pašlaik nav pieejama nezināma iemesla dēļ."
   },
+  "unlockVault": {
+    "message": "Atslēdz savu glabātavu dažās sekundēs"
+  },
+  "unlockVaultDesc": {
+    "message": "Tu vari pielāgot savus atslēgšanas un noildzes iestatījumus, lai ātrāk piekļūtu savai glabātavai."
+  },
+  "unlockPinSet": {
+    "message": "Atslēgšanas PIN iestatīts"
+  },
   "authenticating": {
     "message": "Autentificē"
   },
@@ -5340,6 +5364,23 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Ātra paroļu izveidošana"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", lai palīdzētu uzturērt pieteikšanās vienumus drošus.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Vienkārša spēcīgu un neatkārtojamu paroļu izveidošana ar pogu \"Izveidot paroli\", lai palīdzētu uzturēt pieteikšanās vienumus drošus.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."

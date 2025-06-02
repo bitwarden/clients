@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Użyj tego hasła"
   },
+  "useThisPassphrase": {
+    "message": "Użyj tego hasła wyrazowego"
+  },
   "useThisUsername": {
     "message": "Użyj tej nazwy użytkownika"
   },
@@ -2674,6 +2677,10 @@
     "message": "Wszystkie wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Maksymalna liczba dostępów została osiągnięta",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Domyślnie ukryj tekst"
   },
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nie znaleziono unikatowego identyfikatora."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "Organizacja $ORGANIZATION$ używa jednokrotnego logowania SSO z własnym serwerem kluczy. Użytkownicy nie muszą logować się za pomocą hasła głównego.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hasło główne nie jest już wymagane dla członków następującej organizacji. Proszę potwierdzić poniższą domenę u administratora organizacji."
+  },
+  "organizationName": {
+    "message": "Nazwa organizacji"
+  },
+  "keyConnectorDomain": {
+    "message": "Domena Key Connector'a"
   },
   "leaveOrganization": {
     "message": "Opuść organizację"
@@ -3613,6 +3620,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Użyj wysyłki, aby bezpiecznie dzielić się zaszyfrowanymi informacjami ze wszystkimi.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Wysyłaj bezpiecznie poufne informacje",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Udostępniaj pliki i dane bezpiecznie każdemu, na każdej platformie. Twoje dane pozostaną zaszyfrowane end-to-end przy jednoczesnym ograniczeniu narażenia.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5019,6 +5034,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Odblokowanie biometryczne jest obecnie niedostępne z nieznanego powodu."
   },
+  "unlockVault": {
+    "message": "Odblokuj swój sejf w kilka sekund"
+  },
+  "unlockVaultDesc": {
+    "message": "Możesz dostosować ustawienia odblokowania i limitu czasu, aby szybciej uzyskać dostęp do sejfu."
+  },
+  "unlockPinSet": {
+    "message": "Ustaw kod PIN odblokowujący"
+  },
   "authenticating": {
     "message": "Uwierzytelnianie"
   },
@@ -5340,6 +5364,23 @@
     "message": "Dowiedz się więcej o agencie SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Szybko twórz hasła"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na Wygeneruj Hasło, aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Nie masz uprawnień do przeglądania tej strony. Spróbuj zalogować się na inne konto."

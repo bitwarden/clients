@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -43,7 +43,7 @@ describe("UnauthGuard", () => {
       authService.authStatusFor$.mockReturnValue(activeAccountStatusObservable);
     }
 
-    keyService.everHadUserKey$ = new BehaviorSubject<boolean>(everHadUserKey);
+    keyService.everHadUserKey$.mockReturnValue(of(everHadUserKey));
     deviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(
       new BehaviorSubject<boolean>(tdeEnabled),
     );
