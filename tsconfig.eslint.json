@@ -23,6 +23,7 @@
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
+      "@bitwarden/dirt-card": [".libs/dirt/card/src"],
       "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],
       "@bitwarden/generator-core": ["./libs/tools/generator/core/src"],
       "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
@@ -35,7 +36,6 @@
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/send-ui": [".libs/tools/send/send-ui/src"],
-      "@bitwarden/tools-card": [".libs/tools/card/src"],
       "@bitwarden/ui-common": ["./libs/ui/common/src"],
       "@bitwarden/vault-export-core": [".libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": [".libs/tools/export/vault-export/vault-export-ui/src"],
@@ -46,6 +46,7 @@
     ".storybook/main.ts",
     ".storybook/manager.js",
     ".storybook/test-runner.ts",
+    ".storybook/format-args-for-code-snippet.ts",
     "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
   ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],

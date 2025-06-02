@@ -534,7 +534,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Implicita eltrovo en akordo",
+    "message": "Implicita eltrovado en akordo",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -546,12 +546,6 @@
   "toggleCollapse": {
     "message": "Baskuli Fali",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Generi pasvorton"
-  },
-  "generatePassphrase": {
-    "message": "Generi pasfrazon"
   },
   "checkPassword": {
     "message": "Kontrolu ĉu pasvorto estis elmontrita."
@@ -1873,7 +1867,7 @@
     "message": "Ĉu vi zorgas pri tio, ke via konto estas ensalutinta sur alia aparato? Sekvu sube por senrajtigi ĉiujn komputilojn aŭ aparatojn, kiujn vi antaŭe uzis. Ĉi tiu sekureca paŝo rekomendas se vi antaŭe uzis publikan komputilon aŭ hazarde konservis vian pasvorton sur aparato, kiu ne estas via. Ĉi tiu paŝo ankaŭ malplenigos ĉiujn antaŭe memoritajn du-paŝajn ensalutajn sesiojn. "
   },
   "deauthorizeSessionsWarning": {
-    "message": "Se vi daŭrigos vian adiaŭadon de la nuna seanco, necesos vin saluti denove. Oni ankaŭ demandos de vi du-faktoran aŭtentigon, se tiu elekteblo estas ebligita. La seancoj aktivaj sur aliaj aparatoj povas resti daŭre aktivaj ankoraŭ unu horon."
+    "message": "La daŭrigo ankaŭ elsalutos vin de via nuna sesio, postulante vin denove ensaluti. Oni ankaŭ petos vin du-ŝtupa ensaluto, se ĝi estas ebligita. Aktivaj sesioj sur aliaj aparatoj povas daŭre resti aktivaj ĝis ĝis unu horo. "
   },
   "newDeviceLoginProtection": {
     "message": "Saluto per nova aparato"
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "Generi pasvorton"
+  },
+  "generatePassphrase": {
+    "message": "Generi pasfrazon"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }
