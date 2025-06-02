@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Bu parolayı kullan"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Bu kullanıcı adını kullan"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Tüm Send'ler",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maksimum erişim sayısına ulaşıldı",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Metni varsayılan olarak gizle"

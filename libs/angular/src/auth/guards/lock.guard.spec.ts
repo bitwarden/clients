@@ -44,7 +44,7 @@ describe("lockGuard", () => {
 
     const keyService: MockProxy<KeyService> = mock<KeyService>();
     keyService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
-    keyService.everHadUserKey$ = of(setupParams.everHadUserKey);
+    keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey));
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
     platformUtilService.getClientType.mockReturnValue(setupParams.clientType);

@@ -35,7 +35,6 @@ let nextId = 0;
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
-  standalone: true,
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {

@@ -109,7 +109,6 @@ interface OnSuccessArgs {
 
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
-  standalone: true,
   imports: [BillingSharedModule],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
