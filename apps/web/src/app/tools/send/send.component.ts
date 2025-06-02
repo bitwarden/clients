@@ -30,6 +30,7 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
+  SendListTableComponent,
 } from "@bitwarden/send-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -42,7 +43,14 @@ const BroadcasterSubscriptionId = "SendComponent";
 @Component({
   selector: "app-send",
   standalone: true,
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, NewSendDropdownComponent],
+  imports: [
+    SharedModule,
+    SearchModule,
+    NoItemsModule,
+    HeaderModule,
+    NewSendDropdownComponent,
+    SendListTableComponent,
+  ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
