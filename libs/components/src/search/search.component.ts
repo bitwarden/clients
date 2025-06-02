@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { NgIf } from "@angular/common";
 import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -31,7 +32,7 @@ let nextId = 0;
     },
   ],
   standalone: true,
-  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe],
+  imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe, NgIf],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
   private notifyOnChange: (v: string) => void;
@@ -43,6 +44,10 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   protected searchText: string;
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
+  // Optional: Track focus and hover state of the input to emulate the hiding/showing of the native reset button
+  protected isInputFocused = false;
+  protected isInputHovered = false;
+  protected resetHovered = false;
 
   @Input() disabled: boolean;
   @Input() placeholder: string;
@@ -53,8 +58,17 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   onChange(searchText: string) {
+    this.searchText = searchText; // update the model when the input changes (so we can use it with *ngIf in the template)
     if (this.notifyOnChange != undefined) {
       this.notifyOnChange(searchText);
+    }
+  }
+
+  // Handle the reset button click
+  clearSearch() {
+    this.searchText = "";
+    if (this.notifyOnChange) {
+      this.notifyOnChange("");
     }
   }
 

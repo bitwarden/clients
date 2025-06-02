@@ -1,23 +1,39 @@
 <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
 <div class="tw-relative tw-flex tw-items-center">
-  <label
-    [for]="id"
-    aria-hidden="true"
-    class="tw-absolute tw-left-2 tw-z-20 !tw-mb-0 tw-cursor-text"
-  >
-    <i class="bwi bwi-search bwi-fw tw-text-muted"></i>
-  </label>
-  <input
-    #input
-    bitInput
-    [type]="inputType"
-    [id]="id"
-    [placeholder]="placeholder ?? ('search' | i18n)"
-    class="tw-pl-9"
-    [ngModel]="searchText"
-    (ngModelChange)="onChange($event)"
-    (blur)="onTouch()"
-    [disabled]="disabled"
-    [attr.autocomplete]="autocomplete"
-  />
+  <form class="tw-relative tw-flex tw-items-center tw-w-full">
+    <label
+      [for]="id"
+      aria-hidden="true"
+      class="tw-absolute tw-left-2 tw-z-20 !tw-mb-0 tw-cursor-text"
+    >
+      <i class="bwi bwi-search bwi-fw tw-text-muted"></i>
+    </label>
+    <input
+      #input
+      bitInput
+      [type]="inputType"
+      [id]="id"
+      [placeholder]="placeholder ?? ('search' | i18n)"
+      class="tw-pl-9"
+      [ngModel]="searchText"
+      (ngModelChange)="onChange($event)"
+      [ngModelOptions]="{ standalone: true }"
+      (focus)="isInputFocused = true"
+      (blur)="isInputFocused = false; onTouch()"
+      (mouseenter)="isInputHovered = true"
+      (mouseleave)="isInputHovered = false"
+      [disabled]="disabled"
+      [attr.autocomplete]="autocomplete"
+    />
+    <button
+      *ngIf="searchText"
+      (mouseenter)="resetHovered = true"
+      (mouseleave)="resetHovered = false"
+      [class.opacity-0]="!isInputFocused && !isInputHovered && !resetHovered"
+      [class.tw-bg-text-muted]="isInputFocused || isInputHovered || resetHovered"
+      class="bw-reset-btn tw-size-6 tw-absolute hover:tw-bg-text-main tw-right-2 tw-z-20 !tw-mb-0 tw-cursor-pointer"
+      type="reset"
+      (click)="clearSearch()"
+    ></button>
+  </form>
 </div>
