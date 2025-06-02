@@ -178,11 +178,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
     const userKey = await this.getKeyFromStorage(keySuffix, userId);

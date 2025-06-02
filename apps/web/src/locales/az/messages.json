@@ -10285,7 +10285,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForSentSponsorship": {
-    "message": "$EMAIL$ silinsə, bu Ailələr planı üçün sponsorluq istifadə edilə bilməz. Davam etmək istədiyinizə əminsiniz?",
+    "message": "$EMAIL$ silsəniz, bu Ailələr planı üçün sponsorluq istifadə edilə bilməz. Davam etmək istədiyinizə əminsiniz?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10294,7 +10294,7 @@
     }
   },
   "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship": {
-    "message": "$EMAIL$ silinsə, bu Ailə planı üçün sponsorluq bitəcək və saxlanılmış ödəniş üsulundan $DATE$ tarixində $40 + müvafiq vergi tutulacaq. $DATE$ tarixinə qədər yeni bir sponsorluq istifadə edə bilməyəcəksiniz. Davam etmək istədiyinizə əminsiniz?",
+    "message": "$EMAIL$ silsəniz, bu Ailə planı üçün sponsorluq bitəcək və saxlanılmış ödəniş üsulundan $DATE$ tarixində $40 + müvafiq vergi tutulacaq. $DATE$ tarixinə qədər yeni bir sponsorluq istifadə edə bilməyəcəksiniz. Davam etmək istədiyinizə əminsiniz?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Ödəniş üsulunuzu əlavə etmək üçün lütfən Paypal ilə ödəniş et düyməsinə klikləyin."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "$EMAIL$ silsəniz, bu Ailə planı üçün sponsorluq bitəcək. Təşkilatınızın daxilindəki bir yer $DATE$ tarixində sponsorlu təşkilatın yenilənmə tarixindən sonra üzvlər və sponsorluqlar üçün əlçatan olacaq.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

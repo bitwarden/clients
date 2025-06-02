@@ -128,10 +128,11 @@ export abstract class KeyService {
    * @param keySuffix The desired version of the user's key to retrieve
    * @param userId The desired user
    * @returns The user key
+   * @throws Error when userId is null or undefined.
    */
   abstract getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId: string,
   ): Promise<UserKey | null>;
 
   /**

@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Pro přidání způsobu platby klepněte na tlačítko \"Pay with PayPal\"."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Pokud odeberete $EMAIL$, sponzorství pro tento plán rodiny skončí. Volné místo ve Vaší organizaci bude k dispozici pro členy nebo sponzory po datu obnovení sponzorované organizace na $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

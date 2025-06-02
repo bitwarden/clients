@@ -247,7 +247,7 @@
     "message": "记住 SSH 授权"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "总是"
+    "message": "始终"
   },
   "sshAgentPromptBehaviorNever": {
     "message": "从不"
