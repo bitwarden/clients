@@ -26,7 +26,6 @@ import { ToastComponent } from "./toast.component";
       transition("active => removed", animate("{{ easeTime }}ms {{ easing }}")),
     ]),
   ],
-  standalone: true,
   imports: [ToastComponent],
 })
 export class BitwardenToastrComponent extends BaseToastrComponent {

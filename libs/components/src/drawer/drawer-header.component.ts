@@ -13,7 +13,6 @@ import { DrawerCloseDirective } from "./drawer-close.directive";
  **/
 @Component({
   selector: "bit-drawer-header",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, DrawerCloseDirective, TypographyModule, IconButtonModule, I18nPipe],
   templateUrl: "drawer-header.component.html",

@@ -8,7 +8,6 @@ import { I18nMockService } from "../../../utils/i18n-mock.service";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 @Component({
-  standalone: true,
   selector: "bit-kitchen-sink-form",
   imports: [KitchenSinkSharedModule],
   providers: [

@@ -20,7 +20,6 @@ import { TableComponent } from "./table.component";
       <i class="bwi tw-ms-2" [ngClass]="icon"></i>
     </button>
   `,
-  standalone: true,
   imports: [NgClass],
 })
 export class SortableComponent implements OnInit {

@@ -56,7 +56,6 @@ class MockProductSwitcher {}
 @Component({
   selector: "dynamic-avatar",
   template: `<bit-avatar [text]="name$ | async"></bit-avatar>`,
-  standalone: true,
   imports: [CommonModule, AvatarModule],
 })
 class MockDynamicAvatar implements Partial<DynamicAvatarComponent> {
