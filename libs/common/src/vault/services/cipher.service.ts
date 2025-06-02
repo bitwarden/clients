@@ -836,7 +836,7 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
-  ): Promise<any> {
+  ) {
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
     for (const cipher of ciphers) {
@@ -851,7 +851,16 @@ export class CipherService implements CipherServiceAbstraction {
     await Promise.all(promises);
     const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);
     try {
-      await this.apiService.putShareCiphers(request);
+      const response = await this.apiService.putShareCiphers(request);
+      const responseMap = new Map(response.map((c) => [c.id, c]));
+
+      encCiphers.forEach((cipher) => {
+        const matchingCipher = responseMap.get(cipher.id);
+        if (matchingCipher) {
+          cipher.revisionDate = new Date(matchingCipher.revisionDate);
+        }
+      });
+      await this.upsert(encCiphers.map((c) => c.toCipherData()));
     } catch (e) {
       for (const cipher of ciphers) {
         cipher.organizationId = null;
@@ -859,7 +868,6 @@ export class CipherService implements CipherServiceAbstraction {
       }
       throw e;
     }
-    await this.upsert(encCiphers.map((c) => c.toCipherData()));
   }
 
   saveAttachmentWithServer(
