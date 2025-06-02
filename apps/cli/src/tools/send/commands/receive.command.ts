@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as inquirer from "@inquirer/prompts";
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -165,16 +165,12 @@ export class SendReceiveCommand extends DownloadCommand {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 401) {
           if (this.canInteract) {
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
-              output: process.stderr,
-            })({
-              type: "password",
-              name: "password",
+            const password = await inquirer.password({
               message: "Send password:",
             });
 
             // reattempt with new password
-            this.sendAccessRequest.password = await this.getUnlockedPassword(answer.password, key);
+            this.sendAccessRequest.password = await this.getUnlockedPassword(password, key);
             return await this.sendRequest(url, id, key);
           }
 

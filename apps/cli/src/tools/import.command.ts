@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as inquirer from "@inquirer/prompts";
 import { OptionValues } from "commander";
-import * as inquirer from "inquirer";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -118,13 +118,8 @@ export class ImportCommand {
   }
 
   private async promptPassword() {
-    const answer: inquirer.Answers = await inquirer.createPromptModule({
-      output: process.stderr,
-    })({
-      type: "password",
-      name: "password",
+    return await inquirer.password({
       message: "Import file password:",
     });
-    return answer.password;
   }
 }

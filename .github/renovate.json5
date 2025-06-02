@@ -361,9 +361,9 @@
     },
     {
       matchPackageNames: [
+        "@inquirer/prompts",
         "@koa/multer",
         "@koa/router",
-        "@types/inquirer",
         "@types/koa",
         "@types/koa__multer",
         "@types/koa__router",
@@ -377,7 +377,6 @@
         "commander",
         "form-data",
         "https-proxy-agent",
-        "inquirer",
         "koa",
         "koa-bodyparser",
         "koa-json",
