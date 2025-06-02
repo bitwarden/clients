@@ -28,6 +28,7 @@ import { UpdateLicenseDialogResult } from "../shared/update-license-types";
 
 @Component({
   templateUrl: "user-subscription.component.html",
+  standalone: false,
 })
 export class UserSubscriptionComponent implements OnInit {
   loading = false;

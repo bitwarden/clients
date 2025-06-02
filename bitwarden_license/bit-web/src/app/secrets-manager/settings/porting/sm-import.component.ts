@@ -21,6 +21,7 @@ import { SecretsManagerPortingApiService } from "../services/sm-porting-api.serv
 @Component({
   selector: "sm-import",
   templateUrl: "./sm-import.component.html",
+  standalone: false,
 })
 export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

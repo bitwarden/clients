@@ -27,6 +27,7 @@ export class ResetPasswordPolicy extends BasePolicy {
 @Component({
   selector: "policy-reset-password",
   templateUrl: "reset-password.component.html",
+  standalone: false,
 })
 export class ResetPasswordPolicyComponent extends BasePolicyComponent implements OnInit {
   data = this.formBuilder.group({

@@ -5,6 +5,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 @Pipe({
   name: "orgNameFromId",
   pure: true,
+  standalone: false,
 })
 export class GetOrgNameFromIdPipe implements PipeTransform {
   transform(value: string, organizations: Organization[]) {

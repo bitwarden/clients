@@ -3,6 +3,7 @@ import { Meta, StoryObj } from "@storybook/web-components";
 import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 import { CloseButton, CloseButtonProps } from "../../buttons/close-button";
+import { mockI18n } from "../mock-data";
 
 export default {
   title: "Components/Buttons/Close Button",
@@ -15,6 +16,7 @@ export default {
     handleCloseNotification: () => {
       alert("Close button clicked!");
     },
+    i18n: mockI18n,
   },
   parameters: {
     design: {

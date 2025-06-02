@@ -38,6 +38,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
               <option-selection
                 key=${id}
                 theme=${theme}
+                .id=${id}
                 .label=${label}
                 .options=${options}
                 .handleSelectionUpdate=${handleSelectionUpdate}
@@ -51,7 +52,7 @@ export function ButtonRow({ theme, primaryButton, selectButtons }: ButtonRowProp
 }
 
 const buttonRowStyles = css`
-  gap: 16px;
+  gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,7 +63,7 @@ const buttonRowStyles = css`
 
   > button {
     max-width: min-content;
-    flex: 1 1 50%;
+    flex: 1 1 25%;
   }
 
   > div {

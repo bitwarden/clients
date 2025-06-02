@@ -3,7 +3,7 @@ import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
-import { themes } from "../../constants/styles";
+import { spacing, themes } from "../../constants/styles";
 import { Celebrate, Keyhole, Warning } from "../../illustrations";
 
 import { NotificationConfirmationMessage } from "./message";
@@ -37,7 +37,7 @@ export function NotificationConfirmationBody({
   theme,
   handleOpenVault,
 }: NotificationConfirmationBodyProps) {
-  const IconComponent = tasksAreComplete ? Keyhole : !error ? Celebrate : Warning;
+  const IconComponent = error ? Warning : tasksAreComplete ? Celebrate : Keyhole;
 
   const showConfirmationMessage = confirmationMessage || buttonText || messageDetails;
 
@@ -48,7 +48,7 @@ export function NotificationConfirmationBody({
         ? NotificationConfirmationMessage({
             buttonAria,
             buttonText,
-            itemName,
+            itemName: error ? undefined : itemName,
             message: confirmationMessage,
             messageDetails,
             theme,
@@ -62,11 +62,11 @@ export function NotificationConfirmationBody({
 const iconContainerStyles = (error?: string) => css`
   > svg {
     width: ${!error ? "50px" : "40px"};
-    height: fit-content;
+    height: auto;
   }
 `;
 const notificationConfirmationBodyStyles = ({ theme }: { theme: Theme }) => css`
-  gap: 16px;
+  gap: ${spacing[4]};
   display: flex;
   align-items: center;
   justify-content: flex-start;

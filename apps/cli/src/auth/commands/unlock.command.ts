@@ -14,12 +14,12 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
 
 import { ConvertToKeyConnectorCommand } from "../../key-management/convert-to-key-connector.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
+import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
 
 export class UnlockCommand {
@@ -32,9 +32,9 @@ export class UnlockCommand {
     private logService: ConsoleLogService,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
-    private syncService: SyncService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
+    private i18nService: I18nService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -73,14 +73,14 @@ export class UnlockCommand {
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
     await this.keyService.setUserKey(userKey, userId);
 
-    if (await this.keyConnectorService.getConvertAccountRequired()) {
+    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
         userId,
         this.keyConnectorService,
         this.environmentService,
-        this.syncService,
         this.organizationApiService,
         this.logout,
+        this.i18nService,
       );
       const convertResponse = await convertToKeyConnectorCommand.run();
       if (!convertResponse.success) {

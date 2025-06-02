@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Marquer l'application comme critique"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Applications marquées comme critiques"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ces membres se connectent à des applications avec des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Aucun membre ne se connecte dans des applications avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ces applications ont des mots de passe faibles, exposés ou réutilisés."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Il n'y a aucune application avec des mots de passe faibles, exposés ou réutilisés."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ces membres se connectent à $APPNAME$ avec des mots de passe faibles, exposés ou réutilisés.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Il n'y a pas de membre à risque pour $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -531,12 +546,6 @@
   "toggleCollapse": {
     "message": "Déplier / replier",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Générer un mot de passe"
-  },
-  "generatePassphrase": {
-    "message": "Générer une phrase de passe"
   },
   "checkPassword": {
     "message": "Vérifier si le mot de passe a été exposé."
@@ -4533,8 +4542,8 @@
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Tous les exports chiffrés que vous avez enregistrés deviendront également invalides."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
   },
   "subscription": {
     "message": "Abonnement"
@@ -5053,9 +5062,6 @@
   },
   "singleOrgBlockCreateMessage": {
     "message": "Votre organisation actuelle a une politique qui ne vous permet pas de rejoindre plus d'une organisation. Veuillez contacter les administrateurs de votre organisation ou vous inscrire à partir d'un compte Bitwarden différent."
-  },
-  "singleOrgPolicyWarning": {
-    "message": "Les membres de l'organisation qui ne sont pas propriétaires ou administrateurs et qui sont déjà membres d'une autre organisation seront supprimés de votre organisation."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Les membres non conformes seront placés en statut révoqué jusqu'à ce qu'ils quittent toutes les autres organisations. Les administrateurs sont exemptés et peuvent restaurer les membres une fois que la conformité est respectée."
@@ -5886,15 +5892,6 @@
   "fingerprintPhrase": {
     "message": "Phrase d'empreinte :"
   },
-  "removeUsers": {
-    "message": "Supprimer les utilisateurs"
-  },
-  "revokeUsers": {
-    "message": "Révoquer les Utilisateurs"
-  },
-  "restoreUsers": {
-    "message": "Restaurer les Utilisateurs"
-  },
   "error": {
     "message": "Erreur"
   },
@@ -6473,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "Code de vérification invalide"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ utilise le SSO avec un serveur de clés auto-hébergé. Un mot de passe principal n'est plus nécessaire aux membres de cette organisation pour se connecter.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Un mot de passe maître n'est plus requis pour les membres de l'organisation suivante. Veuillez confirmer le domaine ci-dessous avec l'administrateur de votre organisation."
+  },
+  "keyConnectorDomain": {
+    "message": "Domaine Key Connector"
   },
   "leaveOrganization": {
     "message": "Quitter l'organisation"
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "Générer un courriel"
   },
+  "generatePassword": {
+    "message": "Générer un mot de passe"
+  },
+  "generatePassphrase": {
+    "message": "Générer une phrase de passe"
+  },
+  "passwordGenerated": {
+    "message": "Mot de passe généré"
+  },
+  "passphraseGenerated": {
+    "message": "Phrase de passe générée"
+  },
+  "usernameGenerated": {
+    "message": "Nom d'utilisateur généré"
+  },
+  "emailGenerated": {
+    "message": "Courriel généré"
+  },
   "spinboxBoundariesHint": {
     "message": "La valeur doit être comprise entre $MIN$ et $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Utiliser ce mot de passe"
+  },
+  "useThisPassphrase": {
+    "message": "Utiliser cette phrase de passe"
   },
   "useThisUsername": {
     "message": "Utiliser ce nom d'utilisateur"
@@ -7836,12 +7851,6 @@
   "noDomainsSubText": {
     "message": "La connexion d'un domaine permet aux membres de passer outre le champ de l'identifiant SSO lors de la connexion avec SSO."
   },
-  "verifyDomain": {
-    "message": "Vérifier le domaine"
-  },
-  "reverifyDomain": {
-    "message": "Revérifier le domaine"
-  },
   "copyDnsTxtRecord": {
     "message": "Copier l'enregistrement DNS TXT"
   },
@@ -7850,18 +7859,6 @@
   },
   "dnsTxtRecordInputHint": {
     "message": "Copiez-collez l'enregistrement TXT dans votre fournisseur de services DNS."
-  },
-  "domainNameInputHint": {
-    "message": "Exemple : mondomaine.com. Les sous-domaines nécessitent des entrées séparées pour être vérifiés."
-  },
-  "automaticDomainVerification": {
-    "message": "Vérification automatique du domaine"
-  },
-  "automaticDomainVerificationProcess": {
-    "message": "Bitwarden tentera de vérifier le domaine 3 fois au cours des 72 premières heures. Si le domaine ne peut pas être vérifié, vérifiez l'enregistrement DNS de votre hôte et vérifiez manuellement. Le domaine sera retiré de votre organisation dans 7 jours s'il n'est pas vérifié"
-  },
-  "invalidDomainNameMessage": {
-    "message": "L'entrée n'est pas saisie dans un format valide. Format : mondomaine.com. Les sous-domaines nécessitent des entrées séparées pour être vérifiés."
   },
   "removeDomain": {
     "message": "Retirer le domaine"
@@ -7875,9 +7872,6 @@
   "domainSaved": {
     "message": "Domaine sauvegardé"
   },
-  "domainVerified": {
-    "message": "Domaine vérifié"
-  },
   "duplicateDomainError": {
     "message": "Vous ne pouvez pas revendiquer le même domaine deux fois."
   },
@@ -7889,21 +7883,6 @@
         "example": "bitwarden.com"
       }
     }
-  },
-  "domainNotVerified": {
-    "message": "$DOMAIN$ non vérifié. Vérifiez votre enregistrement DNS.",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainStatusVerified": {
-    "message": "Vérifié"
-  },
-  "domainStatusUnverified": {
-    "message": "Non vérifié"
   },
   "domainNameTh": {
     "message": "Nom"
@@ -7931,24 +7910,6 @@
   },
   "removedDomain": {
     "message": "Domaine $DOMAIN$ retiré",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainVerifiedEvent": {
-    "message": "$DOMAIN$ vérifié",
-    "placeholders": {
-      "DOMAIN": {
-        "content": "$1",
-        "example": "bitwarden.com"
-      }
-    }
-  },
-  "domainNotVerifiedEvent": {
-    "message": "$DOMAIN$ non vérifié",
     "placeholders": {
       "DOMAIN": {
         "content": "$1",
@@ -9479,11 +9440,20 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gérer la facturation depuis le Portail Fournisseur"
   },
+  "continueSettingUp": {
+    "message": "Continuer la configuration de Bitwarden"
+  },
   "continueSettingUpFreeTrial": {
     "message": "Continuer à configurer votre essai gratuit de Bitwarden"
   },
+  "continueSettingUpPasswordManager": {
+    "message": "Continuer la configuration du Gestionnaire de Mots de Passe Bitwarden"
+  },
   "continueSettingUpFreeTrialPasswordManager": {
     "message": "Continuer à configurer votre essai gratuit du gestionnaire de mots de passe Bitwarden"
+  },
+  "continueSettingUpSecretsManager": {
+    "message": "Continuez à configurer votre essai gratuit de Secrets Manager de Bitwarden"
   },
   "continueSettingUpFreeTrialSecretsManager": {
     "message": "Continuez à configurer votre essai gratuit de Bitwarden Secrets Manager"
@@ -10245,42 +10215,6 @@
       }
     }
   },
-  "importantNotice": {
-    "message": "Avis important"
-  },
-  "setupTwoStepLogin": {
-    "message": "Configurer l'identification à deux facteurs"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden enverra un code au courriel de votre compte pour vérifier les connexions depuis de nouveaux appareils à partir de février 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Vous pouvez configurer l'identification à deux facteurs comme un moyen alternatif de protéger votre compte ou de changer votre adresse courriel à une autre à laquelle vous pouvez accéder."
-  },
-  "remindMeLater": {
-    "message": "Me le rappeler plus tard"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Avez-vous un accès fiable à votre courriel $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Non, je ne l'ai pas"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Oui, je peux accéder à mon courriel de manière fiable"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Configurer l'identification à deux facteurs"
-  },
-  "changeAcctEmail": {
-    "message": "Changer l'adresse courriel du compte"
-  },
   "removeMembers": {
     "message": "Retirer des membres"
   },
@@ -10634,11 +10568,48 @@
   "newBusinessUnit": {
     "message": "Nouvelle unité d'affaires"
   },
+  "sendsTitleNoItems": {
+    "message": "Envoyez des informations sensibles, en toute sécurité",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Partagez des fichiers et des données en toute sécurité avec n'importe qui, sur n'importe quelle plateforme. Vos informations resteront chiffrées de bout en bout tout en limitant l'exposition.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Créer rapidement des mots de passe"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Créez facilement des mots de passe forts et uniques en cliquant sur",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "pour vous aider à garder vos identifiants sécuritaires.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Créez facilement des mots de passe forts et uniques en cliquant sur le bouton Générer un mot de passe pour vous aider à garder vos identifiants sécuritaires.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Gagnez du temps avec le remplissage automatique"
   },
-  "newLoginNudgeBody": {
-    "message": "Inclure une adresse de site web pour que cet identifiant apparaisse comme une suggestion de remplissage automatique."
+  "newLoginNudgeBodyOne": {
+    "message": "Inclure un",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Site internet",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "pour que cet identifiant apparaisse comme une suggestion de remplissage automatique.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Paiement en ligne transparent"
@@ -10661,13 +10632,36 @@
   "newSshNudgeTitle": {
     "message": "Accès SSH convivial pour les développeurs"
   },
-  "newSshNudgeBody": {
-    "message": "Enregistrez vos clés et connectez-vous avec l'agent SSH pour une authentification rapide et chiffrée."
+  "newSshNudgeBodyOne": {
+    "message": "Enregistrez vos clés et connectez-vous avec l'agent SSH pour une authentification rapide et chiffrée.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "En savoir plus sur l'agent SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
     "message": "Redémarrer"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 1-2 prochains jours ouvrables. Entrez le code de la transaction de ce dépôt sur la page d'abonnement de votre fournisseur pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire résultera en un paiement manqué et votre abonnement sera suspendu."
+  },
+  "clickPayWithPayPal": {
+    "message": "Veuillez cliquer sur le bouton Payer avec PayPal pour ajouter votre mode de paiement."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Si vous supprimez $EMAIL$, le parrainage pour ce plan Familles prendra fin. Un siège au sein de votre organisation sera disponible pour les membres ou les parrainages après la date de renouvellement de l'organisation parrainée le $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

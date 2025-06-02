@@ -125,13 +125,19 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+  getNestedCollectionTree_vNext,
+} from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum AddAccessStatusType {
   All = 0,
   AddAccess = 1,
@@ -360,8 +366,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (this.organization.canEditAllCiphers) {
           return collections;
         }
-        // The user is only allowed to add/edit items to assigned collections that are not readonly
-        return collections.filter((c) => c.assigned && !c.readOnly);
+        return collections.filter((c) => c.assigned);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -419,9 +424,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+    const nestedCollections$ = combineLatest([
+      allCollections$,
+      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
+    ]).pipe(
+      map(
+        ([collections, shouldOptimize]) =>
+          (shouldOptimize
+            ? getNestedCollectionTree_vNext(collections)
+            : getNestedCollectionTree(collections)) as TreeNode<CollectionAdminView>[],
+      ),
     );
 
     const collections$ = combineLatest([
@@ -853,6 +865,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
       organizationId: cipher.organizationId as OrganizationId,
+      admin: true,
     });
 
     const result = await firstValueFrom(dialogRef.closed);

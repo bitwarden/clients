@@ -13,7 +13,7 @@
         >.
       </p>
     </li>
-    <li>
+    <li *ngIf="trialLength > 0">
       <p>
         {{ "trialPaidInfoMessage" | i18n: orgLabel }}
       </p>

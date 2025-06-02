@@ -14,5 +14,6 @@ export class PersonalOwnershipPolicy extends BasePolicy {
 @Component({
   selector: "policy-personal-ownership",
   templateUrl: "personal-ownership.component.html",
+  standalone: false,
 })
 export class PersonalOwnershipPolicyComponent extends BasePolicyComponent {}

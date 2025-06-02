@@ -32,11 +32,12 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
-import { NotifiedMembersTableComponent } from "./notified-members-table.component";
 import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
 import { PasswordHealthMembersComponent } from "./password-health-members.component";
 import { PasswordHealthComponent } from "./password-health.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RiskInsightsTabType {
   AllApps = 0,
   CriticalApps = 1,
@@ -57,7 +58,6 @@ export enum RiskInsightsTabType {
     PasswordHealthComponent,
     PasswordHealthMembersComponent,
     PasswordHealthMembersURIComponent,
-    NotifiedMembersTableComponent,
     TabsModule,
     DrawerComponent,
     DrawerBodyComponent,

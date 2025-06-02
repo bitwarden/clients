@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "SSH-agent er en tjeneste rettet mod udviklere, der muliggør at signere SSH-forespørgsler direkte fra Bitwarden-boksen."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Premium kræves"
   },
@@ -333,12 +351,6 @@
   "other": {
     "message": "Andre"
   },
-  "generatePassword": {
-    "message": "Generér adgangskode"
-  },
-  "generatePassphrase": {
-    "message": "Generér adgangssætning"
-  },
   "type": {
     "message": "Type"
   },
@@ -426,6 +438,12 @@
   },
   "addField": {
     "message": "Add field"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
     "message": "Field type"
@@ -1079,9 +1097,6 @@
   "addNewItem": {
     "message": "Nyt emne"
   },
-  "addNewFolder": {
-    "message": "Ny mappe"
-  },
   "view": {
     "message": "Vis"
   },
@@ -1701,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“Filadgangskode” og “Bekræft filadgangskode“ matcher ikke."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Indlæs tilgængelighedscookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrér som tilgængelighedsbruger på",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopiér og indsæt linket, der er sendt til din e-mail, nedenfor"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Indtast URL for at indlæse tilgængelighedscookie til hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL er obligatorisk",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ugyldig URL"
-  },
   "done": {
     "message": "Udført"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Tilgængelighedscookie gemt!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ingen tilgængelighedscookie gemt"
   },
   "warning": {
     "message": "ADVARSEL",
@@ -2522,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Hovedadgangskode fjernet."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ bruger SSO med en selv-hostet nøgleserver. Organisationsmedlemmer behøver ikke længere hovedadgangskode for at logge ind.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Forlad organisation"
@@ -2643,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "generatePassword": {
+    "message": "Generér adgangskode"
+  },
+  "generatePassphrase": {
+    "message": "Generér adgangssætning"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Værdi skal være mellem $MIN$ og $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2695,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Use this email"
+  },
+  "useThisPassword": {
+    "message": "Anvend denne adgangskode"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Anvend dette brugernavn"
   },
   "random": {
     "message": "Tilfældig"
@@ -3060,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Svag adgangskode identificeret og fundet i datalæk. Brug en unik adgangskode til at beskytte din konto. Sikker på, at at denne adgangskode skal bruges?"
-  },
-  "useThisPassword": {
-    "message": "Anvend denne adgangskode"
-  },
-  "useThisUsername": {
-    "message": "Anvend dette brugernavn"
   },
   "checkForBreaches": {
     "message": "Tjek kendte datalæk for denne adgangskode"
@@ -3623,6 +3628,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrisk oplåsning er p.t. utilgængelig grundet en ukendt årsag."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Godkend"
   },
@@ -3671,63 +3697,6 @@
   "fileSavedToDevice": {
     "message": "Fil gemt på enheden. Håndtér fra enhedens downloads."
   },
-  "importantNotice": {
-    "message": "Vigtig notits"
-  },
-  "setupTwoStepLogin": {
-    "message": "Opsæt totrins-login"
-  },
-  "itemDetails": {
-    "message": "Item details"
-  },
-  "itemName": {
-    "message": "Item name"
-  },
-  "loginCredentials": {
-    "message": "Login credentials"
-  },
-  "additionalOptions": {
-    "message": "Additional options"
-  },
-  "itemHistory": {
-    "message": "Item history"
-  },
-  "lastEdited": {
-    "message": "Last edited"
-  },
-  "upload": {
-    "message": "Upload"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå."
-  },
-  "remindMeLater": {
-    "message": "Påmind senere"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Er der pålidelig adgang til e-mailadressen, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nej, muligvis ikke"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Ja, e-mailadressen kan pålideligt tilgås"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Slå totrins-login til"
-  },
-  "changeAcctEmail": {
-    "message": "Skift kontoe-mailadresse"
-  },
   "allowScreenshots": {
     "message": "Allow screen capture"
   },
@@ -3749,14 +3718,69 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
-  "newLoginNudgeBody": {
-    "message": "Include a Website so this login appears as an autofill suggestion."
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
     "message": "Seamless online checkout"
@@ -3779,7 +3803,14 @@
   "newSshNudgeTitle": {
     "message": "Developer-friendly SSH access"
   },
-  "newSshNudgeBody": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication."
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

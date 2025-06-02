@@ -18,6 +18,7 @@ import { RowHeightClass } from "./vault-items.component";
 @Component({
   selector: "tr[appVaultCollectionRow]",
   templateUrl: "vault-collection-row.component.html",
+  standalone: false,
 })
 export class VaultCollectionRowComponent {
   protected RowHeightClass = RowHeightClass;

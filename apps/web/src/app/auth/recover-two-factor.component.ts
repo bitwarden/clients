@@ -16,6 +16,7 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-recover-two-factor",
   templateUrl: "recover-two-factor.component.html",
+  standalone: false,
 })
 export class RecoverTwoFactorComponent implements OnInit {
   protected formGroup = new FormGroup({
@@ -80,12 +81,7 @@ export class RecoverTwoFactorComponent implements OnInit {
       remember: false,
     };
 
-    const credentials = new PasswordLoginCredentials(
-      email,
-      this.masterPassword,
-      "",
-      twoFactorRequest,
-    );
+    const credentials = new PasswordLoginCredentials(email, this.masterPassword, twoFactorRequest);
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);

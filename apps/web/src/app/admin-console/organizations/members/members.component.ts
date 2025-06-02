@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -46,7 +46,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -88,11 +90,9 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
-  @ViewChild("resetPasswordTemplate", { read: ViewContainerRef, static: true })
-  resetPasswordModalRef: ViewContainerRef;
-
   userType = OrganizationUserType;
   userStatusType = OrganizationUserStatusType;
   memberTab = MemberDialogTab;
@@ -104,13 +104,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
+  private organizationUsersCount = 0;
+
   get occupiedSeatCount(): number {
-    return this.dataSource.activeUserCount;
+    return this.organizationUsersCount;
   }
 
   constructor(
@@ -137,6 +140,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private configService: ConfigService,
   ) {
     super(
       apiService,
@@ -216,6 +220,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           );
 
           this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 
@@ -231,6 +236,17 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    // Setup feature flag-dependent observables
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
+    );
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
