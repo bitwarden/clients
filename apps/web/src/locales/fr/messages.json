@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Veuillez cliquer sur le bouton Payer avec PayPal pour ajouter votre mode de paiement."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Si vous supprimez $EMAIL$, le parrainage pour ce plan Familles prendra fin. Un siège au sein de votre organisation sera disponible pour les membres ou les parrainages après la date de renouvellement de l'organisation parrainée le $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }
