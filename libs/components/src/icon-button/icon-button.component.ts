@@ -161,7 +161,6 @@ const sizes: Record<IconButtonSize, string[]> = {
     { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
     { provide: FocusableElement, useExisting: BitIconButtonComponent },
   ],
-  standalone: true,
   imports: [NgClass],
   host: {
     "[attr.disabled]": "disabledAttr()",

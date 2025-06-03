@@ -77,7 +77,6 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

@@ -23,7 +23,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 @Component({
   selector: "app-send-created",
   templateUrl: "./send-created.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

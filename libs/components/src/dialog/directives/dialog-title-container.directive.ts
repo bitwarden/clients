@@ -6,7 +6,6 @@ let nextId = 0;
 
 @Directive({
   selector: "[bitDialogTitleContainer]",
-  standalone: true,
 })
 export class DialogTitleContainerDirective implements OnInit {
   @HostBinding("id") id = `bit-dialog-title-${nextId++}`;

@@ -14,7 +14,6 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
 @Component({
   selector: "bit-form-control",
   templateUrl: "form-control.component.html",
-  standalone: true,
   imports: [NgClass, TypographyDirective, I18nPipe],
 })
 export class FormControlComponent {

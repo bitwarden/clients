@@ -39,7 +39,6 @@ export type ChipSelectOption<T> = Option<T> & {
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
-  standalone: true,
   imports: [SharedModule, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
   providers: [
     {

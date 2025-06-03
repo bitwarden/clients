@@ -35,7 +35,6 @@ import {
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 @Component({
-  standalone: true,
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [

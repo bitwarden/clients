@@ -20,7 +20,6 @@ type KeyRotationTrustDialogData = {
 @Component({
   selector: "key-rotation-trust-info",
   templateUrl: "key-rotation-trust-info.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

@@ -42,7 +42,6 @@ export interface AttachmentDialogCloseResult {
 @Component({
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, DialogModule, I18nPipe, CipherAttachmentsComponent],
 })
 export class AttachmentsV2Component {

@@ -1,7 +1,7 @@
 <ng-container>
   <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
     <ng-container header>
-      <th *ngIf="isCriticalAppsFeatureEnabled"></th>
+      <th></th>
       <th bitCell></th>
       <th bitSortable="applicationName" bitCell>{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell>{{ "atRiskPasswords" | i18n }}</th>
@@ -12,7 +12,7 @@
     <ng-template bitRowDef let-row>
       <td
         bitCell
-        *ngIf="isCriticalAppsFeatureEnabled && showRowCheckBox"
+        *ngIf="showRowCheckBox"
         [ngClass]="{ 'tw-bg-primary-100': isDrawerIsOpenForThisRecord(row.applicationName) }"
       >
         <input
