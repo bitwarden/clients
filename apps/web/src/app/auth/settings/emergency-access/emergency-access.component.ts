@@ -48,7 +48,6 @@ import {
 @Component({
   selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
-  standalone: false,
 })
 export class EmergencyAccessComponent implements OnInit {
   loaded = false;
@@ -296,9 +295,21 @@ export class EmergencyAccessComponent implements OnInit {
       FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
     );
 
+    details.id = null;
+
+    if (!details || !details.email || !details.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("grantorDetailsNotFound"),
+      });
+
+      return;
+    }
+
     const grantorName = this.userNamePipe.transform(details);
     const grantorEmail = details.email;
-    const emergencyAccessId = details.id ?? null;
+    const emergencyAccessId = details.id;
 
     if (changePasswordRefactorFlag) {
       const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {

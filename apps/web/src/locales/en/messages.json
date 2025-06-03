@@ -5370,6 +5370,9 @@
   "emergencyRejected": {
     "message": "Emergency access rejected"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Password reset for $USER$. You can now login using the new password.",
     "placeholders": {
