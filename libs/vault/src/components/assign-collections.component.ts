@@ -435,10 +435,11 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
    */
   private getCollectionsForOrganization(orgId: OrganizationId): Observable<CollectionView[]> {
     return this.accountService.activeAccount$.pipe(
-      switchMap((account) =>
+      getUserId,
+      switchMap((userId) =>
         combineLatest([
-          this.collectionService.decryptedCollections$(account?.id),
-          this.organizationService.organizations$(account?.id),
+          this.collectionService.decryptedCollections$(userId),
+          this.organizationService.organizations$(userId),
         ]),
       ),
       map(([collections, organizations]) => {

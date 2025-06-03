@@ -452,19 +452,10 @@ export class VaultPopupListFiltersService {
           ? allCollections
           : allCollections.filter((c) => c.organizationId === organizationId);
 
-      return collections;
+      return this.collectionService
+        .getAllNested(collections)
+        .map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared"));
     }),
-    switchMap(async (collections) => {
-      const nestedCollections = this.collectionService.getAllNested(collections);
-
-      return new DynamicTreeNode<CollectionView>({
-        fullList: collections,
-        nestedList: nestedCollections,
-      });
-    }),
-    map((collections) =>
-      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
-    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
