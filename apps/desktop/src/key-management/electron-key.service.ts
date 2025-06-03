@@ -19,7 +19,7 @@ import {
   BiometricStateService,
 } from "@bitwarden/key-management";
 
-import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.service";
 
 export class ElectronKeyService extends DefaultKeyService {
   constructor(

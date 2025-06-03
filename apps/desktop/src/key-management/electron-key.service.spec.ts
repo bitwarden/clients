@@ -9,6 +9,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricStateService, KdfConfigService } from "@bitwarden/key-management";
+
 import {
   makeEncString,
   makeStaticByteArray,
@@ -16,14 +21,9 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
   FakeStateProvider,
-} from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricStateService, KdfConfigService } from "@bitwarden/key-management";
+} from "../../../../libs/common/spec";
 
-import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
-
+import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.service";
 import { ElectronKeyService } from "./electron-key.service";
 
 describe("ElectronKeyService", () => {
