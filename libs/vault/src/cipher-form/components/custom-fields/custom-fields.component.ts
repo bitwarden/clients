@@ -69,7 +69,6 @@ export type CustomField = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
   imports: [

@@ -133,7 +133,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
 @Component({
-  standalone: true,
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [

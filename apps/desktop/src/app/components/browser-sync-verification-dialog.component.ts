@@ -9,7 +9,6 @@ export type BrowserSyncVerificationDialogParams = {
 
 @Component({
   templateUrl: "browser-sync-verification-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class BrowserSyncVerificationDialogComponent {

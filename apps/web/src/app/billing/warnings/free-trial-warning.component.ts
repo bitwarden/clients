@@ -37,7 +37,6 @@ import {
       </bit-banner>
     }
   `,
-  standalone: true,
   imports: [AnchorLinkDirective, AsyncPipe, BannerComponent, I18nPipe],
 })
 export class FreeTrialWarningComponent implements OnInit {

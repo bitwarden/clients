@@ -19,7 +19,6 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
-  standalone: true,
   imports: [NgClass],
 })
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {

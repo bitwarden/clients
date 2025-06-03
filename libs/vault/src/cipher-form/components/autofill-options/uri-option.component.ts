@@ -35,7 +35,6 @@ import {
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
-  standalone: true,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
