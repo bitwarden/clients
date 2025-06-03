@@ -389,6 +389,8 @@ export class LockComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.logService.error("Failed to unlock via biometrics.", e);
+
       let biometricTranslatedErrorDesc;
 
       if (this.clientType === "browser") {
