@@ -2,16 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import {
-  combineLatest,
-  debounceTime,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  skipWhile,
-  switchMap,
-} from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -86,7 +77,7 @@ export class AllApplicationsComponent implements OnInit {
   isLoading$: Observable<boolean> = of(false);
 
   async ngOnInit() {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
@@ -101,14 +92,17 @@ export class AllApplicationsComponent implements OnInit {
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          skipWhile(([apps, organization]) => !organization || !apps || apps.length === 0),
           map(([applications, criticalApps, organization]) => {
-            const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
-              ...app,
-              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-            })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return { data, organization };
+            if (applications && applications.length === 0 && criticalApps && criticalApps) {
+              const criticalUrls = criticalApps.map((ca) => ca.uri);
+              const data = applications?.map((app) => ({
+                ...app,
+                isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              return { data, organization };
+            }
+
+            return { applications, organization };
           }),
           switchMap(async ({ data, organization }) => {
             if (data && organization) {
