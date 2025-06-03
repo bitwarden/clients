@@ -48,7 +48,7 @@ export class AddEditCustomFieldDialogComponent {
   variant: "add" | "edit";
 
   customFieldForm = this.formBuilder.group({
-    type: [FieldType.Text as FieldType],
+    type: FieldType.Text,
     label: ["", Validators.required],
   });
 

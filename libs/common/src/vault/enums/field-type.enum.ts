@@ -1,10 +1,12 @@
-import { UnionOfValues } from "../types/union-of-values";
-
-export const FieldType = {
+const _FieldType = Object.freeze({
   Text: 0,
   Hidden: 1,
   Boolean: 2,
   Linked: 3,
-} as const;
+} as const);
 
-export type FieldType = UnionOfValues<typeof FieldType>;
+type _FieldType = typeof _FieldType;
+
+export type FieldType = _FieldType[keyof _FieldType];
+
+export const FieldType: Record<keyof _FieldType, FieldType> = _FieldType;
