@@ -38,7 +38,6 @@ const BroadcasterSubscriptionId = "SendComponent";
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {

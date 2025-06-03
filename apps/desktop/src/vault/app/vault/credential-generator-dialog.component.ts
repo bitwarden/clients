@@ -40,7 +40,6 @@ export const CredentialGeneratorDialogAction = {
 type CredentialGeneratorDialogAction = UnionOfValues<typeof CredentialGeneratorDialogAction>;
 
 @Component({
-  standalone: true,
   selector: "credential-generator-dialog",
   templateUrl: "credential-generator-dialog.component.html",
   imports: [

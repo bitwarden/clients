@@ -8,6 +8,9 @@ import { AccessComponent } from "./tools/send/send-access/access.component";
 import { OrganizationBadgeModule } from "./vault/individual-vault/organization-badge/organization-badge.module";
 import { VaultFilterModule } from "./vault/individual-vault/vault-filter/vault-filter.module";
 
+// Register the locales for the application
+import "./shared/locales";
+
 @NgModule({
   imports: [
     SharedModule,

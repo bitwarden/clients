@@ -66,7 +66,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 @Component({
   templateUrl: "autofill.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,

@@ -1,33 +1,3 @@
 {
-  "extends": "./tsconfig",
-  "compilerOptions": {
-    "resolveJsonModule": true,
-    "paths": {
-      "@bitwarden/admin-console/common": ["../admin-console/src/common"],
-      "@bitwarden/angular/*": ["../angular/src/*"],
-      "@bitwarden/auth/angular": ["../auth/src/angular"],
-      "@bitwarden/auth/common": ["../auth/src/common"],
-      "@bitwarden/billing": ["../billing/src"],
-      "@bitwarden/common/*": ["../common/src/*"],
-      "@bitwarden/components": ["../components/src"],
-      "@bitwarden/dirt-card": ["../dirt/card/src"],
-      "@bitwarden/generator-components": ["../tools/generator/components/src"],
-      "@bitwarden/generator-core": ["../tools/generator/core/src"],
-      "@bitwarden/generator-history": ["../tools/generator/extensions/history/src"],
-      "@bitwarden/generator-legacy": ["../tools/generator/extensions/legacy/src"],
-      "@bitwarden/generator-navigation": ["../tools/generator/extensions/navigation/src"],
-      "@bitwarden/importer-core": ["../importer/src"],
-      "@bitwarden/importer-ui": ["../importer/src/components"],
-      "@bitwarden/key-management": ["../key-management/src"],
-      "@bitwarden/key-management-ui": ["../key-management-ui/src/index.ts"],
-      "@bitwarden/node/*": ["../node/src/*"],
-      "@bitwarden/platform": ["../platform/src"],
-      "@bitwarden/send-ui": ["../tools/send/send-ui/src"],
-      "@bitwarden/ui-common": ["../ui/common/src"],
-      "@bitwarden/ui-common/setup-jest": ["../ui/common/src/setup-jest"],
-      "@bitwarden/vault-export-core": ["../tools/export/vault-export/vault-export-core/src"],
-      "@bitwarden/vault-export-ui": ["../tools/export/vault-export/vault-export-ui/src"],
-      "@bitwarden/vault": ["../vault/src"]
-    }
-  }
+  "extends": "../../tsconfig.base"
 }

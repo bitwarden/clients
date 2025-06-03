@@ -16,7 +16,6 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  standalone: true,
   imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
 })
 export class BreadcrumbsComponent {

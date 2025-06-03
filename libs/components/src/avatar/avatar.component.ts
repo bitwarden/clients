@@ -27,7 +27,6 @@ const SizeClasses: Record<SizeTypes, string[]> = {
   template: `@if (src) {
     <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
   }`,
-  standalone: true,
   imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {

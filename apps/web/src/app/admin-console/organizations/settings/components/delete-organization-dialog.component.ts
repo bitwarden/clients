@@ -80,7 +80,6 @@ export enum DeleteOrganizationDialogResult {
 
 @Component({
   selector: "app-delete-organization",
-  standalone: true,
   imports: [SharedModule, UserVerificationModule],
   templateUrl: "delete-organization-dialog.component.html",
 })

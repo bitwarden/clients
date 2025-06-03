@@ -41,7 +41,6 @@ type GeneratorDialogAction = UnionOfValues<typeof GeneratorDialogAction>;
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,

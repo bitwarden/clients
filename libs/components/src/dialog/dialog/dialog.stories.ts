@@ -89,7 +89,7 @@ export const Default: Story = {
           <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             [disabled]="loading"
-            class="tw-ml-auto"
+            class="tw-ms-auto"
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"
@@ -252,7 +252,7 @@ export const WithCards: Story = {
           <button bitButton buttonType="secondary" [disabled]="loading">Cancel</button>
           <button
             [disabled]="loading"
-            class="tw-ml-auto"
+            class="tw-ms-auto"
             bitIconButton="bwi-trash"
             buttonType="danger"
             size="default"

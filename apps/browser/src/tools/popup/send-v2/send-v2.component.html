@@ -20,29 +20,16 @@
     *ngIf="listState === sendState.Empty"
     class="tw-flex tw-flex-col tw-h-full tw-justify-center"
   >
-    <ng-container *ngIf="!(showSendSpotlight$ | async)">
-      <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-        <ng-container slot="title">{{ "sendsNoItemsTitle" | i18n }}</ng-container>
-        <ng-container slot="description">{{ "sendsNoItemsMessage" | i18n }}</ng-container>
-        <tools-new-send-dropdown
-          [hideIcon]="true"
-          *ngIf="!sendsDisabled"
-          slot="button"
-        ></tools-new-send-dropdown>
-      </bit-no-items>
-    </ng-container>
-    <ng-container *ngIf="showSendSpotlight$ | async">
-      <bit-no-items [icon]="noItemIcon" class="tw-text-main">
-        <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-        <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
-        <tools-new-send-dropdown
-          [hideIcon]="true"
-          *ngIf="!sendsDisabled"
-          slot="button"
-          [buttonType]="'secondary'"
-        ></tools-new-send-dropdown>
-      </bit-no-items>
-    </ng-container>
+    <bit-no-items [icon]="noItemIcon" class="tw-text-main">
+      <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
+      <ng-container slot="description">{{ "sendsBodyNoItems" | i18n }}</ng-container>
+      <tools-new-send-dropdown
+        [hideIcon]="true"
+        *ngIf="!sendsDisabled"
+        slot="button"
+        [buttonType]="'secondary'"
+      ></tools-new-send-dropdown>
+    </bit-no-items>
   </div>
 
   <ng-container *ngIf="listState !== sendState.Empty">

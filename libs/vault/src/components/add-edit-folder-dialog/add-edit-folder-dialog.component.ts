@@ -48,7 +48,6 @@ export type AddEditFolderDialogData = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-add-edit-folder-dialog",
   templateUrl: "./add-edit-folder-dialog.component.html",
   imports: [

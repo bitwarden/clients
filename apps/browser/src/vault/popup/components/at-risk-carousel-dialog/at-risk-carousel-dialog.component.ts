@@ -28,7 +28,6 @@ type AtRiskCarouselDialogResult = UnionOfValues<typeof AtRiskCarouselDialogResul
     DarkImageSourceDirective,
     I18nPipe,
   ],
-  standalone: true,
 })
 export class AtRiskCarouselDialogComponent {
   private dialogRef = inject(DialogRef);

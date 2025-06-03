@@ -9,7 +9,6 @@ import { BitIconComponent } from "../icon/icon.component";
 @Component({
   selector: "bit-no-items",
   templateUrl: "./no-items.component.html",
-  standalone: true,
   imports: [BitIconComponent],
 })
 export class NoItemsComponent {

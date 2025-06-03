@@ -25,7 +25,6 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
 @Component({
   selector: "vault-carousel",
   templateUrl: "./carousel.component.html",
-  standalone: true,
   imports: [
     CdkPortalOutlet,
     CommonModule,

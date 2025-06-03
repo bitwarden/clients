@@ -123,7 +123,6 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
 @Component({
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CipherViewComponent,
