@@ -2677,6 +2677,10 @@
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "已达最大访问次数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "默认隐藏文本"
   },
@@ -4558,7 +4562,7 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "无需使用浏览器访问您的密码库，在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
+    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
@@ -4971,7 +4975,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "有更多内容可用"
+    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"

@@ -10,7 +10,6 @@ import BrowserPopupUtils from "../browser-popup-utils";
 @Component({
   selector: "app-pop-out",
   templateUrl: "pop-out.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, IconButtonModule],
 })
 export class PopOutComponent implements OnInit {

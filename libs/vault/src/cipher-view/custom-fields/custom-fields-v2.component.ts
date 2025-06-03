@@ -28,7 +28,6 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

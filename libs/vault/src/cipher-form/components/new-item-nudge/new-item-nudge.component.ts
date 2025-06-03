@@ -13,7 +13,6 @@ import { CipherType } from "@bitwarden/sdk-internal";
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
-  standalone: true,
   imports: [NgIf, SpotlightComponent],
 })
 export class NewItemNudgeComponent implements OnInit {
