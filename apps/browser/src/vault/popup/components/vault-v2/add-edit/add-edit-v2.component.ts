@@ -132,7 +132,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },

@@ -7,7 +7,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 @Component({
   selector: "app-nav",
   templateUrl: "nav.component.html",
-  standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
 })
 export class NavComponent {
