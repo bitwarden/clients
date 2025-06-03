@@ -1,12 +1,17 @@
-import { UnionOfValues } from "../types/union-of-values";
-
-export const CipherType = {
+const _CipherType = Object.freeze({
   Login: 1,
   SecureNote: 2,
   Card: 3,
   Identity: 4,
   SshKey: 5,
-} as const;
+} as const);
+
+type _CipherType = typeof _CipherType;
+
+export type CipherType = _CipherType[keyof _CipherType];
+
+// FIXME: Update typing of `CipherType` to be `Record<keyof _CipherType, CipherType>` which is ADR-0025 compliant when the TypeScript version is at least 5.8.
+export const CipherType: typeof _CipherType = _CipherType;
 
 /**
  * Reverse mapping of Cipher Types to their associated names.
@@ -32,5 +37,3 @@ export function toCipherTypeName(type: CipherType): keyof typeof CipherType {
 
   return name;
 }
-
-export type CipherType = UnionOfValues<typeof CipherType>;
