@@ -27,13 +27,8 @@ export const cipherTypeNames = Object.freeze(
 /**
  * Returns the associated name for the cipher type, will throw when the name is not found.
  */
-export function toCipherTypeName(type: CipherType): keyof typeof CipherType {
+export function toCipherTypeName(type: CipherType): keyof typeof CipherType | undefined {
   const name = cipherTypeNames[type];
-
-  // This shouldn't happen but to be safe throw if the type isn't found
-  if (name === undefined) {
-    throw new Error(`Name for cipher type ${type} not found.`);
-  }
 
   return name;
 }
