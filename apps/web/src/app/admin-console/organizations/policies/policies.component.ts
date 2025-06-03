@@ -95,7 +95,7 @@ export class PoliciesComponent implements OnInit {
 
   async load() {
     if (
-      (await this.configService.getFeatureFlag(FeatureFlag.RestrictedItemTypesPolicy)) &&
+      (await this.configService.getFeatureFlag(FeatureFlag.RemoveCardItemTypePolicy)) &&
       this.policyListService.getPolicies().every((p) => !(p instanceof RestrictedItemTypesPolicy))
     ) {
       this.policyListService.addPolicies([new RestrictedItemTypesPolicy()]);

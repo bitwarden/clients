@@ -1,10 +1,4 @@
-<bit-form-control [formGroup]="data">
-  <bit-form-field class="tw-flex-auto">
-    <ng-container *ngFor="let type of CIPHER_TYPE_VALUES">
-      <input type="checkbox" bitCheckbox [formControlName]="type" [value]="type" />
-      <label>
-        {{ type.toString() | i18n }}
-      </label>
-    </ng-container>
-  </bit-form-field>
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
 </bit-form-control>

@@ -1,13 +1,11 @@
 import { Component } from "@angular/core";
-import { UntypedFormBuilder, UntypedFormGroup } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class RestrictedItemTypesPolicy extends BasePolicy {
-  name = "restrictedItemTypes";
+  name = "restrictedItemTypesPolicy";
   description = "restrictedItemTypesPolicyDesc";
   type = PolicyType.RestrictedItemTypesPolicy;
   component = RestrictedItemTypesPolicyComponent;
@@ -19,17 +17,7 @@ export class RestrictedItemTypesPolicy extends BasePolicy {
   standalone: false,
 })
 export class RestrictedItemTypesPolicyComponent extends BasePolicyComponent {
-  CIPHER_TYPE_VALUES: readonly CipherType[] = Object.values(CipherType).filter(
-    (v) => typeof v === "number",
-  ) as CipherType[];
-
-  data: UntypedFormGroup = this.formBuilder.group({
-    restrictedTypes: this.CIPHER_TYPE_VALUES.map((type) => ({
-      [type]: false,
-    })),
-  });
-
-  constructor(private formBuilder: UntypedFormBuilder) {
+  constructor() {
     super();
   }
 }
