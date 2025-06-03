@@ -351,12 +351,6 @@
   "other": {
     "message": "Overig"
   },
-  "generatePassword": {
-    "message": "Genereer wachtwoord"
-  },
-  "generatePassphrase": {
-    "message": "Wachtwoordzin genereren"
-  },
   "type": {
     "message": "Categorie"
   },
@@ -2512,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Hoofdwachtwoord verwijderd."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ gebruikt SSO met een zelf gehoste sleutelserver. Leden van deze organisatie kunnen inloggen zonder hoofdwachtwoord.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie."
+  },
+  "organizationName": {
+    "message": "Organisatienaam"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector-domein"
   },
   "leaveOrganization": {
     "message": "Organisatie verlaten"
@@ -2633,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Gebruikersnaamgenerator"
   },
+  "generatePassword": {
+    "message": "Genereer wachtwoord"
+  },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
+  "passwordGenerated": {
+    "message": "Wachtwoord gegenereerd"
+  },
+  "passphraseGenerated": {
+    "message": "Wachtwoordzin gegenereerd"
+  },
+  "usernameGenerated": {
+    "message": "Gebruikersnaam gegenereerd"
+  },
+  "emailGenerated": {
+    "message": "E-mail gegenereerd"
+  },
   "spinboxBoundariesHint": {
     "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Dit e-mailadres gebruiken"
+  },
+  "useThisPassword": {
+    "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
+  },
+  "useThisUsername": {
+    "message": "Deze gebruikersnaam gebruiken"
   },
   "random": {
     "message": "Willekeurig"
@@ -3050,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Zwak wachtwoord geïdentificeerd en gevonden in een datalek. Gebruik een sterk en uniek wachtwoord om je account te beschermen. Weet je zeker dat je dit wachtwoord wilt gebruiken?"
-  },
-  "useThisPassword": {
-    "message": "Dit wachtwoord gebruiken"
-  },
-  "useThisUsername": {
-    "message": "Deze gebruikersnaam gebruiken"
   },
   "checkForBreaches": {
     "message": "Bekende datalekken voor dit wachtwoord controleren"
@@ -3703,6 +3718,15 @@
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Je kunt verzamelingen niet verwijderen met alleen rechten voor weergeven: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Verplaatsen"
   },
@@ -3714,6 +3738,31 @@
   },
   "folderHintText": {
     "message": "Je kunt een map onderbrengen door het toevoegen van de naam van de bovenliggende map gevolgd door een \"/\". Voorbeeld: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Gevoelige informatie veilig versturen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Snel wachtwoorden maken"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door te klikken op",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "om je te helpen je inloggegevens veilig te houden.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"

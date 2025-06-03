@@ -74,7 +74,6 @@ interface ViewData {
 @Component({
   selector: "app-fido2",
   templateUrl: "fido2.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
@@ -442,10 +441,10 @@ export class Fido2Component implements OnInit, OnDestroy {
     );
 
     this.buildCipher(name, username);
-    const cipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+    const encrypted = await this.cipherService.encrypt(this.cipher, activeUserId);
     try {
-      await this.cipherService.createWithServer(cipher);
-      this.cipher.id = cipher.id;
+      await this.cipherService.createWithServer(encrypted);
+      this.cipher.id = encrypted.cipher.id;
     } catch (e) {
       this.logService.error(e);
     }

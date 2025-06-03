@@ -75,6 +75,7 @@ describe("RadioGroupComponent", () => {
       <bit-radio-button value="third">Third</bit-radio-button>
     </bit-radio-group>
   `,
+  standalone: false,
 })
 class TestApp {
   selected?: string;

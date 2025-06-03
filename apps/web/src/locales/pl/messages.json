@@ -547,12 +547,6 @@
     "message": "Zwiń/rozwiń",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Wygeneruj hasło"
-  },
-  "generatePassphrase": {
-    "message": "Wygeneruj hasło wyrazowe"
-  },
   "checkPassword": {
     "message": "Sprawdź, czy hasło zostało ujawnione."
   },
@@ -6476,14 +6470,11 @@
   "invalidVerificationCode": {
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "Organizacja $ORGANIZATION$ używa jednokrotnego logowania SSO z własnym serwerem kluczy. Użytkownicy nie muszą logować się za pomocą hasła głównego.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hasło główne nie jest już wymagane dla członków następującej organizacji. Proszę potwierdzić poniższą domenę u administratora organizacji."
+  },
+  "keyConnectorDomain": {
+    "message": "Domena Key Connector'a"
   },
   "leaveOrganization": {
     "message": "Opuść organizację"
@@ -6827,6 +6818,24 @@
   "generateEmail": {
     "message": "Wygeneruj e-mail"
   },
+  "generatePassword": {
+    "message": "Wygeneruj hasło"
+  },
+  "generatePassphrase": {
+    "message": "Wygeneruj hasło wyrazowe"
+  },
+  "passwordGenerated": {
+    "message": "Hasło zostało wygenerowane"
+  },
+  "passphraseGenerated": {
+    "message": "Hasło wyrazowe zostało wygenerowane"
+  },
+  "usernameGenerated": {
+    "message": "Nazwa użytkownika została wygenerowana"
+  },
+  "emailGenerated": {
+    "message": "E-mail został wygenerowany"
+  },
   "spinboxBoundariesHint": {
     "message": "Wartość musi być pomiędzy $MIN$ a $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6889,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Użyj tego hasła"
+  },
+  "useThisPassphrase": {
+    "message": "Użyj tego hasła wyrazowego"
   },
   "useThisUsername": {
     "message": "Użyj tej nazwy użytkownika"
@@ -10556,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "Nowa jednostka biznesowa"
   },
+  "sendsTitleNoItems": {
+    "message": "Wysyłaj bezpiecznie poufne informacje",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Udostępniaj pliki i dane bezpiecznie każdemu, na każdej platformie. Twoje dane pozostaną zaszyfrowane end-to-end przy jednoczesnym ograniczeniu narażenia.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Szybko twórz hasła"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na Wygeneruj Hasło, aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Oszczędzaj czas dzięki autouzupełnianiu"
   },
@@ -10613,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Kliknij przycisk Zapłać za pomocą PayPal, aby dodać metodę płatności."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Jeśli usuniesz $EMAIL$, sponsorowanie tego planu rodzinnego zostanie zakończone. Miejsce w Twojej organizacji stanie się dostępne dla członków lub sponsorów po dacie odnowienia sponsorowanej organizacji w dniu $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

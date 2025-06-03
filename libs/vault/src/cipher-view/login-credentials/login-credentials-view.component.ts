@@ -42,7 +42,6 @@ type TotpCodeValues = {
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

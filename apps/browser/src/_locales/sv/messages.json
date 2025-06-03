@@ -246,7 +246,7 @@
     "message": "Logga in i ditt valv"
   },
   "autoFillInfo": {
-    "message": "Det finns inga inloggningar tillgängliga för automatisk ifyllnad på den nuvarande fliken."
+    "message": "Det finns inga inloggningar tillgängliga för autofyll på den nuvarande fliken."
   },
   "addLogin": {
     "message": "Lägg till en inloggning"
@@ -383,7 +383,7 @@
     "message": "Redigera mapp"
   },
   "editFolderWithName": {
-    "message": "Edit folder: $FOLDERNAME$",
+    "message": "Redigera mapp: $FOLDERNAME$",
     "placeholders": {
       "foldername": {
         "content": "$1",
@@ -575,7 +575,7 @@
     "message": "Favorit"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Ta bort favorit"
   },
   "itemAddedToFavorites": {
     "message": "Objekt tillagt i favoriter"
@@ -842,7 +842,7 @@
     "message": "Scan authenticator QR code from current webpage"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Gör tvåstegsverifiering sömlös"
   },
   "totpHelper": {
     "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
@@ -872,13 +872,13 @@
     "message": "Logga in på Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Ange koden som skickats till din e-post"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Ange koden från din autentiseringsapp"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Tryck på din YubiKey för att autentisera"
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
@@ -890,16 +890,16 @@
     "message": "Follow the steps below to finish logging in with your security key."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Starta om registrering"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Utgången länk"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Starta om registreringen eller försök logga in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Du kanske redan har ett konto"
   },
   "logOutConfirmation": {
     "message": "Är du säker på att du vill logga ut?"
@@ -911,7 +911,7 @@
     "message": "Nej"
   },
   "location": {
-    "message": "Location"
+    "message": "Plats"
   },
   "unexpectedError": {
     "message": "Ett okänt fel har inträffat."
@@ -926,10 +926,10 @@
     "message": "Tvåstegsverifiering gör ditt konto säkrare genom att kräva att du verifierar din inloggning med en annan enhet, t.ex. en säkerhetsnyckel, autentiseringsapp, SMS, telefonsamtal eller e-post. Tvåstegsverifiering kan aktiveras i Bitwardens webbvalv. Vill du besöka webbplatsen nu?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+    "message": "Gör ditt konto säkrare genom att konfigurera tvåstegsverifiering i Bitwardens webbapp."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Fortsätt till webbapp?"
   },
   "editedFolder": {
     "message": "Mapp sparad"
@@ -1031,7 +1031,7 @@
     "message": "Visa kort på fliksida"
   },
   "showCardsCurrentTabDesc": {
-    "message": "Lista kortobjekt på fliksidan för enkel automatisk fyllning."
+    "message": "Lista kortobjekt på fliksidan för enkel autofyll."
   },
   "showIdentitiesInVaultViewV2": {
     "message": "Always show identities as Autofill suggestions on Vault view"
@@ -1040,7 +1040,7 @@
     "message": "Visa identiteter på fliksidan"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Lista identitetsobjekt på fliksidan för enkel automatisk fyllning."
+    "message": "Lista identitetsobjekt på fliksidan för enkel autofyll."
   },
   "clickToAutofillOnVault": {
     "message": "Click items to autofill on Vault view"
@@ -1125,7 +1125,7 @@
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Spara inloggning",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
@@ -1133,11 +1133,11 @@
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Inloggning sparad",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Inloggning uppdaterad",
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
@@ -1195,7 +1195,7 @@
     "message": "Uppdatera"
   },
   "notificationUnlockDesc": {
-    "message": "Lås upp ditt Bitwarden-valv för att slutföra begäran om automatisk ifyllnad."
+    "message": "Lås upp ditt Bitwarden-valv för att slutföra begäran om autofyll."
   },
   "notificationUnlock": {
     "message": "Lås upp"
@@ -1217,7 +1217,7 @@
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Välj standardalternativet för hur matchning av URI är hanterat för inloggningar när du utför operationer såsom automatisk ifyllnad."
+    "message": "Välj standardalternativet för hur matchning av URI är hanterat för inloggningar när du utför operationer såsom autofyll."
   },
   "theme": {
     "message": "Tema"
@@ -1274,7 +1274,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Varning",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1474,29 +1474,29 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Fråga inte igen på den här enheten i 30 dagar"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Välj en annan metod",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Använd din återställningskod"
   },
   "insertU2f": {
     "message": "Sätt i din säkerhetsnyckel i en av datorns USB-portar. Om nyckeln har en knapp, sätt fingret på den."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Öppna i ny flik"
   },
   "webAuthnAuthenticate": {
     "message": "Autentisera WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Läs säkerhetsnyckel"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Väntar på interaktion med säkerhetsnyckel..."
   },
   "loginUnavailable": {
     "message": "Inloggning ej tillgänglig"
@@ -1511,7 +1511,7 @@
     "message": "Alternativ för tvåstegsverifiering"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Välj metod för tvåstegsverifiering"
   },
   "recoveryCodeDesc": {
     "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
@@ -1523,7 +1523,7 @@
     "message": "Autentiseringsapp"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Ange en kod som genererats av en autentiseringsapp som Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1556,13 +1556,13 @@
     "message": "Egen-hostad miljö"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "Ange bas-URL:en för din självhostade Bitwarden-installation. Exempel: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "For advanced configuration, you can specify the base URL of each service independently."
+    "message": "För avancerad konfiguration kan du ange bas-URL för varje tjänst separat."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "Du måste lägga till antingen serverns bas-URL eller minst en anpassad miljö."
   },
   "customEnvironment": {
     "message": "Anpassad miljö"
@@ -1571,7 +1571,7 @@
     "message": "Server-URL"
   },
   "selfHostBaseUrl": {
-    "message": "Self-host server URL",
+    "message": "Självhostad server-URL",
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
@@ -1593,20 +1593,20 @@
     "message": "Miljö-URL:erna har sparats"
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Visa menyn för automatisk ifyllnad på formulärfält",
+    "message": "Visa menyn för autofyll på formulärfält",
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Förslag för autofyll"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "Hitta förslag på autofyll enkelt"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "Stäng av webbläsarens autofyllinställningar så att de inte orsakar konflikt med Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Stäng av $BROWSER$ autofyll",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1615,7 +1615,7 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "Stäng av autofyll"
   },
   "showInlineMenuLabel": {
     "message": "Visa förslag för autofyll i formulärfält"
@@ -1627,13 +1627,13 @@
     "message": "Visa kort som förslag"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Visa förslag när ikonen markerats"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Gäller för alla inloggade konton."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser's built in password manager settings to avoid conflicts."
+    "message": "Stäng av webbläsarens inbyggda lösenordshanterarinställningar för att undvika konflikter."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Redigera webbläsarinställningar."
@@ -1643,11 +1643,11 @@
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "När fältet är markerat (i fokus)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "När ikonen för automatisk ifyllnad är vald",
+    "message": "När ikonen för autofyll är vald",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
@@ -1693,13 +1693,13 @@
     "message": "Öppna valvet i sidofältet"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Autofyll den senast använda inloggningen för den aktuella webbplatsen"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Autofyll det senast använda kortet för den aktuella webbplatsen"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Autofyll den senast använda identiteten för den aktuella webbplatsen"
   },
   "commandGeneratePasswordDesc": {
     "message": "Skapa och kopiera ett nytt slumpmässigt lösenord till urklipp."
@@ -1723,7 +1723,7 @@
     "message": "Dra för att sortera"
   },
   "dragToReorder": {
-    "message": "Drag to reorder"
+    "message": "Dra för att ändra ordning"
   },
   "cfTypeText": {
     "message": "Text"
@@ -1758,7 +1758,7 @@
     "message": "Visa en identifierbar bild bredvid varje inloggning."
   },
   "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+    "message": "Visa en igenkännbar bild bredvid varje inloggning. Gäller för alla inloggade konton."
   },
   "enableBadgeCounter": {
     "message": "Visa aktivitetsräknaren"
@@ -1959,7 +1959,7 @@
     "message": "Rensa generatorhistorik"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Om du fortsätter kommer alla poster att raderas permanent från generatorns historik. Är du säker på att du vill fortsätta?"
   },
   "back": {
     "message": "Tillbaka"
@@ -1998,7 +1998,7 @@
     "message": "Säkra anteckningar"
   },
   "sshKeys": {
-    "message": "SSH Keys"
+    "message": "SSH-nycklar"
   },
   "clear": {
     "message": "Rensa",
@@ -2081,10 +2081,10 @@
     "message": "Rensa historik"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Inget tillgängligt innehåll"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Du har inte genererat något nyligen"
   },
   "remove": {
     "message": "Ta bort"
@@ -2154,7 +2154,7 @@
     "message": "Ange en PIN-kod för att låsa upp Bitwarden. Dina PIN-inställningar återställs om du någonsin loggar ut helt från programmet."
   },
   "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+    "message": "Din PIN-kod kommer att användas för att låsa upp Bitwarden istället för ditt huvudlösenord. Din PIN-kod kommer att återställas om du någonsin helt loggar ut från Bitwarden."
   },
   "pinRequired": {
     "message": "PIN-kod krävs."
@@ -2181,7 +2181,7 @@
     "message": "Lås med huvudlösenordet vid omstart av webbläsaren"
   },
   "lockWithMasterPassOnRestart1": {
-    "message": "Require master password on browser restart"
+    "message": "Kräv huvudlösenord vid omstart av webbläsaren"
   },
   "selectOneCollection": {
     "message": "Du måste markera minst en samling."
@@ -2196,36 +2196,39 @@
     "message": "Lösenordsgenerator"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Användarnamnsgenerator"
   },
   "useThisEmail": {
-    "message": "Use this email"
+    "message": "Använd denna e-post"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Använd detta lösenord"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Använd detta användarnamn"
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Säkert lösenord genererat! Glöm inte att även uppdatera ditt lösenord på webbplatsen."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Använd generatorn",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "för att skapa ett starkt unikt lösenord",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Anpassning av valv"
   },
   "vaultTimeoutAction": {
     "message": "Åtgärd när valvets tidsgräns överskrids"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Åtgärd vid timeout"
   },
   "lock": {
     "message": "Lås",
@@ -2347,16 +2350,16 @@
     "message": "Ditt nya huvudlösenord uppfyller inte kraven i policyn."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Få råd, nyheter och forskningsmöjligheter från Bitwarden i din inkorg."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Avprenumerera"
   },
   "atAnyTime": {
     "message": "när som helst."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "Genom att fortsätta godkänner du"
   },
   "and": {
     "message": "och"
@@ -2674,6 +2677,10 @@
     "message": "Alla Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
@@ -2871,7 +2878,7 @@
     "message": "E-postverifiering krävs"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "E-post verifierad"
   },
   "emailVerificationRequiredDesc": {
     "message": "Du måste verifiera din e-postadress för att använda den här funktionen. Du kan verifiera din e-postadress i webbvalvet."
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Ingen unik identifierare hittades."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ använder SSO med en egen nyckelserver. Ett huvudlösenord krävs inte längre för att logga in för medlemmar i denna organisation.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organisationsnamn"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Lämna organisation"
@@ -3615,6 +3622,14 @@
     "message": "Use Send to securely share encrypted information with anyone.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "inputRequired": {
     "message": "Inmatning är obligatoriskt."
   },
@@ -3769,7 +3784,7 @@
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
-    "message": "Unlock your account to view autofill suggestions",
+    "message": "Lås upp ditt konto för att visa förslag för autofyll",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -4230,7 +4245,7 @@
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
-    "message": "Ignoring this option may cause conflicts between Bitwarden autofill suggestions and your browser's.",
+    "message": "Att ignorera det här alternativet kan orsaka konflikter mellan Bitwardens autofyllförslag och webbläsarens.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
@@ -4279,13 +4294,13 @@
     "message": "Passkey borttagen"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Förslag för autofyll"
   },
   "itemSuggestions": {
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Spara ett inloggningsobjekt för den här webbplatsen för autofyll"
   },
   "yourVaultIsEmpty": {
     "message": "Ditt valv är tomt"
@@ -4918,7 +4933,7 @@
     "message": "Kontoåtgärder"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Show number of login autofill suggestions on extension icon"
+    "message": "Visa antal autofyllförslag för inloggning på tilläggsikonen"
   },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
@@ -5018,6 +5033,15 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
   },
   "authenticating": {
     "message": "Authenticating"
@@ -5306,7 +5330,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "så att den här inloggningen visas som ett förslag för autofyll.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5340,6 +5364,23 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

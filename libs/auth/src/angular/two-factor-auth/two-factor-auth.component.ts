@@ -24,9 +24,10 @@ import {
   LoginSuccessHandlerService,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -37,6 +38,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -66,7 +69,6 @@ import {
 } from "./two-factor-auth-component-cache.service";
 import {
   DuoLaunchAction,
-  LegacyKeyMigrationAction,
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
 import {
@@ -167,6 +169,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private environmentService: EnvironmentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
+    private authService: AuthService,
   ) {}
 
   async ngOnInit() {
@@ -384,22 +387,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }
-    // Migration is forced so prevent login via return
-    const legacyKeyMigrationAction: LegacyKeyMigrationAction =
-      this.twoFactorAuthComponentService.determineLegacyKeyMigrationAction();
 
-    switch (legacyKeyMigrationAction) {
-      case LegacyKeyMigrationAction.NAVIGATE_TO_MIGRATION_COMPONENT:
-        await this.router.navigate(["migrate-legacy-encryption"]);
-        break;
-      case LegacyKeyMigrationAction.PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING:
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-        break;
-    }
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccured"),
+      message: this.i18nService.t("legacyEncryptionUnsupported"),
+    });
     return true;
   }
 
@@ -507,8 +500,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async determineDefaultSuccessRoute(): Promise<string> {
-    const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
-    if (authType == AuthenticationType.Sso || authType == AuthenticationType.UserApiKey) {
+    const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
     }
 

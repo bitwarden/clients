@@ -9,7 +9,6 @@ import { ChipSelectComponent } from "@bitwarden/components";
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
 @Component({
-  standalone: true,
   selector: "app-vault-list-filters",
   templateUrl: "./vault-list-filters.component.html",
   imports: [CommonModule, JslibModule, ChipSelectComponent, ReactiveFormsModule],

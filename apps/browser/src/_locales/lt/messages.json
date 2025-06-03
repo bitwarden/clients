@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden logotipas"
   },
   "extName": {
     "message": "„Bitwarden“ slaptažodžių tvarkyklė",
@@ -23,16 +23,16 @@
     "message": "Sukurti paskyrą"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Pirmą kartą Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Prisijungti naudojant prieigos raktą"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Sveiki sugrįžę"
   },
   "setAStrongPassword": {
     "message": "Nustatyti stiprų slaptažodį"
@@ -84,7 +84,7 @@
     "message": "Pagrindinio slaptažodžio užuomina (neprivaloma)"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Slaptažodžio stiprumas $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -93,10 +93,10 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Prisijungti prie organizacijos"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Prisijungti prie $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Baigėte prisijungimą prie organizacijos nustatant pagrindinį slaptažodį."
   },
   "tab": {
     "message": "Skirtukas"
@@ -132,7 +132,7 @@
     "message": "Kopijuoti slaptažodį"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopijuoti slaptažodžio frazę"
   },
   "copyNote": {
     "message": "Kopijuoti pastabą"
@@ -150,31 +150,31 @@
     "message": "Kopijuoti saugos kodą"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Kopijuoti vardą"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopijuoti įmonę"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Kopijuoti socialinės apsaugos numerį"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Kopijuoti paso numerį"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopijuoti licenzijos numerį"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopijuoti privatų raktą"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopijuoti viešą raktą"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopijuoti piršto antspaudą"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Kopijuoti $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -183,13 +183,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopijuoti svetainę"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopijuoti pastabas"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopijuoti",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Use this password"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Use this username"
   },
@@ -2674,6 +2677,10 @@
     "message": "Visi siuntimai",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
@@ -3014,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Unikalus identifikatorius nerastas."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ naudoja SSO su savarankiškai sukurtu raktų serveriu. Pagrindinis slaptažodis nebėra reikalingas norint šios organizacijos nariams prisijungti.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Palikti organizaciją"
@@ -3613,6 +3620,14 @@
   },
   "sendsNoItemsMessage": {
     "message": "Naudokite „Send“, kad saugiai bendrintumėte užšifruotą informaciją su bet kuriuo asmeniu.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5019,6 +5034,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5340,6 +5364,23 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

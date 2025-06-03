@@ -10,6 +10,8 @@ import {
   switchMap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
@@ -39,7 +41,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -61,10 +63,6 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
-
-  readonly everHadUserKey$: Observable<boolean>;
-
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
@@ -80,10 +78,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
   ) {
-    // User Key
-    this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
-    this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
-
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
     ) as Observable<Record<OrganizationId, OrgKey>>;
@@ -139,6 +133,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.setUserKey(key, activeUserId);
   }
 
+  everHadUserKey$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EVER_HAD_USER_KEY)
+      .state$.pipe(map((x) => x ?? false));
+  }
+
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
     return this.stateProvider.getUserState$(USER_KEY, userId);
   }
@@ -178,11 +178,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
     const userKey = await this.getKeyFromStorage(keySuffix, userId);
@@ -564,11 +563,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
   }
 
-  async clearPinKeys(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearPinKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear PIN keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
@@ -588,11 +585,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await this.keyGenerationService.createKey(512)) as CipherKey;
   }
 
-  async clearKeys(userId?: UserId): Promise<any> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.masterPasswordService.clearMasterKeyHash(userId);
