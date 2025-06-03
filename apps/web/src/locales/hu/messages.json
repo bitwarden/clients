@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Kattintás a Pay with PayPal gombra a fizetési mód hozzáadásához."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "$EMAIL$ eltávolításával a családi csomag szponzorálása véget ér. A szervezeten belüli hely a szponzorált szervezet megújítási dátuma után válik elérhetővé a tagok vagy a szponzorálások számára: $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

@@ -94,7 +94,6 @@ const MY_VAULT_ID = "MyVault";
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

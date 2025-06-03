@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Klik op \"Pay with PayPal\" voor het toevoegen van je betaalmethode."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Als je $EMAIL$ verwijdert, zal de sponsoring voor dit Familieplan stoppen. Er komt een zetel beschikbaar binnen je organisatie voor leden of sponsorschap na de vernieuwingsdatum van de gesponsorde organisatie op $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

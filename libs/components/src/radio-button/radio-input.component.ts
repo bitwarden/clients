@@ -11,7 +11,6 @@ let nextId = 0;
   selector: "input[type=radio][bitRadio]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
-  standalone: true,
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
   @HostBinding("attr.id") @Input() id = `bit-radio-input-${nextId++}`;
@@ -30,7 +29,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "tw-border-secondary-600",
     "tw-w-[1.12rem]",
     "tw-h-[1.12rem]",
-    "tw-mr-1.5",
+    "tw-me-1.5",
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "hover:tw-border-2",

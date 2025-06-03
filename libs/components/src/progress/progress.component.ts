@@ -23,7 +23,6 @@ const BackgroundClasses: Record<BackgroundType, string[]> = {
 @Component({
   selector: "bit-progress",
   templateUrl: "./progress.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class ProgressComponent {

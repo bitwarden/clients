@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Por favor, clique no botão Pagar com PayPal para adicionar o seu método de pagamento."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Se remover $EMAIL$, o patrocínio para este plano Familiar termina. Um lugar na sua organização ficará disponível para membros ou patrocínios após a data de renovação da organização patrocinada a $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

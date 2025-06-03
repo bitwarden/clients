@@ -38,7 +38,6 @@ export interface EntityEventsDialogParams {
 @Component({
   imports: [SharedModule],
   templateUrl: "entity-events.component.html",
-  standalone: true,
 })
 export class EntityEventsComponent implements OnInit, OnDestroy {
   loading = true;

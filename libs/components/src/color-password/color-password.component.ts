@@ -25,7 +25,6 @@ enum CharacterType {
       }
     </span>
   }`,
-  standalone: true,
 })
 export class ColorPasswordComponent {
   password = input<string>("");
