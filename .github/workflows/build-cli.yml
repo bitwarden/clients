@@ -46,6 +46,8 @@ defaults:
   run:
     working-directory: apps/cli
 
+permissions: read-all
+
 jobs:
   setup:
     name: Setup
