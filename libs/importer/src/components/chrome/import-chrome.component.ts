@@ -15,6 +15,7 @@ import * as papa from "papaparse";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   CalloutModule,
   CheckboxModule,
@@ -25,6 +26,7 @@ import {
 } from "@bitwarden/components";
 
 import { ImportType } from "../../models";
+
 
 @Component({
   selector: "import-chrome",
@@ -151,8 +153,13 @@ class ChromeLogin {
   note: string;
 
   constructor(login: any) {
-    // TODO: format name to hostname?
-    this.name = login.url;
+    const url = Utils.getUrl(login?.url);
+    if (url != null) {
+      this.name = new URL(url).hostname;
+    }
+    if (this.name == null) {
+      this.name = login.url;
+    }
     this.url = login.url;
     this.username = login.username;
     this.password = login.password;
