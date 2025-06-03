@@ -1,4 +1,4 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./badge.stories";
 
@@ -8,25 +8,15 @@ import * as stories from "./badge.stories";
 import { BadgeModule } from "@bitwarden/components";
 ```
 
-# Badge
-
-Badges are primarily used as labels, counters, and small buttons.
-
-Typically Badges are only used with text set to `text-xs`. If additional sizes are needed, the
-component configurations may be reviewed and adjusted.
-
-The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
-for interactive events. The Focus and Hover states only apply to badges used for interactive events.
-The `disabled` state only applies to buttons.
-
-The story below uses the `<button>` element to demonstrate all the possible states.
+<Title />
+<Description />
 
 <Primary />
 <Controls />
 
 ## Styles
 
-### Primary
+### Default / Primary
 
 The primary badge is used to indicate an active status (example: device management page) or provide
 additional information (example: type of emergency access granted).

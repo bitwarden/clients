@@ -547,12 +547,6 @@
     "message": "切换折叠",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "生成密码"
-  },
-  "generatePassphrase": {
-    "message": "生成密码短语"
-  },
   "checkPassword": {
     "message": "检查密码是否已暴露。"
   },
@@ -5884,7 +5878,7 @@
     "message": "成功恢复组织的访问权限"
   },
   "bulkFilteredMessage": {
-    "message": "已拒绝，不适用于此操作"
+    "message": "已排除，不适用于此操作"
   },
   "nonCompliantMembersTitle": {
     "message": "不符合要求的成员"
@@ -6315,7 +6309,7 @@
     "message": "您的组织成员有资格获得免费的 Bitwarden 家庭计划。您可以为不是您的 Bitwarden 组织成员的员工赞助免费 Bitwarden 家庭。赞助非成员需要您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
-    "message": "当您移除某个活动赞助时，该赞助席位将在被赞助组织的续费日期后释放给您的组织使用。"
+    "message": "当您移除某个活动赞助，在被赞助组织的续费日期之后，您的组织中将释放一个可用的席位。"
   },
   "sponsoredFamiliesEligible": {
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版计划。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
@@ -6803,7 +6797,7 @@
     "description": "This is used by screen readers to indicate the organization that is currently being shown to the user."
   },
   "accountLoggedInAsName": {
-    "message": "账户：登录为 $NAME$",
+    "message": "账户：已登录为 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6823,6 +6817,24 @@
   },
   "generateEmail": {
     "message": "生成电子邮箱"
+  },
+  "generatePassword": {
+    "message": "生成密码"
+  },
+  "generatePassphrase": {
+    "message": "生成密码短语"
+  },
+  "passwordGenerated": {
+    "message": "密码已生成"
+  },
+  "passphraseGenerated": {
+    "message": "密码短语已生成"
+  },
+  "usernameGenerated": {
+    "message": "用户名已生成"
+  },
+  "emailGenerated": {
+    "message": "电子邮箱已生成"
   },
   "spinboxBoundariesHint": {
     "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "使用此密码"
+  },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
   },
   "useThisUsername": {
     "message": "使用此用户名"
@@ -8446,7 +8461,7 @@
     "message": "用户更新了通过账户恢复颁发的密码。"
   },
   "activatedAccessToSecretsManager": {
-    "message": "已激活对机密管理器的访问权限",
+    "message": "激活了对机密管理器的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
@@ -10192,7 +10207,7 @@
     "message": "描述符代码"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "新增业务单元"
   },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "使用自动填充节省时间"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "请点击「使用 PayPal 付款」按钮以添加您的付款方式。"
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "如果您移除 $EMAIL$，此家庭计划的赞助将结束。在被赞助组织的续费日期 $DATE$ 之后，您的组织中将释放一个可用席位，可供成员或赞助使用。",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

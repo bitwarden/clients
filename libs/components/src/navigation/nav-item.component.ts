@@ -17,7 +17,6 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  standalone: true,
   imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
