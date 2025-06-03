@@ -204,6 +204,7 @@
         "scopeguard",
         "security-framework",
         "security-framework-sys",
+        "semver",
         "serde",
         "serde_json",
         "simplelog",
@@ -412,6 +413,12 @@
       matchPackageNames: ["lowdb"],
       allowedVersions: "1.0.0",
       description: "Higher versions of lowdb are not compatible with CommonJS",
+    },
+    {
+      // Pin types as well since we are not upgrading past v1 (and also v2+ does not need separate types).
+      matchPackageNames: ["@types/lowdb"],
+      allowedVersions: "< 2.0.0",
+      description: "Higher versions of lowdb do not need separate types",
     },
   ],
   ignoreDeps: ["@types/koa-bodyparser", "bootstrap", "node-ipc", "@bitwarden/sdk-internal"],

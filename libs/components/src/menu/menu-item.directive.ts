@@ -6,7 +6,6 @@ import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
-  standalone: true,
   imports: [NgClass],
 })
 export class MenuItemDirective implements FocusableOption {

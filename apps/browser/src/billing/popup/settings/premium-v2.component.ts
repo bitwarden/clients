@@ -29,7 +29,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   selector: "app-premium",
   templateUrl: "premium-v2.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CardComponent,

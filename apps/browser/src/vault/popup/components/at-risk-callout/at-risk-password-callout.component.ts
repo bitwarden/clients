@@ -11,7 +11,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 @Component({
   selector: "vault-at-risk-password-callout",
-  standalone: true,
   imports: [CommonModule, AnchorLinkDirective, RouterModule, CalloutModule, I18nPipe],
   templateUrl: "./at-risk-password-callout.component.html",
 })

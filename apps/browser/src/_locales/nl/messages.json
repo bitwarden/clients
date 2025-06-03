@@ -468,7 +468,7 @@
     "message": "Wachtwoord gegenereerd"
   },
   "passphraseGenerated": {
-    "message": "Wachtwoorden gegenereerd"
+    "message": "Wachtwoordzin gegenereerd"
   },
   "usernameGenerated": {
     "message": "Gebruikersnaam gegenereerd"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Dit wachtwoord gebruiken"
   },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
+  },
   "useThisUsername": {
     "message": "Deze gebruikersnaam gebruiken"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maximum aantal keren benaderd",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Tekst standaard verbergen"

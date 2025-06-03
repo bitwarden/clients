@@ -49,7 +49,6 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
 @Component({
   selector: "vault-cipher-form",
   templateUrl: "./cipher-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: CipherFormContainer,

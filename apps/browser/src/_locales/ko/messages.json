@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "이 비밀번호 사용"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "이 사용자 이름 사용"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "모든 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "기본적으로 텍스트 숨기기"

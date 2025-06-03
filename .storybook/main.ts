@@ -8,6 +8,8 @@ const config: StorybookConfig = {
   stories: [
     "../libs/auth/src/**/*.mdx",
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/dirt/card/src/**/*.mdx",
+    "../libs/dirt/card/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/tools/send/send-ui/src/**/*.mdx",
     "../libs/tools/send/send-ui/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/vault/src/**/*.mdx",
@@ -20,8 +22,6 @@ const config: StorybookConfig = {
     "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
-    "../libs/tools/card/src/**/*.mdx",
-    "../libs/tools/card/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/angular/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
