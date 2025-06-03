@@ -13,7 +13,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -30,7 +29,6 @@ import { UserKeyRotationService } from "../../key-management/key-rotation/user-k
 @Component({
   selector: "app-change-password",
   templateUrl: "change-password.component.html",
-  standalone: false,
 })
 export class ChangePasswordComponent
   extends BaseChangePasswordComponent
@@ -61,7 +59,6 @@ export class ChangePasswordComponent
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
     toastService: ToastService,
-    private configService: ConfigService,
   ) {
     super(
       i18nService,
@@ -141,17 +138,13 @@ export class ChangePasswordComponent
 
   async submit() {
     this.loading = true;
-    await this.submitNew();
-    this.loading = false;
-  }
-
-  async submitNew() {
     if (this.currentMasterPassword == null || this.currentMasterPassword === "") {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("masterPasswordRequired"),
       });
+      this.loading = false;
       return;
     }
 
@@ -164,6 +157,7 @@ export class ChangePasswordComponent
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("hintEqualsPassword"),
       });
+      this.loading = false;
       return;
     }
 
@@ -173,6 +167,7 @@ export class ChangePasswordComponent
     }
 
     if (!(await this.strongPassword())) {
+      this.loading = false;
       return;
     }
 
@@ -195,6 +190,8 @@ export class ChangePasswordComponent
         title: this.i18nService.t("errorOccurred"),
         message: e.message,
       });
+    } finally {
+      this.loading = false;
     }
   }
 
