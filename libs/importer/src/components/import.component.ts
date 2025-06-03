@@ -106,7 +106,6 @@ const safeProviders: SafeProvider[] = [
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

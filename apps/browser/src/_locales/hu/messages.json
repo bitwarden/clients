@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Jelszó használata"
   },
+  "useThisPassphrase": {
+    "message": "Jelmondat használata"
+  },
   "useThisUsername": {
     "message": "Felhasználónév használata"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Összes Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "A maximális hozzáférések száma elérésre került.",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Szöveg elrejtése alapértelmezetten"

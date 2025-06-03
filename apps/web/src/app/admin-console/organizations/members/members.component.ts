@@ -110,8 +110,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
+  private organizationUsersCount = 0;
+
   get occupiedSeatCount(): number {
-    return this.dataSource.activeUserCount;
+    return this.organizationUsersCount;
   }
 
   constructor(
@@ -218,6 +220,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           );
 
           this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 

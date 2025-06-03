@@ -83,7 +83,7 @@ export const WithChildButtons: Story = {
       <bit-nav-item text="Hello World" [route]="['']" icon="bwi-collection-shared">
         <button
           slot="end"
-          class="tw-ml-auto"
+          class="tw-ms-auto"
           [bitIconButton]="'bwi-pencil-square'"
           [buttonType]="'light'"
           size="small"
@@ -91,7 +91,7 @@ export const WithChildButtons: Story = {
         ></button>
         <button
           slot="end"
-          class="tw-ml-auto"
+          class="tw-ms-auto"
           [bitIconButton]="'bwi-check'"
           [buttonType]="'light'"
           size="small"

@@ -42,7 +42,6 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
 @Component({
   selector: "app-cipher-view",
   templateUrl: "cipher-view.component.html",
-  standalone: true,
   imports: [
     CalloutModule,
     CommonModule,

@@ -719,9 +719,10 @@ export default class NotificationBackground {
         return;
       }
 
-      const cipher = await this.cipherService.encrypt(newCipher, activeUserId);
+      const encrypted = await this.cipherService.encrypt(newCipher, activeUserId);
+      const { cipher } = encrypted;
       try {
-        await this.cipherService.createWithServer(cipher);
+        await this.cipherService.createWithServer(encrypted);
         await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           itemName: newCipher?.name && String(newCipher?.name),
           cipherId: cipher?.id && String(cipher?.id),

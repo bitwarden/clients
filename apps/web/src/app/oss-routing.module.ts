@@ -151,13 +151,6 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: { titleId: "updatePassword" } satisfies RouteDataProperties,
       },
-      {
-        path: "migrate-legacy-encryption",
-        loadComponent: () =>
-          import("./key-management/migrate-encryption/migrate-legacy-encryption.component").then(
-            (mod) => mod.MigrateFromLegacyEncryptionComponent,
-          ),
-      },
     ],
   },
   {
