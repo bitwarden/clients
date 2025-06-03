@@ -52,7 +52,6 @@ const buttonStyles: Record<ButtonType, string[]> = {
   selector: "button[bitButton], a[bitButton]",
   templateUrl: "button.component.html",
   providers: [{ provide: ButtonLikeAbstraction, useExisting: ButtonComponent }],
-  standalone: true,
   imports: [NgClass],
   host: {
     "[attr.disabled]": "disabledAttr()",

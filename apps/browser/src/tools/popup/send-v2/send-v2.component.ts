@@ -35,7 +35,6 @@ export enum SendState {
 
 @Component({
   templateUrl: "send-v2.component.html",
-  standalone: true,
   imports: [
     CalloutModule,
     PopupPageComponent,

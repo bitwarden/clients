@@ -28,7 +28,6 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
-  standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],

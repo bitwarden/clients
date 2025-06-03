@@ -16,7 +16,6 @@ export type SideNavVariant = "primary" | "secondary";
 @Component({
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
-  standalone: true,
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
 })
 export class SideNavComponent {

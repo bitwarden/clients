@@ -6,12 +6,7 @@ import { combineLatest, map, Observable } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import {
-  IconButtonModule,
-  SectionComponent,
-  SectionHeaderComponent,
-  TypographyModule,
-} from "@bitwarden/components";
+import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -20,14 +15,11 @@ import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
-    SectionComponent,
     TypographyModule,
     VaultListItemsContainerComponent,
     JslibModule,
-    SectionHeaderComponent,
     IconButtonModule,
   ],
   selector: "app-autofill-vault-list-items",

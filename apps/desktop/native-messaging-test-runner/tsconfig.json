@@ -1,6 +1,6 @@
 {
+  "extends": "../tsconfig",
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "dist",
     "target": "es6",
     "module": "CommonJS",
@@ -10,12 +10,7 @@
     "sourceMap": false,
     "declaration": false,
     "paths": {
-      "@src/*": ["src/*"],
-      "@bitwarden/admin-console/*": ["../../../libs/admin-console/src/*"],
-      "@bitwarden/auth/*": ["../../../libs/auth/src/*"],
-      "@bitwarden/common/*": ["../../../libs/common/src/*"],
-      "@bitwarden/key-management": ["../../../libs/key-management/src/"],
-      "@bitwarden/node/*": ["../../../libs/node/src/*"]
+      "@src/*": ["src/*"]
     },
     "plugins": [
       {

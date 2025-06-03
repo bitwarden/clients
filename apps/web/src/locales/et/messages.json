@@ -420,7 +420,7 @@
     "message": "Aegumise aasta"
   },
   "authenticatorKeyTotp": {
-    "message": "Autentiseerimise võti (TOTP)"
+    "message": "Autentimise võti (TOTP)"
   },
   "totpHelperTitle": {
     "message": "Muuda 2-astmeline kinnitamine sujuvaks"
@@ -546,12 +546,6 @@
   "toggleCollapse": {
     "message": "Näita vähem",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Loo parool"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
   },
   "checkPassword": {
     "message": "Kontrolli, kas parool on lekkinud."
@@ -838,13 +832,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Kopeeri veebilehe aadress"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopeeri märkused"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopeeri aadress"
   },
   "copyPhone": {
     "message": "Kopeeri telefoninumber"
@@ -1058,7 +1052,7 @@
     "message": "Bitwardeni rakenduse seadistuses peab olema konfigureeritud sisselogimine läbi seadme. Soovid teist valikut?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "Soovid teist valikut kasutada?"
   },
   "loginWithMasterPassword": {
     "message": "Logi sisse ülemparooliga"
@@ -1193,10 +1187,10 @@
     "message": "Autentimiseks vajuta nuppu oma YubiKey'l"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Sisselogimise ajalõpp"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Sisselogimise sessioon on aegunud. Palun alusta uuesti sisse logimist."
   },
   "verifyYourIdentity": {
     "message": "Kinnitage oma Identiteet"
@@ -1376,7 +1370,7 @@
     "message": "Sul ei ole õigust vaadata kõiki asju selles kogus."
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "Sul ei ole õigusi sellele kogumikule"
   },
   "noCollectionsInList": {
     "message": "Puuduvad kollektsioonid, mida kuvada."
@@ -1403,13 +1397,13 @@
     "message": "Sinu seadmesse saadeti teavitus."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Ava Bitwarden oma seadmes või avades "
   },
   "areYouTryingToAccessYourAccount": {
     "message": "Kas sa püüad praegu oma kontole sisse logida?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "$EMAIL$ proovis juurdepääsu saada",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1427,10 +1421,10 @@
     "message": "veebirakendus"
   },
   "notificationSentDevicePart2": {
-    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Enne kinnitamist kontrolli, et unikaalne sõnajada ühtib allolevaga."
   },
   "notificationSentDeviceComplete": {
-    "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
+    "message": "Ava Bitwarden oma seadmes. Enne kinnitamist kontrolli, et unikaalne sõnajada vastab allolevaga."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "Sinu seadmele saadeti teavitus"
@@ -1736,25 +1730,25 @@
     "message": "Paroolide ajalugu"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "Genereerija ajalugu"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Tühjenda genereerija ajalugu"
   },
   "cleargGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Jätkates kustutatakse kõik kirjed genereerija ajaloost. Kas sa oled kindel, et soovid jätkata?"
   },
   "noPasswordsInList": {
     "message": "Puuduvad paroolid, mida kuvada."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Tühjenda ajalugu"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Siin ei ole midagi näidata"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Sa ei ole midagi viimat genereerinud"
   },
   "clear": {
     "message": "Tühjenda",
@@ -1794,10 +1788,10 @@
     "message": "Palun logi uuesti sisse."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Praegune sessioon"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Taotlus on ootel"
   },
   "logBackInOthersToo": {
     "message": "Palun logi uuesti sisse. Kui kasutad teisi Bitwardeni rakendusi, pead ka nendes uuesti sisse logima."
@@ -1876,31 +1870,31 @@
     "message": "Jätkatest logitakse sind ka käimasolevast sessioonist välja, mistõttu pead kontosse uuesti sisse logima. Lisaks võidakse küsida kaheastmelist kinnitust, kui see on sisse lülitatud. Teised kontoga ühendatud seadmed võivad jääda sisselogituks kuni üheks tunniks."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Uuest seadmest logiti sisse"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Lülita välja uuest seadmest sisse logimise kaitse"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Lülita sisse uuest seadmest sisse logimise kaitse"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
+    "message": "Jätka allpool, et lülitada välja kinnituskirjad, mis Bitwarden saadab iga kord, kui sa logid uue seadme kaudu."
   },
   "turnOnNewDeviceLoginProtectionModalDesc": {
-    "message": "Proceed below to have bitwarden send you verification emails when you login from a new device."
+    "message": "Jätka allpool, et lülitada sisse kinnituskirjad, mis Bitwarden saadab iga kord, kui sa logid sisse uuest seadmest."
   },
   "turnOffNewDeviceLoginProtectionWarning": {
-    "message": "With new device login protection turned off, anyone with your master password can access your account from any device. To protect your account without verification emails, set up two-step login."
+    "message": "Ilma uue seadme logimise kaitseta saab igaüks igast seadmest sinu ülemparooliga sisse logida. Oma konto kaitsmiseks ilma kinnituskirjadeta, sea sisse kahe-astmeline kinnitamine."
   },
   "accountNewDeviceLoginProtectionSaved": {
-    "message": "New device login protection changes saved"
+    "message": "Uue seadme sisselogimise kaitse muudatused salvestatud"
   },
   "sessionsDeauthorized": {
     "message": "Kõikidest seadmetest on välja logitud"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Selle konto omanik on $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -2160,7 +2154,7 @@
     "message": "Kaheastmelise kinnitamine aktiveerimine võib luua olukorra, kus sul on võimatu oma Bitwardeni kontosse sisse logida. Näiteks kui kaotad oma nutiseadme. Taastamise kood võimaldab aga kontole ligi pääseda ka olukorras, kus kaheastmelist kinnitamist ei ole võimalik läbi viia. Sellistel juhtudel ei saa ka Bitwardeni klienditugi sinu kontole ligipääsu taastada. Selle tõttu soovitame taastekoodi välja printida ja seda turvalises kohas hoida."
   },
   "yourSingleUseRecoveryCode": {
-    "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
+    "message": "Sinu ühekordseid taastamise koode saab kasutada selleks, et lülitada kahe-astmeline sisselogimine välja juhul, kui sa oled kaotanud juurdepääsu oma kahe-astmelise sisselogimise viisidele. Bitwarden soovitab sul kirjutada üles taastamise koodid ja hoiustada neid ohutus kohas."
   },
   "viewRecoveryCode": {
     "message": "Vaata taastamise koodi"
@@ -2201,16 +2195,16 @@
     "message": "Haldus"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Halda kogumikku"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Vaata kirjeid"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Muuda kirjeid"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
@@ -2414,7 +2408,7 @@
     "message": "Turvavõtme lugemisel tekkis tõrge. Proovi uuesti."
   },
   "twoFactorWebAuthnWarning1": {
-    "message": "Due to platform limitations, WebAuthn cannot be used on all Bitwarden applications. You should set up another two-step login provider so that you can access your account when WebAuthn cannot be used."
+    "message": "Platvormide piirangute tõttu ei saa WebAuthn'i kõikide Bitwardeni rakendustega kasutada. Võiksid seada sisse teise kahe-astmelise kinnitamise meetodi juhuks, kui WebAuthn'i ei saa kasutada."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Bitwardeni kaheastmelise logimise varukood"
@@ -2540,7 +2534,7 @@
     "message": "Avastatud on nõrgad paroolid"
   },
   "weakPasswordsFoundReportDesc": {
-    "message": "Me leidsime $COUNT$ eset sinu $VAULT$ nõrkade paroolidega. Sa peaksid vahetama need tugevamate vastu.",
+    "message": "Me leidsime $COUNT$ eset sinu $VAULT$st nõrkade paroolidega. Sa peaksid vahetama need tugevamate vastu.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2556,7 +2550,7 @@
     "message": "Hoidlas olevatest kirjetest ei leitud nõrku paroole."
   },
   "weakness": {
-    "message": "Weakness"
+    "message": "Nõrkusaste"
   },
   "reusedPasswordsReport": {
     "message": "Korduvate paroolide raport"
@@ -4094,7 +4088,7 @@
     "message": "Review login request"
   },
   "freeTrialEndPromptCount": {
-    "message": "Your free trial ends in $COUNT$ days.",
+    "message": "Sinu tasuta prooviaeg lõppeb $COUNT$ päeva pärast.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4103,7 +4097,7 @@
     }
   },
   "freeTrialEndPromptMultipleDays": {
-    "message": "$ORGANIZATION$, your free trial ends in $COUNT$ days.",
+    "message": "$ORGANIZATION$, sinu tasuta prooviaeg lõppeb $COUNT$ päeva pärast.",
     "placeholders": {
       "count": {
         "content": "$2",
@@ -4116,7 +4110,7 @@
     }
   },
   "freeTrialEndPromptTomorrow": {
-    "message": "$ORGANIZATION$, your free trial ends tomorrow.",
+    "message": "$ORGANIZATION$, sinu tasuta prooviaeg lõppeb homme.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4125,10 +4119,10 @@
     }
   },
   "freeTrialEndPromptTomorrowNoOrgName": {
-    "message": "Your free trial ends tomorrow."
+    "message": "Sinu tasuta prooviaeg lõppeb homme."
   },
   "freeTrialEndPromptToday": {
-    "message": "$ORGANIZATION$, your free trial ends today.",
+    "message": "$ORGANIZATION$, sinu tasuta prooviaeg lõppeb homme.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4137,16 +4131,16 @@
     }
   },
   "freeTrialEndingTodayWithoutOrgName": {
-    "message": "Your free trial ends today."
+    "message": "Sinu tasuta prooviaeg lõppeb täna."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Maksemeetodi lisamiseks vajuta siia."
   },
   "joinOrganization": {
     "message": "Liitu organisatsiooniga"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Liitu $ORGANIZATIONNAME$ organisatsiooniga",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -4188,7 +4182,7 @@
     "message": "Kui sa ei pääse oma kontole ühegi kaheastmeliste kinnitamise meetodi abiga ligi, saad selle välja lülitada. Selleks kasuta kaheastmelise kinnitamise tühistamise koodi."
   },
   "logInBelowUsingYourSingleUseRecoveryCode": {
-    "message": "Log in below using your single-use recovery code. This will turn off all two-step providers on your account."
+    "message": "Logi allpool sisse kasutades ühekordset taastamise koodi. See lülitab sinu kontol välja kõik kahe-astmelise kinnitamise meetodid."
   },
   "recoverAccountTwoStep": {
     "message": "Taasta kaheastmelise kinnitamise ligipääs"
@@ -4479,10 +4473,10 @@
     }
   },
   "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
+    "message": "Krüpteerimise võtme uuendamisega ei õnnestunud jätkata"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Muuda $LABEL$ lahtrit",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4491,7 +4485,7 @@
     }
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Paiguta $LABEL$ ümber. Kasuta nooli, et liigutada lahtrit üles või alla.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4500,7 +4494,7 @@
     }
   },
   "reorderFieldUp": {
-    "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ üles liigutatud, $INDEX$. kohale $LENGTH$-st",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4517,7 +4511,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ moved down, position $INDEX$ of $LENGTH$",
+    "message": "$LABEL$ alla liigutatud, $INDEX$. kohale $LENGTH$-st",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "Loo parool"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -7286,16 +7301,16 @@
     "message": "Launch Duo"
   },
   "turnOn": {
-    "message": "Turn on"
+    "message": "Lülita sisse"
   },
   "on": {
-    "message": "On"
+    "message": "Sees"
   },
   "off": {
-    "message": "Off"
+    "message": "Väljas"
   },
   "members": {
-    "message": "Members"
+    "message": "Liikmed"
   },
   "reporting": {
     "message": "Reporting"
@@ -7316,46 +7331,46 @@
     "message": "Bright Blue"
   },
   "green": {
-    "message": "Green"
+    "message": "Roheline"
   },
   "orange": {
-    "message": "Orange"
+    "message": "Oranž"
   },
   "lavender": {
-    "message": "Lavender"
+    "message": "Lavendel"
   },
   "yellow": {
-    "message": "Yellow"
+    "message": "Kollane"
   },
   "indigo": {
     "message": "Indigo"
   },
   "teal": {
-    "message": "Teal"
+    "message": "Sinakasroheline"
   },
   "salmon": {
-    "message": "Salmon"
+    "message": "Lõhe"
   },
   "pink": {
-    "message": "Pink"
+    "message": "Roosa"
   },
   "customColor": {
-    "message": "Custom Color"
+    "message": "Kohandatud Värv"
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "-- Vali --"
   },
   "multiSelectPlaceholder": {
-    "message": "-- Type to filter --"
+    "message": "-- Filtreerimiseks trüki siia --"
   },
   "multiSelectLoading": {
-    "message": "Retrieving options..."
+    "message": "Valikute hankimine..."
   },
   "multiSelectNotFound": {
-    "message": "No items found"
+    "message": "Ühtki kirjet ei leitud"
   },
   "multiSelectClearAll": {
-    "message": "Clear all"
+    "message": "Tühjenda kõik"
   },
   "toggleCharacterCount": {
     "message": "Toggle character count",
@@ -7366,14 +7381,14 @@
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
   "hide": {
-    "message": "Hide"
+    "message": "Peida"
   },
   "projects": {
-    "message": "Projects",
+    "message": "Projektid",
     "description": "Description for the Projects field."
   },
   "lastEdited": {
-    "message": "Last edited",
+    "message": "Viimati muudetud",
     "description": "The label for the date and time when a item was last edited."
   },
   "editSecret": {
@@ -7870,7 +7885,7 @@
     }
   },
   "domainNameTh": {
-    "message": "Name"
+    "message": "Nimi"
   },
   "domainStatusTh": {
     "message": "Status"
@@ -7978,7 +7993,7 @@
     "message": "Switch products"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "Tasuta organisatsioonidel võib olla kuni $SEATCOUNT$ liiget. Hangi tasuline plaan, et kutsuda rohkem liikmeid.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7987,7 +8002,7 @@
     }
   },
   "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Tasuta organisatsioonidel võib olla kuni $SEATCOUNT$ liiget. Selle arvu tõstmiseks kontakteeru selle organisatsiooni omanikuga.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

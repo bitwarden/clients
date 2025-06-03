@@ -31,6 +31,7 @@ import { DialogModule } from "../../dialog.module";
       </bit-callout>
     }
   `,
+  standalone: false,
 })
 class StoryDialogComponent {
   protected dialogs: { title: string; dialogs: SimpleDialogOptions[] }[] = [

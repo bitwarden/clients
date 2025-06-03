@@ -43,12 +43,9 @@ on any component.
 The persistence layer ensures that the popup will open at the same route as was active when it
 closed, provided that none of the lifetime expiration events have occurred.
 
-:::tip Excluding a route
-
-If a particular route should be excluded from the history and not persisted, add
-`doNotSaveUrl: true` to the `data` property on the route.
-
-:::
+> [!TIP]
+> If a particular route should be excluded from the history and not persisted, add
+> `doNotSaveUrl: true` to the `data` property on the route.
 
 ### View data persistence
 
@@ -85,13 +82,10 @@ const mySignal = this.viewCacheService.signal({
 mySignal.set("value")
 ```
 
-:::note Equality comparison
-
-By default, signals use `Object.is` to determine equality, and `set()` will only trigger updates if
-the updated value is not equal to the current signal state. See documentation
-[here](https://angular.dev/guide/signals#signal-equality-functions).
-
-:::
+> [!NOTE]
+> By default, signals use `Object.is` to determine equality, and `set()` will only trigger updates if
+> the updated value is not equal to the current signal state. See documentation
+> [here](https://angular.dev/guide/signals#signal-equality-functions).
 
 Putting this together, the most common implementation pattern would be:
 

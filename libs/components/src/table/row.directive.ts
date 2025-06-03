@@ -2,7 +2,6 @@ import { Directive, HostBinding, Input } from "@angular/core";
 
 @Directive({
   selector: "tr[bitRow]",
-  standalone: true,
 })
 export class RowDirective {
   @Input() alignContent: "top" | "middle" | "bottom" | "baseline" = "middle";

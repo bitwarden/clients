@@ -1,14 +1,15 @@
-import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
 
 import * as stories from "./breadcrumbs.stories";
 
 <Meta of={stories} />
 
-# Breadcrumbs
+```ts
+import { BreadcrumbsModule } from "@bitwarden/components";
+```
 
-Breadcrumbs are used to help users understand where they are in a products navigation. Typically
-Bitwarden uses this component to indicate the user's current location in a set of data organized in
-containers (Collections, Folders, or Projects).
+<Title />
+<Description />
 
 <Primary />
 <Controls />

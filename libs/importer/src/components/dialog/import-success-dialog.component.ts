@@ -22,7 +22,6 @@ export interface ResultList {
 
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {
