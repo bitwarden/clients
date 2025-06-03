@@ -32,3 +32,29 @@ export function toCipherTypeName(type: CipherType): keyof typeof CipherType | un
 
   return name;
 }
+
+/**
+ * @returns `true` if the value is a valid `CipherType`, `false` otherwise.
+ */
+export const isCipherType = (value: unknown): value is CipherType => {
+  return Object.values(CipherType).includes(value as CipherType);
+};
+
+/**
+ * Converts a value to a `CipherType` if it is valid, otherwise returns `null`.
+ */
+export const toCipherType = (value: unknown): CipherType | null => {
+  if (isCipherType(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const valueAsInt = parseInt(value, 10);
+
+    if (isCipherType(valueAsInt)) {
+      return valueAsInt;
+    }
+  }
+
+  return null;
+};
