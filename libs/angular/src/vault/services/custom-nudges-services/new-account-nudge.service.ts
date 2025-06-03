@@ -17,11 +17,11 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 @Injectable({
   providedIn: "root",
 })
-export class AutofillNudgeService extends DefaultSingleNudgeService {
+export class NewAccountNudgeService extends DefaultSingleNudgeService {
   vaultProfileService = inject(VaultProfileService);
   logService = inject(LogService);
 
-  nudgeStatus$(_: NudgeType, userId: UserId): Observable<NudgeStatus> {
+  nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
       catchError(() => {
         this.logService.error("Error getting profile creation date");
@@ -32,7 +32,7 @@ export class AutofillNudgeService extends DefaultSingleNudgeService {
 
     return combineLatest([
       profileDate$,
-      this.getNudgeStatus$(NudgeType.AutofillNudge, userId),
+      this.getNudgeStatus$(nudgeType, userId),
       of(Date.now() - THIRTY_DAYS_MS),
     ]).pipe(
       map(([profileCreationDate, status, profileCutoff]) => {

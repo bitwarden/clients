@@ -7,10 +7,9 @@ import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state
 import { UserId } from "@bitwarden/common/types/guid";
 
 import {
+  NewAccountNudgeService,
   HasItemsNudgeService,
   EmptyVaultNudgeService,
-  AutofillNudgeService,
-  DownloadBitwardenNudgeService,
   NewItemNudgeService,
   AccountSecurityNudgeService,
 } from "./custom-nudges-services";
@@ -55,6 +54,7 @@ export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
 })
 export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
+  private newAcctNudgeService = inject(NewAccountNudgeService);
 
   /**
    * Custom nudge services to use for specific nudge types
@@ -65,8 +65,9 @@ export class NudgesService {
     [NudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
-    [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
-    [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
+    [NudgeType.AutofillNudge]: this.newAcctNudgeService,
+    [NudgeType.DownloadBitwarden]: this.newAcctNudgeService,
+    [NudgeType.GeneratorNudgeStatus]: this.newAcctNudgeService,
     [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,
     [NudgeType.NewCardItemStatus]: this.newItemNudgeService,
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
