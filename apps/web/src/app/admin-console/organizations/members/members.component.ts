@@ -95,7 +95,6 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
-  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
   userType = OrganizationUserType;
@@ -747,13 +746,23 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
     );
 
+    if (!user || !user.email || !user.id) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("orgUserDetailsNotFound"),
+      });
+
+      return;
+    }
+
     if (changePasswordRefactorFlag) {
       const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
         data: {
           name: this.userNamePipe.transform(user),
-          email: user != null ? user.email : null,
+          email: user.email,
           organizationId: this.organization.id as OrganizationId,
-          organizationUserId: user != null ? user.id : null,
+          organizationUserId: user.id,
         },
       });
 
@@ -768,9 +777,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const dialogRef = ResetPasswordComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
-        email: user != null ? user.email : null,
+        email: user.email,
         organizationId: this.organization.id as OrganizationId,
-        id: user != null ? user.id : null,
+        id: user.id,
       },
     });
 
