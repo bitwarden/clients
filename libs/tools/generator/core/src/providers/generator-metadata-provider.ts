@@ -21,6 +21,8 @@ import {
   Algorithms,
   Types,
 } from "../metadata";
+import sdkPassphrase from "../metadata/password/sdk-eff-word-list";
+import sdkPassword from "../metadata/password/sdk-random-password";
 import { AvailableAlgorithmsConstraint, availableAlgorithms } from "../policies";
 import { CredentialPreference } from "../types";
 import {
@@ -32,8 +34,6 @@ import {
 } from "../types/metadata-request";
 
 import { PREFERENCES } from "./credential-preferences";
-import sdkPassword from "../metadata/password/sdk-random-password";
-import sdkPassphrase from "../metadata/password/sdk-eff-word-list";
 
 /** Surfaces contextual information to credential generators */
 export class GeneratorMetadataProvider {
