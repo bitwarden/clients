@@ -532,7 +532,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  async putShareCiphers(request: CipherBulkShareRequest): Promise<CipherResponse[]> {
+  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
     return await this.send("PUT", "/ciphers/share", request, true, true);
   }
 
