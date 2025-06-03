@@ -37,7 +37,7 @@ export class SideNavComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Monitor breakpoint changes and close nav when switching to small viewport
     this.breakpointObserver
-      .observe([Breakpoints.Small, Breakpoints.XSmall])
+      .observe([Breakpoints.XSmall])
       .pipe(distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((result) => {
         if (result.matches) {
