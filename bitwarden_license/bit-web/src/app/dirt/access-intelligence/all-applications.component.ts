@@ -21,7 +21,6 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -33,7 +32,7 @@ import {
   TableDataSource,
   ToastService,
 } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/tools-card";
+import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -42,7 +41,6 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
-  standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
@@ -74,13 +72,8 @@ export class AllApplicationsComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
-  isCriticalAppsFeatureEnabled = false;
 
   async ngOnInit() {
-    this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
-
     const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 

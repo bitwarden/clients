@@ -27,7 +27,6 @@ import { CipherAttachmentsComponent } from "./cipher-attachments.component";
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
 @Component({
-  standalone: true,
   selector: "app-download-attachment",
   template: "",
 })

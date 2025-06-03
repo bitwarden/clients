@@ -94,7 +94,6 @@ const MY_VAULT_ID = "MyVault";
 @Component({
   selector: "assign-collections",
   templateUrl: "assign-collections.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -506,7 +505,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   private async updateAssignedCollections(cipherView: CipherView, userId: UserId) {
     const { collections } = this.formGroup.getRawValue();
     cipherView.collectionIds = collections.map((i) => i.id as CollectionId);
-    const cipher = await this.cipherService.encrypt(cipherView, userId);
+    const { cipher } = await this.cipherService.encrypt(cipherView, userId);
     if (this.params.isSingleCipherAdmin) {
       await this.cipherService.saveCollectionsWithServerAdmin(cipher);
     } else {

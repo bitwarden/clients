@@ -17,7 +17,6 @@ export type NavButton = {
 @Component({
   selector: "popup-tab-navigation",
   templateUrl: "popup-tab-navigation.component.html",
-  standalone: true,
   imports: [CommonModule, LinkModule, RouterModule, JslibModule, IconModule],
   host: {
     class: "tw-block tw-h-full tw-w-full tw-flex tw-flex-col",

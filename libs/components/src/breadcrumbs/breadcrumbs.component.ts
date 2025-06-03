@@ -8,10 +8,14 @@ import { MenuModule } from "../menu";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 
+/**
+ * Breadcrumbs are used to help users understand where they are in a products navigation. Typically
+ * Bitwarden uses this component to indicate the user's current location in a set of data organized in
+ * containers (Collections, Folders, or Projects).
+ */
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  standalone: true,
   imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
 })
 export class BreadcrumbsComponent {

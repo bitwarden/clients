@@ -9,7 +9,6 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
 
 @Component({
   selector: "app-table-row-scrollable",
-  standalone: true,
   imports: [CommonModule, JslibModule, TableModule, SharedModule, PipesModule, MenuModule],
   templateUrl: "./app-table-row-scrollable.component.html",
 })
@@ -18,7 +17,6 @@ export class AppTableRowScrollableComponent {
   @Input() showRowMenuForCriticalApps: boolean = false;
   @Input() showRowCheckBox: boolean = false;
   @Input() selectedUrls: Set<string> = new Set<string>();
-  @Input() isCriticalAppsFeatureEnabled: boolean = false;
   @Input() isDrawerIsOpenForThisRecord!: (applicationName: string) => boolean;
   @Input() showAppAtRiskMembers!: (applicationName: string) => void;
   @Input() unmarkAsCriticalApp!: (applicationName: string) => void;

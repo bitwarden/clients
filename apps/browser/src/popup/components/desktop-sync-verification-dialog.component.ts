@@ -17,7 +17,6 @@ export type DesktopSyncVerificationDialogParams = {
 
 @Component({
   templateUrl: "desktop-sync-verification-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit {

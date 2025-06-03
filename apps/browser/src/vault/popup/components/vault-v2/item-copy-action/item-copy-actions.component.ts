@@ -19,7 +19,6 @@ type CipherItem = {
 };
 
 @Component({
-  standalone: true,
   selector: "app-item-copy-actions",
   templateUrl: "item-copy-actions.component.html",
   imports: [

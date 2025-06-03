@@ -10,7 +10,6 @@ let nextId = 0;
 
 @Component({
   selector: "bit-label",
-  standalone: true,
   templateUrl: "label.component.html",
   imports: [CommonModule],
 })

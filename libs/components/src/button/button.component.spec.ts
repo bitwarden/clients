@@ -85,6 +85,7 @@ describe("Button", () => {
 
     <button id="disabled" type="button" bitButton disabled>Button</button>
   `,
+  standalone: false,
 })
 class TestApp {
   buttonType: string;

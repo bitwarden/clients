@@ -13,7 +13,6 @@ let nextId = 0;
 @Component({
   selector: "bit-radio-group",
   templateUrl: "radio-group.component.html",
-  standalone: true,
   imports: [NgTemplateOutlet, I18nPipe],
 })
 export class RadioGroupComponent implements ControlValueAccessor {

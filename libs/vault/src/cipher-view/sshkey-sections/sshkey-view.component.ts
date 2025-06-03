@@ -17,7 +17,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
 @Component({
   selector: "app-sshkey-view",
   templateUrl: "sshkey-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
