@@ -8,7 +8,6 @@ import { ProductSwitcherModule } from "./product-switcher/product-switcher.modul
 @Component({
   selector: "app-layout",
   templateUrl: "web-layout.component.html",
-  standalone: true,
   imports: [CommonModule, LayoutComponent, ProductSwitcherModule],
 })
 export class WebLayoutComponent {

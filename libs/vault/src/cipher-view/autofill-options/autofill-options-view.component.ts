@@ -21,7 +21,6 @@ import {
 @Component({
   selector: "app-autofill-options-view",
   templateUrl: "autofill-options-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

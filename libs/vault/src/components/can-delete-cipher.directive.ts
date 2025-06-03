@@ -9,7 +9,6 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
  */
 @Directive({
   selector: "[appCanDeleteCipher]",
-  standalone: true,
 })
 export class CanDeleteCipherDirective implements OnDestroy {
   private destroy$ = new Subject<void>();

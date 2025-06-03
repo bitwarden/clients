@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Použít toto heslo"
   },
+  "useThisPassphrase": {
+    "message": "Použít tuto heslovou frázi"
+  },
   "useThisUsername": {
     "message": "Použít toto uživatelské jméno"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Všechny Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Dosažen maximální počet přístupů",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Ve výchozím nastavení skrýt text"

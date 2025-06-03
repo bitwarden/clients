@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
+  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
 
   /* Auth */
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
@@ -20,9 +21,7 @@ export enum FeatureFlag {
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
-  DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   EnableNewCardCombinedExpiryAutofill = "enable-new-card-combined-expiry-autofill",
-  IdpAutoSubmitLogin = "idp-auto-submit-login",
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -30,13 +29,11 @@ export enum FeatureFlag {
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
   PM12276_BreadcrumbEventLogs = "pm-12276-breadcrumbing-for-business-features",
-  PM18794_ProviderPaymentMethod = "pm-18794-provider-payment-method",
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
 
   /* Data Insights and Reporting */
-  CriticalApps = "pm-14466-risk-insights-critical-application",
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
 
   /* Key Management */
@@ -81,18 +78,16 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
+  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
-  [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
-  [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
 
   /* Data Insights and Reporting */
-  [FeatureFlag.CriticalApps]: FALSE,
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
@@ -116,7 +111,6 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM12276_BreadcrumbEventLogs]: FALSE,
-  [FeatureFlag.PM18794_ProviderPaymentMethod]: FALSE,
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,

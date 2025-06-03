@@ -9,7 +9,6 @@ import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
 @Component({
   selector: "send-file-popout-dialog",
   templateUrl: "./send-file-popout-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, CommonModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class SendFilePopoutDialogComponent {
