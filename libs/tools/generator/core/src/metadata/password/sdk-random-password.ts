@@ -2,7 +2,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { PublicClassifier } from "@bitwarden/common/tools/public-classifier";
 import { deepFreeze } from "@bitwarden/common/tools/util";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkPasswordRandomizer } from "../../engine";
 import { DynamicPasswordPolicyConstraints, passwordLeastPrivilege } from "../../policies";
@@ -31,7 +30,7 @@ const sdkPassword: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
-      return new SdkPasswordRandomizer(new BitwardenClient(), Date.now); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(dependencies.sdk, Date.now); // @TODO hook up a real SDK client
     },
   },
   profiles: {
