@@ -16,7 +16,6 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 const blockedURISettingsRoute = "/blocked-domains";
 
 @Component({
-  standalone: true,
   imports: [
     BannerModule,
     CommonModule,

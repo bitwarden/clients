@@ -109,7 +109,6 @@ interface OnSuccessArgs {
 
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
-  standalone: true,
   imports: [BillingSharedModule],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
@@ -607,6 +606,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     return (
       plan.PasswordManager.additionalStoragePricePerGb *
+      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
     );
   }

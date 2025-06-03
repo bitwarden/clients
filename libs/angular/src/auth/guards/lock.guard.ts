@@ -11,11 +11,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ClientType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeyService } from "@bitwarden/key-management";
 
 /**
@@ -33,7 +31,6 @@ export function lockGuard(): CanActivateFn {
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
-    const platformUtilService = inject(PlatformUtilsService);
     const messagingService = inject(MessagingService);
     const router = inject(Router);
     const userVerificationService = inject(UserVerificationService);
@@ -59,12 +56,7 @@ export function lockGuard(): CanActivateFn {
       return false;
     }
 
-    // If legacy user on web, redirect to migration page
     if (await keyService.isLegacyUser()) {
-      if (platformUtilService.getClientType() === ClientType.Web) {
-        return router.createUrlTree(["migrate-legacy-encryption"]);
-      }
-      // Log out legacy users on other clients
       messagingService.send("logout");
       return false;
     }
@@ -84,7 +76,7 @@ export function lockGuard(): CanActivateFn {
     }
 
     // If authN user with TDE directly navigates to lock, reject that navigation
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(activeUser.id));
     if (tdeEnabled && !everHadUserKey) {
       return false;
     }

@@ -17,7 +17,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-download-attachment",
   templateUrl: "./download-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, IconButtonModule],

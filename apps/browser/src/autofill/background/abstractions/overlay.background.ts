@@ -4,7 +4,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { InlineMenuFillTypes } from "../../enums/autofill-overlay.enum";
+import { InlineMenuFillType } from "../../enums/autofill-overlay.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { PageDetail } from "../../services/abstractions/autofill.service";
 
@@ -43,7 +43,7 @@ export type UpdateOverlayCiphersParams = {
 export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
-  inlineMenuFillType?: InlineMenuFillTypes;
+  inlineMenuFillType?: InlineMenuFillType;
   tabId?: number;
   frameId?: number;
   accountCreationFieldType?: string;

@@ -9,7 +9,6 @@ import { LooseComponentsModule, SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "org-vault-export.component.html",
-  standalone: true,
   imports: [SharedModule, ExportComponent, LooseComponentsModule],
 })
 export class OrganizationVaultExportComponent implements OnInit {

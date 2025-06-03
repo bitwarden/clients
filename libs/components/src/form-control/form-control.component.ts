@@ -14,7 +14,6 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
 @Component({
   selector: "bit-form-control",
   templateUrl: "form-control.component.html",
-  standalone: true,
   imports: [NgClass, TypographyDirective, I18nPipe],
 })
 export class FormControlComponent {
@@ -40,7 +39,7 @@ export class FormControlComponent {
 
   @HostBinding("class") get classes() {
     return []
-      .concat(this.inline ? ["tw-inline-block", "tw-mr-4"] : ["tw-block"])
+      .concat(this.inline ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
       .concat(this.disableMargin ? [] : ["tw-mb-4"]);
   }
 

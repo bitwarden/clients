@@ -36,7 +36,6 @@ export enum WebVaultGeneratorDialogAction {
 @Component({
   selector: "web-vault-generator-dialog",
   templateUrl: "./web-generator-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule, I18nPipe],
 })
 export class WebVaultGeneratorDialogComponent {

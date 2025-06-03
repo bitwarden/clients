@@ -132,15 +132,13 @@ describe("DefaultSdkService", () => {
           );
           keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
-          const subject = new BehaviorSubject<Rc<BitwardenClient> | undefined>(undefined);
-          service.userClient$(userId).subscribe(subject);
-          await new Promise(process.nextTick);
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1);
 
           userKey$.next(undefined);
-          await new Promise(process.nextTick);
+          await userClientTracker.expectCompletion();
 
           expect(mockClient.free).toHaveBeenCalledTimes(1);
-          expect(subject.value).toBe(undefined);
         });
       });
 

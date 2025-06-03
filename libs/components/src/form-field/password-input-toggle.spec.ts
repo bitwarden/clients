@@ -25,6 +25,7 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
       </bit-form-field>
     </form>
   `,
+  standalone: false,
 })
 class TestFormFieldComponent {}
 

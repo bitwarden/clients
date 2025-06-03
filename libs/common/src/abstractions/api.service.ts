@@ -208,7 +208,7 @@ export abstract class ApiService {
   deleteManyCiphersAdmin: (request: CipherBulkDeleteRequest) => Promise<any>;
   putMoveCiphers: (request: CipherBulkMoveRequest) => Promise<any>;
   putShareCipher: (id: string, request: CipherShareRequest) => Promise<CipherResponse>;
-  putShareCiphers: (request: CipherBulkShareRequest) => Promise<any>;
+  putShareCiphers: (request: CipherBulkShareRequest) => Promise<ListResponse<CipherResponse>>;
   putCipherCollections: (
     id: string,
     request: CipherCollectionsRequest,
