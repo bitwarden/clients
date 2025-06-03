@@ -57,7 +57,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
-  RestrictedItemTypesPolicy = "pm-16442-restricted-item-types-policy",
+  RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -104,7 +104,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.RestrictedItemTypesPolicy]: true,
+  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
@@ -138,9 +138,9 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  // if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
-  return DefaultFeatureFlagValue[flag];
-  // }
+  if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
+    return DefaultFeatureFlagValue[flag];
+  }
 
-  // return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
+  return serverConfig.featureStates[flag] as FeatureFlagValueType<Flag>;
 }
