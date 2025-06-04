@@ -2213,6 +2213,9 @@
   "disable": {
     "message": "Turn off"
   },
+  "orgUserDetailsNotFound": {
+    "message": "Org user details not found"
+  },
   "revokeAccess": {
     "message": "Revoke access"
   },
