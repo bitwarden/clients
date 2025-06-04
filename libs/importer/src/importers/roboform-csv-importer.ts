@@ -30,8 +30,10 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
       cipher.login.password = this.getValueOrDefault(value.Pwd);
       cipher.login.uris = this.makeUriArray(value.Url);
 
-      if (!this.isNullOrWhitespace(value.Rf_fields)) {
-        let fields: string[] = [value.Rf_fields];
+      if (!this.isNullOrWhitespace(value.Rf_fields) || !this.isNullOrWhitespace(value.RfFieldsV2)) {
+        let fields: string[] = [value.Rf_fields, value.RfFieldsV2].filter(
+          (f) => !this.isNullOrWhitespace(f),
+        );
         if (value.__parsed_extra != null && value.__parsed_extra.length > 0) {
           fields = fields.concat(value.__parsed_extra);
         }
