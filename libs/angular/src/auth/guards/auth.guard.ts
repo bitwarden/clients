@@ -76,6 +76,22 @@ export const authGuard: CanActivateFn = async (
   }
 
   if (
+    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    const setInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
+
+    const route = setInitialPasswordRefactorFlagOn
+      ? "/set-initial-password"
+      : "/update-temp-password";
+
+    return router.createUrlTree([route]);
+  }
+
+  if (
     forceSetPasswordReason !== ForceSetPasswordReason.None &&
     !routerState.url.includes("update-temp-password")
   ) {
