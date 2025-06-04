@@ -30,7 +30,6 @@ import {
 } from "./set-password-jit.service.abstraction";
 
 @Component({
-  standalone: true,
   selector: "auth-set-password-jit",
   templateUrl: "set-password-jit.component.html",
   imports: [CommonModule, InputPasswordComponent, JslibModule],

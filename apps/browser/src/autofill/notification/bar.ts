@@ -524,6 +524,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
   const resolvedType = resolveNotificationType(notificationBarIframeInitData);
   const headerMessage = getConfirmationHeaderMessage(i18n, resolvedType, error);
   const notificationTestId = getNotificationTestId(resolvedType, true);
+  appendHeaderMessageToTitle(headerMessage);
 
   globalThis.setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 5000);
 
