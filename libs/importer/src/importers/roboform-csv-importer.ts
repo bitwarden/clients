@@ -55,14 +55,6 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
             return;
           }
           const key = parts[0] === "-no-name-" ? null : parts[0];
-          if (
-            key === "User ID$" ||
-            key === "Password$" ||
-            key === "TOTP KEY$" ||
-            key === "Script$"
-          ) {
-            return;
-          }
           const val = parts[4];
           this.processKvp(cipher, key, val);
         });
