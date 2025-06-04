@@ -30,7 +30,7 @@ const sdkPassword: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
-      return new SdkPasswordRandomizer(dependencies.sdk, Date.now); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(dependencies.sdk, Date.now);
     },
   },
   profiles: {
