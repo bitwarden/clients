@@ -110,12 +110,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
-  private organizationUsersCount = 0;
-
-  get occupiedSeatCount(): number {
-    return this.organizationUsersCount;
-  }
-
   constructor(
     apiService: ApiService,
     i18nService: I18nService,
@@ -220,7 +214,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           );
 
           this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
-          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 
@@ -498,7 +491,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         kind: "Add",
         organizationId: this.organization.id,
         allOrganizationUserEmails: this.dataSource.data?.map((user) => user.email) ?? [],
-        occupiedSeatCount: this.occupiedSeatCount,
+        occupiedSeatCount: this.dataSource.data.length,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
       },
     });
@@ -532,7 +525,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async invite() {
-    if (this.organization.hasReseller && this.organization.seats === this.occupiedSeatCount) {
+    if (this.organization.hasReseller && this.organization.seats === this.dataSource.data.length) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("seatLimitReached"),
@@ -543,11 +536,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     }
 
     if (
-      this.occupiedSeatCount === this.organization.seats &&
+      this.dataSource.data.length === this.organization.seats &&
       isFixedSeatPlan(this.organization.productTierType)
     ) {
       await this.handleSeatLimitForFixedTiers();
-
       return;
     }
 
