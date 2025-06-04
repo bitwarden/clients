@@ -5,7 +5,8 @@ import { Opaque } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { LogoutReason } from "@bitwarden/logout";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import {

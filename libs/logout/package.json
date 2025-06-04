@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/logout",
+  "version": "0.0.1",
+  "description": "Services, functions, and types for logging out of Bitwarden applications",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "auth"
+}
