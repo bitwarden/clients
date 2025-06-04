@@ -11,7 +11,7 @@ pub mod passwords {
     pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
     /// Fetch the stored password from the keychain.
-    /// Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the password does not exist.
+    /// Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
     #[napi]
     pub async fn get_password(service: String, account: String) -> napi::Result<String> {
         desktop_core::password::get_password(&service, &account)
@@ -32,7 +32,7 @@ pub mod passwords {
     }
 
     /// Delete the stored password from the keychain.
-    /// Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the password does not exist.
+    /// Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
     #[napi]
     pub async fn delete_password(service: String, account: String) -> napi::Result<()> {
         desktop_core::password::delete_password(&service, &account)

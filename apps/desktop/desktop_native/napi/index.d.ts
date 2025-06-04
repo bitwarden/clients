@@ -8,14 +8,14 @@ export declare namespace passwords {
   export const PASSWORD_NOT_FOUND: string
   /**
    * Fetch the stored password from the keychain.
-   * Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the password does not exist.
+   * Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
    */
   export function getPassword(service: string, account: string): Promise<string>
   /** Save the password to the keychain. Adds an entry if none exists otherwise updates the existing entry. */
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /**
    * Delete the stored password from the keychain.
-   * Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the password does not exist.
+   * Throws {@link Error} with message {@link PASSWORD_NOT_FOUND} if the password does not exist.
    */
   export function deletePassword(service: string, account: string): Promise<void>
   /** Checks if the os secure storage is available */
