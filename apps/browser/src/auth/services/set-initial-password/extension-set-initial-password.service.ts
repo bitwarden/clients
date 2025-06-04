@@ -1,9 +1,10 @@
+import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
+
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   DefaultSetInitialPasswordService,
-  SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUserType,
 } from "@bitwarden/auth/angular";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -13,13 +14,11 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-import { RouterService } from "../../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
+import { postLogoutMessageListener$ } from "../../../auth/popup/utils/post-logout-message-listener";
 
-export class WebSetInitialPasswordService
+export class ExtensionSetInitialPasswordService
   extends DefaultSetInitialPasswordService
   implements SetInitialPasswordService
 {
@@ -35,8 +34,7 @@ export class WebSetInitialPasswordService
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
-    private routerService: RouterService,
+    private router: Router,
   ) {
     super(
       apiService,
@@ -53,16 +51,17 @@ export class WebSetInitialPasswordService
     );
   }
 
-  override async setInitialPassword(
-    credentials: SetInitialPasswordCredentials,
-    userType: SetInitialPasswordUserType,
-    userId: UserId,
-  ) {
-    await super.setInitialPassword(credentials, userType, userId);
+  override async logoutAndOptionallyNavigate() {
+    // start listening for "switchAccountFinish" or "doneLoggingOut"
+    const messagePromise = firstValueFrom(postLogoutMessageListener$);
+    this.messagingService.send("logout");
 
-    // SSO JIT accepts org invites when setting their MP, meaning
-    // we can clear the deep linked url for accepting it.
-    await this.routerService.getAndClearLoginRedirectUrl();
-    await this.acceptOrganizationInviteService.clearOrganizationInvitation();
+    // wait for messages
+    const command = await messagePromise;
+
+    // doneLoggingOut already has a message handler that will navigate us
+    if (command === "switchAccountFinish") {
+      await this.router.navigate(["/"]);
+    }
   }
 }

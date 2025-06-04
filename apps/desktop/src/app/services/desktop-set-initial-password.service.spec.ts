@@ -5,7 +5,6 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "@bitwarden/auth/angular";
 import {
@@ -32,42 +31,42 @@ describe("DesktopSetInitialPasswordService", () => {
   let sut: SetInitialPasswordService;
 
   let apiService: MockProxy<ApiService>;
-  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
-  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let keyService: MockProxy<KeyService>;
+  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let messagingService: MockProxy<MessagingService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
-  let messagingService: MockProxy<MessagingService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
-    masterPasswordApiService = mock<MasterPasswordApiService>();
-    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    messagingService = mock<MessagingService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    messagingService = mock<MessagingService>();
 
     sut = new DesktopSetInitialPasswordService(
       apiService,
-      masterPasswordApiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
+      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
-      messagingService,
     );
   });
 
@@ -88,7 +87,7 @@ describe("DesktopSetInitialPasswordService", () => {
 
     beforeEach(() => {
       userId = "userId" as UserId;
-      userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
       protectedUserKey = [userKey, userKeyEncString];
