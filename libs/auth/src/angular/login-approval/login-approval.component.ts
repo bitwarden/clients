@@ -40,7 +40,6 @@ export interface LoginApprovalDialogParams {
 @Component({
   selector: "login-approval",
   templateUrl: "login-approval.component.html",
-  standalone: true,
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
 export class LoginApprovalComponent implements OnInit, OnDestroy {

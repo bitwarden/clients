@@ -20,7 +20,6 @@ import { ImportCollectionAdminService } from "./import-collection-admin.service"
 
 @Component({
   templateUrl: "org-import.component.html",
-  standalone: true,
   imports: [SharedModule, ImportComponent, LooseComponentsModule],
   providers: [
     {

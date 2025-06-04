@@ -66,7 +66,6 @@ enum VaultState {
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
-  standalone: true,
   imports: [
     BlockedInjectionBanner,
     PopupPageComponent,

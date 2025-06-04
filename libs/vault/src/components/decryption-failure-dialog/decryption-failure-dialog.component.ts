@@ -20,7 +20,6 @@ export type DecryptionFailureDialogParams = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-decryption-failure-dialog",
   templateUrl: "./decryption-failure-dialog.component.html",
   imports: [

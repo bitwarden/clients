@@ -15,7 +15,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-authenticator",
   templateUrl: "two-factor-auth-authenticator.component.html",
   imports: [

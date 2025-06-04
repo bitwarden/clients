@@ -28,7 +28,6 @@ import { TwoFactorAuthEmailComponentCacheService } from "./two-factor-auth-email
 import { TwoFactorAuthEmailComponentService } from "./two-factor-auth-email-component.service";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
   imports: [
