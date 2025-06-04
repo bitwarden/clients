@@ -180,6 +180,9 @@ jobs:
     name: Check if Web artifact is present
     runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
+      id-token: write
     env:
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment_artifact }}
     outputs:
@@ -209,11 +212,13 @@ jobs:
           branch: ${{ inputs.branch-or-tag }}
           artifacts: ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Login to Azure
-        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets for Build trigger
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
@@ -222,6 +227,9 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: 'Trigger build web for missing branch/tag ${{ inputs.branch-or-tag }}'
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
@@ -277,7 +285,9 @@ jobs:
           event: 'start'
           commit-sha: ${{ needs.artifact-check.outputs.artifact_build_commit }}
           url: https://github.com/bitwarden/clients/actions/runs/${{ github.run_id }}
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
 
   update-summary:
     name: Display commit
@@ -431,4 +441,6 @@ jobs:
           url: https://github.com/bitwarden/clients/actions/runs/${{ github.run_id }}
           commit-sha: ${{ needs.artifact-check.outputs.artifact_build_commit }}
           update-ts: ${{ needs.notify-start.outputs.ts }}
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

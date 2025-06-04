@@ -10,6 +10,9 @@ jobs:
   crowdin-sync:
     name: Autosync
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
@@ -21,22 +24,20 @@ jobs:
           - app_name: web
             crowdin_project_id: "308189"
     steps:
-      - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
-        id: app-token
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          app-id: ${{ secrets.BW_GHAPP_ID }}
-          private-key: ${{ secrets.BW_GHAPP_KEY }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Get KV secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          token: ${{ steps.app-token.outputs.token }}
-
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          keyvault: gh-org-bitwarden
+          secrets: "BW_GHAPP_ID,BW_GHAPP_KEY"
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -44,6 +45,21 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token, github-gpg-private-key, github-gpg-private-key-passphrase"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_KEY }}
+
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Download translations
         uses: bitwarden/gh-actions/crowdin@main

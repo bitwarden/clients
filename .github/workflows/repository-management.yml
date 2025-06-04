@@ -63,14 +63,35 @@ jobs:
     name: Cut branch
     if: ${{ needs.setup.outputs.branch == 'rc' }}
     needs: setup
+    permissions:
+      contents: write
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get KV secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW_GHAPP_ID,BW_GHAPP_KEY"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Generate GH App token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
-          app-id: ${{ secrets.BW_GHAPP_ID }}
-          private-key: ${{ secrets.BW_GHAPP_KEY }}
+          app-id: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_KEY }}
 
       - name: Check out target ref
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -102,6 +123,9 @@ jobs:
     needs:
       - cut_branch
       - setup
+    permissions:
+      contents: write
+      id-token: write
     outputs:
       version_browser: ${{ steps.set-final-version-output.outputs.version_browser }}
       version_cli: ${{ steps.set-final-version-output.outputs.version_cli }}
@@ -114,12 +138,30 @@ jobs:
         with:
           version: ${{ inputs.version_number_override }}
 
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get KV secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW_GHAPP_ID,BW_GHAPP_KEY"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Generate GH App token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
-          app-id: ${{ secrets.BW_GHAPP_ID }}
-          private-key: ${{ secrets.BW_GHAPP_KEY }}
+          app-id: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_KEY }}
 
       - name: Check out branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -450,13 +492,33 @@ jobs:
     needs:
       - bump_version
       - setup
+    permissions:
+      contents: write
+      id-token: write
     steps:
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get KV secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW_GHAPP_ID,BW_GHAPP_KEY"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
       - name: Generate GH App token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
         id: app-token
         with:
-          app-id: ${{ secrets.BW_GHAPP_ID }}
-          private-key: ${{ secrets.BW_GHAPP_KEY }}
+          app-id: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW_GHAPP_KEY }}
 
       - name: Check out main branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

@@ -46,6 +46,11 @@ defaults:
   run:
     working-directory: apps/cli
 
+permissions:
+  actions: read
+  contents: read
+  packages: read
+
 jobs:
   setup:
     name: Setup
@@ -77,9 +82,9 @@ jobs:
       - name: Check secrets
         id: check-secrets
         env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
-          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
   cli:
@@ -199,6 +204,9 @@ jobs:
             { build_prefix: "bit", artifact_prefix: "", readable: "commercial license" }
           ]
     runs-on: windows-2022
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
     env:
@@ -283,11 +291,13 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Login to Azure
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -300,6 +310,9 @@ jobs:
             code-signing-tenant-id,
             code-signing-client-secret,
             code-signing-cert-name"
+
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install
         run: npm ci
@@ -485,6 +498,9 @@ jobs:
     name: Check for failures
     if: always()
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - setup
       - cli
@@ -499,11 +515,14 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Login to Azure - Prod Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Azure Login
+        id: azure-login
         if: failure()
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -512,6 +531,10 @@ jobs:
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
+
+      - name: Azure Logout
+        if: failure()
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure
         uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
