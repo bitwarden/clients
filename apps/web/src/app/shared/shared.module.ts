@@ -32,9 +32,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-// Register the locales for the application
-import "./locales";
-
 /**
  * This NgModule should contain the most basic shared directives, pipes, and components. They
  * should be widely used by other modules to be considered for adding to this module. If in doubt

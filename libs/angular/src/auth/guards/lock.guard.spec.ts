@@ -44,7 +44,7 @@ describe("lockGuard", () => {
 
     const keyService: MockProxy<KeyService> = mock<KeyService>();
     keyService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
-    keyService.everHadUserKey$ = of(setupParams.everHadUserKey);
+    keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey));
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
     platformUtilService.getClientType.mockReturnValue(setupParams.clientType);
@@ -79,7 +79,6 @@ describe("lockGuard", () => {
           { path: "", component: EmptyComponent },
           { path: "lock", component: EmptyComponent, canActivate: [lockGuard()] },
           { path: "non-lock-route", component: EmptyComponent },
-          { path: "migrate-legacy-encryption", component: EmptyComponent },
         ]),
       ],
       providers: [
@@ -180,18 +179,6 @@ describe("lockGuard", () => {
     await router.navigate(["lock"]);
     expect(router.url).toBe("/");
     expect(messagingService.send).toHaveBeenCalledWith("logout");
-  });
-
-  it("should send the user to migrate-legacy-encryption if they are a legacy user on a web client", async () => {
-    const { router } = setup({
-      authStatus: AuthenticationStatus.Locked,
-      canLock: true,
-      isLegacyUser: true,
-      clientType: ClientType.Web,
-    });
-
-    await router.navigate(["lock"]);
-    expect(router.url).toBe("/migrate-legacy-encryption");
   });
 
   it("should allow navigation to the lock route when device trust is supported, the user has a MP, and the user is coming from the login-initiated page", async () => {

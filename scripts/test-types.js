@@ -19,7 +19,7 @@ function getFiles(dir) {
 const files = getFiles(path.join(__dirname, "..", "libs"))
   .filter((file) => {
     const name = path.basename(file);
-    return name === "tsconfig.spec.json";
+    return name === "tsconfig.json";
   })
   .filter((path) => {
     // Exclude shared since it's not actually a library

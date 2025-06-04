@@ -7,7 +7,6 @@ import { ImportComponent } from "@bitwarden/importer-ui";
 
 @Component({
   templateUrl: "import-desktop.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

@@ -15,7 +15,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 @Component({
   templateUrl: "vault-settings-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

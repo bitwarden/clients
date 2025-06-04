@@ -85,11 +85,13 @@ export abstract class KeyService {
    * (such as auto, biometrics, or pin)
    */
   abstract refreshAdditionalKeys(): Promise<void>;
+
   /**
-   * Observable value that returns whether or not the currently active user has ever had auser key,
+   * Observable value that returns whether or not the user has ever had a userKey,
    * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
    */
-  abstract everHadUserKey$: Observable<boolean>;
+  abstract everHadUserKey$(userId: UserId): Observable<boolean>;
+
   /**
    * Retrieves the user key
    * @param userId The desired user
@@ -126,10 +128,11 @@ export abstract class KeyService {
    * @param keySuffix The desired version of the user's key to retrieve
    * @param userId The desired user
    * @returns The user key
+   * @throws Error when userId is null or undefined.
    */
   abstract getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId: string,
   ): Promise<UserKey | null>;
 
   /**

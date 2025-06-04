@@ -547,12 +547,6 @@
     "message": "Inklappen/uitklappen",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Wachtwoord genereren"
-  },
-  "generatePassphrase": {
-    "message": "Wachtwoordzin genereren"
-  },
   "checkPassword": {
     "message": "Controleer of wachtwoord is gelekt."
   },
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "E-mailadres genereren"
   },
+  "generatePassword": {
+    "message": "Wachtwoord genereren"
+  },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
+  "passwordGenerated": {
+    "message": "Wachtwoord gegenereerd"
+  },
+  "passphraseGenerated": {
+    "message": "Wachtwoordzin gegenereerd"
+  },
+  "usernameGenerated": {
+    "message": "Gebruikersnaam gegenereerd"
+  },
+  "emailGenerated": {
+    "message": "E-mail gegenereerd"
+  },
   "spinboxBoundariesHint": {
     "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Dit wachtwoord gebruiken"
+  },
+  "useThisPassphrase": {
+    "message": "Deze wachtwoordzin gebruiken"
   },
   "useThisUsername": {
     "message": "Deze gebruikersnaam gebruiken"
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "Nieuwe bedrijfseenheid"
   },
+  "sendsTitleNoItems": {
+    "message": "Gevoelige informatie veilig versturen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Snel wachtwoorden maken"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door te klikken op",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "om je te helpen je inloggegevens veilig te houden.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Maak eenvoudig sterke en unieke wachtwoorden door op de knop Wachtwoord genereren te klikken om je logins veilig te houden.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Tijd besparen met automatisch aanvullen"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Klik op \"Pay with PayPal\" voor het toevoegen van je betaalmethode."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Als je $EMAIL$ verwijdert, zal de sponsoring voor dit Familieplan stoppen. Er komt een zetel beschikbaar binnen je organisatie voor leden of sponsorschap na de vernieuwingsdatum van de gesponsorde organisatie op $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

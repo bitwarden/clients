@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Käytä tätä salasanaa"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Käytä tätä käyttäjätunnusta"
   },
@@ -2674,6 +2677,10 @@
     "message": "Kaikki Sendit",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Piilota teksti oletuksena"
   },
@@ -3018,7 +3025,7 @@
     "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Organisaation nimi"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"

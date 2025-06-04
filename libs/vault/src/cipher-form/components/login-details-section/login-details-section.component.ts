@@ -33,7 +33,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
 @Component({
   selector: "vault-login-details-section",
   templateUrl: "./login-details-section.component.html",
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     SectionHeaderComponent,

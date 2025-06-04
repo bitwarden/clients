@@ -64,7 +64,6 @@ export interface AddEditCipherDialogCloseResult {
 @Component({
   selector: "app-vault-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     AsyncActionsModule,

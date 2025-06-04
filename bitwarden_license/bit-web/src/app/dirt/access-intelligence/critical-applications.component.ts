@@ -27,7 +27,7 @@ import {
   TableDataSource,
   ToastService,
 } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/tools-card";
+import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -39,7 +39,6 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { RiskInsightsTabType } from "./risk-insights.component";
 
 @Component({
-  standalone: true,
   selector: "tools-critical-applications",
   templateUrl: "./critical-applications.component.html",
   imports: [
