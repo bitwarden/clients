@@ -30,7 +30,7 @@ const sdkPassphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PassphraseGenerationOptions> {
-      return new SdkPasswordRandomizer(dependencies.sdk, Date.now); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(dependencies.sdk, Date.now);
     },
   },
   profiles: {
