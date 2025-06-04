@@ -1,14 +1,20 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
+import { Dropin, PaymentMethodPayload } from "braintree-web-drop-in";
+import { ButtonStyle } from "paypal-checkout-components";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BillingServicesModule } from "./billing-services.module";
 
+declare global {
+  interface Window {
+    braintree?: { dropin: typeof import("braintree-web-drop-in") };
+  }
+}
+
 @Injectable({ providedIn: BillingServicesModule })
 export class BraintreeService {
-  private braintree: any;
+  private braintree: Dropin;
   private containerId: string;
 
   constructor(private logService: LogService) {}
@@ -18,8 +24,7 @@ export class BraintreeService {
    */
   createDropin() {
     window.setTimeout(() => {
-      const window$ = window as any;
-      window$.braintree.dropin.create(
+      window.braintree.dropin.create(
         {
           authorization: process.env.BRAINTREE_KEY,
           container: this.containerId,
@@ -31,11 +36,11 @@ export class BraintreeService {
               size: "medium",
               shape: "pill",
               color: "blue",
-              tagline: "false",
-            },
+              tagline: false,
+            } as ButtonStyle,
           },
         },
-        (error: any, instance: any) => {
+        (error: Error, instance: Dropin) => {
           if (error != null) {
             this.logService.error(error);
             return;
@@ -70,7 +75,7 @@ export class BraintreeService {
    */
   requestPaymentMethod(): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.braintree.requestPaymentMethod((error: any, payload: any) => {
+      this.braintree.requestPaymentMethod((error: Error, payload: PaymentMethodPayload) => {
         if (error) {
           this.logService.error(error);
           reject(error.message);
