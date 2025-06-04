@@ -51,16 +51,15 @@ const hoverStyles: Record<BadgeVariant, string[]> = {
   * The Badge directive can be used on a `<span>` (non clickable events), or an `<a>` or `<button>` tag
 
   * > `NOTE:` The Focus and Hover states only apply to badges used for interactive events.
-  * 
+  *
   * > `NOTE:` The `disabled` state only applies to buttons.
-  * 
+  *
 */
 @Component({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
   providers: [{ provide: FocusableElement, useExisting: BadgeComponent }],
   imports: [CommonModule],
   templateUrl: "badge.component.html",
-  standalone: true,
 })
 export class BadgeComponent implements FocusableElement {
   @HostBinding("class") get classList() {

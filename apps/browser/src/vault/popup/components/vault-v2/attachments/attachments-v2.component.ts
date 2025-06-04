@@ -18,7 +18,6 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
-  standalone: true,
   selector: "app-attachments-v2",
   templateUrl: "./attachments-v2.component.html",
   imports: [

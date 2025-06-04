@@ -15,7 +15,6 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "app-domain-rules",
   templateUrl: "domain-rules.component.html",
-  standalone: true,
   imports: [SharedModule, HeaderModule],
 })
 export class DomainRulesComponent implements OnInit {

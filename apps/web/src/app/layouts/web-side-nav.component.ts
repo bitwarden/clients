@@ -9,7 +9,6 @@ import { ToggleWidthComponent } from "./toggle-width.component";
 @Component({
   selector: "app-side-nav",
   templateUrl: "web-side-nav.component.html",
-  standalone: true,
   imports: [CommonModule, NavigationModule, ProductSwitcherModule, ToggleWidthComponent],
 })
 export class WebSideNavComponent {

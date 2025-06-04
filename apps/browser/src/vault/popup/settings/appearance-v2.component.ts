@@ -35,7 +35,6 @@ import {
 import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 @Component({
-  standalone: true,
   templateUrl: "./appearance-v2.component.html",
   imports: [
     CommonModule,

@@ -25,7 +25,6 @@ import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login
  * Component for verifying a new device via a one-time password (OTP).
  */
 @Component({
-  standalone: true,
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",
   imports: [

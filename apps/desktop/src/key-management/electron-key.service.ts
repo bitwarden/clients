@@ -19,8 +19,9 @@ import {
   BiometricStateService,
 } from "@bitwarden/key-management";
 
-import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
+import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.service";
 
+// TODO Remove this class once biometric client key half storage is moved https://bitwarden.atlassian.net/browse/PM-22342
 export class ElectronKeyService extends DefaultKeyService {
   constructor(
     pinService: PinServiceAbstraction,
@@ -77,7 +78,6 @@ export class ElectronKeyService extends DefaultKeyService {
 
   private async storeBiometricsProtectedUserKey(userKey: UserKey, userId: UserId): Promise<void> {
     // May resolve to null, in which case no client key have is required
-    // TODO: Move to windows implementation
     const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userKey, userId);
     await this.biometricService.setClientKeyHalfForUser(userId, clientEncKeyHalf);
     await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey.keyB64);
@@ -102,11 +102,16 @@ export class ElectronKeyService extends DefaultKeyService {
     }
 
     // Retrieve existing key half if it exists
-    let clientKeyHalf = await this.biometricStateService
-      .getEncryptedClientKeyHalf(userId)
-      .then((result) => result?.decrypt(null /* user encrypted */, userKey))
-      .then((result) => result as CsprngString);
-    if (clientKeyHalf == null && userKey != null) {
+    let clientKeyHalf: CsprngString | null = null;
+    const encryptedClientKeyHalf =
+      await this.biometricStateService.getEncryptedClientKeyHalf(userId);
+    if (encryptedClientKeyHalf != null) {
+      clientKeyHalf = (await this.encryptService.decryptString(
+        encryptedClientKeyHalf,
+        userKey,
+      )) as CsprngString;
+    }
+    if (clientKeyHalf == null) {
       // Set a key half if it doesn't exist
       const keyBytes = await this.cryptoFunctionService.randomBytes(32);
       clientKeyHalf = Utils.fromBufferToUtf8(keyBytes) as CsprngString;

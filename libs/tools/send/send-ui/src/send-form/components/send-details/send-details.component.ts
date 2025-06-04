@@ -50,7 +50,6 @@ export interface DatePresetSelectOption {
 @Component({
   selector: "tools-send-details",
   templateUrl: "./send-details.component.html",
-  standalone: true,
   imports: [
     SectionComponent,
     SectionHeaderComponent,
