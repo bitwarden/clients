@@ -112,10 +112,6 @@ describe("ImportService", () => {
     mockImportTargetFolder.name = "myImportTarget";
 
     it("passing importTarget adds it to folders", async () => {
-      folderService.getAllDecryptedFromState.mockReturnValue(
-        Promise.resolve([mockImportTargetFolder]),
-      );
-
       await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(1);
       expect(importResult.folders[0]).toBe(mockImportTargetFolder);
@@ -130,12 +126,6 @@ describe("ImportService", () => {
     mockFolder2.name = "folder2";
 
     it("passing importTarget sets it as new root for all existing folders", async () => {
-      folderService.getAllDecryptedFromState.mockResolvedValue([
-        mockImportTargetFolder,
-        mockFolder1,
-        mockFolder2,
-      ]);
-
       importResult.folders.push(mockFolder1);
       importResult.folders.push(mockFolder2);
 
@@ -166,11 +156,6 @@ describe("ImportService", () => {
     mockCollection1.organizationId = organizationId;
 
     it("passing importTarget adds it to collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-      ]);
-
       await importService["setImportTarget"](
         importResult,
         organizationId,
@@ -181,12 +166,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
-
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
 
@@ -226,12 +205,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget, collectionRelationship has the expected values", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
-
       importResult.ciphers.push(createCipher({ name: "cipher1" }));
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
       importResult.collectionRelationships.push([0, 0]);
@@ -249,12 +222,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget, folderRelationship has the expected values", async () => {
-      folderService.getAllDecryptedFromState.mockResolvedValue([
-        mockImportTargetFolder,
-        mockFolder1,
-        mockFolder2,
-      ]);
-
       importResult.folders.push(mockFolder1);
       importResult.folders.push(mockFolder2);
 
