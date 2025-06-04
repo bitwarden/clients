@@ -66,11 +66,11 @@ export const authGuard: CanActivateFn = async (
     !routerState.url.includes("set-password") &&
     !routerState.url.includes("set-initial-password")
   ) {
-    const SetInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
+    const setInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
       FeatureFlag.PM16117_SetInitialPasswordRefactor,
     );
 
-    const route = SetInitialPasswordRefactorFlagOn ? "/set-initial-password" : "/set-password";
+    const route = setInitialPasswordRefactorFlagOn ? "/set-initial-password" : "/set-password";
 
     return router.createUrlTree([route]);
   }
