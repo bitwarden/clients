@@ -296,54 +296,55 @@ export class EmergencyAccessComponent implements OnInit {
       FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
     );
 
-    details.id = null;
-
-    if (!details || !details.email || !details.id) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("grantorDetailsNotFound"),
-      });
-
-      return;
-    }
-
-    const grantorName = this.userNamePipe.transform(details);
-    const grantorEmail = details.email;
-    const emergencyAccessId = details.id;
-
     if (changePasswordRefactorFlag) {
+      if (!details || !details.email || !details.id) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("grantorDetailsNotFound"),
+        });
+        this.logService.error(
+          "Grantor details not found when attempting emergency access takeover",
+        );
+
+        return;
+      }
+
+      const grantorName = this.userNamePipe.transform(details);
+
       const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {
         data: {
           grantorName,
-          grantorEmail,
-          emergencyAccessId,
+          grantorEmail: details.email,
+          emergencyAccessId: details.id,
         },
       });
       const result = await lastValueFrom(dialogRef.closed);
       if (result === EmergencyAccessTakeoverDialogResultType.Done) {
         this.toastService.showToast({
           variant: "success",
-          title: null,
+          title: "",
           message: this.i18nService.t("passwordResetFor", grantorName),
         });
       }
-    } else {
-      const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
-        data: {
-          name: grantorName,
-          email: grantorEmail,
-          emergencyAccessId,
-        },
+
+      return;
+    }
+
+    const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
+      data: {
+        name: this.userNamePipe.transform(details),
+        email: details.email,
+        emergencyAccessId: details.id ?? null,
+      },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === EmergencyAccessTakeoverResultType.Done) {
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details)),
       });
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === EmergencyAccessTakeoverResultType.Done) {
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("passwordResetFor", grantorName),
-        });
-      }
     }
   };
 
