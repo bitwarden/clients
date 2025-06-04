@@ -32,7 +32,6 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
-  TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
   SetInitialPasswordService,
   ChangePasswordService,
@@ -117,7 +116,6 @@ import {
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
-  WebTwoFactorAuthComponentService,
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
   WebSetInitialPasswordService,
@@ -269,12 +267,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: WebLockComponentService,
-    deps: [],
-  }),
-  // TODO: PM-18182 - Refactor component services into lazy loaded modules
-  safeProvider({
-    provide: TwoFactorAuthComponentService,
-    useClass: WebTwoFactorAuthComponentService,
     deps: [],
   }),
   safeProvider({

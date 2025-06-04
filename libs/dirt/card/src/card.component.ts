@@ -9,7 +9,6 @@ import { TypographyModule } from "@bitwarden/components";
 @Component({
   selector: "dirt-card",
   templateUrl: "./card.component.html",
-  standalone: true,
   imports: [CommonModule, TypographyModule, JslibModule],
   host: {
     class:

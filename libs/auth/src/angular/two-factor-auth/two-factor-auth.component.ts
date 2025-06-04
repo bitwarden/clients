@@ -71,7 +71,6 @@ import {
 } from "./two-factor-auth-component-cache.service";
 import {
   DuoLaunchAction,
-  LegacyKeyMigrationAction,
   TwoFactorAuthComponentService,
 } from "./two-factor-auth-component.service";
 import {
@@ -80,7 +79,6 @@ import {
 } from "./two-factor-options.component";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
   imports: [
@@ -391,22 +389,12 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }
-    // Migration is forced so prevent login via return
-    const legacyKeyMigrationAction: LegacyKeyMigrationAction =
-      this.twoFactorAuthComponentService.determineLegacyKeyMigrationAction();
 
-    switch (legacyKeyMigrationAction) {
-      case LegacyKeyMigrationAction.NAVIGATE_TO_MIGRATION_COMPONENT:
-        await this.router.navigate(["migrate-legacy-encryption"]);
-        break;
-      case LegacyKeyMigrationAction.PREVENT_LOGIN_AND_SHOW_REQUIRE_MIGRATION_WARNING:
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-        break;
-    }
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccured"),
+      message: this.i18nService.t("legacyEncryptionUnsupported"),
+    });
     return true;
   }
 
