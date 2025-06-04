@@ -20,19 +20,19 @@ export class BadgeBrowserApi {
 
   async setState(state: RawBadgeState, tabId?: number): Promise<void> {
     await Promise.all([
-      state.icon !== undefined ? this.setIcon(state.icon, tabId) : undefined,
-      state.text !== undefined ? this.setText(state.text, tabId) : undefined,
+      state.backgroundColor !== undefined ? this.setIcon(state.icon, tabId) : undefined,
+      this.setText(state.text, tabId),
       state.backgroundColor !== undefined
         ? this.setBackgroundColor(state.backgroundColor, tabId)
         : undefined,
     ]);
   }
 
-  private setIcon(icon: IconPaths, tabId?: number) {
+  private setIcon(icon?: IconPaths, tabId?: number) {
     return Promise.all([this.setActionIcon(icon, tabId), this.setSidebarActionIcon(icon, tabId)]);
   }
 
-  private setText(text: string, tabId?: number) {
+  private setText(text?: string, tabId?: number) {
     return Promise.all([this.setActionText(text, tabId), this.setSideBarText(text, tabId)]);
   }
 
@@ -89,7 +89,7 @@ export class BadgeBrowserApi {
     }
   }
 
-  private async setBackgroundColor(color: string, tabId?: number) {
+  private async setBackgroundColor(color?: string, tabId?: number) {
     if (this.badgeAction && this.badgeAction?.setBadgeBackgroundColor) {
       await this.badgeAction.setBadgeBackgroundColor({ color, tabId });
     }

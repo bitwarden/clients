@@ -1353,6 +1353,7 @@ export default class MainBackground {
     this.badgeService = new BadgeService(
       this.stateProvider,
       new BadgeBrowserApi(this.platformUtilsService),
+      this.logService,
     );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
       this.badgeService,
@@ -1770,17 +1771,18 @@ export default class MainBackground {
       this.accountService,
       this.cipherService,
       this.badgeSettingsService,
+      this.logService,
     );
 
     this.tabsBackground = new TabsBackground(
       this,
       this.notificationBackground,
       this.overlayBackground,
-      this.autofillBadgeUpdaterService,
     );
 
     await this.overlayBackground.init();
     await this.tabsBackground.init();
+    await this.autofillBadgeUpdaterService.init();
   }
 
   generatePassword = async (): Promise<string> => {

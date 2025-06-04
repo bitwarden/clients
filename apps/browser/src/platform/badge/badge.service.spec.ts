@@ -9,10 +9,12 @@ import { DefaultBadgeState } from "./consts";
 import { BadgeIcon } from "./icon";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 describe("BadgeService", () => {
   let badgeApi: MockProxy<BadgeBrowserApi>;
   let stateProvider: FakeStateProvider;
+  let logService!: MockProxy<LogService>;
   let badgeService!: BadgeService;
 
   let badgeServiceSubscription: Subscription;
@@ -20,7 +22,9 @@ describe("BadgeService", () => {
   beforeEach(() => {
     badgeApi = mock<BadgeBrowserApi>();
     stateProvider = new FakeStateProvider(new FakeAccountService({}));
-    badgeService = new BadgeService(stateProvider, badgeApi);
+    logService = mock<LogService>();
+
+    badgeService = new BadgeService(stateProvider, badgeApi, logService);
 
     badgeServiceSubscription = badgeService.startListening();
   });

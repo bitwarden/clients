@@ -12,6 +12,7 @@ import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
 import { difference } from "./array-utils";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 interface StateSetting {
   priority: BadgeStatePriority;
@@ -29,6 +30,7 @@ export class BadgeService {
   constructor(
     private stateProvider: StateProvider,
     private badgeApi: BadgeBrowserApi,
+    private logService: LogService,
   ) {
     this.states = this.stateProvider.getGlobal(BADGE_STATES);
   }
@@ -67,7 +69,16 @@ export class BadgeService {
               [...Array.from(states).filter((s) => s.tabId === tabId)],
               {},
             );
-            await this.badgeApi.setState(specificState, tabId);
+
+            try {
+              await this.badgeApi.setState(specificState, tabId);
+            } catch (error) {
+              this.logService.error(
+                "[BadgeService] Error setting badge state for tab",
+                tabId,
+                error,
+              );
+            }
           }
         }),
       )
