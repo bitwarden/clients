@@ -244,21 +244,6 @@ describe("KeyRotationService", () => {
       mockWebauthnLoginAdminService.getRotatedData.mockResolvedValue(webauthn);
     });
 
-    it("rotates the user key and encrypted data legacy", async () => {
-      await keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser);
-
-      expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
-      const arg = mockApiService.postUserKeyUpdate.mock.calls[0][0];
-      expect(arg.key).toBe("mockNewUserKey");
-      expect(arg.privateKey).toBe("mockEncryptedData");
-      expect(arg.ciphers.length).toBe(2);
-      expect(arg.folders.length).toBe(2);
-      expect(arg.sends.length).toBe(2);
-      expect(arg.emergencyAccessKeys.length).toBe(1);
-      expect(arg.resetPasswordKeys.length).toBe(1);
-      expect(arg.webauthnKeys.length).toBe(2);
-    });
-
     it("rotates the userkey and encrypted data and changes master password", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
@@ -383,31 +368,9 @@ describe("KeyRotationService", () => {
       expect(mockApiService.postUserKeyUpdateV2).not.toHaveBeenCalled();
     });
 
-    it("legacy throws if master password provided is falsey", async () => {
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("", mockUser),
-      ).rejects.toThrow();
-    });
-
     it("throws if master password provided is falsey", async () => {
       await expect(
         keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData("", "", mockUser),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if user key creation fails", async () => {
-      mockKeyService.makeUserKey.mockResolvedValueOnce([null, null]);
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if no private key is found", async () => {
-      privateKey.next(null);
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
@@ -423,16 +386,6 @@ describe("KeyRotationService", () => {
       ).rejects.toThrow();
     });
 
-    it("legacy throws if master password is incorrect", async () => {
-      mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
-        new Error("Invalid master password"),
-      );
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
-      ).rejects.toThrow();
-    });
-
     it("throws if master password is incorrect", async () => {
       mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
         new Error("Invalid master password"),
@@ -444,14 +397,6 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if server rotation fails", async () => {
-      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 

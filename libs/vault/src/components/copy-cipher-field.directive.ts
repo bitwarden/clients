@@ -18,7 +18,6 @@ import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
  * ```
  */
 @Directive({
-  standalone: true,
   selector: "[appCopyField]",
 })
 export class CopyCipherFieldDirective implements OnChanges {

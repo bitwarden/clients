@@ -68,7 +68,6 @@ export enum SubscriptionProduct {
   selector: "app-trial-billing-step",
   templateUrl: "trial-billing-step.component.html",
   imports: [BillingSharedModule],
-  standalone: true,
 })
 export class TrialBillingStepComponent implements OnInit, OnDestroy {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
