@@ -757,17 +757,18 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
     );
 
-    if (!user || !user.email || !user.id) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("orgUserDetailsNotFound"),
-      });
-
-      return;
-    }
-
     if (changePasswordRefactorFlag) {
+      if (!user || !user.email || !user.id) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("orgUserDetailsNotFound"),
+        });
+        this.logService.error("Org user details not found when attempting account recovery");
+
+        return;
+      }
+
       const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
         data: {
           name: this.userNamePipe.transform(user),
@@ -788,9 +789,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const dialogRef = ResetPasswordComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
-        email: user.email,
+        email: user != null ? user.email : null,
         organizationId: this.organization.id as OrganizationId,
-        id: user.id,
+        id: user != null ? user.id : null,
       },
     });
 
