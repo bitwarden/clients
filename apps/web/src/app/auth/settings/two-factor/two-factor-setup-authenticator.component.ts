@@ -56,7 +56,6 @@ declare global {
 @Component({
   selector: "app-two-factor-setup-authenticator",
   templateUrl: "two-factor-setup-authenticator.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

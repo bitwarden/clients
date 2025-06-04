@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Кликните на Pay with PayPal да бисте додали начин лпаћања."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Ако уклоните $EMAIL$, спонзорство за овај породични план ће се завршити. Седиште у вашој организацији постаће доступно за чланове или спонзорства након што је спонзорисан датум обнове организације на $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

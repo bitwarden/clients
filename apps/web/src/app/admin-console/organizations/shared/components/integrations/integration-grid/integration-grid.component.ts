@@ -11,7 +11,6 @@ import { Integration } from "../models";
 @Component({
   selector: "app-integration-grid",
   templateUrl: "./integration-grid.component.html",
-  standalone: true,
   imports: [IntegrationCardComponent, SharedModule],
 })
 export class IntegrationGridComponent {

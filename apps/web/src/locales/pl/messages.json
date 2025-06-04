@@ -10650,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Kliknij przycisk Zapłać za pomocą PayPal, aby dodać metodę płatności."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Jeśli usuniesz $EMAIL$, sponsorowanie tego planu rodzinnego zostanie zakończone. Miejsce w Twojej organizacji stanie się dostępne dla członków lub sponsorów po dacie odnowienia sponsorowanej organizacji w dniu $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

@@ -13,7 +13,6 @@ import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
 
 @Component({
-  standalone: true,
   template: "",
 })
 class DummyContentComponent {}

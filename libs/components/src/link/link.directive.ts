@@ -76,7 +76,6 @@ abstract class LinkDirective {
  */
 @Directive({
   selector: "a[bitLink]",
-  standalone: true,
 })
 export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
@@ -88,7 +87,6 @@ export class AnchorLinkDirective extends LinkDirective {
 
 @Directive({
   selector: "button[bitLink]",
-  standalone: true,
 })
 export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {

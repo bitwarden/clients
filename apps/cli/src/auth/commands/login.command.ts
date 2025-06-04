@@ -34,6 +34,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
@@ -227,9 +229,7 @@ export class LoginCommand {
         );
       }
       if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
-        );
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);

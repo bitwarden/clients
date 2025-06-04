@@ -32,7 +32,6 @@ let nextId = 0;
 @Component({
   selector: "bit-callout",
   templateUrl: "callout.component.html",
-  standalone: true,
   imports: [SharedModule, TypographyModule],
 })
 export class CalloutComponent implements OnInit {

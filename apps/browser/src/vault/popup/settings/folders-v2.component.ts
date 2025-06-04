@@ -22,7 +22,6 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  standalone: true,
   templateUrl: "./folders-v2.component.html",
   imports: [
     CommonModule,
