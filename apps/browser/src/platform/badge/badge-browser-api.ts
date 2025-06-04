@@ -18,37 +18,37 @@ export class BadgeBrowserApi {
 
   constructor(private platformUtilsService: PlatformUtilsService) {}
 
-  async setState(state: RawBadgeState): Promise<void> {
+  async setState(state: RawBadgeState, tabId?: number): Promise<void> {
     await Promise.all([
-      state.icon !== undefined ? this.setIcon(state.icon) : undefined,
-      state.text !== undefined ? this.setText(state.text) : undefined,
+      state.icon !== undefined ? this.setIcon(state.icon, tabId) : undefined,
+      state.text !== undefined ? this.setText(state.text, tabId) : undefined,
       state.backgroundColor !== undefined
-        ? this.setBackgroundColor(state.backgroundColor)
+        ? this.setBackgroundColor(state.backgroundColor, tabId)
         : undefined,
     ]);
   }
 
-  private setIcon(icon: IconPaths) {
-    return Promise.all([this.setActionIcon(icon), this.setSidebarActionIcon(icon)]);
+  private setIcon(icon: IconPaths, tabId?: number) {
+    return Promise.all([this.setActionIcon(icon, tabId), this.setSidebarActionIcon(icon, tabId)]);
   }
 
-  private setText(text: string) {
-    return Promise.all([this.setActionText(text), this.setSideBarText(text)]);
+  private setText(text: string, tabId?: number) {
+    return Promise.all([this.setActionText(text, tabId), this.setSideBarText(text, tabId)]);
   }
 
-  private async setActionIcon(path: IconPaths) {
+  private async setActionIcon(path: IconPaths, tabId?: number) {
     if (!this.badgeAction?.setIcon) {
       return;
     }
 
     if (this.useSyncApiCalls) {
-      await this.badgeAction.setIcon({ path });
+      await this.badgeAction.setIcon({ path, tabId });
     } else {
-      await new Promise<void>((resolve) => this.badgeAction.setIcon({ path }, resolve));
+      await new Promise<void>((resolve) => this.badgeAction.setIcon({ path, tabId }, resolve));
     }
   }
 
-  private async setSidebarActionIcon(path: IconPaths) {
+  private async setSidebarActionIcon(path: IconPaths, tabId?: number) {
     if (!this.sidebarAction?.setIcon) {
       return;
     }
@@ -62,39 +62,39 @@ export class BadgeBrowserApi {
 
     if (this.isOperaSidebar(this.sidebarAction)) {
       await new Promise<void>((resolve) =>
-        (this.sidebarAction as OperaSidebarAction).setIcon({ path }, () => resolve()),
+        (this.sidebarAction as OperaSidebarAction).setIcon({ path, tabId }, () => resolve()),
       );
     } else {
-      await this.sidebarAction.setIcon({ path });
+      await this.sidebarAction.setIcon({ path, tabId });
     }
   }
 
-  private async setActionText(text: string) {
+  private async setActionText(text: string, tabId?: number) {
     if (this.badgeAction?.setBadgeText) {
-      await this.badgeAction.setBadgeText({ text });
+      await this.badgeAction.setBadgeText({ text, tabId });
     }
   }
 
-  private async setSideBarText(text: string) {
+  private async setSideBarText(text: string, tabId?: number) {
     if (!this.sidebarAction) {
       return;
     }
 
     if (this.isOperaSidebar(this.sidebarAction)) {
-      this.sidebarAction.setBadgeText({ text });
+      this.sidebarAction.setBadgeText({ text, tabId });
     } else if (this.sidebarAction) {
       // Firefox
       const title = `Bitwarden${Utils.isNullOrEmpty(text) ? "" : ` [${text}]`}`;
-      await this.sidebarAction.setTitle({ title });
+      await this.sidebarAction.setTitle({ title, tabId });
     }
   }
 
-  private async setBackgroundColor(color: string) {
+  private async setBackgroundColor(color: string, tabId?: number) {
     if (this.badgeAction && this.badgeAction?.setBadgeBackgroundColor) {
-      await this.badgeAction.setBadgeBackgroundColor({ color });
+      await this.badgeAction.setBadgeBackgroundColor({ color, tabId });
     }
     if (this.sidebarAction && this.isOperaSidebar(this.sidebarAction)) {
-      this.sidebarAction.setBadgeBackgroundColor({ color });
+      this.sidebarAction.setBadgeBackgroundColor({ color, tabId });
     }
   }
 

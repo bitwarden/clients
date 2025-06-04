@@ -31,18 +31,23 @@ export class AutofillBadgeUpdaterService {
           }
 
           const ciphers = await this.cipherService.getAllDecryptedForUrl(tab.url, account.id);
-          return { cipherCount: ciphers.length, enableBadgeCounter };
+          return { cipherCount: ciphers.length, enableBadgeCounter, tab };
         }),
-        mergeMap(async ({ cipherCount, enableBadgeCounter }) => {
+        mergeMap(async ({ cipherCount, enableBadgeCounter, tab }) => {
           if (!enableBadgeCounter || cipherCount === 0) {
             await this.badgeService.clearState(StateName);
             return;
           }
 
           const countText = cipherCount > 9 ? "9+" : cipherCount.toString();
-          await this.badgeService.setState(StateName, BadgeStatePriority.Default, {
-            text: countText,
-          });
+          await this.badgeService.setState(
+            StateName,
+            BadgeStatePriority.Default,
+            {
+              text: countText,
+            },
+            tab.id,
+          );
         }),
       )
       .subscribe();

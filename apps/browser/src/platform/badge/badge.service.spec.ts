@@ -198,38 +198,41 @@ describe("BadgeService", () => {
     } satisfies BadgeState);
   });
 
-  describe("given a state with a tabId", () => {
+  describe("given a tabId", () => {
     it("sets provided state when no other state has been set", async () => {
       const state: BadgeState = {
-        tabId: 9001,
         text: "text",
         backgroundColor: "color",
         icon: BadgeIcon.Locked,
       };
 
-      await badgeService.setState("state-name", BadgeStatePriority.Default, state);
+      await badgeService.setState("state-name", BadgeStatePriority.Default, state, 9001);
 
-      expect(badgeApi.setState).toHaveBeenCalledWith(state);
       expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
+      expect(badgeApi.setState).toHaveBeenCalledWith(state, 9001);
     });
 
-    it("sets default values when none are provided", async () => {
+    it("sets empty values when none are provided", async () => {
       // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
-      const state: BadgeState = { tabId: 9001 };
+      const state: BadgeState = {};
 
-      await badgeService.setState("state-name", BadgeStatePriority.Default, state);
+      await badgeService.setState("state-name", BadgeStatePriority.Default, state, 9001);
 
-      expect(badgeApi.setState).toHaveBeenCalledWith({ ...DefaultBadgeState, tabId: 9001 });
-      expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(1, DefaultBadgeState);
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(2, state, 9001);
     });
 
     it("does not merge tabId specific state with general states", async () => {
       await badgeService.setState("general-state", BadgeStatePriority.Default, { text: "text" });
-      await badgeService.setState("specific-state", BadgeStatePriority.Default, {
-        tabId: 9001,
-        backgroundColor: "#fff",
-      });
-      await badgeService.setState("general-state", BadgeStatePriority.Default, {
+      await badgeService.setState(
+        "specific-state",
+        BadgeStatePriority.Default,
+        {
+          backgroundColor: "#fff",
+        },
+        9001,
+      );
+      await badgeService.setState("general-state-2", BadgeStatePriority.Default, {
         icon: BadgeIcon.Locked,
       });
 
@@ -238,10 +241,13 @@ describe("BadgeService", () => {
         backgroundColor: DefaultBadgeState.backgroundColor,
         icon: DefaultBadgeState.icon,
       } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
-        tabId: 9001,
-        backgroundColor: "#fff",
-      } satisfies BadgeState);
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        3,
+        {
+          backgroundColor: "#fff",
+        } satisfies BadgeState,
+        9001,
+      );
       expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
         text: "text",
         backgroundColor: DefaultBadgeState.backgroundColor,
@@ -251,175 +257,272 @@ describe("BadgeService", () => {
 
     it("merges states when multiple same-priority states with the same tabId have been set", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Default, { tabId, text: "text" });
-      await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      await badgeService.setState("state-1", BadgeStatePriority.Default, { text: "text" }, tabId);
+      await badgeService.setState(
+        "state-2",
+        BadgeStatePriority.Default,
+        {
+          backgroundColor: "#fff",
+        },
         tabId,
-        backgroundColor: "#fff",
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.Default, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.Default,
+        {
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        icon: BadgeIcon.Locked,
-      });
+      );
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        2,
+        {
+          text: "text",
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        3,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        4,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
+      );
     });
 
     it("overrides previous lower-priority state when higher-priority state with the same tabId is set", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      await badgeService.setState(
+        "state-1",
+        BadgeStatePriority.Low,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      });
-      await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      );
+      await badgeService.setState(
+        "state-2",
+        BadgeStatePriority.Default,
+        {
+          text: "override",
+        },
         tabId,
-        text: "override",
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.High, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.High,
+        {
+          backgroundColor: "#aaa",
+        },
         tabId,
-        backgroundColor: "#aaa",
-      });
+      );
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        2,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        3,
+        {
+          text: "override",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "override",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        4,
+        {
+          text: "override",
+          backgroundColor: "#aaa",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "override",
-        backgroundColor: "#aaa",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
+      );
     });
 
     it("removes override when a previously high-priority state with the same tabId is cleared", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      await badgeService.setState(
+        "state-1",
+        BadgeStatePriority.Low,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      });
-      await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      );
+      await badgeService.setState(
+        "state-2",
+        BadgeStatePriority.Default,
+        {
+          text: "override",
+        },
         tabId,
-        text: "override",
-      });
+      );
       await badgeService.clearState("state-2");
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        2,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        3,
+        {
+          text: "override",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "override",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        4,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
+      );
     });
 
     it("sets empty state when all states with the same tabId have been cleared", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      await badgeService.setState(
+        "state-1",
+        BadgeStatePriority.Low,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      });
-      await badgeService.setState("state-2", BadgeStatePriority.Default, {
+      );
+      await badgeService.setState(
+        "state-2",
+        BadgeStatePriority.Default,
+        {
+          text: "override",
+        },
         tabId,
-        text: "override",
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.High, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.High,
+        {
+          backgroundColor: "#aaa",
+        },
         tabId,
-        backgroundColor: "#aaa",
-      });
+      );
       await badgeService.clearState("state-1");
       await badgeService.clearState("state-2");
       await badgeService.clearState("state-3");
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(7, { tabId });
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(7, {}, tabId);
     });
 
     it("sets undefined value when high-priority state contains Unset", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      await badgeService.setState(
+        "state-1",
+        BadgeStatePriority.Low,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.High, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.High,
+        {
+          icon: Unset,
+        },
         tabId,
-        icon: Unset,
-      });
+      );
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(2, {
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        2,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      } satisfies BadgeState);
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(3, {
+      );
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        3,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+        } satisfies BadgeState,
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-      } satisfies BadgeState);
+      );
     });
 
     it("ignores medium-priority Unset when high-priority contains a value", async () => {
       const tabId = 9001;
-      await badgeService.setState("state-1", BadgeStatePriority.Low, {
+      await badgeService.setState(
+        "state-1",
+        BadgeStatePriority.Low,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        },
         tabId,
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Locked,
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.Default, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.Default,
+        {
+          icon: Unset,
+        },
         tabId,
-        icon: Unset,
-      });
-      await badgeService.setState("state-3", BadgeStatePriority.High, {
+      );
+      await badgeService.setState(
+        "state-3",
+        BadgeStatePriority.High,
+        {
+          icon: BadgeIcon.Unlocked,
+        },
         tabId,
-        icon: BadgeIcon.Unlocked,
-      });
+      );
 
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(4, {
-        text: "text",
-        backgroundColor: "#fff",
-        icon: BadgeIcon.Unlocked,
-      } satisfies BadgeState);
+      expect(badgeApi.setState).toHaveBeenNthCalledWith(
+        4,
+        {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Unlocked,
+        } satisfies BadgeState,
+        tabId,
+      );
     });
   });
 });
