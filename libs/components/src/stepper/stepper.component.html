@@ -10,7 +10,7 @@
             (click)="selectStepByIndex($index)"
             class="tw-flex tw-p-3 tw-items-center tw-border-none tw-bg-transparent tw-shrink-0"
             [ngClass]="{
-              'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
+              'hover:tw-bg-secondary-100': !isCurrentStepDisabled && step.editable,
             }"
             [attr.aria-selected]="selectedIndex === $index"
             [attr.aria-controls]="contentId + $index"
@@ -28,8 +28,8 @@
                 [ngClass]="{
                   'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
                   'tw-bg-secondary-300 tw-text-main':
-                    selectedIndex !== $index && !isStepDisabled($index) && step.editable,
-                  'tw-bg-transparent tw-text-muted': isStepDisabled($index),
+                    selectedIndex !== $index && !isCurrentStepDisabled && step.editable,
+                  'tw-bg-transparent tw-text-muted': isCurrentStepDisabled,
                 }"
               >
                 {{ $index + 1 }}
@@ -62,13 +62,14 @@
     }
   } @else {
     @for (step of steps; track $index; let isLast = $last) {
+      @let isCurrentStepDisabled = isStepDisabled($index);
       <button
         type="button"
-        [disabled]="isStepDisabled($index)"
+        [disabled]="isCurrentStepDisabled"
         (click)="selectStepByIndex($index)"
         class="tw-flex tw-p-3 tw-w-full tw-items-center tw-border-none tw-bg-transparent"
         [ngClass]="{
-          'hover:tw-bg-secondary-100': !isStepDisabled($index) && step.editable,
+          'hover:tw-bg-secondary-100': !isCurrentStepDisabled && step.editable,
         }"
         [attr.id]="contentId + 'accordion' + $index"
         [attr.aria-expanded]="selectedIndex === $index"
@@ -86,8 +87,8 @@
             [ngClass]="{
               'tw-bg-primary-600 tw-text-contrast': selectedIndex === $index,
               'tw-bg-secondary-300 tw-text-main':
-                selectedIndex !== $index && !isStepDisabled($index) && step.editable,
-              'tw-bg-transparent tw-text-muted': isStepDisabled($index),
+                selectedIndex !== $index && !isCurrentStepDisabled && step.editable,
+              'tw-bg-transparent tw-text-muted': isCurrentStepDisabled,
             }"
           >
             {{ $index + 1 }}
