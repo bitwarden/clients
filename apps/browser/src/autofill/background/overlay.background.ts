@@ -797,7 +797,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param focusedFieldData - Optional focused field data to validate against
    */
   private focusedFieldMatchesFillType(
-    fillType: InlineMenuFillTypes,
+    fillType: InlineMenuFillType,
     focusedFieldData?: FocusedFieldData,
   ) {
     const focusedFieldFillType = focusedFieldData
@@ -806,7 +806,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // When updating the current password for a field, it should fill with a login cipher
     if (
-      focusedFieldFillType === InlineMenuFillType.CurrentPasswordUpdate &&
+      focusedFieldFillType === InlineMenuFillTypes.CurrentPasswordUpdate &&
       fillType === CipherType.Login
     ) {
       return true;
@@ -819,7 +819,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private shouldShowInlineMenuAccountCreation(): boolean {
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername)) {
       return true;
     }
 
@@ -1152,7 +1152,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     let pageDetails = Array.from(pageDetailsForTab.values());
-    if (this.focusedFieldMatchesFillType(InlineMenuFillType.CurrentPasswordUpdate)) {
+    if (this.focusedFieldMatchesFillType(InlineMenuFillTypes.CurrentPasswordUpdate)) {
       pageDetails = this.getFilteredPageDetails(
         pageDetails,
         this.inlineMenuFieldQualificationService.isUpdateCurrentPasswordField,
@@ -1705,7 +1705,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdatePasswordGeneratorMenuOnFieldFocus() {
     return (
       this.isInlineMenuButtonVisible &&
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)
     );
   }
 
@@ -1767,9 +1767,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private shouldUpdateAccountCreationMenuOnFieldFocus(previousFocusedFieldData: FocusedFieldData) {
     const accountCreationFieldBlurred =
       this.focusedFieldMatchesFillType(
-        InlineMenuFillType.AccountCreationUsername,
+        InlineMenuFillTypes.AccountCreationUsername,
         previousFocusedFieldData,
-      ) && !this.focusedFieldMatchesFillType(InlineMenuFillType.AccountCreationUsername);
+      ) && !this.focusedFieldMatchesFillType(InlineMenuFillTypes.AccountCreationUsername);
     return accountCreationFieldBlurred || this.shouldShowInlineMenuAccountCreation();
   }
 
@@ -1876,7 +1876,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     return (
       (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration)) &&
+        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
       !!(loginData.password || loginData.newPassword)
     );
   }
@@ -3036,7 +3036,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const focusFieldShouldShowPasswordGenerator =
-      this.focusedFieldMatchesFillType(InlineMenuFillType.PasswordGeneration) ||
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
       (showInlineMenuAccountCreation &&
         this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password));
     if (!focusFieldShouldShowPasswordGenerator) {

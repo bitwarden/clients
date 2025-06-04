@@ -21,7 +21,6 @@ import { TypographyModule } from "../../../../components/src/typography";
 import { BitwardenLogo, BitwardenShield } from "../icons";
 
 @Component({
-  standalone: true,
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
   imports: [IconModule, CommonModule, TypographyModule, SharedModule, RouterModule],

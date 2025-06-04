@@ -265,6 +265,8 @@ export class AddEditV2Component implements OnInit {
         replaceUrl: true,
         queryParams: { cipherId: cipher.id },
       });
+      // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
+      await this.popupRouterCacheService.setHistory([]);
     }
   }
 

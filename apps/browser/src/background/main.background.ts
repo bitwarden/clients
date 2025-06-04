@@ -1203,7 +1203,6 @@ export default class MainBackground {
       this.stateProvider,
       this.apiService,
       this.organizationService,
-      this.configService,
       this.authService,
       this.notificationsService,
       messageListener,
@@ -1423,9 +1422,7 @@ export default class MainBackground {
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
-          this.taskService.listenForTaskNotifications();
-        }
+        this.taskService.listenForTaskNotifications();
 
         if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
           this.endUserNotificationService.listenForEndUserNotifications();
