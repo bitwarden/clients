@@ -43,7 +43,7 @@ export const isCipherType = (value: unknown): value is CipherType => {
 /**
  * Converts a value to a `CipherType` if it is valid, otherwise returns `null`.
  */
-export const toCipherType = (value: unknown): CipherType | null => {
+export const toCipherType = (value: unknown): CipherType | undefined => {
   if (isCipherType(value)) {
     return value;
   }
@@ -56,5 +56,5 @@ export const toCipherType = (value: unknown): CipherType | null => {
     }
   }
 
-  return null;
+  return undefined;
 };

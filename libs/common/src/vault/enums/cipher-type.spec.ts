@@ -57,10 +57,10 @@ describe("CipherType", () => {
     });
 
     it("returns null for invalid values", () => {
-      expect(toCipherType(999 as any)).toBeNull();
-      expect(toCipherType("Login" as any)).toBeNull();
-      expect(toCipherType(null)).toBeNull();
-      expect(toCipherType(undefined)).toBeNull();
+      expect(toCipherType(999 as any)).toBeUndefined();
+      expect(toCipherType("Login" as any)).toBeUndefined();
+      expect(toCipherType(null)).toBeUndefined();
+      expect(toCipherType(undefined)).toBeUndefined();
     });
   });
 });
