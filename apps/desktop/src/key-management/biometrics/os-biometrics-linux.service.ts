@@ -54,7 +54,11 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       await passwords.deletePassword(service, key);
     } catch (e) {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
-        this.logService.debug(`Biometric key ${key} not found for service ${service}.`);
+        this.logService.debug(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          key,
+          service,
+        );
       } else {
         throw e;
       }
