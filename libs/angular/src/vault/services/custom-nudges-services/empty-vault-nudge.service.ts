@@ -27,7 +27,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       this.cipherService.cipherViews$(userId),
       this.organizationService.organizations$(userId),
-      this.collectionService.decryptedCollections$,
+      this.collectionService.decryptedCollections$(userId),
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
         const vaultHasContents = !(ciphers == null || ciphers.length === 0);

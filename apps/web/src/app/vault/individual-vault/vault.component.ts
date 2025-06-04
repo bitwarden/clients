@@ -328,7 +328,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
 
     const filter$ = this.routedVaultFilterService.filter$;
-    const allCollections$ = this.collectionService.decryptedCollections$;
+    const allCollections$ = this.collectionService.decryptedCollections$(activeUserId);
     const nestedCollections$ = combineLatest([
       allCollections$,
       this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
@@ -844,7 +844,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       if (result.collection) {
         // Update CollectionService with the new collection
         const c = new CollectionData(result.collection as CollectionDetailsResponse);
-        await this.collectionService.upsert(c);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     }
@@ -861,15 +864,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     const result = await lastValueFrom(dialog.closed);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (result.action === CollectionDialogAction.Saved) {
       if (result.collection) {
         // Update CollectionService with the new collection
         const c = new CollectionData(result.collection as CollectionDetailsResponse);
-        await this.collectionService.upsert(c);
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     } else if (result.action === CollectionDialogAction.Deleted) {
-      await this.collectionService.delete(result.collection?.id);
+      await this.collectionService.delete(result.collection?.id as CollectionId, activeUserId);
       this.refresh();
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === c?.id) {
@@ -900,7 +904,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
     try {
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
-      await this.collectionService.delete(collection.id);
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.collectionService.delete(collection.id as CollectionId, activeUserId);
 
       this.toastService.showToast({
         variant: "success",
