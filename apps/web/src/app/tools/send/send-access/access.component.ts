@@ -30,7 +30,6 @@ import { SendAccessTextComponent } from "./send-access-text.component";
 @Component({
   selector: "app-send-access",
   templateUrl: "access.component.html",
-  standalone: true,
   imports: [
     SendAccessFileComponent,
     SendAccessTextComponent,

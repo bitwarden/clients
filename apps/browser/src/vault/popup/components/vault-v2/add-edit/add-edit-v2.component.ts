@@ -132,7 +132,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
@@ -266,6 +265,8 @@ export class AddEditV2Component implements OnInit {
         replaceUrl: true,
         queryParams: { cipherId: cipher.id },
       });
+      // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
+      await this.popupRouterCacheService.setHistory([]);
     }
   }
 

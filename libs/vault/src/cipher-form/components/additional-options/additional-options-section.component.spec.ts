@@ -14,7 +14,6 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
 
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   template: "",
 })

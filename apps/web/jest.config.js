@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("./tsconfig");
+const { compilerOptions } = require("../../tsconfig.base");
 
 const sharedConfig = require("../../libs/shared/jest.config.angular");
 
@@ -15,11 +15,11 @@ module.exports = {
     ...pathsToModuleNameMapper(
       {
         // lets us use @bitwarden/common/spec in web tests
-        "@bitwarden/common/spec": ["../../libs/common/spec"],
+        "@bitwarden/common/spec": ["libs/common/spec"],
         ...(compilerOptions?.paths ?? {}),
       },
       {
-        prefix: "<rootDir>/",
+        prefix: "<rootDir>/../../",
       },
     ),
   },

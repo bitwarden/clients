@@ -42,7 +42,6 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
-  standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
