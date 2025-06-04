@@ -102,7 +102,7 @@ export class AllApplicationsComponent implements OnInit {
               return { data, organization };
             }
 
-            return { applications, organization };
+            return { data: applications, organization };
           }),
           switchMap(async ({ data, organization }) => {
             if (data && organization) {
