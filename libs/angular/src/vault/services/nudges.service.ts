@@ -14,6 +14,7 @@ import {
   DownloadBitwardenNudgeService,
   NewItemNudgeService,
   AccountSecurityNudgeService,
+  VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService, SingleNudgeService } from "./default-single-nudge.service";
 
@@ -28,6 +29,7 @@ export type NudgeStatus = {
 export const NudgeType = {
   /** Nudge to show when user has no items in their vault */
   EmptyVaultNudge: "empty-vault-nudge",
+  VaultSettingsImportNudge: "vault-settings-import-nudge",
   HasVaultItems: "has-vault-items",
   AutofillNudge: "autofill-nudge",
   AccountSecurity: "account-security",
@@ -63,6 +65,7 @@ export class NudgesService {
   private customNudgeServices: Partial<Record<NudgeType, SingleNudgeService>> = {
     [NudgeType.HasVaultItems]: inject(HasItemsNudgeService),
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
+    [NudgeType.VaultSettingsImportNudge]: inject(VaultSettingsImportNudgeService),
     [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
     [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
     [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),

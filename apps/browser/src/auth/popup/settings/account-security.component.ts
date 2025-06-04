@@ -79,7 +79,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 @Component({
   templateUrl: "account-security.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,

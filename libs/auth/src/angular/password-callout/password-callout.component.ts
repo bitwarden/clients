@@ -13,7 +13,6 @@ import { CalloutModule } from "@bitwarden/components";
 @Component({
   selector: "auth-password-callout",
   templateUrl: "password-callout.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, CalloutModule],
 })
 export class PasswordCalloutComponent {
