@@ -1,4 +1,4 @@
-pub const PASSWORD_NOT_FOUND: &'static str = "Password not found.";
+pub const PASSWORD_NOT_FOUND: &str = "Password not found.";
 
 #[allow(clippy::module_inception)]
 #[cfg_attr(target_os = "linux", path = "unix.rs")]

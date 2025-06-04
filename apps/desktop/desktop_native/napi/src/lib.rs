@@ -8,7 +8,7 @@ mod registry;
 pub mod passwords {
     /// The error message returned when a password is not found during retrieval or deletion.
     #[napi]
-    pub const PASSWORD_NOT_FOUND: &'static str = desktop_core::password::PASSWORD_NOT_FOUND;
+    pub const PASSWORD_NOT_FOUND: &str = desktop_core::password::PASSWORD_NOT_FOUND;
 
     /// Fetch the stored password from the keychain.
     /// Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the password does not exist.
