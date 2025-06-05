@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FieldType } from "@bitwarden/common/vault/enums";
+
 import { ImportResult } from "../models/import-result";
 
 import { BaseImporter } from "./base-importer";
@@ -43,6 +45,26 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
           const key = parts[0] === "-no-name-" ? null : parts[0];
           const val = parts.length === 4 && parts[2] === "rck" ? parts[1] : parts[2];
           this.processKvp(cipher, key, val);
+        });
+      } else if (!this.isNullOrWhitespace(value.RfFieldsV2)) {
+        let fields: string[] = [value.RfFieldsV2];
+        if (value.__parsed_extra != null && value.__parsed_extra.length > 0) {
+          fields = fields.concat(value.__parsed_extra);
+        }
+        fields.forEach((field: string) => {
+          const parts = field.split(",");
+          if (parts.length < 5) {
+            return;
+          }
+          const key = parts[0] === "-no-name-" ? null : parts[0];
+          const type = parts[3] === "pwd" ? FieldType.Hidden : FieldType.Text;
+          const val = parts[4];
+
+          if (key === "TOTP KEY$") {
+            cipher.login.totp = val;
+          } else {
+            this.processKvp(cipher, key, val, type);
+          }
         });
       }
 
