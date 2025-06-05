@@ -119,6 +119,11 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       for (let i = 0; i < entryFields.length; i++) {
         const entryField = entryFields[i];
 
+        // Skip processing historical entries
+        if (entryField.tagName === "hitems") {
+          continue;
+        }
+
         if (entryField.tagName === "description") {
           cipher.name = entryField.textContent;
           continue;
