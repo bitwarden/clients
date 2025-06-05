@@ -397,10 +397,6 @@ export class SearchService implements SearchServiceAbstraction {
       if (u.uri == null || u.uri === "") {
         return;
       }
-      if (u.hostname != null) {
-        uris.push(u.hostname);
-        return;
-      }
       let uri = u.uri;
       if (u.match !== UriMatchStrategy.RegularExpression) {
         const protocolIndex = uri.indexOf("://");
