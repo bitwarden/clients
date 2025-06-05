@@ -6,11 +6,12 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
 } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import {
   Unassigned,
@@ -35,6 +36,7 @@ import {
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
 import { PipesModule } from "../pipes/pipes.module";
 import {
   All,
@@ -55,11 +57,13 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent implements OnInit {
+export class VaultHeaderComponent implements OnInit, OnDestroy {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
+  protected filteredCipherMenuItems: { type: CipherType; icon: string; labelKey: string }[] = [];
+  protected destroy$: Subject<void> = new Subject<void>();
 
   /**
    * Boolean to determine the loading state of the header.
@@ -100,9 +104,31 @@ export class VaultHeaderComponent implements OnInit {
     private dialogService: DialogService,
     private router: Router,
     private configService: ConfigService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
-  async ngOnInit() {}
+  async ngOnInit() {
+    const allCipherMenuItems = [
+      { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
+      { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
+      { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
+      { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "note" },
+      { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
+    ];
+
+    this.restrictedItemTypesService.restricted$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((restrictedItemTypes) => {
+        this.filteredCipherMenuItems = allCipherMenuItems.filter(
+          (item) => !restrictedItemTypes.includes(item.type),
+        );
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   /**
    * The id of the organization that is currently being filtered on.

@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
@@ -11,8 +12,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
+import { CipherType } from "@bitwarden/sdk-internal";
 
 import { GroupView } from "../../../admin-console/organizations/core";
+import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
 
 import {
   CollectionPermission,
@@ -85,10 +88,12 @@ export class VaultItemsComponent {
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
+  private restrictedItemTypes: CipherType[] = [];
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     private configService: ConfigService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
@@ -154,6 +159,12 @@ export class VaultItemsComponent {
         return false;
       }),
     );
+
+    this.restrictedItemTypesService.restricted$
+      .pipe(takeUntilDestroyed())
+      .subscribe((restrictedTypes) => {
+        this.restrictedItemTypes = restrictedTypes;
+      });
   }
 
   get showExtraColumn() {
@@ -356,18 +367,22 @@ export class VaultItemsComponent {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
-
-    this.selection.clear();
+    const filteredRestrictedItems = items.filter((item) => {
+      if (item.cipher) {
+        return !this.restrictedItemTypes.includes(item.cipher.type);
+      }
+      return true;
+    });
 
     // All ciphers are selectable, collections only if they can be edited or deleted
-    this.editableItems = items.filter(
+    this.editableItems = filteredRestrictedItems.filter(
       (item) =>
         item.cipher !== undefined ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );
 
-    this.dataSource.data = items;
+    this.dataSource.data = filteredRestrictedItems;
   }
 
   protected bulkEditCollectionAccess() {
