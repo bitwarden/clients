@@ -133,6 +133,8 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           sourceType = entryField.textContent as PasswordDepotItemType;
           switch (sourceType) {
             case PasswordDepotItemType.Password:
+            case PasswordDepotItemType.RDP:
+            case PasswordDepotItemType.TeamViewer:
               // Passwords
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
@@ -152,18 +154,14 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               cipher.type = CipherType.Identity;
               cipher.identity = new IdentityView();
               break;
-            case PasswordDepotItemType.RDP:
-              // RDP
-              cipher.type = CipherType.Login;
-              cipher.login = new LoginView();
-              break;
           }
           continue;
         }
 
         if (
           sourceType === PasswordDepotItemType.Password ||
-          sourceType === PasswordDepotItemType.RDP
+          sourceType === PasswordDepotItemType.RDP ||
+          sourceType === PasswordDepotItemType.TeamViewer
         ) {
           if (this.parseLoginFields(entryField, cipher)) {
             continue;

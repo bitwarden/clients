@@ -13,6 +13,7 @@ import {
   IdentityTestData,
   RDPTestData,
   SoftwareLicenseTestData,
+  TeamViewerTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -214,6 +215,26 @@ describe("Password Depot 17 Xml Importer", () => {
     customField = cipher.fields.find((f) => f.name === "IDS_LicenseExpires");
     expect(customField).toBeDefined();
     expect(customField.value).toEqual("Nie");
+  });
+
+  it("should parse team viewer into login type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(TeamViewerTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.name).toBe("TeamViewer type");
+    expect(cipher.notes).toBe("someNote");
+
+    expect(cipher.login).not.toBeNull();
+    expect(cipher.login.password).toBe("somePassword");
+    expect(cipher.login.username).toBe("");
+    expect(cipher.login.uri).toBe("partnerId");
+
+    const customField = cipher.fields.find((f) => f.name === "IDS_TeamViewerMode");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("0");
   });
 
   it("should parse favourites and set them on the target item", async () => {

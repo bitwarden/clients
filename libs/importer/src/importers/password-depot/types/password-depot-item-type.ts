@@ -4,6 +4,7 @@ const _PasswordDepotItemType = {
   SoftwareLicense: "2",
   Identity: "3",
   RDP: "8",
+  TeamViewer: "10",
 } as const;
 type _PasswordDepotItemType = typeof _PasswordDepotItemType;
 
