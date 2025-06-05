@@ -1,5 +1,6 @@
 import { defer, filter, map, mergeMap, pairwise, Subscription, switchMap } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   BADGE_MEMORY,
   GlobalState,
@@ -7,12 +8,11 @@ import {
   StateProvider,
 } from "@bitwarden/common/platform/state";
 
+import { difference } from "./array-utils";
 import { BadgeBrowserApi, RawBadgeState } from "./badge-browser-api";
 import { DefaultBadgeState } from "./consts";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
-import { difference } from "./array-utils";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 interface StateSetting {
   priority: BadgeStatePriority;
@@ -123,7 +123,9 @@ export class BadgeService {
     states: StateSetting[],
     defaultState: RawBadgeState & BadgeState,
   ): RawBadgeState {
-    let sortedStates = [...states].sort((a, b) => a.priority - b.priority);
+    const sortedStates = [...states].sort(
+      (a, b) => a.priority - b.priority || (a.tabId ?? 0) - (b.tabId ?? 0),
+    );
 
     const mergedState = sortedStates
       .map((s) => s.state)
@@ -149,11 +151,14 @@ export class BadgeService {
    * It makes sure to apply the state to all tabs.
    */
   private async setGeneralState(state: RawBadgeState, excludeTabIds?: Set<number>): Promise<void> {
+    // console.log("[BadgeService] Setting general badge state", state);
+    // console.log("[BadgeService] tabIds:", await this.badgeApi.getTabs());
     await this.badgeApi.setState(state);
     for (const tabId of await this.badgeApi.getTabs()) {
       if (excludeTabIds?.has(tabId)) {
         continue;
       }
+      // console.log("[BadgeService] Setting badge state for tab", tabId, state);
       await this.badgeApi.setState(state, tabId);
     }
   }

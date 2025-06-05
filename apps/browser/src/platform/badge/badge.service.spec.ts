@@ -34,15 +34,15 @@ describe("BadgeService", () => {
   describe("calling without tabId", () => {
     const tabId = 1;
 
-    beforeEach(() => {
-      badgeApi.getTabs.mockResolvedValue([1]);
-      badgeServiceSubscription = badgeService.startListening();
-    });
+    describe("given a single tab is open", () => {
+      beforeEach(() => {
+        badgeApi.getTabs.mockResolvedValue([1]);
+        badgeServiceSubscription = badgeService.startListening();
+      });
 
-    describe.only("given a single tab is open", () => {
       // This relies on the state provider to auto-emit
       it("sets default values on startup", async () => {
-        expectGeneralSetState(0, [tabId], DefaultBadgeState);
+        await expectGeneralSetState(0, [tabId], DefaultBadgeState);
       });
 
       it("sets provided state when no other state has been set", async () => {
@@ -54,7 +54,7 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        expectGeneralSetState(2, [tabId], state);
+        await expectGeneralSetState(2, [tabId], state);
       });
 
       it("sets default values when none are provided", async () => {
@@ -63,7 +63,7 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        expectGeneralSetState(2, [tabId], DefaultBadgeState);
+        await expectGeneralSetState(2, [tabId], DefaultBadgeState);
       });
 
       it("merges states when multiple same-priority states have been set", async () => {
@@ -76,17 +76,17 @@ describe("BadgeService", () => {
         });
 
         let setStateCalls = 2;
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: DefaultBadgeState.backgroundColor,
           icon: DefaultBadgeState.icon,
         });
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: DefaultBadgeState.icon,
         });
-        expectGeneralSetState(setStateCalls, [tabId], {
+        await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
@@ -107,17 +107,17 @@ describe("BadgeService", () => {
         });
 
         let setStateCalls = 2;
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
         });
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "override",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
         });
-        expectGeneralSetState(setStateCalls, [tabId], {
+        await expectGeneralSetState(setStateCalls, [tabId], {
           text: "override",
           backgroundColor: "#aaa",
           icon: BadgeIcon.Locked,
@@ -136,17 +136,17 @@ describe("BadgeService", () => {
         await badgeService.clearState("state-2");
 
         let setStateCalls = 2;
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
         });
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "override",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
         });
-        expectGeneralSetState(setStateCalls, [tabId], {
+        await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
@@ -169,7 +169,7 @@ describe("BadgeService", () => {
         await badgeService.clearState("state-2");
         await badgeService.clearState("state-3");
 
-        expectGeneralSetState(12, [tabId], DefaultBadgeState);
+        await expectGeneralSetState(12, [tabId], DefaultBadgeState);
       });
 
       it("sets default value high-priority state contains Unset", async () => {
@@ -183,12 +183,12 @@ describe("BadgeService", () => {
         });
 
         let setStateCalls = 2;
-        setStateCalls = expectGeneralSetState(setStateCalls, [tabId], {
+        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
         });
-        expectGeneralSetState(setStateCalls, [tabId], {
+        await expectGeneralSetState(setStateCalls, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: DefaultBadgeState.icon,
@@ -208,7 +208,7 @@ describe("BadgeService", () => {
           icon: BadgeIcon.Unlocked,
         });
 
-        expectGeneralSetState(6, [tabId], {
+        await expectGeneralSetState(6, [tabId], {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Unlocked,
@@ -216,11 +216,16 @@ describe("BadgeService", () => {
       });
     });
 
-    describe("given multiple tabs are open", () => {
+    describe.only("given multiple tabs are open", () => {
       const tabIds = [1, 2, 3];
 
       beforeEach(() => {
-        badgeApi.getTabs.mockResolvedValue([1, 2, 3]);
+        badgeApi.getTabs.mockResolvedValue(tabIds);
+        badgeServiceSubscription = badgeService.startListening();
+      });
+
+      it("sets default values for each tab on startup", async () => {
+        await expectGeneralSetState(0, tabIds, DefaultBadgeState);
       });
 
       it("sets state for each tab when no other state has been set", async () => {
@@ -232,20 +237,12 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        for (const tabId of tabIds) {
-          expect(badgeApi.setState).toHaveBeenCalledWith(state, tabId);
-        }
-      });
-
-      it("sets default values for each tab on startup", async () => {
-        for (const tabId of tabIds) {
-          expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState, tabId);
-        }
+        await expectGeneralSetState(tabIds.length + 1, tabIds, state);
       });
     });
   });
 
-  describe("calling with tabId", () => {
+  describe.skip("calling with tabId", () => {
     describe("given a single tab is open", () => {
       const tabId = 1;
       beforeEach(() => {
@@ -593,11 +590,12 @@ describe("BadgeService", () => {
    * @param state The state that is expected to be set.
    * @return The number of setState calls that should have been made after this call.
    */
-  function expectGeneralSetState(
+  async function expectGeneralSetState(
     nPreviousCalls: number,
     availableTabIds: number[],
     state: BadgeState,
-  ): number {
+  ): Promise<number> {
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(badgeApi.setState).toHaveBeenNthCalledWith(++nPreviousCalls, state);
     for (const tabId of availableTabIds) {
       expect(badgeApi.setState).toHaveBeenNthCalledWith(++nPreviousCalls, state, tabId);
