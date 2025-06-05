@@ -134,6 +134,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           switch (sourceType) {
             case PasswordDepotItemType.Password:
             case PasswordDepotItemType.RDP:
+            case PasswordDepotItemType.Putty:
             case PasswordDepotItemType.TeamViewer:
               // Passwords
               cipher.type = CipherType.Login;
@@ -161,6 +162,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         if (
           sourceType === PasswordDepotItemType.Password ||
           sourceType === PasswordDepotItemType.RDP ||
+          sourceType === PasswordDepotItemType.Putty ||
           sourceType === PasswordDepotItemType.TeamViewer
         ) {
           if (this.parseLoginFields(entryField, cipher)) {

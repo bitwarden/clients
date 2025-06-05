@@ -6,3 +6,6 @@ export { PasswordTestData } from "./password.xml";
 export { CreditCardTestData } from "./credit-card.xml";
 export { IdentityTestData } from "./identity.xml";
 export { RDPTestData } from "./rdp.xml";
+export { SoftwareLicenseTestData } from "./software-license.xml";
+export { TeamViewerTestData } from "./team-viewer.xml";
+export { PuttyTestData } from "./putty.xml";

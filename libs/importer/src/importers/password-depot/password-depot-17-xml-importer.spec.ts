@@ -14,6 +14,7 @@ import {
   RDPTestData,
   SoftwareLicenseTestData,
   TeamViewerTestData,
+  PuttyTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -235,6 +236,38 @@ describe("Password Depot 17 Xml Importer", () => {
     const customField = cipher.fields.find((f) => f.name === "IDS_TeamViewerMode");
     expect(customField).toBeDefined();
     expect(customField.value).toEqual("0");
+  });
+
+  it("should parse putty into login type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(PuttyTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.name).toBe("Putty type");
+    expect(cipher.notes).toBe("someNote");
+
+    expect(cipher.login).not.toBeNull();
+    expect(cipher.login.password).toBe("somePassword");
+    expect(cipher.login.username).toBe("someUser");
+    expect(cipher.login.uri).toBe("localhost");
+
+    let customField = cipher.fields.find((f) => f.name === "IDS_PuTTyProtocol");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("0");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_PuTTyKeyFile");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("pathToKeyFile");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_PuTTyKeyPassword");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("passwordForKeyFile");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_PuTTyPort");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("8080");
   });
 
   it("should parse favourites and set them on the target item", async () => {
