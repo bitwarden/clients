@@ -12,6 +12,8 @@ import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
+import { PasswordDepotItemType } from "./types/password-depot-item-type";
+
 /**
  * Importer for Password Depot 17 xml files.
  * @see https://www.password-depot.de/
@@ -109,6 +111,8 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       const cipherIndex = this.result.ciphers.length;
 
       const cipher = this.initLoginCipher();
+      //Set default item type similar how we default to Login in other importers
+      let sourceType: PasswordDepotItemType = PasswordDepotItemType.Password;
 
       const entryFields = entry.children;
       for (let i = 0; i < entryFields.length; i++) {
@@ -125,24 +129,24 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         }
 
         if (entryField.tagName === "type") {
-          const type = entryField.textContent;
-          switch (type) {
-            case "0":
+          sourceType = entryField.textContent as PasswordDepotItemType;
+          switch (sourceType) {
+            case PasswordDepotItemType.Password:
               // Passwords
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
               break;
-            case "1":
+            case PasswordDepotItemType.CreditCard:
               // Credit cards
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
               break;
-            case "3":
+            case PasswordDepotItemType.Identity:
               // Identity
               cipher.type = CipherType.Identity;
               cipher.identity = new IdentityView();
               break;
-            case "8":
+            case PasswordDepotItemType.RDP:
               // RDP
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
@@ -151,7 +155,10 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           continue;
         }
 
-        if (cipher.type === CipherType.Login) {
+        if (
+          sourceType === PasswordDepotItemType.Password ||
+          sourceType === PasswordDepotItemType.RDP
+        ) {
           if (this.parseLoginFields(entryField, cipher)) {
             continue;
           }
@@ -166,7 +173,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         }
 
         if (entryField.tagName === "customfields") {
-          this.parseCustomFields(entryField, cipher);
+          this.parseCustomFields(entryField, sourceType, cipher);
           continue;
         }
 
@@ -188,27 +195,30 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
   // Parses custom fields and adds them to the cipher
   // It iterates through all the custom fields and adds them to the cipher
-  private parseCustomFields(entryField: Element, cipher: CipherView) {
+  private parseCustomFields(
+    entryField: Element,
+    sourceType: PasswordDepotItemType,
+    cipher: CipherView,
+  ) {
     this.querySelectorAllDirectChild(entryField, "field").forEach((customField) => {
       const customFieldObject = this.parseCustomField(customField);
       if (customFieldObject == null) {
         return;
       }
 
-      switch (cipher.type) {
-        case CipherType.Login:
-          break;
-        case CipherType.Card:
+      switch (sourceType) {
+        case PasswordDepotItemType.CreditCard:
           if (this.parseCreditCardCustomFields(customFieldObject, cipher)) {
             return;
           }
           break;
-        case CipherType.Identity:
+        case PasswordDepotItemType.Identity:
           if (this.parseIdentityCustomFields(customFieldObject, cipher)) {
             return;
           }
           break;
         default:
+          // For other types, we will process the custom field as a regular key-value pair
           break;
       }
 
