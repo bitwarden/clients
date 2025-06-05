@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { NoopAnimationsModule , provideAnimations } from "@angular/platform-browser/animations";
+import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { getAllByRole, userEvent } from "@storybook/test";
