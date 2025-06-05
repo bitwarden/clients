@@ -142,12 +142,11 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
             case PasswordDepotItemType.Putty:
             case PasswordDepotItemType.TeamViewer:
             case PasswordDepotItemType.Banking:
-              // Passwords
+            case PasswordDepotItemType.Certificate:
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
               break;
             case PasswordDepotItemType.CreditCard:
-              // Credit cards
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
               break;
@@ -158,7 +157,6 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               cipher.secureNote.type = SecureNoteType.Generic;
               break;
             case PasswordDepotItemType.Identity:
-              // Identity
               cipher.type = CipherType.Identity;
               cipher.identity = new IdentityView();
               break;
@@ -171,7 +169,8 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           sourceType === PasswordDepotItemType.RDP ||
           sourceType === PasswordDepotItemType.Putty ||
           sourceType === PasswordDepotItemType.TeamViewer ||
-          sourceType === PasswordDepotItemType.Banking
+          sourceType === PasswordDepotItemType.Banking ||
+          sourceType === PasswordDepotItemType.Certificate
         ) {
           if (this.parseLoginFields(entryField, cipher)) {
             continue;

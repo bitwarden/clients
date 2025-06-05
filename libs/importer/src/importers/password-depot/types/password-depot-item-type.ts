@@ -8,6 +8,7 @@ const _PasswordDepotItemType = {
   RDP: "8",
   Putty: "9",
   TeamViewer: "10",
+  Certificate: "11",
 } as const;
 type _PasswordDepotItemType = typeof _PasswordDepotItemType;
 
