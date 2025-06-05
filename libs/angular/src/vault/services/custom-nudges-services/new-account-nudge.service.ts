@@ -12,7 +12,7 @@ import { NudgeStatus, NudgeType } from "../nudges.service";
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 /**
- * Custom Nudge Service to use for the Autofill Nudge in the Vault
+ * Custom Nudge Service to check if account is older than 30 days
  */
 @Injectable({
   providedIn: "root",
