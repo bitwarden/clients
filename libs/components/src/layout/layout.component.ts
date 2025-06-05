@@ -26,7 +26,7 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
     ScrollLayoutHostDirective,
   ],
   host: {
-    "(document:keydown)": "handleInitialTabPress($event)",
+    "(document:keydown)": "handleKeydown($event)",
   },
 })
 export class LayoutComponent {
@@ -45,17 +45,11 @@ export class LayoutComponent {
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
    **/
   private skipLink = viewChild.required<ElementRef<HTMLElement>>("skipLink");
-  private didInitialFocus = false;
-  handleInitialTabPress(ev: KeyboardEvent) {
-    if (this.didInitialFocus) {
-      return;
-    }
-
+  handleKeydown(ev: KeyboardEvent) {
     if (isNothingFocused()) {
       ev.preventDefault();
       this.skipLink().nativeElement.focus();
     }
-    this.didInitialFocus = true;
   }
 }
 
