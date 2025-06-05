@@ -31,14 +31,7 @@
         ></i>
         <span slot="secondary">{{ cipher.subTitle }}</span>
       </button>
-      <ng-container
-        slot="end"
-        *ngIf="
-          (limitItemDeletion$ | async)
-            ? cipher.permissions.restore
-            : cipher.edit && cipher.viewPassword
-        "
-      >
+      <ng-container slot="end" *ngIf="cipher.permissions.restore">
         <bit-item-action>
           <button
             type="button"

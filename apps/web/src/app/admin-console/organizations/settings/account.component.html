@@ -70,7 +70,7 @@
       <bit-label>{{ "limitCollectionDeletionDesc" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
     </bit-form-control>
-    <bit-form-control *ngIf="limitItemDeletionFeatureFlagIsEnabled">
+    <bit-form-control>
       <bit-label>{{ "limitItemDeletionDescription" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
     </bit-form-control>
