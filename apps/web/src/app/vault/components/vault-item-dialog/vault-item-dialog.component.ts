@@ -314,7 +314,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.canDelete = await firstValueFrom(
         this.cipherAuthorizationService.canDeleteCipher$(
           this.cipher,
-          [this.params.activeCollectionId],
           this.params.isAdminConsoleAction,
         ),
       );

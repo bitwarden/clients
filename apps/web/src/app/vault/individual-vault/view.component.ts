@@ -122,9 +122,7 @@ export class ViewComponent implements OnInit {
       );
     }
 
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.params.activeCollectionId,
-    ]);
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
   }
 
   /**

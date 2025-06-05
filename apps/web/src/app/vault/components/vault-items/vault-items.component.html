@@ -158,11 +158,7 @@
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
           [canDeleteCipher]="
-            cipherAuthorizationService.canDeleteCipher$(
-              item.cipher,
-              [item.cipher.collectionId],
-              showAdminActions
-            ) | async
+            cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions) | async
           "
           [canRestoreCipher]="
             cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async

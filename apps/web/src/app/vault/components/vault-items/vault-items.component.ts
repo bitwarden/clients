@@ -96,7 +96,7 @@ export class VaultItemsComponent {
         }
 
         const canDeleteCiphers$ = ciphers.map((c) =>
-          cipherAuthorizationService.canDeleteCipher$(c, [], this.showAdminActions),
+          cipherAuthorizationService.canDeleteCipher$(c, this.showAdminActions),
         );
 
         const canDeleteCollections = this.selection.selected
