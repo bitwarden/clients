@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -140,6 +141,11 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               // Credit cards
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
+              break;
+            case PasswordDepotItemType.SoftwareLicense:
+              cipher.type = CipherType.SecureNote;
+              cipher.secureNote = new SecureNoteView();
+              cipher.secureNote.type = SecureNoteType.Generic;
               break;
             case PasswordDepotItemType.Identity:
               // Identity

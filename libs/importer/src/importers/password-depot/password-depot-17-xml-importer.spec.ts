@@ -1,5 +1,5 @@
 import { CollectionView } from "@bitwarden/admin-console/common";
-import { FieldType } from "@bitwarden/common/vault/enums";
+import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherType } from "@bitwarden/sdk-internal";
 
@@ -12,6 +12,7 @@ import {
   PasswordTestData,
   IdentityTestData,
   RDPTestData,
+  SoftwareLicenseTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -147,6 +148,72 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.login.username).toBe("someUser");
     expect(cipher.login.password).toBe("somePassword");
     expect(cipher.login.uri).toBe("ms-rd:subscribe?url=https://contoso.com");
+  });
+
+  it("should parse software license into secure notes", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(SoftwareLicenseTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.name).toBe("software-license type");
+    expect(cipher.notes).toBe("someComment");
+
+    expect(cipher.secureNote).not.toBeNull();
+    expect(cipher.secureNote.type).toBe(SecureNoteType.Generic);
+
+    let customField = cipher.fields.find((f) => f.name === "IDS_LicenseProduct");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("someProduct");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseVersion");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("someVersion");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseName");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("some User");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseKey");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("license-key");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseAdditionalKey");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("additional-license-key");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseURL");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("example.com");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseProtected");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseUserName");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("someUserName");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicensePassword");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("somePassword");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicensePurchaseDate");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("45789");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseOrderNumber");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("order number");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseEmail");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("someEmail");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_LicenseExpires");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("Nie");
   });
 
   it("should parse favourites and set them on the target item", async () => {
