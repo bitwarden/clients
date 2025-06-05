@@ -60,7 +60,9 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
           const type = parts[3] === "pwd" ? FieldType.Hidden : FieldType.Text;
           const val = parts[4];
 
-          if (key === "TOTP KEY$") {
+          if (key === "User ID$" || key === "Password$" || key === "Script$") {
+            return;
+          } else if (key === "TOTP KEY$") {
             cipher.login.totp = val;
           } else {
             this.processKvp(cipher, key, val, type);
