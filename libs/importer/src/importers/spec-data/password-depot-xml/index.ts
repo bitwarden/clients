@@ -12,3 +12,4 @@ export { PuttyTestData } from "./putty.xml";
 export { BankingTestData } from "./banking.xml";
 export { InformationTestData } from "./information.xml";
 export { CertificateTestData } from "./certificate.xml";
+export { EncryptedFileTestData } from "./encrypted-file.xml";

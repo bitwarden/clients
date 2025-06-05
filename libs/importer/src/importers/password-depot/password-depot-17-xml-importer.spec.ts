@@ -20,6 +20,7 @@ import {
   BankingTestData,
   InformationTestData,
   CertificateTestData,
+  EncryptedFileTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -380,6 +381,20 @@ describe("Password Depot 17 Xml Importer", () => {
     expect(cipher.type).toBe(CipherType.Login);
     expect(cipher.name).toBe("certificate type");
     expect(cipher.notes).toBe("someNote");
+
+    expect(cipher.login).not.toBeNull();
+    expect(cipher.login.password).toBe("somePassword");
+  });
+
+  it("should parse encrypted file into login type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(EncryptedFileTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.name).toBe("encrypted file type");
+    expect(cipher.notes).toBe("some comment");
 
     expect(cipher.login).not.toBeNull();
     expect(cipher.login.password).toBe("somePassword");
