@@ -22,8 +22,8 @@ import { KeyService } from "@bitwarden/key-management";
  */
 @Directive({
   selector: "app-user-verification",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
   @Input()

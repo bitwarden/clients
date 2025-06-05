@@ -7,6 +7,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 interface EnterpriseOrgStatus {
@@ -30,16 +32,6 @@ export class FreeFamiliesPolicyService {
     private configService: ConfigService,
   ) {}
 
-  canManageSponsorships$ = this.accountService.activeAccount$.pipe(
-    switchMap((account) => {
-      if (account?.id) {
-        return this.organizationService.canManageSponsorships$(account?.id);
-      } else {
-        return of();
-      }
-    }),
-  );
-
   organizations$ = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (account?.id) {
@@ -54,26 +46,67 @@ export class FreeFamiliesPolicyService {
     return this.getFreeFamiliesVisibility$();
   }
 
+  /**
+   * Determines whether to show the sponsored families dropdown in the organization layout
+   * @param organization The organization to check
+   * @returns Observable<boolean> indicating whether to show the dropdown
+   */
+  showSponsoredFamiliesDropdown$(organization: Observable<Organization>): Observable<boolean> {
+    const enterpriseOrganization$ = organization.pipe(
+      map((org) => org.productTierType === ProductTierType.Enterprise),
+    );
+
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => {
+        const policies$ = this.policyService.policiesByType$(
+          PolicyType.FreeFamiliesSponsorshipPolicy,
+          userId,
+        );
+
+        return combineLatest([
+          enterpriseOrganization$,
+          this.configService.getFeatureFlag$(FeatureFlag.PM17772_AdminInitiatedSponsorships),
+          organization,
+          policies$,
+        ]).pipe(
+          map(([isEnterprise, featureFlagEnabled, org, policies]) => {
+            const familiesFeatureDisabled = policies.some(
+              (policy) => policy.organizationId === org.id && policy.enabled,
+            );
+
+            return (
+              isEnterprise &&
+              featureFlagEnabled &&
+              !familiesFeatureDisabled &&
+              org.useAdminSponsoredFamilies &&
+              (org.isAdmin || org.isOwner || org.canManageUsers)
+            );
+          }),
+        );
+      }),
+    );
+  }
+
   private getFreeFamiliesVisibility$(): Observable<boolean> {
     return combineLatest([
       this.checkEnterpriseOrganizationsAndFetchPolicy(),
-      this.canManageSponsorships$,
+      this.organizations$,
     ]).pipe(
-      map(([orgStatus, canManageSponsorships]) =>
-        this.shouldShowFreeFamilyLink(orgStatus, canManageSponsorships),
-      ),
+      map(([orgStatus, organizations]) => this.shouldShowFreeFamilyLink(orgStatus, organizations)),
     );
   }
 
   private shouldShowFreeFamilyLink(
     orgStatus: EnterpriseOrgStatus | null,
-    canManageSponsorships: boolean,
+    organizations: Organization[],
   ): boolean {
     if (!orgStatus) {
       return false;
     }
     const { belongToOneEnterpriseOrgs, isFreeFamilyPolicyEnabled } = orgStatus;
-    return canManageSponsorships && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
+    const hasSponsorshipOrgs = organizations.some((org) => org.canManageSponsorships);
+    return hasSponsorshipOrgs && !(belongToOneEnterpriseOrgs && isFreeFamilyPolicyEnabled);
   }
 
   checkEnterpriseOrganizationsAndFetchPolicy(): Observable<EnterpriseOrgStatus> {
@@ -109,7 +142,7 @@ export class FreeFamiliesPolicyService {
     return this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
       ),
       map((policies) => ({
         isFreeFamilyPolicyEnabled: policies.some(

@@ -6,7 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { mockAccountServiceWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
-import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
@@ -36,8 +36,9 @@ type ParentWindowReference = string;
 const RpId = "bitwarden.com";
 
 describe("FidoAuthenticatorService", () => {
+  const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<Account | null>({
-    id: "testId" as UserId,
+    id: userId,
     email: "test@example.com",
     emailVerified: true,
     name: "Test User",
@@ -152,6 +153,7 @@ describe("FidoAuthenticatorService", () => {
           id === excludedCipher.id ? ({ decrypt: () => excludedCipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([excludedCipher]);
+        cipherService.decrypt.mockResolvedValue(excludedCipher);
       });
 
       /**
@@ -220,6 +222,7 @@ describe("FidoAuthenticatorService", () => {
           id === existingCipher.id ? ({ decrypt: () => existingCipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([existingCipher]);
+        cipherService.decrypt.mockResolvedValue(existingCipher);
       });
 
       /**
@@ -252,7 +255,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as EncryptionContext);
 
         await authenticator.makeCredential(params, windowReference);
 
@@ -306,6 +309,11 @@ describe("FidoAuthenticatorService", () => {
         const encryptedCipher = { ...existingCipher, reprompt: CipherRepromptType.Password };
         cipherService.get.mockResolvedValue(encryptedCipher as unknown as Cipher);
 
+        cipherService.decrypt.mockResolvedValue({
+          ...existingCipher,
+          reprompt: CipherRepromptType.Password,
+        } as unknown as CipherView);
+
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
         await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
@@ -318,7 +326,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as EncryptionContext);
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
@@ -347,15 +355,16 @@ describe("FidoAuthenticatorService", () => {
           cipherId === cipher.id ? ({ decrypt: () => cipher } as any) : undefined,
         );
         cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
+        cipherService.decrypt.mockResolvedValue(cipher);
         cipherService.encrypt.mockImplementation(async (cipher) => {
           cipher.login.fido2Credentials[0].credentialId = credentialId; // Replace id for testability
-          return {} as any;
+          return { cipher: {} as any as Cipher, encryptedFor: userId };
         });
-        cipherService.createWithServer.mockImplementation(async (cipher) => {
+        cipherService.createWithServer.mockImplementation(async ({ cipher }) => {
           cipher.id = cipherId;
           return cipher;
         });
-        cipherService.updateWithServer.mockImplementation(async (cipher) => {
+        cipherService.updateWithServer.mockImplementation(async ({ cipher }) => {
           cipher.id = cipherId;
           return cipher;
         });

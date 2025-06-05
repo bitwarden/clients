@@ -10,6 +10,8 @@ import {
   switchMap,
 } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
@@ -17,16 +19,16 @@ import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/mod
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -39,7 +41,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -61,10 +63,6 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
-
-  readonly everHadUserKey$: Observable<boolean>;
-
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
@@ -80,10 +78,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
   ) {
-    // User Key
-    this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
-    this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
-
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
     ) as Observable<Record<OrganizationId, OrgKey>>;
@@ -139,6 +133,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.setUserKey(key, activeUserId);
   }
 
+  everHadUserKey$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EVER_HAD_USER_KEY)
+      .state$.pipe(map((x) => x ?? false));
+  }
+
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
     return this.stateProvider.getUserState$(USER_KEY, userId);
   }
@@ -178,11 +178,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
     const userKey = await this.getKeyFromStorage(keySuffix, userId);
@@ -232,7 +231,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newUserKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(masterKey, newUserKey.key);
+    return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
   /**
@@ -254,17 +253,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
     }
     if (keySuffix === KeySuffixOptions.Pin && userId != null) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
     }
   }
 
@@ -294,10 +286,15 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       ),
     );
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
-    return (
-      masterKey ||
-      (await this.makeMasterKey(password, email, await this.kdfConfigService.getKdfConfig()))
-    );
+    if (masterKey != null) {
+      return masterKey;
+    }
+
+    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
+    if (kdf == null) {
+      throw new Error("No kdf found for user");
+    }
+    return await this.makeMasterKey(password, email, kdf);
   }
 
   /**
@@ -308,11 +305,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
    * TODO: Move to MasterPasswordService
    */
   async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
-    return (await this.keyGenerationService.deriveKeyFromPassword(
+    const start = new Date().getTime();
+    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
       password,
       email,
       KdfConfig,
     )) as MasterKey;
+    const end = new Date().getTime();
+    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
+
+    return masterKey;
   }
 
   async encryptUserKeyWithMasterKey(
@@ -320,7 +322,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]> {
     userKey ||= await this.getUserKey();
-    return await this.buildProtectedSymmetricKey(masterKey, userKey.key);
+    return await this.buildProtectedSymmetricKey(masterKey, userKey);
   }
 
   // TODO: move to MasterPasswordService
@@ -343,7 +345,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(key.key, password, "sha256", iterations);
+    const hash = await this.cryptoFunctionService.pbkdf2(
+      key.inner().encryptionKey,
+      password,
+      "sha256",
+      iterations,
+    );
     return Utils.fromBufferToB64(hash);
   }
 
@@ -430,7 +437,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     const newSymKey = await this.keyGenerationService.createKey(512);
-    return this.buildProtectedSymmetricKey(key, newSymKey.key);
+    return this.buildProtectedSymmetricKey(key, newSymKey);
   }
 
   private async clearOrgKeys(userId: UserId): Promise<void> {
@@ -490,7 +497,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No public key found.");
     }
 
-    const encShareKey = await this.encryptService.rsaEncrypt(shareKey.key, publicKey);
+    const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
     return [encShareKey, shareKey as T];
   }
 
@@ -544,7 +551,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
     const keyPair = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
     const publicB64 = Utils.fromBufferToB64(keyPair[0]);
-    const privateEnc = await this.encryptService.encrypt(keyPair[1], key);
+    const privateEnc = await this.encryptService.wrapDecapsulationKey(keyPair[1], key);
     return [publicB64, privateEnc];
   }
 
@@ -556,17 +563,14 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PRIVATE_KEY, null, userId);
   }
 
-  async clearPinKeys(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearPinKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear PIN keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
     await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
     await this.pinService.clearUserKeyEncryptedPin(userId);
-    await this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
   }
 
   async makeSendKey(keyMaterial: CsprngArray): Promise<SymmetricCryptoKey> {
@@ -581,11 +585,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await this.keyGenerationService.createKey(512)) as CipherKey;
   }
 
-  async clearKeys(userId?: UserId): Promise<any> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-
+  async clearKeys(userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("Cannot clear keys, no user Id resolved.");
+      throw new Error("UserId is required");
     }
 
     await this.masterPasswordService.clearMasterKeyHash(userId);
@@ -727,12 +729,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     } else {
       await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     }
-    await this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
 
     const storePin = await this.shouldStoreKey(KeySuffixOptions.Pin, userId);
     if (storePin) {
       // Decrypt userKeyEncryptedPin with user key
-      const pin = await this.encryptService.decryptToUtf8(
+      const pin = await this.encryptService.decryptString(
         (await this.pinService.getUserKeyEncryptedPin(userId))!,
         key,
       );
@@ -750,9 +751,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
         noPreExistingPersistentKey,
         userId,
       );
-      // We can't always clear deprecated keys because the pin is only
-      // migrated once used to unlock
-      await this.clearDeprecatedKeys(KeySuffixOptions.Pin, userId);
     } else {
       await this.pinService.clearPinKeyEncryptedUserKeyPersistent(userId);
       await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
@@ -822,31 +820,21 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   private async buildProtectedSymmetricKey<T extends SymmetricCryptoKey>(
     encryptionKey: SymmetricCryptoKey,
-    newSymKey: Uint8Array,
+    newSymKey: SymmetricCryptoKey,
   ): Promise<[T, EncString]> {
     let protectedSymKey: EncString;
-    if (encryptionKey.key.byteLength === 32) {
+    if (encryptionKey.inner().type === EncryptionType.AesCbc256_B64) {
       const stretchedEncryptionKey = await this.keyGenerationService.stretchKey(encryptionKey);
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, stretchedEncryptionKey);
-    } else if (encryptionKey.key.byteLength === 64) {
-      protectedSymKey = await this.encryptService.encrypt(newSymKey, encryptionKey);
+      protectedSymKey = await this.encryptService.wrapSymmetricKey(
+        newSymKey,
+        stretchedEncryptionKey,
+      );
+    } else if (encryptionKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64) {
+      protectedSymKey = await this.encryptService.wrapSymmetricKey(newSymKey, encryptionKey);
     } else {
       throw new Error("Invalid key size.");
     }
-    return [new SymmetricCryptoKey(newSymKey) as T, protectedSymKey];
-  }
-
-  // --LEGACY METHODS--
-  // We previously used the master key for additional keys, but now we use the user key.
-  // These methods support migrating the old keys to the new ones.
-  // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3475)
-
-  async clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: UserId) {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      await this.stateService.setCryptoMasterKeyAuto(null, { userId: userId });
-    } else if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      await this.pinService.clearOldPinKeyEncryptedMasterKey(userId);
-    }
+    return [newSymKey as T, protectedSymKey];
   }
 
   userKey$(userId: UserId): Observable<UserKey | null> {
@@ -896,6 +884,21 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     );
   }
 
+  userEncryptionKeyPair$(
+    userId: UserId,
+  ): Observable<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null> {
+    return this.userPrivateKey$(userId).pipe(
+      switchMap(async (privateKey) => {
+        if (privateKey == null) {
+          return null;
+        }
+
+        const publicKey = (await this.derivePublicKey(privateKey))!;
+        return { privateKey, publicKey };
+      }),
+    );
+  }
+
   userEncryptedPrivateKey$(userId: UserId): Observable<EncryptedString | null> {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PRIVATE_KEY).state$;
   }
@@ -937,10 +940,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       return null;
     }
 
-    return (await this.encryptService.decryptToBytes(
+    return (await this.encryptService.unwrapDecapsulationKey(
       new EncString(encryptedPrivateKey),
       key,
-      "Content: Encrypted Private Key",
     )) as UserPrivateKey;
   }
 
@@ -968,11 +970,11 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider.getUser(userId, USER_ENCRYPTED_PROVIDER_KEYS).state$.pipe(
       // Convert each value in the record to it's own decryption observable
       convertValues(async (_, value) => {
-        const decrypted = await this.encryptService.rsaDecrypt(
+        const decapsulatedKey = await this.encryptService.decapsulateKeyUnsigned(
           new EncString(value),
           userPrivateKey,
         );
-        return new SymmetricCryptoKey(decrypted) as ProviderKey;
+        return decapsulatedKey as ProviderKey;
       }),
       // switchMap since there are no side effects
       switchMap((encryptedProviderKeys) => {
@@ -1037,9 +1039,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
               if (BaseEncryptedOrganizationKey.isProviderEncrypted(encrypted)) {
                 if (providerKeys == null) {
-                  throw new Error("No provider keys found.");
+                  continue;
                 }
-                decrypted = await encrypted.decrypt(this.encryptService, providerKeys);
+                decrypted = await encrypted.decrypt(this.encryptService, providerKeys!);
               } else {
                 decrypted = await encrypted.decrypt(this.encryptService, userPrivateKey);
               }

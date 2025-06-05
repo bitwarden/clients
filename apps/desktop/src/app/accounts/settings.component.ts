@@ -17,12 +17,13 @@ import {
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -36,7 +37,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -44,6 +45,7 @@ import { DialogService } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -52,8 +54,8 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
@@ -63,12 +65,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   localeOptions: any[];
   themeOptions: any[];
   clearClipboardOptions: any[];
+  sshAgentPromptBehaviorOptions: any[];
   supportsBiometric: boolean;
   private timerId: any;
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
-  showSshAgentOption = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -127,9 +129,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
+    sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
-    theme: [null as ThemeType | null],
+    theme: [null as Theme | null],
     locale: [null as string | null],
   });
 
@@ -199,10 +202,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.localeOptions = localeOptions;
 
     this.themeOptions = [
-      { name: this.i18nService.t("default"), value: ThemeType.System },
-      { name: this.i18nService.t("light"), value: ThemeType.Light },
-      { name: this.i18nService.t("dark"), value: ThemeType.Dark },
-      { name: "Nord", value: ThemeType.Nord },
+      { name: this.i18nService.t("default"), value: ThemeTypes.System },
+      { name: this.i18nService.t("light"), value: ThemeTypes.Light },
+      { name: this.i18nService.t("dark"), value: ThemeTypes.Dark },
     ];
 
     this.clearClipboardOptions = [
@@ -213,6 +215,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       { name: this.i18nService.t("oneMinute"), value: 60 },
       { name: this.i18nService.t("twoMinutes"), value: 120 },
       { name: this.i18nService.t("fiveMinutes"), value: 300 },
+    ];
+    this.sshAgentPromptBehaviorOptions = [
+      {
+        name: this.i18nService.t("sshAgentPromptBehaviorAlways"),
+        value: SshAgentPromptType.Always,
+      },
+      { name: this.i18nService.t("sshAgentPromptBehaviorNever"), value: SshAgentPromptType.Never },
+      {
+        name: this.i18nService.t("sshAgentPromptBehaviorRememberUntilLock"),
+        value: SshAgentPromptType.RememberUntilLock,
+      },
     ];
   }
 
@@ -225,7 +238,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showSshAgentOption = await this.configService.getFeatureFlag(FeatureFlag.SSHAgent);
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
@@ -240,7 +252,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     );
 
     // Load timeout policy
-    this.vaultTimeoutPolicyCallout = this.policyService.get$(PolicyType.MaximumVaultTimeout).pipe(
+    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
+      ),
+      getFirstPolicy,
       filter((policy) => policy != null),
       map((policy) => {
         let timeout;
@@ -264,7 +281,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
 
-    this.pinEnabled$ = this.policyService.get$(PolicyType.RemoveUnlockWithPin).pipe(
+    this.pinEnabled$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
+      ),
+      getFirstPolicy,
       map((policy) => {
         return policy == null || !policy.enabled;
       }),
@@ -305,6 +327,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.hardwareAcceleration$,
       ),
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
+      sshAgentPromptBehavior: await firstValueFrom(
+        this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
@@ -381,22 +406,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.supportsBiometric = this.shouldAllowBiometricSetup(
-      await this.biometricsService.getBiometricsStatus(),
-    );
+    this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     this.timerId = setInterval(async () => {
-      this.supportsBiometric = this.shouldAllowBiometricSetup(
-        await this.biometricsService.getBiometricsStatus(),
-      );
+      this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     }, 1000);
-  }
-
-  private shouldAllowBiometricSetup(biometricStatus: BiometricsStatus): boolean {
-    return [
-      BiometricsStatus.Available,
-      BiometricsStatus.AutoSetupNeeded,
-      BiometricsStatus.ManualSetupNeeded,
-    ].includes(biometricStatus);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
@@ -493,7 +506,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         await this.updateRequirePasswordOnStart();
       }
 
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.vaultTimeoutSettingsService.clear(userId);
     }
 
     this.messagingService.send("redrawMenu");
@@ -784,8 +798,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveSshAgent() {
-    this.logService.debug("Saving Ssh Agent settings", this.form.value.enableSshAgent);
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  async saveSshAgentPromptBehavior() {
+    await this.desktopSettingsService.setSshAgentPromptBehavior(
+      this.form.value.sshAgentPromptBehavior,
+    );
   }
 
   async savePreventScreenshots() {

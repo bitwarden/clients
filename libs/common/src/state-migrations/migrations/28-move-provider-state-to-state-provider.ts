@@ -5,6 +5,8 @@ import { Jsonify } from "type-fest";
 import { KeyDefinitionLike, MigrationHelper } from "../migration-helper";
 import { Migrator } from "../migrator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ProviderUserStatusType {
   Invited = 0,
   Accepted = 1,
@@ -12,6 +14,8 @@ enum ProviderUserStatusType {
   Revoked = -1,
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum ProviderUserType {
   ProviderAdmin = 0,
   ServiceUser = 1,

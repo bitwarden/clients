@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -36,13 +38,10 @@ export class SshKey extends Domain {
     context = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<SshKeyView> {
-    return this.decryptObj(
+    return this.decryptObj<SshKey, SshKeyView>(
+      this,
       new SshKeyView(),
-      {
-        privateKey: null,
-        publicKey: null,
-        keyFingerprint: null,
-      },
+      ["privateKey", "publicKey", "keyFingerprint"],
       orgId,
       encKey,
       "DomainType: SshKey; " + context,
@@ -72,5 +71,18 @@ export class SshKey extends Domain {
       publicKey,
       keyFingerprint,
     });
+  }
+
+  /**
+   * Maps SSH key to SDK format.
+   *
+   * @returns {SdkSshKey} The SDK SSH key object.
+   */
+  toSdkSshKey(): SdkSshKey {
+    return {
+      privateKey: this.privateKey.toJSON(),
+      publicKey: this.publicKey.toJSON(),
+      fingerprint: this.keyFingerprint.toJSON(),
+    };
   }
 }

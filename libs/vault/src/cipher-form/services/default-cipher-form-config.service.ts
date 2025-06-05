@@ -3,6 +3,8 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -89,9 +91,13 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       );
   }
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
+  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+    ),
+    map((p) => !p),
+  );
 
   private getCipher(userId: UserId, id?: CipherId): Promise<Cipher | null> {
     if (id == null) {

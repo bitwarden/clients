@@ -7,55 +7,7 @@
 
 <bit-container *ngIf="showSubscription; else hideSubscription">
   <ng-container *ngIf="sub && !loading">
-    <ng-container *ngIf="!(showUpdatedSubscriptionStatusSection$ | async)">
-      <bit-callout
-        type="warning"
-        title="{{ 'canceled' | i18n }}"
-        *ngIf="subscription && subscription.cancelled"
-      >
-        {{ "subscriptionCanceled" | i18n }}</bit-callout
-      >
-      <bit-callout
-        type="warning"
-        title="{{ 'pendingCancellation' | i18n }}"
-        *ngIf="subscriptionMarkedForCancel"
-      >
-        <p>{{ "subscriptionPendingCanceled" | i18n }}</p>
-        <button
-          *ngIf="userOrg.canEditSubscription"
-          bitButton
-          buttonType="secondary"
-          [bitAction]="reinstate"
-          type="button"
-        >
-          {{ "reinstateSubscription" | i18n }}
-        </button>
-      </bit-callout>
-
-      <dl class="tw-grid tw-grid-flow-col tw-grid-rows-2">
-        <dt>{{ "billingPlan" | i18n }}</dt>
-        <dd>{{ sub.plan.name }}</dd>
-        <ng-container *ngIf="subscription">
-          <dt>{{ "status" | i18n }}</dt>
-          <dd>
-            <span class="tw-capitalize">{{
-              isSponsoredSubscription ? "sponsored" : subscription.status || "-"
-            }}</span>
-            <span bitBadge variant="warning" *ngIf="subscriptionMarkedForCancel">{{
-              "pendingCancellation" | i18n
-            }}</span>
-          </dd>
-          <dt [ngClass]="{ 'tw-text-danger': isExpired }">
-            {{ "subscriptionExpiration" | i18n }}
-          </dt>
-          <dd [ngClass]="{ 'tw-text-danger': isExpired }">
-            {{ nextInvoice ? (sub.subscription.periodEndDate | date: "mediumDate") : "-" }}
-          </dd>
-        </ng-container>
-      </dl>
-    </ng-container>
     <app-subscription-status
-      *ngIf="showUpdatedSubscriptionStatusSection$ | async"
       [organizationSubscriptionResponse]="sub"
       (reinstatementRequested)="reinstate()"
     ></app-subscription-status>

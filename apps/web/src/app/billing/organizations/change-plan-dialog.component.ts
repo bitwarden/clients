@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import {
   Component,
   EventEmitter,
@@ -13,7 +12,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
+import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -28,13 +27,14 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   BillingApiServiceAbstraction,
   BillingInformation,
+  OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
   PaymentInformation,
   PlanInformation,
-  OrganizationBillingServiceAbstraction as OrganizationBillingService,
 } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import {
@@ -55,9 +55,16 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { BillingNotificationService } from "../services/billing-notification.service";
 import { BillingSharedModule } from "../shared/billing-shared.module";
 import { PaymentComponent } from "../shared/payment/payment.component";
 
@@ -67,11 +74,15 @@ type ChangePlanDialogParams = {
   productTierType: ProductTierType;
 };
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum ChangePlanDialogResultType {
   Closed = "closed",
   Submitted = "submitted",
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PlanCardState {
   Selected = "selected",
   NotSelected = "not_selected",
@@ -98,7 +109,6 @@ interface OnSuccessArgs {
 
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
-  standalone: true,
   imports: [BillingSharedModule],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
@@ -208,6 +218,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private taxService: TaxServiceAbstraction,
     private accountService: AccountService,
     private organizationBillingService: OrganizationBillingService,
+    private billingNotificationService: BillingNotificationService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -228,10 +239,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      const { accountCredit, paymentSource } =
-        await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-      this.accountCredit = accountCredit;
-      this.paymentSource = paymentSource;
+      try {
+        const { accountCredit, paymentSource } =
+          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+        this.accountCredit = accountCredit;
+        this.paymentSource = paymentSource;
+      } catch (error) {
+        this.billingNotificationService.handleError(error);
+      }
     }
 
     if (!this.selfHosted) {
@@ -259,9 +274,14 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
     this.upgradeFlowPrefillForm();
 
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.SingleOrg)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((policyAppliesToActiveUser) => {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
@@ -586,6 +606,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     return (
       plan.PasswordManager.additionalStoragePricePerGb *
+      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
     );
   }
@@ -606,6 +628,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
+    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
+      return 0;
+    }
+
     let subTotal = this.selectedPlan.PasswordManager.basePrice;
     if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
       subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
@@ -617,10 +643,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   secretsManagerSubtotal() {
-    this.secretsManagerTotal = 0;
-    const plan = this.selectedSecretsManagerPlan;
+    const plan = this.selectedPlan;
+    if (!plan || !plan.SecretsManager) {
+      return this.secretsManagerTotal || 0;
+    }
 
-    if (!this.organization.useSecretsManager) {
+    if (this.secretsManagerTotal) {
       return this.secretsManagerTotal;
     }
 
@@ -632,6 +660,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSeats() {
+    if (!this.selectedPlan) {
+      return 0;
+    }
+
     if (this.selectedPlan.productTier === ProductTierType.Families) {
       return this.selectedPlan.PasswordManager.baseSeats;
     }
@@ -639,7 +671,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get total() {
-    if (this.organization && this.organization.useSecretsManager) {
+    if (!this.organization || !this.selectedPlan) {
+      return 0;
+    }
+
+    if (this.organization.useSecretsManager) {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
@@ -659,6 +695,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get additionalServiceAccount() {
+    if (!this.currentPlan || !this.currentPlan.SecretsManager) {
+      return 0;
+    }
+
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
     const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
 
@@ -721,12 +761,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     if (this.taxComponent !== undefined && !this.taxComponent.validate()) {
+      this.taxComponent.markAllAsTouched();
       return;
     }
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.isSubscriptionCanceled) {
+      if (this.sub?.subscription?.status === "canceled") {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
@@ -952,9 +993,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       case PaymentMethodType.Card:
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
-        return ["bwi-bank"];
       case PaymentMethodType.Check:
-        return ["bwi-money"];
+        return ["bwi-billing"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:
@@ -1071,5 +1111,18 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.isPaymentSourceEmpty() ||
       this.isSubscriptionCanceled
     );
+  }
+
+  get submitButtonLabel(): string {
+    if (
+      this.organization &&
+      this.sub &&
+      this.organization.productTierType !== ProductTierType.Free &&
+      this.sub.subscription?.status === "canceled"
+    ) {
+      return this.i18nService.t("restart");
+    } else {
+      return this.i18nService.t("upgrade");
+    }
   }
 }

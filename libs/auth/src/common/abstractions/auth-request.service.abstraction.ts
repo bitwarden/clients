@@ -13,6 +13,12 @@ export abstract class AuthRequestServiceAbstraction {
   authRequestPushNotification$: Observable<string>;
 
   /**
+   * Emits when a login has been approved by an admin. This emission is specifically for the
+   * purpose of notifying the consuming component to display a toast informing the user.
+   */
+  adminLoginApproved$: Observable<void>;
+
+  /**
    * Returns an admin auth request for the given user if it exists.
    * @param userId The user id.
    * @throws If `userId` is not provided.
@@ -106,4 +112,13 @@ export abstract class AuthRequestServiceAbstraction {
    * @returns The dash-delimited fingerprint phrase.
    */
   abstract getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string>;
+
+  /**
+   * Passes a value to the adminLoginApprovedSubject via next(), which causes the
+   * adminLoginApproved$ observable to emit.
+   *
+   * The purpose is to notify consuming components (of adminLoginApproved$) to display
+   * a toast informing the user that a login has been approved by an admin.
+   */
+  abstract emitAdminLoginApproved(): void;
 }

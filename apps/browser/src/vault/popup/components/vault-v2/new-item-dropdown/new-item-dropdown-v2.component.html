@@ -1,5 +1,5 @@
-<button bitButton [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
-  <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+<button bitButton size="small" [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
+  <i class="bwi bwi-plus" aria-hidden="true"></i>
   {{ "new" | i18n }}
 </button>
 <bit-menu #itemOptions>
@@ -27,12 +27,7 @@
     <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
     {{ "note" | i18n }}
   </a>
-  <a
-    bitMenuItem
-    [routerLink]="['/add-cipher']"
-    [queryParams]="buildQueryParams(cipherType.SshKey)"
-    *ngIf="sshKeysEnabled"
-  >
+  <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(cipherType.SshKey)">
     <i class="bwi bwi-key" slot="start" aria-hidden="true"></i>
     {{ "typeSshKey" | i18n }}
   </a>

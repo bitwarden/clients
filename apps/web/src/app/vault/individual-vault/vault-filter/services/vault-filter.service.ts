@@ -23,8 +23,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -47,16 +49,27 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements VaultFilterServiceAbstraction {
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+  protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   memberOrganizations$ = this.activeUserId$.pipe(
     switchMap((id) => this.organizationService.memberOrganizations$(id)),
   );
 
+  collapsedFilterNodes$ = this.activeUserId$.pipe(
+    switchMap((id) => this.collapsedGroupingsState(id).state$),
+    map((state) => new Set(state)),
+  );
+
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
     this.memberOrganizations$,
-    this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg),
-    this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    ),
+    this.activeUserId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      ),
+    ),
   ]).pipe(
     switchMap(([orgs, singleOrgPolicy, personalOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, personalOwnershipPolicy),
@@ -97,11 +110,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
 
-  private collapsedGroupingsState: ActiveUserState<string[]> =
-    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
-
-  readonly collapsedFilterNodes$: Observable<Set<string>> =
-    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+  private collapsedGroupingsState(userId: UserId): SingleUserState<string[]> {
+    return this.stateProvider.getUser(userId, COLLAPSED_GROUPINGS);
+  }
 
   constructor(
     protected organizationService: OrganizationService,
@@ -119,8 +130,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     return ServiceUtils.getTreeNodeObject(collections, id) as TreeNode<CollectionFilter>;
   }
 
-  async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
+  async setCollapsedFilterNodes(collapsedFilterNodes: Set<string>, userId: UserId): Promise<void> {
+    await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
   }
 
   protected async getCollapsedFilterNodes(): Promise<Set<string>> {
@@ -143,13 +154,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     }
   }
 
-  async expandOrgFilter() {
+  async expandOrgFilter(userId: UserId) {
     const collapsedFilterNodes = await firstValueFrom(this.collapsedFilterNodes$);
     if (!collapsedFilterNodes.has("AllVaults")) {
       return;
     }
     collapsedFilterNodes.delete("AllVaults");
-    await this.setCollapsedFilterNodes(collapsedFilterNodes);
+    await this.setCollapsedFilterNodes(collapsedFilterNodes, userId);
   }
 
   protected async buildOrganizationTree(
@@ -228,7 +239,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         const collectionCopy = new CollectionView() as CollectionFilter;
         collectionCopy.id = c.id;
         collectionCopy.organizationId = c.organizationId;
-        collectionCopy.icon = "bwi-collection";
+        collectionCopy.icon = "bwi-collection-shared";
         if (c instanceof CollectionAdminView) {
           collectionCopy.groups = c.groups;
           collectionCopy.assigned = c.assigned;

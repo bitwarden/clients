@@ -3,13 +3,14 @@
     slot="header"
     [backAction]="close"
     showBackButton
-    [pageTitle]="title"
+    [pageTitle]="titleKey | i18n"
   ></popup-header>
 
   <vault-cipher-form-generator
     [type]="params.type"
     [uri]="uri"
     (valueGenerated)="onValueGenerated($event)"
+    (algorithmSelected)="onAlgorithmSelected($event)"
   ></vault-cipher-form-generator>
 
   <popup-footer slot="footer">
@@ -19,6 +20,7 @@
       buttonType="primary"
       (click)="selectValue()"
       data-testid="select-button"
+      [disabled]="!(selectButtonText && generatedValue)"
     >
       {{ selectButtonText }}
     </button>

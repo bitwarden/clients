@@ -15,16 +15,16 @@ bench = false
 
 [dependencies]
 desktop_core = { path = "../core" }
-futures = "=0.3.31"
+futures = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["sync"] }
 tokio-util = { workspace = true }
-uniffi = { version = "=0.28.3", features = ["cli"] }
+uniffi = { workspace = true, features = ["cli"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-oslog = "=0.2.0"
+oslog = { workspace = true }
 
 [build-dependencies]
-uniffi = { version = "=0.28.3", features = ["build"] }
+uniffi = { workspace = true, features = ["build"] }

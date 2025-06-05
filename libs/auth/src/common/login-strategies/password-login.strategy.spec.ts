@@ -10,14 +10,15 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -80,6 +81,7 @@ describe("PasswordLoginStrategy", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let environmentService: MockProxy<EnvironmentService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -106,6 +108,7 @@ describe("PasswordLoginStrategy", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
+    environmentService = mock<EnvironmentService>();
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -144,6 +147,7 @@ describe("PasswordLoginStrategy", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
+      environmentService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
     tokenResponse = identityTokenResponseFactory(masterPasswordPolicy);
@@ -180,7 +184,6 @@ describe("PasswordLoginStrategy", () => {
           provider: null,
           token: null,
         }),
-        captchaResponse: undefined,
       }),
     );
   });
@@ -207,20 +210,18 @@ describe("PasswordLoginStrategy", () => {
   it("does not force the user to update their master password when there are no requirements", async () => {
     apiService.postIdentityToken.mockResolvedValueOnce(identityTokenResponseFactory());
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).not.toHaveBeenCalled();
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
   });
 
   it("does not force the user to update their master password when it meets requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 5 } as any);
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
   });
 
   it("forces the user to update their master password on successful login when it does not meet master password policy requirements", async () => {
@@ -228,14 +229,33 @@ describe("PasswordLoginStrategy", () => {
     policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
 
-    const result = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
     expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
-    expect(result.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
+  });
+
+  it("should not set a force set password reason if we get an IdentityTwoFactorResponse after entering a weak MP that does not meet policy requirements", async () => {
+    passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
+    policyService.evaluateMasterPassword.mockReturnValue(false);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const token2FAResponse = new IdentityTwoFactorResponse({
+      TwoFactorProviders: ["0"],
+      TwoFactorProviders2: { 0: null },
+      error: "invalid_grant",
+      error_description: "Two factor required.",
+      MasterPasswordPolicy: masterPasswordPolicy,
+    });
+
+    // First login request fails requiring 2FA
+    apiService.postIdentityToken.mockResolvedValueOnce(token2FAResponse);
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalled();
   });
 
   it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {
@@ -253,30 +273,23 @@ describe("PasswordLoginStrategy", () => {
 
     // First login request fails requiring 2FA
     apiService.postIdentityToken.mockResolvedValueOnce(token2FAResponse);
-    const firstResult = await passwordLoginStrategy.logIn(credentials);
+    await passwordLoginStrategy.logIn(credentials);
 
     // Second login request succeeds
     apiService.postIdentityToken.mockResolvedValueOnce(
       identityTokenResponseFactory(masterPasswordPolicy),
     );
-    const secondResult = await passwordLoginStrategy.logInTwoFactor(
-      {
-        provider: TwoFactorProviderType.Authenticator,
-        token: "123456",
-        remember: false,
-      },
-      "",
-    );
+    await passwordLoginStrategy.logInTwoFactor({
+      provider: TwoFactorProviderType.Authenticator,
+      token: "123456",
+      remember: false,
+    });
 
-    // First login attempt should not save the force password reset options
-    expect(firstResult.forcePasswordReset).toEqual(ForceSetPasswordReason.None);
-
-    // Second login attempt should save the force password reset options and return in result
+    // Second login attempt should save the force password reset options
     expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
-    expect(secondResult.forcePasswordReset).toEqual(ForceSetPasswordReason.WeakMasterPassword);
   });
 
   it("handles new device verification login with OTP", async () => {
@@ -294,7 +307,6 @@ describe("PasswordLoginStrategy", () => {
         newDeviceOtp: deviceVerificationOtp,
       }),
     );
-    expect(result.forcePasswordReset).toBe(ForceSetPasswordReason.None);
     expect(result.resetMasterPassword).toBe(false);
     expect(result.userId).toBe(userId);
   });

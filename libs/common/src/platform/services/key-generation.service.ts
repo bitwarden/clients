@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KdfConfig, PBKDF2KdfConfig, Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
 
+import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
-import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "../abstractions/key-generation.service";
+import { EncryptionType } from "../enums";
 import { Utils } from "../misc/utils";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
@@ -79,9 +82,26 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
   }
 
   async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
+    // The key to be stretched is actually usually the output of a KDF, and not actually meant for AesCbc256_B64 encryption,
+    // but has the same key length. Only 256-bit key materials should be stretched.
+    if (key.inner().type != EncryptionType.AesCbc256_B64) {
+      throw new Error("Key passed into stretchKey is not a 256-bit key.");
+    }
+
     const newKey = new Uint8Array(64);
-    const encKey = await this.cryptoFunctionService.hkdfExpand(key.key, "enc", 32, "sha256");
-    const macKey = await this.cryptoFunctionService.hkdfExpand(key.key, "mac", 32, "sha256");
+    // Master key and pin key are always 32 bytes
+    const encKey = await this.cryptoFunctionService.hkdfExpand(
+      key.inner().encryptionKey,
+      "enc",
+      32,
+      "sha256",
+    );
+    const macKey = await this.cryptoFunctionService.hkdfExpand(
+      key.inner().encryptionKey,
+      "mac",
+      32,
+      "sha256",
+    );
 
     newKey.set(new Uint8Array(encKey));
     newKey.set(new Uint8Array(macKey), 32);

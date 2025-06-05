@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Field as SdkField, LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -35,12 +37,10 @@ export class Field extends Domain {
   }
 
   decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<FieldView> {
-    return this.decryptObj(
+    return this.decryptObj<Field, FieldView>(
+      this,
       new FieldView(this),
-      {
-        name: null,
-        value: null,
-      },
+      ["name", "value"],
       orgId,
       encKey,
     );
@@ -74,5 +74,20 @@ export class Field extends Domain {
       name,
       value,
     });
+  }
+
+  /**
+   * Maps Field to SDK format.
+   *
+   * @returns {SdkField} The SDK field object.
+   */
+  toSdkField(): SdkField {
+    return {
+      name: this.name?.toJSON(),
+      value: this.value?.toJSON(),
+      type: this.type,
+      // Safe type cast: client and SDK LinkedIdType enums have identical values
+      linkedId: this.linkedId as unknown as SdkLinkedIdType,
+    };
   }
 }

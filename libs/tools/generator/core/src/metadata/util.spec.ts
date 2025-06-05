@@ -1,7 +1,12 @@
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import { PrivateClassifier } from "@bitwarden/common/tools/private-classifier";
+import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
+import { ObjectKey } from "@bitwarden/common/tools/state/object-key";
 
 import { Algorithm, AlgorithmsByType } from "./data";
-import { ProfileMetadata } from "./profile-metadata";
+import { ProfileContext, ProfileMetadata } from "./profile-metadata";
 import {
   isPasswordAlgorithm,
   isUsernameAlgorithm,
@@ -11,6 +16,19 @@ import {
   isCoreProfile,
   isForwarderProfile,
 } from "./util";
+
+const SomeStorage: ObjectKey<object> = {
+  target: "object",
+  key: "arbitrary",
+  state: GENERATOR_DISK,
+  classifier: new PrivateClassifier(),
+  format: "classified",
+  options: { clearOn: [], deserializer: (value) => value },
+};
+
+function createConstraints(policies: Policy[], context: ProfileContext<object>) {
+  return new IdentityConstraint();
+}
 
 describe("credential generator metadata utility functions", () => {
   describe("isPasswordAlgorithm", () => {
@@ -151,10 +169,10 @@ describe("credential generator metadata utility functions", () => {
     it("returns `true` when the profile's type is `core`", () => {
       const profile: ProfileMetadata<object> = {
         type: "core",
-        storage: null,
+        storage: SomeStorage,
         constraints: {
           default: {},
-          create: () => null,
+          create: createConstraints,
         },
       };
 
@@ -165,9 +183,10 @@ describe("credential generator metadata utility functions", () => {
       const profile: ProfileMetadata<object> = {
         type: "extension",
         site: "forwarder",
+        storage: SomeStorage,
         constraints: {
           default: {},
-          create: () => null,
+          create: createConstraints,
         },
       };
 
@@ -179,10 +198,10 @@ describe("credential generator metadata utility functions", () => {
     it("returns `false` when the profile's type is `core`", () => {
       const profile: ProfileMetadata<object> = {
         type: "core",
-        storage: null,
+        storage: SomeStorage,
         constraints: {
           default: {},
-          create: () => null,
+          create: createConstraints,
         },
       };
 
@@ -193,9 +212,10 @@ describe("credential generator metadata utility functions", () => {
       const profile: ProfileMetadata<object> = {
         type: "extension",
         site: "forwarder",
+        storage: SomeStorage,
         constraints: {
           default: {},
-          create: () => null,
+          create: createConstraints,
         },
       };
 
@@ -206,9 +226,10 @@ describe("credential generator metadata utility functions", () => {
       const profile: ProfileMetadata<object> = {
         type: "extension",
         site: "not-a-forwarder" as any,
+        storage: SomeStorage,
         constraints: {
           default: {},
-          create: () => null,
+          create: createConstraints,
         },
       };
 

@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BiometricsCommands {
   /** Perform biometric authentication for the system's user. Does not require setup, and does not return cryptographic material, only yes or no. */
   AuthenticateWithBiometrics = "authenticateWithBiometrics",
@@ -7,6 +9,9 @@ export enum BiometricsCommands {
   UnlockWithBiometricsForUser = "unlockWithBiometricsForUser",
   /** Get biometric status for a specific user account. This includes both information about availability of cryptographic material (is the user configured for biometric unlock? is a masterpassword unlock needed? But also information about the biometric system's availability in a single status) */
   GetBiometricsStatusForUser = "getBiometricsStatusForUser",
+
+  /** Checks whether the biometric unlock can be enabled. */
+  CanEnableBiometricUnlock = "canEnableBiometricUnlock",
 
   // legacy
   Unlock = "biometricUnlock",

@@ -11,6 +11,7 @@ import {
 @Component({
   selector: "app-billing-history",
   templateUrl: "billing-history.component.html",
+  standalone: false,
 })
 export class BillingHistoryComponent {
   @Input()
@@ -31,7 +32,7 @@ export class BillingHistoryComponent {
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
       case PaymentMethodType.WireTransfer:
-        return ["bwi-bank"];
+        return ["bwi-billing"];
       case PaymentMethodType.BitPay:
         return ["bwi-bitcoin text-warning"];
       case PaymentMethodType.PayPal:

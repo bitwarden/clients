@@ -15,6 +15,8 @@ export type VaultFilterType =
   | FolderFilter
   | CollectionFilter;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum VaultFilterLabel {
   OrganizationFilter = "organizationFilter",
   TypeFilter = "typeFilter",
@@ -31,7 +33,7 @@ export type VaultFilterSection = {
   };
   action: (filterNode: TreeNode<VaultFilterType>) => Promise<void>;
   edit?: {
-    text: string;
+    filterName: string;
     action: (filter: VaultFilterType) => void;
   };
   add?: {

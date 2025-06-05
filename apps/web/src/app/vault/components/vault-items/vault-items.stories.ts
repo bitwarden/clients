@@ -17,7 +17,10 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -25,6 +28,7 @@ import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.v
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -53,6 +57,11 @@ export default {
             getIconsUrl() {
               return "";
             },
+            environment$: new BehaviorSubject({
+              getIconsUrl() {
+                return "";
+              },
+            } as Environment).asObservable(),
           } as Partial<EnvironmentService>,
         },
         {
@@ -96,9 +105,23 @@ export default {
         {
           provide: ConfigService,
           useValue: {
-            getFeatureFlag() {
+            getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
               return false;
+            },
+          },
+        },
+        {
+          provide: CipherAuthorizationService,
+          useValue: {
+            canDeleteCipher$() {
+              return of(true);
+            },
+            canRestoreCipher$() {
+              return of(true);
+            },
+            canCloneCipher$() {
+              return of(true);
             },
           },
         },

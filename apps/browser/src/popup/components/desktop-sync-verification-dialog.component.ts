@@ -1,10 +1,15 @@
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { filter, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogRef,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+} from "@bitwarden/components";
 
 export type DesktopSyncVerificationDialogParams = {
   fingerprint: string[];
@@ -12,7 +17,6 @@ export type DesktopSyncVerificationDialogParams = {
 
 @Component({
   templateUrl: "desktop-sync-verification-dialog.component.html",
-  standalone: true,
   imports: [JslibModule, ButtonModule, DialogModule],
 })
 export class DesktopSyncVerificationDialogComponent implements OnDestroy, OnInit {

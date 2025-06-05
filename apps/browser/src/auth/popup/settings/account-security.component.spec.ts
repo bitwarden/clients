@@ -4,7 +4,10 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -16,14 +19,18 @@ import {
   VaultTimeoutStringType,
   VaultTimeoutAction,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
 
@@ -33,7 +40,6 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
 import { AccountSecurityComponent } from "./account-security.component";
 
 @Component({
-  standalone: true,
   selector: "app-pop-out",
   template: ` <ng-content></ng-content>`,
 })
@@ -71,6 +77,13 @@ describe("AccountSecurityComponent", () => {
         { provide: UserVerificationService, useValue: mock<UserVerificationService>() },
         { provide: VaultTimeoutService, useValue: mock<VaultTimeoutService>() },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
+        { provide: StateProvider, useValue: mock<StateProvider>() },
+        { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
+        { provide: CollectionService, useValue: mock<CollectionService>() },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     })
       .overrideComponent(AccountSecurityComponent, {
@@ -99,7 +112,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin enabled when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
 
@@ -111,7 +124,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -129,7 +142,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
 
@@ -143,7 +156,7 @@ describe("AccountSecurityComponent", () => {
 
   it("pin visible when RemoveUnlockWithPin policy is not set", async () => {
     // @ts-strict-ignore
-    policyService.get$.mockReturnValue(of(null));
+    policyService.policiesByType$.mockReturnValue(of([null]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -158,7 +171,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = false;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();
@@ -173,7 +186,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
@@ -190,7 +203,7 @@ describe("AccountSecurityComponent", () => {
     policy.type = PolicyType.RemoveUnlockWithPin;
     policy.enabled = true;
 
-    policyService.get$.mockReturnValue(of(policy));
+    policyService.policiesByType$.mockReturnValue(of([policy]));
 
     await component.ngOnInit();
     fixture.detectChanges();

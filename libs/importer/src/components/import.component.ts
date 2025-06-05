@@ -18,6 +18,8 @@ import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
 import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -37,6 +39,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -48,7 +51,6 @@ import {
   ButtonModule,
   CalloutModule,
   CardComponent,
-  ContainerComponent,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -96,6 +98,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       PinServiceAbstraction,
       AccountService,
+      SdkService,
     ],
   }),
 ];
@@ -103,7 +106,6 @@ const safeProviders: SafeProvider[] = [
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -117,7 +119,6 @@ const safeProviders: SafeProvider[] = [
     ImportLastPassComponent,
     RadioButtonModule,
     CardComponent,
-    ContainerComponent,
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
@@ -327,7 +328,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async handlePolicies() {
     combineLatest([
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+      ),
       this.organizations$,
     ])
       .pipe(takeUntil(this.destroy$))

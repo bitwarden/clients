@@ -1,8 +1,6 @@
-﻿@import "~nord/src/sass/nord.scss";
+﻿$dark-icon-themes: "theme_dark";
 
-$dark-icon-themes: "theme_dark", "theme_solarizedDark", "theme_nord";
-
-$font-family-sans-serif: "DM Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif: Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $font-family-source-code-pro: "Source Code Pro", monospace;
 $font-size-base: 14px;
 
@@ -33,14 +31,6 @@ $border-color: #ced4dc;
 
 $border-radius: 3px;
 $focus-outline-color: #1252a3;
-
-$solarizedDarkBase0: #839496;
-$solarizedDarkBase03: #002b36;
-$solarizedDarkBase02: #073642;
-$solarizedDarkBase01: #586e75;
-$solarizedDarkBase2: #eee8d5;
-$solarizedDarkCyan: #2aa198;
-$solarizedDarkGreen: #859900;
 
 $themes: (
   light: (
@@ -78,41 +68,6 @@ $themes: (
     passkeysAuthenticating: $muted-grey,
     passwordSpecialColor: $password-special-color-dark,
     passwordNumberColor: $password-number-color-dark,
-  ),
-  nord: (
-    textColor: $nord5,
-    mutedTextColor: $nord4,
-    backgroundColor: $nord1,
-    backgroundOffsetColor: darken($nord1, 2.75%),
-    buttonPrimaryColor: $nord8,
-    primaryColor: $nord9,
-    textContrast: $nord2,
-    inputBorderColor: $nord0,
-    inputBackgroundColor: $nord2,
-    borderColor: $nord0,
-    focusOutlineColor: lighten($focus-outline-color, 25%),
-    successColor: $success-color-dark,
-    passkeysAuthenticating: $nord4,
-    passwordSpecialColor: $nord12,
-    passwordNumberColor: $nord8,
-  ),
-  solarizedDark: (
-    textColor: $solarizedDarkBase2,
-    // Muted uses main text color to avoid contrast issues
-    mutedTextColor: $solarizedDarkBase2,
-    backgroundColor: $solarizedDarkBase03,
-    backgroundOffsetColor: darken($solarizedDarkBase03, 2.75%),
-    buttonPrimaryColor: $solarizedDarkCyan,
-    primaryColor: $solarizedDarkGreen,
-    textContrast: $solarizedDarkBase02,
-    inputBorderColor: rgba($solarizedDarkBase2, 0.2),
-    inputBackgroundColor: $solarizedDarkBase01,
-    borderColor: $solarizedDarkBase2,
-    focusOutlineColor: lighten($focus-outline-color, 15%),
-    successColor: $success-color-dark,
-    passkeysAuthenticating: $solarizedDarkBase2,
-    passwordSpecialColor: #b58900,
-    passwordNumberColor: $solarizedDarkCyan,
   ),
 );
 

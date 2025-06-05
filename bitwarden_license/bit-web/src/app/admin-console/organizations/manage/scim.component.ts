@@ -24,8 +24,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-org-manage-scim",
   templateUrl: "scim.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ScimComponent implements OnInit {
   loading = true;
   organizationId: string;

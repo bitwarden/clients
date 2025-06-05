@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, OnDestroy, OnInit } from "@angular/core";
-import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -52,9 +53,12 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     this.email = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );
-    this.policyService
-      .masterPasswordPolicyOptions$()
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId)),
+        takeUntil(this.destroy$),
+      )
       .subscribe(
         (enforcedPasswordPolicyOptions) =>
           (this.enforcedPolicyOptions ??= enforcedPasswordPolicyOptions),
@@ -79,11 +83,12 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const email = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+    const [userId, email] = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => [a?.id, a?.email])),
     );
+
     if (this.kdfConfig == null) {
-      this.kdfConfig = await this.kdfConfigService.getKdfConfig();
+      this.kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
     }
 
     // Create new master key

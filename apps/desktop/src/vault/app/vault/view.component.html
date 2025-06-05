@@ -128,54 +128,57 @@
             <span class="row-label">{{ "typePasskey" | i18n }}</span>
             {{ fido2CredentialCreationDateValue }}
           </div>
-          <div
-            class="box-content-row box-content-row-flex totp"
-            [ngClass]="{ low: totpLow }"
-            *ngIf="cipher.login.totp && totpCode"
-          >
-            <div class="row-main">
-              <span
-                class="row-label draggable"
-                draggable="true"
-                (dragstart)="setTextDataOnDrag($event, totpCode)"
-                >{{ "verificationCodeTotp" | i18n }}</span
-              >
-              <span class="totp-code">{{ totpCodeFormatted }}</span>
-            </div>
-            <span class="totp-countdown" aria-hidden="true">
-              <span class="totp-sec">{{ totpSec }}</span>
-              <svg>
-                <g>
-                  <circle
-                    class="totp-circle inner"
-                    r="12.6"
-                    cy="16"
-                    cx="16"
-                    [ngStyle]="{ 'stroke-dashoffset.px': totpDash }"
-                  ></circle>
-                  <circle class="totp-circle outer" r="14" cy="16" cx="16"></circle>
-                </g>
-              </svg>
-            </span>
-            <div class="action-buttons">
-              <button
-                type="button"
-                class="row-btn"
-                appStopClick
-                title="{{ 'copyValue' | i18n }}"
-                (click)="copy(totpCode, 'verificationCodeTotp', 'TOTP')"
-              >
-                <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
-                <span class="sr-only">{{ "copyValue" | i18n }}</span>
+
+          <ng-container *ngIf="cipher.login.totp && totpInfo$ | async as totpInfo">
+            <div
+              class="box-content-row box-content-row-flex totp"
+              [ngClass]="{ low: totpInfo.totpLow }"
+            >
+              <div class="row-main">
                 <span
-                  class="sr-only exists-only-on-parent-focus"
-                  aria-live="polite"
-                  aria-atomic="true"
-                  >{{ totpSec }}</span
+                  class="row-label draggable"
+                  draggable="true"
+                  (dragstart)="setTextDataOnDrag($event, totpInfo.totpCode)"
+                  >{{ "verificationCodeTotp" | i18n }}</span
                 >
-              </button>
+                <span class="totp-code">{{ totpInfo.totpCodeFormatted }}</span>
+              </div>
+              <span class="totp-countdown" aria-hidden="true">
+                <span class="totp-sec">{{ totpInfo.totpSec }}</span>
+                <svg>
+                  <g>
+                    <circle
+                      class="totp-circle inner"
+                      r="12.6"
+                      cy="16"
+                      cx="16"
+                      [ngStyle]="{ 'stroke-dashoffset.px': totpInfo.totpDash }"
+                    ></circle>
+                    <circle class="totp-circle outer" r="14" cy="16" cx="16"></circle>
+                  </g>
+                </svg>
+              </span>
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="row-btn"
+                  appStopClick
+                  title="{{ 'copyValue' | i18n }}"
+                  (click)="copy(totpInfo.totpCode, 'verificationCodeTotp', 'TOTP')"
+                >
+                  <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+                  <span class="sr-only">{{ "copyValue" | i18n }}</span>
+                  <span
+                    class="sr-only exists-only-on-parent-focus"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    >{{ totpInfo.totpSec }}</span
+                  >
+                </button>
+              </div>
             </div>
-          </div>
+          </ng-container>
+
           <div class="box-content-row box-content-row-flex totp" *ngIf="showPremiumRequiredTotp">
             <div class="row-main">
               <span class="row-label">{{ "verificationCodeTotp" | i18n }}</span>
@@ -532,7 +535,7 @@
               *ngIf="u.canLaunch"
               (click)="launch(u)"
             >
-              <i class="bwi bwi-lg bwi-share-square" aria-hidden="true"></i>
+              <i class="bwi bwi-lg bwi-external-link" aria-hidden="true"></i>
             </button>
             <button
               type="button"
@@ -653,7 +656,11 @@
       class="primary"
       (click)="restore()"
       appA11yTitle="{{ 'restore' | i18n }}"
-      *ngIf="cipher.isDeleted"
+      *ngIf="
+        (limitItemDeletion$ | async)
+          ? (canRestoreCipher$ | async) && cipher.isDeleted
+          : cipher.isDeleted
+      "
     >
       <i class="bwi bwi-undo bwi-fw bwi-lg" aria-hidden="true"></i>
     </button>

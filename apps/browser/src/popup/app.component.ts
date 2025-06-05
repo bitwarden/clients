@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -24,6 +26,7 @@ import {
 import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
+import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
@@ -40,6 +43,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
     </div>
     <bit-toast-container></bit-toast-container>
   `,
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
@@ -68,12 +72,17 @@ export class AppComponent implements OnInit, OnDestroy {
     private animationControlService: AnimationControlService,
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
-  ) {}
+    private deviceTrustToastService: DeviceTrustToastService,
+    private popupSizeService: PopupSizeService,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+  }
 
   async ngOnInit() {
     initPopupClosedListener();
 
     this.compactModeService.init();
+    await this.popupSizeService.setHeight();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur
@@ -113,9 +122,7 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             this.changeDetectorRef.detectChanges();
           } else if (msg.command === "authBlocked" || msg.command === "goHome") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["home"]);
+            await this.router.navigate(["login"]);
           } else if (
             msg.command === "locked" &&
             (msg.userId == null || msg.userId == this.activeUserId)
@@ -157,10 +164,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["/remove-password"]);
-          } else if (msg.command == "update-temp-password") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["/update-temp-password"]);
           }
         }),
         takeUntil(this.destroy$),

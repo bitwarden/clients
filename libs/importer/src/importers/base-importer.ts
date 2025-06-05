@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import * as papa from "papaparse";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,6 +22,7 @@ import { ImportResult } from "../models/import-result";
 export abstract class BaseImporter {
   organizationId: string = null;
 
+  // FIXME: This should be replaced by injecting the log service.
   protected logService: LogService = new ConsoleLogService(false);
 
   protected newLineRegex = /(?:\r\n|\r|\n)/;
@@ -365,7 +368,7 @@ export abstract class BaseImporter {
 
     let folderIndex = result.folders.length;
     // Replace backslashes with forward slashes, ensuring we create sub-folders
-    folderName = folderName.replace("\\", "/");
+    folderName = folderName.replace(/\\/g, "/");
     let addFolder = true;
 
     for (let i = 0; i < result.folders.length; i++) {
@@ -385,6 +388,17 @@ export abstract class BaseImporter {
     //Some folders can have sub-folders but no ciphers directly, we should not add to the folderRelationships array
     if (addRelationship) {
       result.folderRelationships.push([result.ciphers.length, folderIndex]);
+    }
+
+    // if the folder name is a/b/c/d, we need to create a/b/c and a/b and a
+    const parts = folderName.split("/");
+    for (let i = parts.length - 1; i > 0; i--) {
+      const parentName = parts.slice(0, i).join("/") as string;
+      if (result.folders.find((c) => c.name === parentName) == null) {
+        const folder = new FolderView();
+        folder.name = parentName;
+        result.folders.push(folder);
+      }
     }
   }
 

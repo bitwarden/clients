@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -13,7 +12,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -24,6 +29,8 @@ export interface BulkDeleteDialogParams {
   unassignedCiphers?: string[];
 }
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum BulkDeleteDialogResult {
   Deleted = "deleted",
   Canceled = "canceled",
@@ -46,6 +53,7 @@ export const openBulkDeleteDialog = (
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];

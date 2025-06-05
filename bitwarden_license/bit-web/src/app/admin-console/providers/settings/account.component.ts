@@ -20,8 +20,8 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "provider-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class AccountComponent implements OnDestroy, OnInit {
   selfHosted = false;
   loading = true;

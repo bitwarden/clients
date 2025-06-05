@@ -17,6 +17,7 @@ export class OverlayNotificationsContentService
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
   private currentNotificationBarType: string | null = null;
   private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
+  private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
     height: "82px",
     width: "430px",
@@ -54,6 +55,10 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
+    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+      this.setNotificationRefreshBarHeight();
+    });
   }
 
   /**
@@ -84,7 +89,6 @@ export class OverlayNotificationsContentService
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
-      applyRedesign: true,
       launchTimestamp: typeData.launchTimestamp,
     };
 
@@ -103,13 +107,15 @@ export class OverlayNotificationsContentService
    * @param message - The message containing the data for closing the notification bar.
    */
   private handleCloseNotificationBarMessage(message: NotificationsExtensionMessage) {
+    const closedByUser =
+      typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
     if (message.data?.fadeOutNotification) {
       setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
-      globalThis.setTimeout(() => this.closeNotificationBar(true), 150);
+      globalThis.setTimeout(() => this.closeNotificationBar(closedByUser), 150);
       return;
     }
 
-    this.closeNotificationBar(true);
+    this.closeNotificationBar(closedByUser);
   }
 
   /**
@@ -132,9 +138,13 @@ export class OverlayNotificationsContentService
    * @private
    */
   private handleSaveCipherAttemptCompletedMessage(message: NotificationsExtensionMessage) {
+    // destructure error out of data
+    const { error, ...otherData } = message?.data || {};
+
     this.sendMessageToNotificationBarIframe({
       command: "saveCipherAttemptCompleted",
-      error: message.data?.error,
+      data: Object.keys(otherData).length ? otherData : undefined,
+      error,
     });
   }
 
@@ -192,7 +202,13 @@ export class OverlayNotificationsContentService
       { transform: "translateX(0)", opacity: "1" },
       true,
     );
-    setElementStyles(this.notificationBarElement, { boxShadow: "2px 4px 6px 0px #0000001A" }, true);
+    if (!this.notificationRefreshFlag) {
+      setElementStyles(
+        this.notificationBarElement,
+        { boxShadow: "2px 4px 6px 0px #0000001A" },
+        true,
+      );
+    }
     this.notificationBarIframeElement.removeEventListener(
       EVENTS.LOAD,
       this.handleNotificationBarIframeOnLoad,
@@ -206,8 +222,30 @@ export class OverlayNotificationsContentService
     if (this.notificationBarIframeElement) {
       this.notificationBarElement = globalThis.document.createElement("div");
       this.notificationBarElement.id = "bit-notification-bar";
+
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
+      this.setNotificationRefreshBarHeight();
+
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
+    }
+  }
+
+  /**
+   * Sets the height of the notification bar based on the value of `notificationRefreshFlag`.
+   * If the flag is `true`, the bar is expanded to 400px and aligned right.
+   * If the flag is `false`, `null`, or `undefined`, it defaults to height of 82px.
+   * Skips if the notification bar element has not yet been created.
+   *
+   */
+  private setNotificationRefreshBarHeight() {
+    const isNotificationV3 = !!this.notificationRefreshFlag;
+
+    if (!this.notificationBarElement) {
+      return;
+    }
+
+    if (isNotificationV3) {
+      setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
     }
   }
 

@@ -8,6 +8,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -74,6 +75,7 @@ describe("LoginCredentialsViewComponent", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 
@@ -166,7 +168,7 @@ describe("LoginCredentialsViewComponent", () => {
 
         const passwordColor = passwordField.query(By.directive(ColorPasswordComponent));
 
-        expect(passwordColor.componentInstance.password).toBe(cipher.login.password);
+        expect(passwordColor.componentInstance.password()).toBe(cipher.login.password);
       });
 
       it("records event", () => {

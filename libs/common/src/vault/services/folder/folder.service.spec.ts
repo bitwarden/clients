@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../../spec";
@@ -46,6 +48,7 @@ describe("Folder Service", () => {
     i18nService.t.mockReturnValue("No Folder");
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+    encryptService.decryptString.mockResolvedValue("DEC");
     encryptService.decryptToUtf8.mockResolvedValue("DEC");
 
     folderService = new FolderService(
@@ -110,7 +113,7 @@ describe("Folder Service", () => {
     model.id = "2";
     model.name = "Test Folder";
 
-    encryptService.encrypt.mockResolvedValue(new EncString("ENC"));
+    encryptService.encryptString.mockResolvedValue(new EncString("ENC"));
 
     const result = await folderService.encrypt(model, null);
 
@@ -211,7 +214,7 @@ describe("Folder Service", () => {
 
     beforeEach(() => {
       encryptedKey = new EncString("Re-encrypted Folder");
-      encryptService.encrypt.mockResolvedValue(encryptedKey);
+      encryptService.encryptString.mockResolvedValue(encryptedKey);
     });
 
     it("returns re-encrypted user folders", async () => {

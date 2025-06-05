@@ -86,7 +86,12 @@
     appStopProp
   ></button>
   <bit-menu #corruptedCipherOptions>
-    <button bitMenuItem *ngIf="canManageCollection" (click)="deleteCipher()" type="button">
+    <button
+      bitMenuItem
+      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
+      (click)="deleteCipher()"
+      type="button"
+    >
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}
@@ -125,7 +130,7 @@
         target="_blank"
         rel="noreferrer"
       >
-        <i class="bwi bwi-fw bwi-share-square" aria-hidden="true"></i>
+        <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
         {{ "launch" | i18n }}
       </a>
     </ng-container>
@@ -144,18 +149,28 @@
       type="button"
       (click)="assignToCollections()"
     >
-      <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+      <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
       {{ "assignToCollections" | i18n }}
     </button>
     <button bitMenuItem *ngIf="showEventLogs" type="button" (click)="events()">
       <i class="bwi bwi-fw bwi-file-text" aria-hidden="true"></i>
       {{ "eventLogs" | i18n }}
     </button>
-    <button bitMenuItem (click)="restore()" type="button" *ngIf="cipher.isDeleted">
+    <button
+      bitMenuItem
+      (click)="restore()"
+      type="button"
+      *ngIf="(limitItemDeletion$ | async) ? cipher.isDeleted && canRestoreCipher : cipher.isDeleted"
+    >
       <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
       {{ "restore" | i18n }}
     </button>
-    <button bitMenuItem *ngIf="canManageCollection" (click)="deleteCipher()" type="button">
+    <button
+      bitMenuItem
+      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
+      (click)="deleteCipher()"
+      type="button"
+    >
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}

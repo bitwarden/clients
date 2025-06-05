@@ -12,7 +12,7 @@ component_management:
       paths:
         - apps/browser/src/key-management/biometrics/**
         - apps/cli/src/key-management/cli-biometrics-service.ts
-        - apps/desktop/destkop_native/core/src/biometric/**
+        - apps/desktop/desktop_native/core/src/biometric/**
         - apps/desktop/src/key-management/biometrics/**
         - apps/desktop/src/services/biometric-message-handler.service.ts
         - apps/web/src/app/key-management/web-biometric.service.ts
@@ -24,6 +24,7 @@ component_management:
         - apps/desktop/src/key-management/lock/**
         - apps/web/src/app/key-management/lock/**
         - libs/key-management-ui/src/lock/**
+        - libs/common/src/key-management/device-trust/**
     - component_id: key-management-ipc
       name: Key Management - IPC
       paths:
@@ -43,9 +44,11 @@ component_management:
     - component_id: key-management-keys
       name: Key Management - Keys
       paths:
+        - apps/desktop/src/key-management/electron-key.service.ts
         - libs/key-management/src/kdf-config.service.ts
         - libs/key-management/src/key.service.ts
         - libs/common/src/key-management/master-password/**
+        - libs/common/src/key-management/key-connector/**
     - component_id: key-management-crypto
       name: Key Management - Crypto
       paths:

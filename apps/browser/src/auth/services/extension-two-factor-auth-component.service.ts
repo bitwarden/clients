@@ -106,7 +106,9 @@ export class ExtensionTwoFactorAuthComponentService
       AuthPopoutType.twoFactorAuthDuo,
     );
 
-    if (inTwoFactorAuthDuoPopout) {
+    const inPopout = BrowserPopupUtils.inPopout(this.window);
+
+    if (inTwoFactorAuthDuoPopout || inPopout) {
       return DuoLaunchAction.DIRECT_LAUNCH;
     }
 

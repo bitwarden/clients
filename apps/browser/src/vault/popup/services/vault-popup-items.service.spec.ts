@@ -1,5 +1,5 @@
 import { WritableSignal, signal } from "@angular/core";
-import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
+import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
@@ -87,7 +87,7 @@ describe("VaultPopupItemsService", () => {
       failedToDecryptCiphersSubject.asObservable(),
     );
 
-    searchService.searchCiphers.mockImplementation(async (_, __, ciphers) => ciphers);
+    searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => ciphers);
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(c.id)),
     );
@@ -276,7 +276,7 @@ describe("VaultPopupItemsService", () => {
     it("should filter autoFillCiphers$ down to search term", (done) => {
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async (q, _, ciphers) => {
+      searchService.searchCiphers.mockImplementation(async (userId, q, _, ciphers) => {
         return ciphers.filter((cipher) => {
           return cipher.name.includes(searchText);
         });
@@ -472,28 +472,26 @@ describe("VaultPopupItemsService", () => {
 
       service.applyFilter(searchText);
       service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(searchText, undefined, expect.anything());
+        expect(searchServiceSpy).toHaveBeenCalledWith(
+          "UserId",
+          searchText,
+          undefined,
+          expect.anything(),
+        );
         done();
       });
     });
   });
 
-  it("should update searchText$ when applyFilter is called", fakeAsync(() => {
-    let latestValue: string | null;
+  it("should update searchText$ when applyFilter is called", (done) => {
     service.searchText$.subscribe((val) => {
-      latestValue = val;
+      expect(val).toEqual("test search");
+      expect(viewCacheService.mockSignal()).toEqual("test search");
+      done();
     });
-    tick();
-    expect(latestValue!).toEqual("");
 
     service.applyFilter("test search");
-    tick();
-    expect(latestValue!).toEqual("test search");
-
-    expect(viewCacheService.mockSignal()).toEqual("test search");
-
-    discardPeriodicTasks();
-  }));
+  });
 });
 
 // A function to generate a list of ciphers of different types

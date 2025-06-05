@@ -4,7 +4,12 @@ import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from ".
 import { FakeActiveUserState, FakeSingleUserState } from "../../../spec/fake-state";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
-import { ProviderStatusType, ProviderUserStatusType, ProviderUserType } from "../enums";
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserStatusType,
+  ProviderUserType,
+} from "../enums";
 import { ProviderData } from "../models/data/provider.data";
 import { Provider } from "../models/domain/provider";
 
@@ -67,6 +72,7 @@ describe("PROVIDERS key definition", () => {
         userId: "string",
         useEvents: true,
         providerStatus: ProviderStatusType.Pending,
+        providerType: ProviderType.Msp,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

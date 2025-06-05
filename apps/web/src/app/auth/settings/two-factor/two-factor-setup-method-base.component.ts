@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, EventEmitter, Output } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -17,18 +15,18 @@ import { DialogService, ToastService } from "@bitwarden/components";
 /**
  * Base class for two-factor setup components (ex: email, yubikey, webauthn, duo).
  */
-@Directive()
+@Directive({})
 export abstract class TwoFactorSetupMethodBaseComponent {
   @Output() onUpdated = new EventEmitter<boolean>();
 
-  type: TwoFactorProviderType;
-  organizationId: string;
+  type: TwoFactorProviderType | undefined;
+  organizationId: string | null = null;
   twoFactorProviderType = TwoFactorProviderType;
   enabled = false;
   authed = false;
 
-  protected hashedSecret: string;
-  protected verificationType: VerificationType;
+  protected hashedSecret: string | undefined;
+  protected verificationType: VerificationType | undefined;
   protected componentName = "";
 
   constructor(
@@ -74,6 +72,9 @@ export abstract class TwoFactorSetupMethodBaseComponent {
 
     try {
       const request = await this.buildRequestModel(TwoFactorProviderRequest);
+      if (this.type === undefined) {
+        throw new Error("Two-factor provider type is required");
+      }
       request.type = this.type;
       if (this.organizationId != null) {
         promise = this.apiService.putTwoFactorOrganizationDisable(this.organizationId, request);
@@ -84,7 +85,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
       this.enabled = false;
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: "",
         message: this.i18nService.t("twoStepDisabled"),
       });
       this.onUpdated.emit(false);
@@ -105,6 +106,9 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     }
 
     const request = await this.buildRequestModel(TwoFactorProviderRequest);
+    if (this.type === undefined) {
+      throw new Error("Two-factor provider type is required");
+    }
     request.type = this.type;
     if (this.organizationId != null) {
       await this.apiService.putTwoFactorOrganizationDisable(this.organizationId, request);
@@ -114,7 +118,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     this.enabled = false;
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: "",
       message: this.i18nService.t("twoStepDisabled"),
     });
     this.onUpdated.emit(false);
@@ -123,6 +127,9 @@ export abstract class TwoFactorSetupMethodBaseComponent {
   protected async buildRequestModel<T extends SecretVerificationRequest>(
     requestClass: new () => T,
   ) {
+    if (this.hashedSecret === undefined || this.verificationType === undefined) {
+      throw new Error("User verification data is missing");
+    }
     return this.userVerificationService.buildRequest(
       {
         secret: this.hashedSecret,

@@ -1,34 +1,29 @@
 import { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
+import { ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
-import { NotificationType } from "../../../../notification/abstractions/notification-bar";
-import { NotificationFooter } from "../../notification/footer";
-
-type Args = {
-  notificationType: NotificationType;
-  theme: Theme;
-  handleSaveAction: (e: Event) => void;
-  i18n: { [key: string]: string };
-};
+import { NotificationTypes } from "../../../../notification/abstractions/notification-bar";
+import { NotificationFooter, NotificationFooterProps } from "../../notification/footer";
+import { mockCollections, mockI18n, mockFolders, mockOrganizations } from "../mock-data";
 
 export default {
-  title: "Components/Notifications/Notification Footer",
+  title: "Components/Notifications/Footer",
   argTypes: {
-    theme: { control: "select", options: [...Object.values(ThemeTypes)] },
     notificationType: {
       control: "select",
-      options: ["add", "change", "unlock", "fileless-import"],
+      options: [...Object.values(NotificationTypes)],
     },
+    theme: { control: "select", options: [...Object.values(ThemeTypes)] },
   },
   args: {
+    collections: mockCollections,
+    folders: mockFolders,
+    notificationType: NotificationTypes.Add,
+    organizations: mockOrganizations,
     theme: ThemeTypes.Light,
-    notificationType: "add",
-    i18n: {
-      saveAsNewLoginAction: "Save as New Login",
-      saveAction: "Save",
-    },
     handleSaveAction: () => alert("Save action triggered"),
+    i18n: mockI18n,
   },
   parameters: {
     design: {
@@ -36,10 +31,11 @@ export default {
       url: "https://www.figma.com/design/LEhqLAcBPY8uDKRfU99n9W/Autofill-notification-redesign?node-id=32-4949&m=dev",
     },
   },
-} as Meta<Args>;
+} as Meta<NotificationFooterProps>;
 
-const Template = (args: Args) => NotificationFooter({ ...args });
+const Template = (args: NotificationFooterProps) =>
+  html`<div style="max-width:400px;">${NotificationFooter({ ...args })}</div>`;
 
-export const Default: StoryObj<Args> = {
+export const Default: StoryObj<NotificationFooterProps> = {
   render: Template,
 };

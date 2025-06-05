@@ -1,4 +1,4 @@
-<bit-section *ngIf="sends?.length > 0">
+<bit-section *ngIf="sends?.length > 0" disableMargin>
   <bit-section-header>
     <h2 class="tw-font-bold" bitTypography="h6">
       {{ headerText }}
@@ -15,17 +15,27 @@
         appStopClick
         type="button"
       >
-        <i
-          slot="start"
-          *ngIf="send.type === sendType.Text"
-          class="bwi bwi-file-text tw-text-2xl tw-text-muted"
-        ></i>
-        <i
-          slot="start"
-          *ngIf="send.type === sendType.File"
-          class="bwi bwi-file tw-text-2xl tw-text-muted"
-        ></i>
+        <div slot="start" class="tw-justify-start">
+          <i
+            *ngIf="send.type === sendType.Text"
+            class="bwi bwi-lg bwi-file-text tw-text-muted tw-w-6"
+          ></i>
+          <i
+            *ngIf="send.type === sendType.File"
+            class="bwi bwi-lg bwi-file tw-text-muted tw-w-6"
+          ></i>
+        </div>
         {{ send.name }}
+        <ng-container *ngIf="send.maxAccessCountReached">
+          <i
+            class="bwi bwi-exclamation-triangle"
+            appStopProp
+            title="{{ 'maxAccessCountReached' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "maxAccessCountReached" | i18n }}</span>
+        </ng-container>
+
         <span slot="secondary">
           {{ "deletionDate" | i18n }}:&nbsp;{{ send.deletionDate | date: "mediumDate" }}
         </span>

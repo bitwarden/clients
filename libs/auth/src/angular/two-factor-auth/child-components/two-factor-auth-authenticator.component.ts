@@ -1,10 +1,12 @@
-import { DialogModule } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogModule,
   ButtonModule,
   LinkModule,
   TypographyModule,
@@ -13,7 +15,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-authenticator",
   templateUrl: "two-factor-auth-authenticator.component.html",
   imports: [
@@ -32,4 +33,10 @@ import {
 })
 export class TwoFactorAuthAuthenticatorComponent {
   @Input({ required: true }) tokenFormControl: FormControl | undefined = undefined;
+  @Output() tokenChange = new EventEmitter<{ token: string }>();
+
+  onTokenChange(event: Event) {
+    const tokenValue = (event.target as HTMLInputElement).value || "";
+    this.tokenChange.emit({ token: tokenValue });
+  }
 }

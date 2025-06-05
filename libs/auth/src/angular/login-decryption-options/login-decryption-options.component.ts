@@ -16,16 +16,18 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -41,13 +43,14 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
   NewUser,
   ExistingUserUntrustedDevice,
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login-decryption-options.component.html",
   imports: [
     AsyncActionsModule,
@@ -284,7 +287,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async approveFromOtherDevice() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/login-with-device"]);
   }
 
@@ -297,7 +299,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
   }
 
   protected async requestAdminApproval() {
-    this.loginEmailService.setLoginEmail(this.email);
     await this.router.navigate(["/admin-approval-requested"]);
   }
 

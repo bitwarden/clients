@@ -8,6 +8,8 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -35,7 +37,6 @@ import { PopupCipherView } from "../../views/popup-cipher.view";
 @Component({
   selector: "app-trash-list-items-container",
   templateUrl: "trash-list-items-container.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ItemModule,
@@ -47,7 +48,6 @@ import { PopupCipherView } from "../../views/popup-cipher.view";
     IconButtonModule,
     OrgIconDirective,
     TypographyModule,
-    DecryptionFailureDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,7 +70,10 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
     private router: Router,
+    private configService: ConfigService,
   ) {}
+
+  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.

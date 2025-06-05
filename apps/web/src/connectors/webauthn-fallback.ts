@@ -82,11 +82,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const titleForSmallerScreens = document.getElementById("title-smaller-screens");
   const titleForLargerScreens = document.getElementById("title-larger-screens");
 
-  titleForSmallerScreens.innerText = localeService.t("verifyIdentity");
-  titleForLargerScreens.innerText = localeService.t("verifyIdentity");
+  titleForSmallerScreens.innerText = localeService.t("verifyYourIdentity");
+  titleForLargerScreens.innerText = localeService.t("verifyYourIdentity");
 
   const subtitle = document.getElementById("subtitle");
-  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingIn");
+  subtitle.innerText = localeService.t("followTheStepsBelowToFinishLoggingInWithSecurityKey");
 });
 
 function start() {

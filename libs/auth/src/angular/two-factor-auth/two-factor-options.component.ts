@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 
@@ -8,7 +7,10 @@ import {
   TwoFactorService,
 } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogRef,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -30,7 +32,6 @@ export type TwoFactorOptionsDialogResult = {
 };
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-options",
   templateUrl: "two-factor-options.component.html",
   imports: [

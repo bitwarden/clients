@@ -21,7 +21,6 @@ import { TypographyModule } from "../../../../components/src/typography";
 import { BitwardenLogo, BitwardenShield } from "../icons";
 
 @Component({
-  standalone: true,
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
   imports: [IconModule, CommonModule, TypographyModule, SharedModule, RouterModule],
@@ -39,6 +38,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() showReadonlyHostname: boolean;
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
+  @Input() hideIcon: boolean = false;
 
   /**
    * Max width of the title area content

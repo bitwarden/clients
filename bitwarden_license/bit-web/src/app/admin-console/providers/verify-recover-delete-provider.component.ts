@@ -13,8 +13,8 @@ import { ToastService } from "@bitwarden/components";
 @Component({
   selector: "app-verify-recover-delete-provider",
   templateUrl: "verify-recover-delete-provider.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class VerifyRecoverDeleteProviderComponent implements OnInit {
   name: string;
 

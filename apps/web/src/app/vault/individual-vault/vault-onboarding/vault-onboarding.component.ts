@@ -11,7 +11,7 @@ import {
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
-import { Subject, takeUntil, Observable, firstValueFrom, fromEvent } from "rxjs";
+import { Subject, takeUntil, Observable, firstValueFrom, fromEvent, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -20,7 +20,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -34,7 +33,6 @@ import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./s
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
-  standalone: true,
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
   providers: [
     {
@@ -67,7 +65,6 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
     protected policyService: PolicyService,
     private apiService: ApiService,
     private vaultOnboardingService: VaultOnboardingServiceAbstraction,
-    private configService: ConfigService,
     private accountService: AccountService,
   ) {}
 
@@ -165,9 +162,14 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   individualVaultPolicyCheck() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-      .pipe(takeUntil(this.destroy$))
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
       .subscribe((data) => {
         this.isIndividualPolicyVault = data;
       });

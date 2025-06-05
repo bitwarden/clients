@@ -14,8 +14,6 @@ export class PasswordLoginCredentials {
   constructor(
     public email: string,
     public masterPassword: string,
-    // TODO: PM-15162 - captcha is deprecated as part of UI refresh work
-    public captchaToken?: string,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 }
@@ -53,9 +51,9 @@ export class AuthRequestLoginCredentials {
     public email: string,
     public accessCode: string,
     public authRequestId: string,
-    public decryptedUserKey: UserKey,
-    public decryptedMasterKey: MasterKey,
-    public decryptedMasterKeyHash: string,
+    public decryptedUserKey: UserKey | null,
+    public decryptedMasterKey: MasterKey | null,
+    public decryptedMasterKeyHash: string | null,
     public twoFactor?: TokenTwoFactorRequest,
   ) {}
 

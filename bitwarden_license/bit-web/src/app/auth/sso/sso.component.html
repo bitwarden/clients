@@ -31,14 +31,9 @@
         <input bitInput type="text" formControlName="ssoIdentifier" />
         <bit-hint>
           {{ "ssoIdentifierHintPartOne" | i18n }}
-          <a bitLink routerLink="../domain-verification">{{
-            ((accountDeprovisioningEnabled$ | async) ? "claimedDomains" : "domainVerification")
-              | i18n
-          }}</a>
+          <a bitLink routerLink="../domain-verification">{{ "claimedDomains" | i18n }}</a>
         </bit-hint>
       </bit-form-field>
-
-      <hr />
 
       <bit-radio-group formControlName="memberDecryptionType">
         <bit-label>{{ "memberDecryptionOption" | i18n }}</bit-label>
@@ -156,7 +151,7 @@
         </bit-form-field>
       </ng-container>
 
-      <hr />
+      <hr class="tw-mb-4" />
 
       <bit-form-field>
         <bit-label>{{ "type" | i18n }}</bit-label>

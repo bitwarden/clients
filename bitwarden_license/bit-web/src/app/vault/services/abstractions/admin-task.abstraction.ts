@@ -1,5 +1,5 @@
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/vault";
+import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
 /**
  * Request type for creating tasks.

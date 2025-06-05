@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -15,7 +14,13 @@ import { EventView } from "@bitwarden/common/models/view/event.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService, TableDataSource, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogService,
+  TableDataSource,
+  ToastService,
+} from "@bitwarden/components";
 
 import { EventService } from "../../../core";
 import { SharedModule } from "../../../shared";
@@ -33,7 +38,6 @@ export interface EntityEventsDialogParams {
 @Component({
   imports: [SharedModule],
   templateUrl: "entity-events.component.html",
-  standalone: true,
 })
 export class EntityEventsComponent implements OnInit, OnDestroy {
   loading = true;

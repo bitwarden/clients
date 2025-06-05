@@ -14,6 +14,8 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { ToastService } from "@bitwarden/components";
 
 import {
@@ -22,13 +24,15 @@ import {
   PasswordLoginCredentials,
 } from "../../../common";
 import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import { InputPasswordComponent } from "../../input-password/input-password.component";
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+} from "../../input-password/input-password.component";
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { RegistrationFinishService } from "./registration-finish.service";
 
 @Component({
-  standalone: true,
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
   imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],
@@ -36,6 +40,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
   loading = true;
   submitting = false;
   email: string;
@@ -147,9 +152,8 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
-    let captchaBypassToken: string = null;
     try {
-      captchaBypassToken = await this.registrationFinishService.finishRegistration(
+      await this.registrationFinishService.finishRegistration(
         this.email,
         passwordInputResult,
         this.emailVerificationToken,
@@ -174,12 +178,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
     // login with the new account
     try {
-      const credentials = new PasswordLoginCredentials(
-        this.email,
-        passwordInputResult.password,
-        captchaBypassToken,
-        null,
-      );
+      const credentials = new PasswordLoginCredentials(this.email, passwordInputResult.newPassword);
 
       const authenticationResult = await this.loginStrategyService.logIn(credentials);
 

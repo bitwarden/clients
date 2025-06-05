@@ -2,6 +2,9 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Logo Bitwarden"
+  },
   "extName": {
     "message": "Bitwarden – Bezplatný správca hesiel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -263,12 +266,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "passwordHint": {
-    "message": "Nápoveď k heslu"
-  },
-  "enterEmailToGetHint": {
-    "message": "Zadajte emailovú adresu na zaslanie nápovede pre vaše hlavné heslo."
-  },
   "getMasterPasswordHint": {
     "message": "Získať nápoveď k hlavnému heslu"
   },
@@ -385,6 +382,15 @@
   "editFolder": {
     "message": "Upraviť priečinok"
   },
+  "editFolderWithName": {
+    "message": "Upraviť priečinok: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Nový priečinok"
   },
@@ -468,7 +474,7 @@
     "message": "Používateľské meno vygenerované"
   },
   "emailGenerated": {
-    "message": "E-mail vygenoravný"
+    "message": "E-mail vygenerovaný"
   },
   "regeneratePassword": {
     "message": "Vygenerovať nové heslo"
@@ -478,22 +484,6 @@
   },
   "length": {
     "message": "Dĺžka"
-  },
-  "uppercase": {
-    "message": "Veľké písmená (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Malé písmená (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Čísla (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Špeciálne znaky (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
     "message": "Zahrnúť",
@@ -526,10 +516,6 @@
   "specialCharactersDescription": {
     "message": "Zahrnúť špeciálne znaky",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Počet slov"
@@ -669,8 +655,8 @@
   "browserNotSupportClipboard": {
     "message": "Váš webový prehliadač nepodporuje automatické kopírovanie do schránky. Kopírujte manuálne."
   },
-  "verifyIdentity": {
-    "message": "Overiť identitu"
+  "verifyYourIdentity": {
+    "message": "Overte svoju totožnosť"
   },
   "weDontRecognizeThisDevice": {
     "message": "Toto zariadenie nepoznáme. Na overenie vašej totožnosti zadajte kód, ktorý bol zaslaný na váš e-mail."
@@ -900,6 +886,9 @@
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Na dokončenie prihlásenia postupujte podľa pokynov."
   },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Podľa nasledujúcich krokov dokončite prihlásenie pomocou bezpečnostného kľúča."
+  },
   "restartRegistration": {
     "message": "Zopakovať registráciu"
   },
@@ -920,6 +909,9 @@
   },
   "no": {
     "message": "Nie"
+  },
+  "location": {
+    "message": "Poloha"
   },
   "unexpectedError": {
     "message": "Vyskytla sa neočakávaná chyba."
@@ -987,7 +979,7 @@
     "message": "Pridaná položka"
   },
   "editedItem": {
-    "message": "Upravená položka"
+    "message": "Položka upravená"
   },
   "deleteItemConfirmation": {
     "message": "Naozaj chcete odstrániť túto položku?"
@@ -1070,6 +1062,117 @@
   "notificationAddSave": {
     "message": "Uložiť"
   },
+  "notificationViewAria": {
+    "message": "Zobraziť $ITEMNAME$, otvorí sa v novom okne",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "Nová položka, otvorí sa v novom okne",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Upraviť pred uložením",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nové upozornenie"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nové upozornenie",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "uložené do Bitwardenu.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "aktualizované v Bitwardene.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Vybrať $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Uložiť ako nové prihlasovacie údaje",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Aktualizovať prihlasovacie údaje",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Odomknúť na uloženie prihlasovacích údajov",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Uložiť prihlasovacie údaje",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Aktualizovať existujúce prihlasovacie údaje",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Prihlasovacie údaje uložené",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Prihlasovacie údaje aktualizované",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Skvelá práca! Podnikli ste kroky, aby ste vy a $ORGANIZATION$ boli bezpečnejší.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Ďakujeme, že ste pre $ORGANIZATION$ zabezpečili väčšiu bezpečnosť. Máte ďalšie ($TASK_COUNT$) heslá na aktualizáciu.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Zmeniť ďalšie heslo",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Chyba pri ukladaní",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Ale nie! Nepodarilo sa nám to uložiť. Skúste zadať údaje manuálne.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Požiadať o aktualizáciu existujúceho prihlasovania"
   },
@@ -1132,10 +1235,6 @@
   "light": {
     "message": "Svetlý",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Solarized –⁠ tmavý",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Exportovať z"
@@ -1359,23 +1458,11 @@
   "premiumRequiredDesc": {
     "message": "Pre použitie tejto funkcie je potrebné prémiové členstvo."
   },
-  "enterVerificationCodeApp": {
-    "message": "Zadajte 6-miestny verifikačný kód z vašej overovacej aplikácie."
-  },
   "authenticationTimeout": {
     "message": "Časový limit overenia"
   },
   "authenticationSessionTimedOut": {
     "message": "Relácia overovania skončila. Znovu spustite proces prihlásenia."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Zadajte 6-miestny verifikačný kód, ktorý vám bol zaslaný emailom",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Overovací e-mail odoslaný na $EMAIL$.",
@@ -1386,17 +1473,8 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Zapamätať si ma"
-  },
   "dontAskAgainOnThisDeviceFor30Days": {
     "message": "Nepýtať sa znova na tomto zariadení 30 dní"
-  },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Znovu zaslať overovací kód emailom"
-  },
-  "useAnotherTwoStepMethod": {
-    "message": "Použiť inú dvojstupňovú metódu prihlásenia"
   },
   "selectAnotherMethod": {
     "message": "Vyberte iný spôsob",
@@ -1405,17 +1483,8 @@
   "useYourRecoveryCode": {
     "message": "Použiť obnovovací kód"
   },
-  "insertYubiKey": {
-    "message": "Vložte váš YubiKey do USB portu počítača a stlačte jeho tlačidlo."
-  },
   "insertU2f": {
     "message": "Vložte váš bezpečnostný kľúč do USB portu počítača. Ak má tlačidlo, stlačte ho."
-  },
-  "webAuthnNewTab": {
-    "message": "V overovaní cez WebAuthn 2FA pokračujte na ďalšej záložke."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Otvoriť v novej karte"
   },
   "openInNewTab": {
     "message": "Otvoriť v novej karte"
@@ -1486,9 +1555,6 @@
   "selfHostedEnvironment": {
     "message": "Prostredie s vlastným hostingom"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Zadajte základnú URL adresu lokálne hosťovanej inštalácie Bitwarden. Napríklad: https://bitwarden.company.com"
   },
@@ -1500,9 +1566,6 @@
   },
   "customEnvironment": {
     "message": "Vlastné prostredie"
-  },
-  "customEnvironmentFooter": {
-    "message": "Pre pokročilých používateľov. Základnú adresu URL každej služby môžete určiť samostatne."
   },
   "baseUrl": {
     "message": "URL servera"
@@ -1535,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Návrhy automatického vypĺňania"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Jednoduché vyhľadávanie návrhov na automatické vypĺňanie"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Vypnite nastavenia automatického vypĺňania v prehliadači, aby nedošlo ku konfliktu s Bitwardenom."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Vypnúť automatické vypĺňanie v $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Vypnúť automatické vypĺňanie"
   },
   "showInlineMenuLabel": {
     "message": "Zobraziť návrhy automatického vypĺňania v poliach formulára"
@@ -1640,6 +1721,9 @@
   },
   "dragToSort": {
     "message": "Zoradiť presúvaním"
+  },
+  "dragToReorder": {
+    "message": "Ťahaním preskupiť"
   },
   "cfTypeText": {
     "message": "Text"
@@ -2120,6 +2204,9 @@
   "useThisPassword": {
     "message": "Použiť toto heslo"
   },
+  "useThisPassphrase": {
+    "message": "Použiť túto prístupovú frázu"
+  },
   "useThisUsername": {
     "message": "Použiť toto používateľské meno"
   },
@@ -2142,15 +2229,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Akcia pri vypršaní časového limitu"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Nové možnosti prispôsobenia"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Prispôsobte si trezor pomocou akcií rýchleho kopírovania, kompaktného režimu a ďalších možností!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Zobraziť všetky nastavenia vzhľadu"
   },
   "lock": {
     "message": "Uzamknúť",
@@ -2297,6 +2375,9 @@
   },
   "privacyPolicy": {
     "message": "Zásady ochrany osobných údajov"
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
   },
   "hintEqualsPassword": {
     "message": "Nápoveď k heslu nemôže byť rovnaká ako heslo."
@@ -2447,7 +2528,7 @@
     "message": "Rizikové heslá"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "message": "$ORGANIZATION$ vás žiada o zmenu hesla, pretože je ohrozené.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2456,7 +2537,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "$ORGANIZATION$ vás žiada o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2469,7 +2550,7 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "message": "Vaše organizácie vás žiadajú o zmenu $COUNT$ hesiel, pretože sú ohrozené.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2505,15 +2586,15 @@
     "message": "Heslá vašej organizácie sú v ohrození, pretože sú slabé, opakovane používané a/alebo uniknuté.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
-  "reviewAtRiskLoginSlideImgAlt": {
-    "message": "Príklady zoznamu prihlásení, ktoré sú ohrozené"
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Príklady zoznamu prihlásení, ktoré sú ohrozené."
   },
   "generatePasswordSlideDesc": {
     "message": "Rýchlo generujte silné, jedinečné heslo pomocu ponuky automatického vypĺňania Bitwardenu na ohrozených stránkach.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
-  "generatePasswordSlideImgAlt": {
-    "message": "Príklad ponuky automatického vypĺňania Bitwardenu zobrazujúca vygenerované heslo"
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Príklad ponuky automatického vypĺňania Bitwardenu zobrazujúca vygenerované heslo."
   },
   "updateInBitwarden": {
     "message": "Aktualizovať v Bitwardene"
@@ -2522,8 +2603,8 @@
     "message": "Bitwarden vás vyzve na aktualizáciu hesla v správcovi hesiel.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
-  "updateInBitwardenSlideImgAlt": {
-    "message": "Príklad upozornenia Bitwardenu na aktualizovanie prihlasovacích údajov"
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Príklad upozornenia Bitwardenu na aktualizovanie prihlasovacích údajov."
   },
   "turnOnAutofill": {
     "message": "Zapnúť automatické vypĺňanie"
@@ -2595,6 +2676,10 @@
   "allSends": {
     "message": "Všetky Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Bol dosiahnutý maximálny počet prístupov",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "V predvolenom nastavení skryť text"
@@ -2688,7 +2773,7 @@
     "message": "Nové heslo"
   },
   "sendDisabled": {
-    "message": "Send zakázaný",
+    "message": "Send bol odstránený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
@@ -2936,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nenašiel sa žiadny jedinečný identifikátor."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie."
+  },
+  "organizationName": {
+    "message": "Názov organizácie"
+  },
+  "keyConnectorDomain": {
+    "message": "Doména Key Connectora"
   },
   "leaveOrganization": {
     "message": "Opustiť organizáciu"
@@ -2971,6 +3056,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3243,15 +3337,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Nastavenia boli upravené"
-  },
-  "environmentEditedClick": {
-    "message": "Kliknite sem"
-  },
-  "environmentEditedReset": {
-    "message": "na obnovenie predvolených nastavení"
-  },
   "serverVersion": {
     "message": "Verzia servera"
   },
@@ -3282,12 +3367,6 @@
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
-  "loggingInAs": {
-    "message": "Prihlasujete sa ako"
-  },
-  "notYou": {
-    "message": "Nie ste to vy?"
-  },
   "newAroundHere": {
     "message": "Ste tu nový?"
   },
@@ -3296,9 +3375,6 @@
   },
   "loginWithDevice": {
     "message": "Prihlásiť pomocou zariadenia"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Prihlásenie pomocou zariadenia musí byť nastavené v nastaveniach aplikácie Bitwarden. Potrebujete inú možnosť?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fráza odtlačku prsta"
@@ -3310,9 +3386,6 @@
     "message": "Znova odoslať upozornenie"
   },
   "viewAllLogInOptions": {
-    "message": "Zobraziť všetky možnosti prihlásenia"
-  },
-  "viewAllLoginOptionsV1": {
     "message": "Zobraziť všetky možnosti prihlásenia"
   },
   "notificationSentDevice": {
@@ -3456,9 +3529,6 @@
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
   },
-  "approveWithMasterPassword": {
-    "message": "Schváliť pomocou hlavného hesla"
-  },
   "ssoIdentifierRequired": {
     "message": "Pole identifikátora SSO je povinné."
   },
@@ -3505,9 +3575,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Vaša žiadosť bola odoslaná správcovi."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Po schválení budete informovaný."
-  },
   "troubleLoggingIn": {
     "message": "Máte problémy s prihlásením?"
   },
@@ -3523,12 +3590,44 @@
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
+  "trustOrganization": {
+    "message": "Dôverovať organizácii"
+  },
+  "trust": {
+    "message": "Dôverovať"
+  },
+  "doNotTrust": {
+    "message": "Nedôverovať"
+  },
+  "organizationNotTrusted": {
+    "message": "Organizácia nie je dôveryhodná"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "Pre bezpečnosť vášho účtu stačí overiť, ze ste tomuto používateľovi udelili núdzový pristúp, a že odtlačok sa zhoduje s odtlačkom zobrazenom v používateľovom účte"
+  },
+  "orgTrustWarning": {
+    "message": "Pre bezpečnosť vášho účtu pokračujte, iba ak ste členom organizácie, máte povolenú obnovu účtu a odtlačok sa zhoduje s odtlačkom organizácie."
+  },
+  "orgTrustWarning1": {
+    "message": "Táto organizácia má pravidlá spoločnosti, ktoré vás zaregistrujú do obnovy účtu. Zápis umožní správcom organizácie zmeniť vaše heslo. Pokračujte len vtedy, ak túto organizáciu poznáte a nižšie zobrazená fráza odtlačku prsta sa zhoduje s odtlačkom prsta organizácie."
+  },
+  "trustUser": {
+    "message": "Dôverovať používateľovi"
+  },
   "sendsNoItemsTitle": {
     "message": "Žiadne aktívne Sendy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
     "message": "Použite Send na bezpečné zdieľanie zašifrovaných informácii s kýmkoľvek.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsTitleNoItems": {
+    "message": "Send, citlivé informácie bezpečne",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3837,14 +3936,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Chyba pri pripájaní k službe Duo. Použite inú metódu dvojstupňového prihlásenia alebo kontaktujte Duo a požiadajte o pomoc."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spustite DUO a postupujte podľa pokynov na dokončenie prihlásenia."
-  },
   "duoRequiredForAccount": {
     "message": "Pre váš účet je potrebné dvojstupňové prihlásenie Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Ak chcete dokončiť prihlásenie, otvorte rozšírenie."
   },
   "popoutExtension": {
     "message": "Zobraziť rozšírenie v novom okne"
@@ -4077,6 +4170,9 @@
   "activeAccount": {
     "message": "Aktívny účet"
   },
+  "bitwardenAccount": {
+    "message": "Účet Bitwarden"
+  },
   "availableAccounts": {
     "message": "Dostupné účty"
   },
@@ -4265,6 +4361,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Zobraziť položku - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Automatické vyplnenie - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4272,6 +4382,20 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Automatické vyplnenie - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
       }
     }
   },
@@ -4343,7 +4467,7 @@
     }
   },
   "new": {
-    "message": "Nová"
+    "message": "Nové"
   },
   "removeItem": {
     "message": "Odstrániť $NAME$",
@@ -4421,6 +4545,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Stiahnuť Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Stiahnuť Bitwarden na všetky zariadenia"
+  },
+  "getTheMobileApp": {
+    "message": "Získajte mobilnú aplikáciu"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Majte prístup k heslám na cestách pomocou mobilnej aplikácie Bitwarden."
+  },
+  "getTheDesktopApp": {
+    "message": "Získať desktopovú aplikáciu"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Pristupujte k trezoru bez prehliadača, a potom nastavte odomykanie pomocou biometrie, aby ste urýchlili odomykanie v desktopovej aplikácii aj v rozšírení prehliadača."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Stiahnuť teraz z bitwarden.com"
+  },
+  "getItOnGooglePlay": {
+    "message": "Získať z Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Stiahnuť z App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
@@ -4615,7 +4766,7 @@
     "message": "Textové polia používajte pre také údaje, ako sú bezpečnostné otázky"
   },
   "hiddenHelpText": {
-    "message": "Skryté polia požívajte pre citlivé údaje ako je heslo"
+    "message": "Skryté polia požívajte pre citlivé údaje, ako je heslo"
   },
   "checkBoxHelpText": {
     "message": "Ak chcete automaticky vyplniť začiarkávacie políčko formulára, napríklad zapamätať e-mail, použite začiarkávacie políčka"
@@ -4664,6 +4815,9 @@
         "example": "Custom field"
       }
     }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "Zmeniť poradie URI webovej stránky. Na presun položky hore alebo dole použite klávesy so šípkami."
   },
   "reorderFieldUp": {
     "message": "$LABEL$ presunuté vyššie, pozícia $INDEX$/$LENGTH$",
@@ -4724,15 +4878,6 @@
   },
   "nothingSelected": {
     "message": "Nič ste nevybrali."
-  },
-  "movedItemsToOrg": {
-    "message": "Vybraté položky boli presunuté do $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Položky presunuté do $ORGNAME$",
@@ -4889,6 +5034,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Odomykanie biometrickými údajmi je momentálne z neznámych dôvodov nedostupné."
   },
+  "unlockVault": {
+    "message": "Odomknite trezor za pár sekúnd"
+  },
+  "unlockVaultDesc": {
+    "message": "Pre rýchlejší prístup k trezoru si môžete upraviť nastavenia odomknutia a časový limit."
+  },
+  "unlockPinSet": {
+    "message": "PIN na odomknutie nastavený"
+  },
   "authenticating": {
     "message": "Overuje sa"
   },
@@ -4900,8 +5054,8 @@
     "message": "Vygenerované nové heslo",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Uložiť prihlasovacie údaje do Bitwardenu?",
+  "saveToBitwarden": {
+    "message": "Uložiť do Bitwardenu",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -5051,42 +5205,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Dôležité upozornenie"
-  },
-  "setupTwoStepLogin": {
-    "message": "Nastavenie dvojstupňového prihlásenia"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup."
-  },
-  "remindMeLater": {
-    "message": "Pripomenúť neskôr"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Máte zaručený prístup k e-mailu $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nie, nemám"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Áno, mám zaručený prístup k e-mailu"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Zapnúť dvojstupňové prihlásenie"
-  },
-  "changeAcctEmail": {
-    "message": "Zmeniť e-mail účtu"
-  },
   "extensionWidth": {
     "message": "Šírka rozšírenia"
   },
@@ -5095,6 +5213,33 @@
   },
   "extraWide": {
     "message": "Extra široké"
+  },
+  "sshKeyWrongPassword": {
+    "message": "Zadané heslo je nesprávne."
+  },
+  "importSshKey": {
+    "message": "Importovať"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Potvrdiť heslo"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Zadajte heslo pre kľúč SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "Zadať heslo"
+  },
+  "invalidSshKey": {
+    "message": "Kľúč SSH je neplatný"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Tento typ kľúča SSH nie je podporovaný"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importovať kľúč zo schránky"
+  },
+  "sshKeyImported": {
+    "message": "Kľúč SSH bol úspešne importovaný"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Zbierky, ktoré môžete len zobraziť nemôžete odstrániť: $COLLECTIONS$",
@@ -5110,5 +5255,134 @@
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "Ak chcete používať biometrické odomykanie, aktualizujte desktopovú aplikáciu alebo vypnite odomykanie odtlačkom prsta v nastaveniach desktopovej aplikácie."
+  },
+  "changeAtRiskPassword": {
+    "message": "Zmeniť rizikové heslá"
+  },
+  "settingsVaultOptions": {
+    "message": "Možnosti trezoru"
+  },
+  "emptyVaultDescription": {
+    "message": "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky."
+  },
+  "introCarouselLabel": {
+    "message": "Vitajte v Bitwardene"
+  },
+  "securityPrioritized": {
+    "message": "Bezpečnosť na prvom mieste"
+  },
+  "securityPrioritizedBody": {
+    "message": "Ukladajte prihlasovacie údaje, karty a identity do zabezpečeného trezoru. Bitwarden používa šifrovanie s nulovou znalosťou od začiatku do konca na ochranu toho, čo je pre vás dôležité."
+  },
+  "quickLogin": {
+    "message": "Rýchle a jednoduché prihlásenie"
+  },
+  "quickLoginBody": {
+    "message": "Nastavte si odomykanie biometrickými údajmi a automatické vypĺňanie na prihlasovanie do účtov bez zadávania jediného písmena."
+  },
+  "secureUser": {
+    "message": "Posuňte prihlasovanie na vyššiu úroveň"
+  },
+  "secureUserBody": {
+    "message": "Pomocou generátora vytvorte a uložte silné a jedinečné heslá pre všetky svoje účty."
+  },
+  "secureDevices": {
+    "message": "Vaše údaje, kedykoľvek a kdekoľvek ich potrebujete"
+  },
+  "secureDevicesBody": {
+    "message": "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 upozornenie"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existujúcich hesiel"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Pomocou nástroja na import môžete rýchlo preniesť prihlasovacie údaje do Bitwardenu bez ručného pridávania."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importovať teraz"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Vitajte vo svojom trezore!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Položky na automatické vypĺňanie pre aktuálnu stránku"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Obľúbené položky pre jednoduchý prístup"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Vyhľadajte v trezore niečo iné"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Ušetrite čas s automatickým vypĺňaním"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Zahrnúť",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "webstránku",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "aby sa tieto prihlasovacie údaje zobrazili ako návrh na automatické vyplnenie.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Bezproblémová online registrácia"
+  },
+  "newCardNudgeBody": {
+    "message": "S kartami môžete jednoducho, bezpečne a presne automaticky vypĺňať platobné formuláre."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Zjednodušenie vytvárania účtov"
+  },
+  "newIdentityNudgeBody": {
+    "message": "Pomocou identít môžete rýchlo automaticky vypĺňať dlhé registračné alebo kontaktné formuláre."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Udržujte svoje citlivé údaje v bezpečí"
+  },
+  "newNoteNudgeBody": {
+    "message": "Pomocou poznámok môžete bezpečne ukladať citlivé údaje, napríklad bankové údaje alebo údaje o poistení."
+  },
+  "newSshNudgeTitle": {
+    "message": "Prístup SSH vhodný pre vývojárov"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Uložte si kľúče a pripojte sa pomocou agenta SSH na rýchle šifrované overovanie.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Viac informácií o agentovi SSH",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Rýchle vytváranie hesiel"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "aby ste mohli ochrániť prihlasovacie údaje.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na tlačidlo Generovať heslo, aby ste zabezpečili prihlasovacie údaje.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
   }
 }

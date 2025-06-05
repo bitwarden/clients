@@ -52,10 +52,12 @@
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
+          @let featureFlaggedDisable =
+            (limitItemDeletion$ | async) ? (disableMenu$ | async) : disableMenu;
           <button
-            [disabled]="disabled || isEmpty || disableMenu"
+            [disabled]="disabled || isEmpty || featureFlaggedDisable"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
+            [attr.title]="featureFlaggedDisable ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
@@ -83,14 +85,26 @@
               bitMenuItem
               (click)="assignToCollections()"
             >
-              <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+              <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
               {{ "assignToCollections" | i18n }}
             </button>
-            <button *ngIf="showBulkTrashOptions" type="button" bitMenuItem (click)="bulkRestore()">
+            <button
+              *ngIf="
+                (limitItemDeletion$ | async) ? (canRestoreSelected$ | async) : showBulkTrashOptions
+              "
+              type="button"
+              bitMenuItem
+              (click)="bulkRestore()"
+            >
               <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
               {{ "restoreSelected" | i18n }}
             </button>
-            <button *ngIf="showDelete" type="button" bitMenuItem (click)="bulkDelete()">
+            <button
+              *ngIf="(limitItemDeletion$ | async) ? (canDeleteSelected$ | async) : showDelete"
+              type="button"
+              bitMenuItem
+              (click)="bulkDelete()"
+            >
               <span class="tw-text-danger">
                 <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
                 {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
@@ -146,6 +160,16 @@
           [canEditCipher]="canEditCipher(item.cipher)"
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
+          [canDeleteCipher]="
+            cipherAuthorizationService.canDeleteCipher$(
+              item.cipher,
+              [item.cipher.collectionId],
+              showAdminActions
+            ) | async
+          "
+          [canRestoreCipher]="
+            cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async
+          "
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>

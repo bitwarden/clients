@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
@@ -9,17 +11,18 @@ import {
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { PBKDF2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
 import {
   SetPasswordCredentials,
@@ -29,6 +32,7 @@ import {
 export class DefaultSetPasswordJitService implements SetPasswordJitService {
   constructor(
     protected apiService: ApiService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
@@ -41,10 +45,10 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   async setPassword(credentials: SetPasswordCredentials): Promise<void> {
     const {
-      masterKey,
-      masterKeyHash,
-      localMasterKeyHash,
-      hint,
+      newMasterKey,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
       orgId,
@@ -58,7 +62,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       }
     }
 
-    const protectedUserKey = await this.makeProtectedUserKey(masterKey, userId);
+    const protectedUserKey = await this.makeProtectedUserKey(newMasterKey, userId);
     if (protectedUserKey == null) {
       throw new Error("protectedUserKey not found. Could not set password.");
     }
@@ -68,29 +72,29 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
     const [keyPair, keysRequest] = await this.makeKeyPairAndRequest(protectedUserKey);
 
     const request = new SetPasswordRequest(
-      masterKeyHash,
+      newServerMasterKeyHash,
       protectedUserKey[1].encryptedString,
-      hint,
+      newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig.kdfType, // kdfConfig is always DEFAULT_KDF_CONFIG (see InputPasswordComponent)
+      kdfConfig.kdfType,
       kdfConfig.iterations,
     );
 
-    await this.apiService.setPassword(request);
+    await this.masterPasswordApiService.setPassword(request);
 
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
 
     // User now has a password so update account decryption options in state
-    await this.updateAccountDecryptionProperties(masterKey, kdfConfig, protectedUserKey, userId);
+    await this.updateAccountDecryptionProperties(newMasterKey, kdfConfig, protectedUserKey, userId);
 
     await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
 
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnroll(masterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnroll(newServerMasterKeyHash, orgId, userId);
     }
   }
 
@@ -125,7 +129,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
 
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
-    kdfConfig: PBKDF2KdfConfig,
+    kdfConfig: KdfConfig,
     protectedUserKey: [UserKey, EncString],
     userId: UserId,
   ) {
@@ -159,7 +163,7 @@ export class DefaultSetPasswordJitService implements SetPasswordJitService {
       throw new Error("userKey not found. Could not handle reset password auto enroll.");
     }
 
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, publicKey);
+    const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
 
     const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
     resetRequest.masterPasswordHash = masterKeyHash;

@@ -12,9 +12,6 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
@@ -22,6 +19,9 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -242,10 +242,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return result;
   }
 
-  async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
+  async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     if (!(await this.isSessionValid())) {
       throw new Error(this.i18nService.t("sessionTimeout"));
     }
@@ -256,10 +253,10 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
 
     try {
-      const result = await strategy.logInTwoFactor(twoFactor, captchaResponse);
+      const result = await strategy.logInTwoFactor(twoFactor);
 
       // Only clear cache if 2FA token has been accepted, otherwise we need to be able to try again
-      if (result != null && !result.requiresTwoFactor && !result.requiresCaptcha) {
+      if (result != null && !result.requiresTwoFactor) {
         await this.clearCache();
       }
       return result;
@@ -402,6 +399,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
+      this.environmentService,
     ];
 
     return source.pipe(
@@ -430,7 +428,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
-              this.environmentService,
               this.keyConnectorService,
               ...sharedDeps,
             );

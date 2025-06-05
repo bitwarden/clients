@@ -45,7 +45,7 @@ import {
   AutofillOverlayElement,
   AutofillOverlayPort,
   InlineMenuAccountCreationFieldType,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -117,7 +117,6 @@ describe("OverlayBackground", () => {
   let getFrameDetailsSpy: jest.SpyInstance;
   let tabsSendMessageSpy: jest.SpyInstance;
   let tabSendMessageDataSpy: jest.SpyInstance;
-  let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
   let getTabSpy: jest.SpyInstance;
   let openUnlockPopoutSpy: jest.SpyInstance;
@@ -190,7 +189,9 @@ describe("OverlayBackground", () => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
-    totpService = mock<TotpService>();
+    totpService = mock<TotpService>({
+      getCode$: jest.fn().mockReturnValue(of(undefined)),
+    });
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -226,7 +227,6 @@ describe("OverlayBackground", () => {
     tabSendMessageDataSpy = jest
       .spyOn(BrowserApi, "tabSendMessageData")
       .mockImplementation(() => Promise.resolve());
-    sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
     getTabSpy = jest.spyOn(BrowserApi, "getTab");
     openUnlockPopoutSpy = jest.spyOn(overlayBackground as any, "openUnlockPopout");
@@ -967,7 +967,7 @@ describe("OverlayBackground", () => {
             icon: {
               fallbackImage: "",
               icon: "bwi-credit-card",
-              image: undefined,
+              image: null,
               imageEnabled: true,
             },
             id: "inline-menu-cipher-0",
@@ -1005,7 +1005,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1025,7 +1025,7 @@ describe("OverlayBackground", () => {
         overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
           tabId: tab.id,
           accountCreationFieldType: "text",
-          inlineMenuFillType: InlineMenuFillType.AccountCreationUsername,
+          inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, identityCipher]);
         cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -1046,7 +1046,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-0",
@@ -1118,7 +1118,7 @@ describe("OverlayBackground", () => {
               icon: {
                 fallbackImage: "",
                 icon: "bwi-id-card",
-                image: undefined,
+                image: null,
                 imageEnabled: true,
               },
               id: "inline-menu-cipher-1",
@@ -1383,7 +1383,7 @@ describe("OverlayBackground", () => {
         {
           command: "updateFocusedFieldData",
           focusedFieldData: createFocusedFieldDataMock({
-            inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+            inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
           }),
         },
         mock<chrome.runtime.MessageSender>({ tab }),
@@ -1551,7 +1551,6 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-        expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
@@ -1577,7 +1576,6 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-        expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
 
@@ -1616,7 +1614,6 @@ describe("OverlayBackground", () => {
           await flushPromises();
 
           expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
-          expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
           expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
         });
 
@@ -2048,7 +2045,7 @@ describe("OverlayBackground", () => {
         });
 
         it("displays the password generator when the focused field is for password generation", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
           await flushPromises();
@@ -2106,7 +2103,7 @@ describe("OverlayBackground", () => {
         });
 
         it("shows the save login menu when the focused field type is for password generation and the field is filled", async () => {
-          focusedFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
 
           sendMockExtensionMessage(
             { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
@@ -3412,7 +3409,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateFocusedFieldData",
             focusedFieldData: createFocusedFieldDataMock({
-              inlineMenuFillType: InlineMenuFillType.CurrentPasswordUpdate,
+              inlineMenuFillType: InlineMenuFillTypes.CurrentPasswordUpdate,
             }),
           },
           sender,
@@ -3610,7 +3607,7 @@ describe("OverlayBackground", () => {
 
     describe("fillGeneratedPassword", () => {
       const focusedFieldData = createFocusedFieldDataMock({
-        inlineMenuFillType: InlineMenuFillType.PasswordGeneration,
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
       });
 
       beforeEach(() => {

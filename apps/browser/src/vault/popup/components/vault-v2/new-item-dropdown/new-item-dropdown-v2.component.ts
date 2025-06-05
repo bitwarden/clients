@@ -2,12 +2,9 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { Router, RouterLink } from "@angular/router";
+import { RouterLink } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
@@ -26,7 +23,6 @@ export interface NewItemInitialValues {
 @Component({
   selector: "app-new-item-dropdown",
   templateUrl: "new-item-dropdown-v2.component.html",
-  standalone: true,
   imports: [NoItemsModule, JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule],
 })
 export class NewItemDropdownV2Component implements OnInit {
@@ -37,29 +33,22 @@ export class NewItemDropdownV2Component implements OnInit {
    */
   @Input()
   initialValues: NewItemInitialValues;
-  constructor(
-    private router: Router,
-    private dialogService: DialogService,
-    private configService: ConfigService,
-  ) {}
 
-  sshKeysEnabled = false;
+  constructor(private dialogService: DialogService) {}
 
   async ngOnInit() {
-    this.sshKeysEnabled = await this.configService.getFeatureFlag(FeatureFlag.SSHKeyVaultItem);
     this.tab = await BrowserApi.getTabFromCurrentWindow();
   }
 
   buildQueryParams(type: CipherType): AddEditQueryParams {
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
-    const loginDetails: { uri?: string; name?: string } = {};
+    const loginDetails: { prefillNameAndURIFromTab?: string } = {};
 
     // When a Login Cipher is created and the extension is not popped out,
     // pass along the uri and name
     if (!poppedOut && type === CipherType.Login && this.tab) {
-      loginDetails.uri = this.tab.url;
-      loginDetails.name = Utils.getHostname(this.tab.url);
+      loginDetails.prefillNameAndURIFromTab = "true";
     }
 
     return {

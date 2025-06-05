@@ -30,7 +30,6 @@ let nextId = 0;
       useExisting: SearchComponent,
     },
   ],
-  standalone: true,
   imports: [InputModule, ReactiveFormsModule, FormsModule, I18nPipe],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
@@ -49,7 +48,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   @Input() autocomplete: string;
 
   getFocusTarget() {
-    return this.input.nativeElement;
+    return this.input?.nativeElement;
   }
 
   onChange(searchText: string) {

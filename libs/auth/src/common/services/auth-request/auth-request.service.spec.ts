@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -88,6 +88,9 @@ describe("AuthRequestService", () => {
       encryptService.rsaEncrypt.mockResolvedValue({
         encryptedString: "ENCRYPTED_STRING",
       } as EncString);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
+        encryptedString: "ENCRYPTED_STRING",
+      } as EncString);
       appIdService.getAppId.mockResolvedValue("APP_ID");
     });
     it("should throw if auth request is missing id or key", async () => {
@@ -103,7 +106,9 @@ describe("AuthRequestService", () => {
     });
 
     it("should use the master key and hash if they exist", async () => {
-      masterPasswordService.masterKeySubject.next({ encKey: new Uint8Array(64) } as MasterKey);
+      masterPasswordService.masterKeySubject.next(
+        new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
+      );
       masterPasswordService.masterKeyHashSubject.next("MASTER_KEY_HASH");
 
       await sut.approveOrDenyAuthRequest(
@@ -111,18 +116,26 @@ describe("AuthRequestService", () => {
         new AuthRequestResponse({ id: "123", publicKey: "KEY" }),
       );
 
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(new Uint8Array(64), expect.anything());
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        new SymmetricCryptoKey(new Uint8Array(32)),
+        expect.anything(),
+      );
     });
 
     it("should use the user key if the master key and hash do not exist", async () => {
-      keyService.getUserKey.mockResolvedValueOnce({ key: new Uint8Array(64) } as UserKey);
+      keyService.getUserKey.mockResolvedValueOnce(
+        new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
+      );
 
       await sut.approveOrDenyAuthRequest(
         true,
         new AuthRequestResponse({ id: "123", publicKey: "KEY" }),
       );
 
-      expect(encryptService.rsaEncrypt).toHaveBeenCalledWith(new Uint8Array(64), expect.anything());
+      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
+        new SymmetricCryptoKey(new Uint8Array(64)),
+        expect.anything(),
+      );
     });
   });
   describe("setUserKeyAfterDecryptingSharedUserKey", () => {
@@ -214,7 +227,9 @@ describe("AuthRequestService", () => {
       const mockDecryptedUserKeyBytes = new Uint8Array(64);
       const mockDecryptedUserKey = new SymmetricCryptoKey(mockDecryptedUserKeyBytes) as UserKey;
 
-      encryptService.rsaDecrypt.mockResolvedValueOnce(mockDecryptedUserKeyBytes);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
+        new SymmetricCryptoKey(mockDecryptedUserKeyBytes),
+      );
 
       // Act
       const result = await sut.decryptPubKeyEncryptedUserKey(
@@ -223,7 +238,7 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(encryptService.rsaDecrypt).toBeCalledWith(
+      expect(encryptService.decapsulateKeyUnsigned).toBeCalledWith(
         new EncString(mockPubKeyEncryptedUserKey),
         mockPrivateKey,
       );
@@ -244,9 +259,10 @@ describe("AuthRequestService", () => {
       const mockDecryptedMasterKeyHashBytes = new Uint8Array(64);
       const mockDecryptedMasterKeyHash = Utils.fromBufferToUtf8(mockDecryptedMasterKeyHashBytes);
 
-      encryptService.rsaDecrypt
-        .mockResolvedValueOnce(mockDecryptedMasterKeyBytes)
-        .mockResolvedValueOnce(mockDecryptedMasterKeyHashBytes);
+      encryptService.rsaDecrypt.mockResolvedValueOnce(mockDecryptedMasterKeyHashBytes);
+      encryptService.decapsulateKeyUnsigned.mockResolvedValueOnce(
+        new SymmetricCryptoKey(mockDecryptedMasterKeyBytes),
+      );
 
       // Act
       const result = await sut.decryptPubKeyEncryptedMasterKeyAndHash(
@@ -256,13 +272,11 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(encryptService.rsaDecrypt).toHaveBeenNthCalledWith(
-        1,
+      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
         new EncString(mockPubKeyEncryptedMasterKey),
         mockPrivateKey,
       );
-      expect(encryptService.rsaDecrypt).toHaveBeenNthCalledWith(
-        2,
+      expect(encryptService.rsaDecrypt).toHaveBeenCalledWith(
         new EncString(mockPubKeyEncryptedMasterKeyHash),
         mockPrivateKey,
       );

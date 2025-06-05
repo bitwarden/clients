@@ -1,3 +1,5 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -25,6 +27,30 @@ export type OptionalInitialValues = {
   username?: string;
   password?: string;
   name?: string;
+  // Credit Card Information
+  cardholderName?: string;
+  number?: string;
+  expMonth?: string;
+  expYear?: string;
+  code?: string;
+  // Identity Information
+  title?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  company?: string;
+  ssn?: string;
+  passportNumber?: string;
+  licenseNumber?: string;
+  email?: string;
+  phone?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
 };
 
 /**

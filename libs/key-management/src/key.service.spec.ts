@@ -1,17 +1,20 @@
 import { mock } from "jest-mock-extended";
-import { bufferCount, firstValueFrom, lastValueFrom, of, take, tap } from "rxjs";
+import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
-import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Encrypted } from "@bitwarden/common/platform/interfaces/encrypted";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -32,7 +35,6 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
   FakeStateProvider,
-  FakeActiveUserState,
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -188,28 +190,28 @@ describe("keyService", () => {
   });
 
   describe("everHadUserKey$", () => {
-    let everHadUserKeyState: FakeActiveUserState<boolean>;
+    let everHadUserKeyState: FakeSingleUserState<boolean>;
 
     beforeEach(() => {
-      everHadUserKeyState = stateProvider.activeUser.getFake(USER_EVER_HAD_USER_KEY);
+      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
     });
 
     it("should return true when stored value is true", async () => {
       everHadUserKeyState.nextState(true);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(true);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(true);
     });
 
     it("should return false when stored value is false", async () => {
       everHadUserKeyState.nextState(false);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(false);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
     });
 
     it("should return false when stored value is null", async () => {
       everHadUserKeyState.nextState(null);
 
-      expect(await firstValueFrom(keyService.everHadUserKey$)).toBe(false);
+      expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
     });
   });
 
@@ -249,14 +251,6 @@ describe("keyService", () => {
         await keyService.setUserKey(mockUserKey, mockUserId);
 
         expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
-          userId: mockUserId,
-        });
-      });
-
-      it("clears the old deprecated Auto key whenever a User Key is set", async () => {
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setCryptoMasterKeyAuto).toHaveBeenCalledWith(null, {
           userId: mockUserId,
         });
       });
@@ -338,7 +332,7 @@ describe("keyService", () => {
       everHadUserKeyState.nextState(null);
 
       // Mock private key decryption
-      encryptService.decryptToBytes.mockResolvedValue(mockRandomBytes);
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockRandomBytes);
     });
 
     it("throws if userKey is null", async () => {
@@ -360,7 +354,7 @@ describe("keyService", () => {
     });
 
     it("throws if encPrivateKey cannot be decrypted with the userKey", async () => {
-      encryptService.decryptToBytes.mockResolvedValue(null);
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(null);
 
       await expect(
         keyService.setUserKeys(mockUserKey, mockEncPrivateKey, mockUserId),
@@ -388,16 +382,12 @@ describe("keyService", () => {
   });
 
   describe("clearKeys", () => {
-    it("resolves active user id when called with no user id", async () => {
-      let callCount = 0;
-      stateProvider.activeUserId$ = stateProvider.activeUserId$.pipe(tap(() => callCount++));
-
-      await keyService.clearKeys();
-      expect(callCount).toBe(1);
-
-      // revert to the original state
-      accountService.activeAccount$ = accountService.activeAccountSubject.asObservable();
-    });
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.clearKeys(userId)).rejects.toThrow("UserId is required");
+      },
+    );
 
     describe.each([
       USER_ENCRYPTED_ORGANIZATION_KEYS,
@@ -405,14 +395,6 @@ describe("keyService", () => {
       USER_ENCRYPTED_PRIVATE_KEY,
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
-      it(`clears ${key.key} for active user when unspecified`, async () => {
-        await keyService.clearKeys();
-
-        const encryptedOrgKeyState = stateProvider.singleUser.getFake(mockUserId, key);
-        expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
-        expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledWith(null);
-      });
-
       it(`clears ${key.key} for the specified user when specified`, async () => {
         const userId = "someOtherUser" as UserId;
         await keyService.clearKeys(userId);
@@ -421,6 +403,24 @@ describe("keyService", () => {
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledTimes(1);
         expect(encryptedOrgKeyState.nextMock).toHaveBeenCalledWith(null);
       });
+    });
+  });
+
+  describe("clearPinKeys", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.clearPinKeys(userId)).rejects.toThrow("UserId is required");
+      },
+    );
+    it("calls pin service to clear", async () => {
+      const userId = "someOtherUser" as UserId;
+
+      await keyService.clearPinKeys(userId);
+
+      expect(pinService.clearPinKeyEncryptedUserKeyPersistent).toHaveBeenCalledWith(userId);
+      expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(userId);
+      expect(pinService.clearUserKeyEncryptedPin).toHaveBeenCalledWith(userId);
     });
   });
 
@@ -460,17 +460,16 @@ describe("keyService", () => {
 
       // Decryption of the user private key
       const fakeDecryptedUserPrivateKey = makeStaticByteArray(10, 1);
-      encryptService.decryptToBytes.mockResolvedValue(fakeDecryptedUserPrivateKey);
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(fakeDecryptedUserPrivateKey);
 
       const fakeUserPublicKey = makeStaticByteArray(10, 2);
       cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(fakeUserPublicKey);
 
       const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
-      expect(encryptService.decryptToBytes).toHaveBeenCalledWith(
+      expect(encryptService.unwrapDecapsulationKey).toHaveBeenCalledWith(
         fakeEncryptedUserPrivateKey,
         userKey,
-        "Content: Encrypted Private Key",
       );
 
       expect(userPrivateKey).toBe(fakeDecryptedUserPrivateKey);
@@ -481,7 +480,7 @@ describe("keyService", () => {
 
       const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
-      expect(encryptService.decryptToBytes).not.toHaveBeenCalled();
+      expect(encryptService.unwrapDecapsulationKey).not.toHaveBeenCalled();
 
       expect(userPrivateKey).toBeFalsy();
     });
@@ -505,7 +504,7 @@ describe("keyService", () => {
       const output = new Uint8Array(64);
       output.set(encryptedPrivateKey.dataBytes);
       output.set(
-        key.key.subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
+        key.toEncoded().subarray(0, 64 - encryptedPrivateKey.dataBytes.length),
         encryptedPrivateKey.dataBytes.length,
       );
       return output;
@@ -560,13 +559,15 @@ describe("keyService", () => {
         providerKeysState.nextState(keys.providerKeys!);
       }
 
-      encryptService.decryptToBytes.mockImplementation((encryptedPrivateKey, userKey) => {
-        // TOOD: Branch between provider and private key?
+      encryptService.unwrapDecapsulationKey.mockImplementation((encryptedPrivateKey, userKey) => {
         return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
       });
+      encryptService.unwrapSymmetricKey.mockImplementation((encryptedPrivateKey, userKey) => {
+        return Promise.resolve(new SymmetricCryptoKey(new Uint8Array(64)));
+      });
 
-      encryptService.rsaDecrypt.mockImplementation((data, privateKey) => {
-        return Promise.resolve(fakeOrgKeyDecryption(data, privateKey));
+      encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
+        return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
       });
     }
 
@@ -625,6 +626,7 @@ describe("keyService", () => {
     });
 
     it("returns decryption keys when some of the org keys are providers", async () => {
+      encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(64));
       const org2Id = "org2Id" as OrganizationId;
       updateKeys({
         userKey: makeSymmetricCryptoKey<UserKey>(64),
@@ -655,7 +657,7 @@ describe("keyService", () => {
 
       const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
-      expect(org2Key.keyB64).toContain("provider1Key");
+      expect(org2Key.toEncoded()).toHaveLength(64);
     });
 
     it("returns a stream that pays attention to updates of all data", async () => {
@@ -744,6 +746,52 @@ describe("keyService", () => {
     });
   });
 
+  describe("getOrDeriveMasterKey", () => {
+    it("returns the master key if it is already available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of("masterKey" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(result).toEqual("masterKey");
+    });
+
+    it("derives the master key if it is not available", async () => {
+      const getMasterKey = jest
+        .spyOn(masterPasswordService, "masterKey$")
+        .mockReturnValue(of(null as any));
+
+      const deriveKeyFromPassword = jest
+        .spyOn(keyGenerationService, "deriveKeyFromPassword")
+        .mockResolvedValue("mockMasterKey" as any);
+
+      kdfConfigService.getKdfConfig$.mockReturnValue(of("mockKdfConfig" as any));
+
+      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
+
+      expect(getMasterKey).toHaveBeenCalledWith(mockUserId);
+      expect(deriveKeyFromPassword).toHaveBeenCalledWith("password", "email", "mockKdfConfig");
+      expect(result).toEqual("mockMasterKey");
+    });
+
+    it("throws an error if no user is found", async () => {
+      accountService.activeAccountSubject.next(null);
+
+      await expect(keyService.getOrDeriveMasterKey("password")).rejects.toThrow("No user found");
+    });
+
+    it("throws an error if no kdf config is found", async () => {
+      jest.spyOn(masterPasswordService, "masterKey$").mockReturnValue(of(null as any));
+      kdfConfigService.getKdfConfig$.mockReturnValue(of(null));
+
+      await expect(keyService.getOrDeriveMasterKey("password", mockUserId)).rejects.toThrow(
+        "No kdf found for user",
+      );
+    });
+  });
+
   describe("compareKeyHash", () => {
     type TestCase = {
       masterKey: MasterKey;
@@ -789,7 +837,7 @@ describe("keyService", () => {
         masterPasswordService.masterKeyHashSubject.next(storedMasterKeyHash);
 
         cryptoFunctionService.pbkdf2
-          .calledWith(masterKey.key, masterPassword as string, "sha256", 2)
+          .calledWith(masterKey.inner().encryptionKey, masterPassword as string, "sha256", 2)
           .mockResolvedValue(Utils.fromB64ToArray(mockReturnedHash));
 
         const actualDidMatch = await keyService.compareKeyHash(
@@ -801,5 +849,132 @@ describe("keyService", () => {
         expect(actualDidMatch).toBe(expectedToMatch);
       },
     );
+  });
+
+  describe("userPrivateKey$", () => {
+    type SetupKeysParams = {
+      makeMasterKey: boolean;
+      makeUserKey: boolean;
+    };
+
+    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+      const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
+      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
+      masterPasswordService.masterKeySubject.next(fakeMasterKey);
+      userKeyState.nextState(null);
+      const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
+      userKeyState.nextState(fakeUserKey);
+      return [fakeUserKey, fakeMasterKey];
+    }
+
+    it("returns null when private key is null", async () => {
+      setupKeys({ makeMasterKey: false, makeUserKey: false });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(null));
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual(null);
+    });
+
+    it("returns null when private key is undefined", async () => {
+      setupKeys({ makeUserKey: true, makeMasterKey: false });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject(undefined));
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual(null);
+    });
+
+    it("returns keys when private key is defined", async () => {
+      setupKeys({ makeUserKey: false, makeMasterKey: true });
+
+      keyService.userPrivateKey$ = jest.fn().mockReturnValue(new BehaviorSubject("private key"));
+      cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(
+        Utils.fromUtf8ToArray("public key"),
+      );
+      const key = await firstValueFrom(keyService.userEncryptionKeyPair$(mockUserId));
+      expect(key).toEqual({
+        privateKey: "private key",
+        publicKey: Utils.fromUtf8ToArray("public key"),
+      });
+    });
+  });
+
+  describe("getUserKeyFromStorage", () => {
+    let mockUserKey: UserKey;
+    let validateUserKeySpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      validateUserKeySpy = jest.spyOn(keyService, "validateUserKey");
+    });
+
+    afterEach(() => {
+      validateUserKeySpy.mockRestore();
+    });
+
+    describe("input validation", () => {
+      const invalidUserIdTestCases = [
+        { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
+      ];
+
+      test.each(invalidUserIdTestCases)(
+        "throws when keySuffix is $keySuffix and userId is $userId",
+        async ({ keySuffix, userId }) => {
+          await expect(keyService.getUserKeyFromStorage(keySuffix, userId)).rejects.toThrow(
+            "UserId is required",
+          );
+        },
+      );
+    });
+
+    describe("with Pin keySuffix", () => {
+      it("returns null and doesn't validate the key", async () => {
+        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Pin, mockUserId);
+
+        expect(result).toBeNull();
+        expect(validateUserKeySpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("with Auto keySuffix", () => {
+      it("returns validated key from storage when key exists and is valid", async () => {
+        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
+        validateUserKeySpy.mockResolvedValue(true);
+
+        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
+
+        expect(result).toEqual(mockUserKey);
+        expect(validateUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
+        expect(stateService.getUserKeyAutoUnlock).toHaveBeenCalledWith({
+          userId: mockUserId,
+        });
+      });
+
+      it("returns null when no key is found in storage", async () => {
+        stateService.getUserKeyAutoUnlock.mockResolvedValue(null as unknown as string);
+
+        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
+
+        expect(result).toBeNull();
+        expect(validateUserKeySpy).not.toHaveBeenCalled();
+      });
+
+      it("clears stored keys when userKey validation fails", async () => {
+        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
+        validateUserKeySpy.mockResolvedValue(false);
+
+        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
+
+        expect(result).toEqual(mockUserKey);
+        expect(validateUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
+        expect(logService.warning).toHaveBeenCalledWith("Invalid key, throwing away stored keys");
+        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
+          userId: mockUserId,
+        });
+      });
+    });
   });
 });

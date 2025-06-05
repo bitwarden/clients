@@ -27,7 +27,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -37,6 +37,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
+import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
@@ -46,7 +47,6 @@ import { TemplateResponse } from "../models/response/template.response";
 import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
 import { FolderResponse } from "../vault/models/folder.response";
 
 import { DownloadCommand } from "./download.command";
@@ -116,9 +116,7 @@ export class GetCommand extends DownloadCommand {
     if (Utils.isGuid(id)) {
       const cipher = await this.cipherService.get(id, activeUserId);
       if (cipher != null) {
-        decCipher = await cipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-        );
+        decCipher = await this.cipherService.decrypt(cipher, activeUserId);
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted(activeUserId);
@@ -254,8 +252,8 @@ export class GetCommand extends DownloadCommand {
       return Response.error("No TOTP available for this login.");
     }
 
-    const totp = await this.totpService.getCode(cipher.login.totp);
-    if (totp == null) {
+    const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+    if (!totpResponse.code) {
       return Response.error("Couldn't generate TOTP code.");
     }
 
@@ -276,7 +274,7 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const res = new StringResponse(totp);
+    const res = new StringResponse(totpResponse.code);
     return Response.success(res);
   }
 
@@ -347,12 +345,11 @@ export class GetCommand extends DownloadCommand {
       return Response.multipleResults(attachments.map((a) => a.id));
     }
 
-    const account = await firstValueFrom(this.accountService.activeAccount$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$(account.id),
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
     if (!canAccessPremium) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const originalCipher = await this.cipherService.get(cipher.id, activeUserId);
       if (originalCipher == null || originalCipher.organizationId == null) {
         return Response.error("Premium status is required to use this feature.");
@@ -376,11 +373,20 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const key =
-      attachments[0].key != null
-        ? attachments[0].key
-        : await this.keyService.getOrgKey(cipher.organizationId);
-    return await this.saveAttachmentToFile(url, key, attachments[0].fileName, options.output);
+    const decryptBufferFn = (resp: globalThis.Response) =>
+      this.cipherService.getDecryptedAttachmentBuffer(
+        cipher.id as CipherId,
+        attachments[0],
+        resp,
+        activeUserId,
+      );
+
+    return await this.saveAttachmentToFile(
+      url,
+      attachments[0].fileName,
+      decryptBufferFn,
+      options.output,
+    );
   }
 
   private async getFolder(id: string) {
@@ -455,10 +461,9 @@ export class GetCommand extends DownloadCommand {
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
       const decCollection = new CollectionView(response);
-      decCollection.name = await this.encryptService.decryptToUtf8(
+      decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
-        `orgkey-${options.organizationId}`,
       );
       const groups =
         response.groups == null
@@ -571,7 +576,7 @@ export class GetCommand extends DownloadCommand {
         const pubKey = Utils.fromB64ToArray(response.publicKey);
         fingerprint = await this.keyService.getFingerprint(id, pubKey);
       } catch {
-        // eslint-disable-next-line
+        // empty - handled by the null check below
       }
     }
 

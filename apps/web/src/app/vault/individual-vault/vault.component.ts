@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
@@ -14,6 +13,7 @@ import {
   Subject,
 } from "rxjs";
 import {
+  catchError,
   concatMap,
   debounceTime,
   filter,
@@ -49,7 +49,9 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -64,10 +66,14 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { DialogService, Icons, ToastService } from "@bitwarden/components";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
   CipherFormConfig,
   CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
@@ -75,15 +81,21 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { TrialFlowService } from "../../billing/services/trial-flow.service";
-import { FreeTrial } from "../../billing/types/free-trial";
-import { SharedModule } from "../../shared/shared.module";
-import { AssignCollectionsWebComponent } from "../components/assign-collections";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+  getNestedCollectionTree_vNext,
+} from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
-} from "../components/collection-dialog";
+} from "../../admin-console/organizations/shared/components/collection-dialog";
+import { BillingNotificationService } from "../../billing/services/billing-notification.service";
+import { TrialFlowService } from "../../billing/services/trial-flow.service";
+import { FreeTrial } from "../../billing/types/free-trial";
+import { SharedModule } from "../../shared/shared.module";
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -92,13 +104,7 @@ import {
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
-import { getNestedCollectionTree } from "../utils/collection-utils";
 
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "./attachments-v2.component";
 import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
@@ -127,7 +133,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
 @Component({
-  standalone: true,
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [
@@ -137,7 +142,6 @@ const SearchTextDebounceInterval = 200;
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
-    DecryptionFailureDialogComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -213,20 +217,25 @@ export class VaultComponent implements OnInit, OnDestroy {
         ownerOrgs.map((org) =>
           combineLatest([
             this.organizationApiService.getSubscription(org.id),
-            this.organizationBillingService.getPaymentSource(org.id),
+            from(this.organizationBillingService.getPaymentSource(org.id)).pipe(
+              catchError((error: unknown) => {
+                this.billingNotificationService.handleError(error);
+                return of(null);
+              }),
+            ),
           ]).pipe(
-            map(([subscription, paymentSource]) => {
-              return this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
+            map(([subscription, paymentSource]) =>
+              this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(
                 org,
                 subscription,
                 paymentSource,
-              );
-            }),
+              ),
+            ),
           ),
         ),
       );
     }),
-    map((results) => results.filter((result) => result.shownBanner)),
+    map((results) => results.filter((result) => result !== null && result.shownBanner)),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
@@ -262,6 +271,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     protected billingApiService: BillingApiServiceAbstraction,
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
+    private billingNotificationService: BillingNotificationService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -318,8 +329,15 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const filter$ = this.routedVaultFilterService.filter$;
     const allCollections$ = this.collectionService.decryptedCollections$;
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
+    const nestedCollections$ = combineLatest([
+      allCollections$,
+      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
+    ]).pipe(
+      map(([collections, shouldOptimize]) =>
+        shouldOptimize
+          ? getNestedCollectionTree_vNext(collections)
+          : getNestedCollectionTree(collections),
+      ),
     );
 
     this.searchText$
@@ -341,15 +359,19 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
-        const failedCiphers = await firstValueFrom(
-          this.cipherService.failedToDecryptCiphers$(activeUserId),
-        );
+        const failedCiphers =
+          (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(searchText)) {
-          return await this.searchService.searchCiphers(searchText, [filterFunction], allCiphers);
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+          return await this.searchService.searchCiphers(
+            activeUserId,
+            searchText,
+            [filterFunction],
+            allCiphers,
+          );
         }
 
         return allCiphers.filter(filterFunction);
@@ -363,31 +385,35 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
           return [];
         }
-        let collectionsToReturn = [];
+        let searchableCollectionNodes: TreeNode<CollectionView>[] = [];
         if (filter.organizationId !== undefined && filter.collectionId === All) {
-          collectionsToReturn = collections
-            .filter((c) => c.node.organizationId === filter.organizationId)
-            .map((c) => c.node);
+          searchableCollectionNodes = collections.filter(
+            (c) => c.node.organizationId === filter.organizationId,
+          );
         } else if (filter.collectionId === All) {
-          collectionsToReturn = collections.map((c) => c.node);
+          searchableCollectionNodes = collections;
         } else {
           const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
             collections,
             filter.collectionId,
           );
-          collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
+          searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
-        if (await this.searchService.isSearchable(searchText)) {
-          collectionsToReturn = this.searchPipe.transform(
-            collectionsToReturn,
+        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+          // Flatten the tree for searching through all levels
+          const flatCollectionTree: CollectionView[] =
+            getFlatCollectionTree(searchableCollectionNodes);
+
+          return this.searchPipe.transform(
+            flatCollectionTree,
             searchText,
             (collection) => collection.name,
             (collection) => collection.id,
           );
         }
 
-        return collectionsToReturn;
+        return searchableCollectionNodes.map((treeNode: TreeNode<CollectionView>) => treeNode.node);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -460,6 +486,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.cipherService.failedToDecryptCiphers$(activeUserId)),
+        filterOutNullish(),
         map((ciphers) => ciphers.filter((c) => !c.isDeleted)),
         filter((ciphers) => ciphers.length > 0),
         take(1),
@@ -516,6 +543,10 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
+
+          // Explicitly mark for check to ensure the view is updated
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS notifications)
+          this.changeDetectorRef.markForCheck();
         },
       );
   }
@@ -638,6 +669,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
+      organizationId: cipher.organizationId as OrganizationId,
     });
 
     const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
@@ -911,7 +943,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
       availableCollections = this.allCollections.filter(
-        (c) => c.organizationId === organization.id && !c.readOnly,
+        (c) => c.organizationId === organization.id,
       );
     }
 
@@ -1141,7 +1173,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      value = await this.totpService.getCode(cipher.login.totp);
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
       this.toastService.showToast({

@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "short_name": "__MSG_appName__",
-  "version": "2025.2.2",
+  "short_name": "Bitwarden",
+  "version": "2025.5.1",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -79,12 +79,7 @@
   "__safari__optional_permissions": null,
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   "sandbox": {
-    "pages": [
-      "overlay/menu-button.html",
-      "overlay/menu-list.html",
-      "overlay/button.html",
-      "overlay/list.html"
-    ],
+    "pages": ["overlay/menu-button.html", "overlay/menu-list.html"],
     "content_security_policy": "sandbox allow-scripts; script-src 'self'"
   },
   "__firefox__sandbox": null,
@@ -140,8 +135,6 @@
     "overlay/menu-button.html",
     "overlay/menu-list.html",
     "overlay/menu.html",
-    "overlay/button.html",
-    "overlay/list.html",
     "popup/fonts/*"
   ],
   "__firefox__browser_specific_settings": {

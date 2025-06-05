@@ -2,7 +2,7 @@ import { Meta, Controls } from "@storybook/addon-docs";
 
 import * as stories from "./icons.lit-stories";
 
-<Meta title="Components/Icons/Icons" of={stories} />
+<Meta title="Components/Icons" of={stories} />
 
 ## Icon Stories
 
@@ -14,12 +14,12 @@ like size, color, and theme. Each story is an example of how a specific icon can
 
 |                           |                    |
 | ------------------------- | ------------------ |
-| `AngleDownIcon`           | `FolderIcon`       |
-| `BusinessIcon`            | `GlobeIcon`        |
-| `BrandIcon`               | `PartyHornIcon`    |
+| `AngleDownIcon`           | `AngleUpIcon`      |
+| `BusinessIcon`            | `FolderIcon`       |
+| `BrandIcon`               | `GlobeIcon`        |
 | `CloseIcon`               | `PencilSquareIcon` |
 | `ExclamationTriangleIcon` | `ShieldIcon`       |
-| `FamilyIcon`              | `UserIcon`         |
+| `UsersIcon`               | `UserIcon`         |
 
 ## Props
 
@@ -28,7 +28,7 @@ like size, color, and theme. Each story is an example of how a specific icon can
 | `iconLink` | `URL`     | No           | Defines an external URL associated with the icon, prop exclusive to `Brand Icon`. |
 | `color`    | `string`  | No           | Sets the color of the icon.                                                       |
 | `disabled` | `boolean` | No           | Disables the icon visually and functionally.                                      |
-| `theme`    | `Theme`   | Yes          | Defines the theme used to style the icons. Must match the `Theme` enum.           |
+| `theme`    | `Theme`   | Yes          | Defines the theme used to style the icons. Must match the `Theme` type.           |
 | `size`     | `number`  | Yes          | Sets the width and height of the icon in pixels.                                  |
 
 ---

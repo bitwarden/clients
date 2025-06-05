@@ -103,13 +103,19 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
+      {
+        id: "typeSshKey",
+        label: this.localize("typeSshKey"),
+        click: () => this.sendMessage("newSshKey"),
+        accelerator: "CmdOrCtrl+Shift+K",
+      },
     ];
   }
 
   private get addNewFolder(): MenuItemConstructorOptions {
     return {
-      id: "addNewFolder",
-      label: this.localize("addNewFolder"),
+      id: "newFolder",
+      label: this.localize("newFolder"),
       click: () => this.sendMessage("newFolder"),
       enabled: !this._isLocked,
     };

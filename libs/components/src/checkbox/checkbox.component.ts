@@ -9,7 +9,6 @@ import { BitFormControlAbstraction } from "../form-control";
   selector: "input[type=checkbox][bitCheckbox]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
-  standalone: true,
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   @HostBinding("class")
@@ -27,7 +26,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-border-secondary-500",
     "tw-h-[1.12rem]",
     "tw-w-[1.12rem]",
-    "tw-mr-1.5",
+    "tw-me-1.5",
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "before:tw-content-['']",

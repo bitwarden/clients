@@ -18,7 +18,9 @@
           </td>
           <td bitCell>
             {{ item.user.email }}
-            <small class="text-muted d-block" *ngIf="item.user.name">{{ item.user.name }}</small>
+            <small class="tw-text-muted tw-block" *ngIf="item.user.name">{{
+              item.user.name
+            }}</small>
           </td>
           <td class="tw-text-danger" *ngIf="item.error" bitCell>
             {{ item.message }}

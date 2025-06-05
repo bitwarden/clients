@@ -3,14 +3,14 @@
 import { firstValueFrom, Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/sso-token.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -22,7 +22,6 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
-  captchaBypassToken: string;
   tokenRequest: SsoTokenRequest;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
@@ -107,14 +106,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const email = ssoAuthResult.email;
     const ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
-
-    // Auth guard currently handles redirects for this.
-    if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ssoAuthResult.forcePasswordReset,
-        ssoAuthResult.userId,
-      );
-    }
 
     this.cache.next({
       ...this.cache.value,
@@ -278,7 +269,8 @@ export class SsoLoginStrategy extends LoginStrategy {
         // TODO: eventually we post and clean up DB as well once consumed on client
         await this.authRequestService.clearAdminAuthRequest(userId);
 
-        this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
+        // This notification will be picked up by the SsoComponent to handle displaying a toast to the user
+        this.authRequestService.emitAdminLoginApproved();
       }
     }
   }
@@ -362,5 +354,76 @@ export class SsoLoginStrategy extends LoginStrategy {
     return {
       sso: this.cache.value,
     };
+  }
+
+  /**
+   * Override to handle SSO-specific ForceSetPasswordReason flags,including TdeOffboarding,
+   * TdeUserWithoutPasswordHasPasswordResetPermission, and SsoNewJitProvisionedUser cases.
+   * @param authResult - The authentication result
+   * @param userId - The user ID
+   */
+  override async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    // handle any existing reasons
+    const adminForcePasswordResetFlagSet = await super.processForceSetPasswordReason(
+      adminForcePasswordReset,
+      userId,
+    );
+
+    // If we are already processing an admin force password reset, don't process other reasons
+    if (adminForcePasswordResetFlagSet) {
+      return false;
+    }
+
+    // Check for TDE-related conditions
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptions$,
+    );
+
+    if (!userDecryptionOptions) {
+      return false;
+    }
+
+    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password
+    if (userDecryptionOptions.trustedDeviceOption?.isTdeOffboarding) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+      return true;
+    }
+
+    // Check if user has permission to set password but hasn't yet
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      userDecryptionOptions.trustedDeviceOption?.hasManageResetPasswordPermission
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
+      );
+
+      return true;
+    }
+
+    // Check for new SSO JIT provisioned user
+    // If a user logs in via SSO but has no master password and no alternative encryption methods
+    // Then they must be a newly provisioned user who needs to set up their encryption
+    if (
+      !userDecryptionOptions.hasMasterPassword &&
+      !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      !userDecryptionOptions.trustedDeviceOption
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.SsoNewJitProvisionedUser,
+        userId,
+      );
+      return true;
+    }
+
+    // If none of the conditions are met, return false
+    return false;
   }
 }

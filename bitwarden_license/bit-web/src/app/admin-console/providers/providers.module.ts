@@ -4,9 +4,11 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SearchModule } from "@bitwarden/components";
+import { CardComponent, SearchModule } from "@bitwarden/components";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
 import { OrganizationPlansComponent } from "@bitwarden/web-vault/app/billing";
+import { PaymentComponent } from "@bitwarden/web-vault/app/billing/shared/payment/payment.component";
+import { VerifyBankAccountComponent } from "@bitwarden/web-vault/app/billing/shared/verify-bank-account/verify-bank-account.component";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
 import {
@@ -18,6 +20,7 @@ import {
   ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
 import { AddExistingOrganizationDialogComponent } from "../../billing/providers/clients/add-existing-organization-dialog.component";
+import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
@@ -27,7 +30,6 @@ import { BulkConfirmDialogComponent } from "./manage/dialogs/bulk-confirm-dialog
 import { BulkRemoveDialogComponent } from "./manage/dialogs/bulk-remove-dialog.component";
 import { EventsComponent } from "./manage/events.component";
 import { MembersComponent } from "./manage/members.component";
-import { UserAddEditComponent } from "./manage/user-add-edit.component";
 import { ProvidersLayoutComponent } from "./providers-layout.component";
 import { ProvidersRoutingModule } from "./providers-routing.module";
 import { ProvidersComponent } from "./providers.component";
@@ -49,6 +51,9 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProvidersLayoutComponent,
     DangerZoneComponent,
     ScrollingModule,
+    VerifyBankAccountComponent,
+    CardComponent,
+    PaymentComponent,
   ],
   declarations: [
     AcceptProviderComponent,
@@ -61,7 +66,6 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     MembersComponent,
     SetupComponent,
     SetupProviderComponent,
-    UserAddEditComponent,
     AddEditMemberDialogComponent,
     AddExistingOrganizationDialogComponent,
     CreateClientDialogComponent,
@@ -72,6 +76,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ProviderSubscriptionStatusComponent,
     ProvidersComponent,
     VerifyRecoverDeleteProviderComponent,
+    SetupBusinessUnitComponent,
   ],
   providers: [WebProviderService],
 })

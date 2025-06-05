@@ -26,10 +26,8 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -45,12 +43,12 @@ import { CardDetailsSectionComponent } from "./card-details-section/card-details
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
+import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 @Component({
   selector: "vault-cipher-form",
   templateUrl: "./cipher-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: CipherFormContainer,
@@ -62,8 +60,6 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -76,6 +72,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     NgIf,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
+    NewItemNudgeComponent,
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {
@@ -241,6 +238,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
       if (this.config.mode === "clone") {
         this.updatedCipherView.id = null;
+
+        if (this.updatedCipherView.login) {
+          this.updatedCipherView.login.fido2Credentials = null;
+        }
       }
     } else {
       this.updatedCipherView.type = this.config.cipherType;
@@ -267,11 +268,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
     // Use the cached cipher when it matches the cipher being edited
     if (this.updatedCipherView.id === cachedCipher.id) {
-      this.updatedCipherView = cachedCipher;
-    }
-
-    // `id` is null when a cipher is being added
-    if (this.updatedCipherView.id === null) {
       this.updatedCipherView = cachedCipher;
     }
   }

@@ -5,11 +5,11 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -43,6 +43,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   private authRequestPushNotificationSubject = new Subject<string>();
   authRequestPushNotification$: Observable<string>;
 
+  // Observable emission is used to trigger a toast in consuming components
+  private adminLoginApprovedSubject = new Subject<void>();
+  adminLoginApproved$: Observable<void>;
+
   constructor(
     private appIdService: AppIdService,
     private accountService: AccountService,
@@ -53,6 +57,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private stateProvider: StateProvider,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
+    this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
   }
 
   async getAdminAuthRequest(userId: UserId): Promise<AdminAuthRequestStorable | null> {
@@ -111,13 +116,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         Utils.fromUtf8ToArray(masterKeyHash),
         pubKey,
       );
-      keyToEncrypt = masterKey.encKey;
+      keyToEncrypt = masterKey;
     } else {
-      const userKey = await this.keyService.getUserKey();
-      keyToEncrypt = userKey.key;
+      keyToEncrypt = await this.keyService.getUserKey();
     }
 
-    const encryptedKey = await this.encryptService.rsaEncrypt(keyToEncrypt, pubKey);
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(
+      keyToEncrypt as SymmetricCryptoKey,
+      pubKey,
+    );
 
     const response = new PasswordlessAuthRequest(
       encryptedKey.encryptedString,
@@ -166,12 +173,10 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedUserKey: string,
     privateKey: Uint8Array,
   ): Promise<UserKey> {
-    const decryptedUserKeyBytes = await this.encryptService.rsaDecrypt(
+    return (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedUserKey),
       privateKey,
-    );
-
-    return new SymmetricCryptoKey(decryptedUserKeyBytes) as UserKey;
+    )) as UserKey;
   }
 
   async decryptPubKeyEncryptedMasterKeyAndHash(
@@ -179,17 +184,15 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     pubKeyEncryptedMasterKeyHash: string,
     privateKey: Uint8Array,
   ): Promise<{ masterKey: MasterKey; masterKeyHash: string }> {
-    const decryptedMasterKeyArrayBuffer = await this.encryptService.rsaDecrypt(
+    const masterKey = (await this.encryptService.decapsulateKeyUnsigned(
       new EncString(pubKeyEncryptedMasterKey),
       privateKey,
-    );
+    )) as MasterKey;
 
     const decryptedMasterKeyHashArrayBuffer = await this.encryptService.rsaDecrypt(
       new EncString(pubKeyEncryptedMasterKeyHash),
       privateKey,
     );
-
-    const masterKey = new SymmetricCryptoKey(decryptedMasterKeyArrayBuffer) as MasterKey;
     const masterKeyHash = Utils.fromBufferToUtf8(decryptedMasterKeyHashArrayBuffer);
 
     return {
@@ -206,5 +209,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
     return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+  }
+
+  emitAdminLoginApproved(): void {
+    this.adminLoginApprovedSubject.next();
   }
 }

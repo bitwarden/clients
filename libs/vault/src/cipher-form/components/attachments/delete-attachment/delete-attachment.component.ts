@@ -18,7 +18,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-delete-attachment",
   templateUrl: "./delete-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, ButtonModule, IconButtonModule],
@@ -29,6 +28,9 @@ export class DeleteAttachmentComponent {
 
   /** The attachment that is can be deleted */
   @Input({ required: true }) attachment!: AttachmentView;
+
+  /** Whether the attachemnt is being accessed from the admin console */
+  @Input() admin: boolean = false;
 
   /** Emits when the attachment is successfully deleted */
   @Output() onDeletionSuccess = new EventEmitter<void>();
@@ -66,6 +68,7 @@ export class DeleteAttachmentComponent {
         this.cipherId,
         this.attachment.id,
         activeUserId,
+        this.admin,
       );
 
       this.toastService.showToast({

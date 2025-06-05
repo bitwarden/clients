@@ -89,7 +89,7 @@
               *ngIf="editInfo && f.node.id"
               class="edit-button"
               (click)="onEdit(f)"
-              appA11yTitle="{{ editInfo.text | i18n }}"
+              appA11yTitle="{{ 'editWithName' | i18n: editInfo.filterName : f.node.name }}"
             >
               <i class="bwi bwi-pencil bwi-fw" aria-hidden="true"></i>
             </button>
