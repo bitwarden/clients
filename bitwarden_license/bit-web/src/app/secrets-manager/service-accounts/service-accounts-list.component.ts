@@ -16,6 +16,7 @@ import {
 @Component({
   selector: "sm-service-accounts-list",
   templateUrl: "./service-accounts-list.component.html",
+  standalone: false,
 })
 export class ServiceAccountsListComponent implements OnDestroy {
   protected dataSource = new TableDataSource<ServiceAccountSecretsDetailsView>();

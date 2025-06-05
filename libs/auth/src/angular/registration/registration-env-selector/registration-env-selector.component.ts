@@ -15,6 +15,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { DialogService, FormFieldModule, SelectModule, ToastService } from "@bitwarden/components";
 
 import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
@@ -24,7 +26,6 @@ import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config
  * Outputs the selected region to the parent component so it can respond as necessary.
  */
 @Component({
-  standalone: true,
   selector: "auth-registration-env-selector",
   templateUrl: "registration-env-selector.component.html",
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],

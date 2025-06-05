@@ -22,6 +22,7 @@ export class MaximumVaultTimeoutPolicy extends BasePolicy {
 @Component({
   selector: "policy-maximum-timeout",
   templateUrl: "maximum-vault-timeout.component.html",
+  standalone: false,
 })
 export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
   vaultTimeoutActionOptions: { name: string; value: string }[];

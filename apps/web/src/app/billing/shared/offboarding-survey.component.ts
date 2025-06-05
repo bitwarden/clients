@@ -49,6 +49,7 @@ export const openOffboardingSurvey = (
 @Component({
   selector: "app-cancel-subscription-form",
   templateUrl: "offboarding-survey.component.html",
+  standalone: false,
 })
 export class OffboardingSurveyComponent {
   protected ResultType = OffboardingSurveyDialogResultType;

@@ -38,7 +38,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   DIALOG_DATA,
@@ -118,7 +117,6 @@ export enum CollectionDialogAction {
 
 @Component({
   templateUrl: "collection-dialog.component.html",
-  standalone: true,
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
@@ -135,7 +133,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: "",
+    externalId: { value: "", disabled: true },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "",
@@ -145,16 +143,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected collections: Collection[];
   protected buttonDisplayName: ButtonType = ButtonType.Save;
-  protected isExternalIdVisible$ = this.configService
-    .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-    .pipe(
-      map((isEnabled) => {
-        return (
-          !isEnabled ||
-          (!!this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value)
-        );
-      }),
-    );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -165,7 +153,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private groupService: GroupApiService,
     private collectionAdminService: CollectionAdminService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private organizationUserApiService: OrganizationUserApiService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -354,6 +341,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.formGroup.controls.selectedOrg;
   }
 
+  protected get isExternalIdVisible(): boolean {
+    return this.params.isAdminConsoleActive && !!this.formGroup.get("externalId")?.value;
+  }
+
   protected get collectionId() {
     return this.params.collectionId;
   }
@@ -490,23 +481,10 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   private handleFormGroupReadonly(readonly: boolean) {
     if (readonly) {
       this.formGroup.controls.name.disable();
-      this.formGroup.controls.externalId.disable();
       this.formGroup.controls.parent.disable();
       this.formGroup.controls.access.disable();
     } else {
       this.formGroup.controls.name.enable();
-
-      this.configService
-        .getFeatureFlag$(FeatureFlag.SsoExternalIdVisibility)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((isEnabled) => {
-          if (isEnabled) {
-            this.formGroup.controls.externalId.disable();
-          } else {
-            this.formGroup.controls.externalId.enable();
-          }
-        });
-
       this.formGroup.controls.parent.enable();
       this.formGroup.controls.access.enable();
     }

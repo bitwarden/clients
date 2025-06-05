@@ -9,12 +9,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
+// eslint-disable-next-line no-restricted-imports
 import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports
 import { InactiveTwoFactorReportComponent } from "../../../dirt/reports/pages/organizations/inactive-two-factor-report.component";
+// eslint-disable-next-line no-restricted-imports
 import { ReusedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/reused-passwords-report.component";
+// eslint-disable-next-line no-restricted-imports
 import { UnsecuredWebsitesReportComponent } from "../../../dirt/reports/pages/organizations/unsecured-websites-report.component";
+// eslint-disable-next-line no-restricted-imports
 import { WeakPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/weak-passwords-report.component";
-/* eslint no-restricted-imports: "error" */
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";

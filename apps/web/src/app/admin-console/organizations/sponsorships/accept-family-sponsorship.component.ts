@@ -19,6 +19,7 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
 @Component({
   selector: "app-accept-family-sponsorship",
   templateUrl: "accept-family-sponsorship.component.html",
+  standalone: false,
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;

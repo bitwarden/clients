@@ -85,11 +85,13 @@ export abstract class KeyService {
    * (such as auto, biometrics, or pin)
    */
   abstract refreshAdditionalKeys(): Promise<void>;
+
   /**
-   * Observable value that returns whether or not the currently active user has ever had auser key,
+   * Observable value that returns whether or not the user has ever had a userKey,
    * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
    */
-  abstract everHadUserKey$: Observable<boolean>;
+  abstract everHadUserKey$(userId: UserId): Observable<boolean>;
+
   /**
    * Retrieves the user key
    * @param userId The desired user
@@ -126,10 +128,11 @@ export abstract class KeyService {
    * @param keySuffix The desired version of the user's key to retrieve
    * @param userId The desired user
    * @returns The user key
+   * @throws Error when userId is null or undefined.
    */
   abstract getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId: string,
   ): Promise<UserKey | null>;
 
   /**
@@ -370,8 +373,9 @@ export abstract class KeyService {
    * Note: This will remove the stored pin and as a result,
    * disable pin protection for the user
    * @param userId The desired user
+   * @throws Error when provided userId is null or undefined
    */
-  abstract clearPinKeys(userId?: string): Promise<void>;
+  abstract clearPinKeys(userId: UserId): Promise<void>;
   /**
    * @param keyMaterial The key material to derive the send key from
    * @returns A new send key
@@ -380,8 +384,9 @@ export abstract class KeyService {
   /**
    * Clears all of the user's keys from storage
    * @param userId The user's Id
+   * @throws Error when provided userId is null or undefined
    */
-  abstract clearKeys(userId?: string): Promise<any>;
+  abstract clearKeys(userId: UserId): Promise<void>;
   abstract randomNumber(min: number, max: number): Promise<number>;
   /**
    * Generates a new cipher key

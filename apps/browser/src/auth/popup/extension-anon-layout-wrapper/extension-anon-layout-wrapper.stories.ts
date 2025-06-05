@@ -168,18 +168,21 @@ type Story = StoryObj<ExtensionAnonLayoutWrapperComponent>;
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
+  standalone: false,
 })
 class DefaultPrimaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
+  standalone: false,
 })
 class DefaultSecondaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
+  standalone: false,
 })
 class DefaultEnvSelectorOutletExampleComponent {}
 
@@ -264,6 +267,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
+  standalone: false,
 })
 export class DynamicContentExampleComponent {
   initialData = true;

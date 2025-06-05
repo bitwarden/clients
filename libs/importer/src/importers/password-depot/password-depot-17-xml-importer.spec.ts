@@ -1,3 +1,5 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -279,8 +281,8 @@ describe("Password Depot 17 Xml Importer", () => {
 
     expect(cipher.type).toBe(CipherType.Login);
     expect(cipher.name).toBe("banking type");
-    expect(cipher.notes).toBe("someNote");   
-    
+    expect(cipher.notes).toBe("someNote");
+
     expect(cipher.login).not.toBeNull();
     expect(cipher.login.password).toBe("somePassword");
     expect(cipher.login.username).toBe("someUser");

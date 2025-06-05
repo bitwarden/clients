@@ -26,10 +26,8 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -51,7 +49,6 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
 @Component({
   selector: "vault-cipher-form",
   templateUrl: "./cipher-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: CipherFormContainer,
@@ -63,8 +60,6 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -273,11 +268,6 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
     // Use the cached cipher when it matches the cipher being edited
     if (this.updatedCipherView.id === cachedCipher.id) {
-      this.updatedCipherView = cachedCipher;
-    }
-
-    // `id` is null when a cipher is being added
-    if (this.updatedCipherView.id === null) {
       this.updatedCipherView = cachedCipher;
     }
   }

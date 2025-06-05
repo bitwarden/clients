@@ -10,7 +10,6 @@ let nextId = 0;
 @Component({
   selector: "bit-radio-button",
   templateUrl: "radio-button.component.html",
-  standalone: true,
   imports: [FormControlModule, RadioInputComponent],
 })
 export class RadioButtonComponent {

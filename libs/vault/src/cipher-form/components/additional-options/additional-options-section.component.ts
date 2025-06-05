@@ -13,7 +13,6 @@ import {
   CheckboxModule,
   FormFieldModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
@@ -25,10 +24,8 @@ import { CustomFieldsComponent } from "../custom-fields/custom-fields.component"
 @Component({
   selector: "vault-additional-options-section",
   templateUrl: "./additional-options-section.component.html",
-  standalone: true,
   imports: [
     CommonModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,

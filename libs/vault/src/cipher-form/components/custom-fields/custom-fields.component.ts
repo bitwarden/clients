@@ -37,7 +37,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -70,7 +69,6 @@ export type CustomField = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-custom-fields",
   templateUrl: "./custom-fields.component.html",
   imports: [
@@ -79,7 +77,6 @@ export type CustomField = {
     FormsModule,
     FormFieldModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     CardComponent,

@@ -351,12 +351,6 @@
   "other": {
     "message": "אחר"
   },
-  "generatePassword": {
-    "message": "צור סיסמה"
-  },
-  "generatePassphrase": {
-    "message": "צור ביטוי סיסמה"
-  },
   "type": {
     "message": "סוג"
   },
@@ -1103,9 +1097,6 @@
   "addNewItem": {
     "message": "פריט חדש"
   },
-  "addNewFolder": {
-    "message": "תיקייה חדשה"
-  },
   "view": {
     "message": "הצג"
   },
@@ -1725,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"סיסמת קובץ\"  ו\"אשר סיסמת קובץ\" אינם תואמים."
   },
-  "hCaptchaUrl": {
-    "message": "כתובת אתר hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "טען עוגיית נגישות"
-  },
-  "registerAccessibilityUser": {
-    "message": "הירשם כמשתמש נגישות ב-",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "העתק והדבק את הקישור שנשלח לאימייל שלך"
-  },
-  "enterhCaptchaUrl": {
-    "message": "הזן את כתובת האתר לטעינת עוגיית נגישות עבור hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "יש להזין את כתובת האתר hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "כתובת אתר לא חוקית"
-  },
   "done": {
     "message": "בוצע"
-  },
-  "accessibilityCookieSaved": {
-    "message": "עוגיית הנגישות נשמרה!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "עוגיית הנגישות לא נשמרה"
   },
   "warning": {
     "message": "אזהרה",
@@ -2546,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "הסיסמה הראשית הוסרה"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ משתמש/ת ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית כבר לא נדרשת כדי להיכנס עבור חברים של ארגון זה.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "עזוב ארגון"
@@ -2667,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "generatePassword": {
+    "message": "צור סיסמה"
+  },
+  "generatePassphrase": {
+    "message": "צור ביטוי סיסמה"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "הערך חייב להיות בין $MIN$ ל־$MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2719,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "השתמש בדוא\"ל זה"
+  },
+  "useThisPassword": {
+    "message": "השתמש בסיסמה זו"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "השתמש בשם משתמש זה"
   },
   "random": {
     "message": "אקראי"
@@ -3084,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "סיסמה חלשה זוהתה ונמצאה בפרצת נתונים. השתמש בסיסמה חזקה וייחודית כדי להגן על חשבונך. האם אתה בטוח שאתה רוצה להשתמש בסיסמה זו?"
-  },
-  "useThisPassword": {
-    "message": "השתמש בסיסמה זו"
-  },
-  "useThisUsername": {
-    "message": "השתמש בשם משתמש זה"
   },
   "checkForBreaches": {
     "message": "בדוק פרצות נתונים ידועות עבור סיסמה זו"
@@ -3647,6 +3628,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "ביטול נעילה ביומטרי אינו זמין כעת מסיבה לא ידועה."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "אשר"
   },
@@ -3716,8 +3718,51 @@
   "changeAtRiskPassword": {
     "message": "שנה סיסמה בסיכון"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

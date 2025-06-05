@@ -34,6 +34,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -77,6 +78,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
@@ -106,6 +108,8 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
+      // If the optional Org SSO Identifier isn't provided, the option value is `true`.
+      const orgSsoIdentifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
         length: 64,
@@ -119,7 +123,7 @@ export class LoginCommand {
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
+        const ssoParams = await this.openSsoPrompt(codeChallenge, state, orgSsoIdentifier);
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -225,9 +229,7 @@ export class LoginCommand {
         );
       }
       if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
-        );
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
@@ -664,6 +666,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -712,6 +715,8 @@ export class LoginCommand {
               this.ssoRedirectUri,
               state,
               codeChallenge,
+              null,
+              orgSsoIdentifier,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });

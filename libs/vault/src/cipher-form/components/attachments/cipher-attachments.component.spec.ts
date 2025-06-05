@@ -27,7 +27,6 @@ import { CipherAttachmentsComponent } from "./cipher-attachments.component";
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
 @Component({
-  standalone: true,
   selector: "app-download-attachment",
   template: "",
 })
@@ -80,6 +79,7 @@ describe("CipherAttachmentsComponent", () => {
             get: cipherServiceGet,
             saveAttachmentWithServer,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
+            decrypt: jest.fn().mockResolvedValue(cipherView),
           },
         },
         {

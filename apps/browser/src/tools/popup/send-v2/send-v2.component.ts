@@ -1,7 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { RouterLink } from "@angular/router";
 import { combineLatest, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -12,13 +11,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { ButtonModule, CalloutModule, Icons, NoItemsModule } from "@bitwarden/components";
 import {
-  NoSendsIcon,
   NewSendDropdownComponent,
-  SendListItemsContainerComponent,
+  NoSendsIcon,
   SendItemsService,
-  SendSearchComponent,
   SendListFiltersComponent,
   SendListFiltersService,
+  SendListItemsContainerComponent,
+  SendSearchComponent,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -35,7 +34,6 @@ export enum SendState {
 
 @Component({
   templateUrl: "send-v2.component.html",
-  standalone: true,
   imports: [
     CalloutModule,
     PopupPageComponent,
@@ -46,14 +44,13 @@ export enum SendState {
     JslibModule,
     CommonModule,
     ButtonModule,
-    RouterLink,
     NewSendDropdownComponent,
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
   ],
 })
-export class SendV2Component implements OnInit, OnDestroy {
+export class SendV2Component implements OnDestroy {
   sendType = SendType;
   sendState = SendState;
 
@@ -110,8 +107,6 @@ export class SendV2Component implements OnInit, OnDestroy {
         this.sendsDisabled = sendsDisabled;
       });
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {}
 }

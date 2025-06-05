@@ -37,7 +37,6 @@ import { PopupCipherView } from "../../views/popup-cipher.view";
 @Component({
   selector: "app-trash-list-items-container",
   templateUrl: "trash-list-items-container.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ItemModule,
@@ -49,7 +48,6 @@ import { PopupCipherView } from "../../views/popup-cipher.view";
     IconButtonModule,
     OrgIconDirective,
     TypographyModule,
-    DecryptionFailureDialogComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
