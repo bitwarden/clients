@@ -31,7 +31,7 @@ import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -282,16 +282,16 @@ export class VaultComponent implements OnInit, OnDestroy {
           await this.viewCipher(cipherView);
         }
       } else if (params.action === "add") {
-        this.addType = Number(params.addType);
+        this.addType = toCipherType(params.addType);
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.addCipher(this.addType);
       }
 
+      const paramCipherType = toCipherType(params.type);
       this.activeFilter = new VaultFilter({
         status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
-        cipherType:
-          params.action === "add" || params.type == null ? null : parseInt(params.type, null),
+        cipherType: params.action === "add" || paramCipherType == null ? null : paramCipherType,
         selectedFolderId: params.folderId,
         selectedCollectionId: params.selectedCollectionId,
         selectedOrganizationId: params.selectedOrganizationId,
