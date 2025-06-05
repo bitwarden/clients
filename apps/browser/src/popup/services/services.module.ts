@@ -23,7 +23,6 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  AnonLayoutWrapperDataService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthComponentService,
@@ -122,7 +121,12 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  CompactModeService,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
