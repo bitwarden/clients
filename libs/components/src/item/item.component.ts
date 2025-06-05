@@ -12,7 +12,6 @@ import { ItemActionComponent } from "./item-action.component";
 
 @Component({
   selector: "bit-item",
-  standalone: true,
   imports: [ItemActionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "item.component.html",

@@ -37,6 +37,7 @@ import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
+  standalone: false,
 })
 export class OrganizationPaymentMethodComponent implements OnDestroy {
   organizationId: string;
@@ -147,6 +148,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
           paymentSource,
         );
       }
+      // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       this.isUnpaid = this.subscriptionStatus === "unpaid" ?? false;
       // If the flag `launchPaymentModalAutomatically` is set to true,
       // we schedule a timeout (delay of 800ms) to automatically launch the payment modal.

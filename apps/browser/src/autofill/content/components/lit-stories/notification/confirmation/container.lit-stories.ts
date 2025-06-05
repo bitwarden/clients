@@ -4,6 +4,10 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
 import {
+  getConfirmationHeaderMessage,
+  getNotificationTestId,
+} from "../../../../../notification/bar";
+import {
   NotificationConfirmationContainer,
   NotificationConfirmationContainerProps,
 } from "../../../notification/confirmation/container";
@@ -35,8 +39,11 @@ export default {
   },
 } as Meta<NotificationConfirmationContainerProps>;
 
-const Template = (args: NotificationConfirmationContainerProps) =>
-  NotificationConfirmationContainer({ ...args });
+const Template = (args: NotificationConfirmationContainerProps) => {
+  const headerMessage = getConfirmationHeaderMessage(args.i18n, args.type, args.error);
+  const notificationTestId = getNotificationTestId(args.type, true);
+  return NotificationConfirmationContainer({ ...args, headerMessage, notificationTestId });
+};
 
 export const Default: StoryObj<NotificationConfirmationContainerProps> = {
   render: Template,

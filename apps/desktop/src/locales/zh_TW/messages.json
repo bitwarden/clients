@@ -351,12 +351,6 @@
   "other": {
     "message": "其他"
   },
-  "generatePassword": {
-    "message": "產生密碼"
-  },
-  "generatePassphrase": {
-    "message": "產生密碼片語"
-  },
   "type": {
     "message": "類型"
   },
@@ -1103,9 +1097,6 @@
   "addNewItem": {
     "message": "新增項目"
   },
-  "addNewFolder": {
-    "message": "新增資料夾"
-  },
   "view": {
     "message": "檢視"
   },
@@ -1725,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「檔案密碼」與「確認檔案密碼」不一致。"
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "載入無障礙 Cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "以無障礙使用者，在下述位置註冊：",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "複製寄到您信箱的連結然後貼在下方"
-  },
-  "enterhCaptchaUrl": {
-    "message": "輸入 URL 以載入 hCaptcha 的無障礙 Cookie",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha URL 為必填",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "無效的 URL"
-  },
   "done": {
     "message": "完成"
-  },
-  "accessibilityCookieSaved": {
-    "message": "已儲存無障礙 Cookie！"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "未儲存無障礙 Cookie"
   },
   "warning": {
     "message": "警告",
@@ -2546,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "主密碼已移除"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自我裝載金鑰伺服器 SSO。此組織的成員登入時將不再需要主密碼。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "離開組織"
@@ -2667,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "generatePassword": {
+    "message": "產生密碼"
+  },
+  "generatePassphrase": {
+    "message": "產生密碼片語"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2719,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Use this email"
+  },
+  "useThisPassword": {
+    "message": "使用此密碼"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "使用此使用者名稱"
   },
   "random": {
     "message": "隨機"
@@ -3084,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "密碼強度不足，且該密碼已洩露。請使用一個強度足夠和獨特的密碼來保護您的帳戶。您確定要使用這個密碼嗎？"
-  },
-  "useThisPassword": {
-    "message": "使用此密碼"
-  },
-  "useThisUsername": {
-    "message": "使用此使用者名稱"
   },
   "checkForBreaches": {
     "message": "檢查外洩的密碼資料庫中是否包含此密碼"
@@ -3647,6 +3628,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "基於不明原因，生物辨識解鎖無法使用。"
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "授權"
   },
@@ -3716,8 +3718,51 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

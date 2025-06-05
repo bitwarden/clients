@@ -18,6 +18,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
+  standalone: false,
 })
 export class SponsoringOrgRowComponent implements OnInit {
   @Input() sponsoringOrg: Organization = null;

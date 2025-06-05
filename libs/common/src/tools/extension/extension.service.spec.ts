@@ -60,6 +60,7 @@ const SomeProvider = {
   } as LegacyEncryptorProvider,
   state: SomeStateProvider,
   log: disabledSemanticLoggerProvider,
+  now: Date.now,
 } as UserStateSubjectDependencyProvider;
 
 const SomeExtension: ExtensionMetadata = {

@@ -28,7 +28,6 @@ type AccountRecoveryTrustDialogData = {
 @Component({
   selector: "account-recovery-trust",
   templateUrl: "account-recovery-trust.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

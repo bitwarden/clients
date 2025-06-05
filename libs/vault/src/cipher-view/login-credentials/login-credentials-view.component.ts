@@ -23,7 +23,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   LinkModule,
@@ -43,11 +42,9 @@ type TotpCodeValues = {
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,

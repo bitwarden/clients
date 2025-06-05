@@ -9,8 +9,6 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  CardComponent,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
@@ -22,12 +20,9 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
 @Component({
   selector: "app-card-details-view",
   templateUrl: "card-details-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,

@@ -10,6 +10,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
+import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -20,6 +21,7 @@ type ReportResult = CipherView & { exposedXTimes: number };
 @Component({
   selector: "app-exposed-passwords-report",
   templateUrl: "exposed-passwords-report.component.html",
+  standalone: false,
 })
 export class ExposedPasswordsReportComponent extends CipherReportComponent implements OnInit {
   disabled = true;
@@ -72,10 +74,9 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
         return;
       }
 
-      const promise = this.auditService.passwordLeaked(login.password).then((exposedCount) => {
-        if (exposedCount > 0) {
-          const row = { ...ciph, exposedXTimes: exposedCount } as ReportResult;
-          exposedPasswordCiphers.push(row);
+      const promise = this.isPasswordExposed(ciph).then((result) => {
+        if (result) {
+          exposedPasswordCiphers.push(result);
         }
       });
       promises.push(promise);
@@ -86,8 +87,25 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     this.dataSource.sort = { column: "exposedXTimes", direction: "desc" };
   }
 
+  private async isPasswordExposed(cv: CipherView): Promise<ReportResult | null> {
+    const { login } = cv;
+    return await this.auditService.passwordLeaked(login.password).then((exposedCount) => {
+      if (exposedCount > 0) {
+        return { ...cv, exposedXTimes: exposedCount } as ReportResult;
+      }
+      return null;
+    });
+  }
+
   protected canManageCipher(c: CipherView): boolean {
     // this will only ever be false from the org view;
     return true;
+  }
+
+  async determinedUpdatedCipherReportStatus(
+    result: VaultItemDialogResult,
+    updatedCipherView: CipherView,
+  ): Promise<CipherView | null> {
+    return await this.isPasswordExposed(updatedCipherView);
   }
 }

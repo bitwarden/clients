@@ -3,8 +3,8 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
  * Component for the Danger Zone section of the Account/Organization Settings page.
@@ -12,7 +12,6 @@ import { TypographyModule } from "@bitwarden/components";
 @Component({
   selector: "app-danger-zone",
   templateUrl: "danger-zone.component.html",
-  standalone: true,
-  imports: [TypographyModule, JslibModule, CommonModule],
+  imports: [CommonModule, TypographyModule, I18nPipe],
 })
 export class DangerZoneComponent {}

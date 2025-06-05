@@ -29,7 +29,6 @@ import {
 
 @Component({
   templateUrl: "./set-account-verify-devices-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

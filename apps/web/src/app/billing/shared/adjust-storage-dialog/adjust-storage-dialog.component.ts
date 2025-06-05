@@ -31,6 +31,7 @@ export enum AdjustStorageDialogResultType {
 
 @Component({
   templateUrl: "./adjust-storage-dialog.component.html",
+  standalone: false,
 })
 export class AdjustStorageDialogComponent {
   protected formGroup = new FormGroup({

@@ -4,11 +4,16 @@ import { html } from "lit";
 import { IconProps } from "../common-types";
 import { buildIconColorRule, ruleNames, themes } from "../constants/styles";
 
-export function ExclamationTriangle({ color, disabled, theme }: IconProps) {
+export function ExclamationTriangle({ ariaHidden = true, color, disabled, theme }: IconProps) {
   const shapeColor = disabled ? themes[theme].secondary["300"] : color || themes[theme].text.main;
 
   return html`
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 15" fill="none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 15"
+      fill="none"
+      aria-hidden="${ariaHidden}"
+    >
       <path
         class=${css(buildIconColorRule(shapeColor, ruleNames.fill))}
         d="M9 11C9 11.5523 8.55229 12 8 12C7.44772 12 7 11.5523 7 11C7 10.4477 7.44772 10 8 10C8.55229 10 9 10.4477 9 11Z"
