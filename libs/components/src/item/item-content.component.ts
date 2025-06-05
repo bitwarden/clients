@@ -16,7 +16,6 @@ import { TypographyModule } from "../typography";
 
 @Component({
   selector: "bit-item-content, [bit-item-content]",
-  standalone: true,
   imports: [TypographyModule, NgClass],
   templateUrl: `item-content.component.html`,
   host: {

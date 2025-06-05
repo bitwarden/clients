@@ -204,6 +204,7 @@
         "scopeguard",
         "security-framework",
         "security-framework-sys",
+        "semver",
         "serde",
         "serde_json",
         "simplelog",

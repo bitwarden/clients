@@ -9,7 +9,6 @@ import { Directive, ElementRef, HostBinding, Input } from "@angular/core";
  */
 @Directive({
   selector: "[bitTabListItem]",
-  standalone: true,
 })
 export class TabListItemDirective implements FocusableOption {
   @Input() active: boolean;

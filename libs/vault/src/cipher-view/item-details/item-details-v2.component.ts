@@ -22,7 +22,6 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
 @Component({
   selector: "app-item-details-v2",
   templateUrl: "item-details-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

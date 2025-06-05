@@ -32,7 +32,6 @@ export type TwoFactorOptionsDialogResult = {
 };
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-options",
   templateUrl: "two-factor-options.component.html",
   imports: [

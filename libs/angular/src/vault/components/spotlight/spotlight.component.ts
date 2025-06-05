@@ -7,7 +7,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "bit-spotlight",
   templateUrl: "spotlight.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, IconButtonModule, I18nPipe, TypographyModule],
 })
 export class SpotlightComponent {

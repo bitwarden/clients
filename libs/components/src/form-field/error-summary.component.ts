@@ -15,7 +15,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
     class: "tw-block tw-text-danger tw-mt-2",
     "aria-live": "assertive",
   },
-  standalone: true,
   imports: [I18nPipe],
 })
 export class BitErrorSummary {

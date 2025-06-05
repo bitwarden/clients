@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus } from "@bitwarden/key-management";
@@ -21,7 +22,12 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    return await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    if (userKey == null) {
+      return null;
+    }
+    // Objects received over IPC lose their prototype, so they must be recreated to restore methods and properties.
+    return SymmetricCryptoKey.fromJSON(userKey) as UserKey;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
