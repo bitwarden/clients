@@ -3,6 +3,7 @@ const _PasswordDepotItemType = {
   CreditCard: "1",
   SoftwareLicense: "2",
   Identity: "3",
+  Banking: "5",
   RDP: "8",
   Putty: "9",
   TeamViewer: "10",

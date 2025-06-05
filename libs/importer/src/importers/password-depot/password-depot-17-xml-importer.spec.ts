@@ -15,6 +15,7 @@ import {
   SoftwareLicenseTestData,
   TeamViewerTestData,
   PuttyTestData,
+  BankingTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -268,6 +269,91 @@ describe("Password Depot 17 Xml Importer", () => {
     customField = cipher.fields.find((f) => f.name === "IDS_PuTTyPort");
     expect(customField).toBeDefined();
     expect(customField.value).toEqual("8080");
+  });
+
+  it("should parse banking item type into login type", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(BankingTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.name).toBe("banking type");
+    expect(cipher.notes).toBe("someNote");   
+    
+    expect(cipher.login).not.toBeNull();
+    expect(cipher.login.password).toBe("somePassword");
+    expect(cipher.login.username).toBe("someUser");
+    expect(cipher.login.uri).toBe("http://some-bank.com");
+
+    let customField = cipher.fields.find((f) => f.name === "IDS_ECHolder");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("account holder");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECAccountNumber");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1234567890");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECBLZ");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("12345678");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECBankName");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("someBank");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECBIC");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("bic");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECIBAN");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("iban");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECCardNumber");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("12345678");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECPhone");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("0049");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECLegitimacyID");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1234");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_ECPIN");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("123");
+
+    customField = cipher.fields.find((f) => f.name === "tan_1_value");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1234");
+
+    customField = cipher.fields.find((f) => f.name === "tan_1_used");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("12.05.2025 15:10:54");
+
+    // TAN entries
+    customField = cipher.fields.find((f) => f.name === "tan_1_amount");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual(" 100,00");
+
+    customField = cipher.fields.find((f) => f.name === "tan_1_comment");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("some TAN note");
+
+    customField = cipher.fields.find((f) => f.name === "tan_1_ccode");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("123");
+
+    customField = cipher.fields.find((f) => f.name === "tan_2_value");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("4321");
+
+    customField = cipher.fields.find((f) => f.name === "tan_2_amount");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual(" 0,00");
   });
 
   it("should parse favourites and set them on the target item", async () => {

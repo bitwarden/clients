@@ -141,6 +141,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
             case PasswordDepotItemType.RDP:
             case PasswordDepotItemType.Putty:
             case PasswordDepotItemType.TeamViewer:
+            case PasswordDepotItemType.Banking:
               // Passwords
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
@@ -168,7 +169,8 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           sourceType === PasswordDepotItemType.Password ||
           sourceType === PasswordDepotItemType.RDP ||
           sourceType === PasswordDepotItemType.Putty ||
-          sourceType === PasswordDepotItemType.TeamViewer
+          sourceType === PasswordDepotItemType.TeamViewer ||
+          sourceType === PasswordDepotItemType.Banking
         ) {
           if (this.parseLoginFields(entryField, cipher)) {
             continue;
@@ -185,6 +187,13 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
         if (entryField.tagName === "customfields") {
           this.parseCustomFields(entryField, sourceType, cipher);
+          continue;
+        }
+
+        if (sourceType === PasswordDepotItemType.Banking && entryField.tagName === "tans") {
+          this.querySelectorAllDirectChild(entryField, "tan").forEach((tanEntry) => {
+            this.parseBankingTANs(tanEntry, cipher);
+          });
           continue;
         }
 
@@ -384,6 +393,23 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     }
 
     return false;
+  }
+
+  // Parses TAN objects and adds them to the cipher
+  // It iterates through all the TAN fields and adds them to the cipher
+  private parseBankingTANs(TANsField: Element, cipher: CipherView) {
+    let tanNumber = "0";
+    const entryFields = TANsField.children;
+    for (let i = 0; i < entryFields.length; i++) {
+      const entryField = entryFields[i];
+
+      if (entryField.tagName === "number") {
+        tanNumber = entryField.textContent;
+        continue;
+      }
+
+      this.processKvp(cipher, `tan_${tanNumber}_${entryField.tagName}`, entryField.textContent);
+    }
   }
 
   // Parses the favourites-node from the XML file, which contains a base64 encoded string

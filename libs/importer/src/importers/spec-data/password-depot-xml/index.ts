@@ -9,3 +9,4 @@ export { RDPTestData } from "./rdp.xml";
 export { SoftwareLicenseTestData } from "./software-license.xml";
 export { TeamViewerTestData } from "./team-viewer.xml";
 export { PuttyTestData } from "./putty.xml";
+export { BankingTestData } from "./banking.xml";
