@@ -10,3 +10,4 @@ export { SoftwareLicenseTestData } from "./software-license.xml";
 export { TeamViewerTestData } from "./team-viewer.xml";
 export { PuttyTestData } from "./putty.xml";
 export { BankingTestData } from "./banking.xml";
+export { InformationTestData } from "./information.xml";

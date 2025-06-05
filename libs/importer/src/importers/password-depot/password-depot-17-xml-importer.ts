@@ -152,6 +152,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               cipher.card = new CardView();
               break;
             case PasswordDepotItemType.SoftwareLicense:
+            case PasswordDepotItemType.Information:
               cipher.type = CipherType.SecureNote;
               cipher.secureNote = new SecureNoteView();
               cipher.secureNote.type = SecureNoteType.Generic;
@@ -234,6 +235,11 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
           break;
         case PasswordDepotItemType.Identity:
           if (this.parseIdentityCustomFields(customFieldObject, cipher)) {
+            return;
+          }
+          break;
+        case PasswordDepotItemType.Information:
+          if (this.parseInformationCustomFields(customFieldObject, cipher)) {
             return;
           }
           break;
@@ -325,7 +331,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     return false;
   }
 
-  // Parses credit card fields and adds them to the cipher
+  // Parses identity fields and adds them to the cipher
   private parseIdentityCustomFields(customField: FieldView, cipher: CipherView): boolean {
     if (customField.name === "IDS_IdentityName") {
       this.processFullName(cipher, customField.value);
@@ -389,6 +395,16 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
     if (customField.name === "IDS_IdentityPhone") {
       cipher.identity.phone = customField.value;
+      return true;
+    }
+
+    return false;
+  }
+
+  // Parses information custom fields and adds them to the cipher
+  private parseInformationCustomFields(customField: FieldView, cipher: CipherView): boolean {
+    if (customField.name === "IDS_InformationText") {
+      cipher.notes = customField.value;
       return true;
     }
 
