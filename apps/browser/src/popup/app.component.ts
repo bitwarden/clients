@@ -3,10 +3,10 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
+import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap, map } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { LogoutReason } from "@bitwarden/auth/common";
+import { LogoutReason, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -23,7 +23,7 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService, KeyService } from "@bitwarden/key-management";
 
 import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
 import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
@@ -73,6 +73,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private biometricsService: BiometricsService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private keyService: KeyService,
     private popupSizeService: PopupSizeService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
@@ -128,9 +130,24 @@ export class AppComponent implements OnInit, OnDestroy {
             (msg.userId == null || msg.userId == this.activeUserId)
           ) {
             await this.biometricsService.setShouldAutopromptNow(false);
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["lock"]);
+
+            // When user is locked, normally we can just send them the lock screen.
+            // However, for account switching scenarios, we need to consider the TDE lock state.
+            const tdeEnabled = await firstValueFrom(
+              this.userDecryptionOptionsService
+                .userDecryptionOptionsById$(msg.userId)
+                .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
+            );
+
+            const everHadUserKey = await firstValueFrom(
+              this.keyService.everHadUserKey$(msg.userId),
+            );
+            if (tdeEnabled && !everHadUserKey) {
+              await this.router.navigate(["login-initiated"]);
+              return;
+            }
+
+            await this.router.navigate(["lock"]);
           } else if (msg.command === "showDialog") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
