@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { of } from "rxjs";
+import { distinctUntilChanged, map, shareReplay, switchMap } from "rxjs/operators";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -13,40 +13,38 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 @Injectable({ providedIn: "root" })
 export class RestrictedItemTypesService {
-  /** Emits the latest array of restricted CipherType values. */
-  readonly restricted$: Observable<CipherType[]>;
-
   constructor(
     private policyService: PolicyService,
     private accountService: AccountService,
     private configService: ConfigService,
-  ) {
-    this.restricted$ = this.configService
-      .getFeatureFlag$(FeatureFlag.RemoveCardItemTypePolicy)
-      .pipe(
-        switchMap((isEnabled) => {
-          if (!isEnabled) {
-            return of([] as CipherType[]);
-          }
-          return this.accountService.activeAccount$.pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.policyService
-                .policiesByType$(PolicyType.RestrictedItemTypes, userId)
-                .pipe(getFirstPolicy),
-            ),
-            map((policy) => {
-              if (!policy) {
-                return [];
-              }
-              if (!policy.data) {
-                // Default to Card if no data is set
-                return [CipherType.Card];
-              }
-              return policy.data as CipherType[];
-            }),
-          );
-        }),
-      );
+  ) {}
+  get restricted$() {
+    return this.configService.getFeatureFlag$(FeatureFlag.RemoveCardItemTypePolicy).pipe(
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      switchMap((isEnabled) => {
+        if (!isEnabled) {
+          return of([] as CipherType[]);
+        }
+        return this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService
+              .policiesByType$(PolicyType.RestrictedItemTypes, userId)
+              .pipe(getFirstPolicy),
+          ),
+          map((policy) => {
+            if (!policy) {
+              return [];
+            }
+            if (!policy.data) {
+              // Default to Card if no data is set
+              return [CipherType.Card];
+            }
+            return policy.data as CipherType[];
+          }),
+        );
+      }),
+    );
   }
 }

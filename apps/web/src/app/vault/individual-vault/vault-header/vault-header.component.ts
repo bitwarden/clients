@@ -1,17 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 
 import {
   Unassigned,
@@ -57,12 +50,12 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent implements OnInit, OnDestroy {
+export class VaultHeaderComponent {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
-  protected filteredCipherMenuItems: { type: CipherType; icon: string; labelKey: string }[] = [];
+  protected cipherMenuItems: { type: CipherType; icon: string; labelKey: string }[] = [];
   protected destroy$: Subject<void> = new Subject<void>();
 
   /**
@@ -105,9 +98,7 @@ export class VaultHeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private configService: ConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-  ) {}
-
-  async ngOnInit() {
+  ) {
     const allCipherMenuItems = [
       { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
       { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
@@ -117,17 +108,12 @@ export class VaultHeaderComponent implements OnInit, OnDestroy {
     ];
 
     this.restrictedItemTypesService.restricted$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed())
       .subscribe((restrictedItemTypes) => {
-        this.filteredCipherMenuItems = allCipherMenuItems.filter(
+        this.cipherMenuItems = allCipherMenuItems.filter(
           (item) => !restrictedItemTypes.includes(item.type),
         );
       });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**

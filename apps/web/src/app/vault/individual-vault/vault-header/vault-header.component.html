@@ -82,7 +82,7 @@
       </button>
       <bit-menu #addOptions aria-labelledby="newItemDropdown">
         <button
-          *ngFor="let item of filteredCipherMenuItems"
+          *ngFor="let item of cipherMenuItems"
           type="button"
           bitMenuItem
           (click)="addCipher(item.type)"
