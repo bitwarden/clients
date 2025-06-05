@@ -39,7 +39,7 @@ export class LayoutComponent {
   }
 
   /**
-   * Angular CDK's focus trap utility is silly and will not focus respect focus order.
+   * Angular CDK's focus trap utility is silly and will not respect focus order.
    * This is a workaround to explicitly focus the skip link when tab is first pressed, if no other item already has focus.
    *
    * @see https://github.com/angular/components/issues/10247#issuecomment-384060265
