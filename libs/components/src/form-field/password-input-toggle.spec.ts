@@ -6,7 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { IconButtonModule } from "../icon-button";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
-import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BitFormFieldControl } from "./form-field-control";
@@ -25,7 +24,7 @@ import { BitPasswordInputToggleDirective } from "./password-input-toggle.directi
       </bit-form-field>
     </form>
   `,
-  standalone: false,
+  imports: [FormFieldModule, IconButtonModule],
 })
 class TestFormFieldComponent {}
 
@@ -37,8 +36,7 @@ describe("PasswordInputToggle", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FormFieldModule, IconButtonModule, InputModule],
-      declarations: [TestFormFieldComponent],
+      imports: [TestFormFieldComponent],
       providers: [
         {
           provide: I18nService,
