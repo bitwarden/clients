@@ -11,6 +11,7 @@ import { PolicyEditComponent } from "./policy-edit.component";
 import { RemoveUnlockWithPinPolicyComponent } from "./remove-unlock-with-pin.component";
 import { RequireSsoPolicyComponent } from "./require-sso.component";
 import { ResetPasswordPolicyComponent } from "./reset-password.component";
+import { RestrictedItemTypesPolicyComponent } from "./restricted-item-types.component";
 import { SendOptionsPolicyComponent } from "./send-options.component";
 import { SingleOrgPolicyComponent } from "./single-org.component";
 import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authentication.component";
@@ -30,6 +31,7 @@ import { TwoFactorAuthenticationPolicyComponent } from "./two-factor-authenticat
     PoliciesComponent,
     PolicyEditComponent,
     RemoveUnlockWithPinPolicyComponent,
+    RestrictedItemTypesPolicyComponent,
   ],
   exports: [
     DisableSendPolicyComponent,

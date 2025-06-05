@@ -1,13 +1,11 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { provideAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../../button";
-import { IconButtonModule } from "../../icon-button";
-import { SharedModule } from "../../shared/shared.module";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { DialogModule } from "../dialog.module";
 import { DialogService } from "../dialog.service";
@@ -18,7 +16,7 @@ interface Animal {
 
 @Component({
   template: `<button type="button" bitButton (click)="openDialog()">Open Simple Dialog</button>`,
-  standalone: false,
+  imports: [ButtonModule],
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -49,7 +47,7 @@ class StoryDialogComponent {
       </ng-container>
     </bit-simple-dialog>
   `,
-  standalone: false,
+  imports: [ButtonModule, DialogModule],
 })
 class StoryDialogContentComponent {
   constructor(
@@ -67,15 +65,8 @@ export default {
   component: StoryDialogComponent,
   decorators: [
     moduleMetadata({
-      declarations: [StoryDialogContentComponent],
-      imports: [
-        SharedModule,
-        IconButtonModule,
-        ButtonModule,
-        BrowserAnimationsModule,
-        DialogModule,
-      ],
       providers: [
+        provideAnimations(),
         DialogService,
         {
           provide: I18nService,
