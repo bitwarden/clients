@@ -41,7 +41,6 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
       deps: [MemberAccessReportApiService, I18nService],
     }),
   ],
-  standalone: true,
 })
 export class MemberAccessReportComponent implements OnInit {
   protected dataSource = new TableDataSource<MemberAccessReportView>();
