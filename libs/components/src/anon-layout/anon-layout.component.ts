@@ -9,16 +9,10 @@ import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { IconModule, Icon } from "../../../../components/src/icon";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "../../../../components/src/shared";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { TypographyModule } from "../../../../components/src/typography";
-import { BitwardenLogo, BitwardenShield } from "../icons";
+import { IconModule, Icon } from "../icon";
+import { BitwardenLogo, BitwardenShield } from "../icon/icons";
+import { SharedModule } from "../shared";
+import { TypographyModule } from "../typography";
 
 @Component({
   selector: "auth-anon-layout",
