@@ -57,7 +57,6 @@ const matchOptions: IsActiveMatchOptions = {
 };
 
 @Component({
-  standalone: true,
   templateUrl: "./login-via-auth-request.component.html",
   imports: [ButtonModule, CommonModule, JslibModule, LinkModule, RouterModule],
   providers: [{ provide: LoginViaAuthRequestCacheService }],

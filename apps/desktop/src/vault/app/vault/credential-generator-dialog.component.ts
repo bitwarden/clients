@@ -39,7 +39,6 @@ export enum CredentialGeneratorDialogAction {
 }
 
 @Component({
-  standalone: true,
   selector: "credential-generator-dialog",
   templateUrl: "credential-generator-dialog.component.html",
   imports: [

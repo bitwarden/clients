@@ -34,7 +34,6 @@ import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
 @Component({
-  standalone: true,
   templateUrl: "account-switcher.component.html",
   imports: [
     CommonModule,

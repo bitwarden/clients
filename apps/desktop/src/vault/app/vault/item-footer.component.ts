@@ -18,7 +18,6 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 @Component({
   selector: "app-vault-item-footer",
   templateUrl: "item-footer.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, JslibModule],
 })
 export class ItemFooterComponent implements OnInit {

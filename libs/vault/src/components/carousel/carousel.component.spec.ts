@@ -7,7 +7,6 @@ import { VaultCarouselComponent } from "./carousel.component";
 
 @Component({
   selector: "app-test-carousel-slide",
-  standalone: true,
   imports: [VaultCarouselComponent, VaultCarouselSlideComponent],
   template: `
     <vault-carousel label="Storybook Demo">
