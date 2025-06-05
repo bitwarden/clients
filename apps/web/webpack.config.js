@@ -112,7 +112,7 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-mobile.html",
     filename: "webauthn-mobile-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-fallback.html",

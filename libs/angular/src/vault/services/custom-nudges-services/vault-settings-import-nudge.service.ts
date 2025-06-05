@@ -12,12 +12,12 @@ import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
 
 /**
- * Custom Nudge Service Checking Nudge Status For Empty Vault
+ * Custom Nudge Service for the vault settings import badge.
  */
 @Injectable({
   providedIn: "root",
 })
-export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
+export class VaultSettingsImportNudgeService extends DefaultSingleNudgeService {
   cipherService = inject(CipherService);
   organizationService = inject(OrganizationService);
   collectionService = inject(CollectionService);
@@ -30,15 +30,19 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
-        const vaultHasContents = !(ciphers == null || ciphers.length === 0);
-        if (orgs == null || orgs.length === 0) {
-          return nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed
+        const vaultHasMoreThanOneItem = (ciphers?.length ?? 0) > 1;
+        const { hasBadgeDismissed, hasSpotlightDismissed } = nudgeStatus;
+
+        // When the user has no organizations, return the nudge status directly
+        if ((orgs?.length ?? 0) === 0) {
+          return hasBadgeDismissed || hasSpotlightDismissed
             ? of(nudgeStatus)
             : of({
-                hasSpotlightDismissed: vaultHasContents,
-                hasBadgeDismissed: vaultHasContents,
+                hasSpotlightDismissed: vaultHasMoreThanOneItem,
+                hasBadgeDismissed: vaultHasMoreThanOneItem,
               });
         }
+
         const orgIds = new Set(orgs.map((org) => org.id));
         const canCreateCollections = orgs.some((org) => org.canCreateNewCollections);
         const hasManageCollections = collections.some(
@@ -46,7 +50,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
         );
 
         // When the user has dismissed the nudge or spotlight, return the nudge status directly
-        if (nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed) {
+        if (hasBadgeDismissed || hasSpotlightDismissed) {
           return of(nudgeStatus);
         }
 
@@ -61,8 +65,8 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
 
         // Otherwise, return the nudge status based on the vault contents
         return of({
-          hasSpotlightDismissed: vaultHasContents,
-          hasBadgeDismissed: vaultHasContents,
+          hasSpotlightDismissed: vaultHasMoreThanOneItem,
+          hasBadgeDismissed: vaultHasMoreThanOneItem,
         });
       }),
     );
