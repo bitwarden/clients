@@ -26,7 +26,7 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
     ScrollLayoutHostDirective,
   ],
   host: {
-    "(document:keydown)": "handleKeydown($event)",
+    "(document:keydown.tab)": "handleKeydown($event)",
   },
 })
 export class LayoutComponent {
