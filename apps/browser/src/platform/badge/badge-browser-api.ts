@@ -28,6 +28,10 @@ export class BadgeBrowserApi {
     ]);
   }
 
+  async getTabs(): Promise<number[]> {
+    return (await BrowserApi.tabsQuery({})).map((tab) => tab.id);
+  }
+
   private setIcon(icon?: IconPaths, tabId?: number) {
     return Promise.all([this.setActionIcon(icon, tabId), this.setSidebarActionIcon(icon, tabId)]);
   }

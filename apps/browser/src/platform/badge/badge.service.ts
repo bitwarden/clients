@@ -40,7 +40,7 @@ export class BadgeService {
    * Without this the service will not be able to update the badge state.
    */
   startListening(): Subscription {
-    const initialSetup$ = defer(async () => await this.badgeApi.setState(DefaultBadgeState));
+    const initialSetup$ = defer(async () => await this.setGeneralState(DefaultBadgeState));
 
     return initialSetup$
       .pipe(
@@ -54,16 +54,16 @@ export class BadgeService {
         filter(({ removed, added }) => removed.size > 0 || added.size > 0),
         mergeMap(async ({ states, removed, added }) => {
           const changed = [...removed, ...added];
-
-          if (changed.some((s) => s.tabId === undefined)) {
-            const genericStates = Array.from(states).filter((s) => s.tabId === undefined);
-            const genericState = this.calculateState(Array.from(genericStates), DefaultBadgeState);
-            await this.badgeApi.setState(genericState);
-          }
-
           const changedTabIds = new Set(
             changed.map((s) => s.tabId).filter((tabId) => tabId !== undefined),
           );
+
+          if (changed.some((s) => s.tabId === undefined)) {
+            const generalStates = Array.from(states).filter((s) => s.tabId === undefined);
+            const generalState = this.calculateState(Array.from(generalStates), DefaultBadgeState);
+            await this.setGeneralState(generalState, changedTabIds);
+          }
+
           for (const tabId of changedTabIds) {
             const specificState = this.calculateState(
               [...Array.from(states).filter((s) => s.tabId === tabId)],
@@ -142,6 +142,20 @@ export class BadgeService {
       ...defaultState,
       ...mergedState,
     };
+  }
+
+  /**
+   * Wrapper around the badge API to set the current badge state.
+   * It makes sure to apply the state to all tabs.
+   */
+  private async setGeneralState(state: RawBadgeState, excludeTabIds?: Set<number>): Promise<void> {
+    await this.badgeApi.setState(state);
+    for (const tabId of await this.badgeApi.getTabs()) {
+      if (excludeTabIds?.has(tabId)) {
+        continue;
+      }
+      await this.badgeApi.setState(state, tabId);
+    }
   }
 }
 
