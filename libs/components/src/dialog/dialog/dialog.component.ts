@@ -20,7 +20,6 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
   selector: "bit-dialog",
   templateUrl: "./dialog.component.html",
   animations: [fadeIn],
-  standalone: true,
   host: {
     "(keydown.esc)": "handleEsc($event)",
   },

@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, inject, viewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { DrawerHostDirective } from "../drawer/drawer-host.directive";
 import { DrawerService } from "../drawer/drawer.service";
 import { LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
@@ -14,7 +15,6 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 @Component({
   selector: "bit-layout",
   templateUrl: "layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SharedModule,
@@ -28,6 +28,7 @@ import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
   host: {
     "(document:keydown.tab)": "handleKeydown($event)",
   },
+  hostDirectives: [DrawerHostDirective],
 })
 export class LayoutComponent {
   protected sideNavService = inject(SideNavService);

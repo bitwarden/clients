@@ -40,7 +40,6 @@ interface AddSponsorshipDialogParams {
 
 @Component({
   templateUrl: "add-sponsorship-dialog.component.html",
-  standalone: true,
   imports: [
     JslibModule,
     ButtonModule,

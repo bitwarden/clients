@@ -17,7 +17,7 @@
     "message": "Saioa hasi edo sortu kontu berri bat zure kutxa gotorrera sartzeko."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Gonbidapena onartua"
   },
   "createAccount": {
     "message": "Sortu kontua"
@@ -150,7 +150,7 @@
     "message": "Kopiatu segurtasun-kodea"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Izena kopiatu"
   },
   "copyCompany": {
     "message": "Copy company"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Use this password"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Use this username"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Send guztiak",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Hide text by default"
@@ -5187,13 +5194,13 @@
     "message": "Lowercase"
   },
   "uppercaseAriaLabel": {
-    "message": "Uppercase"
+    "message": "Maiuskulak"
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Sortutako pasahitza"
   },
   "compactMode": {
-    "message": "Compact mode"
+    "message": "Modu trinkoa"
   },
   "beta": {
     "message": "Beta"

@@ -23,7 +23,6 @@ type LastPassMultifactorPromptData = {
 
 @Component({
   templateUrl: "lastpass-multifactor-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

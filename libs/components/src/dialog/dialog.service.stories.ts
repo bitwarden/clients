@@ -1,6 +1,6 @@
-import { DIALOG_DATA, DialogModule, DialogRef } from "@angular/cdk/dialog";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { NoopAnimationsModule , provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { getAllByRole, userEvent } from "@storybook/test";
@@ -14,10 +14,8 @@ import { SharedModule } from "../shared";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { DialogComponent } from "./dialog/dialog.component";
+import { DialogModule } from "./dialog.module";
 import { DialogService } from "./dialog.service";
-import { DialogCloseDirective } from "./directives/dialog-close.directive";
-import { DialogTitleContainerDirective } from "./directives/dialog-title-container.directive";
 
 interface Animal {
   animal: string;
@@ -30,6 +28,7 @@ interface Animal {
       <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
     </bit-layout>
   `,
+  imports: [ButtonModule],
 })
 class StoryDialogComponent {
   constructor(public dialogService: DialogService) {}
@@ -67,6 +66,7 @@ class StoryDialogComponent {
       </ng-container>
     </bit-dialog>
   `,
+  imports: [DialogModule, ButtonModule],
 })
 class StoryDialogContentComponent {
   constructor(
@@ -92,9 +92,6 @@ export default {
         NoopAnimationsModule,
         DialogModule,
         IconButtonModule,
-        DialogCloseDirective,
-        DialogComponent,
-        DialogTitleContainerDirective,
         RouterTestingModule,
         LayoutComponent,
       ],
@@ -102,6 +99,8 @@ export default {
     }),
     applicationConfig({
       providers: [
+        provideAnimations(),
+        DialogService,
         {
           provide: I18nService,
           useFactory: () => {

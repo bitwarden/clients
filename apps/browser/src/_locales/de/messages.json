@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Dieses Passwort verwenden"
   },
+  "useThisPassphrase": {
+    "message": "Diese Passphrase verwenden"
+  },
   "useThisUsername": {
     "message": "Diesen Benutzernamen verwenden"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Alle Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Text standardmäßig ausblenden"
@@ -3620,7 +3627,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-Verschlüsselt, während die Verbreitung begrenzt wird.",
+    "message": "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-verschlüsselt, während die Verbreitung begrenzt wird.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5256,7 +5263,7 @@
     "message": "Tresoroptionen"
   },
   "emptyVaultDescription": {
-    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Ausweise, Karten und Notizen."
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Identitäten, Karten und Notizen."
   },
   "introCarouselLabel": {
     "message": "Willkommen bei Bitwarden"
@@ -5367,12 +5374,12 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": ", um deine Zugangsdaten sicher aufzubewahren.",
+    "message": ", um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um deine Zugangsdaten sicher aufzubewahren.",
+    "message": "Generiere ganz einfach starke und einzigartige Passwörter, indem du auf den \"Passwort generieren\"-Button klickst, um dir zu helfen, deine Zugangsdaten sicher zu halten.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {

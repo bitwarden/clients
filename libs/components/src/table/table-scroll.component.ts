@@ -37,7 +37,6 @@ import { TableComponent } from "./table.component";
  */
 @Directive({
   selector: "[bitRowDef]",
-  standalone: true,
 })
 export class BitRowDef {
   constructor(public template: TemplateRef<any>) {}
@@ -52,7 +51,6 @@ export class BitRowDef {
   selector: "bit-table-scroll",
   templateUrl: "./table-scroll.component.html",
   providers: [{ provide: TableComponent, useExisting: TableScrollComponent }],
-  standalone: true,
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,

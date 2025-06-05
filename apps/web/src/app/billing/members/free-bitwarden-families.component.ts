@@ -159,7 +159,7 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   private async doRevokeSponsorship(sponsorship: OrganizationSponsorshipInvitesResponse) {
     const content = sponsorship.validUntil
       ? this.i18nService.t(
-          "updatedRevokeSponsorshipConfirmationForAcceptedSponsorship",
+          "revokeActiveSponsorshipConfirmation",
           sponsorship.friendlyName,
           formatDate(sponsorship.validUntil, "MM/dd/yyyy", this.locale),
         )

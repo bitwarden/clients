@@ -31,7 +31,6 @@ type TwoFactorVerifyDialogData = {
 @Component({
   selector: "app-two-factor-verify",
   templateUrl: "two-factor-verify.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,

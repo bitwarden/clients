@@ -547,12 +547,6 @@
     "message": "Превключване на свиването",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Нова парола"
-  },
-  "generatePassphrase": {
-    "message": "Генериране на парола-фраза"
-  },
   "checkPassword": {
     "message": "Проверка дали паролата е разкрита."
   },
@@ -6824,6 +6818,24 @@
   "generateEmail": {
     "message": "Генериране на електронна поща"
   },
+  "generatePassword": {
+    "message": "Нова парола"
+  },
+  "generatePassphrase": {
+    "message": "Генериране на парола-фраза"
+  },
+  "passwordGenerated": {
+    "message": "Паролата е генерирана"
+  },
+  "passphraseGenerated": {
+    "message": "Паролата-фраза е генерирана"
+  },
+  "usernameGenerated": {
+    "message": "Потребителското име е генерирано"
+  },
+  "emailGenerated": {
+    "message": "Е-пощата е генерирана"
+  },
   "spinboxBoundariesHint": {
     "message": "Стойността трябва да бъде между $MIN$ и $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6898,9 @@
   },
   "useThisPassword": {
     "message": "Използване на тази парола"
+  },
+  "useThisPassphrase": {
+    "message": "Използване на тази парола-фраза"
   },
   "useThisUsername": {
     "message": "Използване на това потребителско име"
@@ -10553,6 +10568,31 @@
   "newBusinessUnit": {
     "message": "Нова бизнес единица"
   },
+  "sendsTitleNoItems": {
+    "message": "Изпращайте чувствителна информация сигурно",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Създавайте пароли бързо"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Създавайте лесно сложни и уникални пароли като щракнете върху",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "за да защитите данните си за вписване.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Създавайте лесно сложни и уникални пароли като щракнете върху бутона за генериране на парола, за да защитите данните си за вписване.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Спестете време с автоматично попълване"
   },
@@ -10610,5 +10650,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Моля, натиснете бутона за плащане с PayPal, за да добавите платежния си метод."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Ако премахнете $EMAIL$, спонсорирането на този семеен план ще бъде прекратено. Едно място в организацията ще стане налично за членове или спонсори след датата за подновяване на спонсорирането на организацията – $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

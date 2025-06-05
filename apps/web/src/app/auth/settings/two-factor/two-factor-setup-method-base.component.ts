@@ -15,9 +15,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 /**
  * Base class for two-factor setup components (ex: email, yubikey, webauthn, duo).
  */
-@Directive({
-  standalone: true,
-})
+@Directive({})
 export abstract class TwoFactorSetupMethodBaseComponent {
   @Output() onUpdated = new EventEmitter<boolean>();
 

@@ -9,7 +9,6 @@ import { KitchenSinkTable } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
 
 @Component({
-  standalone: true,
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-dialog title="Dialog Title" dialogSize="small">
@@ -87,7 +86,6 @@ class KitchenSinkDialog {
 }
 
 @Component({
-  standalone: true,
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
   template: `

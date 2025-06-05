@@ -11,7 +11,6 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  standalone: true,
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
   imports: [

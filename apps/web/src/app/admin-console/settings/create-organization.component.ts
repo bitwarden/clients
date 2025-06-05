@@ -13,7 +13,6 @@ import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "create-organization.component.html",
-  standalone: true,
   imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
 })
 export class CreateOrganizationComponent {

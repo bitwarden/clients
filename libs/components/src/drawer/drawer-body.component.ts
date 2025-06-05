@@ -8,7 +8,6 @@ import { hasScrolledFrom } from "../utils/has-scrolled-from";
  */
 @Component({
   selector: "bit-drawer-body",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   host: {

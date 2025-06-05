@@ -7,7 +7,7 @@ import { I18nMockService, TypographyModule } from "@bitwarden/components";
 import { CardComponent } from "./card.component";
 
 export default {
-  title: "Tools/Card",
+  title: "DIRT/Card",
   component: CardComponent,
   decorators: [
     moduleMetadata({
@@ -31,6 +31,6 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <tools-card [title]="'Unsecured Members'" [value]="'38'" [maxValue]="'157'"></tools-card>`,
+      <dirt-card [title]="'Unsecured Members'" [value]="'38'" [maxValue]="'157'"></dirt-card>`,
   }),
 };
