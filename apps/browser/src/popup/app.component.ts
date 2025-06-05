@@ -70,6 +70,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
       <bit-toast-container></bit-toast-container>
     }
   `,
+  standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
