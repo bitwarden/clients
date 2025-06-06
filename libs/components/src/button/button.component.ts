@@ -1,20 +1,11 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import {
-  Input,
-  HostBinding,
-  Component,
-  model,
-  computed,
-  input,
-  ElementRef,
-  OnDestroy,
-} from "@angular/core";
+import { Input, HostBinding, Component, model, computed, input, ElementRef } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
-import { captureClickEvent } from "../utils";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
+import { captureClickEvent } from "../utils";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
