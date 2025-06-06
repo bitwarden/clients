@@ -101,6 +101,47 @@ describe("Password Depot 17 Xml Importer", () => {
 
     expect(cipher.fields[2].name).toBe("importance");
     expect(cipher.fields[2].value).toBe("0");
+
+    let customField = cipher.fields.find((f) => f.name === "passwort");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("password");
+    expect(customField.type).toEqual(FieldType.Hidden);
+
+    customField = cipher.fields.find((f) => f.name === "memo");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("memo");
+    expect(customField.type).toEqual(FieldType.Text);
+
+    customField = cipher.fields.find((f) => f.name === "datum");
+    expect(customField).toBeDefined();
+    const expectedDate = new Date("2025-05-13T00:00:00Z");
+    expect(customField.value).toEqual(expectedDate.toLocaleDateString());
+    expect(customField.type).toEqual(FieldType.Text);
+
+    customField = cipher.fields.find((f) => f.name === "nummer");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1");
+    expect(customField.type).toEqual(FieldType.Text);
+
+    customField = cipher.fields.find((f) => f.name === "boolean");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1");
+    expect(customField.type).toEqual(FieldType.Boolean);
+
+    customField = cipher.fields.find((f) => f.name === "decimal");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("1,01");
+    expect(customField.type).toEqual(FieldType.Text);
+
+    customField = cipher.fields.find((f) => f.name === "email");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("who@cares.com");
+    expect(customField.type).toEqual(FieldType.Text);
+
+    customField = cipher.fields.find((f) => f.name === "url");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("example.com");
+    expect(customField.type).toEqual(FieldType.Text);
   });
 
   it("should parse credit cards", async () => {
@@ -210,7 +251,8 @@ describe("Password Depot 17 Xml Importer", () => {
 
     customField = cipher.fields.find((f) => f.name === "IDS_LicensePurchaseDate");
     expect(customField).toBeDefined();
-    expect(customField.value).toEqual("45789");
+    const expectedDate = new Date("2025-05-12T00:00:00Z");
+    expect(customField.value).toEqual(expectedDate.toLocaleDateString());
 
     customField = cipher.fields.find((f) => f.name === "IDS_LicenseOrderNumber");
     expect(customField).toBeDefined();

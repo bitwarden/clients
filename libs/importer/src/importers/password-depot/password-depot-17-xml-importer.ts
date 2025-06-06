@@ -13,7 +13,7 @@ import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
 import { Importer } from "../importer";
 
-import { PasswordDepotItemType } from "./types/password-depot-item-type";
+import { PasswordDepotItemType, PasswordDepotCustomFieldType } from "./types";
 
 /**
  * Importer for Password Depot 17 xml files.
@@ -289,7 +289,31 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     }
 
     const valueEl = this.querySelectorDirectChild(customField, "value");
-    const value = valueEl != null ? valueEl.textContent : null;
+    let value = valueEl != null ? valueEl.textContent : null;
+
+    const typeEl = this.querySelectorDirectChild(customField, "type");
+    const sourceFieldType =
+      typeEl != null
+        ? (typeEl.textContent as PasswordDepotCustomFieldType)
+        : PasswordDepotCustomFieldType.Memo;
+
+    if (sourceFieldType === PasswordDepotCustomFieldType.Date) {
+      if (!isNaN(value as unknown as number)) {
+        // Convert excel date format to JavaScript date
+        const numericValue = parseInt(value);
+        const secondsInDay = 86400;
+        const missingLeapYearDays = secondsInDay * 1000;
+        value = new Date((numericValue - (25567 + 2)) * missingLeapYearDays).toLocaleDateString();
+      }
+    }
+
+    if (sourceFieldType === PasswordDepotCustomFieldType.Password) {
+      return { name: key, value: value, type: FieldType.Hidden, linkedId: null } as FieldView;
+    }
+
+    if (sourceFieldType === PasswordDepotCustomFieldType.Boolean) {
+      return { name: key, value: value, type: FieldType.Boolean, linkedId: null } as FieldView;
+    }
 
     const visibleEl = this.querySelectorDirectChild(customField, "visible");
     const visible = visibleEl != null ? visibleEl.textContent : null;
@@ -297,12 +321,6 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     if (visible == "0") {
       return { name: key, value: value, type: FieldType.Hidden, linkedId: null } as FieldView;
     }
-
-    // const kindEl = this.querySelectorDirectChild(customField, "kind");
-    // const kind = kindEl != null ? kindEl.textContent : null;
-
-    // const typeEl = this.querySelectorDirectChild(customField, "type");
-    // const type = typeEl != null ? typeEl.textContent : null;
 
     return { name: key, value: value, type: FieldType.Text, linkedId: null } as FieldView;
   }
