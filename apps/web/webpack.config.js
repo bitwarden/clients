@@ -255,11 +255,11 @@ const devServer =
                   'self'
                   https://assets.braintreegateway.com
                   https://*.paypal.com
-                  'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
-                  'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
-                  'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
-                  'sha256-jvLh2uL2/Pq/gpvNJMaEL4C+TNhBeGadLIUyPcVRZvY='
-                  'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='
+                  ${"'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='" /* date input polyfill */}
+                  ${"'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='" /* date input polyfill */}
+                  ${"'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='" /* ng-select */}
+                  ${"'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='" /* cdk-virtual-scroll */}
+                  ${"'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='" /* cdk-visually-hidden */}
                 ;img-src
                   'self'
                   data:
