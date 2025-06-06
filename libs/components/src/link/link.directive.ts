@@ -1,12 +1,6 @@
-import {
-  Input,
-  HostBinding,
-  Directive,
-  inject,
-  ElementRef,
-  AfterViewInit,
-  Renderer2,
-} from "@angular/core";
+import { Input, HostBinding, Directive, inject, ElementRef, Renderer2 } from "@angular/core";
+
+import { captureClickEvent } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -96,7 +90,7 @@ export class AnchorLinkDirective extends LinkDirective {
 @Directive({
   selector: "button[bitLink]",
 })
-export class ButtonLinkDirective extends LinkDirective implements AfterViewInit {
+export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
@@ -108,13 +102,14 @@ export class ButtonLinkDirective extends LinkDirective implements AfterViewInit 
 
   private disabledClasses = [
     "tw-no-underline",
-    "tw-cursor-not-allowed",
+    "tw-pointer-events-none",
     "!tw-text-secondary-300",
     "hover:!tw-text-secondary-300",
     "hover:tw-no-underline",
   ];
 
-  ngAfterViewInit() {
+  constructor() {
+    super();
     const element = this.el.nativeElement;
 
     const isDisabled = (element as HTMLButtonElement).disabled || element.hasAttribute("disabled");
@@ -127,6 +122,8 @@ export class ButtonLinkDirective extends LinkDirective implements AfterViewInit 
       this.disabledClasses.forEach((className) => {
         this.renderer.addClass(element, className);
       });
+
+      captureClickEvent(element);
     }
   }
 }

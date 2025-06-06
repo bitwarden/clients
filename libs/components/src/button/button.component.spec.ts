@@ -34,23 +34,23 @@ describe("Button", () => {
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
-  it("should be disabled when disabled is true", () => {
+  it("should be aria-disabled when disabled is true", () => {
     testAppComponent.disabled = true;
     fixture.detectChanges();
-
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBeTruthy();
     // Anchor tags cannot be disabled.
   });
 
-  it("should be disabled when attribute disabled is true", () => {
-    expect(disabledButtonDebugElement.nativeElement.disabled).toBeTruthy();
+  it("should be aria-disabled when attribute disabled is true", () => {
+    fixture.detectChanges();
+    expect(disabledButtonDebugElement.attributes["aria-disabled"]).toBeTruthy();
   });
 
   it("should be disabled when loading is true", () => {
     testAppComponent.loading = true;
     fixture.detectChanges();
 
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBeTruthy();
   });
 });
 
