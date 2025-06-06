@@ -20,6 +20,7 @@ import {
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
   DefaultRegistrationFinishService,
+  DefaultSetInitialPasswordService,
   DefaultSetPasswordJitService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthEmailComponentService,
@@ -27,6 +28,7 @@ import {
   LoginComponentService,
   LoginDecryptionOptionsService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SetInitialPasswordService,
   SetPasswordJitService,
   TwoFactorAuthComponentService,
   TwoFactorAuthEmailComponentService,
@@ -1385,6 +1387,22 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SetPasswordJitService,
     useClass: DefaultSetPasswordJitService,
+    deps: [
+      ApiServiceAbstraction,
+      MasterPasswordApiServiceAbstraction,
+      KeyService,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: DefaultSetInitialPasswordService,
     deps: [
       ApiServiceAbstraction,
       MasterPasswordApiServiceAbstraction,
