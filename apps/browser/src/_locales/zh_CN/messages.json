@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "功能不可用"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。"
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "premiumMembership": {
     "message": "高级会员"
@@ -3614,14 +3614,6 @@
   "trustUser": {
     "message": "信任用户"
   },
-  "sendsNoItemsTitle": {
-    "message": "没有活跃的 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 与任何人安全地分享加密信息。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
     "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4526,7 +4518,7 @@
     "message": "添加附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "最大文件大小为 500 MB"
+    "message": "文件最大为 500 MB"
   },
   "deleteAttachmentName": {
     "message": "删除附件 $NAME$",
