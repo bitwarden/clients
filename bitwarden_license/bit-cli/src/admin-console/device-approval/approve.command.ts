@@ -44,7 +44,7 @@ export class ApproveCommand {
         .organizations$(userId)
         .pipe(map((organizations) => organizations?.find((o) => o.id === organizationId))),
     );
-    if (!organization?.canManageUsersPassword) {
+    if (!organization?.canManageDeviceApprovals) {
       return Response.error(
         "You do not have permission to approve pending device authorization requests.",
       );
