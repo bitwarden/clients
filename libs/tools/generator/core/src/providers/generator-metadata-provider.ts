@@ -21,6 +21,8 @@ import {
   Algorithms,
   Types,
 } from "../metadata";
+import sdkPassphrase from "../metadata/password/sdk-eff-word-list";
+import sdkPassword from "../metadata/password/sdk-random-password";
 import { AvailableAlgorithmsConstraint, availableAlgorithms } from "../policies";
 import { CredentialPreference } from "../types";
 import {
@@ -43,6 +45,7 @@ export class GeneratorMetadataProvider {
     private readonly system: UserStateSubjectDependencyProvider,
     private readonly application: SystemServiceProvider,
     algorithms: ReadonlyArray<GeneratorMetadata<object>>,
+    private readonly useSdkService: boolean,
   ) {
     this.log = system.log({ type: "GeneratorMetadataProvider" });
 
@@ -59,6 +62,19 @@ export class GeneratorMetadataProvider {
   private readonly log: SemanticLogger;
 
   private _metadata: Map<CredentialAlgorithm, GeneratorMetadata<unknown & object>>;
+
+  private metadataBySdkFlag(
+    algorithm: GeneratorMetadata<unknown & object>,
+  ): GeneratorMetadata<unknown & object> {
+    if (this.useSdkService) {
+      if (algorithm.id == "password") {
+        return sdkPassword;
+      } else if (algorithm.id == "passphrase") {
+        return sdkPassphrase;
+      }
+    }
+    return algorithm;
+  }
 
   /** Retrieve an algorithm's generator metadata
    *  @param algorithm identifies the algorithm
@@ -81,6 +97,8 @@ export class GeneratorMetadataProvider {
     if (!result) {
       this.log.panic({ algorithm }, "metadata not found");
     }
+
+    result = this.metadataBySdkFlag(result);
 
     return result;
   }
