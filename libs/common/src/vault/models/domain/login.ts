@@ -159,7 +159,7 @@ export class Login extends Domain {
       password: this.password?.toJSON(),
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
       totp: this.totp?.toJSON(),
-      autofillOnPageLoad: this.autofillOnPageLoad,
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
     };
   }
