@@ -21,6 +21,8 @@ import {
   TrackByFunction,
 } from "@angular/core";
 
+import { ScrollLayoutDirective } from "../layout";
+
 import { RowDirective } from "./row.directive";
 import { TableComponent } from "./table.component";
 
@@ -56,6 +58,7 @@ export class BitRowDef {
     CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     RowDirective,
+    ScrollLayoutDirective,
   ],
 })
 export class TableScrollComponent

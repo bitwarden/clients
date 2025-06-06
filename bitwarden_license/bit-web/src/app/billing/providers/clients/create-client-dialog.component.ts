@@ -1,4 +1,3 @@
-import { BasePortalOutlet } from "@angular/cdk/portal";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
@@ -33,8 +32,7 @@ export const openCreateClientDialog = (
   dialogService: DialogService,
   dialogConfig: DialogConfig<
     CreateClientDialogParams,
-    DialogRef<CreateClientDialogResultType, unknown>,
-    BasePortalOutlet
+    DialogRef<CreateClientDialogResultType, unknown>
   >,
 ) =>
   dialogService.open<CreateClientDialogResultType, CreateClientDialogParams>(
