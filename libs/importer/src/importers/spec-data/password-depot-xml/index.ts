@@ -1,0 +1,16 @@
+export { InvalidRootNodeData } from "./missing-root-node.xml";
+export { MissingPasswordsNodeData } from "./missing-passwords-node.xml";
+export { InvalidVersionData } from "./wrong-version.xml";
+export { EncryptedFileData } from "./noop-encrypted-file.xml";
+export { PasswordTestData } from "./password.xml";
+export { CreditCardTestData } from "./credit-card.xml";
+export { IdentityTestData } from "./identity.xml";
+export { RDPTestData } from "./rdp.xml";
+export { SoftwareLicenseTestData } from "./software-license.xml";
+export { TeamViewerTestData } from "./team-viewer.xml";
+export { PuttyTestData } from "./putty.xml";
+export { BankingTestData } from "./banking.xml";
+export { InformationTestData } from "./information.xml";
+export { CertificateTestData } from "./certificate.xml";
+export { EncryptedFileTestData } from "./encrypted-file.xml";
+export { DocumentTestData } from "./document.xml";
