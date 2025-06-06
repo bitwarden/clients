@@ -21,6 +21,7 @@ import {
   InformationTestData,
   CertificateTestData,
   EncryptedFileTestData,
+  DocumentTestData,
 } from "../spec-data/password-depot-xml";
 
 import { PasswordDepot17XmlImporter } from "./password-depot-17-xml-importer";
@@ -398,6 +399,29 @@ describe("Password Depot 17 Xml Importer", () => {
 
     expect(cipher.login).not.toBeNull();
     expect(cipher.login.password).toBe("somePassword");
+  });
+
+  it("should parse document type into secure note", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(DocumentTestData);
+
+    const cipher = result.ciphers.shift();
+
+    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.name).toBe("document type");
+    expect(cipher.notes).toBe("document comment");
+
+    let customField = cipher.fields.find((f) => f.name === "IDS_DocumentSize");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("27071");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_DocumentFolder");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("C:\\Users\\DJSMI\\Downloads\\");
+
+    customField = cipher.fields.find((f) => f.name === "IDS_DocumentFile");
+    expect(customField).toBeDefined();
+    expect(customField.value).toEqual("C:\\Users\\DJSMI\\Downloads\\some.pdf");
   });
 
   it("should parse favourites and set them on the target item", async () => {

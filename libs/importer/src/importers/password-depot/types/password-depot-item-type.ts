@@ -6,6 +6,7 @@ const _PasswordDepotItemType = {
   Information: "4",
   Banking: "5",
   EncryptedFile: "6",
+  Document: "7",
   RDP: "8",
   Putty: "9",
   TeamViewer: "10",

@@ -153,6 +153,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
               break;
             case PasswordDepotItemType.SoftwareLicense:
             case PasswordDepotItemType.Information:
+            case PasswordDepotItemType.Document:
               cipher.type = CipherType.SecureNote;
               cipher.secureNote = new SecureNoteView();
               cipher.secureNote.type = SecureNoteType.Generic;

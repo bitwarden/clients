@@ -13,3 +13,4 @@ export { BankingTestData } from "./banking.xml";
 export { InformationTestData } from "./information.xml";
 export { CertificateTestData } from "./certificate.xml";
 export { EncryptedFileTestData } from "./encrypted-file.xml";
+export { DocumentTestData } from "./document.xml";
