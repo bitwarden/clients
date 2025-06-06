@@ -43,7 +43,6 @@ import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popu
 import { AccountSecurityComponent } from "./account-security.component";
 
 @Component({
-  standalone: true,
   selector: "app-pop-out",
   template: ` <ng-content></ng-content>`,
 })

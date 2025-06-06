@@ -30,10 +30,7 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
       this.collectionService.decryptedCollections$,
     ]).pipe(
       switchMap(([nudgeStatus, ciphers, orgs, collections]) => {
-        const filteredCiphers = ciphers?.filter((cipher) => {
-          return cipher.deletedDate == null;
-        });
-        const vaultHasContents = !(filteredCiphers == null || filteredCiphers.length === 0);
+        const vaultHasContents = !(ciphers == null || ciphers.length === 0);
         if (orgs == null || orgs.length === 0) {
           return nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed
             ? of(nudgeStatus)
@@ -47,18 +44,22 @@ export class EmptyVaultNudgeService extends DefaultSingleNudgeService {
         const hasManageCollections = collections.some(
           (c) => c.manage && orgIds.has(c.organizationId),
         );
-        // Do not show nudge when
-        // user has previously dismissed nudge
-        // OR
-        // user belongs to an organization and cannot create collections || manage collections
-        if (
-          nudgeStatus.hasBadgeDismissed ||
-          nudgeStatus.hasSpotlightDismissed ||
-          hasManageCollections ||
-          canCreateCollections
-        ) {
+
+        // When the user has dismissed the nudge or spotlight, return the nudge status directly
+        if (nudgeStatus.hasBadgeDismissed || nudgeStatus.hasSpotlightDismissed) {
           return of(nudgeStatus);
         }
+
+        // When the user belongs to an organization and cannot create collections or manage collections,
+        // hide the nudge and spotlight
+        if (!hasManageCollections && !canCreateCollections) {
+          return of({
+            hasSpotlightDismissed: true,
+            hasBadgeDismissed: true,
+          });
+        }
+
+        // Otherwise, return the nudge status based on the vault contents
         return of({
           hasSpotlightDismissed: vaultHasContents,
           hasBadgeDismissed: vaultHasContents,
