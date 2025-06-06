@@ -250,16 +250,16 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearAllStoredUserKeys(userId);
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
+  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
+    if (userId == null) {
+      throw new Error("UserId is required");
     }
-    if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
+
+    if (keySuffix === KeySuffixOptions.Auto) {
+      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
+    }
+    if (keySuffix === KeySuffixOptions.Pin) {
+      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
     }
   }
 

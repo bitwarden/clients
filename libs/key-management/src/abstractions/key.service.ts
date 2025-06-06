@@ -167,8 +167,9 @@ export abstract class KeyService {
    * Clears the user's stored version of the user key
    * @param keySuffix The desired version of the key to clear
    * @param userId The desired user
+   * @throws Error when userId is null or undefined.
    */
-  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
+  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
   /**
    * Stores the master key encrypted user key
    * @throws Error when userId is null and there is no active user.
