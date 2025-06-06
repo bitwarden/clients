@@ -1915,7 +1915,7 @@ export class ApiService implements ApiServiceAbstraction {
       .join("&");
   }
 
-  private async getCredentials(): Promise<RequestCredentials> {
+  async getCredentials(): Promise<RequestCredentials> {
     const env = await firstValueFrom(this.environmentService.environment$);
     if (!this.isWebClient || env.hasBaseUrl()) {
       return "include";

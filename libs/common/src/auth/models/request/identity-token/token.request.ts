@@ -3,6 +3,7 @@
 import { DeviceRequest } from "./device.request";
 import { TokenTwoFactorRequest } from "./token-two-factor.request";
 
+// Base token request for normal user focused identity server token endpoint requests.
 export abstract class TokenRequest {
   protected device?: DeviceRequest;
   protected authRequest: string;
