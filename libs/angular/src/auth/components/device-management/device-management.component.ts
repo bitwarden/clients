@@ -113,7 +113,7 @@ export class DeviceManagementComponent implements OnInit {
     currentDevice: DeviceResponse,
   ): DeviceDisplayData[] {
     return devices
-      .map((device): DeviceDisplayData => {
+      .map((device): DeviceDisplayData | null => {
         if (!device.id) {
           this.validationService.showError(new Error(this.i18nService.t("deviceIdMissing")));
           return null;
@@ -138,9 +138,9 @@ export class DeviceManagementComponent implements OnInit {
           id: device.id || "",
           identifier: device.identifier ?? "",
           isCurrentDevice: this.isCurrentDevice(device, currentDevice),
-          isTrusted: device.response?.isTrusted,
+          isTrusted: device.response?.isTrusted ?? false,
           loginStatus: this.getLoginStatus(device, currentDevice),
-          pendingAuthRequest: device.response?.devicePendingAuthRequest,
+          pendingAuthRequest: device.response?.devicePendingAuthRequest ?? null,
         };
       })
       .filter((device) => device !== null);

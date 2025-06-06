@@ -106,7 +106,7 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
-  [FeatureFlag.PM14939_ExtensionApproval]: true,
+  [FeatureFlag.PM14939_ExtensionApproval]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,
