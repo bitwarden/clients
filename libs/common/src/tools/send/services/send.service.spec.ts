@@ -467,10 +467,21 @@ describe("SendService", () => {
     });
   });
 
-  it("getAllDecryptedFromState", async () => {
-    const sends = await sendService.getAllDecryptedFromState();
+  describe("getAllDecryptedFromState", () => {
+    it("returns already decrypted sends in state", async () => {
+      const sends = await sendService.getAllDecryptedFromState(mockUserId);
 
-    expect(sends[0]).toMatchObject(testSendViewData("1", "Test Send"));
+      expect(sends[0]).toMatchObject(testSendViewData("1", "Test Send"));
+    });
+
+    it("throws if no decrypted sends in state and there is no userKey", async () => {
+      decryptedState.nextState(null);
+      keyService.hasUserKey.mockResolvedValue(false);
+
+      await expect(sendService.getAllDecryptedFromState(mockUserId)).rejects.toThrow(
+        "No user key found.",
+      );
+    });
   });
 
   describe("getRotatedData", () => {
