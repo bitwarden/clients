@@ -21,6 +21,7 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
 export { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export const WINDOW = new SafeInjectionToken<Window>("WINDOW");
+export const DOCUMENT = new SafeInjectionToken<Document>("DOCUMENT");
 export const OBSERVABLE_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
 >("OBSERVABLE_MEMORY_STORAGE");
