@@ -398,11 +398,6 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       return true;
     }
 
-    if (customField.name === "IDS_IdentityState") {
-      cipher.identity.state = customField.value;
-      return true;
-    }
-
     if (customField.name === "IDS_IdentityZIP") {
       cipher.identity.postalCode = customField.value;
       return true;
