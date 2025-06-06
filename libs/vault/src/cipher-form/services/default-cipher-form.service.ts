@@ -1,13 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { inject, Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 
 import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
@@ -20,6 +23,7 @@ function isSetEqual(a: Set<string>, b: Set<string>) {
 export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
+  private taskService: TaskService = inject(TaskService);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -89,6 +93,8 @@ export class DefaultCipherFormService implements CipherFormService {
       }
     }
 
+    await this.markAssociatedTaskAsComplete(activeUserId, cipher, config);
+
     // Its possible the cipher was made no longer available due to collection assignment changes
     // e.g. The cipher was moved to a collection that the user no longer has access to
     if (savedCipher == null) {
@@ -96,5 +102,48 @@ export class DefaultCipherFormService implements CipherFormService {
     }
 
     return await this.cipherService.decrypt(savedCipher, activeUserId);
+  }
+
+  /**
+   * When a cipher has an associated pending `UpdateAtRiskCredential` task
+   * and the password has changed, mark the task as complete.
+   */
+  private async markAssociatedTaskAsComplete(
+    userId: UserId,
+    updatedCipher: CipherView,
+    config: CipherFormConfig,
+  ) {
+    const decryptedOriginalCipherCipher = await this.cipherService.decrypt(
+      config.originalCipher,
+      userId,
+    );
+
+    const associatedPendingTask = await firstValueFrom(
+      this.taskService
+        .pendingTasks$(userId)
+        .pipe(
+          map((tasks) =>
+            tasks.find(
+              (task) =>
+                task.type === SecurityTaskType.UpdateAtRiskCredential &&
+                task.cipherId === updatedCipher.id,
+            ),
+          ),
+        ),
+    );
+
+    const passwordHasChanged =
+      updatedCipher.type === CipherType.Login &&
+      updatedCipher.login.password &&
+      updatedCipher.login.password !== decryptedOriginalCipherCipher?.login?.password;
+
+    // When there is not an associated pending task or the password has not changed,
+    // no action needed-return early.
+    if (!associatedPendingTask || !passwordHasChanged) {
+      return;
+    }
+
+    // If the cipher is a login and the password has changed, mark the associated task as complete
+    await this.taskService.markAsComplete(associatedPendingTask.id, userId);
   }
 }
