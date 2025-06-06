@@ -32,6 +32,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
+import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
 
 import { VaultItemsComponent } from "./vault-items.component";
 import { VaultItemsModule } from "./vault-items.module";
@@ -123,6 +124,12 @@ export default {
             canCloneCipher$() {
               return of(true);
             },
+          },
+        },
+        {
+          provide: RestrictedItemTypesService,
+          useValue: {
+            restricted$: of([]), // No restricted item types for this story
           },
         },
       ],

@@ -1,16 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 
 import {
   Unassigned,
@@ -35,6 +29,7 @@ import {
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
 import { PipesModule } from "../pipes/pipes.module";
 import {
   All,
@@ -55,11 +50,13 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent implements OnInit {
+export class VaultHeaderComponent {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
+  protected cipherMenuItems: { type: CipherType; icon: string; labelKey: string }[] = [];
+  protected destroy$: Subject<void> = new Subject<void>();
 
   /**
    * Boolean to determine the loading state of the header.
@@ -100,9 +97,25 @@ export class VaultHeaderComponent implements OnInit {
     private dialogService: DialogService,
     private router: Router,
     private configService: ConfigService,
-  ) {}
+    private restrictedItemTypesService: RestrictedItemTypesService,
+  ) {
+    const allCipherMenuItems = [
+      { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
+      { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
+      { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
+      { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "note" },
+      { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
+    ];
 
-  async ngOnInit() {}
+    this.restrictedItemTypesService.restricted$
+      .pipe(takeUntilDestroyed())
+      .subscribe((restrictedItemTypes) => {
+        this.cipherMenuItems = allCipherMenuItems.filter(
+          (item) =>
+            !restrictedItemTypes.some((restrictedType) => restrictedType.cipherType === item.type),
+        );
+      });
+  }
 
   /**
    * The id of the organization that is currently being filtered on.
