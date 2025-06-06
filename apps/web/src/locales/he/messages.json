@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "הגדרת כניסה דו־שלבית יכולה לנעול אותך לצמיתות מחוץ לחשבון Bitwarden שלך. קוד שחזור מאפשר לך לגשת לחשבון שלך במקרה שאתה לא יכול להשתמש בספק הכניסה הד־שלבית הרגיל שלך (דוגמה: איבדת את המכשיר שלך). התמיכה של Bitwarden לא תוכל לסייע לך אם תאבד גישה לחשבון שלך. אנו ממליצים שתכתוב או תדפיס את קוד השחזור ותשמור אותו במקום בטוח."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "ניתן להשתמש בקוד השחזור החד־פעמי שלך כדי לכבות כניסה דו־שלבית במקרה שאתה מאבד גישה לספק הכניסה הדו־שלבית שלך. Bitwarden ממליץ לך לרשום את קוד השחזור ולשמור אותו במקום בטוח."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "עדכון מפתח הצפנה לא יכול להמשיך"
-  },
   "editFieldLabel": {
     "message": "ערוך $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "בעת עדכון מפתח ההצפנה שלך, התיקיות שלך לא היה ניתנות לפענוח. כדי להמשיך עם העדכון, התיקיות שלך מוכרחות להימחק. לא יימחקו פריטי כספת אם תמשיך."
-  },
-  "keyUpdated": {
-    "message": "המפתח עודכן"
-  },
-  "updateEncryptionKey": {
-    "message": "עדכן מפתח הצפנה"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "שינינו את סכמת ההצפנה כדי לספק אבטחה טובה יותר. עדכן את מפתח ההצפנה שלך כעת על ידי הזנת הסיסמה הראשית שלך למטה."
-  },
   "updateEncryptionKeyWarning": {
     "message": "לאחר עדכון מפתחות ההצפנה שלך, תתבקש לצאת ולהכנס שוב בכל אפליקציות Bitwarden שאתה משתמש בהן (האפליקציה לפלאפון או ההרחבה לדפדפן). אם לא תצא ותכנס שוב (פעולת הכניסה מורידה את המפתח החדש), יתכן שתתקל במידע שגוי. אנו ננסה לגרום ליציאה אוטומטית, אך יתכן שהדבר לא יקרה מיידית."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "מנוי"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "מכשיר מהימן"
-  },
-  "sendsNoItemsTitle": {
-    "message": "אין סֵנְדים פעילים",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "השתמש בסֵנְד כדי לשתף באופן מאובטח מידע מוצפן עם כל אחד.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "הזמן משתמשים"
