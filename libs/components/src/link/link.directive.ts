@@ -1,4 +1,6 @@
-import { Input, HostBinding, Directive } from "@angular/core";
+import { Input, HostBinding, Directive, inject, ElementRef, Renderer2 } from "@angular/core";
+
+import { captureClickEvent } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -93,5 +95,35 @@ export class ButtonLinkDirective extends LinkDirective {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
       .concat(linkStyles[this.linkType] ?? []);
+  }
+
+  private el = inject(ElementRef<HTMLElement>);
+  private renderer = inject(Renderer2);
+
+  private disabledClasses = [
+    "tw-no-underline",
+    "tw-pointer-events-none",
+    "!tw-text-secondary-300",
+    "hover:!tw-text-secondary-300",
+    "hover:tw-no-underline",
+  ];
+
+  constructor() {
+    super();
+    const element = this.el.nativeElement;
+
+    const isDisabled = (element as HTMLButtonElement).disabled || element.hasAttribute("disabled");
+
+    if (isDisabled) {
+      this.renderer.removeAttribute(element, "disabled");
+
+      this.renderer.setAttribute(element, "aria-disabled", "true");
+
+      this.disabledClasses.forEach((className) => {
+        this.renderer.addClass(element, className);
+      });
+
+      captureClickEvent(element);
+    }
   }
 }
