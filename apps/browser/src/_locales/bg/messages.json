@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функцията е недостъпна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Необходима е промяна на шифриращия ключ. Впишете се в трезора си по уеб, за да обновите своя шифриращ ключ."
+  "legacyEncryptionUnsupported": {
+    "message": "Остарелият метод на шифроване вече не се поддържа. Моля, свържете се с поддръжката, за да възстановите акаунта си."
   },
   "premiumMembership": {
     "message": "Платен абонамент"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Даване на доверие на потребителя"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Няма активни Изпращания",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Използвайте Изпращане, за да споделите безопасно шифрована информация с някого.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Изпращайте чувствителна информация сигурно",

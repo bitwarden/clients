@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "A funkció nem érhető el."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Titkosítási kulcs migráció szükséges. Jelentkezzünk be a webes széfen keresztül a titkosítási kulcs frissítéséhez."
+  "legacyEncryptionUnsupported": {
+    "message": "A régi titkosítás már nem támogatott. Lépjünk kapcsolatba a támogatással a fiók helyreállításához."
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Megbízható felhasználó"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Nincsenek natív Send elemek.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "A Send használatával biztonságosan megoszthatjuk a titkosított információkat bárkivel.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Érzékeny információt küldése biztonságosan",
