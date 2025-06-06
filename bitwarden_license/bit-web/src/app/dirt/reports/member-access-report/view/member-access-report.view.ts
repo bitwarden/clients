@@ -8,4 +8,6 @@ export type MemberAccessReportView = {
   itemsCount: number;
   userGuid: Guid;
   usesKeyConnector: boolean;
+  twoFactorEnabled: boolean;
+  accountRecoveryEnabled: boolean;
 };
