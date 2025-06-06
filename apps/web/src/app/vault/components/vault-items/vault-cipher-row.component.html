@@ -4,7 +4,7 @@
     type="checkbox"
     bitCheckbox
     appStopProp
-    [disabled]="disabled"
+    [disabled]="disabled || decryptionFailure"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
     [attr.aria-label]="'vaultItemSelect' | i18n"
@@ -76,7 +76,7 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
-    *ngIf="false"
+    *ngIf="decryptionFailure"
     [disabled]="disabled || !canManageCollection"
     [bitMenuTriggerFor]="corruptedCipherOptions"
     size="small"
@@ -94,7 +94,7 @@
     </button>
   </bit-menu>
   <button
-    *ngIf="!false"
+    *ngIf="!decryptionFailure"
     [disabled]="disabled || disableMenu"
     [bitMenuTriggerFor]="cipherOptions"
     size="small"

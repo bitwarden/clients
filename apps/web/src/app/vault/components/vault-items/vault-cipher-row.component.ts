@@ -5,7 +5,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
@@ -78,7 +77,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get clickAction() {
-    if ("decryptionFailure" in this.cipher && this.cipher.decryptionFailure) {
+    if (this.decryptionFailure) {
       return "showFailedToDecrypt";
     }
 
@@ -99,7 +98,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       return this.cipher.hasOldAttachments && this.cipher.organizationId != null;
     }
 
-    // Need to handle CipherListView case
+    // TODO: Handle CipherListView case, possibly not needed?
     return false;
   }
 
@@ -125,6 +124,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get isDeleted() {
     return CipherViewLikeUtils.isDeleted(this.cipher);
+  }
+
+  protected get decryptionFailure() {
+    // TODO: Handle `CipherListView` case when available in the SDK.
+    return "decryptionFailure" in this.cipher && this.cipher.decryptionFailure;
   }
 
   protected get showAssignToCollections() {
