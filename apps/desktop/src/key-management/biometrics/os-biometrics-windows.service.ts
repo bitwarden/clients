@@ -101,16 +101,42 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     return await biometrics.prompt(hwnd, this.i18nService.t("windowsHelloConsentMessage"));
   }
 
-  private async getStorageDetails({
+  async getStorageDetails({
     clientKeyHalfB64,
   }: {
     clientKeyHalfB64: string | undefined;
   }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
     if (this._osKeyHalf == null) {
-      // Prompts Windows Hello
-      const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
-      this._osKeyHalf = keyMaterial.keyB64;
-      this._iv = keyMaterial.ivB64;
+      // Ensures that the Windows Hello popup is in the foreground, by bringing the desktop app window to the foreground.
+      const windowFocused = this.windowMain.win.isFocused();
+      const alwaysOnTop = this.windowMain.win.isAlwaysOnTop();
+      if (!windowFocused) {
+        // Show the window in case it was hidden (in tray icon)
+        this.windowMain.win.showInactive();
+        // There is no reliable way to bring the desktop app and Windows Hello popup to foreground.
+        // We go around this problem by bringing the windows to always be on top (to foreground) and then resetting this back.
+        // At this point the window is already in the foreground, even though the always on top is disabled.
+        // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow#remarks
+        if (alwaysOnTop) {
+          // Windows Hello popup won't be visible when always on top was already enabled in the app settings.
+          // We disable this setting temporarily for the duration of Windows Hello popup confirmation.
+          this.windowMain.win.setAlwaysOnTop(false);
+        }
+        this.windowMain.win.setAlwaysOnTop(true);
+        this.windowMain.win.setAlwaysOnTop(false);
+
+        this.windowMain.win.focus();
+      }
+      try {
+        // Prompts Windows Hello
+        const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
+        this._osKeyHalf = keyMaterial.keyB64;
+        this._iv = keyMaterial.ivB64;
+      } finally {
+        if (!windowFocused && alwaysOnTop) {
+          this.windowMain.win.setAlwaysOnTop(true);
+        }
+      }
     }
 
     if (this._iv == null) {
@@ -134,7 +160,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
 
   // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
   // when we want to force a re-derive of the key material.
-  private setIv(iv?: string) {
+  setIv(iv?: string) {
     this._iv = iv ?? null;
     this._osKeyHalf = null;
   }
