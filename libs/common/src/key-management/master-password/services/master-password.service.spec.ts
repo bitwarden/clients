@@ -171,7 +171,7 @@ describe("MasterPasswordService", () => {
     });
 
     test.each([null as unknown as UserId, undefined as unknown as UserId])(
-      "throws when the provided encryptedKey is %s",
+      "throws when the provided userId is %s",
       async (userId) => {
         await expect(
           sut.setMasterKeyEncryptedUserKey(new EncString(testMasterKeyEncryptedKey), userId),
@@ -181,6 +181,7 @@ describe("MasterPasswordService", () => {
 
     it("calls stateProvider with the provided encryptedKey and user ID", async () => {
       const encryptedKey = new EncString(testMasterKeyEncryptedKey);
+
       await sut.setMasterKeyEncryptedUserKey(encryptedKey, userId);
 
       expect(stateProvider.getUser).toHaveBeenCalled();
