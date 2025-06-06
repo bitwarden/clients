@@ -8,7 +8,6 @@ import { TableDataSource, TableModule } from "../../../table";
 
 @Component({
   selector: "dialog-virtual-scroll-block",
-  standalone: true,
   imports: [DialogModule, IconButtonModule, SectionComponent, TableModule, ScrollingModule],
   template: /*html*/ `<bit-section>
     <cdk-virtual-scroll-viewport scrollWindow itemSize="47">

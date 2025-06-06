@@ -47,7 +47,6 @@ import { TwoFactorVerifyComponent } from "./two-factor-verify.component";
 @Component({
   selector: "app-two-factor-setup",
   templateUrl: "two-factor-setup.component.html",
-  standalone: true,
   imports: [ItemModule, LooseComponentsModule, SharedModule],
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {

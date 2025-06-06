@@ -8,7 +8,6 @@ import { map } from "rxjs";
  */
 @Component({
   selector: "bit-drawer-body",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   host: {

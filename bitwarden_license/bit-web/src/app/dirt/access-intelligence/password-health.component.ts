@@ -21,7 +21,6 @@ import { OrganizationBadgeModule } from "@bitwarden/web-vault/app/vault/individu
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 @Component({
-  standalone: true,
   selector: "tools-password-health",
   templateUrl: "password-health.component.html",
   imports: [

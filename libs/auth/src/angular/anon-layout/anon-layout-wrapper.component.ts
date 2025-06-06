@@ -44,7 +44,6 @@ export interface AnonLayoutWrapperData {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "anon-layout-wrapper.component.html",
   imports: [AnonLayoutComponent, RouterModule],
 })

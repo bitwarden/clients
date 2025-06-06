@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Özəllik əlçatmazdır"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Şifrələmə açarının daşınması tələb olunur. Şifrələmə açarınızı güncəlləmək üçün lütfən veb seyfinizə giriş edin."
+  "legacyEncryptionUnsupported": {
+    "message": "Köhnə şifrələmə artıq dəstəklənmir. Hesabınızı geri qaytarmaq üçün lütfən dəstəklə əlaqə saxlayın."
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Bu parolu istifadə et"
   },
+  "useThisPassphrase": {
+    "message": "Bu keçid ifadəsini istifadə et"
+  },
   "useThisUsername": {
     "message": "Bu istifadəçi adını istifadə et"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Bütün \"Send\"lər",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maksimal müraciət sayına çatıldı",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Mətni ilkin olaraq gizlət"
@@ -3606,14 +3613,6 @@
   },
   "trustUser": {
     "message": "İstifadəçiyə güvən"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktiv \"Send\" yoxdur",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Şifrələnmiş məlumatları hər kəslə güvənli şəkildə paylaşmaq üçün \"Send\"i istifadə edin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send, həssas məlumatlar təhlükəsizdir",

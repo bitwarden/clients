@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Wymagana jest migracja klucza szyfrowania. Zaloguj się przez sejf internetowy, aby zaktualizować klucz szyfrowania."
+  "legacyEncryptionUnsupported": {
+    "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać swoje konto."
   },
   "premiumMembership": {
     "message": "Konto Premium"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Użyj tego hasła"
   },
+  "useThisPassphrase": {
+    "message": "Użyj tego hasła wyrazowego"
+  },
   "useThisUsername": {
     "message": "Użyj tej nazwy użytkownika"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Wszystkie wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Maksymalna liczba dostępów została osiągnięta",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Domyślnie ukryj tekst"
@@ -3606,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Zaufaj użytkownikowi"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Brak aktywnych wysyłek",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Użyj wysyłki, aby bezpiecznie dzielić się zaszyfrowanymi informacjami ze wszystkimi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Wysyłaj bezpiecznie poufne informacje",

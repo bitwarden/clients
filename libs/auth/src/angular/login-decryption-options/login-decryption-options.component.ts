@@ -51,7 +51,6 @@ enum State {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login-decryption-options.component.html",
   imports: [
     AsyncActionsModule,

@@ -57,7 +57,6 @@ type CipherAttachmentForm = FormGroup<{
 }>;
 
 @Component({
-  standalone: true,
   selector: "app-cipher-attachments",
   templateUrl: "./cipher-attachments.component.html",
   imports: [
