@@ -140,6 +140,7 @@ libs/components @bitwarden/team-ui-foundation
 libs/ui @bitwarden/team-ui-foundation
 apps/browser/src/platform/popup/layout @bitwarden/team-ui-foundation
 apps/browser/src/popup/app-routing.animations.ts @bitwarden/team-ui-foundation
+apps/browser/src/popup/components/extension-anon-layout-wrapper @bitwarden/team-ui-foundation
 apps/web/src/app/layouts @bitwarden/team-ui-foundation
 
 

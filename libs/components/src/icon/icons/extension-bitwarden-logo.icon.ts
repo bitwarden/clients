@@ -1,4 +1,4 @@
-import { svgIcon } from "@bitwarden/components";
+import { svgIcon } from "../icon";
 
 export const ExtensionBitwardenLogo = svgIcon`
   <svg

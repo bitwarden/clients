@@ -9,7 +9,6 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { AnonLayoutWrapperDataService, LockIcon } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
@@ -23,13 +22,15 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ButtonModule, I18nMockService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  ButtonModule,
+  Icons,
+  I18nMockService,
+} from "@bitwarden/components";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { RegistrationCheckEmailIcon } from "../../../../../../libs/auth/src/angular/icons/registration-check-email.icon";
+import { AccountSwitcherService } from "../../../auth/popup/account-switching/services/account-switcher.service";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
-import { AccountSwitcherService } from "../account-switching/services/account-switcher.service";
 
 import { ExtensionAnonLayoutWrapperDataService } from "./extension-anon-layout-wrapper-data.service";
 import {
@@ -38,7 +39,7 @@ import {
 } from "./extension-anon-layout-wrapper.component";
 
 export default {
-  title: "Auth/Extension Anon Layout Wrapper",
+  title: "Browser/Extension Anon Layout Wrapper",
   component: ExtensionAnonLayoutWrapperComponent,
 } as Meta;
 
@@ -142,6 +143,8 @@ const decorators = (options: {
               switchAccounts: "Switch accounts",
               back: "Back",
               activeAccount: "Active account",
+              appLogoLabel: "app logo label",
+              bitwardenAccount: "Bitwarden Account",
             });
           },
         },
@@ -241,7 +244,7 @@ const initialData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "finishCreatingYourAccountBySettingAPassword",
   },
-  pageIcon: LockIcon,
+  pageIcon: Icons.LockIcon,
   showAcctSwitcher: true,
   showBackButton: true,
   showLogo: true,
@@ -255,7 +258,7 @@ const changedData: ExtensionAnonLayoutWrapperData = {
   pageSubtitle: {
     key: "checkYourEmail",
   },
-  pageIcon: RegistrationCheckEmailIcon,
+  pageIcon: Icons.RegistrationCheckEmailIcon,
   showAcctSwitcher: false,
   showBackButton: false,
   showLogo: false,

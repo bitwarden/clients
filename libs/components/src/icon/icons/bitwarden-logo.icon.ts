@@ -1,6 +1,4 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { svgIcon } from "@bitwarden/components";
+import { svgIcon } from "../icon";
 
 export const BitwardenLogo = svgIcon`
   <svg viewBox="0 0 290 45" xmlns="http://www.w3.org/2000/svg">

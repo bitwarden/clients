@@ -1,13 +1,6 @@
 /**
  * This barrel file should only contain Angular exports
  */
-
-// anon layout
-export * from "./anon-layout/anon-layout.component";
-export * from "./anon-layout/anon-layout-wrapper.component";
-export * from "./anon-layout/anon-layout-wrapper-data.service";
-export * from "./anon-layout/default-anon-layout-wrapper-data.service";
-
 // change password
 export * from "./change-password/change-password.component";
 export * from "./change-password/change-password.service.abstraction";

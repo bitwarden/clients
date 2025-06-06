@@ -2,11 +2,11 @@ import { DestroyRef, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, fromEvent } from "rxjs";
 
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { AnonLayoutWrapperDataService } from "@bitwarden/components";
 
 export const BrowserPromptState = {
   Loading: "loading",
