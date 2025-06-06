@@ -13,6 +13,7 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
+import { captureClickEvent } from "../utils";
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
 
 const focusRing = [
@@ -66,7 +67,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "[attr.aria-disabled]": "disabledAttr()",
   },
 })
-export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
+export class ButtonComponent implements ButtonLikeAbstraction {
   @HostBinding("class") get classList() {
     return [
       "tw-font-semibold",
@@ -80,22 +81,22 @@ export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
       "focus:tw-outline-none",
     ]
       .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
-              "tw-bg-secondary-300",
+              "aria-disabled:!tw-bg-secondary-300",
               "hover:tw-bg-secondary-300",
-              "tw-border-secondary-300",
+              "aria-disabled:tw-border-secondary-300",
               "hover:tw-border-secondary-300",
-              "!tw-text-muted",
+              "aria-disabled:!tw-text-muted",
               "hover:!tw-text-muted",
-              "tw-cursor-not-allowed",
+              "aria-disabled:tw-cursor-not-allowed",
               "hover:tw-no-underline",
-              "tw-pointer-events-none",
+              "aria-disabled:tw-pointer-events-none",
             ]
           : [],
       )
+      .concat(buttonStyles[this.buttonType ?? "secondary"])
       .concat(buttonSizeStyles[this.size() || "default"]);
   }
 
@@ -152,24 +153,13 @@ export class ButtonComponent implements ButtonLikeAbstraction, OnDestroy {
   disabled = model<boolean>(false);
 
   constructor(private elementRef: ElementRef) {
-    this.elementRef.nativeElement.addEventListener("click", this.captureClick, true);
+    const element = this.elementRef.nativeElement;
 
     // Remove disabled attribute if present. Will be replaced by aria-disabled
-    if (this.elementRef.nativeElement.hasAttribute("disabled")) {
-      this.elementRef.nativeElement.removeAttribute("disabled");
+    if (element.hasAttribute("disabled")) {
+      element.removeAttribute("disabled");
     }
-  }
 
-  ngOnDestroy() {
-    this.elementRef.nativeElement.removeEventListener("click", this.captureClick, true);
+    captureClickEvent(element);
   }
-
-  private captureClick = (event: PointerEvent) => {
-    if (this.disabledAttr()) {
-      event.stopPropagation();
-      event.preventDefault();
-      return false;
-    }
-    return true;
-  };
 }
