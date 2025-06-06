@@ -2,7 +2,11 @@
 // @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { NotificationBarIframeInitData } from "../../../notification/abstractions/notification-bar";
+import {
+  NotificationBarIframeInitData,
+  NotificationType,
+  NotificationTypes,
+} from "../../../notification/abstractions/notification-bar";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   NotificationsExtensionMessage,
@@ -15,8 +19,7 @@ export class OverlayNotificationsContentService
 {
   private notificationBarElement: HTMLElement | null = null;
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
-  private currentNotificationBarType: string | null = null;
-  private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
+  private currentNotificationBarType: NotificationType | null = null;
   private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
     height: "82px",
@@ -79,17 +82,19 @@ export class OverlayNotificationsContentService
       return;
     }
 
-    const { type, typeData } = message.data;
+    const { type, typeData, params } = message.data;
+
     if (this.currentNotificationBarType && type !== this.currentNotificationBarType) {
       this.closeNotificationBar();
     }
     const initData = {
-      type,
+      type: type as NotificationType,
       isVaultLocked: typeData.isVaultLocked,
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
       launchTimestamp: typeData.launchTimestamp,
+      params,
     };
 
     if (globalThis.document.readyState === "loading") {
@@ -291,10 +296,13 @@ export class OverlayNotificationsContentService
     this.notificationBarElement.remove();
     this.notificationBarElement = null;
 
-    if (
-      closedByUserAction &&
-      this.removeTabFromNotificationQueueTypes.has(this.currentNotificationBarType)
-    ) {
+    const removableNotificationTypes = new Set([
+      NotificationTypes.Add,
+      NotificationTypes.Change,
+      NotificationTypes.AtRiskPassword,
+    ] as NotificationType[]);
+
+    if (closedByUserAction && removableNotificationTypes.has(this.currentNotificationBarType)) {
       void sendExtensionMessage("bgRemoveTabFromNotificationQueue");
     }
 
