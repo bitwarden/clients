@@ -9,7 +9,6 @@ import {
   firstValueFrom,
   map,
   of,
-  shareReplay,
   startWith,
   switchMap,
   take,
@@ -20,18 +19,14 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
-import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BadgeModule,
   ButtonModule,
@@ -74,19 +69,13 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     DialogModule,
     VaultCarouselModule,
   ],
-  providers: [
-    AtRiskPasswordPageService,
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-  ],
+  providers: [{ provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService }],
   selector: "vault-at-risk-passwords",
   templateUrl: "./at-risk-passwords.component.html",
 })
 export class AtRiskPasswordsComponent implements OnInit {
-  private taskService = inject(TaskService);
   private organizationService = inject(OrganizationService);
-  private cipherService = inject(CipherService);
   private i18nService = inject(I18nService);
-  private accountService = inject(AccountService);
   private passwordRepromptService = inject(PasswordRepromptService);
   private router = inject(Router);
   private autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
@@ -106,25 +95,9 @@ export class AtRiskPasswordsComponent implements OnInit {
    */
   protected launchingCipher = signal<CipherView | null>(null);
 
-  private activeUserData$ = this.accountService.activeAccount$.pipe(
-    filterOutNullish(),
-    switchMap((user) =>
-      combineLatest([
-        this.taskService.pendingTasks$(user.id),
-        this.cipherService.cipherViews$(user.id).pipe(
-          filterOutNullish(),
-          map((ciphers) => Object.fromEntries(ciphers.map((c) => [c.id, c]))),
-        ),
-        of(user),
-      ]),
-    ),
-    map(([tasks, ciphers, user]) => ({
-      tasks,
-      ciphers,
-      userId: user.id,
-    })),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  private activeUserData$ = this.atRiskPasswordPageService.activeUserData$;
+
+  protected atRiskItems$ = this.atRiskPasswordPageService.atRiskItems$;
 
   protected loading$ = this.activeUserData$.pipe(
     map(() => false),
@@ -146,19 +119,6 @@ export class AtRiskPasswordsComponent implements OnInit {
       return !calloutDismissed && !inlineAutofillSettingEnabled;
     }),
     startWith(false),
-  );
-
-  protected atRiskItems$ = this.activeUserData$.pipe(
-    map(({ tasks, ciphers }) =>
-      tasks
-        .filter(
-          (t) =>
-            t.type === SecurityTaskType.UpdateAtRiskCredential &&
-            t.cipherId != null &&
-            ciphers[t.cipherId] != null,
-        )
-        .map((t) => ciphers[t.cipherId!]),
-    ),
   );
 
   protected pageDescription$ = this.activeUserData$.pipe(
