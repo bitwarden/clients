@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Kích thước tối đa của tập tin là 500MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Cần di chuyển khóa mã hóa. Vui lòng đăng nhập trang web Bitwaden để cập nhật khóa mã hóa của bạn."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Đã lưu thư mục"

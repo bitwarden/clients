@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funkce je nedostupná"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Vyžaduje se migrace šifrovacího klíče. Pro aktualizaci šifrovacího klíče se přihlaste přes webový trezor."
+  "legacyEncryptionUnsupported": {
+    "message": "Staré šifrování již není podporováno. Kontaktujte podporu pro obnovení Vašeho účtu."
   },
   "premiumMembership": {
     "message": "Prémiové členství"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Důvěřovat uživateli"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Žádná aktivní Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Použijte Send pro bezpečné sdílení šifrovaných informací s kýmkoliv.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Posílejte citlivé informace bezpečně",

@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Iespēja nav pieejama"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Nepieciešama šifrēšanas atslēgas nomaiņa. Lūgums pieteikties tīmekļa glabātavā, lai atjauninātu savu šifrēšanas atslēgu."
+  "legacyEncryptionUnsupported": {
+    "message": "Mantota šifrēšana vairs netiek atbalstīta. Lūgums sazināties ar atbalstu, lai atkoptu savu kontu."
   },
   "premiumMembership": {
     "message": "Premium dalība"
@@ -2678,7 +2678,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "Max access count reached",
+    "message": "Sasniegts lielākais pieļaujamais piekļuves reižu skaits",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Uzticēties lietotājam"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Nav spēkā esošu Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Send ir izmantojams, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Drošā veidā nosūti jūtīgu informāciju",

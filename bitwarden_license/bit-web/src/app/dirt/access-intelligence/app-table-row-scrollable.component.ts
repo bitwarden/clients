@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ApplicationHealthReportDetailWithCriticalFlag } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
+import { ApplicationHealthReportDetailWithCriticalFlagAndCipher } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { MenuModule, TableDataSource, TableModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -13,7 +13,7 @@ import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pip
   templateUrl: "./app-table-row-scrollable.component.html",
 })
 export class AppTableRowScrollableComponent {
-  @Input() dataSource!: TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>;
+  @Input() dataSource!: TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>;
   @Input() showRowMenuForCriticalApps: boolean = false;
   @Input() showRowCheckBox: boolean = false;
   @Input() selectedUrls: Set<string> = new Set<string>();

@@ -90,6 +90,35 @@ describe("keyService", () => {
     expect(keyService).not.toBeFalsy();
   });
 
+  describe("refreshAdditionalKeys", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.refreshAdditionalKeys(userId)).rejects.toThrow(
+          "UserId is required",
+        );
+      },
+    );
+
+    it("throws error if user key not found", async () => {
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+
+      await expect(keyService.refreshAdditionalKeys(mockUserId)).rejects.toThrow(
+        "No user key found for: " + mockUserId,
+      );
+    });
+
+    it("refreshes additional keys when user key is available", async () => {
+      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      const setUserKeySpy = jest.spyOn(keyService, "setUserKey");
+
+      await keyService.refreshAdditionalKeys(mockUserId);
+
+      expect(setUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
+    });
+  });
+
   describe("getUserKey", () => {
     let mockUserKey: UserKey;
 

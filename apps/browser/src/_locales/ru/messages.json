@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функция недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Требуется миграция ключа шифрования. Чтобы обновить ключ шифрования, войдите через веб-хранилище."
+  "legacyEncryptionUnsupported": {
+    "message": "Устаревшее шифрование больше не поддерживается. Для восстановления аккаунта обратитесь в службу поддержки."
   },
   "premiumMembership": {
     "message": "Премиум"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Доверенный пользователь"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Нет активных Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Используйте Send для безопасного обмена зашифрованной информацией с кем угодно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Безопасная отправка конфиденциальной информации",

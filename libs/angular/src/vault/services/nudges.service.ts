@@ -5,12 +5,12 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 
 import {
+  NewAccountNudgeService,
   HasItemsNudgeService,
   EmptyVaultNudgeService,
-  AutofillNudgeService,
-  DownloadBitwardenNudgeService,
   NewItemNudgeService,
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
@@ -25,25 +25,23 @@ export type NudgeStatus = {
 /**
  * Enum to list the various nudge types, to be used by components/badges to show/hide the nudge
  */
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum NudgeType {
-  /** Nudge to show when user has no items in their vault
-   * Add future nudges here
-   */
-  EmptyVaultNudge = "empty-vault-nudge",
-  VaultSettingsImportNudge = "vault-settings-import-nudge",
-  HasVaultItems = "has-vault-items",
-  AutofillNudge = "autofill-nudge",
-  AccountSecurity = "account-security",
-  DownloadBitwarden = "download-bitwarden",
-  NewLoginItemStatus = "new-login-item-status",
-  NewCardItemStatus = "new-card-item-status",
-  NewIdentityItemStatus = "new-identity-item-status",
-  NewNoteItemStatus = "new-note-item-status",
-  NewSshItemStatus = "new-ssh-item-status",
-  GeneratorNudgeStatus = "generator-nudge-status",
-}
+export const NudgeType = {
+  /** Nudge to show when user has no items in their vault */
+  EmptyVaultNudge: "empty-vault-nudge",
+  VaultSettingsImportNudge: "vault-settings-import-nudge",
+  HasVaultItems: "has-vault-items",
+  AutofillNudge: "autofill-nudge",
+  AccountSecurity: "account-security",
+  DownloadBitwarden: "download-bitwarden",
+  NewLoginItemStatus: "new-login-item-status",
+  NewCardItemStatus: "new-card-item-status",
+  NewIdentityItemStatus: "new-identity-item-status",
+  NewNoteItemStatus: "new-note-item-status",
+  NewSshItemStatus: "new-ssh-item-status",
+  GeneratorNudgeStatus: "generator-nudge-status",
+} as const;
+
+export type NudgeType = UnionOfValues<typeof NudgeType>;
 
 export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
   Partial<Record<NudgeType, NudgeStatus>>
@@ -57,6 +55,7 @@ export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
 })
 export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
+  private newAcctNudgeService = inject(NewAccountNudgeService);
 
   /**
    * Custom nudge services to use for specific nudge types
@@ -68,8 +67,9 @@ export class NudgesService {
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [NudgeType.VaultSettingsImportNudge]: inject(VaultSettingsImportNudgeService),
     [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
-    [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
-    [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
+    [NudgeType.AutofillNudge]: this.newAcctNudgeService,
+    [NudgeType.DownloadBitwarden]: this.newAcctNudgeService,
+    [NudgeType.GeneratorNudgeStatus]: this.newAcctNudgeService,
     [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,
     [NudgeType.NewCardItemStatus]: this.newItemNudgeService,
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
