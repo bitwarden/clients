@@ -100,10 +100,10 @@ describe("CipherView", () => {
       jest.spyOn(FieldView, "fromSdkFieldView").mockImplementation(mockFromSdk);
 
       sdkCipherView = {
-        id: "id",
-        organizationId: "orgId",
-        folderId: "folderId",
-        collectionIds: ["collectionId"],
+        id: "id" as any,
+        organizationId: "orgId" as any,
+        folderId: "folderId" as any,
+        collectionIds: ["collectionId" as any],
         key: undefined,
         name: "name",
         notes: undefined,

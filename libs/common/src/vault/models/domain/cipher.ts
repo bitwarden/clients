@@ -4,6 +4,7 @@ import { Jsonify } from "type-fest";
 
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -340,10 +341,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    */
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
-      id: this.id,
-      organizationId: this.organizationId,
-      folderId: this.folderId,
-      collectionIds: this.collectionIds || [],
+      id: asUuid(this.id),
+      organizationId: asUuid(this.organizationId),
+      folderId: asUuid(this.folderId),
+      collectionIds: (this.collectionIds || []).map((s) => asUuid(s)),
       key: this.key?.toJSON(),
       name: this.name.toJSON(),
       notes: this.notes?.toJSON(),
