@@ -126,7 +126,10 @@ export class PasswordLoginStrategy extends LoginStrategy {
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {

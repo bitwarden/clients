@@ -166,7 +166,7 @@ describe("AuthRequestLoginStrategy", () => {
       decMasterKeyHash,
       mockUserId,
     );
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       mockUserId,
     );
@@ -194,7 +194,7 @@ describe("AuthRequestLoginStrategy", () => {
     expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
 
     // setMasterKeyEncryptedUserKey, setUserKey, and setPrivateKey should still be called
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       mockUserId,
     );

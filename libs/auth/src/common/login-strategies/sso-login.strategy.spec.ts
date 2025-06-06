@@ -196,8 +196,11 @@ describe("SsoLoginStrategy", () => {
     await ssoLoginStrategy.logIn(credentials);
 
     // Assert
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledTimes(1);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
   });
 
   describe("Trusted Device Decryption", () => {
