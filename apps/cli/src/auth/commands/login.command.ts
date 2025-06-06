@@ -273,11 +273,7 @@ export class LoginCommand {
           }
         }
 
-        if (
-          twoFactorToken == null &&
-          Object.keys(response.twoFactorProviders).length > 1 &&
-          selectedProvider.type === TwoFactorProviderType.Email
-        ) {
+        if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
