@@ -98,8 +98,8 @@
   "markAppAsCritical": {
     "message": "Mark app as critical"
   },
-  "appsMarkedAsCritical": {
-    "message": "Apps marked as critical"
+  "applicationsMarkedAsCriticalSuccess": {
+    "message": "Kritik olarak işaretlenmiş uygulamalar"
   },
   "application": {
     "message": "Uygulama"
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "These members are logging into applications with weak, exposed, or reused passwords."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+  },
   "atRiskApplicationsDescription": {
     "message": "These applications have weak, exposed, or reused passwords."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "These are no applications with weak, exposed, or reused passwords."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "These members are logging into $APPNAME$ with weak, exposed, or reused passwords.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "There are no at risk members for $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -531,12 +546,6 @@
   "toggleCollapse": {
     "message": "Daraltmayı aç/kapat",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Parola oluştur"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
   },
   "checkPassword": {
     "message": "Parolanız ele geçirilip geçirilmediğini kontrol edin."
@@ -2143,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "İki aşamalı girişi etkinleştirmek, Bitwarden hesabınızı kalıcı olarak kilitleyebilir. Kurtarma kodunuz, iki aşamalı giriş sağlayıcınızı kullanamamanız durumunda hesabınıza erişmenize olanak sağlar (ör. cihazınızı kaybedersiniz). Hesabınıza erişiminizi kaybederseniz Bitwarden destek ekibi size yardımcı olamaz. Kurtarma kodunu not almanızı veya yazdırmanızı ve güvenli bir yerde saklamanızı öneririz."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Kart kaydı türünü kaldır"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Üyelerin kart kaydı türü oluşturmasına izin verme."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
@@ -4463,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Şifreleme anahtarı güncellemesine devam edilemiyor"
-  },
   "editFieldLabel": {
     "message": "$LABEL$ alanını düzenle",
     "placeholders": {
@@ -4518,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Anahtar güncellendi"
-  },
-  "updateEncryptionKey": {
-    "message": "Şifreleme anahtarını güncelle"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Güvenliği daha da artırmak için şifreleme şemamızı değiştirdik. Aşağıya ana parolanızı yazarak şifreleme anahtarınızı güncelleyebilirsiniz."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Şifreleme anahtarınızı güncelledikten sonra, şu anda kullanmakta olduğunuz tüm Bitwarden uygulamalarında (mobil uygulama veya tarayıcı uzantıları gibi) oturumunuzu kapatıp tekrar açmanız gerekir. Yeni şifreleme anahtarınızı indirme için oturumu kapatıp tekrar açmamamız verilerin bozulmasına neden olabilir. Oturumunuzu otomatik olarak kapatmaya çalışacağız, ancak bu gecikebilir."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Şifrelenmiş dışa aktarmalarınız da geçersiz olacaktır."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abonelik"
@@ -6461,14 +6464,11 @@
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin artık ana parola kullanması gerekmiyor.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector alan adı"
   },
   "leaveOrganization": {
     "message": "Kuruluştan ayrıl"
@@ -6812,6 +6812,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "Parola oluştur"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
+  "passwordGenerated": {
+    "message": "Parola üretildi"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Kullanıcı adı üretildi"
+  },
+  "emailGenerated": {
+    "message": "E-posta üretildi"
+  },
   "spinboxBoundariesHint": {
     "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6874,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Bu parolayı kullan"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Bu kullanıcı adını kullan"
@@ -8591,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktif Send yok",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Şifrelenmiş bilgileri güvenle paylaşmak için Send'i kullanabilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Kullanıcıları davet et"
@@ -10541,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Hassas bilgileri güvenle paylaşın",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Dosyaları ve verileri istediğiniz kişilerle, istediğiniz platformda paylaşın. Bilgileriniz başkalarının eline geçmemesi için uçtan şifrelenecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Otomatik doldurmayla zaman kazanın"
   },
@@ -10595,5 +10633,21 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "clickPayWithPayPal": {
+    "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

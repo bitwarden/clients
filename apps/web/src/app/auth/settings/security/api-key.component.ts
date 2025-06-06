@@ -3,11 +3,14 @@
 import { Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "@bitwarden/common/auth/models/response/api-key.response";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+
+import { SharedModule } from "../../../shared";
 
 export type ApiKeyDialogData = {
   keyType: string;
@@ -21,8 +24,8 @@ export type ApiKeyDialogData = {
   apiKeyDescription: string;
 };
 @Component({
-  selector: "app-api-key",
   templateUrl: "api-key.component.html",
+  imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class ApiKeyComponent {
   clientId: string;

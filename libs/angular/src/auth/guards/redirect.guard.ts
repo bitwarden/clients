@@ -2,8 +2,10 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -33,6 +35,7 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
     const deviceTrustService = inject(DeviceTrustServiceAbstraction);
+    const accountService = inject(AccountService);
     const logService = inject(LogService);
     const router = inject(Router);
 
@@ -49,7 +52,8 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
     // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
     // login decryption options component.
     const tdeEnabled = await firstValueFrom(deviceTrustService.supportsDeviceTrust$);
-    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$);
+    const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
+    const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(userId));
     if (authStatus === AuthenticationStatus.Locked && tdeEnabled && !everHadUserKey) {
       logService.info(
         "Sending user to TDE decryption options. AuthStatus is %s. TDE support is %s. Ever had user key is %s.",

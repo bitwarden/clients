@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Oznacz aplikację jako krytyczną"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Aplikacje oznaczone jako krytyczne"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ci członkowie logują się do aplikacji ze słabymi, ujawnionymi lub ponownie używanymi hasłami."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Ci członkowie nie logują się do aplikacji ze słabymi, ujawnionymi lub ponownie używanymi hasłami."
+  },
   "atRiskApplicationsDescription": {
     "message": "Te aplikacje mają słabe, ujawnione lub ponownie użyte hasła."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Te aplikacje nie mają słabych, ujawnionych lub ponownie użytych haseł."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ci użytkownicy logują się do $APPNAME$ ze słabymi, ujawnionymi lub ponownie używanymi hasłami.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Nie ma członków ryzyka dla $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -531,12 +546,6 @@
   "toggleCollapse": {
     "message": "Zwiń/rozwiń",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Wygeneruj hasło"
-  },
-  "generatePassphrase": {
-    "message": "Wygeneruj hasło wyrazowe"
   },
   "checkPassword": {
     "message": "Sprawdź, czy hasło zostało ujawnione."
@@ -2143,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Włączenie logowania dwustopniowego można trwale zablokować konto Bitwarden. Kod odzyskiwania pozwala na dostęp do konta w przypadku, gdy nie będziesz mógł skorzystać ze standardowego dostawcy logowania dwustopniowego (np. w przypadku utraty urządzenia). Pomoc techniczna Bitwarden nie będzie w stanie Ci pomóc, jeśli stracisz dostęp do swojego konta. Zalecamy zapisanie lub wydrukowanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Usuń typ elementu karty"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Nie zezwalaj członkom na tworzenie typów elementów karty."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorazowy kod odzyskiwania może być użyty do wyłączenia dwuetapowego logowania w przypadku utraty dostępu do dostawcy logowania dwuetapowego. Bitwarden zaleca zapisanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
@@ -4463,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Aktualizacja klucza szyfrowania nie może być kontynuowana"
-  },
   "editFieldLabel": {
     "message": "Edytuj $LABEL$",
     "placeholders": {
@@ -4518,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Podczas aktualizacji klucza szyfrowania, folderów nie można odszyfrować. Aby kontynuować aktualizację, foldery muszą zostać usunięte. Żadne elementy sejfu nie zostaną usunięte."
-  },
-  "keyUpdated": {
-    "message": "Klucz został zaktualizowany"
-  },
-  "updateEncryptionKey": {
-    "message": "Zaktualizuj klucz szyfrowania"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Zmieniliśmy schemat szyfrowania, aby zapewnić lepsze bezpieczeństwo. Zaktualizuj swój klucz szyfrowania, wprowadzając hasło główne poniżej."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Po zaktualizowaniu klucza szyfrowania, musisz ponownie zalogować się do wszystkich aplikacji Bitwarden, z których obecnie korzystasz (na przykład aplikacje mobilne lub rozszerzenia przeglądarki). Niepowodzenie logowania (podczas którego pobierany jest nowy klucz szyfrowania) może spowodować uszkodzenie danych. Postaramy się wylogować Ciebie automatycznie, jednak może to chwilę potrwać."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Wszystkie zaszyfrowane pliki eksportu, które wcześniej zapisałeś, staną się nieprawidłowe."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Wszystkie zapisane eksporty objęte ograniczeniami konta zostaną unieważnione."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać swoje konto."
   },
   "subscription": {
     "message": "Subskrypcja"
@@ -6461,14 +6464,11 @@
   "invalidVerificationCode": {
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "Organizacja $ORGANIZATION$ używa jednokrotnego logowania SSO z własnym serwerem kluczy. Użytkownicy nie muszą logować się za pomocą hasła głównego.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Hasło główne nie jest już wymagane dla członków następującej organizacji. Proszę potwierdzić poniższą domenę u administratora organizacji."
+  },
+  "keyConnectorDomain": {
+    "message": "Domena Key Connector'a"
   },
   "leaveOrganization": {
     "message": "Opuść organizację"
@@ -6812,6 +6812,24 @@
   "generateEmail": {
     "message": "Wygeneruj e-mail"
   },
+  "generatePassword": {
+    "message": "Wygeneruj hasło"
+  },
+  "generatePassphrase": {
+    "message": "Wygeneruj hasło wyrazowe"
+  },
+  "passwordGenerated": {
+    "message": "Hasło zostało wygenerowane"
+  },
+  "passphraseGenerated": {
+    "message": "Hasło wyrazowe zostało wygenerowane"
+  },
+  "usernameGenerated": {
+    "message": "Nazwa użytkownika została wygenerowana"
+  },
+  "emailGenerated": {
+    "message": "E-mail został wygenerowany"
+  },
   "spinboxBoundariesHint": {
     "message": "Wartość musi być pomiędzy $MIN$ a $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6874,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Użyj tego hasła"
+  },
+  "useThisPassphrase": {
+    "message": "Użyj tego hasła wyrazowego"
   },
   "useThisUsername": {
     "message": "Użyj tej nazwy użytkownika"
@@ -8591,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Zaufano urządzeniu"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Brak aktywnych wysyłek",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Użyj wysyłki, aby bezpiecznie dzielić się zaszyfrowanymi informacjami ze wszystkimi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Zaproś użytkowników"
@@ -10541,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "Nowa jednostka biznesowa"
   },
+  "sendsTitleNoItems": {
+    "message": "Wysyłaj bezpiecznie poufne informacje",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Udostępniaj pliki i dane bezpiecznie każdemu, na każdej platformie. Twoje dane pozostaną zaszyfrowane end-to-end przy jednoczesnym ograniczeniu narażenia.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Szybko twórz hasła"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": ", aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Łatwo twórz silne i unikalne hasła, klikając na Wygeneruj Hasło, aby pomóc Ci zachować bezpieczeństwo Twoich danych logowania.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Oszczędzaj czas dzięki autouzupełnianiu"
   },
@@ -10595,5 +10633,21 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "Płatność za pomocą konta bankowego jest dostępna tylko dla klientów w Stanach Zjednoczonych. Będziesz musiał/musiała zweryfikować swoje konto bankowe. W ciągu najbliższych 1-2 dni roboczych dokonamy mikrowpłaty. Wprowadź kod deskryptora z tej wpłaty na stronie dostawcy subskrypcji, aby zweryfikować konto bankowe. Niezweryfikowanie konta bankowego spowoduje brak płatności i zawieszenie Twojej subskrypcji."
+  },
+  "clickPayWithPayPal": {
+    "message": "Kliknij przycisk Zapłać za pomocą PayPal, aby dodać metodę płatności."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Jeśli usuniesz $EMAIL$, sponsorowanie tego planu rodzinnego zostanie zakończone. Miejsce w Twojej organizacji stanie się dostępne dla członków lub sponsorów po dacie odnowienia sponsorowanej organizacji w dniu $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

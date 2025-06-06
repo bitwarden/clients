@@ -24,6 +24,7 @@ import {
 @Component({
   selector: "sm-trash",
   templateUrl: "./trash.component.html",
+  standalone: false,
 })
 export class TrashComponent implements OnInit {
   secrets$: Observable<SecretListView[]>;

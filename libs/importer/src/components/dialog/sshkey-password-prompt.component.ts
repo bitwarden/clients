@@ -14,7 +14,6 @@ import {
 
 @Component({
   templateUrl: "sshkey-password-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

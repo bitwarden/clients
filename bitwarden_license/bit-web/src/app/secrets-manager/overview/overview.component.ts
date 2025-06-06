@@ -20,7 +20,6 @@ import {
   from,
 } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -88,6 +87,7 @@ type OrganizationTasks = {
 @Component({
   selector: "sm-overview",
   templateUrl: "./overview.component.html",
+  standalone: false,
 })
 export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
@@ -99,7 +99,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected loading = true;
   protected organizationEnabled = false;
   protected organization: Organization;
-  protected i18n: I18nPipe;
   protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{

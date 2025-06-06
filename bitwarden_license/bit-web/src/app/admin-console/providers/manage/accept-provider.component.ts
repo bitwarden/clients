@@ -14,6 +14,7 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
 @Component({
   selector: "app-accept-provider",
   templateUrl: "accept-provider.component.html",
+  standalone: false,
 })
 export class AcceptProviderComponent extends BaseAcceptComponent {
   protected logo = BitwardenLogo;
@@ -53,6 +54,8 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
       this.i18nService.t("providerInviteAcceptedDesc"),
       { timeout: 10000 },
     );
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/vault"]);
   }
 

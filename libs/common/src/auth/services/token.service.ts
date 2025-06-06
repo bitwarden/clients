@@ -3,6 +3,8 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";

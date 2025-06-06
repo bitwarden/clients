@@ -22,7 +22,6 @@ import { UserVerificationComponent } from "../app/components/user-verification.c
 
 @Component({
   selector: "app-delete-account",
-  standalone: true,
   templateUrl: "delete-account.component.html",
   imports: [
     JslibModule,

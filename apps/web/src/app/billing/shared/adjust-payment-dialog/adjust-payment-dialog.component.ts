@@ -39,6 +39,7 @@ export enum AdjustPaymentDialogResultType {
 
 @Component({
   templateUrl: "./adjust-payment-dialog.component.html",
+  standalone: false,
 })
 export class AdjustPaymentDialogComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;

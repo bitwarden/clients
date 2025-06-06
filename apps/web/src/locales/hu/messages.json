@@ -98,7 +98,7 @@
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
   },
-  "appsMarkedAsCritical": {
+  "applicationsMarkedAsCriticalSuccess": {
     "message": "Kritikusként megjelölt alkalmazások"
   },
   "application": {
@@ -140,11 +140,26 @@
   "atRiskMembersDescription": {
     "message": "Ezek a tagok gyenge, nyílt vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
   },
+  "atRiskMembersDescriptionNone": {
+    "message": "Ezek nem olyan tagok, akik gyenge, kitett vagy újrafelhasznált jelszavakkal jelentkeznek be az alkalmazásokba."
+  },
   "atRiskApplicationsDescription": {
     "message": "Ezeknél az alkalmazásoknál gyenge, nyílt vagy újra felhasznált jelszavak vannak."
   },
+  "atRiskApplicationsDescriptionNone": {
+    "message": "Ezek nem gyenge, kitett vagy újrafelhasznált jelszavakkal rendelkező alkalmazások."
+  },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ezek a tagok gyenge, nyilvános vagy újrahasznált jelszavakkal jelentkeznek be $APPNAME$ alkalmazásba.",
+    "placeholders": {
+      "appname": {
+        "content": "$1",
+        "example": "Salesforce"
+      }
+    }
+  },
+  "atRiskMembersDescriptionWithAppNone": {
+    "message": "Nincsenek veszélyeztetett tagok $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -531,12 +546,6 @@
   "toggleCollapse": {
     "message": "Összecsukás/kinyitás",
     "description": "Toggling an expand/collapse state."
-  },
-  "generatePassword": {
-    "message": "Jelszó generálása"
-  },
-  "generatePassphrase": {
-    "message": "Jelmondat generálás"
   },
   "checkPassword": {
     "message": "A jelszóvédelmi állapot ellenőrzése."
@@ -2143,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "A kétlépcsős bejelentkezés engedélyezése véglegesen kizárhatja a felhasználót a Bitwarden fiókból. A helyreállítási kód lehetővé teszi a fiókjához való hozzáférést abban az esetben, ha már nem tudjuk használni a szokásos kétlépcsős bejelentkezési szolgáltatást (pl. készülék elvesztése). A Bitwarden támogatás nem tud segíteni abban az esetben, ha elveszítjük a hozzáférést a fiókhoz. Célszerű leírni vagy kinyomtatni a helyreállítási kódot és azt biztonságos helyen tartani."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Kártyaelem típus eltávolítása"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Ne engedjük a felhasználóknak a kártyaelem típusok létrehozását."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Az egyszer használatos helyreállítási kóddal kikapcsolhatjuk a kétlépcsős bejelentkezést abban az esetben, ha elveszítjük a hozzáférést a kétlépcsős bejelentkezési szolgáltatóhoz. A Bitwarden azt javasolja, hogy írjuk le a helyreállítási kódot és tartsuk biztonságos helyen."
@@ -4463,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "A titkosítókulcs frissítése nem végrehajtható"
-  },
   "editFieldLabel": {
     "message": "$LABEL$ szerkesztése",
     "placeholders": {
@@ -4518,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "A titkosítókulcs frissítésekor a mappáid nem fejthetőek vissza. A frissítés folytatásához a mappáidat törölni kell. Semmi nem fog törlődni, ha folytatod."
-  },
-  "keyUpdated": {
-    "message": "A kulcs frissítésre került."
-  },
-  "updateEncryptionKey": {
-    "message": "Titkosítási kulcs frissítés"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "A titkosítási rendszer megváltozott, hogy nagyobb biztonságot nyújtson. Frissítsük a titkosítási kulcsot az mesterjelszó megadásával lentebb."
-  },
   "updateEncryptionKeyWarning": {
     "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
   },
-  "updateEncryptionKeyExportWarning": {
-    "message": "Az el nem mentett titkosított exportok szintén érvénytelenné válnak."
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "A régi titkosítás már nem támogatott. Lépjünk kapcsolatba a támogatással a fiók helyreállításához."
   },
   "subscription": {
     "message": "Előfizetés"
@@ -6461,14 +6464,11 @@
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector tartomány"
   },
   "leaveOrganization": {
     "message": "Szervezet elhagyása"
@@ -6812,6 +6812,24 @@
   "generateEmail": {
     "message": "Email generálása"
   },
+  "generatePassword": {
+    "message": "Jelszó generálása"
+  },
+  "generatePassphrase": {
+    "message": "Jelmondat generálás"
+  },
+  "passwordGenerated": {
+    "message": "A jelszó generálásra került."
+  },
+  "passphraseGenerated": {
+    "message": "A jelmondat generálásra került."
+  },
+  "usernameGenerated": {
+    "message": "A felhasználónév generálásra került."
+  },
+  "emailGenerated": {
+    "message": "Az email generálásra került."
+  },
   "spinboxBoundariesHint": {
     "message": "Az érték legyen $MIN$ és $MAX$ között.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6874,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Jelszó használata"
+  },
+  "useThisPassphrase": {
+    "message": "Jelmondat használata"
   },
   "useThisUsername": {
     "message": "Felhasználónév használata"
@@ -8591,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Az eszköz megbízható."
-  },
-  "sendsNoItemsTitle": {
-    "message": "Nincsenek natív Send elemek.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "A Send használatával biztonságosan megoszthatjuk a titkosított információkat bárkivel.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Felhasználók meghívása"
@@ -10541,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "Új üzleti egység"
   },
+  "sendsTitleNoItems": {
+    "message": "Érzékeny információt küldése biztonságosan",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Fájlok vagy adatok megosztása biztonságosan bárkivel, bármilyen platformon. Az információk titkosítva maradnak a végpontokon, korlátozva a kitettséget.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Jelszavak gyors létrehozása"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Könnyen létrehozhatunk erős és egyedi jelszavakat a gombra kattintva",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10595,5 +10633,21 @@
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "A bankszámlával történő fizetés csak az Egyesült Államokban élő ügyfelek számára érhető el. A bankszámlát igazolni kell. A fejlesztők a következő 1-2 munkanapon belül mikrobetétet teljesítenek. A bankszámla ellenőrzéséhez írjuk be az utalás leíró kódját a szervezet számlázási oldalán. Ha elmulasztjuk a bankszámla igazolását, az a fizetés elmaradását és az előfizetés felfüggesztését vonja maga után."
+  },
+  "clickPayWithPayPal": {
+    "message": "Kattintás a Pay with PayPal gombra a fizetési mód hozzáadásához."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "$EMAIL$ eltávolításával a családi csomag szponzorálása véget ér. A szervezeten belüli hely a szponzorált szervezet megújítási dátuma után válik elérhetővé a tagok vagy a szponzorálások számára: $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

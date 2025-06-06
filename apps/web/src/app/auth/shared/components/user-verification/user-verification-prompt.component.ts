@@ -23,6 +23,7 @@ import {
  */
 @Component({
   templateUrl: "user-verification-prompt.component.html",
+  standalone: false,
 })
 export class UserVerificationPromptComponent extends BaseUserVerificationPrompt {
   constructor(

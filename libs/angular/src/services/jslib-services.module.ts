@@ -3,12 +3,16 @@
 import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 import { Subject } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
@@ -27,7 +31,11 @@ import {
   TwoFactorAuthComponentService,
   TwoFactorAuthEmailComponentService,
   TwoFactorAuthWebAuthnComponentService,
+  ChangePasswordService,
+  DefaultChangePasswordService,
 } from "@bitwarden/auth/angular";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AuthRequestApiService,
   AuthRequestService,
@@ -263,6 +271,7 @@ import {
   InternalSendService,
   SendService as SendServiceAbstraction,
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -281,6 +290,7 @@ import {
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -312,6 +322,8 @@ import {
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
@@ -512,6 +524,7 @@ const safeProviders: SafeProvider[] = [
       stateProvider: StateProvider,
       accountService: AccountServiceAbstraction,
       logService: LogService,
+      cipherEncryptionService: CipherEncryptionService,
     ) =>
       new CipherService(
         keyService,
@@ -528,6 +541,7 @@ const safeProviders: SafeProvider[] = [
         stateProvider,
         accountService,
         logService,
+        cipherEncryptionService,
       ),
     deps: [
       KeyService,
@@ -544,6 +558,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       AccountServiceAbstraction,
       LogService,
+      CipherEncryptionService,
     ],
   }),
   safeProvider({
@@ -1499,7 +1514,6 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ApiServiceAbstraction,
       OrganizationServiceAbstraction,
-      ConfigService,
       AuthServiceAbstraction,
       NotificationsService,
       MessageListener,
@@ -1535,6 +1549,20 @@ const safeProviders: SafeProvider[] = [
     provide: DocumentLangSetter,
     useClass: DocumentLangSetter,
     deps: [DOCUMENT, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: CipherEncryptionService,
+    useClass: DefaultCipherEncryptionService,
+    deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: DefaultChangePasswordService,
+    deps: [
+      KeyService,
+      MasterPasswordApiServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+    ],
   }),
 ];
 

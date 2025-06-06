@@ -6,28 +6,23 @@ import { Component, Input } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import {
-  CardComponent,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   FormFieldModule,
   IconButtonModule,
 } from "@bitwarden/components";
 
-import { OrgIconDirective } from "../../components/org-icon.directive";
+import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
 @Component({
   selector: "app-sshkey-view",
   templateUrl: "sshkey-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    CardComponent,
-    SectionComponent,
     SectionHeaderComponent,
+    ReadOnlyCipherCardComponent,
     TypographyModule,
-    OrgIconDirective,
     FormFieldModule,
     IconButtonModule,
   ],

@@ -14,7 +14,6 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
 
 @Component({
   templateUrl: "trash.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

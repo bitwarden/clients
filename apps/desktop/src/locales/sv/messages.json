@@ -351,12 +351,6 @@
   "other": {
     "message": "Annat"
   },
-  "generatePassword": {
-    "message": "Generera lösenord"
-  },
-  "generatePassphrase": {
-    "message": "Generera lösenfras"
-  },
   "type": {
     "message": "Typ"
   },
@@ -697,8 +691,8 @@
   "maxFileSize": {
     "message": "Maximal filstorlek är 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migrering av krypteringsnyckel krävs. Logga in på webbvalvet för att uppdatera din krypteringsnyckel."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Mapp sparad"
@@ -1102,9 +1096,6 @@
   },
   "addNewItem": {
     "message": "Nytt objekt"
-  },
-  "addNewFolder": {
-    "message": "Ny mapp"
   },
   "view": {
     "message": "Visa"
@@ -1725,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "“File password”  and “Confirm file password“ do not match."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Ladda tillgänglighets-cookie"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registrera som en tillgänglighetsanvändare på",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopiera och klistra in länken som skickats till din e-post nedan"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Ange URL för att ladda tillgänglighets-cookie för hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL krävs",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Ogiltig URL"
-  },
   "done": {
     "message": "Klar"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Tillgänglighets-cookie sparad!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Ingen tillgänglighets-cookie sparad"
   },
   "warning": {
     "message": "VARNING",
@@ -2546,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Huvudlösenord togs bort"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ använder SSO med en egen nyckelserver. Ett huvudlösenord krävs inte längre för att logga in för medlemmar i denna organisation.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Lämna organisation"
@@ -2667,6 +2627,24 @@
   "usernameGenerator": {
     "message": "Username generator"
   },
+  "generatePassword": {
+    "message": "Generera lösenord"
+  },
+  "generatePassphrase": {
+    "message": "Generera lösenfras"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Value must be between $MIN$ and $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2719,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Use this email"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
   },
   "random": {
     "message": "Slumpmässig"
@@ -3084,12 +3071,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Lösenordet är svagt och avslöjades vid ett dataintrång. Använd ett starkt och unikt lösenord för att skydda ditt konto. Är det säkert att du vill använda detta lösenord?"
-  },
-  "useThisPassword": {
-    "message": "Use this password"
-  },
-  "useThisUsername": {
-    "message": "Use this username"
   },
   "checkForBreaches": {
     "message": "Kontrollera kända dataintrång för detta lösenord"
@@ -3647,6 +3628,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
   "authorize": {
     "message": "Authorize"
   },
@@ -3716,8 +3718,51 @@
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"

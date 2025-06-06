@@ -59,5 +59,5 @@ export abstract class VaultTimeoutSettingsService {
    */
   isBiometricLockSet: (userId?: string) => Promise<boolean>;
 
-  clear: (userId?: string) => Promise<void>;
+  clear: (userId: UserId) => Promise<void>;
 }

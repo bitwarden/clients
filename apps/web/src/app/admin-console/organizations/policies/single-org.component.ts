@@ -14,6 +14,7 @@ export class SingleOrgPolicy extends BasePolicy {
 @Component({
   selector: "policy-single-org",
   templateUrl: "single-org.component.html",
+  standalone: false,
 })
 export class SingleOrgPolicyComponent extends BasePolicyComponent implements OnInit {
   async ngOnInit() {

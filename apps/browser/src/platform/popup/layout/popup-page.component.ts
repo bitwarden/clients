@@ -6,7 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 @Component({
   selector: "popup-page",
   templateUrl: "popup-page.component.html",
-  standalone: true,
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },

@@ -49,6 +49,7 @@ const IdleTimeout = 60000 * 10; // 10 minutes
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnDestroy, OnInit {
   private lastActivity: Date = null;
@@ -281,7 +282,7 @@ export class AppComponent implements OnDestroy, OnInit {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(),
+      this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),

@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo de Bitwarden"
   },
   "extName": {
     "message": "Bitwarden - Administrador de contraseñas",
@@ -656,7 +656,7 @@
     "message": "Tu navegador web no soporta copiar al portapapeles facilmente. Cópialo manualmente."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Verifica tu identidad"
   },
   "weDontRecognizeThisDevice": {
     "message": "No reconocemos este dispositivo. Introduce el código enviado a tu correo electrónico para verificar tu identidad."
@@ -872,19 +872,19 @@
     "message": "Iniciar sesión en Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Introduce el código enviado a tu correo electrónico"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Introduce el código de tu aplicación de autenticación"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Pulsa tu YubiKey para identificarte"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Se requiere inicio de sesión en dos pasos para tu cuenta. Sigue los pasos siguientes para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Sigue los pasos de abajo para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
     "message": "Follow the steps below to finish logging in with your security key."
@@ -911,7 +911,7 @@
     "message": "No"
   },
   "location": {
-    "message": "Location"
+    "message": "Ubicación"
   },
   "unexpectedError": {
     "message": "Ha ocurrido un error inesperado."
@@ -1063,13 +1063,17 @@
     "message": "Guardar"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "Ver $ITEMNAME$, se abre en una nueva ventana",
     "placeholders": {
       "itemName": {
         "content": "$1"
       }
     },
     "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "Nuevo Elemento, se abre en una nueva ventana",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
     "message": "Edit before saving",
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ saved to Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ updated in Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Save as new login",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Update login",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Save login",
@@ -1355,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Característica no disponible"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Se requiere migración de la clave de cifrado. Por favor, inicie sesión a través de la caja fuerte para actualizar su clave de cifrado."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Membresía Premium"
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Sugerencias de autocompletar"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -2176,6 +2204,9 @@
   "useThisPassword": {
     "message": "Usar esta contraseña"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Usar este nombre de usuario"
   },
@@ -2198,15 +2229,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Acción de tiempo agotado"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "New customization options"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Customize your vault experience with quick copy actions, compact mode, and more!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "View all Appearance settings"
   },
   "lock": {
     "message": "Bloquear",
@@ -2575,7 +2597,7 @@
     "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
   },
   "updateInBitwarden": {
-    "message": "Update in Bitwarden"
+    "message": "Actualizar en Bitwarden"
   },
   "updateInBitwardenSlideDesc": {
     "message": "Bitwarden will then prompt you to update the password in the password manager.",
@@ -2654,6 +2676,10 @@
   "allSends": {
     "message": "Todos los Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Hide text by default"
@@ -2995,14 +3021,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Identificador único no encontrado."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ está usando SSO con un servidor de claves autoalojado. Los miembros de esta organización ya no necesitarán una contraseña maestra para iniciar sesión.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Ya no es necesaria una contraseña maestra para los miembros de la siguiente organización. Confirma el dominio que aparece a continuación con el administrador de tu organización."
+  },
+  "organizationName": {
+    "message": "Nombre de la organización"
+  },
+  "keyConnectorDomain": {
+    "message": "Dominio del conector de clave"
   },
   "leaveOrganization": {
     "message": "Abandonar organización"
@@ -3387,7 +3413,7 @@
     "message": "Inicio de sesión en proceso"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Solicitud enviada"
   },
   "exposedMasterPassword": {
     "message": "Contraseña maestra comprometida"
@@ -3588,12 +3614,12 @@
   "trustUser": {
     "message": "Trust user"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3798,7 +3824,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Nueva tarjeta",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -4533,6 +4559,12 @@
   "downloadFromBitwardenNow": {
     "message": "Download from bitwarden.com now"
   },
+  "getItOnGooglePlay": {
+    "message": "Consíguela en Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Descarga en la App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "¿Estás seguro de que deseas eliminar permanentemente este adjunto?"
   },
@@ -4994,6 +5026,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
   "authenticating": {
     "message": "Autenticando"
   },
@@ -5243,6 +5284,9 @@
   "secureDevicesBody": {
     "message": "Guarda contraseñas ilimitadas a través de dispositivos ilimitados con aplicaciones móviles, de navegador y de escritorio de Bitwarden."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Import existing passwords"
   },
@@ -5255,8 +5299,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Welcome to your vault!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Autofill items for the current page\nFavorite items for easy access\nSearch your vault for something else"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
@@ -5306,5 +5356,25 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
   }
 }

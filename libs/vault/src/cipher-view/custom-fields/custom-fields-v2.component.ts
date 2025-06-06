@@ -17,7 +17,6 @@ import {
   IconButtonModule,
   FormFieldModule,
   InputModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   CheckboxModule,
@@ -29,7 +28,6 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
 @Component({
   selector: "app-custom-fields-v2",
   templateUrl: "custom-fields-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -37,7 +35,6 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
     IconButtonModule,
     FormFieldModule,
     InputModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     CheckboxModule,
