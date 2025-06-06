@@ -12,10 +12,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
-import { CipherType } from "@bitwarden/sdk-internal";
 
 import { GroupView } from "../../../admin-console/organizations/core";
-import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "../../services/restricted-item-types.service";
 
 import {
   CollectionPermission,
@@ -88,7 +90,7 @@ export class VaultItemsComponent {
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
-  private restrictedItemTypes: CipherType[] = [];
+  private restrictedCipherTypes: RestrictedCipherType[] = [];
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
@@ -163,7 +165,7 @@ export class VaultItemsComponent {
     this.restrictedItemTypesService.restricted$
       .pipe(takeUntilDestroyed())
       .subscribe((restrictedTypes) => {
-        this.restrictedItemTypes = restrictedTypes;
+        this.restrictedCipherTypes = restrictedTypes;
       });
   }
 
@@ -369,7 +371,10 @@ export class VaultItemsComponent {
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
     const filteredRestrictedItems = items.filter((item) => {
       if (item.cipher) {
-        return !this.restrictedItemTypes.includes(item.cipher.type);
+        return !this.restrictedCipherTypes.some(
+          (restrictedType) =>
+            restrictedType.cipherType === item.cipher.type && !restrictedType.allowView,
+        );
       }
       return true;
     });

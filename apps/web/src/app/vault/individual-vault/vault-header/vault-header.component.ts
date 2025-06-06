@@ -111,7 +111,8 @@ export class VaultHeaderComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((restrictedItemTypes) => {
         this.cipherMenuItems = allCipherMenuItems.filter(
-          (item) => !restrictedItemTypes.includes(item.type),
+          (item) =>
+            !restrictedItemTypes.some((restrictedType) => restrictedType.cipherType === item.type),
         );
       });
   }

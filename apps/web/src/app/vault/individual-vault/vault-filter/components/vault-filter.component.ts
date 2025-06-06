@@ -148,7 +148,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.restrictedItemTypesService?.restricted$
       .pipe(takeUntil(this.destroy$))
       .subscribe((restrictedTypes) => {
-        this.addTypeFilter(restrictedTypes)
+        this.addTypeFilter(restrictedTypes.filter((r) => !r.allowView).map((r) => r.cipherType))
           .then((typeFilter) => {
             if (!this.filters) {
               return;
