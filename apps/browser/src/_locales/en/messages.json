@@ -4208,6 +4208,18 @@
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
   },
+   "uriMatchDeprecationDialogTitle": {
+    "message": "Default match detection reset to base domain",
+    "description": "Title for dialog which informs user of global uri match setting deprecation"
+  },
+  "uriMatchDeprecationDialogStartsWithContent": {
+    "message": "Bitwarden is no longer offering “starts with” as default match detection. New websites added will use the default match detection unless changed in the login autofill options.",
+    "description": "Content for dialog which informs user which had starts with matching strategy as global setting of global uri match setting deprecation"
+  },
+  "uriMatchDeprecationDialogRegExContent": {
+    "message": "Bitwarden is no longer offering “regular expression” as default match detection. New websites added will use the default match detection unless changed in the login autofill options.",
+    "description": "Content for dialog which informs user which had regular expression matching strategy as global setting of global uri match setting deprecation"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continue to browser settings?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
