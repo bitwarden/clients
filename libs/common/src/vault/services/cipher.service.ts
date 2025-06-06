@@ -1,12 +1,22 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+} from "rxjs";
 import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
@@ -71,6 +81,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -122,6 +133,40 @@ export class CipherService implements CipherServiceAbstraction {
   ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>> {
     return this.encryptedCiphersState(userId).state$.pipe(map((ciphers) => ciphers ?? {}));
   }
+
+  /**
+   * Observable that emits an array of decrypted ciphers for given userId.
+   * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
+   *
+   * This uses the SDK for decryption, when the `PM19941MigrateCipherDomainToSdk` feature flag is disabled an empty array will be emitted.
+   */
+  cipherListViews$ = perUserCache$((userId: UserId): Observable<CipherListView[]> => {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM19941MigrateCipherDomainToSdk).pipe(
+      switchMap((useSdk): Observable<CipherListView[]> => {
+        if (!useSdk) {
+          return of([]);
+        }
+
+        return combineLatest([
+          this.encryptedCiphersState(userId).state$,
+          this.localData$(userId),
+          this.keyService.cipherDecryptionKeys$(userId, true),
+        ]).pipe(
+          filter(([cipherDataState, _, keys]) => cipherDataState != null && keys != null),
+          map(([cipherDataState, localData]) =>
+            Object.values(cipherDataState).map(
+              (cipherData) => new Cipher(cipherData, localData?.[cipherData.id as CipherId]),
+            ),
+          ),
+          switchMap((ciphers) =>
+            this.cipherEncryptionService
+              .decryptMany(ciphers, userId)
+              .then((ciphers) => ciphers.sort(this.getLocaleSortingFunction())),
+          ),
+        );
+      }),
+    );
+  });
 
   /**
    * Observable that emits an array of decrypted ciphers for the active user.
@@ -1201,7 +1246,7 @@ export class CipherService implements CipherServiceAbstraction {
     return this.getLocaleSortingFunction()(a, b);
   }
 
-  getLocaleSortingFunction(): (a: CipherView, b: CipherView) => number {
+  getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number {
     return (a, b) => {
       let aName = a.name;
       let bName = b.name;
