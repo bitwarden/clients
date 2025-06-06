@@ -258,7 +258,8 @@
       },
       "u2f-devices"
     ],
-    "stagePackages": ["default"]
+    "stagePackages": ["default"],
+    "compression": "lzo"
   },
   "protocols": [
     {
