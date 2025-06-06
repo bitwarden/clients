@@ -2,9 +2,12 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Subject, concatMap, takeUntil } from "rxjs";
+import { Subject, from, firstValueFrom, switchMap, takeUntil } from "rxjs";
 
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
@@ -48,11 +51,13 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+
     this.route.params
       .pipe(
-        concatMap(async (params: Params) => {
-          return await this.load(params.organizationId, params.serviceAccountId);
-        }),
+        switchMap((params: Params) =>
+          from(this.load(env, params.organizationId, params.serviceAccountId)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((smConfig) => {
@@ -67,9 +72,11 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
       });
   }
 
-  async load(organizationId: string, serviceAccountId: string): Promise<ServiceAccountConfig> {
-    const environment = await this.environmentService.getEnvironment();
-
+  private async load(
+    environment: Environment,
+    organizationId: string,
+    serviceAccountId: string,
+  ): Promise<ServiceAccountConfig> {
     const allProjects = await this.projectService.getProjects(organizationId);
     const policies = await this.accessPolicyService.getServiceAccountGrantedPolicies(
       organizationId,
@@ -88,11 +95,11 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
     });
 
     return {
-      organizationId: organizationId,
-      serviceAccountId: serviceAccountId,
+      organizationId,
+      serviceAccountId,
       identityUrl: environment.getIdentityUrl(),
       apiUrl: environment.getApiUrl(),
-      projects: projects,
+      projects,
     } as ServiceAccountConfig;
   }
 
