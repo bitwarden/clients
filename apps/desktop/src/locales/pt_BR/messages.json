@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "O tamanho máximo do arquivo é de 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migração de chave de criptografia necessária. Faça login através do cofre web para atualizar sua chave de criptografia."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Pasta editada"

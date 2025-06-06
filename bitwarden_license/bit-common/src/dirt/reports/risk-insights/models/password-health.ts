@@ -32,12 +32,17 @@ export type ApplicationHealthReportDetail = {
   atRiskMemberCount: number;
   memberDetails: MemberDetailsFlat[];
   atRiskMemberDetails: MemberDetailsFlat[];
-  cipher: CipherView;
+  cipherIds: string[];
 };
 
 export type ApplicationHealthReportDetailWithCriticalFlag = ApplicationHealthReportDetail & {
   isMarkedAsCritical: boolean;
 };
+
+export type ApplicationHealthReportDetailWithCriticalFlagAndCipher =
+  ApplicationHealthReportDetailWithCriticalFlag & {
+    ciphers: CipherView[];
+  };
 
 /**
  * Breaks the cipher health info out by uri and passes
@@ -97,6 +102,7 @@ export type ExposedPasswordDetail = {
  * organization member to a cipher
  */
 export type MemberDetailsFlat = {
+  userGuid: string;
   userName: string;
   email: string;
   cipherId: string;

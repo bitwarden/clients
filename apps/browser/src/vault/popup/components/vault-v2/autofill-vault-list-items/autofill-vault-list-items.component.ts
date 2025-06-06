@@ -15,7 +15,6 @@ import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
     TypographyModule,

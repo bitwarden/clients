@@ -21,7 +21,6 @@ export interface RegistrationLinkExpiredComponentData {
 }
 
 @Component({
-  standalone: true,
   selector: "auth-registration-link-expired",
   templateUrl: "./registration-link-expired.component.html",
   imports: [CommonModule, JslibModule, RouterModule, IconModule, ButtonModule],

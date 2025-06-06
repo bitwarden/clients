@@ -26,7 +26,6 @@ import { BitFormFieldControl } from "./form-field-control";
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
-  standalone: true,
   imports: [CommonModule, BitErrorComponent, I18nPipe],
 })
 export class BitFormFieldComponent implements AfterContentChecked {

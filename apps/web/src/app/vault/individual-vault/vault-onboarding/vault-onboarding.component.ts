@@ -33,7 +33,6 @@ import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./s
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
-  standalone: true,
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
   providers: [
     {

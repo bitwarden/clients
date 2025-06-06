@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функція недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Преміум статус"
@@ -2677,6 +2677,10 @@
     "message": "Усі відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
     "message": "Типово приховувати текст"
   },
@@ -3609,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Довіряти користувачу"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Немає активних відправлень",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Використовуйте відправлення, щоб безпечно надавати доступ іншим до зашифрованої інформації.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Безпечно надсилайте конфіденційну інформацію",

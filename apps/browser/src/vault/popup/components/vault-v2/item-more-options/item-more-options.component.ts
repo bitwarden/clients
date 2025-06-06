@@ -28,7 +28,6 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
-  standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
@@ -104,7 +103,9 @@ export class ItemMoreOptionsComponent implements OnInit {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return [CipherType.Login, CipherType.Card, CipherType.Identity].includes(this.cipher.type);
+    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
+      this.cipher.type,
+    );
   }
 
   get isLogin() {

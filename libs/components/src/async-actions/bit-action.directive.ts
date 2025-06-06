@@ -15,7 +15,6 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
  */
 @Directive({
   selector: "[bitAction]",
-  standalone: true,
 })
 export class BitActionDirective implements OnDestroy {
   private destroy$ = new Subject<void>();

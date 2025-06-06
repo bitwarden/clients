@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { TypographyModule } from "../typography";
 
 @Component({
-  standalone: true,
   selector: "bit-section-header",
   templateUrl: "./section-header.component.html",
   imports: [TypographyModule],
