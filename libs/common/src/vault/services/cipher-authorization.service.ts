@@ -11,12 +11,12 @@ import { CollectionId } from "@bitwarden/common/types/guid";
 import { getUserId } from "../../auth/services/account.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { Cipher } from "../models/domain/cipher";
-import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 /**
  * Represents either a cipher or a cipher view.
  */
-type CipherLike = Cipher | CipherView;
+type CipherLike = Cipher | CipherViewLike;
 
 /**
  * Service for managing user cipher authorization.
@@ -108,7 +108,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         }
 
         if (featureFlagEnabled) {
-          return of(cipher.permissions.delete);
+          return of(!!cipher.permissions?.delete);
         }
 
         if (cipher.organizationId == null) {
@@ -150,7 +150,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           }
         }
 
-        return cipher.permissions.restore;
+        return !!cipher.permissions?.restore;
       }),
     );
   }
