@@ -92,6 +92,27 @@ describe("FidoAuthenticatorService", () => {
   });
 
   describe("createCredential", () => {
+    describe("Mapping params should handle variations in input formats", () => {
+      it.each([
+        [true, true],
+        [false, false],
+        ["false", false],
+        ["", false],
+        ["true", true],
+      ])("requireResidentKey should handle %s as boolean %s", async (input, expected) => {
+        const params = createParams({
+          authenticatorSelection: { requireResidentKey: input as any },
+          extensions: { credProps: true },
+        });
+
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, windowReference);
+
+        expect(result.extensions.credProps?.rk).toBe(expected);
+      });
+    });
+
     describe("input parameters validation", () => {
       // Spec: If sameOriginWithAncestors is false, return a "NotAllowedError" DOMException.
       it("should throw error if sameOriginWithAncestors is false", async () => {
