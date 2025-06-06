@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/components";
 
 import { DeviceDisplayData } from "./device-management.component";
+import { deviceReSort } from "./device-re-sort.helper";
 
 /** Displays user devices in a sortable table view */
 @Component({
@@ -24,7 +25,7 @@ import { DeviceDisplayData } from "./device-management.component";
   templateUrl: "./device-management-table.component.html",
   imports: [BadgeModule, ButtonModule, CommonModule, JslibModule, LinkModule, TableModule],
 })
-export class DeviceManagementTableComponent implements OnInit {
+export class DeviceManagementTableComponent implements OnChanges {
   @Input() devices: DeviceDisplayData[] = [];
   protected tableDataSource = new TableDataSource<DeviceDisplayData>();
 
@@ -54,8 +55,10 @@ export class DeviceManagementTableComponent implements OnInit {
     private dialogService: DialogService,
   ) {}
 
-  ngOnInit() {
-    this.tableDataSource.data = this.devices;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.devices) {
+      this.tableDataSource.data = this.devices;
+    }
   }
 
   protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest) {
@@ -63,6 +66,22 @@ export class DeviceManagementTableComponent implements OnInit {
       notificationId: pendingAuthRequest.id,
     });
 
-    await firstValueFrom(loginApprovalDialog.closed);
+    const result = await firstValueFrom(loginApprovalDialog.closed);
+
+    if (result !== undefined && typeof result === "boolean") {
+      // Auth request was approved or denied, so clear the
+      // pending auth request and re-sort the device array
+      const updatedDevices = this.devices
+        .map((device) => {
+          if (device.pendingAuthRequest?.id === pendingAuthRequest.id) {
+            device.pendingAuthRequest = null;
+            device.loginStatus = "";
+          }
+          return device;
+        })
+        .sort(deviceReSort);
+
+      this.tableDataSource.data = updatedDevices;
+    }
   }
 }

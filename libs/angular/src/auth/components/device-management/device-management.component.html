@@ -21,11 +21,11 @@
   </p>
 </div>
 
-<div *ngIf="initializing" class="tw-flex tw-justify-center tw-items-center tw-p-4">
-  <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
-</div>
-
-<ng-container *ngIf="devices$ | async as devices">
+@if (initializing) {
+  <div class="tw-flex tw-justify-center tw-items-center tw-p-4">
+    <i class="bwi bwi-spinner bwi-spin tw-text-2xl" aria-hidden="true"></i>
+  </div>
+} @else {
   <!-- Table View: displays on medium to large screens -->
   <auth-device-management-table
     ngClass="tw-hidden md:tw-block"
@@ -37,4 +37,4 @@
     ngClass="md:tw-hidden"
     [devices]="devices"
   ></auth-device-management-item-group>
-</ng-container>
+}
