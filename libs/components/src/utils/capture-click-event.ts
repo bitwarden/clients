@@ -4,7 +4,7 @@ import { fromEvent } from "rxjs";
 export function captureClickEvent(element: HTMLElement) {
   fromEvent(element, "click")
     .pipe(takeUntilDestroyed())
-    .subscribe((event: PointerEvent) => {
+    .subscribe((event: Event) => {
       event.stopPropagation();
       event.preventDefault();
     });
