@@ -39,7 +39,6 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
@@ -184,6 +183,7 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -200,6 +200,7 @@ import {
   DefaultCipherAuthorizationService,
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -409,6 +410,7 @@ export default class MainBackground {
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
+  cipherEncryptionService: CipherEncryptionService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -721,6 +723,7 @@ export default class MainBackground {
       this.logService,
       (logoutReason: LogoutReason, userId?: UserId) => this.logout(logoutReason, userId),
       this.vaultTimeoutSettingsService,
+      { createRequest: (url, request) => new Request(url, request) },
     );
 
     this.fileUploadService = new FileUploadService(this.logService, this.apiService);
@@ -856,6 +859,11 @@ export default class MainBackground {
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
     this.cipherService = new CipherService(
       this.keyService,
       this.domainSettingsService,
@@ -871,6 +879,7 @@ export default class MainBackground {
       this.stateProvider,
       this.accountService,
       this.logService,
+      this.cipherEncryptionService,
     );
     this.folderService = new FolderService(
       this.keyService,
@@ -1147,7 +1156,6 @@ export default class MainBackground {
       this.fido2ClientService,
       this.vaultSettingsService,
       this.scriptInjectorService,
-      this.configService,
       this.authService,
     );
 
@@ -1195,7 +1203,6 @@ export default class MainBackground {
       this.stateProvider,
       this.apiService,
       this.organizationService,
-      this.configService,
       this.authService,
       this.notificationsService,
       messageListener,
@@ -1230,7 +1237,6 @@ export default class MainBackground {
       this.autofillService,
       this.scriptInjectorService,
       this.authService,
-      this.configService,
       this.platformUtilsService,
       this.policyService,
       this.accountService,
@@ -1416,9 +1422,7 @@ export default class MainBackground {
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
-          this.taskService.listenForTaskNotifications();
-        }
+        this.taskService.listenForTaskNotifications();
 
         if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
           this.endUserNotificationService.listenForEndUserNotifications();
@@ -1511,9 +1515,6 @@ export default class MainBackground {
       }
 
       nextAccountStatus = await this.authService.getAuthStatus(userId);
-      const forcePasswordReset =
-        (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
-        ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
 
@@ -1521,8 +1522,6 @@ export default class MainBackground {
         this.messagingService.send("goHome");
       } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
-      } else if (forcePasswordReset) {
-        this.messagingService.send("update-temp-password", { userId: userId });
       } else {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();

@@ -11,7 +11,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -30,6 +29,7 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth";
@@ -96,6 +96,11 @@ describe("KeyRotationService", () => {
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
 
   beforeAll(() => {
+    jest.spyOn(PureCrypto, "make_user_key_aes256_cbc_hmac").mockReturnValue(new Uint8Array(64));
+    jest.spyOn(PureCrypto, "make_user_key_xchacha20_poly1305").mockReturnValue(new Uint8Array(70));
+    jest
+      .spyOn(PureCrypto, "encrypt_user_key_with_master_password")
+      .mockReturnValue("mockNewUserKey");
     mockUserVerificationService = mock<UserVerificationService>();
     mockApiService = mock<UserKeyRotationApiService>();
     mockCipherService = mock<CipherService>();
@@ -158,6 +163,7 @@ describe("KeyRotationService", () => {
       mockToastService,
       mockI18nService,
       mockDialogService,
+      mockConfigService,
     );
   });
 
@@ -181,7 +187,7 @@ describe("KeyRotationService", () => {
         } as any,
       ]);
       mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
       mockEncryptService.wrapSymmetricKey.mockResolvedValue({
         encryptedString: "mockEncryptedData",
@@ -238,21 +244,6 @@ describe("KeyRotationService", () => {
       mockWebauthnLoginAdminService.getRotatedData.mockResolvedValue(webauthn);
     });
 
-    it("rotates the user key and encrypted data legacy", async () => {
-      await keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser);
-
-      expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
-      const arg = mockApiService.postUserKeyUpdate.mock.calls[0][0];
-      expect(arg.key).toBe("mockNewUserKey");
-      expect(arg.privateKey).toBe("mockEncryptedData");
-      expect(arg.ciphers.length).toBe(2);
-      expect(arg.folders.length).toBe(2);
-      expect(arg.sends.length).toBe(2);
-      expect(arg.emergencyAccessKeys.length).toBe(1);
-      expect(arg.resetPasswordKeys.length).toBe(1);
-      expect(arg.webauthnKeys.length).toBe(2);
-    });
-
     it("rotates the userkey and encrypted data and changes master password", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
@@ -286,6 +277,59 @@ describe("KeyRotationService", () => {
       expect(arg.accountUnlockData.emergencyAccessUnlockData.length).toBe(1);
       expect(arg.accountUnlockData.organizationAccountRecoveryUnlockData.length).toBe(1);
       expect(arg.accountUnlockData.passkeyUnlockData.length).toBe(2);
+      expect(PureCrypto.make_user_key_aes256_cbc_hmac).toHaveBeenCalled();
+      expect(PureCrypto.encrypt_user_key_with_master_password).toHaveBeenCalledWith(
+        new Uint8Array(64),
+        "newMasterPassword",
+        mockUser.email,
+        DEFAULT_KDF_CONFIG.toSdkConfig(),
+      );
+      expect(PureCrypto.make_user_key_xchacha20_poly1305).not.toHaveBeenCalled();
+    });
+
+    it("rotates the userkey to xchacha20poly1305 and encrypted data and changes master password when featureflag is active", async () => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
+      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
+      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
+      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
+      await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+        "mockMasterPassword",
+        "newMasterPassword",
+        mockUser,
+      );
+
+      expect(mockApiService.postUserKeyUpdateV2).toHaveBeenCalled();
+      const arg = mockApiService.postUserKeyUpdateV2.mock.calls[0][0];
+      expect(arg.accountUnlockData.masterPasswordUnlockData.masterKeyEncryptedUserKey).toBe(
+        "mockNewUserKey",
+      );
+      expect(arg.oldMasterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
+      expect(arg.accountUnlockData.masterPasswordUnlockData.email).toBe("mockEmail");
+      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfType).toBe(
+        DEFAULT_KDF_CONFIG.kdfType,
+      );
+      expect(arg.accountUnlockData.masterPasswordUnlockData.kdfIterations).toBe(
+        DEFAULT_KDF_CONFIG.iterations,
+      );
+
+      expect(arg.accountKeys.accountPublicKey).toBe(Utils.fromUtf8ToB64("mockPublicKey"));
+      expect(arg.accountKeys.userKeyEncryptedAccountPrivateKey).toBe("mockEncryptedData");
+
+      expect(arg.accountData.ciphers.length).toBe(2);
+      expect(arg.accountData.folders.length).toBe(2);
+      expect(arg.accountData.sends.length).toBe(2);
+      expect(arg.accountUnlockData.emergencyAccessUnlockData.length).toBe(1);
+      expect(arg.accountUnlockData.organizationAccountRecoveryUnlockData.length).toBe(1);
+      expect(arg.accountUnlockData.passkeyUnlockData.length).toBe(2);
+      expect(PureCrypto.make_user_key_aes256_cbc_hmac).not.toHaveBeenCalled();
+      expect(PureCrypto.encrypt_user_key_with_master_password).toHaveBeenCalledWith(
+        new Uint8Array(70),
+        "newMasterPassword",
+        mockUser.email,
+        DEFAULT_KDF_CONFIG.toSdkConfig(),
+      );
+      expect(PureCrypto.make_user_key_xchacha20_poly1305).toHaveBeenCalled();
     });
 
     it("returns early when first trust warning dialog is declined", async () => {
@@ -324,46 +368,9 @@ describe("KeyRotationService", () => {
       expect(mockApiService.postUserKeyUpdateV2).not.toHaveBeenCalled();
     });
 
-    it("legacy throws if master password provided is falsey", async () => {
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("", mockUser),
-      ).rejects.toThrow();
-    });
-
     it("throws if master password provided is falsey", async () => {
       await expect(
         keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData("", "", mockUser),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if user key creation fails", async () => {
-      mockKeyService.makeUserKey.mockResolvedValueOnce([null, null]);
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
-      ).rejects.toThrow();
-    });
-
-    it("throws if user key creation fails", async () => {
-      mockKeyService.makeUserKey.mockResolvedValueOnce([
-        null as unknown as UserKey,
-        null as unknown as EncString,
-      ]);
-
-      await expect(
-        keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
-          "mockMasterPassword",
-          "mockMasterPassword1",
-          mockUser,
-        ),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if no private key is found", async () => {
-      privateKey.next(null);
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 
@@ -379,16 +386,6 @@ describe("KeyRotationService", () => {
       ).rejects.toThrow();
     });
 
-    it("legacy throws if master password is incorrect", async () => {
-      mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
-        new Error("Invalid master password"),
-      );
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
-      ).rejects.toThrow();
-    });
-
     it("throws if master password is incorrect", async () => {
       mockUserVerificationService.verifyUserByMasterPassword.mockRejectedValueOnce(
         new Error("Invalid master password"),
@@ -400,14 +397,6 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
-    });
-
-    it("legacy throws if server rotation fails", async () => {
-      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
-
-      await expect(
-        keyRotationService.rotateUserKeyAndEncryptedDataLegacy("mockMasterPassword", mockUser),
       ).rejects.toThrow();
     });
 

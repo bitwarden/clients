@@ -13,6 +13,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 @Component({
   selector: "app-vault-share",
   templateUrl: "share.component.html",
+  standalone: false,
 })
 export class ShareComponent extends BaseShareComponent {
   constructor(

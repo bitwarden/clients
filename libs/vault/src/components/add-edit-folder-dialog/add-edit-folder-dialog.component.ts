@@ -19,6 +19,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -34,10 +35,12 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-export enum AddEditFolderDialogResult {
-  Created = "created",
-  Deleted = "deleted",
-}
+export const AddEditFolderDialogResult = {
+  Created: "created",
+  Deleted: "deleted",
+} as const;
+
+export type AddEditFolderDialogResult = UnionOfValues<typeof AddEditFolderDialogResult>;
 
 export type AddEditFolderDialogData = {
   /** When provided, dialog will display edit folder variant */
@@ -45,7 +48,6 @@ export type AddEditFolderDialogData = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-add-edit-folder-dialog",
   templateUrl: "./add-edit-folder-dialog.component.html",
   imports: [

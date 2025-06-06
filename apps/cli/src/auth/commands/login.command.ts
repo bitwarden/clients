@@ -32,8 +32,9 @@ import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -77,6 +78,8 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
     protected kdfConfigService: KdfConfigService,
     protected ssoUrlService: SsoUrlService,
+    protected i18nService: I18nService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async run(email: string, password: string, options: OptionValues) {
@@ -105,6 +108,8 @@ export class LoginCommand {
         return Response.badRequest("client_secret is required.");
       }
     } else if (options.sso != null && this.canInteract) {
+      // If the optional Org SSO Identifier isn't provided, the option value is `true`.
+      const orgSsoIdentifier = options.sso === true ? null : options.sso;
       const passwordOptions: any = {
         type: "password",
         length: 64,
@@ -118,7 +123,7 @@ export class LoginCommand {
       const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
       const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
       try {
-        const ssoParams = await this.openSsoPrompt(codeChallenge, state);
+        const ssoParams = await this.openSsoPrompt(codeChallenge, state, orgSsoIdentifier);
         ssoCode = ssoParams.ssoCode;
         orgIdentifier = ssoParams.orgIdentifier;
       } catch {
@@ -220,24 +225,11 @@ export class LoginCommand {
         );
       } else {
         response = await this.loginStrategyService.logIn(
-          new PasswordLoginCredentials(email, password, null, twoFactor),
+          new PasswordLoginCredentials(email, password, twoFactor),
         );
       }
       if (response.requiresEncryptionKeyMigration) {
-        return Response.error(
-          "Encryption key migration required. Please login through the web vault to update your encryption key.",
-        );
-      }
-      if (response.captchaSiteKey) {
-        const credentials = new PasswordLoginCredentials(email, password);
-        const handledResponse = await this.handleCaptchaRequired(twoFactor, credentials);
-
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
-        }
+        return Response.error(this.i18nService.t("legacyEncryptionUnsupported"));
       }
       if (response.requiresTwoFactor) {
         const twoFactorProviders = await this.twoFactorService.getSupportedProviders(null);
@@ -281,11 +273,7 @@ export class LoginCommand {
           }
         }
 
-        if (
-          twoFactorToken == null &&
-          Object.keys(response.twoFactorProviders).length > 1 &&
-          selectedProvider.type === TwoFactorProviderType.Email
-        ) {
+        if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
           const emailReq = new TwoFactorEmailRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           emailReq.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
@@ -310,7 +298,6 @@ export class LoginCommand {
 
         response = await this.loginStrategyService.logInTwoFactor(
           new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken),
-          null,
         );
       }
 
@@ -334,18 +321,6 @@ export class LoginCommand {
         response = await this.loginStrategyService.logInNewDeviceVerification(newDeviceToken);
       }
 
-      if (response.captchaSiteKey) {
-        const twoFactorRequest = new TokenTwoFactorRequest(selectedProvider.type, twoFactorToken);
-        const handledResponse = await this.handleCaptchaRequired(twoFactorRequest);
-
-        // Error Response
-        if (handledResponse instanceof Response) {
-          return handledResponse;
-        } else {
-          response = handledResponse;
-        }
-      }
-
       if (response.requiresTwoFactor) {
         return Response.error("Login failed.");
       }
@@ -361,14 +336,14 @@ export class LoginCommand {
       await this.syncService.fullSync(true);
 
       // Handle updating passwords if NOT using an API Key for authentication
-      if (
-        response.forcePasswordReset != ForceSetPasswordReason.None &&
-        clientId == null &&
-        clientSecret == null
-      ) {
-        if (response.forcePasswordReset === ForceSetPasswordReason.AdminForcePasswordReset) {
+      if (clientId == null && clientSecret == null) {
+        const forceSetPasswordReason = await firstValueFrom(
+          this.masterPasswordService.forceSetPasswordReason$(response.userId),
+        );
+
+        if (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
           return await this.updateTempPassword(response.userId);
-        } else if (response.forcePasswordReset === ForceSetPasswordReason.WeakMasterPassword) {
+        } else if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
           return await this.updateWeakPassword(response.userId, password);
         }
       }
@@ -627,48 +602,6 @@ export class LoginCommand {
     return { newPasswordHash, newUserKey: newUserKey, hint: masterPasswordHint };
   }
 
-  private async handleCaptchaRequired(
-    twoFactorRequest: TokenTwoFactorRequest,
-    credentials: PasswordLoginCredentials = null,
-  ): Promise<AuthResult | Response> {
-    const badCaptcha = Response.badRequest(
-      "Your authentication request has been flagged and will require user interaction to proceed.\n" +
-        "Please use your API key to validate this request and ensure BW_CLIENTSECRET is correct, if set.\n" +
-        "(https://bitwarden.com/help/cli-auth-challenges)",
-    );
-
-    try {
-      const captchaClientSecret = await this.apiClientSecret(true);
-      if (Utils.isNullOrWhitespace(captchaClientSecret)) {
-        return badCaptcha;
-      }
-
-      let authResultResponse: AuthResult = null;
-      if (credentials != null) {
-        credentials.captchaToken = captchaClientSecret;
-        credentials.twoFactor = twoFactorRequest;
-        authResultResponse = await this.loginStrategyService.logIn(credentials);
-      } else {
-        authResultResponse = await this.loginStrategyService.logInTwoFactor(
-          twoFactorRequest,
-          captchaClientSecret,
-        );
-      }
-
-      return authResultResponse;
-    } catch (e) {
-      if (
-        e instanceof ErrorResponse ||
-        (e.constructor.name === ErrorResponse.name &&
-          (e as ErrorResponse).message.includes("Captcha is invalid"))
-      ) {
-        return badCaptcha;
-      } else {
-        return Response.error(e);
-      }
-    }
-  }
-
   private async apiClientId(): Promise<string> {
     let clientId: string = null;
 
@@ -729,6 +662,7 @@ export class LoginCommand {
   private async openSsoPrompt(
     codeChallenge: string,
     state: string,
+    orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
     const env = await firstValueFrom(this.environmentService.environment$);
 
@@ -777,6 +711,8 @@ export class LoginCommand {
               this.ssoRedirectUri,
               state,
               codeChallenge,
+              null,
+              orgSsoIdentifier,
             );
             this.platformUtilsService.launchUri(webAppSsoUrl);
           });

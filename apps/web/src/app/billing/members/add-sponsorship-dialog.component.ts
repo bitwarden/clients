@@ -38,7 +38,6 @@ interface AddSponsorshipDialogParams {
 
 @Component({
   templateUrl: "add-sponsorship-dialog.component.html",
-  standalone: true,
   imports: [
     JslibModule,
     ButtonModule,
@@ -74,7 +73,9 @@ export class AddSponsorshipDialogComponent {
         asyncValidators: [this.isOrganizationMember.bind(this)],
         updateOn: "change",
       }),
-      sponsorshipNote: new FormControl<string | null>("", {}),
+      sponsorshipNote: new FormControl<string | null>("", {
+        validators: [Validators.maxLength(1000)],
+      }),
     });
   }
 
@@ -86,6 +87,8 @@ export class AddSponsorshipDialogComponent {
   }
 
   protected async save() {
+    this.sponsorshipEmailControl.markAllAsTouched();
+
     if (this.sponsorshipForm.invalid) {
       return;
     }

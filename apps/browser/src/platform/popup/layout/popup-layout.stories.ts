@@ -14,6 +14,7 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
+  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -35,7 +36,6 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
       <ng-content></ng-content>
     </div>
   `,
-  standalone: true,
 })
 class ExtensionContainerComponent {}
 
@@ -70,7 +70,6 @@ class ExtensionContainerComponent {}
       </bit-item-group>
     </bit-section>
   `,
-  standalone: true,
   imports: [CommonModule, ItemModule, BadgeModule, IconButtonModule, SectionComponent],
 })
 class VaultComponent {
@@ -81,11 +80,10 @@ class VaultComponent {
   selector: "mock-add-button",
   template: `
     <button bitButton size="small" buttonType="primary" type="button">
-      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
       Add
     </button>
   `,
-  standalone: true,
   imports: [ButtonModule],
 })
 class MockAddButtonComponent {}
@@ -101,7 +99,6 @@ class MockAddButtonComponent {}
       aria-label="Pop out"
     ></button>
   `,
-  standalone: true,
   imports: [IconButtonModule],
 })
 class MockPopoutButtonComponent {}
@@ -113,7 +110,6 @@ class MockPopoutButtonComponent {}
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
-  standalone: true,
   imports: [AvatarModule],
 })
 class MockCurrentAccountComponent {}
@@ -121,7 +117,6 @@ class MockCurrentAccountComponent {}
 @Component({
   selector: "mock-search",
   template: ` <bit-search placeholder="Search"> </bit-search> `,
-  standalone: true,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
@@ -133,7 +128,6 @@ class MockSearchComponent {}
       This is an important note about these ciphers
     </bit-banner>
   `,
-  standalone: true,
   imports: [BannerModule],
 })
 class MockBannerComponent {}
@@ -153,7 +147,6 @@ class MockBannerComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -179,12 +172,10 @@ class MockVaultPageComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
     MockAddButtonComponent,
-    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
   ],
@@ -205,7 +196,6 @@ class MockVaultPagePoppedComponent {}
       <div class="tw-text-main">Generator content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -230,7 +220,6 @@ class MockGeneratorPageComponent {}
       <div class="tw-text-main">Send content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -255,7 +244,6 @@ class MockSendPageComponent {}
       <div class="tw-text-main">Settings content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -283,15 +271,12 @@ class MockSettingsPageComponent {}
       </popup-footer>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
     PopupFooterComponent,
     ButtonModule,
-    MockAddButtonComponent,
     MockPopoutButtonComponent,
-    MockCurrentAccountComponent,
     VaultComponent,
     IconButtonModule,
   ],
@@ -405,26 +390,26 @@ const navButtons = (showBerry = false) => [
   {
     label: "vault",
     page: "/tabs/vault",
-    iconKey: "lock",
-    iconKeyActive: "lock-f",
+    icon: Icons.VaultInactive,
+    iconActive: Icons.VaultActive,
   },
   {
     label: "generator",
     page: "/tabs/generator",
-    iconKey: "generate",
-    iconKeyActive: "generate-f",
+    icon: Icons.GeneratorInactive,
+    iconActive: Icons.GeneratorActive,
   },
   {
     label: "send",
     page: "/tabs/send",
-    iconKey: "send",
-    iconKeyActive: "send-f",
+    icon: Icons.SendInactive,
+    iconActive: Icons.SendActive,
   },
   {
     label: "settings",
     page: "/tabs/settings",
-    iconKey: "cog",
-    iconKeyActive: "cog-f",
+    icon: Icons.SettingsInactive,
+    iconActive: Icons.SettingsActive,
     showBerry: showBerry,
   },
 ];

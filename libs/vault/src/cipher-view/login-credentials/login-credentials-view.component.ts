@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from "@angular/core";
 import { Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,7 +23,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   FormFieldModule,
-  SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   LinkModule,
@@ -35,11 +42,9 @@ type TotpCodeValues = {
 @Component({
   selector: "app-login-credentials-view",
   templateUrl: "login-credentials-view.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     FormFieldModule,
@@ -51,7 +56,7 @@ type TotpCodeValues = {
     LinkModule,
   ],
 })
-export class LoginCredentialsViewComponent {
+export class LoginCredentialsViewComponent implements OnChanges {
   @Input() cipher: CipherView;
   @Input() activeUserId: UserId;
   @Input() hadPendingChangePasswordTask: boolean;
@@ -83,6 +88,13 @@ export class LoginCredentialsViewComponent {
       "short",
     );
     return `${dateCreated} ${creationDate}`;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes["cipher"]) {
+      this.passwordRevealed = false;
+      this.showPasswordCount = false;
+    }
   }
 
   async getPremium(organizationId?: string) {

@@ -57,29 +57,46 @@ window.addEventListener("load", async () => {
  * @param redirectUrl the duo auth url
  */
 export function redirectToDuoFrameless(redirectUrl: string) {
-  // Regex to match a valid duo redirect URL
+  // Validation for Duo redirect URL to prevent open redirect or XSS vulnerabilities
+  // Only used for Duo 2FA redirects in the extension
   /**
    * This regex checks for the following:
-   * The string must start with "https://api-"
-   * Followed by a subdomain that can contain letters, numbers
+   * The hostname must start with a subdomain that begins with "api-" followed by a
+   * string that can contain letters or numbers of indeterminate length
    * Followed by either "duosecurity.com" or "duofederal.com"
    * This ensures that the redirect does not contain any malicious content
    * and is a valid Duo URL.
    * */
-  const duoRedirectUrlRegex = /^https:\/\/api-[a-zA-Z0-9]+\.(duosecurity|duofederal)\.com/;
-  // Check if the redirect URL matches the regex
-  if (!duoRedirectUrlRegex.test(redirectUrl)) {
-    throw new Error("Invalid redirect URL");
-  }
-  // At this point we know the URL to be valid, but we need to check for embedded credentials
+  const duoRedirectUrlRegex = /^api-[a-zA-Z0-9]+\.(duosecurity|duofederal)\.com$/;
   const validateUrl = new URL(redirectUrl);
-  // URLs should not contain
+
   // Check that no embedded credentials are present
   if (validateUrl.username || validateUrl.password) {
     throw new Error("Invalid redirect URL: embedded credentials not allowed");
   }
 
-  window.location.href = decodeURIComponent(redirectUrl);
+  // Check that the protocol is HTTPS
+  if (validateUrl.protocol !== "https:") {
+    throw new Error("Invalid redirect URL: invalid protocol");
+  }
+
+  // Check that the port is not specified
+  if (validateUrl.port && validateUrl.port !== "443") {
+    throw new Error("Invalid redirect URL: port not allowed");
+  }
+
+  if (validateUrl.pathname !== "/oauth/v1/authorize") {
+    throw new Error("Invalid redirect URL: invalid pathname");
+  }
+
+  // Check if the redirect hostname matches the regex
+  // Only check the hostname part of the URL to avoid over-zealous Regex expressions from matching
+  // and causing an Open Redirect vulnerability. Always use hostname instead of host, because host includes port if specified.
+  if (!duoRedirectUrlRegex.test(validateUrl.hostname)) {
+    throw new Error("Invalid redirect URL");
+  }
+
+  window.location.href = redirectUrl;
 }
 
 /**
@@ -91,7 +108,7 @@ function displayHandoffMessage(client: string) {
   if (!content) {
     throw new Error("content element not found");
   }
-  content.className = "text-center";
+  content.className = "tw-text-center";
   content.innerHTML = "";
 
   const h1 = document.createElement("h1");
@@ -106,8 +123,8 @@ function displayHandoffMessage(client: string) {
       ? localeService.t("thisWindowWillCloseIn5Seconds")
       : localeService.t("youMayCloseThisWindow");
 
-  h1.className = "font-weight-semibold";
-  p.className = "mb-4";
+  h1.className = "tw-font-semibold";
+  p.className = "tw-mb-4";
 
   content.appendChild(h1);
   content.appendChild(p);
@@ -116,7 +133,8 @@ function displayHandoffMessage(client: string) {
   if (client == "web") {
     const button = document.createElement("button");
     button.textContent = localeService.t("close");
-    button.className = "bg-primary text-white border-0 rounded py-2 px-3";
+    button.className =
+      "tw-bg-primary-600 hover:tw-bg-primary-700 tw-text-contrast tw-px-4 tw-py-2 tw-rounded-md tw-transition tw-border-transparent tw-text-center focus:tw-outline-none";
 
     button.addEventListener("click", () => {
       window.close();

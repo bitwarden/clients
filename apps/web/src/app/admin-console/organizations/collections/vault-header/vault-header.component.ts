@@ -35,7 +35,6 @@ import {
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 @Component({
-  standalone: true,
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [
@@ -117,7 +116,7 @@ export class VaultHeaderComponent {
   }
 
   get icon() {
-    return this.filter.collectionId !== undefined ? "bwi-collection" : "";
+    return this.filter.collectionId !== undefined ? "bwi-collection-shared" : "";
   }
 
   protected get showBreadcrumbs() {

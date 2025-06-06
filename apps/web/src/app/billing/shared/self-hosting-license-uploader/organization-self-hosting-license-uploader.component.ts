@@ -24,6 +24,7 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
 @Component({
   selector: "organization-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
+  standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
   /**
@@ -51,7 +52,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
 
     const orgKey = await this.keyService.makeOrgKey<OrgKey>();
     const key = orgKey[0].encryptedString;
-    const collection = await this.encryptService.encrypt(
+    const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       orgKey[1],
     );

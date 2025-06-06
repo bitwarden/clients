@@ -3,6 +3,8 @@
 import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -43,6 +45,8 @@ import {
   SECURITY_STAMP_MEMORY,
 } from "./token.state";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum TokenStorageLocation {
   Disk = "disk",
   SecureStorage = "secureStorage",
@@ -289,7 +293,7 @@ export class TokenService implements TokenServiceAbstraction {
   private async encryptAccessToken(accessToken: string, userId: UserId): Promise<EncString> {
     const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
 
-    return await this.encryptService.encrypt(accessToken, accessTokenKey);
+    return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
   private async decryptAccessToken(
@@ -302,7 +306,7 @@ export class TokenService implements TokenServiceAbstraction {
       );
     }
 
-    const decryptedAccessToken = await this.encryptService.decryptToUtf8(
+    const decryptedAccessToken = await this.encryptService.decryptString(
       encryptedAccessToken,
       accessTokenKey,
     );

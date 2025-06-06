@@ -1,3 +1,5 @@
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum PolicyType {
   TwoFactorAuthentication = 0, // Requires users to have 2fa enabled
   MasterPassword = 1, // Sets minimum requirements for master password complexity
@@ -14,4 +16,5 @@ export enum PolicyType {
   AutomaticAppLogIn = 12, // Enables automatic log in of apps from configured identity provider
   FreeFamiliesSponsorshipPolicy = 13, // Disables free families plan for organization
   RemoveUnlockWithPin = 14, // Do not allow members to unlock their account with a PIN.
+  RestrictedItemTypesPolicy = 15, // Restricts item types that can be created within an organization
 }

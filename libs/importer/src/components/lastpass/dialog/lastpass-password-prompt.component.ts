@@ -17,7 +17,6 @@ import {
 
 @Component({
   templateUrl: "lastpass-password-prompt.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

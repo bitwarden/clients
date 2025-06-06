@@ -11,6 +11,7 @@ import { AcceptOrganizationInviteService } from "./organization-invite/accept-or
 @Component({
   selector: "app-set-password",
   templateUrl: "set-password.component.html",
+  standalone: false,
 })
 export class SetPasswordComponent extends BaseSetPasswordComponent {
   routerService = inject(RouterService);

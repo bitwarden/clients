@@ -3,7 +3,6 @@
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -21,34 +20,30 @@ function isSetEqual(a: Set<string>, b: Set<string>) {
 export class DefaultCipherFormService implements CipherFormService {
   private cipherService: CipherService = inject(CipherService);
   private accountService: AccountService = inject(AccountService);
-  private apiService: ApiService = inject(ApiService);
 
   async decryptCipher(cipher: Cipher): Promise<CipherView> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(cipher, activeUserId);
   }
 
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
     // Passing the original cipher is important here as it is responsible for appending to password history
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const encryptedCipher = await this.cipherService.encrypt(
+    const encrypted = await this.cipherService.encrypt(
       cipher,
       activeUserId,
       null,
       null,
       config.originalCipher ?? null,
     );
+    const encryptedCipher = encrypted.cipher;
 
     let savedCipher: Cipher;
 
     // Creating a new cipher
     if (cipher.id == null) {
-      savedCipher = await this.cipherService.createWithServer(encryptedCipher, config.admin);
-      return await savedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
-      );
+      savedCipher = await this.cipherService.createWithServer(encrypted, config.admin);
+      return await this.cipherService.decrypt(savedCipher, activeUserId);
     }
 
     if (config.originalCipher == null) {
@@ -70,13 +65,13 @@ export class DefaultCipherFormService implements CipherFormService {
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
-      savedCipher = await this.cipherService.updateWithServer(encryptedCipher, config.admin);
+      savedCipher = await this.cipherService.updateWithServer(encrypted, config.admin);
     } else {
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
       encryptedCipher.collectionIds = config.originalCipher.collectionIds;
       await this.cipherService.updateWithServer(
-        encryptedCipher,
+        encrypted,
         config.admin || originalCollectionIds.size === 0,
       );
 
@@ -100,8 +95,6 @@ export class DefaultCipherFormService implements CipherFormService {
       return null;
     }
 
-    return await savedCipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(savedCipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(savedCipher, activeUserId);
   }
 }

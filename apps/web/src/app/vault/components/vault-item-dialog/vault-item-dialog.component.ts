@@ -29,6 +29,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -95,32 +96,33 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
-export enum VaultItemDialogResult {
+export const VaultItemDialogResult = {
   /**
    * A cipher was saved (created or updated).
    */
-  Saved = "saved",
+  Saved: "saved",
 
   /**
    * A cipher was deleted.
    */
-  Deleted = "deleted",
+  Deleted: "deleted",
 
   /**
    * The dialog was closed to navigate the user the premium upgrade page.
    */
-  PremiumUpgrade = "premiumUpgrade",
+  PremiumUpgrade: "premiumUpgrade",
 
   /**
    * A cipher was restored
    */
-  Restored = "restored",
-}
+  Restored: "restored",
+} as const;
+
+export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
 
 @Component({
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CipherViewComponent,
@@ -460,14 +462,27 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      const updatedCipher = await this.cipherService.get(
-        this.formConfig.originalCipher?.id,
-        activeUserId,
-      );
 
-      const updatedCipherView = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      let updatedCipherView: CipherView;
+
+      if (this.formConfig.admin) {
+        const cipherResponse = await this.apiService.getCipherAdmin(
+          this.formConfig.originalCipher?.id,
+        );
+        const cipherData = new CipherData(cipherResponse);
+        const cipher = new Cipher(cipherData);
+
+        updatedCipherView = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+        );
+      } else {
+        const updatedCipher = await this.cipherService.get(
+          this.formConfig.originalCipher?.id,
+          activeUserId,
+        );
+
+        updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
+      }
 
       this.cipherFormComponent.patchCipher((currentCipher) => {
         currentCipher.attachments = updatedCipherView.attachments;
@@ -503,9 +518,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    return await config.originalCipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(config.originalCipher, activeUserId),
-    );
+    return await this.cipherService.decrypt(config.originalCipher, activeUserId);
   }
 
   private updateTitle() {

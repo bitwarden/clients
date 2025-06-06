@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DialogModule,
@@ -17,17 +18,20 @@ import { CipherAttachmentsComponent } from "../../cipher-form/components/attachm
 
 export interface AttachmentsDialogParams {
   cipherId: CipherId;
+  admin?: boolean;
   organizationId?: OrganizationId;
 }
 
 /**
  * Enum representing the possible results of the attachment dialog.
  */
-export enum AttachmentDialogResult {
-  Uploaded = "uploaded",
-  Removed = "removed",
-  Closed = "closed",
-}
+export const AttachmentDialogResult = {
+  Uploaded: "uploaded",
+  Removed: "removed",
+  Closed: "closed",
+} as const;
+
+export type AttachmentDialogResult = UnionOfValues<typeof AttachmentDialogResult>;
 
 export interface AttachmentDialogCloseResult {
   action: AttachmentDialogResult;
@@ -39,11 +43,11 @@ export interface AttachmentDialogCloseResult {
 @Component({
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
-  standalone: true,
   imports: [ButtonModule, CommonModule, DialogModule, I18nPipe, CipherAttachmentsComponent],
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
+  admin: boolean = false;
   organizationId?: OrganizationId;
   attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
 
@@ -58,6 +62,7 @@ export class AttachmentsV2Component {
   ) {
     this.cipherId = params.cipherId;
     this.organizationId = params.organizationId;
+    this.admin = params.admin ?? false;
   }
 
   /**

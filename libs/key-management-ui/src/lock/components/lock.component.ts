@@ -77,7 +77,6 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -120,8 +119,6 @@ export class LockComponent implements OnInit, OnDestroy {
   // masterPassword = "";
   showPassword = false;
   private enforcedMasterPasswordOptions?: MasterPasswordPolicyOptions = undefined;
-
-  forcePasswordResetRoute = "update-temp-password";
 
   formGroup: FormGroup | null = null;
 
@@ -391,6 +388,8 @@ export class LockComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.logService.error("[LockComponent] Failed to unlock via biometrics.", e);
+
       let biometricTranslatedErrorDesc;
 
       if (this.clientType === "browser") {
@@ -558,6 +557,15 @@ export class LockComponent implements OnInit, OnDestroy {
       masterPasswordVerificationResponse!.masterKey,
       this.activeAccount.id,
     );
+    if (userKey == null) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
+      return;
+    }
+
     await this.setUserKeyAndContinue(userKey, true);
   }
 
@@ -605,8 +613,6 @@ export class LockComponent implements OnInit, OnDestroy {
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
           );
-          await this.router.navigate([this.forcePasswordResetRoute]);
-          return;
         }
       } catch (e) {
         // Do not prevent unlock if there is an error evaluating policies

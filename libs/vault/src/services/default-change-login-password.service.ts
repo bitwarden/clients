@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -9,7 +10,10 @@ import { ChangeLoginPasswordService } from "../abstractions/change-login-passwor
 
 @Injectable()
 export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordService {
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private platformUtilsService: PlatformUtilsService,
+  ) {}
 
   /**
    * @inheritDoc
@@ -27,6 +31,14 @@ export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordSer
 
     if (urls.length === 0) {
       return null;
+    }
+
+    // CSP policies on the web and desktop restrict the application from making
+    // cross-origin requests, breaking the below .well-known URL checks.
+    // For those platforms, this will short circuit and return the first URL.
+    // PM-21024 will build a solution for the server side to handle this.
+    if (this.platformUtilsService.getClientType() !== "browser") {
+      return urls[0].href;
     }
 
     for (const url of urls) {
