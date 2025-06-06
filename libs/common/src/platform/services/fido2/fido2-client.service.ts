@@ -127,9 +127,9 @@ export class Fido2ClientService<ParentWindowReference>
     }
 
     const userId = Fido2Utils.stringToBuffer(params.user.id);
-    if (userId.length < 1 || userId.length > 64) {
+    if (userId.byteLength < 1 || userId.byteLength > 64) {
       this.logService?.warning(
-        `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.length})`,
+        `[Fido2Client] Invalid 'user.id' length: ${params.user.id} (${userId.byteLength})`,
       );
       throw new TypeError("Invalid 'user.id' length");
     }

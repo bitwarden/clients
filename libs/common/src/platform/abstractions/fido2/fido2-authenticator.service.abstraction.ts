@@ -70,7 +70,7 @@ export class Fido2AuthenticatorError extends Error {
 }
 
 export interface PublicKeyCredentialDescriptor {
-  id: Uint8Array;
+  id: ArrayBuffer;
   transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
   type: "public-key";
 }
@@ -155,9 +155,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
 
 export interface Fido2AuthenticatorGetAssertionResult {
   selectedCredential: {
-    id: Uint8Array;
-    userHandle?: Uint8Array;
+    id: ArrayBuffer;
+    userHandle?: ArrayBuffer;
   };
-  authenticatorData: Uint8Array;
-  signature: Uint8Array;
+  authenticatorData: ArrayBuffer;
+  signature: ArrayBuffer;
 }
