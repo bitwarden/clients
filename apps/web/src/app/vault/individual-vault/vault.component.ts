@@ -66,8 +66,13 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
+import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -150,7 +155,7 @@ const SearchTextDebounceInterval = 200;
     DefaultCipherFormConfigService,
   ],
 })
-export class VaultComponent implements OnInit, OnDestroy {
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
 
   trashCleanupWarning: string = null;
@@ -166,7 +171,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected canAccessPremium: boolean;
   protected allCollections: CollectionView[];
   protected allOrganizations: Organization[] = [];
-  protected ciphers: CipherView[];
+  protected ciphers: C[];
   protected collections: CollectionView[];
   protected isEmpty: boolean;
   protected selectedCollection: TreeNode<CollectionView> | undefined;
@@ -354,8 +359,22 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
+    const _ciphers = this.configService
+      .getFeatureFlag$(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+      .pipe(
+        switchMap((useSdk) => {
+          if (useSdk) {
+            return this.cipherService
+              .cipherListViews$(activeUserId)
+              .pipe(filter((c) => c !== null));
+          }
+
+          return this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null));
+        }),
+      ) as Observable<C[]>;
+
     const ciphers$ = combineLatest([
-      this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
+      _ciphers,
       filter$,
       this.currentSearchText$,
       this.restrictedItemTypesService.restricted$,
@@ -366,18 +385,18 @@ export class VaultComponent implements OnInit, OnDestroy {
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter, restrictedTypes);
         // Append any failed to decrypt ciphers to the top of the cipher list
+        // TODO: handle failed ciphers once available in the SDK
         const allCiphers = [...failedCiphers, ...ciphers];
-
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
-          return await this.searchService.searchCiphers(
+          return await this.searchService.searchCiphers<C>(
             activeUserId,
             searchText,
             [filterFunction],
-            allCiphers,
+            ciphers,
           );
         }
 
-        return allCiphers.filter(filterFunction);
+        return ciphers.filter(filterFunction);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -561,7 +580,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.vaultFilterService.clearOrganizationFilter();
   }
 
-  async onVaultItemsEvent(event: VaultItemEvent) {
+  async onVaultItemsEvent(event: VaultItemEvent<C>) {
     this.processingEvent = true;
     try {
       switch (event.type) {
@@ -649,7 +668,7 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @param cipher
    * @returns
    */
-  async editCipherAttachments(cipher: CipherView) {
+  async editCipherAttachments(cipher: C) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       await this.go({ cipherId: null, itemId: null });
       return;
@@ -756,7 +775,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.openVaultItemDialog("form", cipherFormConfig);
   }
 
-  async editCipher(cipher: CipherView, cloneMode?: boolean) {
+  async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
     return this.editCipherId(cipher?.id, cloneMode);
   }
 
@@ -924,7 +943,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkAssignToCollections(ciphers: CipherView[]) {
+  async bulkAssignToCollections(ciphers: C[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -950,9 +969,28 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
     }
 
+    let ciphersToAssign: CipherView[];
+
+    // Convert `CipherListView` to `CipherView` if necessary
+    if (ciphers.some(CipherViewLikeUtils.isCipherListView)) {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      ciphersToAssign = await firstValueFrom(
+        this.cipherService
+          .cipherViews$(userId)
+          .pipe(
+            map(
+              (cipherViews) =>
+                cipherViews.filter((c) => ciphers.some((cc) => cc.id === c.id)) as CipherView[],
+            ),
+          ),
+      );
+    } else {
+      ciphersToAssign = ciphers as CipherView[];
+    }
+
     const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
       data: {
-        ciphers,
+        ciphers: ciphersToAssign,
         organizationId: orgId as OrganizationId,
         availableCollections,
         activeCollection: this.activeFilter?.selectedCollectionNode?.node,
@@ -965,8 +1003,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async cloneCipher(cipher: CipherView) {
-    if (cipher.login?.hasFido2Credentials) {
+  async cloneCipher(cipher: CipherView | CipherListView) {
+    const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+
+    if (login && login.fido2Credentials && login.fido2Credentials?.length > 0) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -981,8 +1021,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     await this.editCipher(cipher, true);
   }
 
-  restore = async (c: CipherView): Promise<boolean> => {
-    if (!c.isDeleted) {
+  restore = async (c: C): Promise<boolean> => {
+    if (!CipherViewLikeUtils.isDeleted(c)) {
       return;
     }
 
@@ -1009,7 +1049,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   };
 
-  async bulkRestore(ciphers: CipherView[]) {
+  async bulkRestore(ciphers: C[]) {
     if (ciphers.some((c) => !c.edit)) {
       this.showMissingPermissionsError();
       return;
@@ -1038,8 +1078,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.refresh();
   }
 
-  private async handleDeleteEvent(items: VaultItem[]) {
-    const ciphers = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
+  private async handleDeleteEvent(items: VaultItem<C>[]) {
+    const ciphers: C[] = items.filter((i) => i.collection === undefined).map((i) => i.cipher);
     const collections = items.filter((i) => i.cipher === undefined).map((i) => i.collection);
     if (ciphers.length === 1 && collections.length === 0) {
       await this.deleteCipher(ciphers[0]);
@@ -1056,7 +1096,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteCipher(c: CipherView): Promise<boolean> {
+  async deleteCipher(c: C): Promise<boolean> {
     if (!(await this.repromptCipher([c]))) {
       return;
     }
@@ -1066,7 +1106,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const permanent = c.isDeleted;
+    const permanent = CipherViewLikeUtils.isDeleted(c);
 
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: permanent ? "permanentlyDeleteItem" : "deleteItem" },
@@ -1093,11 +1133,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkDelete(
-    ciphers: CipherView[],
-    collections: CollectionView[],
-    organizations: Organization[],
-  ) {
+  async bulkDelete(ciphers: C[], collections: CollectionView[], organizations: Organization[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -1136,7 +1172,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async bulkMove(ciphers: CipherView[]) {
+  async bulkMove(ciphers: C[]) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
     }
@@ -1161,22 +1197,32 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async copy(cipher: CipherView, field: "username" | "password" | "totp") {
+  async copy(cipher: C, field: "username" | "password" | "totp") {
     let aType;
     let value;
     let typeI18nKey;
 
+    const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+
+    if (!login) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
+    }
+
     if (field === "username") {
       aType = "Username";
-      value = cipher.login.username;
+      value = login.username;
       typeI18nKey = "username";
     } else if (field === "password") {
       aType = "Password";
-      value = cipher.login.password;
+      value = "login.password"; // TODO need the password for the sdk
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
-      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(login.totp));
       value = totpResponse.code;
       typeI18nKey = "verificationCodeTotp";
     } else {
@@ -1222,7 +1268,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       : this.cipherService.softDeleteWithServer(id, userId);
   }
 
-  protected async repromptCipher(ciphers: CipherView[]) {
+  protected async repromptCipher(ciphers: C[]) {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());

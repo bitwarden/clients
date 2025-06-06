@@ -5,8 +5,12 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import {
   convertToPermission,
@@ -20,11 +24,11 @@ import { RowHeightClass } from "./vault-items.component";
   templateUrl: "vault-cipher-row.component.html",
   standalone: false,
 })
-export class VaultCipherRowComponent implements OnInit {
+export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   protected RowHeightClass = RowHeightClass;
 
   @Input() disabled: boolean;
-  @Input() cipher: CipherView;
+  @Input() cipher: C;
   @Input() showOwner: boolean;
   @Input() showCollections: boolean;
   @Input() showGroups: boolean;
@@ -46,7 +50,7 @@ export class VaultCipherRowComponent implements OnInit {
    */
   @Input() canRestoreCipher: boolean;
 
-  @Output() onEvent = new EventEmitter<VaultItemEvent>();
+  @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
@@ -74,33 +78,65 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get clickAction() {
-    if (this.cipher.decryptionFailure) {
+    if ("decryptionFailure" in this.cipher && this.cipher.decryptionFailure) {
       return "showFailedToDecrypt";
     }
+
     return "view";
   }
 
   protected get showTotpCopyButton() {
-    return (
-      (this.cipher.login?.hasTotp ?? false) &&
-      (this.cipher.organizationUseTotp || this.showPremiumFeatures)
-    );
+    const login = CipherViewLikeUtils.getCipherViewLikeLogin(this.cipher);
+
+    const hasTotp = login?.totp ?? false;
+
+    return hasTotp && (this.cipher.organizationUseTotp || this.showPremiumFeatures);
   }
 
   protected get showFixOldAttachments() {
-    return this.cipher.hasOldAttachments && this.cipher.organizationId == null;
+    // hasOldAttachments is missing from CipherListView, so we check for CipherView
+    if ("hasOldAttachments" in this.cipher) {
+      return this.cipher.hasOldAttachments && this.cipher.organizationId != null;
+    }
+
+    // Need to handle CipherListView case
+    return false;
+  }
+
+  protected get hasAttachments() {
+    return CipherViewLikeUtils.hasAttachments(this.cipher);
   }
 
   protected get showAttachments() {
-    return this.canEditCipher || this.cipher.attachments?.length > 0;
+    return this.canEditCipher || this.hasAttachments;
+  }
+
+  protected get canLaunch() {
+    return CipherViewLikeUtils.canLaunch(this.cipher);
+  }
+
+  protected get launchUri() {
+    return CipherViewLikeUtils.getLaunchUri(this.cipher);
+  }
+
+  protected get subtitle() {
+    return CipherViewLikeUtils.subtitle(this.cipher);
+  }
+
+  protected get isDeleted() {
+    return CipherViewLikeUtils.isDeleted(this.cipher);
   }
 
   protected get showAssignToCollections() {
-    return this.organizations?.length && this.canAssignCollections && !this.cipher.isDeleted;
+    return (
+      this.organizations?.length &&
+      this.canAssignCollections &&
+      !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
   protected get showClone() {
-    return this.cloneable && !this.cipher.isDeleted;
+    return this.cloneable && !CipherViewLikeUtils.isDeleted(this.cipher);
   }
 
   protected get showEventLogs() {
@@ -108,7 +144,10 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get isNotDeletedLoginCipher() {
-    return this.cipher.type === this.CipherType.Login && !this.cipher.isDeleted;
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Login &&
+      !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
   protected get permissionText() {
@@ -154,7 +193,7 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.cipher.login.canLaunch;
+    return this.isNotDeletedLoginCipher && this.canLaunch;
   }
 
   protected get disableMenu() {
@@ -166,7 +205,7 @@ export class VaultCipherRowComponent implements OnInit {
       this.showAttachments ||
       this.showClone ||
       this.canEditCipher ||
-      this.cipher.isDeleted
+      CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
 
