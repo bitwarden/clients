@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "サービスが利用できません"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "暗号化キーの移行が必要です。暗号化キーを更新するには、ウェブ保管庫からログインしてください。"
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "プレミアム会員"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "アクティブな Send なし",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Send を使用すると暗号化された情報を誰とでも安全に共有できます。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

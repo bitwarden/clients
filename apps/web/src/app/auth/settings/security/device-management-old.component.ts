@@ -46,7 +46,6 @@ interface DeviceTableData {
 @Component({
   selector: "app-device-management",
   templateUrl: "./device-management-old.component.html",
-  standalone: true,
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
 export class DeviceManagementOldComponent {

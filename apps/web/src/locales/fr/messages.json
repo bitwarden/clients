@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement vous verrouiller l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pourriez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver en lieu sûr."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Supprimer le type d'élément de la carte"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Ne pas autoriser les membres à créer des types d'objets de carte."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "La mise à jour de la clé de chiffrement ne peut pas continuer"
-  },
   "editFieldLabel": {
     "message": "Modifier $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Lors de la mise à jour de votre clé de chiffrement, vos dossiers n'ont pas pu être déchiffrés. Pour continuer avec la mise à jour, vos dossiers doivent être supprimés. Aucun élément du coffre ne sera supprimé si vous continuez."
-  },
-  "keyUpdated": {
-    "message": "Clé mise à jour"
-  },
-  "updateEncryptionKey": {
-    "message": "Mettre à jour la clé de chiffrement"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Nous avons modifié le schéma de chiffrement pour améliorer la sécurité. Mettez à jour votre clé de chiffrement maintenant en entrant votre mot de passe principal ci-dessous."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "L'ancien chiffrement n'est plus pris en charge. Veuillez contacter le support pour récupérer votre compte."
   },
   "subscription": {
     "message": "Abonnement"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aucun Send actif",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Utilisez Send pour partager en toute sécurité des informations chiffrées avec tout le monde.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Inviter des utilisateurs"

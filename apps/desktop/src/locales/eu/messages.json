@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Eranskinaren gehienezko tamaina 500MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Karpeta editatuta"

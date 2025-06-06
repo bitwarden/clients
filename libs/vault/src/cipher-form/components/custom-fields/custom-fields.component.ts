@@ -155,7 +155,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     // Populate options for linked custom fields
     this.linkedFieldOptions = optionsArray.map(([id, linkedFieldOption]) => ({
       name: this.i18nService.t(linkedFieldOption.i18nKey),
-      value: id,
+      value: id as LinkedIdType,
     }));
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();

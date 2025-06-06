@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "התכונה אינה זמינה"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "נדרשת הגירת מפתח הצפנה. נא להיכנס דרך כספת הרשת כדי לעדכן את מפתח ההצפנה שלך."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "חברות פרימיום"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "אין סֵנְדים פעילים",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "השתמש בסֵנְד כדי לשתף באופן מאובטח מידע מוצפן עם כל אחד.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

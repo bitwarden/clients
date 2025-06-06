@@ -47,6 +47,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogRef,
   CardComponent,
@@ -81,7 +82,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 @Component({
   templateUrl: "account-security.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,
@@ -157,6 +157,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private biometricsService: BiometricsService,
     private vaultNudgesService: NudgesService,
+    private validationService: ValidationService,
     private configService: ConfigService,
   ) {}
 
@@ -529,13 +530,19 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.keyService.refreshAdditionalKeys();
+      try {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.keyService.refreshAdditionalKeys(userId);
 
-      const successful = await this.trySetupBiometrics();
-      this.form.controls.biometric.setValue(successful);
-      await this.biometricStateService.setBiometricUnlockEnabled(successful);
-      if (!successful) {
-        await this.biometricStateService.setFingerprintValidated(false);
+        const successful = await this.trySetupBiometrics();
+        this.form.controls.biometric.setValue(successful);
+        await this.biometricStateService.setBiometricUnlockEnabled(successful);
+        if (!successful) {
+          await this.biometricStateService.setFingerprintValidated(false);
+        }
+      } catch (error) {
+        this.form.controls.biometric.setValue(false);
+        this.validationService.showError(error);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);
