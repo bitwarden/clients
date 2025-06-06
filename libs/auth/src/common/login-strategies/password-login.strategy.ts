@@ -12,6 +12,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -38,6 +39,8 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
    * a password that does not meet an organization's master password policy.
    */
   forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
+
+  passwordPolicy: MasterPasswordPolicyOptions;
 
   static fromJSON(obj: Jsonify<PasswordLoginStrategyData>): PasswordLoginStrategyData {
     const data = Object.assign(new PasswordLoginStrategyData(), obj, {
@@ -75,7 +78,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
-  override async logIn(credentials: PasswordLoginCredentials) {
+  override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
     const { email, masterPassword, twoFactor } = credentials;
 
     const data = new PasswordLoginStrategyData();
@@ -96,6 +99,14 @@ export class PasswordLoginStrategy extends LoginStrategy {
       await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
+
+    // TODO: add master password policy conditions to the cache so that it is available after 2fa for password evaluation
+    // This should work, need to verify the case where a user is invited to an org and has 2fa.
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      data.passwordPolicy = credentials.masterPasswordPoliciesFromOrgInvite;
+    }
 
     this.cache.next(data);
 
@@ -167,11 +178,26 @@ export class PasswordLoginStrategy extends LoginStrategy {
     }
 
     // The identity result can contain master password policies for the user's organizations
-    const masterPasswordPolicyOptions =
-      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+    let masterPasswordPolicyOptions: MasterPasswordPolicyOptions | undefined;
 
-    if (!masterPasswordPolicyOptions?.enforceOnLogin) {
-      return;
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      // !IMPORTANT! Take credentials from a potential org invite first, then take from
+      masterPasswordPolicyOptions = credentials.masterPasswordPoliciesFromOrgInvite
+        ? credentials.masterPasswordPoliciesFromOrgInvite
+        : this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+
+      if (!masterPasswordPolicyOptions?.enforceOnLogin) {
+        return;
+      }
+    } else {
+      masterPasswordPolicyOptions =
+        this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
+
+      if (!masterPasswordPolicyOptions?.enforceOnLogin) {
+        return;
+      }
     }
 
     // If there is a policy active, evaluate the supplied password before its no longer in memory
