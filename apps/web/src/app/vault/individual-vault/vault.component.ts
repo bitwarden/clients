@@ -1211,7 +1211,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       typeI18nKey = "username";
     } else if (field === "password") {
       aType = "Password";
-      value = "login.password"; // TODO need the password for the sdk
+      value = await this.getPasswordFromCipherViewLike(cipher);
       typeI18nKey = "password";
     } else if (field === "totp") {
       aType = "TOTP";
@@ -1296,6 +1296,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       title: null,
       message: this.i18nService.t("missingPermissions"),
     });
+  }
+
+  /**
+   * Returns the password for a `CipherViewLike` object.
+   * `CipherListView` does not contain the password, the full `CipherView` needs to be fetched.
+   */
+  private async getPasswordFromCipherViewLike(cipher: C): Promise<string | undefined> {
+    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
+      return Promise.resolve(cipher.login?.password);
+    }
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const _cipher = await this.cipherService.get(cipher.id, activeUserId);
+    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+    return cipherView.login?.password;
   }
 }
 
