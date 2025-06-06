@@ -242,14 +242,6 @@ const devServer =
         headers: (req) => {
           if (!req.originalUrl.includes("connector.html")) {
             return {
-              /**
-               * SHA guide:
-               * - sha256-47DEQ.... = date input polyfill
-               * - sha256-JVRXy.... = date input polyfill
-               * - sha256-EnIJN.... = ng-select
-               * - sha256-dbBsI.... = cdk-virtual-scroll
-               * - sha256-S+uMh.... = cdk-visually-hidden
-               */
               "Content-Security-Policy": `
                 default-src 'self'
                 ;script-src
@@ -263,11 +255,11 @@ const devServer =
                   'self'
                   https://assets.braintreegateway.com
                   https://*.paypal.com
-                  'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
-                  'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
-                  'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='
-                  'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='
-                  'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='
+                  'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='${/* date input polyfill */ ""}
+                  'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='${/* date input polyfill */ ""}
+                  'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='${/* ng-select */ ""}
+                  'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='${/* cdk-virtual-scroll */ ""}
+                  'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='${/* cdk-visually-hidden */ ""}
                 ;img-src
                   'self'
                   data:
