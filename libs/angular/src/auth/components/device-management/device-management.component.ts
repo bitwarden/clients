@@ -3,6 +3,8 @@ import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AuthRequestApiService,
   DeviceManagementComponentServiceAbstraction,
@@ -214,7 +216,7 @@ export class DeviceManagementComponent implements OnInit {
   private getDeviceIcon(type: DeviceType): string {
     const defaultIcon = "bwi bwi-desktop";
     const categoryIconMap: Record<string, string> = {
-      webVault: "bwi bwi-browser",
+      webApp: "bwi bwi-browser",
       desktop: "bwi bwi-desktop",
       mobile: "bwi bwi-mobile",
       cli: "bwi bwi-cli",
