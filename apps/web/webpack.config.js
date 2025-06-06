@@ -242,6 +242,14 @@ const devServer =
         headers: (req) => {
           if (!req.originalUrl.includes("connector.html")) {
             return {
+              /**
+               * SHA guide:
+               * - sha256-47DEQ.... = date input polyfill
+               * - sha256-JVRXy.... = date input polyfill
+               * - sha256-EnIJN.... = ng-select
+               * - sha256-dbBsI.... = cdk-virtual-scroll
+               * - sha256-S+uMh.... = cdk-visually-hidden
+               */
               "Content-Security-Policy": `
                 default-src 'self'
                 ;script-src
@@ -257,9 +265,9 @@ const devServer =
                   https://*.paypal.com
                   'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
                   'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
-                  'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
-                  'sha256-jvLh2uL2/Pq/gpvNJMaEL4C+TNhBeGadLIUyPcVRZvY='
                   'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='
+                  'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='
+                  'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='
                 ;img-src
                   'self'
                   data:
