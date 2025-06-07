@@ -44,7 +44,7 @@ export class ColorPasswordComponent {
 
   @HostBinding("class")
   get classList() {
-    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-all"];
+    return ["tw-min-w-0", "tw-whitespace-pre-wrap", "tw-break-words"];
   }
 
   getCharacterClass(character: string) {
