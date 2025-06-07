@@ -18,6 +18,7 @@
   "scripts": {
     "postinstall": "electron-rebuild",
     "start": "cross-env ELECTRON_IS_DEV=0 ELECTRON_NO_UPDATER=1 electron ./build",
+    "build-native-macos": "cd desktop_native && ./macos_provider/build.sh && node build.js cross-platform",
     "build-native": "cd desktop_native && node build.js",
     "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" concurrently -n Main,Rend,Prel -c yellow,cyan \"npm run build:main\" \"npm run build:renderer\" \"npm run build:preload\"",
     "build:dev": "concurrently -n Main,Rend -c yellow,cyan \"npm run build:main:dev\" \"npm run build:renderer:dev\"",
@@ -46,6 +47,7 @@
     "pack:mac:mas:with-extension": "npm run clean:dist && npm run build:macos-extension:mas && electron-builder --mac mas --universal -p never",
     "pack:mac:masdev": "npm run clean:dist && electron-builder --mac mas-dev --universal -p never",
     "pack:mac:masdev:with-extension": "npm run clean:dist && npm run build:macos-extension:masdev && electron-builder --mac mas-dev --universal -p never",
+    "pack:local:mac:masdev:with-extension": "npm run clean:dist && npm run build:macos-extension:masdev && electron-builder --mac mas-dev --universal -p never -c.mac.provisioningProfile=\"\" -c.mas.provisioningProfile=\"\"",
     "pack:win": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never -c.win.certificateSubjectName=\"8bit Solutions LLC\"",
     "pack:win:ci": "npm run clean:dist && electron-builder --win --x64 --arm64 --ia32 -p never",
     "dist:dir": "npm run build && npm run pack:dir",
