@@ -6,10 +6,13 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { SigningKey } from "@bitwarden/common/key-management/keys/models/signing-key";
+import { VerifyingKey } from "@bitwarden/common/key-management/keys/models/verifying-key";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -69,6 +72,7 @@ export class UserKeyRotationService {
     private configService: ConfigService,
     private cryptoFunctionService: CryptoFunctionService,
     private kdfConfigService: KdfConfigService,
+    private sdkClientFactory: SdkClientFactory,
   ) {}
 
   /**
@@ -119,21 +123,33 @@ export class UserKeyRotationService {
         "User encrypted private key",
       ))!,
     );
+    const signingKey = await firstValueFrom(this.keyService.userSigningKey$(user.id));
 
     // Update account keys
     // This creates at least a new user key, and possibly upgrades user encryption formats
     let newUserKey: UserKey;
     let wrappedPrivateKey: EncString;
     let publicKey: string;
+    let signedPublicKey: string | null = null;
+    let wrappedSigningKey: EncString | null = null;
+    let verifyingKey: string | null = null;
     if (upgradeToV2FeatureFlagEnabled) {
       this.logService.info("[Userkey rotation] Using v2 account keys");
-      const { userKey, asymmetricEncryptionKeys } = await this.getNewAccountKeysV2(
-        currentUserKey,
-        currentUserKeyWrappedPrivateKey,
-      );
+      const { userKey, asymmetricEncryptionKeys, signatureKeyPair } =
+        await this.getNewAccountKeysV2(
+          currentUserKey,
+          currentUserKeyWrappedPrivateKey,
+          signingKey.inner(),
+          user.id,
+          masterKeyKdfConfig,
+          user.email,
+        );
       newUserKey = userKey;
       wrappedPrivateKey = asymmetricEncryptionKeys.wrappedPrivateKey;
       publicKey = asymmetricEncryptionKeys.publicKey;
+      signedPublicKey = asymmetricEncryptionKeys.signedPublicKey;
+      wrappedSigningKey = signatureKeyPair.wrappedSigningKey;
+      verifyingKey = signatureKeyPair.verifyingKey;
     } else {
       this.logService.info("[Userkey rotation] Using v1 account keys");
       const { userKey, asymmetricEncryptionKeys } = await this.getNewAccountKeysV1(
@@ -160,7 +176,13 @@ export class UserKeyRotationService {
         trustedEmergencyAccessUserPublicKeys,
         trustedOrganizationPublicKeys,
       ),
-      new AccountKeysRequest(wrappedPrivateKey.encryptedString!, publicKey),
+      new AccountKeysRequest(
+        wrappedPrivateKey.encryptedString!,
+        publicKey,
+        signedPublicKey,
+        wrappedSigningKey,
+        verifyingKey,
+      ),
       await this.getAccountDataRequest(currentUserKey, newUserKey, user),
       await this.makeServerMasterKeyAuthenticationHash(
         currentMasterPassword,
@@ -232,14 +254,93 @@ export class UserKeyRotationService {
   protected async getNewAccountKeysV2(
     currentUserKey: UserKey,
     currentUserKeyWrappedPrivateKey: EncString,
+    currentSigningKey: EncString | null,
+    userId: UserId,
+    kdfConfig: KdfConfig,
+    email: string,
   ): Promise<{
     userKey: UserKey;
     asymmetricEncryptionKeys: {
       wrappedPrivateKey: EncString;
       publicKey: string;
+      signedPublicKey?: string | null;
+    };
+    signatureKeyPair?: {
+      wrappedSigningKey: SigningKey;
+      verifyingKey: VerifyingKey;
     };
   }> {
-    throw new Error("User encryption v2 upgrade is not supported yet");
+    // Account key rotation creates a new userkey. All downstream data and keys need to be re-encrypted under this key.
+    // Further, this method is used to create new keys in the event that the key hierarchy changes, such as for the
+    // creation of a new signing key pair.
+    const { newUserKey } = await this.makeNewUserKeyV2(currentUserKey);
+
+    // Re-encrypt the private key with the new user key
+    // Rotation of the private key is not supported yet
+    const privateKey = await this.encryptService.unwrapDecapsulationKey(
+      currentUserKeyWrappedPrivateKey,
+      currentUserKey,
+    );
+    const newUserKeyWrappedPrivateKey = await this.encryptService.wrapDecapsulationKey(
+      privateKey,
+      newUserKey,
+    );
+    const publicKey = await this.cryptoFunctionService.rsaExtractPublicKey(privateKey);
+
+    const sdk = await this.sdkClientFactory.createSdkClient();
+    await sdk.crypto().initialize_user_crypto({
+      userId: userId,
+      kdfParams: kdfConfig.toSdkConfig(),
+      email: email,
+      privateKey: newUserKeyWrappedPrivateKey.encryptedString!,
+      signingKey: null,
+      method: {
+        decryptedKey: { decrypted_user_key: newUserKey.toBase64() },
+      },
+    });
+
+    if (currentSigningKey == null) {
+      const signatureKeyPairEnrollmentResponse = sdk.crypto().make_signing_keys_for_enrollment();
+      return {
+        userKey: newUserKey,
+        asymmetricEncryptionKeys: {
+          wrappedPrivateKey: newUserKeyWrappedPrivateKey,
+          publicKey: Utils.fromBufferToB64(publicKey),
+          signedPublicKey: signatureKeyPairEnrollmentResponse.signedPublicKey,
+        },
+        signatureKeyPair: {
+          wrappedSigningKey: new SigningKey(signatureKeyPairEnrollmentResponse.signingKey),
+          verifyingKey: new VerifyingKey(signatureKeyPairEnrollmentResponse.verifyingKey),
+        },
+      };
+    } else {
+      const sdkWithSigningKey = await this.sdkClientFactory.createSdkClient();
+      await sdkWithSigningKey.crypto().initialize_user_crypto({
+        userId: userId,
+        kdfParams: kdfConfig.toSdkConfig(),
+        email: email,
+        privateKey: currentUserKeyWrappedPrivateKey.encryptedString!,
+        signingKey: currentSigningKey.encryptedString!,
+        method: {
+          decryptedKey: { decrypted_user_key: newUserKey.toBase64() },
+        },
+      });
+      const rotatedSignatureKeys = sdkWithSigningKey
+        .crypto()
+        .rotate_account_keys(newUserKey.toBase64());
+      return {
+        userKey: newUserKey,
+        asymmetricEncryptionKeys: {
+          wrappedPrivateKey: new EncString(rotatedSignatureKeys.privateKey),
+          publicKey: rotatedSignatureKeys.publicKey,
+          signedPublicKey: rotatedSignatureKeys.signedPublicKey,
+        },
+        signatureKeyPair: {
+          wrappedSigningKey: new SigningKey(rotatedSignatureKeys.signingKey),
+          verifyingKey: new VerifyingKey(rotatedSignatureKeys.verifyingKey),
+        },
+      };
+    }
   }
 
   protected async createMasterPasswordUnlockDataRequest(

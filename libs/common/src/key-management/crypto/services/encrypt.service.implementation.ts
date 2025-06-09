@@ -40,27 +40,27 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Proxy functions; Their implementation are temporary before moving at this level to the SDK
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
-    return this.encrypt(plainValue, key);
+    return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
   }
 
   async encryptBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
-    return this.encrypt(plainValue, key);
+    return new EncString(PureCrypto.symmetric_encrypt_bytes(plainValue, key.toEncoded()));
   }
 
   async encryptFileData(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
-    return this.encryptToBytes(plainValue, key);
+    return new EncArrayBuffer(PureCrypto.symmetric_encrypt_filedata(plainValue, key.toEncoded()));
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
-    return this.decryptToUtf8(encString, key);
+    return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    return this.decryptToBytes(encString, key);
+    return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
-    return this.decryptToBytes(encBuffer, key);
+    return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
 
   async wrapDecapsulationKey(
@@ -75,7 +75,9 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(decapsulationKeyPkcs8, wrappingKey);
+    return new EncString(
+      PureCrypto.wrap_decapsulation_key(decapsulationKeyPkcs8, wrappingKey.toEncoded()),
+    );
   }
 
   async wrapEncapsulationKey(
@@ -90,7 +92,9 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(encapsulationKeySpki, wrappingKey);
+    return new EncString(
+      PureCrypto.wrap_encapsulation_key(encapsulationKeySpki, wrappingKey.toEncoded()),
+    );
   }
 
   async wrapSymmetricKey(
@@ -105,26 +109,57 @@ export class EncryptServiceImplementation implements EncryptService {
       throw new Error("No wrappingKey provided for wrapping.");
     }
 
-    return await this.encryptUint8Array(keyToBeWrapped.toEncoded(), wrappingKey);
+    return new EncString(
+      PureCrypto.wrap_symmetric_key(keyToBeWrapped.toEncoded(), wrappingKey.toEncoded()),
+    );
   }
 
   async unwrapDecapsulationKey(
     wrappedDecapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<Uint8Array> {
-    return this.decryptBytes(wrappedDecapsulationKey, wrappingKey);
+    if (wrappedDecapsulationKey == null) {
+      throw new Error("No wrappedDecapsulationKey provided for unwrapping.");
+    }
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for unwrapping.");
+    }
+
+    return PureCrypto.unwrap_decapsulation_key(
+      wrappedDecapsulationKey.encryptedString,
+      wrappingKey.toEncoded(),
+    );
   }
   async unwrapEncapsulationKey(
     wrappedEncapsulationKey: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<Uint8Array> {
-    return this.decryptBytes(wrappedEncapsulationKey, wrappingKey);
+    if (wrappedEncapsulationKey == null) {
+      throw new Error("No wrappedEncapsulationKey provided for unwrapping.");
+    }
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for unwrapping.");
+    }
+
+    return PureCrypto.unwrap_encapsulation_key(
+      wrappedEncapsulationKey.encryptedString,
+      wrappingKey.toEncoded(),
+    );
   }
   async unwrapSymmetricKey(
     keyToBeUnwrapped: EncString,
     wrappingKey: SymmetricCryptoKey,
   ): Promise<SymmetricCryptoKey> {
-    return new SymmetricCryptoKey(await this.decryptBytes(keyToBeUnwrapped, wrappingKey));
+    if (keyToBeUnwrapped == null) {
+      throw new Error("No keyToBeUnwrapped provided for unwrapping.");
+    }
+    if (wrappingKey == null) {
+      throw new Error("No wrappingKey provided for unwrapping.");
+    }
+
+    return new SymmetricCryptoKey(
+      PureCrypto.unwrap_symmetric_key(keyToBeUnwrapped.encryptedString, wrappingKey.toEncoded()),
+    );
   }
 
   async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
@@ -395,14 +430,29 @@ export class EncryptServiceImplementation implements EncryptService {
     if (sharedKey == null) {
       throw new Error("No sharedKey provided for encapsulation");
     }
-    return await this.rsaEncrypt(sharedKey.toEncoded(), encapsulationKey);
+    if (encapsulationKey == null) {
+      throw new Error("No encapsulationKey provided for encapsulation");
+    }
+    return new EncString(
+      PureCrypto.encapsulate_key_unsigned(sharedKey.toEncoded(), encapsulationKey),
+    );
   }
 
   async decapsulateKeyUnsigned(
     encryptedSharedKey: EncString,
     decapsulationKey: Uint8Array,
   ): Promise<SymmetricCryptoKey> {
-    const keyBytes = await this.rsaDecrypt(encryptedSharedKey, decapsulationKey);
+    if (encryptedSharedKey == null) {
+      throw new Error("No encryptedSharedKey provided for decapsulation");
+    }
+    if (decapsulationKey == null) {
+      throw new Error("No decapsulationKey provided for decapsulation");
+    }
+
+    const keyBytes = PureCrypto.decapsulate_key_unsigned(
+      encryptedSharedKey.encryptedString,
+      decapsulationKey,
+    );
     return new SymmetricCryptoKey(keyBytes);
   }
 
