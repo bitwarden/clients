@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Maksimum dosya boyutu 500 MB'dir."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Şifreleme anahtarınızın güncellenmesi gerekiyor. Şifreleme anahtarınızı güncellemek için lütfen web kasasına giriş yapın."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Klasör kaydedildi"

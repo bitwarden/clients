@@ -10,7 +10,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { WebauthnLoginSettingsModule } from "../../webauthn-login-settings";
 
 @Component({
-  standalone: true,
   selector: "app-password-settings",
   templateUrl: "password-settings.component.html",
   imports: [CalloutModule, ChangePasswordComponent, I18nPipe, WebauthnLoginSettingsModule],

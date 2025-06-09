@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "기능 사용할 수 없음"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "암호화 키 마이그레이션이 필요합니다. 웹 볼트를 통해 로그인하여 암호화 키를 업데이트하세요."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "프리미엄 멤버십"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "활성화된 Send없음",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Send를 사용하여 암호화된 정보를 어느 사람과도 안전하게 공유합니다.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

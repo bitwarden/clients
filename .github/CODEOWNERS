@@ -117,6 +117,9 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
 # ESLint custom rules
 libs/eslint @bitwarden/team-platform-dev
+# Typescript tooling
+tsconfig.base.json @bitwarden/team-platform-dev
+nx.json @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
@@ -189,3 +192,4 @@ apps/web/src/locales/en/messages.json
 # To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
 **/tsconfig.json @bitwarden/team-platform-dev
 **/jest.config.js @bitwarden/team-platform-dev
+**/project.jsons @bitwarden/team-platform-dev
