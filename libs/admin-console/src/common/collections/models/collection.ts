@@ -43,7 +43,7 @@ export class Collection extends Domain {
         manage: null,
         type: null,
       },
-      ["id", "organizationId", "readOnly", "hidePasswords", "manage"],
+      ["id", "organizationId", "readOnly", "hidePasswords", "manage", "type"],
     );
   }
 
