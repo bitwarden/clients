@@ -429,6 +429,16 @@ describe("accountService", () => {
         },
       );
     });
+
+    describe("setShowHeader", () => {
+      it("should update _showHeader$ when setShowHeader is called", async () => {
+        expect(sut["_showHeader$"].value).toBe(true);
+
+        await sut.setShowHeader(false);
+
+        expect(sut["_showHeader$"].value).toBe(false);
+      });
+    });
   });
 });
 
