@@ -17,7 +17,7 @@ export default {
     theme: ThemeTypes.Light,
     handleCloseNotification: () => alert("Close notification action triggered"),
     params: {
-      passwordChangeUri: "webtests.dev", // Remove to see "navigate" version of notification
+      passwordChangeUri: "https://webtests.dev/.well-known/change-password", // Remove to see "navigate" version of notification
       organizationName: "Acme Co.",
     },
     i18n: mockI18n,
