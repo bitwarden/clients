@@ -155,8 +155,6 @@ export class BadgeService {
    * It makes sure to apply the state to all tabs.
    */
   private async setStateForTabs(state: RawBadgeState, tabIds: number[] = []): Promise<void> {
-    // console.log("[BadgeService] Setting general badge state", state);
-    // console.log("[BadgeService] tabIds:", await this.badgeApi.getTabs());
     await this.badgeApi.setState(state);
     for (const tabId of tabIds) {
       await this.badgeApi.setState(state, tabId);
