@@ -30,7 +30,7 @@ export type EncryptionContext = {
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
-  abstract cipherListViews$(userId: UserId): Observable<CipherListView[]>;
+  abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**

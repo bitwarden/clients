@@ -387,16 +387,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         // Append any failed to decrypt ciphers to the top of the cipher list
         // TODO: handle failed ciphers once available in the SDK
         const allCiphers = [...failedCiphers, ...ciphers];
+
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
           return await this.searchService.searchCiphers<C>(
             activeUserId,
             searchText,
             [filterFunction],
-            ciphers,
+            allCiphers as C[],
           );
         }
 
-        return ciphers.filter(filterFunction);
+        return ciphers.filter(filterFunction) as C[];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );

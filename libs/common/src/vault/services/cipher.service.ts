@@ -1,22 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  combineLatest,
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  Subject,
-  switchMap,
-} from "rxjs";
+import { combineLatest, filter, firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 import { SemVer } from "semver";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
-import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
@@ -138,13 +128,14 @@ export class CipherService implements CipherServiceAbstraction {
    * Observable that emits an array of decrypted ciphers for given userId.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption, when the `PM19941MigrateCipherDomainToSdk` feature flag is disabled an empty array will be emitted.
+   * This uses the SDK for decryption, when the `PM19941MigrateCipherDomainToSdk` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
-  cipherListViews$ = perUserCache$((userId: UserId): Observable<CipherListView[]> => {
+  cipherListViews$ = perUserCache$((userId: UserId) => {
     return this.configService.getFeatureFlag$(FeatureFlag.PM19941MigrateCipherDomainToSdk).pipe(
-      switchMap((useSdk): Observable<CipherListView[]> => {
+      switchMap((useSdk) => {
         if (!useSdk) {
-          return of([]);
+          return this.cipherViews$(userId);
         }
 
         return combineLatest([
