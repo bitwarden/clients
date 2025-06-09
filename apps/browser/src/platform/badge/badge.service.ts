@@ -40,7 +40,10 @@ export class BadgeService {
   startListening(): Subscription {
     const initialSetup$ = defer(async () => {
       const openTabs = await this.badgeApi.getTabs();
-      await this.setStateForTabs(DefaultBadgeState, openTabs);
+      await this.badgeApi.setState(DefaultBadgeState);
+      for (const tabId of openTabs) {
+        await this.badgeApi.setState(DefaultBadgeState, tabId);
+      }
     });
 
     return initialSetup$
@@ -88,7 +91,8 @@ export class BadgeService {
    * - If the new state has a higher priority, it will override any lower priority states.
    * - If the new state has a lower priority, it will be ignored.
    * - If the name of the state is already in use, it will be updated.
-   * - States with `tabId` set will always override states without `tabId` set, regardless of priority.
+   * - If the state has a `tabId` set, it will only apply to that tab.
+   *   - States with `tabId` can still be overridden by states without `tabId` if they have a higher priority.
    *
    * @param name The name of the state. This is used to identify the state and will be used to clear it later.
    * @param priority The priority of the state (higher numbers are higher priority, but setting arbitrary numbers is not supported).
@@ -146,17 +150,6 @@ export class BadgeService {
       ...DefaultBadgeState,
       ...mergedState,
     };
-  }
-
-  /**
-   * Wrapper around the badge API to set the current badge state.
-   * It makes sure to apply the state to all tabs.
-   */
-  private async setStateForTabs(state: RawBadgeState, tabIds: number[] = []): Promise<void> {
-    await this.badgeApi.setState(state);
-    for (const tabId of tabIds) {
-      await this.badgeApi.setState(state, tabId);
-    }
   }
 }
 
