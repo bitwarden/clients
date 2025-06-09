@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "最大ファイルサイズは500MBです。"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "暗号化キーの移行が必要です。暗号化キーを更新するには、ウェブ保管庫からログインしてください。"
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "フォルダーを編集しました"

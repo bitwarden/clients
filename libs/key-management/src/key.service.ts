@@ -122,15 +122,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.setPrivateKey(encPrivateKey, userId);
   }
 
-  async refreshAdditionalKeys(): Promise<void> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Can only refresh keys while there is an active user.");
+  async refreshAdditionalKeys(userId: UserId): Promise<void> {
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
-    const key = await this.getUserKey(activeUserId);
-    await this.setUserKey(key, activeUserId);
+    const key = await firstValueFrom(this.userKey$(userId));
+    if (key == null) {
+      throw new Error("No user key found for: " + userId);
+    }
+
+    await this.setUserKey(key, userId);
   }
 
   everHadUserKey$(userId: UserId): Observable<boolean> {

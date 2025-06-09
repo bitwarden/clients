@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Ebligi du-paŝan ensaluton povas konstante elŝlosi vin el via Bitwarden-konto. Rekuperiga kodo permesas vin aliri vian konton, se vi ne plu povas uzi vian normalan du-paŝan ensalutan provizanton (ekz. vi perdas Bitwarden-subteno ne povos helpi vin se vi perdos aliron al via konto. Ni rekomendas al vi skribi aŭ presi la reakiran kodon kaj konservi ĝin en sekura loko. "
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Ŝlosilo ĝisdatiĝis"
-  },
-  "updateEncryptionKey": {
-    "message": "Ĝisdatigi Ĉifran Ŝlosilon"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Post ĝisdatigi vian ĉifradan ŝlosilon, vi devas elsaluti kaj reeniri al ĉiuj Bitwarden-aplikaĵoj, kiujn vi nun uzas (kiel la poŝtelefona programo aŭ retumila etendaĵoj). Malsukceso elsaluti kaj reeniri (kiu elŝutas via nova ĉifra ŝlosilo) povas rezultigi korupton de datumoj. Ni provos elsaluti vin aŭtomate, tamen ĝi eble prokrastos. "
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abono"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invite Users"
