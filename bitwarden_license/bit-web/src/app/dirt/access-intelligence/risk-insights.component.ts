@@ -44,7 +44,6 @@ export enum RiskInsightsTabType {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,

@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Fitur Tidak Tersedia"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Kunci enkripsi migrasi dibutuhkan. Silakan masuk melalui brankas web untuk memperbarui kunci enkripsi Anda."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Keanggotaan Premium"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Percayai pengguna"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Tidak ada Send yang aktif",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Gunakan Send untuk membagikan informasi terenkripsi secara aman dengan siapapun.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

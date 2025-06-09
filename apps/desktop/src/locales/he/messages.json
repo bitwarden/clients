@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "גודל הקובץ המירבי הוא 500 מגה."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "נדרשת הגירת מפתח הצפנה. נא להיכנס דרך כספת הרשת כדי לעדכן את מפתח ההצפנה שלך."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "תיקייה שנשמרה"
