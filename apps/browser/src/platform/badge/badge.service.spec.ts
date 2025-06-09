@@ -4,15 +4,16 @@ import { Subscription } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 
-import { BadgeBrowserApi } from "./badge-browser-api";
+import { RawBadgeState } from "./badge-browser-api";
 import { BadgeService } from "./badge.service";
 import { DefaultBadgeState } from "./consts";
 import { BadgeIcon } from "./icon";
 import { BadgeStatePriority } from "./priority";
 import { BadgeState, Unset } from "./state";
+import { MockBadgeBrowserApi } from "./test/mock-badge-browser-api";
 
 describe("BadgeService", () => {
-  let badgeApi: MockProxy<BadgeBrowserApi>;
+  let badgeApi: MockBadgeBrowserApi;
   let stateProvider: FakeStateProvider;
   let logService!: MockProxy<LogService>;
   let badgeService!: BadgeService;
@@ -20,7 +21,7 @@ describe("BadgeService", () => {
   let badgeServiceSubscription: Subscription;
 
   beforeEach(() => {
-    badgeApi = mock<BadgeBrowserApi>();
+    badgeApi = new MockBadgeBrowserApi();
     stateProvider = new FakeStateProvider(new FakeAccountService({}));
     logService = mock<LogService>();
 
@@ -36,13 +37,13 @@ describe("BadgeService", () => {
 
     describe("given a single tab is open", () => {
       beforeEach(() => {
-        badgeApi.getTabs.mockResolvedValue([1]);
+        badgeApi.tabs = [1];
         badgeServiceSubscription = badgeService.startListening();
       });
 
       // This relies on the state provider to auto-emit
       it("sets default values on startup", async () => {
-        await expectGeneralSetState(0, [tabId], DefaultBadgeState);
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
       });
 
       it("sets provided state when no other state has been set", async () => {
@@ -54,7 +55,9 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        await expectGeneralSetState(2, [tabId], state);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(state);
+        expect(badgeApi.specificStates[tabId]).toEqual(state);
       });
 
       it("sets default values when none are provided", async () => {
@@ -63,7 +66,9 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        await expectGeneralSetState(2, [tabId], DefaultBadgeState);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
       });
 
       it("merges states when multiple same-priority states have been set", async () => {
@@ -75,22 +80,14 @@ describe("BadgeService", () => {
           icon: BadgeIcon.Locked,
         });
 
-        let setStateCalls = 2;
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "text",
-          backgroundColor: DefaultBadgeState.backgroundColor,
-          icon: DefaultBadgeState.icon,
-        });
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "text",
-          backgroundColor: "#fff",
-          icon: DefaultBadgeState.icon,
-        });
-        await expectGeneralSetState(setStateCalls, [tabId], {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
-        });
+        };
+        expect(badgeApi.generalState).toEqual(expectedState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
 
       it("overrides previous lower-priority state when higher-priority state is set", async () => {
@@ -106,22 +103,14 @@ describe("BadgeService", () => {
           backgroundColor: "#aaa",
         });
 
-        let setStateCalls = 2;
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "text",
-          backgroundColor: "#fff",
-          icon: BadgeIcon.Locked,
-        });
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "override",
-          backgroundColor: "#fff",
-          icon: BadgeIcon.Locked,
-        });
-        await expectGeneralSetState(setStateCalls, [tabId], {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
           text: "override",
           backgroundColor: "#aaa",
           icon: BadgeIcon.Locked,
-        });
+        };
+        expect(badgeApi.generalState).toEqual(expectedState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
 
       it("removes override when a previously high-priority state is cleared", async () => {
@@ -135,22 +124,14 @@ describe("BadgeService", () => {
         });
         await badgeService.clearState("state-2");
 
-        let setStateCalls = 2;
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Locked,
-        });
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "override",
-          backgroundColor: "#fff",
-          icon: BadgeIcon.Locked,
-        });
-        await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "text",
-          backgroundColor: "#fff",
-          icon: BadgeIcon.Locked,
-        });
+        };
+        expect(badgeApi.generalState).toEqual(expectedState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
 
       it("sets default values when all states have been cleared", async () => {
@@ -169,7 +150,9 @@ describe("BadgeService", () => {
         await badgeService.clearState("state-2");
         await badgeService.clearState("state-3");
 
-        await expectGeneralSetState(12, [tabId], DefaultBadgeState);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
       });
 
       it("sets default value high-priority state contains Unset", async () => {
@@ -182,17 +165,14 @@ describe("BadgeService", () => {
           icon: Unset,
         });
 
-        let setStateCalls = 2;
-        setStateCalls = await expectGeneralSetState(setStateCalls, [tabId], {
-          text: "text",
-          backgroundColor: "#fff",
-          icon: BadgeIcon.Locked,
-        });
-        await expectGeneralSetState(setStateCalls, [tabId], {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
           text: "text",
           backgroundColor: "#fff",
           icon: DefaultBadgeState.icon,
-        });
+        };
+        expect(badgeApi.generalState).toEqual(expectedState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
 
       it("ignores medium-priority Unset when high-priority contains a value", async () => {
@@ -208,24 +188,30 @@ describe("BadgeService", () => {
           icon: BadgeIcon.Unlocked,
         });
 
-        await expectGeneralSetState(6, [tabId], {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
           text: "text",
           backgroundColor: "#fff",
           icon: BadgeIcon.Unlocked,
-        });
+        };
+        expect(badgeApi.generalState).toEqual(expectedState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
     });
 
-    describe.only("given multiple tabs are open", () => {
+    describe("given multiple tabs are open", () => {
       const tabIds = [1, 2, 3];
 
       beforeEach(() => {
-        badgeApi.getTabs.mockResolvedValue(tabIds);
+        badgeApi.tabs = tabIds;
         badgeServiceSubscription = badgeService.startListening();
       });
 
       it("sets default values for each tab on startup", async () => {
-        await expectGeneralSetState(0, tabIds, DefaultBadgeState);
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        for (const tabId of tabIds) {
+          expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
+        }
       });
 
       it("sets state for each tab when no other state has been set", async () => {
@@ -237,16 +223,24 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state);
 
-        await expectGeneralSetState(tabIds.length + 1, tabIds, state);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(state);
+        expect(badgeApi.specificStates).toEqual({
+          1: state,
+          2: state,
+          3: state,
+        });
       });
     });
   });
 
-  describe.skip("calling with tabId", () => {
+  describe("calling with tabId", () => {
     describe("given a single tab is open", () => {
       const tabId = 1;
+
       beforeEach(() => {
-        badgeApi.getTabs.mockResolvedValue([tabId]);
+        badgeApi.tabs = [tabId];
+        badgeServiceSubscription = badgeService.startListening();
       });
 
       it("sets provided state when no other state has been set", async () => {
@@ -258,18 +252,20 @@ describe("BadgeService", () => {
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state, tabId);
 
-        expect(badgeApi.setState).toHaveBeenCalledWith(DefaultBadgeState);
-        expect(badgeApi.setState).toHaveBeenCalledWith(state, tabId);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(state);
       });
 
-      it("sets empty values when none are provided", async () => {
+      it("sets default values when none are provided", async () => {
         // This is a bit of a weird thing to do, but I don't think it's something we need to prohibit
         const state: BadgeState = {};
 
         await badgeService.setState("state-name", BadgeStatePriority.Default, state, tabId);
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(1, DefaultBadgeState);
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(2, state, tabId);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
       });
 
       it("merges tabId specific state with general states", async () => {
@@ -286,33 +282,17 @@ describe("BadgeService", () => {
           icon: BadgeIcon.Locked,
         });
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          2,
-          {
-            text: "text",
-            backgroundColor: DefaultBadgeState.backgroundColor,
-            icon: DefaultBadgeState.icon,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          3,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: DefaultBadgeState.icon,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          4,
-          {
-            text: "text",
-            backgroundColor: DefaultBadgeState.backgroundColor,
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual({
+          ...DefaultBadgeState,
+          text: "text",
+          icon: BadgeIcon.Locked,
+        });
+        expect(badgeApi.specificStates[tabId]).toEqual({
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        });
       });
 
       it("merges states when multiple same-priority states with the same tabId have been set", async () => {
@@ -334,30 +314,14 @@ describe("BadgeService", () => {
           tabId,
         );
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          2,
-          {
-            text: "text",
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          3,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          4,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        };
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
       });
 
       it("overrides previous lower-priority state when higher-priority state with the same tabId is set", async () => {
@@ -388,33 +352,45 @@ describe("BadgeService", () => {
           tabId,
         );
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          2,
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const expectedState: RawBadgeState = {
+          text: "override",
+          backgroundColor: "#aaa",
+          icon: BadgeIcon.Locked,
+        };
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(expectedState);
+      });
+
+      it("overrides lower-priority tab-specific state when higher-priority general state is set", async () => {
+        await badgeService.setState(
+          "state-1",
+          BadgeStatePriority.Low,
           {
             text: "text",
             backgroundColor: "#fff",
             icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
+          },
           tabId,
         );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          3,
-          {
-            text: "override",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          4,
-          {
-            text: "override",
-            backgroundColor: "#aaa",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
+        await badgeService.setState("state-2", BadgeStatePriority.Default, {
+          text: "override",
+        });
+        await badgeService.setState("state-3", BadgeStatePriority.High, {
+          backgroundColor: "#aaa",
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual({
+          text: "override",
+          backgroundColor: "#aaa",
+          icon: DefaultBadgeState.icon,
+        });
+        expect(badgeApi.specificStates[tabId]).toEqual({
+          text: "override",
+          backgroundColor: "#aaa",
+          icon: BadgeIcon.Locked,
+        });
       });
 
       it("removes override when a previously high-priority state with the same tabId is cleared", async () => {
@@ -438,36 +414,16 @@ describe("BadgeService", () => {
         );
         await badgeService.clearState("state-2");
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          2,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          3,
-          {
-            text: "override",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          4,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual({
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Locked,
+        });
       });
 
-      it("sets empty state when all states with the same tabId have been cleared", async () => {
+      it("sets default state when all states with the same tabId have been cleared", async () => {
         await badgeService.setState(
           "state-1",
           BadgeStatePriority.Low,
@@ -498,10 +454,12 @@ describe("BadgeService", () => {
         await badgeService.clearState("state-2");
         await badgeService.clearState("state-3");
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(7, {}, tabId);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual(DefaultBadgeState);
       });
 
-      it("sets undefined value when high-priority state contains Unset", async () => {
+      it("sets default value when high-priority state contains Unset", async () => {
         await badgeService.setState(
           "state-1",
           BadgeStatePriority.Low,
@@ -521,23 +479,13 @@ describe("BadgeService", () => {
           tabId,
         );
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          2,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Locked,
-          } satisfies BadgeState,
-          tabId,
-        );
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          3,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-          } satisfies BadgeState,
-          tabId,
-        );
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual({
+          text: "text",
+          backgroundColor: "#fff",
+          icon: DefaultBadgeState.icon,
+        });
       });
 
       it("ignores medium-priority Unset when high-priority contains a value", async () => {
@@ -568,61 +516,51 @@ describe("BadgeService", () => {
           tabId,
         );
 
-        expect(badgeApi.setState).toHaveBeenNthCalledWith(
-          4,
-          {
-            text: "text",
-            backgroundColor: "#fff",
-            icon: BadgeIcon.Unlocked,
-          } satisfies BadgeState,
-          tabId,
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(DefaultBadgeState);
+        expect(badgeApi.specificStates[tabId]).toEqual({
+          text: "text",
+          backgroundColor: "#fff",
+          icon: BadgeIcon.Unlocked,
+        });
+      });
+    });
+
+    describe("given multiple tabs are open", () => {
+      const tabIds = [1, 2, 3];
+
+      beforeEach(() => {
+        badgeApi.tabs = tabIds;
+        badgeServiceSubscription = badgeService.startListening();
+      });
+
+      it("sets tab-specific state for provided tab and general state for the others", async () => {
+        const generalState: BadgeState = {
+          text: "general-text",
+          backgroundColor: "general-color",
+          icon: BadgeIcon.Unlocked,
+        };
+        const specificState: BadgeState = {
+          text: "tab-text",
+          icon: BadgeIcon.Locked,
+        };
+
+        await badgeService.setState("general-state", BadgeStatePriority.Default, generalState);
+        await badgeService.setState(
+          "tab-state",
+          BadgeStatePriority.Default,
+          specificState,
+          tabIds[0],
         );
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badgeApi.generalState).toEqual(generalState);
+        expect(badgeApi.specificStates).toEqual({
+          [tabIds[0]]: { ...specificState, backgroundColor: "general-color" },
+          [tabIds[1]]: generalState,
+          [tabIds[2]]: generalState,
+        });
       });
     });
   });
-
-  /**
-   * Helper function to expect a collection of setState calls.
-   * This checks for expected calls after a general state has been set.
-   *
-   * @param nPreviousCalls The number of setState calls that have been made before this call.
-   * @param availableTabIds The tabIds that are available.
-   * @param state The state that is expected to be set.
-   * @return The number of setState calls that should have been made after this call.
-   */
-  async function expectGeneralSetState(
-    nPreviousCalls: number,
-    availableTabIds: number[],
-    state: BadgeState,
-  ): Promise<number> {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(badgeApi.setState).toHaveBeenNthCalledWith(++nPreviousCalls, state);
-    for (const tabId of availableTabIds) {
-      expect(badgeApi.setState).toHaveBeenNthCalledWith(++nPreviousCalls, state, tabId);
-    }
-
-    return nPreviousCalls;
-  }
-
-  /**
-   * Helper function to expect a collection of setState calls.
-   * This checks for expected calls after a state has been set for a specific tabId.
-   *
-   * @param nPreviousCalls The number of setState calls that have been made before this call.
-   * @param _availableTabIds The tabIds that are available.
-   * @param tabId The tabId for which the state is expected to be set.
-   * @param state The state that is expected to be set.
-   * @returns The number of setState calls that should have been made after this call.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function expectSpecificSetState(
-    nPreviousCalls: number,
-    _availableTabIds: number[],
-    tabId: number,
-    state: BadgeState,
-  ): number {
-    expect(badgeApi.setState).toHaveBeenCalledWith(state, tabId);
-
-    return nPreviousCalls + 1;
-  }
 });

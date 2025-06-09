@@ -40,7 +40,10 @@ export class BadgeService {
    * Without this the service will not be able to update the badge state.
    */
   startListening(): Subscription {
-    const initialSetup$ = defer(async () => await this.setGeneralState(DefaultBadgeState));
+    const initialSetup$ = defer(async () => {
+      const openTabs = await this.badgeApi.getTabs();
+      await this.setStateForTabs(DefaultBadgeState, openTabs);
+    });
 
     return initialSetup$
       .pipe(
@@ -53,33 +56,42 @@ export class BadgeService {
         }),
         filter(({ removed, added }) => removed.size > 0 || added.size > 0),
         mergeMap(async ({ states, removed, added }) => {
-          const changed = [...removed, ...added];
-          const changedTabIds = new Set(
-            changed.map((s) => s.tabId).filter((tabId) => tabId !== undefined),
-          );
-
-          if (changed.some((s) => s.tabId === undefined)) {
-            const generalStates = Array.from(states).filter((s) => s.tabId === undefined);
-            const generalState = this.calculateState(Array.from(generalStates), DefaultBadgeState);
-            await this.setGeneralState(generalState, changedTabIds);
+          const openTabs = await this.badgeApi.getTabs();
+          const generalState = this.calculateState(states);
+          await this.badgeApi.setState(generalState);
+          for (const tabId of openTabs) {
+            const newState = this.calculateState(states, tabId);
+            await this.badgeApi.setState(newState, tabId);
           }
 
-          for (const tabId of changedTabIds) {
-            const specificState = this.calculateState(
-              [...Array.from(states).filter((s) => s.tabId === tabId)],
-              {},
-            );
-
-            try {
-              await this.badgeApi.setState(specificState, tabId);
-            } catch (error) {
-              this.logService.error(
-                "[BadgeService] Error setting badge state for tab",
-                tabId,
-                error,
-              );
-            }
-          }
+          // const changed = [...removed, ...added];
+          // const changedTabIds = new Set(
+          //   changed.map((s) => s.tabId).filter((tabId) => tabId !== undefined),
+          // );
+          // const onlyTabSpecificStatesChanged = changed.every((s) => s.tabId != undefined);
+          // if (onlyTabSpecificStatesChanged) {
+          //   // If only tab-specific states changed then we only need to update those specific tabs.
+          //   for (const tabId of changedTabIds) {
+          //     const newState = this.calculateState(states, tabId);
+          //     await this.badgeApi.setState(newState, tabId);
+          //     console.log(
+          //       "[BadgeService] Updated tab-specific state for tab",
+          //       tabId,
+          //       newState,
+          //       changedTabIds,
+          //       states,
+          //     );
+          //   }
+          //   return;
+          // }
+          // // If there are any general states that changed then we need to update all tabs.
+          // const openTabs = await this.badgeApi.getTabs();
+          // const generalState = this.calculateState(states);
+          // await this.setStateForTabs(generalState, openTabs);
+          // for (const tabId of openTabs) {
+          //   const newState = this.calculateState(states, tabId);
+          //   await this.badgeApi.setState(newState, tabId);
+          // }
         }),
       )
       .subscribe();
@@ -119,15 +131,21 @@ export class BadgeService {
     });
   }
 
-  private calculateState(
-    states: StateSetting[],
-    defaultState: RawBadgeState & BadgeState,
-  ): RawBadgeState {
-    const sortedStates = [...states].sort(
-      (a, b) => a.priority - b.priority || (a.tabId ?? 0) - (b.tabId ?? 0),
-    );
+  private calculateState(states: Set<StateSetting>, tabId?: number): RawBadgeState {
+    const sortedStates = [...states].sort((a, b) => a.priority - b.priority);
 
-    const mergedState = sortedStates
+    let filteredStates = sortedStates;
+    if (tabId !== undefined) {
+      // Filter out states that are not applicable to the current tab.
+      // If a state has no tabId, it is considered applicable to all tabs.
+      // If a state has a tabId, it is only applicable to that tab.
+      filteredStates = sortedStates.filter((s) => s.tabId === tabId || s.tabId === undefined);
+    } else {
+      // If no tabId is provided, we only want states that are not tab-specific.
+      filteredStates = sortedStates.filter((s) => s.tabId === undefined);
+    }
+
+    const mergedState = filteredStates
       .map((s) => s.state)
       .reduce<Partial<RawBadgeState>>((acc: Partial<RawBadgeState>, state: BadgeState) => {
         const newState = { ...acc };
@@ -138,10 +156,10 @@ export class BadgeService {
         }
 
         return newState;
-      }, defaultState);
+      }, DefaultBadgeState);
 
     return {
-      ...defaultState,
+      ...DefaultBadgeState,
       ...mergedState,
     };
   }
@@ -150,15 +168,11 @@ export class BadgeService {
    * Wrapper around the badge API to set the current badge state.
    * It makes sure to apply the state to all tabs.
    */
-  private async setGeneralState(state: RawBadgeState, excludeTabIds?: Set<number>): Promise<void> {
+  private async setStateForTabs(state: RawBadgeState, tabIds: number[] = []): Promise<void> {
     // console.log("[BadgeService] Setting general badge state", state);
     // console.log("[BadgeService] tabIds:", await this.badgeApi.getTabs());
     await this.badgeApi.setState(state);
-    for (const tabId of await this.badgeApi.getTabs()) {
-      if (excludeTabIds?.has(tabId)) {
-        continue;
-      }
-      // console.log("[BadgeService] Setting badge state for tab", tabId, state);
+    for (const tabId of tabIds) {
       await this.badgeApi.setState(state, tabId);
     }
   }

@@ -12,7 +12,12 @@ export interface RawBadgeState {
   icon?: BadgeIcon;
 }
 
-export class BadgeBrowserApi {
+export interface BadgeBrowserApi {
+  setState(state: RawBadgeState, tabId?: number): Promise<void>;
+  getTabs(): Promise<number[]>;
+}
+
+export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   private badgeAction = BrowserApi.getBrowserAction();
   private sidebarAction = BrowserApi.getSidebarAction(self);
 

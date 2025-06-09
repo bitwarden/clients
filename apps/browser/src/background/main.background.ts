@@ -264,7 +264,7 @@ import { InlineMenuFieldQualificationService } from "../autofill/services/inline
 import { SafariApp } from "../browser/safariApp";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
-import { BadgeBrowserApi } from "../platform/badge/badge-browser-api";
+import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
@@ -1352,7 +1352,7 @@ export default class MainBackground {
 
     this.badgeService = new BadgeService(
       this.stateProvider,
-      new BadgeBrowserApi(this.platformUtilsService),
+      new DefaultBadgeBrowserApi(this.platformUtilsService),
       this.logService,
     );
     this.authStatusBadgeUpdaterService = new AuthStatusBadgeUpdaterService(
