@@ -1,0 +1,27 @@
+<bit-simple-dialog>
+  <i
+    bitDialogIcon
+    class="bwi tw-text-3xl bwi-exclamation-triangle tw-text-warning"
+    aria-hidden="true"
+  ></i>
+  <span bitDialogTitle>
+    {{ "warningCapitalized" | i18n }}
+  </span>
+  <div bitDialogContent>
+    <p>
+      {{ contentKey | i18n }}
+      <br />
+      <a bitLink href="https://bitwarden.com/help/uri-match-detection">
+        {{ "uriMatchWarningDialogLink" | i18n }}
+      </a>
+    </p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="continueClick()">
+      {{ "continue" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="cancelClick()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

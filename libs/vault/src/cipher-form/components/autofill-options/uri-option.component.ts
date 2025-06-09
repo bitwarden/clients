@@ -65,15 +65,25 @@ export class UriOptionComponent implements ControlValueAccessor {
     matchDetection: [null as UriMatchStrategySetting],
   });
 
-  protected uriMatchOptions: { label: string; value: UriMatchStrategySetting }[] = [
+  protected uriMatchOptions: {
+    label: string;
+    value: UriMatchStrategySetting;
+    disabled?: boolean;
+  }[] = [
     { label: this.i18nService.t("default"), value: null },
     { label: this.i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
     { label: this.i18nService.t("host"), value: UriMatchStrategy.Host },
-    { label: this.i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-    { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     { label: this.i18nService.t("exact"), value: UriMatchStrategy.Exact },
     { label: this.i18nService.t("never"), value: UriMatchStrategy.Never },
+    { label: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
+    { label: this.i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+    { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
   ];
+
+  protected hintMap: Partial<Record<UriMatchStrategySetting, string>> = {
+    [UriMatchStrategy.StartsWith]: "startsWithUriMatchWarningHint",
+    [UriMatchStrategy.RegularExpression]: "regExUriMatchWarningHint",
+  };
 
   /**
    * Whether the option can be reordered. If false, the reorder button will be hidden.
@@ -192,5 +202,10 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   setDisabledState?(isDisabled: boolean): void {
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
+  }
+
+  getMatchHintKey(): string | null {
+    const strategy = this.uriForm.get("matchDetection")?.value;
+    return this.hintMap[strategy] || null;
   }
 }

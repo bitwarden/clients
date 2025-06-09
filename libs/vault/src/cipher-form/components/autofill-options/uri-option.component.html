@@ -43,8 +43,13 @@
           *ngFor="let o of uriMatchOptions"
           [label]="o.label"
           [value]="o.value"
+          [disabled]="o.disabled"
         ></bit-option>
       </bit-select>
+      <bit-hint *ngIf="getMatchHintKey()">
+        <b>{{ "warningCapitalized" | i18n }}:</b>
+        {{ hintMap[uriForm.get("matchDetection")?.value] | i18n }}
+      </bit-hint>
     </bit-form-field>
   </div>
 </ng-container>
