@@ -5,8 +5,6 @@ import { pairwise } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
@@ -60,7 +58,6 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private fido2ClientService: Fido2ClientService<BrowserFido2ParentWindowReference>,
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
-    private configService: ConfigService,
     private authService: AuthService,
   ) {}
 
@@ -403,14 +400,6 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * delayed append script if the associated feature flag is enabled.
    */
   private async getFido2PageScriptAppendFileName() {
-    const shouldDelayInit = await this.configService.getFeatureFlag(
-      FeatureFlag.DelayFido2PageScriptInitWithinMv2,
-    );
-
-    if (shouldDelayInit) {
-      return Fido2ContentScript.PageScriptDelayAppend;
-    }
-
-    return Fido2ContentScript.PageScriptAppend;
+    return Fido2ContentScript.PageScriptDelayAppend;
   }
 }

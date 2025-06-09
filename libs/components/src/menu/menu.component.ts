@@ -19,7 +19,6 @@ import { MenuItemDirective } from "./menu-item.directive";
   selector: "bit-menu",
   templateUrl: "./menu.component.html",
   exportAs: "menuComponent",
-  standalone: true,
   imports: [CdkTrapFocus],
 })
 export class MenuComponent implements AfterContentInit {

@@ -7,7 +7,6 @@ import { QueryParamsHandling } from "@angular/router";
 @Component({
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
-  standalone: true,
 })
 export class BreadcrumbComponent {
   @Input()

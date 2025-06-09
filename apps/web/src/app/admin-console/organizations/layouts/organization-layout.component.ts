@@ -37,7 +37,6 @@ import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

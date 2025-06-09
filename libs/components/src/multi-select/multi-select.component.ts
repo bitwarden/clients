@@ -37,7 +37,6 @@ let nextId = 0;
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
-  standalone: true,
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, I18nPipe],
 })
 /**

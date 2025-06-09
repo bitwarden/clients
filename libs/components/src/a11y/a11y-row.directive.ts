@@ -13,7 +13,6 @@ import { A11yCellDirective } from "./a11y-cell.directive";
 
 @Directive({
   selector: "bitA11yRow",
-  standalone: true,
 })
 export class A11yRowDirective implements AfterViewInit {
   @HostBinding("attr.role")

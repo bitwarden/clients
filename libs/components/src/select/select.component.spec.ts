@@ -10,7 +10,6 @@ import { SelectComponent } from "./select.component";
 import { SelectModule } from "./select.module";
 
 @Component({
-  standalone: true,
   imports: [SelectModule, ReactiveFormsModule],
   template: `
     <form [formGroup]="form">

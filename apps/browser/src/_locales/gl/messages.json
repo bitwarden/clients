@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Función non dispoñible"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Requírese mudar a clave de cifrado. Por favor, inicia sesión na aplicación web para actualizala."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Plan Prémium"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "Usar este contrasinal"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "Usar este nome de usuario"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "Todos os Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Ocultar texto por defecto"
@@ -3606,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Sen Sends activos",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Usar send para compartir información cifrada con quen queiras.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

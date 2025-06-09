@@ -62,7 +62,6 @@ interface QueryParams {
  * This component handles the SSO flow.
  */
 @Component({
-  standalone: true,
   templateUrl: "sso.component.html",
   imports: [
     AsyncActionsModule,

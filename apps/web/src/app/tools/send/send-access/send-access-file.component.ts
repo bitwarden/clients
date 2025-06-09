@@ -19,7 +19,6 @@ import { SharedModule } from "../../../shared";
   selector: "app-send-access-file",
   templateUrl: "send-access-file.component.html",
   imports: [SharedModule],
-  standalone: true,
 })
 export class SendAccessFileComponent {
   @Input() send: SendAccessView;
