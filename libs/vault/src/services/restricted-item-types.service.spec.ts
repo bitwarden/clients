@@ -13,7 +13,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { RestrictedItemTypesService } from "./restricted-item-types.service";
+import { RestrictedItemTypesService, RestrictedCipherType } from "./restricted-item-types.service";
 
 describe("RestrictedItemTypesService", () => {
   let policyService: MockProxy<PolicyService>;
@@ -22,23 +22,8 @@ describe("RestrictedItemTypesService", () => {
   let configService: MockProxy<ConfigService>;
   let fakeAccount: Account | null;
 
-  const org1: Organization = {
-    id: "org1",
-    status: 0,
-    usePolicies: true,
-    isOwner: false,
-    isAdmin: false,
-    canManagePolicies: false,
-  } as Organization;
-
-  const org2: Organization = {
-    id: "org2",
-    status: 0,
-    usePolicies: true,
-    isOwner: false,
-    isAdmin: false,
-    canManagePolicies: false,
-  } as Organization;
+  const org1: Organization = { id: "org1" } as any;
+  const org2: Organization = { id: "org2" } as any;
 
   beforeEach(() => {
     policyService = mock<PolicyService>();
@@ -46,13 +31,11 @@ describe("RestrictedItemTypesService", () => {
     accountService = mock<AccountService>();
     configService = mock<ConfigService>();
 
-    fakeAccount = { id: Utils.newGuid() as UserId } as Account | null;
-    // Make activeAccount$ always emit our fakeAccount:
+    fakeAccount = { id: Utils.newGuid() as UserId } as Account;
     accountService.activeAccount$ = of(fakeAccount);
 
     TestBed.configureTestingModule({
       providers: [
-        // we do not inject RestrictedItemTypesService here; we'll do it in each spec
         { provide: PolicyService, useValue: policyService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: AccountService, useValue: accountService },
@@ -65,7 +48,6 @@ describe("RestrictedItemTypesService", () => {
     configService.getFeatureFlag$.mockReturnValue(of(false));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
     expect(result).toEqual([]);
   });
@@ -76,115 +58,104 @@ describe("RestrictedItemTypesService", () => {
     policyService.policies$.mockReturnValue(of([]));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
     expect(result).toEqual([]);
   });
 
-  it("handles a single org with an enabled policy that has undefined data (defaults to [Card], allowView=false)", async () => {
+  it("defaults undefined data to [Card] and returns empty allowViewOrgIds", async () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
-    organizationService.organizations$.mockReturnValue(of<Organization[]>([org1]));
+    organizationService.organizations$.mockReturnValue(of([org1]));
 
     const policyForOrg1 = {
       organizationId: "org1",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: undefined,
-    } as unknown as Policy;
+    } as Policy;
     policyService.policies$.mockReturnValue(of([policyForOrg1]));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
-    expect(result).toEqual([{ cipherType: CipherType.Card, allowView: false }]);
+    expect(result).toEqual<RestrictedCipherType[]>([
+      { cipherType: CipherType.Card, allowViewOrgIds: [] },
+    ]);
   });
 
-  it("if one org restricts Card and another org has no enabled policy, allowView=true for Card", async () => {
+  it("if one org restricts Card and another has no policy, allowViewOrgIds contains the unrestricted org", async () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
-    organizationService.organizations$.mockReturnValue(of<Organization[]>([org1, org2]));
+    organizationService.organizations$.mockReturnValue(of([org1, org2]));
 
     const policyOrg1 = {
       organizationId: "org1",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: [CipherType.Card],
-    } as unknown as Policy;
-
-    // Org2 has an entry but enabled=false, so effectively no restriction
+    } as Policy;
     const policyOrg2 = {
       organizationId: "org2",
       type: PolicyType.RestrictedItemTypes,
       enabled: false,
       data: [CipherType.Card],
-    } as unknown as Policy;
-
+    } as Policy;
     policyService.policies$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
-    expect(result).toEqual([{ cipherType: CipherType.Card, allowView: true }]);
+    expect(result).toEqual<RestrictedCipherType[]>([
+      { cipherType: CipherType.Card, allowViewOrgIds: ["org2"] },
+    ]);
   });
 
-  it("if all orgs restrict Login, allowView=false for Login", async () => {
+  it("returns empty allowViewOrgIds when all orgs restrict Login", async () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
-    organizationService.organizations$.mockReturnValue(of<Organization[]>([org1, org2]));
+    organizationService.organizations$.mockReturnValue(of([org1, org2]));
 
     const policyOrg1 = {
       organizationId: "org1",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: [CipherType.Login],
-    } as unknown as Policy;
-
+    } as Policy;
     const policyOrg2 = {
       organizationId: "org2",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: [CipherType.Login],
-    } as unknown as Policy;
-
+    } as Policy;
     policyService.policies$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
-    expect(result).toEqual([{ cipherType: CipherType.Login, allowView: false }]);
+    expect(result).toEqual<RestrictedCipherType[]>([
+      { cipherType: CipherType.Login, allowViewOrgIds: [] },
+    ]);
   });
 
-  it("aggregates multiple cipher types across orgs and computes allowView correctly", async () => {
+  it("aggregates multiple types and computes allowViewOrgIds correctly", async () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
-    organizationService.organizations$.mockReturnValue(of<Organization[]>([org1, org2]));
+    organizationService.organizations$.mockReturnValue(of([org1, org2]));
 
-    // Org1 restricts [Card, Login]
     const policyOrg1 = {
       organizationId: "org1",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: [CipherType.Card, CipherType.Login],
-    } as unknown as Policy;
-    // Org2 restricts [Login, Identity]
+    } as Policy;
     const policyOrg2 = {
       organizationId: "org2",
       type: PolicyType.RestrictedItemTypes,
       enabled: true,
       data: [CipherType.Login, CipherType.Identity],
-    } as unknown as Policy;
-
+    } as Policy;
     policyService.policies$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
     const service = TestBed.inject(RestrictedItemTypesService);
-
     const result = await firstValueFrom(service.restricted$);
 
-    // unionRestricted = { Card, Login, Identity }
-    // • Card: org1 restricts, org2 does not → allowView = true
-    // • Login: both restrict → allowView = false
-    // • Identity: org1 does not restrict, org2 restricts → allowView = true
-    expect(result).toEqual([
-      { cipherType: CipherType.Card, allowView: true },
-      { cipherType: CipherType.Login, allowView: false },
-      { cipherType: CipherType.Identity, allowView: true },
+    expect(result).toEqual<RestrictedCipherType[]>([
+      { cipherType: CipherType.Card, allowViewOrgIds: ["org2"] },
+      { cipherType: CipherType.Login, allowViewOrgIds: [] },
+      { cipherType: CipherType.Identity, allowViewOrgIds: ["org1"] },
     ]);
   });
 });

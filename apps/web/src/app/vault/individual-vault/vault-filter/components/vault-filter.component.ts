@@ -15,9 +15,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
-import { RestrictedItemTypesService } from "../../../services/restricted-item-types.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
   VaultFilterList,
@@ -148,7 +148,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.restrictedItemTypesService?.restricted$
       .pipe(takeUntil(this.destroy$))
       .subscribe((restrictedTypes) => {
-        this.addTypeFilter(restrictedTypes.filter((r) => !r.allowView).map((r) => r.cipherType))
+        this.addTypeFilter(
+          // Exclude restricted types if there aren't any orgs that allow viewing them
+          restrictedTypes.filter((r) => r.allowViewOrgIds.length === 0).map((r) => r.cipherType),
+        )
           .then((typeFilter) => {
             if (!this.filters) {
               return;

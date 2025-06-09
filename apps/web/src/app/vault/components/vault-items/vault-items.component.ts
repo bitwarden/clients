@@ -12,12 +12,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
+import { RestrictedItemTypesService, RestrictedCipherType } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
-import {
-  RestrictedCipherType,
-  RestrictedItemTypesService,
-} from "../../services/restricted-item-types.service";
 
 import {
   CollectionPermission,
@@ -371,9 +368,15 @@ export class VaultItemsComponent {
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
     const filteredRestrictedItems = items.filter((item) => {
       if (item.cipher) {
-        return !this.restrictedCipherTypes.some(
-          (restrictedType) =>
-            restrictedType.cipherType === item.cipher.type && !restrictedType.allowView,
+        // Filter ciphers if they're restricted
+        // If the cipher type is restricted check, filter it unless:
+        // - If the cipher belongs to an organization and that organization allows viewing the cipher type
+        // OR
+        // - If the cipher belongs to the user's personal vault and any organization does not restrict the cipher type
+        return !this.restrictedCipherTypes.some((restrictedType) =>
+          restrictedType.cipherType === item.cipher.type && item.cipher.organizationId
+            ? !restrictedType.allowViewOrgIds.includes(item.cipher.organizationId)
+            : restrictedType.allowViewOrgIds.length === 0,
         );
       }
       return true;

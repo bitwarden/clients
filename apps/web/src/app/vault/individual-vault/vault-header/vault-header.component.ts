@@ -25,11 +25,11 @@ import {
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
-import { RestrictedItemTypesService } from "../../services/restricted-item-types.service";
 import { PipesModule } from "../pipes/pipes.module";
 import {
   All,
@@ -110,6 +110,7 @@ export class VaultHeaderComponent {
     this.restrictedItemTypesService.restricted$
       .pipe(takeUntilDestroyed())
       .subscribe((restrictedItemTypes) => {
+        // Filter out all restricted item types from the menu
         this.cipherMenuItems = allCipherMenuItems.filter(
           (item) =>
             !restrictedItemTypes.some((restrictedType) => restrictedType.cipherType === item.type),
