@@ -10,32 +10,36 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, KdfConfig } from "@bitwarden/key-management";
 
+import { PasswordInputResult } from "../../input-password/password-input-result";
+
 import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
-  SetInitialPasswordUser,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
   constructor(
     protected apiService: ApiService,
-    protected masterPasswordApiService: MasterPasswordApiService,
-    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
+    protected keyService: KeyService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -78,7 +82,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     let keyPair: [string, EncString] | null = null;
     let keysRequest: KeysRequest | null = null;
 
-    if (userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
+    if (userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       /**
        * A user being JIT provisioned into a MP encryption org does not yet have a user
        * asymmetric key pair, so we create it for them here.
@@ -145,7 +149,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
      * (Existing TDE users will have their private key set on sync or on login.)
      */
-    if (keyPair != null && userType === SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER) {
+    if (keyPair != null && userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       if (!keyPair[1].encryptedString) {
         throw new Error("encryptedString not found. Could not set password.");
       }
@@ -231,5 +235,34 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
       resetRequest,
     );
+  }
+
+  async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult, userId: UserId) {
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      passwordInputResult.newMasterKey,
+      userKey,
+    );
+
+    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
+      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
+    }
+
+    const request = new UpdateTdeOffboardingPasswordRequest();
+    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+    request.masterPasswordHint = passwordInputResult.newPasswordHint;
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
+  async logoutAndOptionallyNavigate() {
+    this.messagingService.send("logout");
   }
 }

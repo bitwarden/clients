@@ -10,11 +10,14 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -29,7 +32,6 @@ import { DefaultSetInitialPasswordService } from "./default-set-initial-password
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -37,47 +39,50 @@ describe("DefaultSetInitialPasswordService", () => {
   let sut: SetInitialPasswordService;
 
   let apiService: MockProxy<ApiService>;
-  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
-  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let keyService: MockProxy<KeyService>;
+  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
+  let messagingService: MockProxy<MessagingService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
-    masterPasswordApiService = mock<MasterPasswordApiService>();
-    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+    messagingService = mock<MessagingService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
     sut = new DefaultSetInitialPasswordService(
       apiService,
-      masterPasswordApiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
+      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
     );
   });
 
-  it("should instantiate the DefaultSetPasswordJitService", () => {
+  it("should instantiate", () => {
     expect(sut).not.toBeFalsy();
   });
 
-  describe("setPassword", () => {
+  describe("setInitialPassword", () => {
     let newMasterKey: MasterKey;
     let userKey: UserKey;
     let userKeyEncString: EncString;
@@ -115,7 +120,7 @@ describe("DefaultSetInitialPasswordService", () => {
       orgId = "orgId";
       resetPasswordAutoEnroll = false;
       userId = "userId" as UserId;
-      userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       passwordInputResult = {
         newMasterKey: newMasterKey,
@@ -247,6 +252,106 @@ describe("DefaultSetInitialPasswordService", () => {
       expect(
         organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setInitialPasswordTdeOffboarding", () => {
+    let newMasterKey: MasterKey;
+    let userKey: UserKey;
+    let userKeyEncString: EncString;
+    let newMasterKeyEncryptedUserKey: [UserKey, EncString];
+    let userId: UserId;
+
+    let passwordInputResult: PasswordInputResult;
+    let request: UpdateTdeOffboardingPasswordRequest;
+
+    beforeEach(() => {
+      newMasterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKeyEncString = new EncString("userKeyEncrypted");
+      newMasterKeyEncryptedUserKey = [userKey, userKeyEncString];
+      userId = "userId" as UserId;
+
+      passwordInputResult = {
+        newMasterKey: newMasterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
+        newPasswordHint: "newPasswordHint",
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        newPassword: "newPassword",
+      };
+
+      request = new UpdateTdeOffboardingPasswordRequest();
+      request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
+      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+      request.masterPasswordHint = passwordInputResult.newPasswordHint;
+    });
+
+    it("should throw if userKey is not found", async () => {
+      // Arrange
+      keyService.userKey$.mockReturnValue(of(null));
+
+      // Act
+      const testFn = sut.setInitialPasswordTdeOffboarding(passwordInputResult, userId);
+
+      // Act and Assert
+      await expect(testFn).rejects.toThrow("userKey not found. Could not set password.");
+    });
+
+    it("should throw if newMasterKeyEncryptedUserKey encryptedString is not found", async () => {
+      // Arrange
+      keyService.userKey$.mockReturnValue(of(userKey));
+      userKeyEncString.encryptedString = undefined; // simulate missing encryptedString
+      keyService.encryptUserKeyWithMasterKey.mockResolvedValue([userKey, userKeyEncString]);
+
+      // Act
+      const testFn = sut.setInitialPasswordTdeOffboarding(passwordInputResult, userId);
+
+      // Act and Assert
+      await expect(testFn).rejects.toThrow(
+        "newMasterKeyEncryptedUserKey not found. Could not set password.",
+      );
+    });
+
+    it("should successfully set the initial password", async () => {
+      // Arrange
+      keyService.userKey$.mockReturnValue(of(userKey));
+      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(newMasterKeyEncryptedUserKey);
+
+      // Act
+      await sut.setInitialPasswordTdeOffboarding(passwordInputResult, userId);
+
+      // Assert
+      expect(masterPasswordApiService.putUpdateTdeOffboardingPassword).toHaveBeenCalledWith(
+        request,
+      );
+    });
+
+    it("should set the forceSetPasswordReason back to None after setting the initial password", async () => {
+      // Arrange
+      keyService.userKey$.mockReturnValue(of(userKey));
+      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(newMasterKeyEncryptedUserKey);
+
+      // Act
+      await sut.setInitialPasswordTdeOffboarding(passwordInputResult, userId);
+
+      // Assert
+      expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
+      expect(masterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.None,
+        userId,
+      );
+    });
+  });
+
+  describe("logoutAndOptionallyNavigate", () => {
+    it("should logout the user via the messagingService", async () => {
+      // Act
+      await sut.logoutAndOptionallyNavigate();
+
+      // Assert
+      expect(messagingService.send).toHaveBeenCalledTimes(1);
+      expect(messagingService.send).toHaveBeenCalledWith("logout");
     });
   });
 });
