@@ -38,6 +38,10 @@ import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
   BadgeModule,
   ButtonModule,
   DialogService,
@@ -112,9 +116,9 @@ const BroadcasterSubscriptionId = "VaultComponent";
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
   ],
 })
-export class VaultV2Component implements OnInit, OnDestroy {
+export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDestroy {
   @ViewChild(VaultItemsV2Component, { static: true })
-  vaultItemsComponent: VaultItemsV2Component | null = null;
+  vaultItemsComponent: VaultItemsV2Component<C> | null = null;
   @ViewChild(VaultFilterComponent, { static: true })
   vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
@@ -353,7 +357,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
   }
 
-  async viewCipher(cipher: CipherView) {
+  async viewCipher(c: CipherViewLike) {
+    const cipher = await this.getFullCipherView(c);
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
@@ -384,7 +389,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
   }
 
-  viewCipherMenu(cipher: CipherView) {
+  async viewCipherMenu(c: CipherViewLike) {
+    const cipher = await this.getFullCipherView(c);
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
@@ -781,5 +787,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
+  }
+
+  private async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
+    if (!CipherViewLikeUtils.isCipherListView(c)) {
+      return Promise.resolve(c);
+    }
+
+    const _cipher = await this.cipherService.get(c.id!, this.activeUserId!);
+    return this.cipherService.decrypt(_cipher, this.activeUserId!);
   }
 }

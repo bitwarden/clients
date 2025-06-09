@@ -9,7 +9,10 @@ import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angul
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -19,7 +22,8 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
   templateUrl: "vault-items-v2.component.html",
   imports: [MenuModule, CommonModule, JslibModule, ScrollingModule],
 })
-export class VaultItemsV2Component extends BaseVaultItemsComponent {
+export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
+  protected CipherViewLikeUtils = CipherViewLikeUtils;
   constructor(
     searchService: SearchService,
     private readonly searchBarService: SearchBarService,
@@ -35,7 +39,7 @@ export class VaultItemsV2Component extends BaseVaultItemsComponent {
       });
   }
 
-  trackByFn(index: number, c: CipherView): string {
-    return c.id;
+  trackByFn(index: number, c: C): string {
+    return c.id!;
   }
 }

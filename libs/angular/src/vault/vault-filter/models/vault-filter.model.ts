@@ -1,11 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherStatus } from "./cipher-status.model";
 
-export type VaultFilterFunction = (cipher: CipherView) => boolean;
+export type VaultFilterFunction = (cipher: CipherViewLike) => boolean;
 
 export class VaultFilter {
   cipherType?: CipherType;
@@ -44,10 +47,10 @@ export class VaultFilter {
         cipherPassesFilter = cipher.favorite;
       }
       if (this.status === "trash" && cipherPassesFilter) {
-        cipherPassesFilter = cipher.isDeleted;
+        cipherPassesFilter = CipherViewLikeUtils.isDeleted(cipher);
       }
       if (this.cipherType != null && cipherPassesFilter) {
-        cipherPassesFilter = cipher.type === this.cipherType;
+        cipherPassesFilter = CipherViewLikeUtils.getType(cipher) === this.cipherType;
       }
       if (this.selectedFolder && this.selectedFolderId == null && cipherPassesFilter) {
         cipherPassesFilter = cipher.folderId == null;
@@ -68,7 +71,7 @@ export class VaultFilter {
         cipherPassesFilter = cipher.organizationId === this.selectedOrganizationId;
       }
       if (this.myVaultOnly && cipherPassesFilter) {
-        cipherPassesFilter = cipher.organizationId === null;
+        cipherPassesFilter = cipher.organizationId == null;
       }
       return cipherPassesFilter;
     };
