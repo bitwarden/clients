@@ -6,7 +6,7 @@
         <input bitInput formControlName="uri" #uriInput />
         <button
           type="button"
-          bitIconButton="bwi-cog"
+          [bitIconButton]="showMatchDetection ? 'bwi-cog-f' : 'bwi-cog'"
           bitSuffix
           [appA11yTitle]="toggleTitle"
           (click)="toggleMatchDetection()"
