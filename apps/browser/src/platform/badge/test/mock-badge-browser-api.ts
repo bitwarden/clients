@@ -2,7 +2,7 @@ import { BadgeBrowserApi, RawBadgeState } from "../badge-browser-api";
 
 export class MockBadgeBrowserApi implements BadgeBrowserApi {
   specificStates: Record<number, RawBadgeState> = {};
-  generalState: RawBadgeState = {};
+  generalState?: RawBadgeState;
   tabs: number[] = [];
 
   setState(state: RawBadgeState, tabId?: number): Promise<void> {

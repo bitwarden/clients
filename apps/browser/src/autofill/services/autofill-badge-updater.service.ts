@@ -1,4 +1,4 @@
-import { combineLatest, distinctUntilChanged, mergeMap, Subject, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, mergeMap, of, Subject, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
@@ -13,7 +13,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 const StateName = (tabId: number) => `autofill-badge-${tabId}`;
 
 export class AutofillBadgeUpdaterService {
-  private tabReplaced$ = new Subject<{ addedTab: chrome.tabs.Tab; removedTabId: number } | null>();
+  private tabReplaced$ = new Subject<{ addedTab: chrome.tabs.Tab; removedTabId: number }>();
   private tabUpdated$ = new Subject<chrome.tabs.Tab>();
   private tabRemoved$ = new Subject<number>();
 
@@ -25,7 +25,7 @@ export class AutofillBadgeUpdaterService {
     private logService: LogService,
   ) {
     const cipherViews$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => this.cipherService.cipherViews$(account?.id)),
+      switchMap((account) => (account?.id ? this.cipherService.cipherViews$(account?.id) : of([]))),
     );
 
     combineLatest({
@@ -138,7 +138,7 @@ export class AutofillBadgeUpdaterService {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(tab.url, userId);
+    const ciphers = tab.url ? await this.cipherService.getAllDecryptedForUrl(tab.url, userId) : [];
     const cipherCount = ciphers.length;
 
     if (cipherCount === 0) {

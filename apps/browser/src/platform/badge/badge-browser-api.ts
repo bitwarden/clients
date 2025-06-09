@@ -7,9 +7,9 @@ import { BadgeIcon, IconPaths } from "./icon";
 
 export interface RawBadgeState {
   tabId?: string;
-  text?: string;
-  backgroundColor?: string;
-  icon?: BadgeIcon;
+  text: string;
+  backgroundColor: string;
+  icon: BadgeIcon;
 }
 
 export interface BadgeBrowserApi {
@@ -34,14 +34,14 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
   }
 
   async getTabs(): Promise<number[]> {
-    return (await BrowserApi.tabsQuery({})).map((tab) => tab.id);
+    return (await BrowserApi.tabsQuery({})).map((tab) => tab.id).filter((tab) => tab !== undefined);
   }
 
-  private setIcon(icon?: IconPaths, tabId?: number) {
+  private setIcon(icon: IconPaths, tabId?: number) {
     return Promise.all([this.setActionIcon(icon, tabId), this.setSidebarActionIcon(icon, tabId)]);
   }
 
-  private setText(text?: string, tabId?: number) {
+  private setText(text: string, tabId?: number) {
     return Promise.all([this.setActionText(text, tabId), this.setSideBarText(text, tabId)]);
   }
 
@@ -98,7 +98,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     }
   }
 
-  private async setBackgroundColor(color?: string, tabId?: number) {
+  private async setBackgroundColor(color: string, tabId?: number) {
     if (this.badgeAction && this.badgeAction?.setBadgeBackgroundColor) {
       await this.badgeAction.setBadgeBackgroundColor({ color, tabId });
     }
