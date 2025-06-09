@@ -1216,8 +1216,8 @@
     "message": "Default URI match detection",
     "description": "Default URI match detection for autofill."
   },
-  "defaultUriMatchDetectionDesc": {
-    "message": "Choose the default way that URI match detection is handled for logins when performing actions such as autofill."
+  "defaultUriMatchDetectionDescription": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.This default is used when one isn't provided at the login item level."
   },
   "theme": {
     "message": "Theme"
