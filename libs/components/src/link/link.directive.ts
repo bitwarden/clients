@@ -1,6 +1,6 @@
-import { Input, HostBinding, Directive, inject, ElementRef, Renderer2 } from "@angular/core";
+import { Input, HostBinding, Directive, inject, ElementRef } from "@angular/core";
 
-import { captureClickEvent } from "../utils";
+import { ariaDisableElement } from "../utils";
 
 export type LinkType = "primary" | "secondary" | "contrast" | "light";
 
@@ -91,39 +91,33 @@ export class AnchorLinkDirective extends LinkDirective {
   selector: "button[bitLink]",
 })
 export class ButtonLinkDirective extends LinkDirective {
+  private el = inject(ElementRef<HTMLElement>);
+  private element: HTMLButtonElement = this.el.nativeElement;
+  private isDisabled =
+    (this.element as HTMLButtonElement).disabled || this.element.hasAttribute("disabled");
+
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType] ?? [])
+      .concat(
+        this.isDisabled
+          ? [
+              "aria-disabled:tw-no-underline",
+              "aria-disabled:tw-pointer-events-none",
+              "aria-disabled:!tw-text-secondary-300",
+              "hover:!tw-text-secondary-300",
+              "hover:tw-no-underline",
+            ]
+          : null,
+      );
   }
-
-  private el = inject(ElementRef<HTMLElement>);
-  private renderer = inject(Renderer2);
-
-  private disabledClasses = [
-    "tw-no-underline",
-    "tw-pointer-events-none",
-    "!tw-text-secondary-300",
-    "hover:!tw-text-secondary-300",
-    "hover:tw-no-underline",
-  ];
 
   constructor() {
     super();
-    const element = this.el.nativeElement;
 
-    const isDisabled = (element as HTMLButtonElement).disabled || element.hasAttribute("disabled");
-
-    if (isDisabled) {
-      this.renderer.removeAttribute(element, "disabled");
-
-      this.renderer.setAttribute(element, "aria-disabled", "true");
-
-      this.disabledClasses.forEach((className) => {
-        this.renderer.addClass(element, className);
-      });
-
-      captureClickEvent(element);
+    if (this.isDisabled) {
+      ariaDisableElement(this.element);
     }
   }
 }

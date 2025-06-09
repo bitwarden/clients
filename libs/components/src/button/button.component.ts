@@ -1,11 +1,23 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Input, HostBinding, Component, model, computed, input, ElementRef } from "@angular/core";
+import {
+  Input,
+  HostBinding,
+  Component,
+  model,
+  computed,
+  input,
+  ElementRef,
+  effect,
+  inject,
+  Injector,
+  runInInjectionContext,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType, ButtonSize } from "../shared/button-like.abstraction";
-import { captureClickEvent } from "../utils";
+import { ariaDisableElement } from "../utils";
 
 const focusRing = [
   "focus-visible:tw-ring-2",
@@ -142,15 +154,18 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   );
 
   disabled = model<boolean>(false);
+  private injector = inject(Injector);
 
   constructor(private elementRef: ElementRef) {
     const element = this.elementRef.nativeElement;
 
-    // Remove disabled attribute if present. Will be replaced by aria-disabled
-    if (element.hasAttribute("disabled")) {
-      element.removeAttribute("disabled");
-    }
-
-    captureClickEvent(element);
+    effect(() => {
+      if (element.hasAttribute("disabled") || element.disabled || this.disabledAttr()) {
+        // Remove native disabled and set aria-disabled. Capture click event
+        runInInjectionContext(this.injector, () => {
+          ariaDisableElement(element);
+        });
+      }
+    });
   }
 }
