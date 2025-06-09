@@ -41,7 +41,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
 @Component({
   selector: "tools-send-form",
   templateUrl: "./send-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: SendFormContainer,

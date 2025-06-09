@@ -1,10 +1,13 @@
 <aside
-  class="tw-mb-4 tw-box-border tw-rounded-lg tw-border tw-border-l-4 tw-border-solid tw-bg-background tw-pl-3 tw-pr-2 tw-py-2 tw-leading-5 tw-text-main"
+  class="tw-mb-4 tw-box-border tw-rounded-lg tw-border tw-border-l-4 tw-border-solid tw-bg-background tw-ps-3 tw-pe-2 tw-py-2 tw-leading-5 tw-text-main"
   [ngClass]="calloutClass"
   [attr.aria-labelledby]="titleId"
 >
   @if (title) {
-    <header id="{{ titleId }}" class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold">
+    <header
+      id="{{ titleId }}"
+      class="tw-mb-1 tw-mt-0 tw-text-base tw-font-semibold tw-flex tw-gap-2 tw-items-center"
+    >
       @if (icon) {
         <i class="bwi" [ngClass]="[icon, headerClass]" aria-hidden="true"></i>
       }

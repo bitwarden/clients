@@ -19,7 +19,6 @@ import { SharedModule } from "../../../shared";
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {

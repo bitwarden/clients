@@ -6,7 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import AutofillInit from "../content/autofill-init";
 import {
   AutofillOverlayElement,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -1383,7 +1383,7 @@ describe("AutofillOverlayContentService", () => {
           );
           expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
           expect(inputAccountFieldData.inlineMenuFillType).toEqual(
-            InlineMenuFillType.AccountCreationUsername,
+            InlineMenuFillTypes.AccountCreationUsername,
           );
         });
 
@@ -1420,7 +1420,7 @@ describe("AutofillOverlayContentService", () => {
           await flushPromises();
 
           expect(currentPasswordFieldData.inlineMenuFillType).toEqual(
-            InlineMenuFillType.CurrentPasswordUpdate,
+            InlineMenuFillTypes.CurrentPasswordUpdate,
           );
         });
       });

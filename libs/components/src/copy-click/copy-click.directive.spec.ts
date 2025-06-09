@@ -21,7 +21,6 @@ import { CopyClickDirective } from "./copy-click.directive";
       #toastWithLabel
     ></button>
   `,
-  standalone: true,
   imports: [CopyClickDirective],
 })
 class TestCopyClickComponent {
