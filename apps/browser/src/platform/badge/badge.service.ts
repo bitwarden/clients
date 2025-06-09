@@ -56,6 +56,21 @@ export class BadgeService {
         }),
         filter(({ removed, added }) => removed.size > 0 || added.size > 0),
         mergeMap(async ({ states, removed, added }) => {
+          const changed = [...removed, ...added];
+          const changedTabIds = new Set(
+            changed.map((s) => s.tabId).filter((tabId) => tabId !== undefined),
+          );
+          const onlyTabSpecificStatesChanged = changed.every((s) => s.tabId != undefined);
+          if (onlyTabSpecificStatesChanged) {
+            // If only tab-specific states changed then we only need to update those specific tabs.
+            for (const tabId of changedTabIds) {
+              const newState = this.calculateState(states, tabId);
+              await this.badgeApi.setState(newState, tabId);
+            }
+            return;
+          }
+
+          // If there are any general states that changed then we need to update all tabs.
           const openTabs = await this.badgeApi.getTabs();
           const generalState = this.calculateState(states);
           await this.badgeApi.setState(generalState);
@@ -63,35 +78,6 @@ export class BadgeService {
             const newState = this.calculateState(states, tabId);
             await this.badgeApi.setState(newState, tabId);
           }
-
-          // const changed = [...removed, ...added];
-          // const changedTabIds = new Set(
-          //   changed.map((s) => s.tabId).filter((tabId) => tabId !== undefined),
-          // );
-          // const onlyTabSpecificStatesChanged = changed.every((s) => s.tabId != undefined);
-          // if (onlyTabSpecificStatesChanged) {
-          //   // If only tab-specific states changed then we only need to update those specific tabs.
-          //   for (const tabId of changedTabIds) {
-          //     const newState = this.calculateState(states, tabId);
-          //     await this.badgeApi.setState(newState, tabId);
-          //     console.log(
-          //       "[BadgeService] Updated tab-specific state for tab",
-          //       tabId,
-          //       newState,
-          //       changedTabIds,
-          //       states,
-          //     );
-          //   }
-          //   return;
-          // }
-          // // If there are any general states that changed then we need to update all tabs.
-          // const openTabs = await this.badgeApi.getTabs();
-          // const generalState = this.calculateState(states);
-          // await this.setStateForTabs(generalState, openTabs);
-          // for (const tabId of openTabs) {
-          //   const newState = this.calculateState(states, tabId);
-          //   await this.badgeApi.setState(newState, tabId);
-          // }
         }),
       )
       .subscribe();
