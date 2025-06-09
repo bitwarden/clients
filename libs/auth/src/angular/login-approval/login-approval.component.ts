@@ -40,7 +40,6 @@ export interface LoginApprovalDialogParams {
 @Component({
   selector: "login-approval",
   templateUrl: "login-approval.component.html",
-  standalone: true,
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
 export class LoginApprovalComponent implements OnInit, OnDestroy {
@@ -101,6 +100,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.updateTimeText();
       }, RequestTimeUpdate);
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
 
       this.loading = false;

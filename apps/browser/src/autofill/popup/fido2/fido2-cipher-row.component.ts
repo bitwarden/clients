@@ -10,8 +10,6 @@ import {
   ButtonModule,
   IconButtonModule,
   ItemModule,
-  SectionComponent,
-  SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -19,7 +17,6 @@ import {
   selector: "app-fido2-cipher-row",
   templateUrl: "fido2-cipher-row.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     BadgeModule,
     ButtonModule,
@@ -27,8 +24,6 @@ import {
     IconButtonModule,
     ItemModule,
     JslibModule,
-    SectionComponent,
-    SectionHeaderComponent,
     TypographyModule,
   ],
 })

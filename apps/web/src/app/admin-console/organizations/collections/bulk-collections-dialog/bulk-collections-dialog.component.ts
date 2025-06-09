@@ -54,7 +54,6 @@ export enum BulkCollectionsDialogResult {
   imports: [SharedModule, AccessSelectorModule],
   selector: "app-bulk-collections-dialog",
   templateUrl: "bulk-collections-dialog.component.html",
-  standalone: true,
 })
 export class BulkCollectionsDialogComponent implements OnDestroy {
   protected readonly PermissionMode = PermissionMode;

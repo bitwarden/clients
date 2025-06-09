@@ -28,7 +28,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
 @Component({
   selector: "vault-sshkey-section",
   templateUrl: "./sshkey-section.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     TypographyModule,

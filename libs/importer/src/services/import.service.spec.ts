@@ -1,5 +1,4 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -8,14 +7,13 @@ import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
 import { Importer } from "../importers/importer";
@@ -35,7 +33,7 @@ describe("ImportService", () => {
   let encryptService: MockProxy<EncryptService>;
   let pinService: MockProxy<PinServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
-  let sdkService: MockProxy<SdkService>;
+  let sdkService: MockSdkService;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -46,9 +44,7 @@ describe("ImportService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     pinService = mock<PinServiceAbstraction>();
-    const mockClient = mock<BitwardenClient>();
-    sdkService = mock<SdkService>();
-    sdkService.client$ = of(mockClient, mockClient, mockClient);
+    sdkService = new MockSdkService();
 
     importService = new ImportService(
       cipherService,
@@ -116,10 +112,6 @@ describe("ImportService", () => {
     mockImportTargetFolder.name = "myImportTarget";
 
     it("passing importTarget adds it to folders", async () => {
-      folderService.getAllDecryptedFromState.mockReturnValue(
-        Promise.resolve([mockImportTargetFolder]),
-      );
-
       await importService["setImportTarget"](importResult, null, mockImportTargetFolder);
       expect(importResult.folders.length).toBe(1);
       expect(importResult.folders[0]).toBe(mockImportTargetFolder);
@@ -134,12 +126,6 @@ describe("ImportService", () => {
     mockFolder2.name = "folder2";
 
     it("passing importTarget sets it as new root for all existing folders", async () => {
-      folderService.getAllDecryptedFromState.mockResolvedValue([
-        mockImportTargetFolder,
-        mockFolder1,
-        mockFolder2,
-      ]);
-
       importResult.folders.push(mockFolder1);
       importResult.folders.push(mockFolder2);
 
@@ -170,11 +156,6 @@ describe("ImportService", () => {
     mockCollection1.organizationId = organizationId;
 
     it("passing importTarget adds it to collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-      ]);
-
       await importService["setImportTarget"](
         importResult,
         organizationId,
@@ -185,12 +166,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget sets it as new root for all existing collections", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
-
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
 
@@ -230,12 +205,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget, collectionRelationship has the expected values", async () => {
-      collectionService.getAllDecrypted.mockResolvedValue([
-        mockImportTargetCollection,
-        mockCollection1,
-        mockCollection2,
-      ]);
-
       importResult.ciphers.push(createCipher({ name: "cipher1" }));
       importResult.ciphers.push(createCipher({ name: "cipher2" }));
       importResult.collectionRelationships.push([0, 0]);
@@ -253,12 +222,6 @@ describe("ImportService", () => {
     });
 
     it("passing importTarget, folderRelationship has the expected values", async () => {
-      folderService.getAllDecryptedFromState.mockResolvedValue([
-        mockImportTargetFolder,
-        mockFolder1,
-        mockFolder2,
-      ]);
-
       importResult.folders.push(mockFolder1);
       importResult.folders.push(mockFolder2);
 

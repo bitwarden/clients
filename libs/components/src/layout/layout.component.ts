@@ -11,7 +11,6 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "bit-layout",
   templateUrl: "layout.component.html",
-  standalone: true,
   imports: [CommonModule, SharedModule, LinkModule, RouterModule, PortalModule],
   hostDirectives: [DrawerHostDirective],
 })

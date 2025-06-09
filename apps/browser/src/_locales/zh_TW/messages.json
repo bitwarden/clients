@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "功能不可用"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要遷移加密金鑰。請透過網頁版密碼庫登入以更新您的加密金鑰。"
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "進階會員"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "使用此密碼"
   },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
   "useThisUsername": {
     "message": "使用此使用者名稱"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "默認隱藏文字"
@@ -3606,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "沒有可用的 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 可以與任何人安全地共用加密資訊。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

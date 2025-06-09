@@ -31,7 +31,6 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "extension-anon-layout-wrapper.component.html",
   imports: [
     AnonLayoutComponent,

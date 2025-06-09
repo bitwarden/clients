@@ -13,7 +13,6 @@ import { SideNavService } from "./side-nav.service";
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",
-  standalone: true,
   imports: [RouterLinkActive, RouterLink, BitIconComponent, NavItemComponent],
 })
 export class NavLogoComponent {
