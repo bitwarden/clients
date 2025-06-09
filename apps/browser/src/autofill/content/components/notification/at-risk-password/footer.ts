@@ -23,7 +23,7 @@ export function AtRiskNotificationFooter({
     ${passwordChangeUri &&
     ActionButton({
       handleClick: () => {
-        open("https://" + passwordChangeUri, "_blank");
+        open(passwordChangeUri, "_blank");
       },
       buttonText: AdditionalTasksButtonContent({ buttonText: i18n.changePassword, theme }),
       theme,
