@@ -8,8 +8,8 @@ import { CollectionData } from "./collection.data";
 import { CollectionView } from "./collection.view";
 
 export const CollectionTypes = {
-  Shared: 1,
-  Individual: 2,
+  SharedCollection: 0,
+  DefaultUserCollection: 1,
 } as const;
 
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
