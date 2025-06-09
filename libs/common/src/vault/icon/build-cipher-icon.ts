@@ -37,14 +37,14 @@ export function buildCipherIcon(
   }
 
   const cipherType = CipherViewLikeUtils.getType(cipher);
-  const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+  const uri = CipherViewLikeUtils.uri(cipher);
 
   switch (cipherType) {
     case CipherType.Login:
       icon = "bwi-globe";
 
-      if (login?.uris?.length) {
-        let hostnameUri = login.uris[0]?.uri || "";
+      if (uri) {
+        let hostnameUri = uri;
         let isWebsite = false;
 
         if (hostnameUri.indexOf("androidapp://") === 0) {

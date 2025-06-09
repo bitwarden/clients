@@ -31,6 +31,20 @@ export class CipherViewLikeUtils {
     return cipher.type === CipherType.Login ? cipher.login : null;
   };
 
+  /** @returns The first URI for a login cipher. If the cipher is not of type Login or has no associated URIs, returns null. */
+  static uri = (cipher: CipherViewLike) => {
+    const login = this.getCipherViewLikeLogin(cipher);
+    if (!login) {
+      return null;
+    }
+
+    if ("uri" in login) {
+      return login.uri;
+    }
+
+    return login.uris?.length ? login.uris[0].uri : null;
+  };
+
   /**  @returns `true` when the cipher has been deleted, `false` otherwise. */
   static isDeleted = (cipher: CipherViewLike): boolean => {
     if (this.isCipherListView(cipher)) {
