@@ -72,7 +72,6 @@ export class TwoFactorAuthEmailComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.twoFactorAuthEmailComponentService.openPopoutIfApprovedForEmail2fa?.();
-    await this.cacheService.init();
 
     // Check if email was already sent
     const cachedData = this.cacheService.getCachedData();

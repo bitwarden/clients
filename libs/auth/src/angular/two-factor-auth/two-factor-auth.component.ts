@@ -177,9 +177,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     this.listenForAuthnSessionTimeout();
 
-    // Initialize the cache
-    await this.twoFactorAuthComponentCacheService.init();
-
     // Load cached form data if available
     let loadedCachedProviderType = false;
     const cachedData = this.twoFactorAuthComponentCacheService.getCachedData();

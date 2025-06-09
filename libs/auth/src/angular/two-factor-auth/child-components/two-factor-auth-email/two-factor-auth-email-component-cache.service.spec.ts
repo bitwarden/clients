@@ -3,7 +3,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
@@ -59,34 +58,6 @@ describe("TwoFactorAuthEmailComponentCacheService", () => {
 
   it("creates the service", () => {
     expect(service).toBeTruthy();
-  });
-
-  describe("init", () => {
-    it("sets featureEnabled to true when flag is enabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ emailSent: true });
-      expect(mockSignal.set).toHaveBeenCalled();
-    });
-
-    it("sets featureEnabled to false when flag is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ emailSent: true });
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
   });
 
   describe("cacheData", () => {
