@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Functionaliteit niet beschikbaar"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migratie van de encryptiesleutel vereist. Login via de website om je sleutel te bij te werken."
+  "legacyEncryptionUnsupported": {
+    "message": "Oude versleuteling wordt niet langer ondersteund. Neem contact op voor ondersteuning om je account te herstellen."
   },
   "premiumMembership": {
     "message": "Premium-abonnement"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Gebruiker vertrouwen"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Geen actieve Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Gebruik Send voor het veilig delen van versleutelde informatie met wie dan ook.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Gevoelige informatie veilig versturen",

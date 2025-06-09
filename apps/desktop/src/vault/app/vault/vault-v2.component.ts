@@ -34,7 +34,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -323,6 +323,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   async load() {
     const params = await firstValueFrom(this.route.queryParams).catch();
+    const paramCipherAddType = toCipherType(params.addType);
     if (params.cipherId) {
       const cipherView = new CipherView();
       cipherView.id = params.cipherId;
@@ -333,17 +334,15 @@ export class VaultV2Component implements OnInit, OnDestroy {
       } else {
         await this.viewCipher(cipherView).catch(() => {});
       }
-    } else if (params.action === "add") {
-      this.addType = Number(params.addType);
+    } else if (params.action === "add" && paramCipherAddType) {
+      this.addType = paramCipherAddType;
       await this.addCipher(this.addType).catch(() => {});
     }
 
+    const paramCipherType = toCipherType(params.type);
     this.activeFilter = new VaultFilter({
       status: params.deleted ? "trash" : params.favorites ? "favorites" : "all",
-      cipherType:
-        params.action === "add" || params.type == null
-          ? undefined
-          : (parseInt(params.type) as CipherType),
+      cipherType: params.action === "add" || paramCipherType == null ? undefined : paramCipherType,
       selectedFolderId: params.folderId,
       selectedCollectionId: params.selectedCollectionId,
       selectedOrganizationId: params.selectedOrganizationId,

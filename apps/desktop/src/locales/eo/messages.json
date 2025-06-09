@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "La minimuma dosiergrando estas 500 MB"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "La dosierujo konserviĝis"
@@ -1705,7 +1705,7 @@
     "message": "Pasvorte protektata"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Ŝargi pasvorton al la dosiero por ĉifri la elporton kaj ĝin enporti al ajna konto ĉe Bitwarden uzante la pasvorton por malĉifri."
+    "message": "Ŝargu pasvorton al la dosiero por ĉifri la elporton kaj ĝin enportu al ajna konto ĉe Bitwarden uzante la pasvorton por malĉifri."
   },
   "exportTypeHeading": {
     "message": "Tipo de elporto"
