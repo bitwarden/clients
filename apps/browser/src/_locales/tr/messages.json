@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Özellik kullanılamıyor"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Şifreleme anahtarınızın güncellenmesi gerekiyor. Şifreleme anahtarınızı güncellemek için lütfen web kasasına giriş yapın."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium üyelik"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktif Send yok",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Şifrelenmiş bilgileri güvenle paylaşmak için Send'i kullanabilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Hassas bilgileri güvenle paylaşın",

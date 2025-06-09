@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "പരമാവധി ഫയൽ വലുപ്പം 500 MB ആണ്."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "ഫോൾഡർ തിരുത്തി"
