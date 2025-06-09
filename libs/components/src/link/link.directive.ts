@@ -109,7 +109,7 @@ export class ButtonLinkDirective extends LinkDirective {
               "hover:!tw-text-secondary-300",
               "hover:tw-no-underline",
             ]
-          : null,
+          : "",
       );
   }
 

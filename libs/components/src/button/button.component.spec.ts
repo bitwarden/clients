@@ -34,16 +34,18 @@ describe("Button", () => {
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
-  it("should be aria-disabled when disabled is true", () => {
+  it("should be aria-disabled and not html attribute disabled when disabled is true", () => {
     testAppComponent.disabled = true;
     fixture.detectChanges();
     expect(buttonDebugElement.attributes["aria-disabled"]).toBeTruthy();
+    expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
     // Anchor tags cannot be disabled.
   });
 
-  it("should be aria-disabled when attribute disabled is true", () => {
+  it("should be aria-disabled not html attribute disabled when attribute disabled is true", () => {
     fixture.detectChanges();
     expect(disabledButtonDebugElement.attributes["aria-disabled"]).toBeTruthy();
+    expect(disabledButtonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
   it("should be disabled when loading is true", () => {
