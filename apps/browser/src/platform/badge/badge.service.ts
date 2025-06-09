@@ -1,6 +1,5 @@
 import { defer, filter, map, mergeMap, pairwise, Subscription, switchMap } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   BADGE_MEMORY,
   GlobalState,
@@ -30,7 +29,6 @@ export class BadgeService {
   constructor(
     private stateProvider: StateProvider,
     private badgeApi: BadgeBrowserApi,
-    private logService: LogService,
   ) {
     this.states = this.stateProvider.getGlobal(BADGE_STATES);
   }

@@ -1,7 +1,5 @@
-import { mock, MockProxy } from "jest-mock-extended";
 import { Subscription } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FakeAccountService, FakeStateProvider } from "@bitwarden/common/spec";
 
 import { RawBadgeState } from "./badge-browser-api";
@@ -15,7 +13,6 @@ import { MockBadgeBrowserApi } from "./test/mock-badge-browser-api";
 describe("BadgeService", () => {
   let badgeApi: MockBadgeBrowserApi;
   let stateProvider: FakeStateProvider;
-  let logService!: MockProxy<LogService>;
   let badgeService!: BadgeService;
 
   let badgeServiceSubscription: Subscription;
@@ -23,9 +20,8 @@ describe("BadgeService", () => {
   beforeEach(() => {
     badgeApi = new MockBadgeBrowserApi();
     stateProvider = new FakeStateProvider(new FakeAccountService({}));
-    logService = mock<LogService>();
 
-    badgeService = new BadgeService(stateProvider, badgeApi, logService);
+    badgeService = new BadgeService(stateProvider, badgeApi);
   });
 
   afterEach(() => {
