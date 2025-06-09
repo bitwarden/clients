@@ -2,7 +2,7 @@ import { makeSymmetricCryptoKey, mockEnc } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
-import { Collection } from "./collection";
+import { Collection, CollectionTypes } from "./collection";
 import { CollectionData } from "./collection.data";
 
 describe("Collection", () => {
@@ -17,6 +17,7 @@ describe("Collection", () => {
       readOnly: true,
       manage: true,
       hidePasswords: true,
+      type: CollectionTypes.DefaultUserCollection,
     };
   });
 
