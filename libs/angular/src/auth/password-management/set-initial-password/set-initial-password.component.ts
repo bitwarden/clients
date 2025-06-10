@@ -3,6 +3,17 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  AnonLayoutWrapperDataService,
+  InputPasswordComponent,
+  InputPasswordFlow,
+  PasswordInputResult,
+  SetInitialPasswordCredentials,
+  SetInitialPasswordService,
+  SetInitialPasswordUserType,
+} from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -17,19 +28,6 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CalloutComponent, DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { AnonLayoutWrapperDataService } from "../../anon-layout/anon-layout-wrapper-data.service";
-import {
-  InputPasswordComponent,
-  InputPasswordFlow,
-} from "../../input-password/input-password.component";
-import { PasswordInputResult } from "../../input-password/password-input-result";
-
-import {
-  SetInitialPasswordService,
-  SetInitialPasswordCredentials,
-  SetInitialPasswordUserType,
-} from "./set-initial-password.service.abstraction";
 
 @Component({
   standalone: true,

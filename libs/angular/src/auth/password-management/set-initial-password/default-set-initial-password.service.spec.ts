@@ -1,7 +1,14 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { PasswordInputResult } from "@bitwarden/auth/angular";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   FakeUserDecryptionOptions as UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -22,8 +29,6 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
-
-import { PasswordInputResult } from "../../input-password/password-input-result";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
 import {

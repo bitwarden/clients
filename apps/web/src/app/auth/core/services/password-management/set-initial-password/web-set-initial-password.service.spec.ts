@@ -23,9 +23,8 @@ import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { AcceptOrganizationInviteService } from "@bitwarden/web-vault/app/auth/organization-invite/accept-organization.service";
 import { RouterService } from "@bitwarden/web-vault/app/core";
-
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";
 

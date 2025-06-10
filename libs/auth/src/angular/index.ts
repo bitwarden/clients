@@ -43,11 +43,6 @@ export * from "./password-callout/password-callout.component";
 // password hint
 export * from "./password-hint/password-hint.component";
 
-// password management
-export * from "./password-management/set-initial-password/set-initial-password.component";
-export * from "./password-management/set-initial-password/set-initial-password.service.abstraction";
-export * from "./password-management/set-initial-password/default-set-initial-password.service.implementation";
-
 // registration
 export * from "./registration/registration-start/registration-start.component";
 export * from "./registration/registration-finish/registration-finish.component";
