@@ -1,4 +1,12 @@
-import { Input, HostBinding, Directive, inject, ElementRef } from "@angular/core";
+import {
+  Input,
+  HostBinding,
+  Directive,
+  inject,
+  ElementRef,
+  input,
+  booleanAttribute,
+} from "@angular/core";
 
 import { ariaDisableElement } from "../utils";
 
@@ -98,8 +106,8 @@ export class AnchorLinkDirective extends LinkDirective {
 export class ButtonLinkDirective extends LinkDirective {
   private el = inject(ElementRef<HTMLElement>);
   private element: HTMLButtonElement = this.el.nativeElement;
-  private isDisabled =
-    (this.element as HTMLButtonElement).disabled || this.element.hasAttribute("disabled");
+
+  disabled = input(false, { transform: booleanAttribute });
 
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
@@ -110,8 +118,6 @@ export class ButtonLinkDirective extends LinkDirective {
   constructor() {
     super();
 
-    if (this.isDisabled) {
-      ariaDisableElement(this.element);
-    }
+    ariaDisableElement(this.element, this.disabled);
   }
 }

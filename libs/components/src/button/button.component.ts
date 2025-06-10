@@ -8,10 +8,8 @@ import {
   computed,
   input,
   ElementRef,
-  effect,
   inject,
   Injector,
-  runInInjectionContext,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
@@ -159,14 +157,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   constructor() {
     const element = this.elementRef.nativeElement;
-
-    effect(() => {
-      if (element.hasAttribute("disabled") || element.disabled || this.disabledAttr()) {
-        // Remove native disabled and set aria-disabled. Capture click event
-        runInInjectionContext(this.injector, () => {
-          ariaDisableElement(element);
-        });
-      }
-    });
+    ariaDisableElement(element, this.disabledAttr);
   }
 }
