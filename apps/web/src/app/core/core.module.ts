@@ -10,6 +10,7 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -33,7 +34,6 @@ import {
   SsoComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthDuoComponentService,
-  SetInitialPasswordService,
   ChangePasswordService,
 } from "@bitwarden/auth/angular";
 import {

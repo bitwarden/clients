@@ -10,9 +10,6 @@ import {
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
-  SetInitialPasswordCredentials,
-  SetInitialPasswordService,
-  SetInitialPasswordUserType,
 } from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -28,6 +25,12 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CalloutComponent, DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import {
+  SetInitialPasswordCredentials,
+  SetInitialPasswordService,
+  SetInitialPasswordUserType,
+} from "./set-initial-password.service.abstraction";
 
 @Component({
   standalone: true,
