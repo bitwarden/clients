@@ -54,6 +54,7 @@ type InactiveAccount = ActiveAccount & {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
+  standalone: false,
 })
 export class AccountSwitcherComponent implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;

@@ -42,7 +42,6 @@ import {
 } from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
-  standalone: true,
   selector: "app-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [
@@ -152,7 +151,9 @@ export class VaultHeaderComponent implements OnInit {
   }
 
   protected get icon() {
-    return this.filter.collectionId && this.filter.collectionId !== All ? "bwi-collection" : "";
+    return this.filter.collectionId && this.filter.collectionId !== All
+      ? "bwi-collection-shared"
+      : "";
   }
 
   /**

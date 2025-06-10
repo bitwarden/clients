@@ -6,7 +6,6 @@ import { FocusableElement } from "../shared/focusable-element";
 
 @Directive({
   selector: "bitA11yCell",
-  standalone: true,
   providers: [{ provide: FocusableElement, useExisting: A11yCellDirective }],
 })
 export class A11yCellDirective implements FocusableElement {

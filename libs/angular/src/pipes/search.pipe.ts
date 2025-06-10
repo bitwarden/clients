@@ -6,6 +6,7 @@ type PropertyValueFunction<T> = (item: T) => { toString: () => string };
 
 @Pipe({
   name: "search",
+  standalone: false,
 })
 export class SearchPipe implements PipeTransform {
   transform<T>(

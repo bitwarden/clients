@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
@@ -84,7 +86,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
   async encrypt(model: FolderView, key: SymmetricCryptoKey): Promise<Folder> {
     const folder = new Folder();
     folder.id = model.id;
-    folder.name = await this.encryptService.encrypt(model.name, key);
+    folder.name = await this.encryptService.encryptString(model.name, key);
     return folder;
   }
 

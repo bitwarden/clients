@@ -14,7 +14,6 @@ import {
   CardComponent,
   FormFieldModule,
   IconButtonModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -23,7 +22,6 @@ import {
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
-  standalone: true,
   selector: "vault-identity-section",
   templateUrl: "./identity.component.html",
   imports: [
@@ -31,7 +29,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     ButtonModule,
     JslibModule,
     ReactiveFormsModule,
-    SectionComponent,
     SectionHeaderComponent,
     CardComponent,
     FormFieldModule,

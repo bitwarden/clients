@@ -22,7 +22,6 @@ import { PaymentLabelComponent } from "./payment-label.component";
 @Component({
   selector: "app-payment",
   templateUrl: "./payment.component.html",
-  standalone: true,
   imports: [BillingServicesModule, SharedModule, PaymentLabelComponent],
 })
 export class PaymentComponent implements OnInit, OnDestroy {
@@ -99,6 +98,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const { type, token } = await this.tokenize();
     await this.onSubmit?.({ type, token });
     this.submitted.emit(type);
+  };
+
+  validate = () => {
+    if (!this.usingBankAccount) {
+      return true;
+    }
+
+    this.formGroup.controls.bankInformation.markAllAsTouched();
+    return this.formGroup.controls.bankInformation.valid;
   };
 
   /**

@@ -5,5 +5,6 @@ import { StatusFilterComponent as BaseStatusFilterComponent } from "@bitwarden/a
 @Component({
   selector: "app-status-filter",
   templateUrl: "status-filter.component.html",
+  standalone: false,
 })
 export class StatusFilterComponent extends BaseStatusFilterComponent {}

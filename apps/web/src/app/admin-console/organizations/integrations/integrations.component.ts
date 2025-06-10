@@ -22,7 +22,6 @@ import { Integration } from "../shared/components/integrations/models";
 @Component({
   selector: "ac-integrations",
   templateUrl: "./integrations.component.html",
-  standalone: true,
   imports: [
     SharedModule,
     SharedOrganizationModule,

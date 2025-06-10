@@ -335,38 +335,6 @@ describe("BiometricMessageHandlerService", () => {
       });
     });
 
-    it("should show update dialog when legacy unlock is requested with fingerprint active", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      encryptService.decryptToUtf8.mockResolvedValue(
-        JSON.stringify({
-          command: "biometricUnlock",
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: "biometricUnlock",
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
-    });
-
     it("should send verify fingerprint when fingerprinting is required on modern unlock, and dialog is accepted, and set to trusted", async () => {
       desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
       (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
@@ -382,7 +350,7 @@ describe("BiometricMessageHandlerService", () => {
       ngZone.run.mockReturnValue({
         closed: of(true),
       });
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,
@@ -433,7 +401,7 @@ describe("BiometricMessageHandlerService", () => {
       ngZone.run.mockReturnValue({
         closed: of(false),
       });
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,
@@ -480,7 +448,7 @@ describe("BiometricMessageHandlerService", () => {
           trusted: true,
         }),
       );
-      encryptService.decryptToUtf8.mockResolvedValue(
+      encryptService.decryptString.mockResolvedValue(
         JSON.stringify({
           command: BiometricsCommands.UnlockWithBiometricsForUser,
           messageId: 0,

@@ -20,7 +20,6 @@ import { SharedModule } from "../../../../../../shared/shared.module";
 @Component({
   selector: "app-integration-card",
   templateUrl: "./integration-card.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class IntegrationCardComponent implements AfterViewInit, OnDestroy {

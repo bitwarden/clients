@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -19,10 +19,9 @@ import {
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
   SHOW_AUTOFILL_BUTTON,
+  UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -49,6 +48,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { sendExtensionMessage } from "../../../../../autofill/utils/index";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -72,12 +72,12 @@ type LoadAction =
   | typeof SHOW_AUTOFILL_BUTTON
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
-  | typeof COPY_VERIFICATION_CODE_ID;
+  | typeof COPY_VERIFICATION_CODE_ID
+  | typeof UPDATE_PASSWORD;
 
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,
@@ -110,7 +110,6 @@ export class ViewV2Component {
   loadAction: LoadAction;
   senderTabId?: number;
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected showFooter$: Observable<boolean>;
 
   constructor(
@@ -129,7 +128,6 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
-    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -158,17 +156,10 @@ export class ViewV2Component {
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
 
-          this.showFooter$ = this.limitItemDeletion$.pipe(
-            map((enabled) => {
-              if (enabled) {
-                return (
-                  cipher &&
-                  (!cipher.isDeleted ||
-                    (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete)))
-                );
-              }
-              return this.showFooterLegacy();
-            }),
+          this.showFooter$ = of(
+            cipher &&
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
           await this.eventCollectionService.collect(
@@ -200,9 +191,7 @@ export class ViewV2Component {
 
   async getCipherData(id: string, userId: UserId) {
     const cipher = await this.cipherService.get(id, userId);
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, userId),
-    );
+    return await this.cipherService.decrypt(cipher, userId);
   }
 
   async editCipher() {
@@ -268,15 +257,6 @@ export class ViewV2Component {
       : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
   }
 
-  //@TODO: remove this when the LimitItemDeletion feature flag is removed
-  protected showFooterLegacy(): boolean {
-    return (
-      this.cipher &&
-      (!this.cipher.isDeleted ||
-        (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
-    );
-  }
-
   /**
    * Handles the load action for the view vault item popout. These actions are typically triggered
    * via the extension context menu. It is necessary to render the view for items that have password
@@ -294,7 +274,7 @@ export class ViewV2Component {
     // Both vaultPopupAutofillService and copyCipherFieldService will perform password re-prompting internally.
 
     switch (loadAction) {
-      case "show-autofill-button":
+      case SHOW_AUTOFILL_BUTTON:
         // This action simply shows the cipher view, no need to do anything.
         if (
           this.cipher.reprompt !== CipherRepromptType.None &&
@@ -303,30 +283,42 @@ export class ViewV2Component {
           await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
         }
         return;
-      case "autofill":
+      case AUTOFILL_ID:
         actionSuccess = await this.vaultPopupAutofillService.doAutofill(this.cipher, false);
         break;
-      case "copy-username":
+      case COPY_USERNAME_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.username,
           "username",
           this.cipher,
         );
         break;
-      case "copy-password":
+      case COPY_PASSWORD_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.password,
           "password",
           this.cipher,
         );
         break;
-      case "copy-totp":
+      case COPY_VERIFICATION_CODE_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.totp,
           "totp",
           this.cipher,
         );
         break;
+      case UPDATE_PASSWORD: {
+        const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
+
+        await sendExtensionMessage("bgHandleReprompt", {
+          tab: await chrome.tabs.get(senderTabId),
+          success: repromptSuccess,
+        });
+
+        await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+
+        break;
+      }
     }
 
     if (BrowserPopupUtils.inPopout(window)) {

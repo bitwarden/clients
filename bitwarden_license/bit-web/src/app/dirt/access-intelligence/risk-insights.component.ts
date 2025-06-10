@@ -15,7 +15,6 @@ import {
   DrawerType,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -32,11 +31,12 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AllApplicationsComponent } from "./all-applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications.component";
-import { NotifiedMembersTableComponent } from "./notified-members-table.component";
 import { PasswordHealthMembersURIComponent } from "./password-health-members-uri.component";
 import { PasswordHealthMembersComponent } from "./password-health-members.component";
 import { PasswordHealthComponent } from "./password-health.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum RiskInsightsTabType {
   AllApps = 0,
   CriticalApps = 1,
@@ -44,7 +44,6 @@ export enum RiskInsightsTabType {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./risk-insights.component.html",
   imports: [
     AllApplicationsComponent,
@@ -57,7 +56,6 @@ export enum RiskInsightsTabType {
     PasswordHealthComponent,
     PasswordHealthMembersComponent,
     PasswordHealthMembersURIComponent,
-    NotifiedMembersTableComponent,
     TabsModule,
     DrawerComponent,
     DrawerBodyComponent,
@@ -70,7 +68,6 @@ export class RiskInsightsComponent implements OnInit {
 
   dataLastUpdated: Date = new Date();
 
-  isCriticalAppsFeatureEnabled: boolean = false;
   criticalApps$: Observable<PasswordHealthReportApplicationsResponse[]> = new Observable();
   showDebugTabs: boolean = false;
 
@@ -100,10 +97,6 @@ export class RiskInsightsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
-
     this.showDebugTabs = devFlagEnabled("showRiskInsightsDebug");
 
     this.route.paramMap

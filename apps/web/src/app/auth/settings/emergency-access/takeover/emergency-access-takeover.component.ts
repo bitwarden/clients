@@ -24,6 +24,8 @@ import { KdfType, KdfConfigService, KeyService } from "@bitwarden/key-management
 
 import { EmergencyAccessService } from "../../../emergency-access";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum EmergencyAccessTakeoverResultType {
   Done = "done",
 }
@@ -38,6 +40,7 @@ type EmergencyAccessTakeoverDialogData = {
 @Component({
   selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
+  standalone: false,
 })
 export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent

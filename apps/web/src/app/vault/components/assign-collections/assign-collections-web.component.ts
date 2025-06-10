@@ -15,7 +15,6 @@ import { SharedModule } from "../../../shared";
 @Component({
   imports: [SharedModule, AssignCollectionsComponent, PluralizePipe],
   templateUrl: "./assign-collections-web.component.html",
-  standalone: true,
 })
 export class AssignCollectionsWebComponent {
   protected editableItemCount: number;

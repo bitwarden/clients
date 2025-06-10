@@ -5,6 +5,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -30,15 +31,16 @@ export interface GeneratorDialogResult {
   generatedValue?: string;
 }
 
-export enum GeneratorDialogAction {
-  Selected = "selected",
-  Canceled = "canceled",
-}
+export const GeneratorDialogAction = {
+  Selected: "selected",
+  Canceled: "canceled",
+} as const;
+
+type GeneratorDialogAction = UnionOfValues<typeof GeneratorDialogAction>;
 
 @Component({
   selector: "app-vault-generator-dialog",
   templateUrl: "./vault-generator-dialog.component.html",
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,

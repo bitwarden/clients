@@ -12,6 +12,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherBulkDeleteRequest } from "@bitwarden/common/vault/models/request/cipher-bulk-delete.request";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -29,10 +30,12 @@ export interface BulkDeleteDialogParams {
   unassignedCiphers?: string[];
 }
 
-export enum BulkDeleteDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
-}
+export const BulkDeleteDialogResult = {
+  Deleted: "deleted",
+  Canceled: "canceled",
+} as const;
+
+type BulkDeleteDialogResult = UnionOfValues<typeof BulkDeleteDialogResult>;
 
 /**
  * Strongly typed helper to open a BulkDeleteDialog
@@ -51,6 +54,7 @@ export const openBulkDeleteDialog = (
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];

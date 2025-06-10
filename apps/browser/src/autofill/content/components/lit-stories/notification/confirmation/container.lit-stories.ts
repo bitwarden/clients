@@ -4,9 +4,14 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { NotificationTypes } from "../../../../../notification/abstractions/notification-bar";
 import {
+  getConfirmationHeaderMessage,
+  getNotificationTestId,
+} from "../../../../../notification/bar";
+import {
   NotificationConfirmationContainer,
   NotificationConfirmationContainerProps,
 } from "../../../notification/confirmation/container";
+import { mockI18n, mockCiphers, mockBrowserI18nGetMessage, mockTasks } from "../../mock-data";
 
 export default {
   title: "Components/Notifications/Confirmation",
@@ -17,27 +22,14 @@ export default {
   },
   args: {
     error: "",
-    task: {
-      orgName: "Acme, Inc.",
-      remainingTasksCount: 0,
-    },
-    handleCloseNotification: () => alert("Close notification action triggered"),
-    handleOpenTasks: () => alert("Open tasks action triggered"),
-    i18n: {
-      loginSaveSuccess: "Login saved",
-      loginUpdateSuccess: "Login updated",
-      loginUpdateTaskSuccessAdditional:
-        "Thank you for making your organization more secure. You have 3 more passwords to update.",
-      loginUpdateTaskSuccess:
-        "Great job! You took the steps to make you and your organization more secure.",
-      nextSecurityTaskAction: "Change next password",
-      saveFailure: "Error saving",
-      saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
-      view: "View",
-    },
+    task: mockTasks[0],
+    itemName: mockCiphers[0].name,
     type: NotificationTypes.Change,
-    username: "Acme, Inc. Login",
     theme: ThemeTypes.Light,
+    handleCloseNotification: () => alert("Close notification action triggered"),
+    handleOpenVault: () => alert("Open vault action triggered"),
+    handleOpenTasks: () => alert("Open tasks action triggered"),
+    i18n: mockI18n,
   },
   parameters: {
     design: {
@@ -47,9 +39,19 @@ export default {
   },
 } as Meta<NotificationConfirmationContainerProps>;
 
-const Template = (args: NotificationConfirmationContainerProps) =>
-  NotificationConfirmationContainer({ ...args });
+const Template = (args: NotificationConfirmationContainerProps) => {
+  const headerMessage = getConfirmationHeaderMessage(args.i18n, args.type, args.error);
+  const notificationTestId = getNotificationTestId(args.type, true);
+  return NotificationConfirmationContainer({ ...args, headerMessage, notificationTestId });
+};
 
 export const Default: StoryObj<NotificationConfirmationContainerProps> = {
   render: Template,
 };
+
+window.chrome = {
+  ...window.chrome,
+  i18n: {
+    getMessage: mockBrowserI18nGetMessage,
+  },
+} as typeof chrome;

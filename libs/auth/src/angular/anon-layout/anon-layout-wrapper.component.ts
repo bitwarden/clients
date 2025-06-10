@@ -6,6 +6,8 @@ import { Subject, filter, switchMap, takeUntil, tap } from "rxjs";
 
 import { AnonLayoutComponent } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { Icon, Translation } from "@bitwarden/components";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
@@ -42,7 +44,6 @@ export interface AnonLayoutWrapperData {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "anon-layout-wrapper.component.html",
   imports: [AnonLayoutComponent, RouterModule],
 })

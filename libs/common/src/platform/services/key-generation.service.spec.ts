@@ -1,10 +1,13 @@
 import { mock } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
 
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
 import { EncryptionType } from "../enums";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 import { KeyGenerationService } from "./key-generation.service";
 
@@ -96,6 +99,25 @@ describe("KeyGenerationService", () => {
       const key = await sut.deriveKeyFromPassword(password, salt, kdfConfig);
 
       expect(key.inner().type).toEqual(EncryptionType.AesCbc256_B64);
+    });
+  });
+
+  describe("stretchKey", () => {
+    it("should stretch a key", async () => {
+      const key = new SymmetricCryptoKey(new Uint8Array(32));
+
+      cryptoFunctionService.hkdf.mockResolvedValue(new Uint8Array(64));
+
+      const stretchedKey = await sut.stretchKey(key);
+
+      expect(stretchedKey.inner().type).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
+    });
+    it("should throw if key is not 32 bytes", async () => {
+      const key = new SymmetricCryptoKey(new Uint8Array(64));
+
+      await expect(sut.stretchKey(key)).rejects.toThrow(
+        "Key passed into stretchKey is not a 256-bit key.",
+      );
     });
   });
 });

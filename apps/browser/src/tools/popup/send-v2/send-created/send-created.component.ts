@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterLink, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -23,7 +23,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 @Component({
   selector: "app-send-created",
   templateUrl: "./send-created.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
@@ -31,7 +30,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
     PopOutComponent,
     PopupHeaderComponent,
     PopupPageComponent,
-    RouterLink,
     RouterModule,
     PopupFooterComponent,
     IconModule,

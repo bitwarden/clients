@@ -7,12 +7,10 @@ import { GeneratorModule } from "@bitwarden/generator-components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
-import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  standalone: true,
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
   imports: [
@@ -22,7 +20,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopOutComponent,
     PopupHeaderComponent,
     PopupPageComponent,
-    PopupFooterComponent,
     RouterModule,
     ItemModule,
   ],

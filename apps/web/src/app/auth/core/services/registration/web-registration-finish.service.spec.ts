@@ -172,7 +172,6 @@ describe("WebRegistrationFinishService", () => {
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let userKeyPair: [string, EncString];
-    let capchaBypassToken: string;
 
     let orgInvite: OrganizationInvite;
     let orgSponsoredFreeFamilyPlanToken: string;
@@ -186,11 +185,11 @@ describe("WebRegistrationFinishService", () => {
       emailVerificationToken = "emailVerificationToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
       passwordInputResult = {
-        masterKey: masterKey,
-        serverMasterKeyHash: "serverMasterKeyHash",
-        localMasterKeyHash: "localMasterKeyHash",
+        newMasterKey: masterKey,
+        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
-        hint: "hint",
+        newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",
       };
 
@@ -198,7 +197,6 @@ describe("WebRegistrationFinishService", () => {
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
-      capchaBypassToken = "capchaBypassToken";
 
       orgInvite = new OrganizationInvite();
       orgInvite.organizationUserId = "organizationUserId";
@@ -219,19 +217,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given valid email verification input", async () => {
+    it("registers the user when given valid email verification input", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
-        email,
-        passwordInputResult,
-        emailVerificationToken,
-      );
-
-      expect(result).toEqual(capchaBypassToken);
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -239,8 +231,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: emailVerificationToken,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -261,15 +253,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("it registers the user and returns a captcha bypass token when given an org invite", async () => {
+    it("it registers the user when given an org invite", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
-      const result = await service.finishRegistration(email, passwordInputResult);
-
-      expect(result).toEqual(capchaBypassToken);
+      await service.finishRegistration(email, passwordInputResult);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -277,8 +267,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -299,20 +289,18 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given an org sponsored free family plan token", async () => {
+    it("registers the user when given an org sponsored free family plan token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
         orgSponsoredFreeFamilyPlanToken,
       );
-
-      expect(result).toEqual(capchaBypassToken);
 
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
@@ -320,8 +308,8 @@ describe("WebRegistrationFinishService", () => {
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -342,13 +330,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given an emergency access invite token", async () => {
+    it("registers the user when given an emergency access invite token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
@@ -357,16 +345,14 @@ describe("WebRegistrationFinishService", () => {
         emergencyAccessId,
       );
 
-      expect(result).toEqual(capchaBypassToken);
-
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],
@@ -387,13 +373,13 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("registers the user and returns a captcha bypass token when given a provider invite token", async () => {
+    it("registers the user when given a provider invite token", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-      accountApiService.registerFinish.mockResolvedValue(capchaBypassToken);
+      accountApiService.registerFinish.mockResolvedValue();
       acceptOrgInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      const result = await service.finishRegistration(
+      await service.finishRegistration(
         email,
         passwordInputResult,
         undefined,
@@ -404,16 +390,14 @@ describe("WebRegistrationFinishService", () => {
         providerUserId,
       );
 
-      expect(result).toEqual(capchaBypassToken);
-
       expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(accountApiService.registerFinish).toHaveBeenCalledWith(
         expect.objectContaining({
           email,
           emailVerificationToken: undefined,
-          masterPasswordHash: passwordInputResult.serverMasterKeyHash,
-          masterPasswordHint: passwordInputResult.hint,
+          masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
           userSymmetricKey: userKeyEncString.encryptedString,
           userAsymmetricKeys: {
             publicKey: userKeyPair[0],

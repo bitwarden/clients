@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, skipWhile } from "rxjs";
+import { combineLatest, debounceTime, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -12,6 +12,7 @@ import {
 import {
   ApplicationHealthReportDetail,
   ApplicationHealthReportDetailWithCriticalFlag,
+  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import {
@@ -21,18 +22,18 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
+  IconButtonModule,
   Icons,
   NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
 } from "@bitwarden/components";
-import { CardComponent } from "@bitwarden/tools-card";
+import { CardComponent } from "@bitwarden/dirt-card";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
@@ -41,7 +42,6 @@ import { AppTableRowScrollableComponent } from "./app-table-row-scrollable.compo
 import { ApplicationsLoadingComponent } from "./risk-insights-loading.component";
 
 @Component({
-  standalone: true,
   selector: "tools-all-applications",
   templateUrl: "./all-applications.component.html",
   imports: [
@@ -53,10 +53,12 @@ import { ApplicationsLoadingComponent } from "./risk-insights-loading.component"
     NoItemsModule,
     SharedModule,
     AppTableRowScrollableComponent,
+    IconButtonModule,
   ],
 })
 export class AllApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
+  protected dataSource =
+    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedUrls: Set<string> = new Set<string>();
   protected searchControl = new FormControl("", { nonNullable: true });
   protected loading = true;
@@ -72,14 +74,9 @@ export class AllApplicationsComponent implements OnInit {
 
   destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = of(false);
-  isCriticalAppsFeatureEnabled = false;
 
   async ngOnInit() {
-    this.isCriticalAppsFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CriticalApps,
-    );
-
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
     if (organizationId) {
@@ -94,14 +91,32 @@ export class AllApplicationsComponent implements OnInit {
       ])
         .pipe(
           takeUntilDestroyed(this.destroyRef),
-          skipWhile(([_, __, organization]) => !organization),
           map(([applications, criticalApps, organization]) => {
-            const criticalUrls = criticalApps.map((ca) => ca.uri);
-            const data = applications?.map((app) => ({
-              ...app,
-              isMarkedAsCritical: criticalUrls.includes(app.applicationName),
-            })) as ApplicationHealthReportDetailWithCriticalFlag[];
-            return { data, organization };
+            if (applications && applications.length === 0 && criticalApps && criticalApps) {
+              const criticalUrls = criticalApps.map((ca) => ca.uri);
+              const data = applications?.map((app) => ({
+                ...app,
+                isMarkedAsCritical: criticalUrls.includes(app.applicationName),
+              })) as ApplicationHealthReportDetailWithCriticalFlag[];
+              return { data, organization };
+            }
+
+            return { data: applications, organization };
+          }),
+          switchMap(async ({ data, organization }) => {
+            if (data && organization) {
+              const dataWithCiphers = await this.reportService.identifyCiphers(
+                data,
+                organization.id,
+              );
+
+              return {
+                data: dataWithCiphers,
+                organization,
+              };
+            }
+
+            return { data: [], organization };
           }),
         )
         .subscribe(({ data, organization }) => {
@@ -160,7 +175,7 @@ export class AllApplicationsComponent implements OnInit {
       this.toastService.showToast({
         variant: "success",
         title: "",
-        message: this.i18nService.t("appsMarkedAsCritical"),
+        message: this.i18nService.t("applicationsMarkedAsCriticalSuccess"),
       });
     } finally {
       this.selectedUrls.clear();

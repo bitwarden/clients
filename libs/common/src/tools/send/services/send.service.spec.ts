@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import {
@@ -477,11 +479,9 @@ describe("SendService", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      encryptService.unwrapSymmetricKey.mockResolvedValue(
-        new SymmetricCryptoKey(new Uint8Array(32)),
-      );
+      encryptService.decryptBytes.mockResolvedValue(new Uint8Array(16));
       encryptedKey = new EncString("Re-encrypted Send Key");
-      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
+      encryptService.encryptBytes.mockResolvedValue(encryptedKey);
     });
 
     it("returns re-encrypted user sends", async () => {

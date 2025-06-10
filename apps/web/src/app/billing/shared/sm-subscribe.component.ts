@@ -33,6 +33,7 @@ export const secretsManagerSubscribeFormFactory = (
 @Component({
   selector: "sm-subscribe",
   templateUrl: "sm-subscribe.component.html",
+  standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
