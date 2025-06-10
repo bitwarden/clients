@@ -14,6 +14,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   AnonLayoutWrapperComponent,
@@ -311,6 +312,7 @@ const routes: Routes = [
       },
       {
         path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor)],
         component: SetInitialPasswordComponent,
       },
       {

@@ -10,6 +10,7 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -40,6 +41,7 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import { VaultIcons } from "@bitwarden/vault";
 
@@ -310,6 +312,7 @@ const routes: Routes = [
       },
       {
         path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor)],
         component: SetInitialPasswordComponent,
       },
       {

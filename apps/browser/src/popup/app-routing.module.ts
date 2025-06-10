@@ -15,6 +15,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -42,6 +43,7 @@ import {
   VaultIcon,
   SetInitialPasswordComponent,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
@@ -381,6 +383,7 @@ const routes: Routes = [
       },
       {
         path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor)],
         component: SetInitialPasswordComponent,
         data: {
           elevation: 1,
