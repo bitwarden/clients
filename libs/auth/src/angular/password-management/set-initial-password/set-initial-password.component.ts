@@ -94,7 +94,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
-      this.userType = SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP;
+      this.userType = SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "setMasterPassword" },
         pageSubtitle: { key: "orgPermissionsUpdatedMustSetPassword" },
@@ -200,7 +200,10 @@ export class SetInitialPasswordComponent implements OnInit {
       });
     }
 
-    if (this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP) {
+    if (
+      this.userType ===
+      SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP
+    ) {
       this.toastService.showToast({
         variant: "success",
         title: "",

@@ -11,11 +11,14 @@ export const _SetInitialPasswordUserType = {
   /**
    * Could be one of two scenarios:
    *  1. A user being "just-in-time" (JIT) provisioned into a trusted-device-encryption org
-   *     with a starting role that requires a master password (admin, owner, etc.)
-   *  2. An user in a trusted-device-encryption org whose role was upgraded to one
-   *     that requires a master password (admin, owner, etc.)
+   *     with the reset password permission granted ("manage account recovery"), which requires
+   *     that the user sets a master password
+   *  2. An user in a trusted-device-encryption org whose permissions were upgraded to include
+   *     the reset password permission ("manage account recovery"), which requires that the user
+   *     sets a master password
    */
-  TDE_ORG_USER_ROLE_REQUIRES_MP: "tde_org_user_role_requires_mp",
+  TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
+    "tde_org_user_reset_password_permission_requires_mp",
 } as const;
 
 type _SetInitialPasswordUserType = typeof _SetInitialPasswordUserType;
@@ -41,13 +44,13 @@ export interface SetInitialPasswordCredentials {
  * Handles setting an initial password for an existing authed user.
  *
  * To see the different scenarios where an existing authed user needs to set an
- * initial password, see {@link SetInitialPasswordUser}
+ * initial password, see {@link SetInitialPasswordUserType}
  */
 export abstract class SetInitialPasswordService {
   /**
    * Sets an initial password for an existing authed user who is either:
-   * - {@link SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER}
-   * - {@link SetInitialPasswordUser.TDE_ORG_USER_ROLE_REQUIRES_MP}
+   * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
+   * - {@link SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP}
    *
    * @param credentials An object of the credentials needed to set the initial password
    * @throws If any property on the `credentials` object is null or undefined, or if a

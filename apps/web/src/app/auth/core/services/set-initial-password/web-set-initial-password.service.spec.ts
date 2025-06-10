@@ -5,7 +5,6 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordUser,
   SetInitialPasswordUserType,
 } from "@bitwarden/auth/angular";
 import {
@@ -93,7 +92,7 @@ describe("WebSetInitialPasswordService", () => {
 
     beforeEach(() => {
       userId = "userId" as UserId;
-      userType = SetInitialPasswordUser.JIT_PROVISIONED_MP_ORG_USER;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
       protectedUserKey = [userKey, userKeyEncString];
