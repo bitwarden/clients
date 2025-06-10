@@ -139,8 +139,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async closeModal(): Promise<void> {
     await this.resetModalState();
-    this.session?.notifyConfirmCreateCredential(false);
-    this.session?.confirmChosenCipher(null);
+    this.session.notifyConfirmCreateCredential(false);
+    this.session.confirmChosenCipher(null);
   }
 
   private async getRelevantCiphers(): Promise<CipherView[]> {
