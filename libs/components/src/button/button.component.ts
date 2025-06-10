@@ -155,8 +155,9 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   disabled = model<boolean>(false);
   private injector = inject(Injector);
+  private elementRef = inject(ElementRef);
 
-  constructor(private elementRef: ElementRef) {
+  constructor() {
     const element = this.elementRef.nativeElement;
 
     effect(() => {
