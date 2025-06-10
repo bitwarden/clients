@@ -14,9 +14,8 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-
-import { RouterService } from "../../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
+import { AcceptOrganizationInviteService } from "@bitwarden/web-vault/app/auth/organization-invite/accept-organization.service";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 
 export class WebSetInitialPasswordService
   extends DefaultSetInitialPasswordService
