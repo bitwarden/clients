@@ -316,7 +316,7 @@ const routes: Routes = [
         component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
-        },
+        } satisfies AnonLayoutWrapperData,
       },
       {
         path: "set-password-jit",
