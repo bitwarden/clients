@@ -558,7 +558,7 @@ function handleSaveCipherConfirmation(message: NotificationBarWindowMessage) {
       ...notificationBarIframeInitData,
       error,
       handleCloseNotification,
-      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRisksPasswords" }),
+      handleOpenTasks: () => sendPlatformMessage({ command: "bgOpenAtRiskPasswords" }),
       handleOpenVault: (e: Event) =>
         cipherId ? openViewVaultItemPopout(cipherId) : openAddEditVaultItemPopout(e, {}),
       headerMessage,

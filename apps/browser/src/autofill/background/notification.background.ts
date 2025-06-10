@@ -95,6 +95,8 @@ export default class NotificationBackground {
       this.triggerAtRiskPasswordNotification(message, sender),
     bgCloseNotificationBar: ({ message, sender }) =>
       this.handleCloseNotificationBarMessage(message, sender),
+    bgOpenAtRiskPasswords: ({ message, sender }) =>
+      this.handleOpenAtRiskPasswordsMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -1132,7 +1134,7 @@ export default class NotificationBackground {
    * @param message - The extension message
    * @param sender - The contextual sender of the message
    */
-  private async handleOpenAtRisksPasswordsMessage(
+  private async handleOpenAtRiskPasswordsMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
