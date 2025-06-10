@@ -496,9 +496,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get showChangePlanButton() {
     return (
-      !this.showChangePlan &&
-      this.sub.plan.productTier !== ProductTierType.Enterprise &&
-      !this.sub.subscription?.cancelled
+      (!this.showChangePlan &&
+        this.sub.plan.productTier !== ProductTierType.Enterprise &&
+        !this.sub.subscription?.cancelled) ||
+      (this.sub.subscription?.cancelled && this.sub.plan.productTier === ProductTierType.Free)
     );
   }
 
