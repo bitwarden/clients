@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Maksymalny rozmiar pliku to 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Wymagana jest migracja klucza szyfrowania. Zaloguj się przez sejf internetowy, aby zaktualizować klucz szyfrowania."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Folder został zapisany"

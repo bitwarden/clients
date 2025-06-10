@@ -11,3 +11,4 @@ export { SingleOrgPolicy } from "./single-org.component";
 export { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.component";
 export { PoliciesComponent } from "./policies.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
+export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";

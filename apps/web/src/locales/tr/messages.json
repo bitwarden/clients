@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "İki aşamalı girişi etkinleştirmek, Bitwarden hesabınızı kalıcı olarak kilitleyebilir. Kurtarma kodunuz, iki aşamalı giriş sağlayıcınızı kullanamamanız durumunda hesabınıza erişmenize olanak sağlar (ör. cihazınızı kaybedersiniz). Hesabınıza erişiminizi kaybederseniz Bitwarden destek ekibi size yardımcı olamaz. Kurtarma kodunu not almanızı veya yazdırmanızı ve güvenli bir yerde saklamanızı öneririz."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Kart kaydı türünü kaldır"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Üyelerin kart kaydı türü oluşturmasına izin verme."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Şifreleme anahtarı güncellemesine devam edilemiyor"
-  },
   "editFieldLabel": {
     "message": "$LABEL$ alanını düzenle",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Anahtar güncellendi"
-  },
-  "updateEncryptionKey": {
-    "message": "Şifreleme anahtarını güncelle"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Güvenliği daha da artırmak için şifreleme şemamızı değiştirdik. Aşağıya ana parolanızı yazarak şifreleme anahtarınızı güncelleyebilirsiniz."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Şifreleme anahtarınızı güncelledikten sonra, şu anda kullanmakta olduğunuz tüm Bitwarden uygulamalarında (mobil uygulama veya tarayıcı uzantıları gibi) oturumunuzu kapatıp tekrar açmanız gerekir. Yeni şifreleme anahtarınızı indirme için oturumu kapatıp tekrar açmamamız verilerin bozulmasına neden olabilir. Oturumunuzu otomatik olarak kapatmaya çalışacağız, ancak bu gecikebilir."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abonelik"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktif Send yok",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Şifrelenmiş bilgileri güvenle paylaşmak için Send'i kullanabilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Kullanıcıları davet et"

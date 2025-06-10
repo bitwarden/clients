@@ -4,7 +4,7 @@ import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, debounceTime, map } from "rxjs";
+import { combineLatest, debounceTime, map, switchMap } from "rxjs";
 
 import {
   CriticalAppsService,
@@ -13,6 +13,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
   ApplicationHealthReportDetailWithCriticalFlag,
+  ApplicationHealthReportDetailWithCriticalFlagAndCipher,
   ApplicationHealthReportSummary,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -53,7 +54,8 @@ import { RiskInsightsTabType } from "./risk-insights.component";
   providers: [DefaultAdminTaskService],
 })
 export class CriticalApplicationsComponent implements OnInit {
-  protected dataSource = new TableDataSource<ApplicationHealthReportDetailWithCriticalFlag>();
+  protected dataSource =
+    new TableDataSource<ApplicationHealthReportDetailWithCriticalFlagAndCipher>();
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
@@ -68,7 +70,9 @@ export class CriticalApplicationsComponent implements OnInit {
     this.isNotificationsFeatureEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.EnableRiskInsightsNotifications,
     );
+
     this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId),
@@ -82,6 +86,16 @@ export class CriticalApplicationsComponent implements OnInit {
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
           return data?.filter((app) => app.isMarkedAsCritical);
+        }),
+        switchMap(async (data) => {
+          if (data) {
+            const dataWithCiphers = await this.reportService.identifyCiphers(
+              data,
+              this.organizationId,
+            );
+            return dataWithCiphers;
+          }
+          return null;
         }),
       )
       .subscribe((applications) => {

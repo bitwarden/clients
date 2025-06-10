@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Nastavením dvoufázového přihlášení můžete sami sobě znemožnit přihlášení k Vašemu účtu. Obnovovací kód umožňuje přístup do Vašeho účtu i v případě, pokud již nemůžete použít svůj normální způsob dvoufázového přihlášení (např. ztráta zařízení). Pokud ztratíte přístup ke svému účtu, nebude Vám schopna pomoci ani zákaznická podpora Bitwardenu. Doporučujeme si proto kód pro obnovení zapsat nebo vytisknout a uložit jej na bezpečném místě."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Odebrat typ položky karty"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Nedovolí členům vytvářet typy položek karet."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorázový kód pro obnovení lze použít k vypnutí dvoufázového přihlašování v případě, že ztratíte přístup ke svému poskytovateli dvoufázového přihlašování. Bitwarden doporučuje, abyste si kód pro obnovení zapsali a uložili na bezpečném místě."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Aktualizace šifrovacího klíče nemůže pokračovat"
-  },
   "editFieldLabel": {
     "message": "Upravit $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Při aktualizaci šifrovacího klíče se nepodařilo dešifrovat Vaše složky. Chcete-li pokračovat v aktualizaci, musí být Vaše složky smazány. Pokud budete pokračovat, nebudou smazány žádné položky trezoru."
-  },
-  "keyUpdated": {
-    "message": "Klíč byl aktualizován"
-  },
-  "updateEncryptionKey": {
-    "message": "Aktualizovat šifrovací klíč"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Změnili jsme šifrovací schéma pro zajištění větší bezpečnosti. Aktualizujte Váš šifrovací klíč nyní zadáním hlavního hesla níže."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Všechny uložené exporty s omezením účtu se stanou neplatnými."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Staré šifrování již není podporováno. Kontaktujte podporu pro obnovení Vašeho účtu."
   },
   "subscription": {
     "message": "Předplatné"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Žádná aktivní Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Použijte Send pro bezpečné sdílení šifrovaných informací s kýmkoliv.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Pozvat uživatele"

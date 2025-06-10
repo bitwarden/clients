@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Opsætning af totrins-login kan permanent låse en bruger ude af sin Bitwarden-konto. En gendannelseskode muliggør kontoadgang, såfremt den normale totrins-loginudbyder ikke længere kan bruges (f.eks. ved tab af en enhed). Bitwarden-supporten kan ikke hjælpe ved mistet kontoadgang. Det anbefales at nedskrive/udskrive gendannelseskoden samt gemme denne et sikkert sted."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Krypteringsnøgleopdatering kan ikke fortsætte"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Under opdatering af krypteringsnøglen kunne de relevante mapper ikke dekrypteres. For at fortsætte opdateringen skal mapperne slettes. Ingen boks-emner slettes, hvis der fortsættes."
-  },
-  "keyUpdated": {
-    "message": "Nøgle opdateret"
-  },
-  "updateEncryptionKey": {
-    "message": "Opdatér krypteringsnøgle"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Vi har ændret krypteringsmetoden mhp. bedre sikkerhed. Opdatér krypteringsnøglen nu ved at angive din hovedadgangskode nedenfor."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Efter opdatering af din krypteringsnøgle skal du logge ud og ind igen i alle Bitwarden-programmer, du bruger i øjeblikket (f.eks. mobilapp eller browserudvidelser). Hvis du ikke logger ud og ind (som downloader din nye krypteringsnøgle), kan det resultere i data korruption. Vi vil forsøge at logge dig ud automatisk, men det kan blive forsinket."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abonnement"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Enhed betroet"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Ingen aktive Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Brug Send til at dele krypterede oplysninger sikkert med nogen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invitér bruger"

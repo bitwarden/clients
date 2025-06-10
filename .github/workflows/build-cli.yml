@@ -189,6 +189,21 @@ jobs:
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
+      # We want to confirm the CLI is runnable using the dependencies defined in `apps/cli/package.json`.
+      - name: Remove node_modules (root)
+        run: rm -rf node_modules
+        working-directory: ./
+
+      - name: Remove package.json (root)
+        run: rm package.json
+        working-directory: ./
+
+      - name: Install (CLI)
+        run: npm i
+
+      - name: Output help
+        run: node ./build/bw.js --help
+
   cli-windows:
     name: Windows - ${{ matrix.license_type.readable }}
     strategy:

@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Att aktivera tvåstegsverifiering kan låsa ute dig från ditt Bitwarden-konto permanent. En återställningskod låter dig komma åt ditt konto om du inte längre kan använda din vanliga metod för tvåstegsverifiering (t.ex. om du förlorar din enhet). Bitwardens kundservice kommer inte att kunna hjälpa dig om du förlorar åtkomst till ditt konto. Vi rekommenderar att du skriver ner eller skriver ut återställningskoden och förvarar den på ett säkert ställe."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Nyckeln uppdaterades"
-  },
-  "updateEncryptionKey": {
-    "message": "Uppdatera krypteringsnyckel"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Efter att ha uppdaterat din krypteringsnyckel, måste du logga ut och in igen i alla Bitwarden-program som du använder (t.ex. mobilappen och webbläsartillägget). Att inte logga ut och in igen (vilket hämtar din nya krypteringsnyckel) kan resultera i datakorruption. Vi kommer försöka logga ut dig automatiskt, men det kan vara fördröjt."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Prenumeration"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Inga aktiva Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Bjud in användare"
