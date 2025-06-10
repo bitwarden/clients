@@ -111,7 +111,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       }
 
       if (!keyPair[1].encryptedString) {
-        throw new Error("encryptedString not found. Could not set password.");
+        throw new Error("encrypted private key not found. Could not set password.");
       }
 
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
