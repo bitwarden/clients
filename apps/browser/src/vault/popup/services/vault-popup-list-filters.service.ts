@@ -39,7 +39,9 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ChipSelectOption } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -178,6 +180,7 @@ export class VaultPopupListFiltersService {
     private stateProvider: StateProvider,
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -249,35 +252,22 @@ export class VaultPopupListFiltersService {
   );
 
   /**
-   * All available cipher types
+   * All available cipher types (filtered by policy restrictions)
    */
-  readonly cipherTypes: ChipSelectOption<CipherType>[] = [
-    {
-      value: CipherType.Login,
-      label: this.i18nService.t("typeLogin"),
-      icon: "bwi-globe",
-    },
-    {
-      value: CipherType.Card,
-      label: this.i18nService.t("typeCard"),
-      icon: "bwi-credit-card",
-    },
-    {
-      value: CipherType.Identity,
-      label: this.i18nService.t("typeIdentity"),
-      icon: "bwi-id-card",
-    },
-    {
-      value: CipherType.SecureNote,
-      label: this.i18nService.t("note"),
-      icon: "bwi-sticky-note",
-    },
-    {
-      value: CipherType.SshKey,
-      label: this.i18nService.t("typeSshKey"),
-      icon: "bwi-key",
-    },
-  ];
+  readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
+    this.restrictedItemTypesService.restricted$.pipe(
+      map((restrictedTypes) => {
+        const restrictedCipherTypes = restrictedTypes.map((r) => r.cipherType);
+
+        return CIPHER_MENU_ITEMS.filter((item) => !restrictedCipherTypes.includes(item.type)).map(
+          (item) => ({
+            value: item.type,
+            label: this.i18nService.t(item.labelKey),
+            icon: item.icon,
+          }),
+        );
+      }),
+    );
 
   /** Resets `filterForm` to the original state */
   resetFilterForm(): void {
