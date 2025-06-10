@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "최대 파일 크기는 500MB입니다."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "암호화 키 마이그레이션이 필요합니다. 웹 보관함에 로그인하여 암호화 키를 업데이트하세요."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "폴더 편집함"

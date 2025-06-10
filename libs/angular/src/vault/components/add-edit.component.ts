@@ -25,7 +25,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   CipherService,
   EncryptionContext,
@@ -348,7 +348,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
       this.cipher,
-      [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
 

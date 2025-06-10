@@ -33,7 +33,6 @@ import { PasswordInputResult } from "../../input-password/password-input-result"
 import { RegistrationFinishService } from "./registration-finish.service";
 
 @Component({
-  standalone: true,
   selector: "auth-registration-finish",
   templateUrl: "./registration-finish.component.html",
   imports: [CommonModule, JslibModule, RouterModule, InputPasswordComponent],

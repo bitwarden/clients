@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Egenskapen er utilgjengelig"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium-medlemskap"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Stol på brukler"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Ingen aktive Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Bruk Send til å dele kryptert informasjon med noen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

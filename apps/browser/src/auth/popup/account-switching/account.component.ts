@@ -13,7 +13,6 @@ import { BiometricsService } from "@bitwarden/key-management";
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
 @Component({
-  standalone: true,
   selector: "auth-account",
   templateUrl: "account.component.html",
   imports: [CommonModule, JslibModule, AvatarModule, ItemModule],

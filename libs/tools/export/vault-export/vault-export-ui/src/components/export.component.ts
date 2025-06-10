@@ -67,7 +67,6 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 @Component({
   selector: "tools-export",
   templateUrl: "export.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

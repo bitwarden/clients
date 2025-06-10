@@ -279,6 +279,12 @@ export default tseslint.config(
       ]),
     },
   },
+  {
+    files: ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
+    rules: {
+      "no-console": "off",
+    },
+  },
   /// Bandaids for keeping existing circular dependencies from getting worse and new ones from being created
   /// Will be removed after Nx is implemented and existing circular dependencies are removed.
   {
@@ -604,6 +610,7 @@ export default tseslint.config(
       "libs/components/tailwind.config.js",
 
       "scripts/*.js",
+      "jest.preset.js",
     ],
   },
 );

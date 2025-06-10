@@ -24,7 +24,6 @@ import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-ut
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 @Component({
-  standalone: true,
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
   imports: [BadgeModule, CommonModule, ItemModule, JslibModule, TypographyModule],

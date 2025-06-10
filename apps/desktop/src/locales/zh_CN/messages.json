@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "文件最大为 500 MB。"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。"
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "editedFolder": {
     "message": "文件夹已保存"
@@ -1394,7 +1394,7 @@
     "message": "发现更新。是否立即下载？"
   },
   "restart": {
-    "message": "重新启动"
+    "message": "重启"
   },
   "later": {
     "message": "稍后"

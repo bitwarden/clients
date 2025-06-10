@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funktion nicht verfügbar"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Verschlüsselungscode-Migration erforderlich. Bitte melde dich über den Web-Tresor an, um deinen Verschlüsselungscode zu aktualisieren."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium-Mitgliedschaft"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Benutzer vertrauen"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Keine aktiven Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Verwende Send, um verschlüsselte Informationen sicher mit anderen zu teilen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Sensible Informationen sicher versenden",

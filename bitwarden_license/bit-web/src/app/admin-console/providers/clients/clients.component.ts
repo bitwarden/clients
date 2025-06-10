@@ -43,7 +43,6 @@ const DisallowedPlanTypes = [
 
 @Component({
   templateUrl: "clients.component.html",
-  standalone: true,
   imports: [
     SharedOrganizationModule,
     HeaderModule,
