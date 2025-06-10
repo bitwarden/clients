@@ -81,15 +81,12 @@
         {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
       </button>
       <bit-menu #addOptions aria-labelledby="newItemDropdown">
-        <button
-          *ngFor="let item of cipherMenuItems"
-          type="button"
-          bitMenuItem
-          (click)="addCipher(item.type)"
-        >
-          <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
-          {{ item.labelKey | i18n }}
-        </button>
+        @for (item of cipherMenuItems; track item) {
+          <button type="button" bitMenuItem (click)="addCipher(item.type)">
+            <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+            {{ item.labelKey | i18n }}
+          </button>
+        }
         <bit-menu-divider />
         <button type="button" bitMenuItem (click)="addFolder()">
           <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
