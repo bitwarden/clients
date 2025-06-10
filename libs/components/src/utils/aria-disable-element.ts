@@ -2,7 +2,7 @@ import { Signal, effect } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { fromEvent } from "rxjs";
 
-export function ariaDisableElement(element: HTMLElement, isDisabled: Signal<boolean>) {
+export function ariaDisableElement(element: HTMLElement, isDisabled: Signal<boolean | undefined>) {
   effect(() => {
     if (element.hasAttribute("disabled") || isDisabled()) {
       // Remove native disabled and set aria-disabled. Capture click event
