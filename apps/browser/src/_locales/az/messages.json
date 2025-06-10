@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Özəllik əlçatmazdır"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Şifrələmə açarının daşınması tələb olunur. Şifrələmə açarınızı güncəlləmək üçün lütfən veb seyfinizə giriş edin."
+  "legacyEncryptionUnsupported": {
+    "message": "Köhnə şifrələmə artıq dəstəklənmir. Hesabınızı geri qaytarmaq üçün lütfən dəstəklə əlaqə saxlayın."
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "İstifadəçiyə güvən"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktiv \"Send\" yoxdur",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Şifrələnmiş məlumatları hər kəslə güvənli şəkildə paylaşmaq üçün \"Send\"i istifadə edin.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send, həssas məlumatlar təhlükəsizdir",

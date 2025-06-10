@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "ویژگی موجود نیست"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "انتقال کلید رمزگذاری مورد نیاز است. لطفاً از طریق گاوصندوق وب وارد شوید تا کلید رمزگذاری خود را به روز کنید."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "عضویت پرمیوم"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "به کاربر اعتماد کنید"
-  },
-  "sendsNoItemsTitle": {
-    "message": "ارسال‌های فعالی نیست",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "از ارسال برای اشتراک‌گذاری امن اطلاعات رمزگذاری شده با هر کسی استفاده کنید.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "اطلاعات حساس را به‌صورت ایمن ارسال کنید",

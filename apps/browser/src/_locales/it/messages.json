@@ -132,7 +132,7 @@
     "message": "Copia password"
   },
   "copyPassphrase": {
-    "message": "Copia passphrase"
+    "message": "Copia frase segreta"
   },
   "copyNote": {
     "message": "Copia nota"
@@ -462,13 +462,13 @@
     "message": "Genera password"
   },
   "generatePassphrase": {
-    "message": "Genera passphrase"
+    "message": "Genera frase segreta"
   },
   "passwordGenerated": {
     "message": "Parola d'accesso generata"
   },
   "passphraseGenerated": {
-    "message": "Frase d'accesso generata"
+    "message": "Frase segreta generata"
   },
   "usernameGenerated": {
     "message": "Nome utente generato"
@@ -1113,11 +1113,11 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "Salva come nuovo accesso",
+    "message": "Salva come nuovo login",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Aggiorna accesso",
+    "message": "Aggiorna login",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
@@ -1133,11 +1133,11 @@
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Accesso salvato",
+    "message": "Login salvato",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Accesso aggiornato",
+    "message": "Login aggiornato",
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
@@ -1170,7 +1170,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! Non abbiamo potuto salvarlo. Prova a inserire manualmente i dettagli.",
+    "message": "Oh no! Il salvataggio non è riuscito. Prova a inserire i dati manualmente.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funzionalità non disponibile"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Migrazione della chiave di crittografia obbligatoria. Accedi tramite la cassaforte web per aggiornare la tua chiave di crittografia."
+  "legacyEncryptionUnsupported": {
+    "message": "La crittografia legacy non è più supportata. Contatta l'assistenza per recuperare il tuo account."
   },
   "premiumMembership": {
     "message": "Abbonamento Premium"
@@ -2205,7 +2205,7 @@
     "message": "Usa questa password"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Usa questa frase segreta"
   },
   "useThisUsername": {
     "message": "Usa questo nome utente"
@@ -2583,7 +2583,7 @@
     "message": "Rivedi parole d'accesso a rischio"
   },
   "reviewAtRiskLoginsSlideDesc": {
-    "message": "Le parole d'accesso dell'organizzazione sono a rischio perché sono deboli, riutilizzate, e/o esposte.",
+    "message": "Le password dell'organizzazione sono a rischio perché sono deboli, riutilizzate, e/o esposte.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
@@ -2678,7 +2678,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "Max access count reached",
+    "message": "Raggiunto il limite massimo degli accessi",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
@@ -3132,7 +3132,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Usa $RECOMMENDED$ parole o più per generare una passphrase forte.",
+    "message": " Usa $RECOMMENDED$ parole o più per generare una frase segreta forte.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3614,14 +3614,6 @@
   "trustUser": {
     "message": "Fidati dell'utente"
   },
-  "sendsNoItemsTitle": {
-    "message": "Nessun Send attivo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Utilizza un Send per condividere in modo sicuro le informazioni con qualsiasi utente.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
     "message": "Invia informazioni sensibili in modo sicuro",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3828,7 +3820,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Aggiungi un nuovo elemento \"login\" alla cassaforte, apri in una nuova finestra",
+    "message": "Aggiungi un nuovo elemento 'login' alla cassaforte (si apre in una nuova finestra)",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
@@ -4562,7 +4554,7 @@
     "message": "Scarica l'app desktop"
   },
   "getTheDesktopAppDesc": {
-    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+    "message": "Accedi alla tua cassaforte senza browser, quindi imposta lo sblocco biometrico per accelerare l'accesso sia all'app desktop che all'estensione."
   },
   "downloadFromBitwardenNow": {
     "message": "Scarica ora da bitwarden.com"
@@ -5038,7 +5030,7 @@
     "message": "Sblocca la cassaforte in secondi"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "Puoi personalizzare le impostazioni di sblocco e timeout per accedere più rapidamente alla tua cassaforte."
   },
   "unlockPinSet": {
     "message": "Sblocca PIN impostato"
@@ -5263,126 +5255,126 @@
     "message": "Opzioni cassaforte"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "La cassaforte protegge e tiene al sicuro non solo le password, ma anche le passkey, i nomi utente, le identità, le carte e le note."
   },
   "introCarouselLabel": {
     "message": "Benvenuto su Bitwarden"
   },
   "securityPrioritized": {
-    "message": "Security, prioritized"
+    "message": "Sicurezza alla massima priorità"
   },
   "securityPrioritizedBody": {
-    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+    "message": "Salva login, carte e identità nella tua cassaforte sicura. Bitwarden usa la crittografia end-to-end e zero-knowledge per proteggere i tuoi dati."
   },
   "quickLogin": {
-    "message": "Quick and easy login"
+    "message": "Autenticazione facile e veloce"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Imposta lo sblocco biometrico e il riempimento automatico per accedere ai tuoi account senza digitare una sola lettera."
   },
   "secureUser": {
-    "message": "Level up your logins"
+    "message": "Porta i tuoi login al livello successivo"
   },
   "secureUserBody": {
-    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+    "message": "Usa il generatore per creare e salvare password forti e uniche per tutti i tuoi account."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "I tuoi dati, dove e quando ti servono"
   },
   "secureDevicesBody": {
-    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+    "message": "Salva tutte le password che vuoi su un numero illimitato di dispositivi con le app Bitwarden per browser, mobile e desktop."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 notifica"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "Importa password esistenti"
   },
   "emptyVaultNudgeBody": {
-    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+    "message": "Usa l'importatore per trasferire rapidamente i login su Bitwarden senza aggiungerli manualmente."
   },
   "emptyVaultNudgeButton": {
-    "message": "Import now"
+    "message": "Importa ora"
   },
   "hasItemsVaultNudgeTitle": {
-    "message": "Welcome to your vault!"
+    "message": "Benvenuto nella tua cassaforte!"
   },
   "hasItemsVaultNudgeBodyOne": {
-    "message": "Autofill items for the current page"
+    "message": "Riempimento automatico per questa pagina"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "Favorite items for easy access"
+    "message": "Trova facilmente gli elementi più usati grazie ai Preferiti"
   },
   "hasItemsVaultNudgeBodyThree": {
-    "message": "Search your vault for something else"
+    "message": "Cerca altro nella tua cassaforte"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Accedi in un attimo grazie al riempimento automatico"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Includi",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Sito",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "questo login appare come suggerimento per il riempimento automatico.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Accesso e pagamento online semplificati"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Con le carte memorizzate, riempi i campi di pagamento in modo facile e veloce."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Semplifica la creazione di account"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Con le identità, riempi in un attimo i moduli di registrazione per la creazione di account."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Mantieni al sicuro i tuoi dati sensibili"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Con le note, memorizzi in modo sicuro i dati sensibili come i dettagli bancari o assicurativi."
   },
   "newSshNudgeTitle": {
-    "message": "Developer-friendly SSH access"
+    "message": "Accesso SSH ideale per gli sviluppatori"
   },
   "newSshNudgeBodyOne": {
-    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "message": "Memorizza le chiavi e connettiti con l'agente SSH per un'autenticazione crittografata veloce.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "Scopri di più sull'agente SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Crea rapidamente password sicure"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Crea facilmente password forti e uniche cliccando su",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "per aiutarti a mantenere i tuoi login al sicuro.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Crea facilmente password forti e uniche cliccando sul pulsante Genera password per aiutarti a mantenere al sicuro i tuoi login.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "Non hai i permessi per visualizzare questa pagina. Prova ad accedere con un altro account."
   }
 }

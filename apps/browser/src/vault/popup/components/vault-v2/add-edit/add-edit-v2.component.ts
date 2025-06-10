@@ -17,7 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
@@ -64,7 +64,7 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.type = toCipherType(params.type);
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;

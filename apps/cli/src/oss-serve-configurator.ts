@@ -128,7 +128,6 @@ export class OssServeConfigurator {
     this.restoreCommand = new RestoreCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
-      this.serviceContainer.configService,
       this.serviceContainer.cipherAuthorizationService,
     );
     this.shareCommand = new ShareCommand(

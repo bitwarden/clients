@@ -459,7 +459,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        [CipherType.Card, CipherType.Identity].includes(cipherView.type)
+        ([CipherType.Card, CipherType.Identity] as CipherType[]).includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
