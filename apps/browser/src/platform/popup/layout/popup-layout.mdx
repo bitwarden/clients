@@ -184,40 +184,9 @@ See the code in the example below.
 
 ### Known Virtual Scroll Issues
 
-Virtual scroll will not work in this specific case, where the `bitScrollLayout` is a child of the
-`popup-page` within the same template file:
-
-```
-<popup-page>
-  <cdk-virtual-scroll-viewport bitScrollLayout>
-    // virtual scroll implementation here
-  </div>
-</popup-page>
-```
-
-This is due to the way Angular initializes components. In this particular composition, the child
-gets constructed before the `popup-page` and thus has no scroll container to reference. Workarounds
-are:
-
-1. Wrap the child in another component
-
-```
-<popup-page>
-  <component-that-contains-bitScrollLayout></component-that-contains-bitScrollLayout>
-</popup-page>
-```
-
-2. Use a `defer` block
-
-```
-<popup-page>
-  @defer (on immediate) {
-    <cdk-virtual-scroll-viewport bitScrollLayout>
-      // virtual scroll implementation here
-    </div>
-  }
-</popup-page>
-```
+See [Virtual Scrolling](?path=/docs/documentation-virtual-scrolling--docs#known-footgun) for more
+information about how to structure virtual scrolling containers with layout components and avoid a
+known issue with template construction.
 
 # Other stories
 
