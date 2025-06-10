@@ -97,7 +97,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     if (!this.session) {
-      throw new Error("No active FIDO2 session found");
+      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      return;
     }
 
     try {
@@ -114,7 +115,12 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async addPasskeyToCipher(cipher: CipherView): Promise<void> {
     const isConfirmed = await this.validateCipherAccess(cipher);
-    this.session?.notifyConfirmCreateCredential(isConfirmed, cipher);
+    if (!this.session) {
+      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      return;
+    }
+
+    this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
   }
 
   async confirmPasskey(): Promise<void> {
