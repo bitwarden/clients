@@ -29,7 +29,6 @@ export type AddEditCustomFieldDialogData = {
 };
 
 @Component({
-  standalone: true,
   selector: "vault-add-edit-custom-field-dialog",
   templateUrl: "./add-edit-custom-field-dialog.component.html",
   imports: [

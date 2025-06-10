@@ -77,7 +77,6 @@ const AUTOPROMPT_BIOMETRICS_PROCESS_RELOAD_DELAY = 5000;
 @Component({
   selector: "bit-lock",
   templateUrl: "lock.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -391,6 +390,8 @@ export class LockComponent implements OnInit, OnDestroy {
         this.unlockingViaBiometrics = false;
         return;
       }
+
+      this.logService.error("[LockComponent] Failed to unlock via biometrics.", e);
 
       let biometricTranslatedErrorDesc;
 

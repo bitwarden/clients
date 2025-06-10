@@ -339,6 +339,7 @@ import {
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
+import { DocumentLangSetter } from "../platform/i18n";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
 import { LoggingErrorHandler } from "../platform/services/logging-error-handler";
 import { AngularThemingService } from "../platform/services/theming/angular-theming.service";
@@ -351,6 +352,7 @@ import { NoopViewCacheService } from "../platform/view-cache/internal";
 import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
+  DOCUMENT,
   ENV_ADDITIONAL_REGIONS,
   HTTP_OPERATIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
@@ -380,6 +382,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider(ModalService),
   safeProvider(PasswordRepromptService),
   safeProvider({ provide: WINDOW, useValue: window }),
+  safeProvider({ provide: DOCUMENT, useValue: document }),
   safeProvider({
     provide: LOCALE_ID as SafeInjectionToken<string>,
     useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
@@ -1462,12 +1465,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
-    deps: [
-      CollectionService,
-      OrganizationServiceAbstraction,
-      AccountServiceAbstraction,
-      ConfigService,
-    ],
+    deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiService,
@@ -1514,7 +1512,6 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ApiServiceAbstraction,
       OrganizationServiceAbstraction,
-      ConfigService,
       AuthServiceAbstraction,
       NotificationsService,
       MessageListener,
@@ -1550,6 +1547,11 @@ const safeProviders: SafeProvider[] = [
     provide: LogoutService,
     useClass: DefaultLogoutService,
     deps: [MessagingServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DocumentLangSetter,
+    useClass: DocumentLangSetter,
+    deps: [DOCUMENT, I18nServiceAbstraction],
   }),
   safeProvider({
     provide: CipherEncryptionService,

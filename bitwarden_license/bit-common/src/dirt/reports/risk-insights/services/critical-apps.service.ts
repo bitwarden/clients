@@ -141,6 +141,11 @@ export class CriticalAppsService {
           const uri = await this.encryptService.decryptString(encrypted, key);
           return { id: r.id, organizationId: r.organizationId, uri: uri };
         });
+
+        if (results.length === 0) {
+          return of([]); // emits an empty array immediately
+        }
+
         return forkJoin(results);
       }),
       first(),

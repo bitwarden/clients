@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "راه‌اندازی ورود دو مرحله‌ای می‌تواند برای همیشه حساب Bitwarden شما را قفل کند. یک کد بازیابی به شما امکان می‌دهد در صورتی که دیگر نمی‌توانید از ارائه‌دهنده‌ی ورود دو مرحله‌ای معمولی خود استفاده کنید (به عنوان مثال: دستگاه خود را گم می‌کنید) به حساب خود دسترسی پیدا کنید. اگر دسترسی به حساب خود را از دست بدهید، پشتیبانی Bitwarden نمی‌تواند به شما کمک کند. توصیه می‌کنیم کد بازیابی را یادداشت یا چاپ کنید و آن را در مکانی امن نگهداری کنید."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "کد بازیابی یک‌بار مصرف شما می‌تواند در صورت از دست دادن دسترسی به سرویس ورود دو مرحله‌ای، برای غیرفعال کردن آن استفاده شود. Bitwarden توصیه می‌کند این کد را یادداشت کرده و در جای امنی نگهداری کنید."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "به‌روزرسانی کلید رمزگذاری قابل انجام نیست"
-  },
   "editFieldLabel": {
     "message": "ویرایش $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "هنگام به‌روزرسانی کلید رمزگذاری، پوشه‌های شما قابل رمزگشایی نبودند. برای ادامه به‌روزرسانی، باید این پوشه‌ها حذف شوند. در صورت ادامه، هیچ‌یک از موارد موجود در گاوصندوق شما حذف نخواهد شد."
-  },
-  "keyUpdated": {
-    "message": "کلیدها به‌روز شد"
-  },
-  "updateEncryptionKey": {
-    "message": "کلید رمزگذاری را به‌روز کنید"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "ما طرح رمزگذاری را برای ارائه امنیت بهتر تغییر داده‌ایم. کلید رمزگذاری خود را اکنون با وارد کردن کلمه اصلی خود در زیر به روز کنید."
-  },
   "updateEncryptionKeyWarning": {
     "message": "پس از به‌روزرسانی کلید رمزگذاری، باید از سیستم خارج شوید و دوباره به همه برنامه‌های Bitwarden که در حال حاضر استفاده می‌کنید (مانند برنامه تلفن همراه یا برنامه‌های افزودنی مرورگر) وارد شوید. عدم خروج و ورود مجدد (که کلید رمزگذاری جدید شما را دانلود می‌کند) ممکن است منجر به خراب شدن داده‌ها شود. ما سعی خواهیم کرد شما را به طور خودکار از سیستم خارج کنیم، اما ممکن است با تأخیر انجام شود."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "هرگونه برون ریزی حساب کاربری با دسترسی محدود که ذخیره کرده‌اید، نامعتبر خواهد شد."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "اشتراک"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "دستگاه مورد اعتماد است"
-  },
-  "sendsNoItemsTitle": {
-    "message": "ارسال‌های فعالی نیست",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "از ارسال برای اشتراک‌گذاری امن اطلاعات رمزگذاری شده با هر کسی استفاده کنید.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "دعوت کاربران"

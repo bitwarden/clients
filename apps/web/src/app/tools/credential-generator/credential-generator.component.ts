@@ -10,7 +10,6 @@ import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 @Component({
-  standalone: true,
   selector: "credential-generator",
   templateUrl: "credential-generator.component.html",
   imports: [SharedModule, HeaderModule, GeneratorModule, ButtonModule, LinkModule],

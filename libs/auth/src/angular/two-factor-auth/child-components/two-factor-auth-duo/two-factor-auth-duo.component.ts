@@ -26,7 +26,6 @@ import {
 } from "./two-factor-auth-duo-component.service";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-duo",
   template: "",
   imports: [
