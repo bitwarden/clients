@@ -60,6 +60,11 @@ const commonStyles = [
   "before:tw-transition",
   "focus-visible:before:tw-ring-2",
   "focus-visible:tw-z-10",
+  "aria-disabled:tw-no-underline",
+  "aria-disabled:tw-pointer-events-none",
+  "aria-disabled:!tw-text-secondary-300",
+  "aria-disabled:hover:!tw-text-secondary-300",
+  "aria-disabled:hover:tw-no-underline",
 ];
 
 @Directive()
@@ -99,18 +104,7 @@ export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? [])
-      .concat(
-        this.isDisabled
-          ? [
-              "aria-disabled:tw-no-underline",
-              "aria-disabled:tw-pointer-events-none",
-              "aria-disabled:!tw-text-secondary-300",
-              "hover:!tw-text-secondary-300",
-              "hover:tw-no-underline",
-            ]
-          : "",
-      );
+      .concat(linkStyles[this.linkType] ?? []);
   }
 
   constructor() {
