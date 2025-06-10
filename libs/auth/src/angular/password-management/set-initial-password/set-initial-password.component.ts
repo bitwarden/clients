@@ -141,16 +141,20 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
-    if (
-      !this.userId ||
-      !this.userType ||
-      !this.orgSsoIdentifier ||
-      !this.orgId ||
-      this.resetPasswordAutoEnroll == null
-    ) {
-      throw new Error(
-        "userId, orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
-      );
+    if (!this.userId) {
+      throw new Error("userId not found. Could not set initial password.");
+    }
+    if (!this.userType) {
+      throw new Error("userType not found. Could not set initial password.");
+    }
+    if (!this.orgSsoIdentifier) {
+      throw new Error("orgSsoIdentifier not found. Could not set initial password.");
+    }
+    if (!this.orgId) {
+      throw new Error("orgId not found. Could not set initial password.");
+    }
+    if (this.resetPasswordAutoEnroll == null) {
+      throw new Error("resetPasswordAutoEnroll not found. Could not set initial password.");
     }
 
     try {
