@@ -2,9 +2,8 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, shareReplay } from "rxjs";
 
 import {
   Unassigned,
@@ -63,12 +62,12 @@ export class VaultHeaderComponent {
     { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
   ];
   protected cipherMenuItems$ = this.restrictedItemTypesService.restricted$.pipe(
-    takeUntilDestroyed(),
     map((restrictedTypes) => {
       return this.allCipherMenuItems.filter((item) => {
         return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
       });
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**

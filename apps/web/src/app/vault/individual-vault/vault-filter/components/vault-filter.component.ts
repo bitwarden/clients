@@ -5,7 +5,6 @@ import {
   firstValueFrom,
   map,
   merge,
-  of,
   shareReplay,
   Subject,
   switchMap,
@@ -20,12 +19,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -156,8 +154,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     protected configService: ConfigService,
     protected accountService: AccountService,
-    protected logService?: LogService,
-    protected restrictedItemTypesService?: RestrictedItemTypesService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -297,23 +294,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   protected async addTypeFilter(excludeTypes: CipherStatus[] = []): Promise<VaultFilterSection> {
     const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
-    const excludedSet = new Set<CipherStatus>(excludeTypes);
 
-    const restricted$ = this.restrictedItemTypesService
-      ? this.restrictedItemTypesService.restricted$
-      : of<RestrictedCipherType[]>([]);
-
-    const data$ = restricted$.pipe(
-      map((restricted) =>
-        restricted.filter((r) => r.allowViewOrgIds.length === 0).map((r) => r.cipherType),
-      ),
-      map((restricted) => new Set<CipherType>(restricted)),
-      map((restrictedSet) =>
-        this.allTypeFilters.filter(
-          (f) =>
-            typeof f.type !== "string" && !excludedSet.has(f.type) && !restrictedSet.has(f.type),
-        ),
-      ),
+    const data$ = this.restrictedItemTypesService.restricted$.pipe(
+      map((restricted) => {
+        // List of types restricted by all orgs
+        const restrictedByAll = restricted
+          .filter((r) => r.allowViewOrgIds.length === 0)
+          .map((r) => r.cipherType);
+        const toExclude = [...excludeTypes, ...restrictedByAll];
+        return this.allTypeFilters.filter(
+          (f) => typeof f.type !== "string" && !toExclude.includes(f.type),
+        );
+      }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),

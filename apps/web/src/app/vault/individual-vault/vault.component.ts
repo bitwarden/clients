@@ -364,21 +364,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
+        const filterFunction = createFilterFunction(filter, restrictedTypes);
         // Append any failed to decrypt ciphers to the top of the cipher list
-        const allCiphers = [...failedCiphers, ...ciphers].filter((item) => {
-          // Filter the cipher if that type is restricted unless
-          // - The cipher belongs to an organization and that organization allows viewing the cipher type
-          // OR
-          // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
-          return !restrictedTypes.some(
-            (restrictedType) =>
-              restrictedType.cipherType === item.type &&
-              (item.organizationId
-                ? !restrictedType.allowViewOrgIds.includes(item.organizationId)
-                : restrictedType.allowViewOrgIds.length === 0),
-          );
-        });
+        const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
           return await this.searchService.searchCiphers(
