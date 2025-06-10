@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "功能不可用"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。"
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "premiumMembership": {
     "message": "高级会员"
@@ -2204,6 +2204,9 @@
   "useThisPassword": {
     "message": "使用此密码"
   },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
+  },
   "useThisUsername": {
     "message": "使用此用户名"
   },
@@ -2673,6 +2676,10 @@
   "allSends": {
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "已达最大访问次数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "默认隐藏文本"
@@ -3607,14 +3614,6 @@
   "trustUser": {
     "message": "信任用户"
   },
-  "sendsNoItemsTitle": {
-    "message": "没有活跃的 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 与任何人安全地分享加密信息。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
     "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -4519,7 +4518,7 @@
     "message": "添加附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "最大文件大小为 500 MB"
+    "message": "文件最大为 500 MB"
   },
   "deleteAttachmentName": {
     "message": "删除附件 $NAME$",
@@ -4555,7 +4554,7 @@
     "message": "获取桌面 App"
   },
   "getTheDesktopAppDesc": {
-    "message": "无需浏览器也可访问您的密码库。在桌面 App 和浏览器扩展中设置生物识别解锁，以实现快速解锁。"
+    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
   },
   "downloadFromBitwardenNow": {
     "message": "立即从 bitwarden.com 下载"
@@ -4968,7 +4967,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "有更多内容可用"
+    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -5031,7 +5030,7 @@
     "message": "数秒内解锁您的密码库"
   },
   "unlockVaultDesc": {
-    "message": "您可以自定义解锁和超时设置，以便更快地访问您的密码库。"
+    "message": "您可以自定义解锁和超时设置，以便更快速地访问您的密码库。"
   },
   "unlockPinSet": {
     "message": "解锁 PIN 设置"
@@ -5235,7 +5234,7 @@
     "message": "SSH 密钥导入成功"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5304,7 +5303,7 @@
     "message": "为当前页面自动填充项目"
   },
   "hasItemsVaultNudgeBodyTwo": {
-    "message": "收藏项目以便快速访问"
+    "message": "收藏项目以便轻松访问"
   },
   "hasItemsVaultNudgeBodyThree": {
     "message": "在密码库中搜索其他内容"
@@ -5323,7 +5322,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "以便将此登录显示为自动填充建议。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -5372,7 +5371,7 @@
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "一键创建强大且唯一的密码，帮助您保持登录安全。",
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {

@@ -19,7 +19,6 @@ import { TabLabelDirective } from "./tab-label.directive";
   host: {
     role: "tabpanel",
   },
-  standalone: true,
 })
 export class TabComponent implements OnInit {
   @Input() disabled = false;

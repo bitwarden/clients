@@ -7,7 +7,7 @@ import {
 } from "../../../autofill/spec/fido2-testing-utils";
 import { WebauthnUtils } from "../utils/webauthn-utils";
 
-import { MessageType } from "./messaging/message";
+import { MessageTypes } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 const originalGlobalThis = globalThis;
@@ -71,7 +71,7 @@ describe("Fido2 page script with native WebAuthn support", () => {
   describe("creating WebAuthn credentials", () => {
     beforeEach(() => {
       messenger.request = jest.fn().mockResolvedValue({
-        type: MessageType.CredentialCreationResponse,
+        type: MessageTypes.CredentialCreationResponse,
         result: mockCreateCredentialsResult,
       });
     });
@@ -104,7 +104,7 @@ describe("Fido2 page script with native WebAuthn support", () => {
   describe("get WebAuthn credentials", () => {
     beforeEach(() => {
       messenger.request = jest.fn().mockResolvedValue({
-        type: MessageType.CredentialGetResponse,
+        type: MessageTypes.CredentialGetResponse,
         result: mockCredentialAssertResult,
       });
     });
@@ -147,7 +147,7 @@ describe("Fido2 page script with native WebAuthn support", () => {
     it("should destroy the message listener when receiving a disconnect request", async () => {
       jest.spyOn(globalThis.top, "removeEventListener");
       const SENDER = "bitwarden-webauthn";
-      void messenger.handler({ type: MessageType.DisconnectRequest, SENDER, senderId: "1" });
+      void messenger.handler({ type: MessageTypes.DisconnectRequest, SENDER, senderId: "1" });
 
       expect(globalThis.top.removeEventListener).toHaveBeenCalledWith("focus", undefined);
       expect(messenger.destroy).toHaveBeenCalled();
