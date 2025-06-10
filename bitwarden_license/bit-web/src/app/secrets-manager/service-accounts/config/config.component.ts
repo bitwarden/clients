@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params } from "@angular/router";
-import { Subject, from, firstValueFrom, switchMap, takeUntil } from "rxjs";
+import { Subject, from, switchMap, takeUntil } from "rxjs";
 
 import {
   Environment,
@@ -51,12 +51,14 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    const env = await firstValueFrom(this.environmentService.environment$);
-
     this.route.params
       .pipe(
         switchMap((params: Params) =>
-          from(this.load(env, params.organizationId, params.serviceAccountId)),
+          this.environmentService.environment$.pipe(
+            switchMap((env) =>
+              from(this.load(env, params.organizationId, params.serviceAccountId)),
+            ),
+          ),
         ),
         takeUntil(this.destroy$),
       )
