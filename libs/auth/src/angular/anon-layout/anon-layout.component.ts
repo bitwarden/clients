@@ -52,7 +52,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  @Input() maxWidth: "md" | "3xl" = "md";
+  @Input() maxWidth: "md" | "lg" | "3xl" = "md";
 
   protected logo = BitwardenLogo;
   protected year = "2024";
