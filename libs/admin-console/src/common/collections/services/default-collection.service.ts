@@ -42,7 +42,7 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   /**
-   * @returns a SingleUserState for encrypted collection data.
+   * @returns a SingleUserState for decrypted collection data.
    */
   private decryptedState(userId: UserId) {
     return this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY);
@@ -144,7 +144,7 @@ export class DefaultCollectionService implements CollectionService {
   // See https://bitwarden.atlassian.net/browse/PM-12375
   async decryptMany(
     collections: Collection[],
-    orgKeys: Record<OrganizationId, OrgKey> | null,
+    orgKeys: Record<OrganizationId, OrgKey>,
     userId: UserId,
   ): Promise<CollectionView[]> {
     const decrypted = await firstValueFrom(this.decryptedState(userId).state$);
