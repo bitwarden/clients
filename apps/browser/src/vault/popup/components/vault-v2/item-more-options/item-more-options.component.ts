@@ -73,14 +73,15 @@ export class ItemMoreOptionsComponent {
   );
 
   /** Observable Boolean dependent on the current user having access to an organization and editable collections */
-  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(getUserId).pipe(
+  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
     switchMap((userId) => {
       return combineLatest([
         this.organizationService.hasOrganizations(userId),
         this.collectionService.decryptedCollections$,
       ]).pipe(
         map(([hasOrgs, collections]) => {
-          const canEditCollections = collections.filter((c) => !c.readOnly).length > 0;
+          const canEditCollections = collections.some((c) => !c.readOnly);
           return hasOrgs && canEditCollections;
         }),
       );
