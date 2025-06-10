@@ -1,9 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -33,7 +33,7 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent implements OnInit {
+export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherView>(undefined);
 
   @Input({
@@ -73,7 +73,19 @@ export class ItemMoreOptionsComponent implements OnInit {
   );
 
   /** Observable Boolean dependent on the current user having access to an organization and editable collections */
-  protected canAssignCollections$ = of(false);
+  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(getUserId).pipe(
+    switchMap((userId) => {
+      return combineLatest([
+        this.organizationService.hasOrganizations(userId),
+        this.collectionService.decryptedCollections$,
+      ]).pipe(
+        map(([hasOrgs, collections]) => {
+          const canEditCollections = collections.filter((c) => !c.readOnly).length > 0;
+          return hasOrgs && canEditCollections;
+        }),
+      );
+    }),
+  );
 
   constructor(
     private cipherService: CipherService,
@@ -88,20 +100,6 @@ export class ItemMoreOptionsComponent implements OnInit {
     private cipherAuthorizationService: CipherAuthorizationService,
     private collectionService: CollectionService,
   ) {}
-
-  async ngOnInit(): Promise<void> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const allCollections$ = this.collectionService.decryptedCollections$;
-    this.canAssignCollections$ = combineLatest([
-      this.organizationService.hasOrganizations(userId),
-      allCollections$,
-    ]).pipe(
-      map(([hasOrgs, collections]) => {
-        const canEditCollections = collections.filter((c) => !c.readOnly).length > 0;
-        return hasOrgs && canEditCollections;
-      }),
-    );
-  }
 
   get canEdit() {
     return this.cipher.edit;
