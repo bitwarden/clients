@@ -3,9 +3,10 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -71,8 +72,8 @@ export class ItemMoreOptionsComponent implements OnInit {
     switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
   );
 
-  /** Boolean dependent on the current user having access to an organization */
-  protected hasOrganizations = false;
+  /** Observable Boolean dependent on the current user having access to an organization and editable collections */
+  protected canAssignCollections$ = of(false);
 
   constructor(
     private cipherService: CipherService,
@@ -85,11 +86,21 @@ export class ItemMoreOptionsComponent implements OnInit {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private collectionService: CollectionService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.hasOrganizations = await firstValueFrom(this.organizationService.hasOrganizations(userId));
+    const allCollections$ = this.collectionService.decryptedCollections$;
+    this.canAssignCollections$ = combineLatest([
+      this.organizationService.hasOrganizations(userId),
+      allCollections$,
+    ]).pipe(
+      map(([hasOrgs, collections]) => {
+        const canEditCollections = collections.filter((c) => !c.readOnly).length > 0;
+        return hasOrgs && canEditCollections;
+      }),
+    );
   }
 
   get canEdit() {
