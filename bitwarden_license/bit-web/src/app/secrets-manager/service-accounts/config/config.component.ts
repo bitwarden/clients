@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Params } from "@angular/router";
-import { Subject, from, switchMap, takeUntil } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { Subject, combineLatest, from, switchMap, takeUntil } from "rxjs";
 
 import {
   Environment,
@@ -51,14 +51,10 @@ export class ServiceAccountConfigComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.route.params
+    combineLatest([this.route.params, this.environmentService.environment$])
       .pipe(
-        switchMap((params: Params) =>
-          this.environmentService.environment$.pipe(
-            switchMap((env) =>
-              from(this.load(env, params.organizationId, params.serviceAccountId)),
-            ),
-          ),
+        switchMap(([params, env]) =>
+          from(this.load(env, params.organizationId, params.serviceAccountId)),
         ),
         takeUntil(this.destroy$),
       )
