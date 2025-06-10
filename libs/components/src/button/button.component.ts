@@ -10,6 +10,7 @@ import {
   ElementRef,
   inject,
   Injector,
+  Signal,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
@@ -103,7 +104,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   protected disabledAttr = computed(() => {
     const disabled = this.disabled() != null && this.disabled() !== false;
-    return disabled || this.loading() ? true : null;
+    return disabled || this.loading() ? true : undefined;
   });
 
   /**
@@ -157,6 +158,6 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   constructor() {
     const element = this.elementRef.nativeElement;
-    ariaDisableElement(element, this.disabledAttr);
+    ariaDisableElement(element, this.disabledAttr as Signal<boolean | undefined>);
   }
 }
