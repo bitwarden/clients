@@ -175,33 +175,37 @@ export class SetInitialPasswordComponent implements OnInit {
         this.userId,
       );
 
-      if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("accountSuccessfullyCreated"),
-        });
-
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("inviteAccepted"),
-        });
-      }
-
-      if (this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP) {
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("masterPasswordSuccessfullySet"),
-        });
-      }
+      this.showSuccessToastByUserType();
 
       this.submitting = false;
       await this.router.navigate(["vault"]);
     } catch (e) {
       this.validationService.showError(e);
       this.submitting = false;
+    }
+  }
+
+  private showSuccessToastByUserType() {
+    if (this.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("accountSuccessfullyCreated"),
+      });
+
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("inviteAccepted"),
+      });
+    }
+
+    if (this.userType === SetInitialPasswordUserType.TDE_ORG_USER_ROLE_REQUIRES_MP) {
+      this.toastService.showToast({
+        variant: "success",
+        title: "",
+        message: this.i18nService.t("masterPasswordSuccessfullySet"),
+      });
     }
   }
 
