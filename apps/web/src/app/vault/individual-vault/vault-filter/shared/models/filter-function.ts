@@ -90,13 +90,17 @@ export function createFilterFunction(
       // - The cipher belongs to an organization and that organization allows viewing the cipher type
       // OR
       // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
-      return !restrictedTypes.some(
-        (restrictedType) =>
-          restrictedType.cipherType === cipher.type &&
-          (cipher.organizationId
-            ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-            : restrictedType.allowViewOrgIds.length === 0),
-      );
+      if (
+        restrictedTypes.some(
+          (restrictedType) =>
+            restrictedType.cipherType === cipher.type &&
+            (cipher.organizationId
+              ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+              : restrictedType.allowViewOrgIds.length === 0),
+        )
+      ) {
+        return false;
+      }
     }
     return true;
   };

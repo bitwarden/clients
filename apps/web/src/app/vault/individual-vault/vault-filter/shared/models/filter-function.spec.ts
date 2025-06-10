@@ -247,6 +247,13 @@ describe("createFilter", () => {
 
       expect(filterFunction3(cipher)).toBe(false);
     });
+
+    it("should not filter a cipher if there are no restricted types", () => {
+      const cipher = createCipher({ type: CipherType.Login });
+      const filterFunction = createFilterFunction({}, []);
+
+      expect(filterFunction(cipher)).toBe(true);
+    });
   });
 });
 
