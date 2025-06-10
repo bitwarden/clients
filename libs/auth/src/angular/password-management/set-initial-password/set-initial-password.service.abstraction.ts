@@ -2,7 +2,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
 
-export const SetInitialPasswordUser = {
+export const _SetInitialPasswordUserType = {
   /**
    * A user being "just-in-time" (JIT) provisioned into a master-password-encryption org
    */
@@ -18,8 +18,13 @@ export const SetInitialPasswordUser = {
   TDE_ORG_USER_ROLE_REQUIRES_MP: "tde_org_user_role_requires_mp",
 } as const;
 
+type _SetInitialPasswordUserType = typeof _SetInitialPasswordUserType;
+
 export type SetInitialPasswordUserType =
-  (typeof SetInitialPasswordUser)[keyof typeof SetInitialPasswordUser];
+  _SetInitialPasswordUserType[keyof _SetInitialPasswordUserType];
+export const SetInitialPasswordUserType: Readonly<{
+  [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
+}> = Object.freeze(_SetInitialPasswordUserType);
 
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
