@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   Unassigned,
@@ -55,8 +55,21 @@ export class VaultHeaderComponent {
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected CipherType = CipherType;
-  protected cipherMenuItems: { type: CipherType; icon: string; labelKey: string }[] = [];
-  protected destroy$: Subject<void> = new Subject<void>();
+  protected allCipherMenuItems = [
+    { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
+    { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
+    { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
+    { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "note" },
+    { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
+  ];
+  protected cipherMenuItems$ = this.restrictedItemTypesService.restricted$.pipe(
+    takeUntilDestroyed(),
+    map((restrictedTypes) => {
+      return this.allCipherMenuItems.filter((item) => {
+        return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
+      });
+    }),
+  );
 
   /**
    * Boolean to determine the loading state of the header.
@@ -98,25 +111,7 @@ export class VaultHeaderComponent {
     private router: Router,
     private configService: ConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-  ) {
-    const allCipherMenuItems = [
-      { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
-      { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
-      { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
-      { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "note" },
-      { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
-    ];
-
-    this.restrictedItemTypesService.restricted$
-      .pipe(takeUntilDestroyed())
-      .subscribe((restrictedItemTypes) => {
-        // Filter out all restricted item types from the menu
-        this.cipherMenuItems = allCipherMenuItems.filter(
-          (item) =>
-            !restrictedItemTypes.some((restrictedType) => restrictedType.cipherType === item.type),
-        );
-      });
-  }
+  ) {}
 
   /**
    * The id of the organization that is currently being filtered on.

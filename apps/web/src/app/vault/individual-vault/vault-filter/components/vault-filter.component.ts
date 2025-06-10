@@ -1,6 +1,16 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, merge, Subject, switchMap, takeUntil } from "rxjs";
+import {
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  merge,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -15,7 +25,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
+import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -55,6 +65,45 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
+
+  allTypeFilters: CipherTypeFilter[] = [
+    {
+      id: "favorites",
+      name: this.i18nService.t("favorites"),
+      type: "favorites",
+      icon: "bwi-star",
+    },
+    {
+      id: "login",
+      name: this.i18nService.t("typeLogin"),
+      type: CipherType.Login,
+      icon: "bwi-globe",
+    },
+    {
+      id: "card",
+      name: this.i18nService.t("typeCard"),
+      type: CipherType.Card,
+      icon: "bwi-credit-card",
+    },
+    {
+      id: "identity",
+      name: this.i18nService.t("typeIdentity"),
+      type: CipherType.Identity,
+      icon: "bwi-id-card",
+    },
+    {
+      id: "note",
+      name: this.i18nService.t("note"),
+      type: CipherType.SecureNote,
+      icon: "bwi-sticky-note",
+    },
+    {
+      id: "sshKey",
+      name: this.i18nService.t("typeSshKey"),
+      type: CipherType.SshKey,
+      icon: "bwi-key",
+    },
+  ];
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -143,24 +192,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           return;
         }
         this.filters.organizationFilter = orgFilters;
-      });
-
-    this.restrictedItemTypesService?.restricted$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((restrictedTypes) => {
-        this.addTypeFilter(
-          // Exclude restricted types if there aren't any orgs that allow viewing them
-          restrictedTypes.filter((r) => r.allowViewOrgIds.length === 0).map((r) => r.cipherType),
-        )
-          .then((typeFilter) => {
-            if (!this.filters) {
-              return;
-            }
-            this.filters.typeFilter = typeFilter;
-          })
-          .catch((error) => {
-            this.logService?.error("Error loading type filter", error);
-          });
       });
   }
 
@@ -265,50 +296,31 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected async addTypeFilter(excludeTypes: CipherStatus[] = []): Promise<VaultFilterSection> {
-    const allTypeFilters: CipherTypeFilter[] = [
-      {
-        id: "favorites",
-        name: this.i18nService.t("favorites"),
-        type: "favorites",
-        icon: "bwi-star",
-      },
-      {
-        id: "login",
-        name: this.i18nService.t("typeLogin"),
-        type: CipherType.Login,
-        icon: "bwi-globe",
-      },
-      {
-        id: "card",
-        name: this.i18nService.t("typeCard"),
-        type: CipherType.Card,
-        icon: "bwi-credit-card",
-      },
-      {
-        id: "identity",
-        name: this.i18nService.t("typeIdentity"),
-        type: CipherType.Identity,
-        icon: "bwi-id-card",
-      },
-      {
-        id: "note",
-        name: this.i18nService.t("note"),
-        type: CipherType.SecureNote,
-        icon: "bwi-sticky-note",
-      },
-      {
-        id: "sshKey",
-        name: this.i18nService.t("typeSshKey"),
-        type: CipherType.SshKey,
-        icon: "bwi-key",
-      },
-    ];
+    const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
+    const excludedSet = new Set<CipherStatus>(excludeTypes);
+
+    const restricted$ = this.restrictedItemTypesService
+      ? this.restrictedItemTypesService.restricted$
+      : of<RestrictedCipherType[]>([]);
+
+    const data$ = restricted$.pipe(
+      map((restricted) =>
+        restricted.filter((r) => r.allowViewOrgIds.length === 0).map((r) => r.cipherType),
+      ),
+      map((restricted) => new Set<CipherType>(restricted)),
+      map((restrictedSet) =>
+        this.allTypeFilters.filter(
+          (f) =>
+            typeof f.type !== "string" && !excludedSet.has(f.type) && !restrictedSet.has(f.type),
+        ),
+      ),
+      switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
     const typeFilterSection: VaultFilterSection = {
-      data$: this.vaultFilterService.buildTypeTree(
-        { id: "AllItems", name: "allItems", type: "all", icon: "" },
-        allTypeFilters.filter((f) => !excludeTypes.includes(f.type)),
-      ),
+      data$,
       header: {
         showHeader: true,
         isSelectable: true,

@@ -81,7 +81,7 @@
         {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
       </button>
       <bit-menu #addOptions aria-labelledby="newItemDropdown">
-        @for (item of cipherMenuItems; track item.type) {
+        @for (item of cipherMenuItems$ | async; track item.type) {
           <button type="button" bitMenuItem (click)="addCipher(item.type)">
             <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
             {{ item.labelKey | i18n }}

@@ -79,6 +79,7 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  RestrictedItemTypesService,
 } from "@bitwarden/vault";
 
 import {
@@ -273,6 +274,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
     private configService: ConfigService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   async ngOnInit() {
@@ -356,14 +358,27 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
       filter$,
       this.currentSearchText$,
+      this.restrictedItemTypesService.restricted$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
-        const allCiphers = [...failedCiphers, ...ciphers];
+        const allCiphers = [...failedCiphers, ...ciphers].filter((item) => {
+          // Filter the cipher if that type is restricted unless
+          // - The cipher belongs to an organization and that organization allows viewing the cipher type
+          // OR
+          // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
+          return !restrictedTypes.some(
+            (restrictedType) =>
+              restrictedType.cipherType === item.type &&
+              (item.organizationId
+                ? !restrictedType.allowViewOrgIds.includes(item.organizationId)
+                : restrictedType.allowViewOrgIds.length === 0),
+          );
+        });
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
           return await this.searchService.searchCiphers(
