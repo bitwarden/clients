@@ -9,9 +9,7 @@ export class Fido2Utils {
   }
 
   static stringToBuffer(str: string): ArrayBuffer {
-    return Fido2Utils.arrayBufferViewToArrayBuffer(
-      Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)),
-    );
+    return Fido2Utils.fromB64ToArray(Fido2Utils.fromUrlB64ToB64(str)).buffer;
   }
 
   static bufferSourceToUint8Array(bufferSource: BufferSource): Uint8Array {
@@ -20,10 +18,6 @@ export class Fido2Utils {
     } else {
       return new Uint8Array(bufferSource.buffer, bufferSource.byteOffset, bufferSource.byteLength);
     }
-  }
-
-  static arrayBufferViewToArrayBuffer(array: ArrayBufferView): ArrayBuffer {
-    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
   }
 
   /** Utility function to identify type of bufferSource. Necessary because of differences between runtimes */
