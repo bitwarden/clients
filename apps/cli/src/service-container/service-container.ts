@@ -715,8 +715,8 @@ export class ServiceContainer {
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 
-    const lockedCallback = async (userId?: string) =>
-      await this.keyService.clearStoredUserKey(KeySuffixOptions.Auto);
+    const lockedCallback = async (userId: UserId) =>
+      await this.keyService.clearStoredUserKey(KeySuffixOptions.Auto, userId);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
@@ -861,7 +861,6 @@ export class ServiceContainer {
       this.collectionService,
       this.organizationService,
       this.accountService,
-      this.configService,
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
