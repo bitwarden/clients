@@ -46,6 +46,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   electron-verify:
     name: Verify Electron Version
