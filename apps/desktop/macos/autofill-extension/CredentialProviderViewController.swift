@@ -148,13 +148,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return Position(x: centerX, y:centerY)
     }
     
-    override func loadView() {
-        let view = NSView()
-        // Hide the native window since we only need the IPC connection
-        view.isHidden = true    
-        self.view = view
-    }
-    
     override func prepareInterfaceForExtensionConfiguration() {
         client.sendNativeStatus(key: "request-sync", value: "")
         self.extensionContext.completeExtensionConfigurationRequest()
