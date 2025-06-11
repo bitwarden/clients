@@ -165,18 +165,39 @@ export class OverlayNotificationsContentService
   }
 
   /**
+   * Match parent color scheme.
+   */
+  private matchParentColorScheme() {
+    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
+      ?.content;
+    switch (content) {
+      case "light dark":
+      case "dark light":
+      case "light":
+      case "dark":
+        // content must match one of these types.
+        return content;
+      default:
+        return "normal";
+    }
+  }
+
+  /**
    * Creates the iframe element for the notification bar.
    *
    * @param initData - The initialization data for the notification bar.
    */
   private createNotificationBarIframeElement(initData: NotificationBarIframeInitData) {
+    const colorScheme = this.matchParentColorScheme();
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
+    this.notificationBarIframeElement.src = chrome.runtime.getURL(
+      `notification/bar.html?colorScheme=${encodeURIComponent(colorScheme)}`,
+    );
     setElementStyles(
       this.notificationBarIframeElement,
       {

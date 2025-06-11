@@ -230,6 +230,14 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
+  // https://drafts.csswg.org/css-color-adjust-1/#preferred
+  // Prevents preferred color scheme from forcing an opaque background in the iframe
+  const colorScheme = new URLSearchParams(window.location.search).get("colorScheme");
+  const meta = document.createElement("meta");
+  meta.setAttribute("name", "color-scheme");
+  meta.setAttribute("content", colorScheme);
+  document.getElementsByTagName("head")[0].appendChild(meta);
+
   if (useComponentBar) {
     const resolvedType = resolveNotificationType(notificationBarIframeInitData);
     const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
