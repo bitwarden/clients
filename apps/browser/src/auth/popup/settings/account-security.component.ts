@@ -474,7 +474,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
       const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
-      if (userHasPinSet && requireReprompt) {
+      if (userHasPinSet) {
         this.toastService.showToast({
           variant: "success",
           title: null,
