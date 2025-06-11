@@ -3,7 +3,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { NotificationBarIframeInitData } from "../../../notification/abstractions/notification-bar";
-import { sendExtensionMessage, setElementStyles } from "../../../utils";
+import { matchAllowedColorSchemes, sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   NotificationsExtensionMessage,
   OverlayNotificationsContentService as OverlayNotificationsContentServiceInterface,
@@ -165,30 +165,14 @@ export class OverlayNotificationsContentService
   }
 
   /**
-   * Match parent color scheme.
-   */
-  private matchParentColorScheme() {
-    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
-      ?.content;
-    switch (content) {
-      case "light dark":
-      case "dark light":
-      case "light":
-      case "dark":
-        // content must match one of these types.
-        return content;
-      default:
-        return "normal";
-    }
-  }
-
-  /**
    * Creates the iframe element for the notification bar.
    *
    * @param initData - The initialization data for the notification bar.
    */
   private createNotificationBarIframeElement(initData: NotificationBarIframeInitData) {
-    const colorScheme = this.matchParentColorScheme();
+    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
+      ?.content;
+    const allowedColorScheme = matchAllowedColorSchemes(content);
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
@@ -196,7 +180,7 @@ export class OverlayNotificationsContentService
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
     this.notificationBarIframeElement.src = chrome.runtime.getURL(
-      `notification/bar.html?colorScheme=${encodeURIComponent(colorScheme)}`,
+      `notification/bar.html?colorScheme=${encodeURIComponent(allowedColorScheme)}`,
     );
     setElementStyles(
       this.notificationBarIframeElement,
