@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
@@ -50,6 +51,9 @@ export class CipherView implements View, InitializerMetadata {
   creationDate: Date = null;
   deletedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
+  // We need a copy of the encrypted key so we can pass it to
+  // the SdkCipherView during encryption
+  key?: EncString;
 
   /**
    * Flag to indicate if the cipher decryption failed.
@@ -77,6 +81,7 @@ export class CipherView implements View, InitializerMetadata {
     this.deletedDate = c.deletedDate;
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
+    this.key = c.key;
   }
 
   private get item() {
