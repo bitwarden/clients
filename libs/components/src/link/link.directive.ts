@@ -104,8 +104,7 @@ export class AnchorLinkDirective extends LinkDirective {
   selector: "button[bitLink]",
 })
 export class ButtonLinkDirective extends LinkDirective {
-  private el = inject(ElementRef<HTMLElement>);
-  private element: HTMLButtonElement = this.el.nativeElement;
+  private el = inject(ElementRef<HTMLButtonElement>);
 
   disabled = input(false, { transform: booleanAttribute });
 
@@ -118,6 +117,6 @@ export class ButtonLinkDirective extends LinkDirective {
   constructor() {
     super();
 
-    ariaDisableElement(this.element, this.disabled);
+    ariaDisableElement(this.el.nativeElement, this.disabled);
   }
 }

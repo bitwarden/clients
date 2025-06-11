@@ -152,10 +152,9 @@ export class ButtonComponent implements ButtonLikeAbstraction {
   );
 
   disabled = model<boolean>(false);
-  private elementRef = inject(ElementRef);
+  private el = inject(ElementRef<HTMLButtonElement>);
 
   constructor() {
-    const element = this.elementRef.nativeElement;
-    ariaDisableElement(element, this.disabledAttr as Signal<boolean | undefined>);
+    ariaDisableElement(this.el.nativeElement, this.disabledAttr as Signal<boolean | undefined>);
   }
 }
