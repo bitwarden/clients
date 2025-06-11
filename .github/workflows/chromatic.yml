@@ -88,7 +88,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "CHROMATIC_PROJECT_TOKEN"
+          secrets: "CHROMATIC-PROJECT-TOKEN"
 
       - name: Azure Logout
         uses: bitwarden/gh-actions/azure-logout@main
@@ -97,7 +97,7 @@ jobs:
         uses: chromaui/action@e8cc4c31775280b175a3c440076c00d19a9014d7 # v11.28.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
           storybookBuildDir: ./storybook-static
           exitOnceUploaded: true
           onlyChanged: true

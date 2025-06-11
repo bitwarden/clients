@@ -327,7 +327,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN_PASSWORD"
+          secrets: "KEYCHAIN-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -368,7 +368,7 @@ jobs:
 
       - name: Set up keychain
         env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
