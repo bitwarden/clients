@@ -7,6 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -27,11 +28,21 @@ import { VaultListItemsContainerComponent } from "../vault-list-items-container/
 })
 export class AutofillVaultListItemsComponent {
   /**
-   * The list of ciphers that can be used to autofill the current page.
+   * The list of ciphers that can be used to autofill the current page, filtered by restricted types.
    * @protected
    */
-  protected autofillCiphers$: Observable<PopupCipherView[]> =
-    this.vaultPopupItemsService.autoFillCiphers$;
+  protected autofillCiphers$: Observable<PopupCipherView[]> = combineLatest([
+    this.vaultPopupItemsService.autoFillCiphers$,
+    this.restrictedItemTypesService.restricted$,
+  ]).pipe(
+    map(([ciphers, restrictedTypes]) => {
+      // Get array of restricted cipher types
+      const restrictedCipherTypes = restrictedTypes.map((item) => item.cipherType);
+
+      // Filter out restricted cipher types
+      return ciphers.filter((cipher) => !restrictedCipherTypes.includes(cipher.type));
+    }),
+  );
 
   /**
    * Flag indicating whether the refresh button should be shown. Only shown when the popup is within the FF sidebar.
@@ -74,6 +85,7 @@ export class AutofillVaultListItemsComponent {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private vaultSettingsService: VaultSettingsService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     // TODO: Migrate logic to show Autofill policy toast PM-8144
   }
