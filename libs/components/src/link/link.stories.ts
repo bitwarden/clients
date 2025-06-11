@@ -147,10 +147,10 @@ export const Disabled: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <button bitLink disabled linkType="primary" class="tw-mr-2">Primary</button>
-      <button bitLink disabled linkType="secondary" class="tw-mr-2">Secondary</button>
+      <button bitLink disabled linkType="primary" class="tw-me-2">Primary</button>
+      <button bitLink disabled linkType="secondary" class="tw-me-2">Secondary</button>
       <div class="tw-bg-primary-600 tw-p-2 tw-inline-block">
-        <button bitLink disabled linkType="contrast" class="tw-mr-2">Contrast</button>
+        <button bitLink disabled linkType="contrast">Contrast</button>
       </div>
     `,
   }),

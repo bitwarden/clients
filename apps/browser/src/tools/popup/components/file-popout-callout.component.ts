@@ -12,7 +12,6 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 @Component({
   selector: "tools-file-popout-callout",
   templateUrl: "file-popout-callout.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, CalloutModule],
 })
 export class FilePopoutCalloutComponent implements OnInit {

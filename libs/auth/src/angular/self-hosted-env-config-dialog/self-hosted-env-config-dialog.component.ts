@@ -55,7 +55,6 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
  * Dialog for configuring self-hosted environment settings.
  */
 @Component({
-  standalone: true,
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",
   imports: [

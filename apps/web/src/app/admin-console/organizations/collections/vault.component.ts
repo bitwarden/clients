@@ -144,7 +144,6 @@ enum AddAccessStatusType {
 }
 
 @Component({
-  standalone: true,
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
   imports: [

@@ -14,7 +14,6 @@ import {
 @Component({
   selector: "app-additional-options",
   templateUrl: "additional-options.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,

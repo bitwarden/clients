@@ -42,7 +42,6 @@ const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
 };
 
 @Component({
-  standalone: true,
   selector: "auth-registration-start",
   templateUrl: "./registration-start.component.html",
   imports: [
