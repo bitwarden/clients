@@ -18,7 +18,6 @@ export interface ErrorListItem {
 
 @Component({
   templateUrl: "./import-error-dialog.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, DialogModule, TableModule, ButtonModule],
 })
 export class ImportErrorDialogComponent implements OnInit {

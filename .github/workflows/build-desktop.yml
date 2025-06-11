@@ -46,6 +46,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   electron-verify:
     name: Verify Electron Version
@@ -425,7 +428,7 @@ jobs:
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
-      - name: Set up environmentF
+      - name: Set up environment
         run: choco install checksum --no-progress
 
       - name: Print environment

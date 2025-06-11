@@ -33,7 +33,6 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
 @Component({
   selector: "app-two-factor-setup-duo",
   templateUrl: "two-factor-setup-duo.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     DialogModule,

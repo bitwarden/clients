@@ -15,7 +15,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-yubikey",
   templateUrl: "two-factor-auth-yubikey.component.html",
   imports: [

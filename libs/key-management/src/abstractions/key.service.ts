@@ -83,13 +83,18 @@ export abstract class KeyService {
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
+   * @param userId The target user to refresh keys for.
+   * @throws Error when userId is null or undefined.
+   * @throws When userKey doesn't exist in memory for the target user.
    */
-  abstract refreshAdditionalKeys(): Promise<void>;
+  abstract refreshAdditionalKeys(userId: UserId): Promise<void>;
+
   /**
-   * Observable value that returns whether or not the currently active user has ever had auser key,
+   * Observable value that returns whether or not the user has ever had a userKey,
    * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
    */
-  abstract everHadUserKey$: Observable<boolean>;
+  abstract everHadUserKey$(userId: UserId): Observable<boolean>;
+
   /**
    * Retrieves the user key
    * @param userId The desired user
@@ -126,10 +131,11 @@ export abstract class KeyService {
    * @param keySuffix The desired version of the user's key to retrieve
    * @param userId The desired user
    * @returns The user key
+   * @throws Error when userId is null or undefined.
    */
   abstract getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId: string,
   ): Promise<UserKey | null>;
 
   /**
@@ -161,8 +167,9 @@ export abstract class KeyService {
    * Clears the user's stored version of the user key
    * @param keySuffix The desired version of the key to clear
    * @param userId The desired user
+   * @throws Error when userId is null or undefined.
    */
-  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
+  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
   /**
    * Stores the master key encrypted user key
    * @throws Error when userId is null and there is no active user.

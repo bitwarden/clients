@@ -3,8 +3,8 @@ import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
@@ -17,6 +17,7 @@ import { LayoutComponent, NavigationModule } from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
@@ -108,9 +109,8 @@ export default {
         MockProviderService,
         StoryLayoutComponent,
         StoryContentComponent,
-        I18nPipe,
       ],
-      imports: [NavigationModule, RouterModule, LayoutComponent],
+      imports: [NavigationModule, RouterModule, LayoutComponent, I18nPipe],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
         { provide: AccountService, useClass: MockAccountService },
@@ -119,15 +119,15 @@ export default {
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
         ProductSwitcherService,
         {
-          provide: I18nPipe,
-          useFactory: () => ({
-            transform: (key: string) => translations[key],
-          }),
-        },
-        {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService(translations);
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policyAppliesToUser$: () => of(false),
           },
         },
       ],

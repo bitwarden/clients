@@ -31,7 +31,6 @@ let nextId = 0;
 @Component({
   selector: "bit-tab-group",
   templateUrl: "./tab-group.component.html",
-  standalone: true,
   imports: [
     NgTemplateOutlet,
     TabHeaderComponent,

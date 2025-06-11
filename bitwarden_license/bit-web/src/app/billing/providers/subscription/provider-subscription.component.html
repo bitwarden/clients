@@ -71,7 +71,7 @@
       <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
     </bit-section>
     <!-- Payment Method -->
-    <bit-section *ngIf="allowProviderPaymentMethod$ | async">
+    <bit-section>
       <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
       <p *ngIf="!subscription.paymentSource" bitTypography="body1">
         {{ "noPaymentMethod" | i18n }}

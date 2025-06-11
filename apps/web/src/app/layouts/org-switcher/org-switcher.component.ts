@@ -17,7 +17,6 @@ import { TrialFlowService } from "./../../billing/services/trial-flow.service";
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, NavigationModule],
 })
 export class OrgSwitcherComponent {

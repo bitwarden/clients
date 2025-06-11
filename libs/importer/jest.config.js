@@ -1,15 +1,14 @@
 const { pathsToModuleNameMapper } = require("ts-jest");
 
-const { compilerOptions } = require("../shared/tsconfig.spec");
+const { compilerOptions } = require("../../tsconfig.base");
 
 const sharedConfig = require("../shared/jest.config.ts");
 
 /** @type {import('jest').Config} */
 module.exports = {
   ...sharedConfig,
-  preset: "jest-preset-angular",
   testEnvironment: "jsdom",
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
-    prefix: "<rootDir>/",
+    prefix: "<rootDir>/../../",
   }),
 };

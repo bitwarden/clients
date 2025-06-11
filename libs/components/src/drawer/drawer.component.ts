@@ -19,7 +19,6 @@ import { DrawerHostDirective } from "./drawer-host.directive";
  */
 @Component({
   selector: "bit-drawer",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, PortalModule],
   templateUrl: "drawer.component.html",

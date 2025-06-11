@@ -14,12 +14,16 @@ import { ProfileResponse } from "@bitwarden/common/models/response/profile.respo
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { DynamicAvatarComponent } from "../../../components/dynamic-avatar.component";
+import { SharedModule } from "../../../shared";
+import { AccountFingerprintComponent } from "../../../shared/components/account-fingerprint/account-fingerprint.component";
+
 import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
-  standalone: false,
+  imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   loading = true;
