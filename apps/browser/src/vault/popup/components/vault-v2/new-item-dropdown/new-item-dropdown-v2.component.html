@@ -3,7 +3,6 @@
   {{ "new" | i18n }}
 </button>
 <bit-menu #itemOptions>
-  <!-- Dynamic cipher menu items -->
   @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {
     <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(menuItem.type)">
       <i [class]="`bwi ${menuItem.icon}`" slot="start" aria-hidden="true"></i>
