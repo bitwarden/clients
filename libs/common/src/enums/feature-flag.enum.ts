@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
   OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
+  CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
@@ -76,6 +77,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
   [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
+  [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
