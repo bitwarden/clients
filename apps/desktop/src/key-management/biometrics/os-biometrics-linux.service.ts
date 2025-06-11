@@ -1,13 +1,8 @@
 import { spawn } from "child_process";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { biometrics, passwords } from "@bitwarden/desktop-napi";
-import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { isFlatpak, isLinux, isSnapStore } from "../../utils";
 
@@ -32,37 +27,15 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
 const policyFileName = "com.bitwarden.Bitwarden.policy";
 const policyPath = "/usr/share/polkit-1/actions/";
 
-const SERVICE = "Bitwarden_biometric";
-function getLookupKeyForUser(userId: UserId): string {
-  return `${userId}_user_biometric`;
-}
-
 export default class OsBiometricsServiceLinux implements OsBiometricService {
-  constructor(
-    private biometricStateService: BiometricStateService,
-    private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
-  ) {}
-  private _iv: string | null = null;
-  // Use getKeyMaterial helper instead of direct access
-  private _osKeyHalf: string | null = null;
-  private clientKeyHalves = new Map<string, Uint8Array | null>();
+  constructor() {}
+  private inMemoryUserKeys = new Map<string, SymmetricCryptoKey>();
 
   async setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
-    const clientKeyPartB64 = Utils.fromBufferToB64(
-      await this.getOrCreateBiometricEncryptionClientKeyHalf(userId, key),
-    );
-    const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
-    await biometrics.setBiometricSecret(
-      SERVICE,
-      getLookupKeyForUser(userId),
-      key.toBase64(),
-      storageDetails.key_material,
-      storageDetails.ivB64,
-    );
+    this.inMemoryUserKeys.set(userId.toString(), key);
   }
   async deleteBiometricKey(userId: UserId): Promise<void> {
-    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    this.inMemoryUserKeys.delete(userId.toString());
   }
 
   async getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null> {
@@ -72,23 +45,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       throw new Error("Biometric authentication failed");
     }
 
-    const value = await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
-
-    if (value == null || value == "") {
-      return null;
-    } else {
-      const clientKeyHalf = this.clientKeyHalves.get(userId.toString());
-      const clientKeyPartB64 = Utils.fromBufferToB64(clientKeyHalf);
-      const encValue = new EncString(value);
-      this.setIv(encValue.iv);
-      const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
-      const storedValue = await biometrics.getBiometricSecret(
-        SERVICE,
-        getLookupKeyForUser(userId),
-        storageDetails.key_material,
-      );
-      return SymmetricCryptoKey.fromString(storedValue);
-    }
+    return this.inMemoryUserKeys.get(userId.toString()) || null;
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -99,11 +56,8 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   async supportsBiometrics(): Promise<boolean> {
     // We assume all linux distros have some polkit implementation
     // that either has bitwarden set up or not, which is reflected in osBiomtricsNeedsSetup.
-    // Snap does not have access at the moment to polkit
     // This could be dynamically detected on dbus in the future.
-    // We should check if a libsecret implementation is available on the system
-    // because otherwise we cannot offlod the protected userkey to secure storage.
-    return await passwords.isAvailable();
+    return true;
   }
 
   async needsSetup(): Promise<boolean> {
@@ -141,77 +95,12 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     });
   }
 
-  // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
-  // when we want to force a re-derive of the key material.
-  private setIv(iv?: string) {
-    this._iv = iv ?? null;
-    this._osKeyHalf = null;
-  }
-
-  private async getStorageDetails({
-    clientKeyHalfB64,
-  }: {
-    clientKeyHalfB64: string | undefined;
-  }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
-    if (this._osKeyHalf == null) {
-      const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
-      // osKeyHalf is based on the iv and in contrast to windows is not locked behind user verification!
-      this._osKeyHalf = keyMaterial.keyB64;
-      this._iv = keyMaterial.ivB64;
-    }
-
-    if (this._iv == null) {
-      throw new Error("Initialization Vector is null");
-    }
-
-    return {
-      key_material: {
-        osKeyPartB64: this._osKeyHalf,
-        clientKeyPartB64: clientKeyHalfB64,
-      },
-      ivB64: this._iv,
-    };
-  }
-
-  private async getOrCreateBiometricEncryptionClientKeyHalf(
-    userId: UserId,
-    key: SymmetricCryptoKey,
-  ): Promise<Uint8Array | null> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    if (!requireClientKeyHalf) {
-      return null;
-    }
-
-    if (this.clientKeyHalves.has(userId)) {
-      return this.clientKeyHalves.get(userId) || null;
-    }
-
-    // Retrieve existing key half if it exists
-    let clientKeyHalf: Uint8Array | null = null;
-    const encryptedClientKeyHalf =
-      await this.biometricStateService.getEncryptedClientKeyHalf(userId);
-    if (encryptedClientKeyHalf != null) {
-      clientKeyHalf = await this.encryptService.decryptBytes(encryptedClientKeyHalf, key);
-    }
-    if (clientKeyHalf == null) {
-      // Set a key half if it doesn't exist
-      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
-      const encKey = await this.encryptService.encryptBytes(keyBytes, key);
-      await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
-    }
-
-    this.clientKeyHalves.set(userId.toString(), clientKeyHalf);
-
-    return clientKeyHalf;
-  }
-
   async getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    const clientKeyHalfB64 = this.clientKeyHalves.get(userId);
-    const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
-    if (!clientKeyHalfSatisfied) {
+    const hasUserKey = this.inMemoryUserKeys.has(userId.toString());
+    if (hasUserKey) {
+      return BiometricsStatus.Available;
+    } else {
       return BiometricsStatus.UnlockNeeded;
     }
-    return BiometricsStatus.Available;
   }
 }

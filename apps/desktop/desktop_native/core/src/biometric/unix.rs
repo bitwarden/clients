@@ -1,17 +1,8 @@
-use std::str::FromStr;
-
 use anyhow::Result;
-use base64::Engine;
-use rand::RngCore;
-use sha2::{Digest, Sha256};
 
-use crate::biometric::{base64_engine, KeyMaterial, OsDerivedKey};
+use crate::biometric::{KeyMaterial, OsDerivedKey};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
-
-use super::{decrypt, encrypt};
-use crate::crypto::CipherString;
-use anyhow::anyhow;
 
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}
@@ -53,57 +44,25 @@ impl super::BiometricTrait for Biometric {
         Ok(false)
     }
 
-    fn derive_key_material(challenge_str: Option<&str>) -> Result<OsDerivedKey> {
-        let challenge: [u8; 16] = match challenge_str {
-            Some(challenge_str) => base64_engine
-                .decode(challenge_str)?
-                .try_into()
-                .map_err(|e: Vec<_>| anyhow!("Expect length {}, got {}", 16, e.len()))?,
-            None => random_challenge(),
-        };
-
-        // there is no windows hello like interactive bio protected secret at the moment on linux
-        // so we use a a key derived from the iv. this key is not intended to add any security
-        // but only a place-holder
-        let key = Sha256::digest(challenge);
-        let key_b64 = base64_engine.encode(key);
-        let iv_b64 = base64_engine.encode(challenge);
-        Ok(OsDerivedKey { key_b64, iv_b64 })
+    fn derive_key_material(_challenge_str: Option<&str>) -> Result<OsDerivedKey> {
+        unimplemented!();
     }
 
     async fn set_biometric_secret(
-        service: &str,
-        account: &str,
-        secret: &str,
-        key_material: Option<KeyMaterial>,
-        iv_b64: &str,
+        _service: &str,
+        _account: &str,
+        _secret: &str,
+        _key_material: Option<KeyMaterial>,
+        _iv_b64: &str,
     ) -> Result<String> {
-        let key_material = key_material.ok_or(anyhow!(
-            "Key material is required for polkit protected keys"
-        ))?;
-
-        let encrypted_secret = encrypt(secret, &key_material, iv_b64)?;
-        crate::password::set_password(service, account, &encrypted_secret).await?;
-        Ok(encrypted_secret)
+        unimplemented!();
     }
 
     async fn get_biometric_secret(
-        service: &str,
-        account: &str,
-        key_material: Option<KeyMaterial>,
+        _service: &str,
+        _account: &str,
+        _key_material: Option<KeyMaterial>,
     ) -> Result<String> {
-        let key_material = key_material.ok_or(anyhow!(
-            "Key material is required for polkit protected keys"
-        ))?;
-
-        let encrypted_secret = crate::password::get_password(service, account).await?;
-        let secret = CipherString::from_str(&encrypted_secret)?;
-        decrypt(&secret, &key_material)
+        unimplemented!();
     }
-}
-
-fn random_challenge() -> [u8; 16] {
-    let mut challenge = [0u8; 16];
-    rand::rng().fill_bytes(&mut challenge);
-    challenge
 }
