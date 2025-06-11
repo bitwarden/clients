@@ -84,7 +84,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   showCardNumber = false;
   showCardCode = false;
   cipherType = CipherType;
-  typeOptions: any[];
   cardBrandOptions: any[];
   cardExpMonthOptions: any[];
   identityTitleOptions: any[];
@@ -106,6 +105,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected writeableCollections: CollectionView[];
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
+  protected typeOptions = [
+    { name: this.i18nService.t("typeLogin"), value: CipherType.Login },
+    { name: this.i18nService.t("typeCard"), value: CipherType.Card },
+    { name: this.i18nService.t("typeIdentity"), value: CipherType.Identity },
+    { name: this.i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
+    { name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey },
+  ];
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -139,13 +145,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected sdkService: SdkService,
     private sshImportPromptService: SshImportPromptService,
   ) {
-    this.typeOptions = [
-      { name: i18nService.t("typeLogin"), value: CipherType.Login },
-      { name: i18nService.t("typeCard"), value: CipherType.Card },
-      { name: i18nService.t("typeIdentity"), value: CipherType.Identity },
-      { name: i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
-    ];
-
     this.cardBrandOptions = [
       { name: "-- " + i18nService.t("select") + " --", value: null },
       { name: "Visa", value: "Visa" },
@@ -215,8 +214,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
-
-    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {

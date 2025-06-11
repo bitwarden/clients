@@ -2,7 +2,9 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgForm } from "@angular/forms";
+import { map } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -23,7 +25,11 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  RestrictedItemTypesService,
+  SshImportPromptService,
+} from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
 
@@ -59,6 +65,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     cipherAuthorizationService: CipherAuthorizationService,
     sdkService: SdkService,
     sshImportPromptService: SshImportPromptService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(
       cipherService,
@@ -83,6 +90,20 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       sdkService,
       sshImportPromptService,
     );
+    this.restrictedItemTypesService.restricted$
+      .pipe(
+        takeUntilDestroyed(),
+        map((restrictedItemTypes) => {
+          // Filter out restricted item types from the typeOptions array
+          this.typeOptions = this.typeOptions.filter(
+            (typeOption) =>
+              !restrictedItemTypes.some(
+                (restrictedType) => restrictedType.cipherType === typeOption.value,
+              ),
+          );
+        }),
+      )
+      .subscribe();
   }
 
   async ngOnInit() {
