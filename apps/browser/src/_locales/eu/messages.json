@@ -6,7 +6,7 @@
     "message": "Bitwarden logo"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden pasahitz kudeatzailea",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -32,13 +32,13 @@
     "message": "Use single sign-on"
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Ongi etorri berriro ere"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Pasahitz sendo bat ezarri"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Amaitu zure kontua sortzen pasahitza ezarriz"
   },
   "enterpriseSingleSignOn": {
     "message": "Enpresentzako saio hasiera bakarra"
@@ -186,14 +186,14 @@
     "message": "Copy website"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopiatu oharrak"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopiatu",
     "description": "Copy to clipboard"
   },
   "fill": {
-    "message": "Fill",
+    "message": "Bete",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
@@ -209,10 +209,10 @@
     "message": "Auto-bete nortasuna"
   },
   "fillVerificationCode": {
-    "message": "Fill verification code"
+    "message": "Bete egiaztapen-kodea"
   },
   "fillVerificationCodeAria": {
-    "message": "Fill Verification Code",
+    "message": "Bete egiaztapen-kodea",
     "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
@@ -231,7 +231,7 @@
     "message": "Nortasunik ez"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Gehitu logina"
   },
   "addCardMenu": {
     "message": "Gehitu txartela"
@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Ezaugarria ez dago erabilgarri"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium bazkidea"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

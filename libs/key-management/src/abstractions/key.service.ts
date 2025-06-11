@@ -83,8 +83,11 @@ export abstract class KeyService {
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
+   * @param userId The target user to refresh keys for.
+   * @throws Error when userId is null or undefined.
+   * @throws When userKey doesn't exist in memory for the target user.
    */
-  abstract refreshAdditionalKeys(): Promise<void>;
+  abstract refreshAdditionalKeys(userId: UserId): Promise<void>;
 
   /**
    * Observable value that returns whether or not the user has ever had a userKey,
@@ -164,8 +167,9 @@ export abstract class KeyService {
    * Clears the user's stored version of the user key
    * @param keySuffix The desired version of the key to clear
    * @param userId The desired user
+   * @throws Error when userId is null or undefined.
    */
-  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
+  abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
   /**
    * Stores the master key encrypted user key
    * @throws Error when userId is null and there is no active user.

@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Maaaring permanente kang ma-lock out sa account mo dahil sa dalawang-hakbang na pag-log in. Pwede kang gumamit ng code pang-recover sakaling hindi mo na magamit ang normal mong provider ng dalawang-hakbang na pag-log in (halimbawa: nawala ang device mo). Hindi ka matutulungan ng Bitwarden support kung mawalan ka ng access sa account mo. Mainam na isulat o i-print mo ang mga code pang-recover at itago ito sa ligtas na lugar."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "Na update ang Key"
-  },
-  "updateEncryptionKey": {
-    "message": "Na update ang encryption key"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Matapos i update ang iyong key sa pag encrypt, kinakailangan kang mag log out at bumalik sa lahat ng mga application ng Bitwarden na kasalukuyang ginagamit mo (tulad ng mobile app o mga extension ng browser). Ang kabiguan na mag log out at bumalik sa (na nag download ng iyong bagong key ng pag encrypt) ay maaaring magresulta sa pagkasira ng data. Susubukan naming awtomatikong mag log out sa iyo, gayunpaman, maaari itong maantala."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Subskripsyon"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invite Users"
