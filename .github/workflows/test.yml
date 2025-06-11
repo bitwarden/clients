@@ -10,6 +10,8 @@ on:
   pull_request:
     types: [ opened, synchronize ]
 
+permissions: {}
+
 jobs:
 
   testing:
