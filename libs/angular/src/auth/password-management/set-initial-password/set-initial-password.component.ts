@@ -128,7 +128,7 @@ export class SetInitialPasswordComponent implements OnInit {
         this.orgId = autoEnrollStatus.id;
         this.resetPasswordAutoEnroll = autoEnrollStatus.resetPasswordEnabled;
         this.masterPasswordPolicyOptions =
-          await this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(autoEnrollStatus.id);
+          await this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(this.orgId);
       } catch {
         this.toastService.showToast({
           variant: "error",

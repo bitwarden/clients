@@ -65,9 +65,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         throw new Error(`${key} not found. Could not set password.`);
       }
     }
-
-    if (userId == null || userType == null) {
-      throw new Error("userId and/or userType not found. Could not set password.");
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+    if (userType == null) {
+      throw new Error("userType not found. Could not set password.");
     }
 
     const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
@@ -87,9 +89,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
        * asymmetric key pair, so we create it for them here.
        *
        * Sidenote:
-       *   In the case of a TDE user whose role requires a MP - that user will already
-       *   have a user asymmetric key pair by this point, so we skip this if-block so that
-       *   we don't create a new key pair for them.
+       *   In the case of a TDE user whose permissions require that they have a MP - that user
+       *   will already have a user asymmetric key pair by this point, so we skip this if-block
+       *   so that we don't create a new key pair for them.
        */
 
       // Extra safety check (see description on https://github.com/bitwarden/clients/pull/10180):
@@ -150,7 +152,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
      */
     if (keyPair != null && userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
       if (!keyPair[1].encryptedString) {
-        throw new Error("encryptedString not found. Could not set password.");
+        throw new Error("encrypted private key not found. Could not set private key in state.");
       }
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, userId);
     }
@@ -225,14 +227,14 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
-    const resetRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-    resetRequest.masterPasswordHash = masterKeyHash;
-    resetRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
+    const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+    enrollmentRequest.masterPasswordHash = masterKeyHash;
+    enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
 
     await this.organizationUserApiService.putOrganizationUserResetPasswordEnrollment(
       orgId,
       userId,
-      resetRequest,
+      enrollmentRequest,
     );
   }
 }
