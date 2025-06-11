@@ -421,9 +421,13 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
             break;
           case "switchAccount": {
-            if (message.userId != null) {
-              await this.accountService.switchAccount(message.userId);
+            if (message.userId == null) {
+              this.logService.error("'switchAccount' message received without userId.");
+              return;
             }
+
+            await this.accountService.switchAccount(message.userId);
+
             const locked =
               (await this.authService.getAuthStatus(message.userId)) ===
               AuthenticationStatus.Locked;
