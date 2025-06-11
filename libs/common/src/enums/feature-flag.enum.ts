@@ -98,7 +98,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
-  [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.RemoveCardItemTypePolicy]: true,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,

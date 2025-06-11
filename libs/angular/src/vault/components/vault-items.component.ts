@@ -20,6 +20,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 @Directive()
 export class VaultItemsComponent implements OnInit, OnDestroy {
@@ -62,6 +65,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.subscribeToCiphers();
   }
@@ -143,13 +147,27 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
             this._searchText$,
             this._filter$,
             of(userId),
+            this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId]) => {
+        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
           let allCiphers = indexedCiphers ?? [];
           const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers];
+          // Filter the cipher if that type is restricted unless
+          // - The cipher belongs to an organization and that organization allows viewing the cipher type
+          // OR
+          // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
+          allCiphers = [..._failedCiphers, ...allCiphers].filter(
+            (cipher) =>
+              !restricted.some(
+                (restrictedType) =>
+                  restrictedType.cipherType === cipher.type &&
+                  (cipher.organizationId
+                    ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+                    : restrictedType.allowViewOrgIds.length === 0),
+              ),
+          );
 
           return this.searchService.searchCiphers(
             userId,
