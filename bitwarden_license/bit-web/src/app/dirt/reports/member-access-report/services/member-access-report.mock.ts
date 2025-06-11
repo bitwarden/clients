@@ -20,7 +20,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Sarah Johnson",
     email: "sjohnson@email.com",
@@ -37,7 +37,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Sarah Johnson",
     email: "sjohnson@email.com",
@@ -54,7 +54,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Sarah Johnson",
     email: "sjohnson@email.com",
@@ -71,7 +71,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Sarah Johnson",
     email: "sjohnson@email.com",
@@ -88,7 +88,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "James Lull",
     email: "jlull@email.com",
@@ -105,7 +105,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "James Lull",
     email: "jlull@email.com",
@@ -122,7 +122,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "James Lull",
     email: "jlull@email.com",
@@ -139,7 +139,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "James Lull",
     email: "jlull@email.com",
@@ -156,7 +156,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Beth Williams",
     email: "bwilliams@email.com",
@@ -173,7 +173,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Beth Williams",
     email: "bwilliams@email.com",
@@ -190,7 +190,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -207,7 +207,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -224,7 +224,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -241,7 +241,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -258,7 +258,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -275,7 +275,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Ray Williams",
     email: "rwilliams@email.com",
@@ -292,7 +292,7 @@ export const memberAccessReportsMock: MemberAccessResponse[] = [
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
 ];
 
 export const memberAccessWithoutAccessDetailsReportsMock: MemberAccessResponse[] = [
@@ -312,7 +312,7 @@ export const memberAccessWithoutAccessDetailsReportsMock: MemberAccessResponse[]
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
   {
     userName: "Robert Brown",
     email: "rbrown@email.com",
@@ -329,5 +329,5 @@ export const memberAccessWithoutAccessDetailsReportsMock: MemberAccessResponse[]
     hidePasswords: false,
     manage: false,
     cipherIds: [],
-  } as MemberAccessResponse,
+  } as unknown as MemberAccessResponse,
 ];
