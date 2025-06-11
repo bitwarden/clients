@@ -213,41 +213,51 @@ export class VaultPopupListFiltersService {
   /**
    * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
    */
-  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = this.filters$.pipe(
+  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
+    this.filters$,
+    this.restrictedItemTypesService.restricted$,
+  ]).pipe(
     map(
-      (filters) => (ciphers: CipherView[]) =>
-        ciphers.filter((cipher) => {
-          // Vault popup lists never shows deleted ciphers
-          if (cipher.isDeleted) {
-            return false;
-          }
-
-          if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
-            return false;
-          }
-
-          if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
-            return false;
-          }
-
-          if (filters.folder && cipher.folderId !== filters.folder.id) {
-            return false;
-          }
-
-          const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-          if (isMyVault) {
-            if (cipher.organizationId !== null) {
+      ([filters, restrictions]) =>
+        (ciphers: CipherView[]) =>
+          ciphers.filter((cipher) => {
+            // Vault popup lists never shows deleted ciphers
+            if (cipher.isDeleted) {
               return false;
             }
-          } else if (filters.organization) {
-            if (cipher.organizationId !== filters.organization.id) {
+
+            // Check if cipher type is restricted
+            const restrictedTypes = restrictions.map((r) => r.cipherType);
+            if (restrictedTypes.includes(cipher.type)) {
               return false;
             }
-          }
 
-          return true;
-        }),
+            if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
+              return false;
+            }
+
+            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
+              return false;
+            }
+
+            if (filters.folder && cipher.folderId !== filters.folder.id) {
+              return false;
+            }
+
+            const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+            if (isMyVault) {
+              if (cipher.organizationId !== null) {
+                return false;
+              }
+            } else if (filters.organization) {
+              if (cipher.organizationId !== filters.organization.id) {
+                return false;
+              }
+            }
+
+            return true;
+          }),
     ),
   );
 
