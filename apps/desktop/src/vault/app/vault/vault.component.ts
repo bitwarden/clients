@@ -16,7 +16,7 @@ import { filter, first, map, take } from "rxjs/operators";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -113,13 +113,13 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private passwordRepromptService: PasswordRepromptService,
     private searchBarService: SearchBarService,
-    private apiService: ApiService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
     private cipherService: CipherService,
     private folderService: FolderService,
+    private authRequestService: AuthRequestServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -237,10 +237,17 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequest = await this.apiService.getLastAuthRequest();
-    if (authRequest != null) {
+    const authRequests = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+    // There is a chance that there is more than one auth request in the response we only show the most recent one
+    if (authRequests.length > 0) {
+      const mostRecentAuthRequest = authRequests.reduce((latest, current) => {
+        const latestDate = new Date(latest.creationDate).getTime();
+        const currentDate = new Date(current.creationDate).getTime();
+        return currentDate > latestDate ? current : latest;
+      });
+
       this.messagingService.send("openLoginApproval", {
-        notificationId: authRequest.id,
+        notificationId: mostRecentAuthRequest.id,
       });
     }
 
