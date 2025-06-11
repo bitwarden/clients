@@ -214,6 +214,7 @@ jobs:
 
       - name: Azure Login
         id: azure-login
+        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -229,6 +230,7 @@ jobs:
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
       - name: Azure Logout
+        if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: 'Trigger build web for missing branch/tag ${{ inputs.branch-or-tag }}'

@@ -42,9 +42,7 @@ defaults:
     shell: bash
 
 permissions:
-  actions: read
   contents: read
-  packages: read
 
 jobs:
   setup:
@@ -441,7 +439,8 @@ jobs:
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
       id-token: write
     needs:
       - build

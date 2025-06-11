@@ -724,6 +724,7 @@ jobs:
 
       - name: Get KV secrets
         id: get-kv-secrets
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
@@ -771,6 +772,7 @@ jobs:
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
       - name: Azure Logout
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
@@ -1455,7 +1457,8 @@ jobs:
       - macos-package-github
       - macos-package-mas
     permissions:
-        contents: read
+        contents: write
+	pull-requests: write
         id-token: write
     runs-on: ubuntu-22.04
     steps:
