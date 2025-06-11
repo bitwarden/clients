@@ -1,8 +1,10 @@
 import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CardListView, CipherListView, LoginListView } from "@bitwarden/sdk-internal";
 
 import { CipherType } from "../enums";
+import { CardView } from "../models/view/card.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginView } from "../models/view/login.view";
 
 /**
  * Type union of {@link CipherView} and {@link CipherListView}.
@@ -19,13 +21,13 @@ export class CipherViewLikeUtils {
   };
 
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
-  static getCipherViewLikeLogin = (cipher: CipherViewLike) => {
+  static getCipherViewLikeLogin = (cipher: CipherViewLike): LoginListView | LoginView | null => {
     if (this.isCipherListView(cipher)) {
       if (typeof cipher.type !== "object") {
         return null;
       }
 
-      return cipher.type.login;
+      return "login" in cipher.type ? cipher.type.login : null;
     }
 
     return cipher.type === CipherType.Login ? cipher.login : null;
@@ -43,6 +45,19 @@ export class CipherViewLikeUtils {
     }
 
     return login.uris?.length ? login.uris[0].uri : null;
+  };
+
+  /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
+  static getCipherViewLikeCard = (cipher: CipherViewLike): CardListView | CardView | null => {
+    if (this.isCipherListView(cipher)) {
+      if (typeof cipher.type !== "object") {
+        return null;
+      }
+
+      return "card" in cipher.type ? cipher.type.card : null;
+    }
+
+    return cipher.type === CipherType.Card ? cipher.card : null;
   };
 
   /**  @returns `true` when the cipher has been deleted, `false` otherwise. */
@@ -77,17 +92,19 @@ export class CipherViewLikeUtils {
     }
 
     // CipherListViewType is a string, so we need to map it to CipherType.
-    switch (cipher.type) {
-      case "secureNote":
+    switch (true) {
+      case cipher.type === "secureNote":
         return CipherType.SecureNote;
-      case "card":
-        return CipherType.Card;
-      case "identity":
-        return CipherType.Identity;
-      case "sshKey":
+      case cipher.type === "sshKey":
         return CipherType.SshKey;
-      default:
+      case cipher.type === "identity":
+        return CipherType.Identity;
+      case typeof cipher.type === "object" && "card" in cipher.type:
+        return CipherType.Card;
+      case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      default:
+        throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
   };
 

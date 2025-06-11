@@ -38,6 +38,7 @@ export function buildCipherIcon(
 
   const cipherType = CipherViewLikeUtils.getType(cipher);
   const uri = CipherViewLikeUtils.uri(cipher);
+  const card = CipherViewLikeUtils.getCipherViewLikeCard(cipher);
 
   switch (cipherType) {
     case CipherType.Login:
@@ -87,8 +88,8 @@ export function buildCipherIcon(
       break;
     case CipherType.Card:
       icon = "bwi-credit-card";
-      if (showFavicon && "card" in cipher && cipher.card.brand in cardIcons) {
-        icon = `credit-card-icon ${cardIcons[cipher.card.brand]}`;
+      if (showFavicon && card?.brand && card.brand in cardIcons) {
+        icon = `credit-card-icon ${cardIcons[card.brand]}`;
       }
       break;
     case CipherType.Identity:
