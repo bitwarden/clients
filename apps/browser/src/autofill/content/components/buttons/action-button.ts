@@ -12,6 +12,7 @@ export type ActionButtonProps = {
   isLoading?: boolean;
   theme: Theme;
   handleClick: (e: Event) => void;
+  fullWidth?: boolean;
 };
 
 export function ActionButton({
@@ -20,6 +21,7 @@ export function ActionButton({
   isLoading = false,
   theme,
   handleClick,
+  fullWidth = true,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (!disabled && !isLoading) {
@@ -29,7 +31,7 @@ export function ActionButton({
 
   return html`
     <button
-      class=${actionButtonStyles({ disabled, isLoading, theme })}
+      class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
       title=${buttonText}
       type="button"
       @click=${handleButtonClick}
@@ -41,10 +43,12 @@ export function ActionButton({
 
 const actionButtonStyles = ({
   disabled,
+  fullWidth,
   isLoading,
   theme,
 }: {
   disabled: boolean;
+  fullWidth: boolean;
   isLoading: boolean;
   theme: Theme;
 }) => css`
@@ -57,7 +61,7 @@ const actionButtonStyles = ({
   border: 1px solid transparent;
   border-radius: ${border.radius.full};
   padding: ${spacing["1"]} ${spacing["3"]};
-  width: 100%;
+  width: ${fullWidth ? "100%" : "auto"};
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;

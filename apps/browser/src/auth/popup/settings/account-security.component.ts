@@ -474,12 +474,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
       const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("unlockPinSet"),
-      });
-      await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
+      if (userHasPinSet) {
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockPinSet"),
+        });
+        await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
+      }
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.vaultTimeoutSettingsService.clear(userId);
