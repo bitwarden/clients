@@ -108,7 +108,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         
         logger.log("[autofill-extension] initializing extension")
         
-        super.init(nibName: nil, bundle: nil)
+        super.init(nibName: "CredentialProviderViewController", bundle: nil)
         
         // Setup connection monitoring now that self is available
         setupConnectionMonitoring()
@@ -126,16 +126,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         connectionMonitorTimer = nil
     }
     
-    
-    @IBAction func cancel(_ sender: AnyObject?) {
-        self.extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userCanceled.rawValue))
-    }
-    
-    @IBAction func passwordSelected(_ sender: AnyObject?) {
-        let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
-        self.extensionContext.completeRequest(withSelectedCredential: passwordCredential, completionHandler: nil)
-    }
-    
     private func getWindowPosition() -> Position {
         let frame = self.view.window?.frame ?? .zero
         let screenHeight = NSScreen.main?.frame.height ?? 0
@@ -148,16 +138,24 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return Position(x: centerX, y:centerY)
     }
     
-    override func loadView() {
-        let view = NSView()
-        // Hide the native window since we only need the IPC connection
-        view.isHidden = true    
-        self.view = view
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Initially hide the view
+        self.view.isHidden = true
     }
     
     override func prepareInterfaceForExtensionConfiguration() {
+        // Show the configuration UI
+        self.view.isHidden = false
+        
+        // Send the native status request
         client.sendNativeStatus(key: "request-sync", value: "")
-        self.extensionContext.completeExtensionConfigurationRequest()
+        
+        // Complete the configuration after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.extensionContext.completeExtensionConfigurationRequest()
+        }
     }
        
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
