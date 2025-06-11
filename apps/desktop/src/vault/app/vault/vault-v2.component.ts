@@ -573,6 +573,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
       return;
     }
 
+    if (!(await this.passwordReprompt(cipher))) {
+      return;
+    }
+
     const availableCollections = this.getAvailableCollections(cipher);
 
     const dialog = AssignCollectionsDesktopComponent.open(this.dialogService, {
