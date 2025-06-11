@@ -115,7 +115,7 @@ export class AutofillComponent implements OnInit {
   );
   protected restrictedCardType$: Observable<boolean> =
     this.restrictedItemTypesService.restricted$.pipe(
-      map((restrictedTypes) => restrictedTypes.includes(CipherType.Card)),
+      map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
     );
 
   protected autofillOnPageLoadForm = new FormGroup({
