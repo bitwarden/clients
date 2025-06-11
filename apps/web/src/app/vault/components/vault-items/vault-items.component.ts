@@ -298,8 +298,11 @@ export class VaultItemsComponent {
 
   protected canAssignCollections(cipher: CipherView) {
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    const editableCollections = this.allCollections.filter((c) => !c.readOnly);
+
     return (
-      (organization?.canEditAllCiphers && this.viewingOrgVault) || cipher.canAssignToCollections
+      (organization?.canEditAllCiphers && this.viewingOrgVault) ||
+      (cipher.canAssignToCollections && editableCollections.length > 0)
     );
   }
 
