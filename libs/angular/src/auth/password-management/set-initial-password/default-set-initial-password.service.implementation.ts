@@ -109,7 +109,10 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         // Existing key pair
         keyPair = [
           existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, masterKeyEncryptedUserKey[0]),
+          await this.encryptService.wrapDecapsulationKey(
+            existingUserPrivateKey,
+            masterKeyEncryptedUserKey[0],
+          ),
         ];
       } else {
         // New key pair
