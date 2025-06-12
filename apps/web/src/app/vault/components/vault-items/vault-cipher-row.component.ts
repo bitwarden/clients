@@ -127,8 +127,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get decryptionFailure() {
-    // TODO: Handle `CipherListView` case when available in the SDK.
-    return "decryptionFailure" in this.cipher && this.cipher.decryptionFailure;
+    return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
   protected get showAssignToCollections() {

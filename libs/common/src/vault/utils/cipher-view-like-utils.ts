@@ -254,6 +254,14 @@ export class CipherViewLikeUtils {
 
     return !!login?.fido2Credentials?.length;
   };
+
+  /**
+   * Returns the `decryptionFailure` property from the cipher when available.
+   * TODO: https://bitwarden.atlassian.net/browse/PM-22515 - alter for `CipherListView` if needed
+   */
+  static decryptionFailure = (cipher: CipherViewLike): boolean => {
+    return "decryptionFailure" in cipher ? cipher.decryptionFailure : false;
+  };
 }
 
 /**

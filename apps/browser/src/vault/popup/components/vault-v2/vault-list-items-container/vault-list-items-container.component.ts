@@ -360,7 +360,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
-          if ("decryptionFailure" in cipher && cipher.decryptionFailure) {
+          if (CipherViewLikeUtils.decryptionFailure(cipher)) {
             DecryptionFailureDialogComponent.open(this.dialogService, {
               cipherIds: [cipher.id as CipherId],
             });
