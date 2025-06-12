@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit, inject } from "@angular/core";
+import { Component, Input, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,18 +33,12 @@ type CipherItem = {
     CopyCipherFieldDirective,
   ],
 })
-export class ItemCopyActionsComponent implements OnInit {
+export class ItemCopyActionsComponent {
   protected showQuickCopyActions$ = inject(VaultPopupCopyButtonsService).showQuickCopyActions$;
   @Input({ required: true }) cipher!: CipherViewLike;
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
   protected CipherType = CipherType;
-
-  protected numberOfLoginValues = 0;
-  protected numberOfCardValues = 0;
-  protected numberOfIdentityValues = 0;
-  protected numberOfSecureNoteValues = 0;
-  protected numberOfSshKeyValues = 0;
 
   /*
    * singleCopiableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
@@ -102,86 +96,57 @@ export class ItemCopyActionsComponent implements OnInit {
   }
 
   get hasLoginValues() {
-    return this.numberOfLoginValues > 0;
+    return this.getNumberOfLoginValues() > 0;
   }
 
   get hasCardValues() {
-    return this.numberOfCardValues > 0;
+    return this.getNumberOfCardValues() > 0;
   }
 
   get hasIdentityValues() {
-    return this.numberOfIdentityValues > 0;
+    return this.getNumberOfIdentityValues() > 0;
   }
 
   get hasSecureNoteValue() {
-    return this.numberOfSecureNoteValues > 0;
+    return this.getNumberOfSecureNoteValues() > 0;
   }
 
   get hasSshKeyValues() {
-    return this.numberOfSshKeyValues > 0;
+    return this.getNumberOfSshKeyValues() > 0;
   }
 
   constructor(private i18nService: I18nService) {}
 
-  ngOnInit(): void {
-    this.setNumberOfLoginValues();
-    this.setNumberOfCardValues();
-    this.setNumberOfIdentityValues();
-    this.setNumberOfSecureNoteValues();
-    this.setNumberOfSshKeyValues();
-  }
-
   /** Sets the number of populated login values for the cipher */
-  private setNumberOfLoginValues() {
-    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
-      return;
-    }
-
+  private getNumberOfLoginValues() {
     if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
       const copiableLoginFields: CopiableCipherFields[] = [
         "LoginUsername",
         "LoginPassword",
         "LoginTotp",
       ];
-
-      this.numberOfLoginValues = this.cipher.copiableFields.filter((field) =>
-        copiableLoginFields.includes(field),
-      ).length;
-      return;
+      return this.cipher.copiableFields.filter((field) => copiableLoginFields.includes(field))
+        .length;
     }
 
-    this.numberOfLoginValues = [
-      this.cipher.login.username,
-      this.cipher.login.password,
-      this.cipher.login.totp,
-    ].filter(Boolean).length;
-  }
-
-  /** Sets the number of populated card values for the cipher */
-  private setNumberOfCardValues() {
-    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Card) {
-      return;
-    }
-
-    if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
-      const copiableCardFields: CopiableCipherFields[] = ["CardSecurityCode", "CardNumber"];
-      this.numberOfCardValues = this.cipher.copiableFields.filter((field) =>
-        copiableCardFields.includes(field),
-      ).length;
-      return;
-    }
-
-    this.numberOfCardValues = [this.cipher.card.code, this.cipher.card.number].filter(
+    return [this.cipher.login.username, this.cipher.login.password, this.cipher.login.totp].filter(
       Boolean,
     ).length;
   }
 
-  /** Sets the number of populated identity values for the cipher */
-  private setNumberOfIdentityValues() {
-    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Identity) {
-      return;
+  /** Sets the number of populated card values for the cipher */
+  private getNumberOfCardValues() {
+    if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
+      const copiableCardFields: CopiableCipherFields[] = ["CardSecurityCode", "CardNumber"];
+      return this.cipher.copiableFields.filter((field) => copiableCardFields.includes(field))
+        .length;
     }
 
+    return [this.cipher.card.code, this.cipher.card.number].filter(Boolean).length;
+  }
+
+  /** Sets the number of populated identity values for the cipher */
+  private getNumberOfIdentityValues() {
     if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
       const copiableIdentityFields: CopiableCipherFields[] = [
         "IdentityAddress",
@@ -189,13 +154,11 @@ export class ItemCopyActionsComponent implements OnInit {
         "IdentityUsername",
         "IdentityPhone",
       ];
-      this.numberOfIdentityValues = this.cipher.copiableFields.filter((field) =>
-        copiableIdentityFields.includes(field),
-      ).length;
-      return;
+      return this.cipher.copiableFields.filter((field) => copiableIdentityFields.includes(field))
+        .length;
     }
 
-    this.numberOfIdentityValues = [
+    return [
       this.cipher.identity.fullAddressForCopy,
       this.cipher.identity.email,
       this.cipher.identity.username,
@@ -203,32 +166,21 @@ export class ItemCopyActionsComponent implements OnInit {
     ].filter(Boolean).length;
   }
   /** Sets the number of populated secure note values for the cipher */
-  private setNumberOfSecureNoteValues() {
-    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.SecureNote) {
-      return;
-    }
-
+  private getNumberOfSecureNoteValues(): number {
     if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
-      this.numberOfSecureNoteValues = this.cipher.copiableFields.includes("SecureNotes") ? 1 : 0;
-      return;
+      return this.cipher.copiableFields.includes("SecureNotes") ? 1 : 0;
     }
 
-    this.numberOfSecureNoteValues = this.cipher.notes ? 1 : 0;
+    return this.cipher.notes ? 1 : 0;
   }
 
   /** Sets the number of populated SSH key values for the cipher */
-  private setNumberOfSshKeyValues() {
-    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.SshKey) {
-      this.numberOfSshKeyValues = 0;
-      return;
-    }
-
+  private getNumberOfSshKeyValues() {
     if (CipherViewLikeUtils.isCipherListView(this.cipher)) {
-      this.numberOfSshKeyValues = this.cipher.copiableFields.includes("SshKey") ? 1 : 0;
-      return;
+      return this.cipher.copiableFields.includes("SshKey") ? 1 : 0;
     }
 
-    this.numberOfSshKeyValues = [
+    return [
       this.cipher.sshKey.privateKey,
       this.cipher.sshKey.publicKey,
       this.cipher.sshKey.keyFingerprint,
