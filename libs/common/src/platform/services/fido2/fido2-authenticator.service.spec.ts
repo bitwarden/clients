@@ -219,18 +219,9 @@ describe("FidoAuthenticatorService", () => {
       beforeEach(async () => {
         existingCipher = createCipherView({ type: CipherType.Login });
         params = await createParams({ requireResidentKey: false });
-        cipherService.get.mockImplementation(async (id) =>
-          id === existingCipher.id ? ({ decrypt: () => existingCipher } as any) : undefined,
-        );
-
-        const cipherData = {} as CipherData;
-        const cipherRecord: Record<CipherId, CipherData> = {
-          [existingCipher.id as CipherId]: cipherData,
-        };
-        const ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(cipherRecord);
 
         cipherService.ciphers$.mockImplementation((userId: UserId) =>
-          ciphersSubject.asObservable(),
+          of({ [existingCipher.id as CipherId]: {} as CipherData }),
         );
 
         cipherService.getAllDecrypted.mockResolvedValue([existingCipher]);
@@ -363,17 +354,8 @@ describe("FidoAuthenticatorService", () => {
           cipherId,
           userVerified: false,
         });
-        cipherService.get.mockImplementation(async (cipherId) =>
-          cipherId === cipher.id ? ({ decrypt: () => cipher } as any) : undefined,
-        );
-        const cipherData = {} as CipherData;
-        const cipherRecord: Record<CipherId, CipherData> = {
-          [cipherId as CipherId]: cipherData,
-        };
-        const ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(cipherRecord);
-
         cipherService.ciphers$.mockImplementation((userId: UserId) =>
-          ciphersSubject.asObservable(),
+          of({ [cipher.id as CipherId]: {} as CipherData }),
         );
 
         cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
