@@ -5,11 +5,12 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { mockAccountServiceWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
-import { UserId } from "../../../types/guid";
+import { CipherId, UserId } from "../../../types/guid";
 import { CipherService, EncryptionContext } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
+import { CipherData } from "../../../vault/models/data/cipher.data";
 import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
@@ -221,6 +222,17 @@ describe("FidoAuthenticatorService", () => {
         cipherService.get.mockImplementation(async (id) =>
           id === existingCipher.id ? ({ decrypt: () => existingCipher } as any) : undefined,
         );
+
+        const cipherData = {} as CipherData;
+        const cipherRecord: Record<CipherId, CipherData> = {
+          [existingCipher.id as CipherId]: cipherData,
+        };
+        const ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(cipherRecord);
+
+        cipherService.ciphers$.mockImplementation((userId: UserId) =>
+          ciphersSubject.asObservable(),
+        );
+
         cipherService.getAllDecrypted.mockResolvedValue([existingCipher]);
         cipherService.decrypt.mockResolvedValue(existingCipher);
       });
@@ -354,6 +366,16 @@ describe("FidoAuthenticatorService", () => {
         cipherService.get.mockImplementation(async (cipherId) =>
           cipherId === cipher.id ? ({ decrypt: () => cipher } as any) : undefined,
         );
+        const cipherData = {} as CipherData;
+        const cipherRecord: Record<CipherId, CipherData> = {
+          [cipherId as CipherId]: cipherData,
+        };
+        const ciphersSubject = new BehaviorSubject<Record<CipherId, CipherData>>(cipherRecord);
+
+        cipherService.ciphers$.mockImplementation((userId: UserId) =>
+          ciphersSubject.asObservable(),
+        );
+
         cipherService.getAllDecrypted.mockResolvedValue([await cipher]);
         cipherService.decrypt.mockResolvedValue(cipher);
         cipherService.encrypt.mockImplementation(async (cipher) => {
