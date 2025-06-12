@@ -482,6 +482,10 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
 
+    beforeEach(() => {
+      restrictedItemTypesService.restricted$.next([]);
+    });
+
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[0]]);
@@ -721,7 +725,7 @@ function createSeededVaultPopupListFiltersService(
 
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const restrictedItemTypesServiceMock = {
-    restricted$: new BehaviorSubject<CipherType[]>([]),
+    restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
   } as any;
   const formBuilderInstance = new FormBuilder();
 
