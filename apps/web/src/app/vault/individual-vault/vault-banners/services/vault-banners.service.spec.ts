@@ -2,13 +2,14 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom, take, timeout } from "rxjs";
 
 import {
+  AuthRequestServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
-import { DeviceResponse } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
+import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -41,6 +42,7 @@ describe("VaultBannersService", () => {
     [userId]: { email: "test@bitwarden.com", emailVerified: true, name: "name" } as AccountInfo,
   });
   const devices$ = new BehaviorSubject<DeviceView[]>([]);
+  const pendingAuthRequests$ = new BehaviorSubject<Array<AuthRequestResponse>>([]);
 
   beforeEach(() => {
     lastSync$.next(new Date("2024-05-14"));
@@ -87,6 +89,10 @@ describe("VaultBannersService", () => {
         {
           provide: DevicesServiceAbstraction,
           useValue: { getDevices$: () => devices$ },
+        },
+        {
+          provide: AuthRequestServiceAbstraction,
+          useValue: { getPendingAuthRequests$: () => pendingAuthRequests$ },
         },
       ],
     });
@@ -286,31 +292,25 @@ describe("VaultBannersService", () => {
 
   describe("PendingAuthRequest", () => {
     const now = new Date();
-    let deviceResponse: DeviceResponse;
+    let authRequestResponse: AuthRequestResponse;
 
     beforeEach(() => {
-      deviceResponse = new DeviceResponse({
-        Id: "device1",
-        UserId: userId,
-        Name: "Test Device",
-        Identifier: "test-device",
-        Type: DeviceType.Android,
-        CreationDate: now.toISOString(),
-        RevisionDate: now.toISOString(),
-        IsTrusted: false,
+      authRequestResponse = new AuthRequestResponse({
+        id: "authRequest1",
+        deviceId: "device1",
+        deviceName: "Test Device",
+        deviceType: DeviceType.Android,
+        creationDate: now.toISOString(),
+        requestApproved: null,
       });
       // Reset devices list, single user state, and active user state before each test
-      devices$.next([]);
+      pendingAuthRequests$.next([]);
       fakeStateProvider.singleUser.states.clear();
       fakeStateProvider.activeUser.states.clear();
     });
 
     it("shows pending auth request banner when there is a pending request", async () => {
-      deviceResponse.devicePendingAuthRequest = {
-        id: "123",
-        creationDate: now.toISOString(),
-      };
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([new AuthRequestResponse(authRequestResponse)]);
 
       service = TestBed.inject(VaultBannersService);
 
@@ -318,8 +318,7 @@ describe("VaultBannersService", () => {
     });
 
     it("does not show pending auth request banner when there are no pending requests", async () => {
-      deviceResponse.devicePendingAuthRequest = null;
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([]);
 
       service = TestBed.inject(VaultBannersService);
 
@@ -327,11 +326,7 @@ describe("VaultBannersService", () => {
     });
 
     it("dismisses pending auth request banner", async () => {
-      deviceResponse.devicePendingAuthRequest = {
-        id: "123",
-        creationDate: now.toISOString(),
-      };
-      devices$.next([new DeviceView(deviceResponse)]);
+      pendingAuthRequests$.next([new AuthRequestResponse(authRequestResponse)]);
 
       service = TestBed.inject(VaultBannersService);
 
