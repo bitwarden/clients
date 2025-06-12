@@ -384,8 +384,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
         const filterFunction = createFilterFunction(filter, restrictedTypes);
+        // TODO: https://bitwarden.atlassian.net/browse/PM-22515 - alter if needed to handle `CipherListView` failed decryptions
         // Append any failed to decrypt ciphers to the top of the cipher list
-        // TODO: handle failed ciphers once available in the SDK
         const allCiphers = [...failedCiphers, ...ciphers];
 
         if (await this.searchService.isSearchable(activeUserId, searchText)) {
