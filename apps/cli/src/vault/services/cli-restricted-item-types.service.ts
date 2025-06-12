@@ -10,7 +10,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedCipherType } from "@bitwarden/vault";
 
@@ -78,22 +77,33 @@ export class CliRestrictedItemTypesService {
   }
 
   /**
-   * Filters out restricted ciphers based on organization policies.
-   * Handles both single ciphers and arrays of ciphers.
+   * Removes restricted ciphers based on organization policies.
    *
-   * @param ciphers - A single cipher or array of ciphers to filter.
-   * @param userId - The user ID to get restrictions for.
-   * @returns A promise that resolves to:
-   *   - For arrays: filtered array with restricted ciphers removed
-   *   - For single cipher: the cipher if allowed, or null if restricted
+   * @param ciphers - An array of ciphers to filter
+   * @param userId - The user ID to get restrictions for
+   * @returns Promise resolving to filtered array with restricted ciphers removed
    */
-  async filterRestrictedCiphers<T extends Cipher | CipherView>(
-    ciphers: T | T[],
+  async removeRestrictedCiphers(ciphers: CipherView[], userId: UserId): Promise<CipherView[]>;
+  /**
+   * Removes restricted cipher based on organization policies.
+   *
+   * @param cipher - A single cipher to check
+   * @param userId - The user ID to get restrictions for
+   * @returns Promise resolving to the cipher if allowed, or null if restricted
+   */
+  async removeRestrictedCiphers(ciphers: CipherView, userId: UserId): Promise<CipherView | null>;
+  /**
+   * Implementation for removeRestrictedCiphers method overloads.
+   *
+   * @internal
+   */
+  async removeRestrictedCiphers(
+    ciphers: CipherView | CipherView[],
     userId: UserId,
-  ): Promise<T | T[] | null> {
+  ): Promise<CipherView | CipherView[] | null> {
     const restrictions = await this.getRestrictedTypes(userId);
 
-    const isRestricted = (cipher: T): boolean => {
+    const isRestricted = (cipher: CipherView): boolean => {
       return restrictions.some((item) => item.cipherType === cipher.type);
     };
 
