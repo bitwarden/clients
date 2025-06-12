@@ -1005,9 +1005,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async cloneCipher(cipher: CipherView | CipherListView) {
-    const login = CipherViewLikeUtils.getLogin(cipher);
-
-    if (login && login.fido2Credentials && login.fido2Credentials?.length > 0) {
+    if (CipherViewLikeUtils.hasFido2Credentials(cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },

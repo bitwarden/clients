@@ -247,6 +247,13 @@ export class CipherViewLikeUtils {
         return false;
     }
   };
+
+  /** @returns true when the cipher has fido2 credentials */
+  static hasFido2Credentials = (cipher: CipherViewLike): boolean => {
+    const login = this.getLogin(cipher);
+
+    return !!login?.fido2Credentials?.length;
+  };
 }
 
 /**

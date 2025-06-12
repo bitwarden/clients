@@ -184,8 +184,8 @@ export class ItemMoreOptionsComponent {
     ) {
       return;
     }
-    const login = CipherViewLikeUtils.getLogin(this.cipher);
-    if (login?.fido2Credentials?.length) {
+
+    if (CipherViewLikeUtils.hasFido2Credentials(this.cipher)) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
