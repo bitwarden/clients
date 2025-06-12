@@ -5,7 +5,7 @@
 >
   <div
     *ngIf="data.open || icon"
-    class="tw-relative"
+    class="tw-relative tw-rounded-md"
     [ngClass]="[
       showActiveStyles
         ? 'tw-bg-background-alt4'
@@ -13,58 +13,18 @@
       fvwStyles$ | async,
     ]"
   >
-    <div
-      [ngStyle]="{
-        'padding-left': data.open ? (variant === 'tree' ? 2.5 : 1) + treeDepth * 1.5 + 'rem' : '0',
-      }"
-      class="tw-relative tw-flex"
-    >
-      <div [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']">
-        <div
-          #slotStart
-          class="[&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
-        >
-          <ng-content select="[slot=start]"></ng-content>
-        </div>
-        <!-- Default content for #slotStart (for consistent sizing) -->
-        <div
-          *ngIf="slotStart.childElementCount === 0"
-          [ngClass]="{
-            'tw-w-0': variant !== 'tree',
-          }"
-        >
-          <button
-            type="button"
-            class="tw-invisible"
-            [bitIconButton]="'bwi-angle-down'"
-            size="small"
-            aria-hidden="true"
-          ></button>
-        </div>
-      </div>
-
+    <div class="tw-relative tw-flex">
       <ng-container *ngIf="route; then isAnchor; else isButton"></ng-container>
 
       <!-- Main content of `NavItem` -->
       <ng-template #anchorAndButtonContent>
-        <div
-          [title]="text"
-          class="tw-truncate"
-          [ngClass]="[
-            variant === 'tree' ? 'tw-py-1' : 'tw-py-2',
-            data.open ? 'tw-pe-4' : 'tw-text-center',
-          ]"
-        >
+        <div [title]="text" class="tw-truncate tw-flex tw-gap-4 tw-items-center">
           <i
-            class="bwi bwi-fw tw-text-alt2 tw-mx-1 {{ icon }}"
+            class="bwi bwi-fw tw-text-alt2 {{ icon }}"
             [attr.aria-hidden]="data.open"
             [attr.aria-label]="text"
           ></i
-          ><span
-            *ngIf="data.open"
-            [ngClass]="showActiveStyles ? 'tw-font-bold' : 'tw-font-semibold'"
-            >{{ text }}</span
-          >
+          ><span *ngIf="data.open">{{ text }}</span>
         </div>
       </ng-template>
 
@@ -73,7 +33,7 @@
         <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
         <!-- The following `class` field should match the `#isButton` class field below -->
         <a
-          class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+          class="tw-w-full tw-px-3 tw-py-2 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
           data-fvw
           [routerLink]="route"
           [relativeTo]="relativeTo"
@@ -93,7 +53,7 @@
         <!-- Class field should match `#isAnchor` class field above -->
         <button
           type="button"
-          class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+          class="tw-w-full tw-px-3 tw-py-2 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
           data-fvw
           (click)="mainContentClicked.emit()"
         >
