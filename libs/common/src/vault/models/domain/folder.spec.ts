@@ -73,11 +73,6 @@ describe("Folder", () => {
     beforeEach(() => {
       encryptService = mock<EncryptService>();
       // Platform code is not migrated yet
-      encryptService.decryptToUtf8.mockImplementation(
-        (value: EncString, key: SymmetricCryptoKey, decryptTrace: string) => {
-          return Promise.resolve(value.data);
-        },
-      );
       encryptService.decryptString.mockImplementation((value) => {
         return Promise.resolve(value.data);
       });

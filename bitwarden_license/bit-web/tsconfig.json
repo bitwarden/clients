@@ -11,8 +11,6 @@
     "../../apps/web/src/connectors/*.ts",
     "../../apps/web/src/**/*.stories.ts",
     "../../apps/web/src/**/*.spec.ts",
-    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
-
     "src/**/*.stories.ts",
     "src/**/*.spec.ts"
   ]

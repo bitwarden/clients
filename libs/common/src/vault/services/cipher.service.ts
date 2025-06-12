@@ -14,7 +14,6 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
@@ -103,14 +102,13 @@ export class CipherService implements CipherServiceAbstraction {
     private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
-    private bulkEncryptService: BulkEncryptService,
     private cipherFileUploadService: CipherFileUploadService,
     private configService: ConfigService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
     private logService: LogService,
     private cipherEncryptionService: CipherEncryptionService,
-  ) {}
+  ) { }
 
   localData$(userId: UserId): Observable<Record<CipherId, LocalData>> {
     return this.localDataState(userId).state$.pipe(map((data) => data ?? {}));
@@ -445,17 +443,12 @@ export class CipherService implements CipherServiceAbstraction {
     const allCipherViews = (
       await Promise.all(
         Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
-          if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-            return await this.bulkEncryptService.decryptItems(
-              groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
-            );
-          } else {
-            return await this.encryptService.decryptItems(
-              groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
-            );
-          }
+          const key = keys.orgKeys[orgId as OrganizationId] ?? keys.userKey;
+          return await Promise.all(
+            groupedCiphers.map(async (cipher) => {
+              return await cipher.decrypt(key);
+            })
+          );
         }),
       )
     )
@@ -618,12 +611,10 @@ export class CipherService implements CipherServiceAbstraction {
 
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
     const key = await this.keyService.getOrgKey(organizationId);
-    let decCiphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
-      decCiphers = await this.bulkEncryptService.decryptItems(ciphers, key);
-    } else {
-      decCiphers = await this.encryptService.decryptItems(ciphers, key);
-    }
+    const decCiphers: CipherView[] = await Promise.all(
+      ciphers.map(async (cipher) => {
+        return await cipher.decrypt(key);
+      }));
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
@@ -1433,11 +1424,11 @@ export class CipherService implements CipherServiceAbstraction {
       attachment.key != null
         ? attachment.key
         : await firstValueFrom(
-            this.keyService.orgKeys$(userId).pipe(
-              filterOutNullish(),
-              map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
-            ),
-          );
+          this.keyService.orgKeys$(userId).pipe(
+            filterOutNullish(),
+            map((orgKeys) => orgKeys[cipherDomain.organizationId as OrganizationId] as OrgKey),
+          ),
+        );
     return await this.encryptService.decryptFileData(encBuf, key);
   }
 
@@ -1519,8 +1510,8 @@ export class CipherService implements CipherServiceAbstraction {
         model.fields == null
           ? []
           : model.fields.filter(
-              (f) => f.type === FieldType.Hidden && f.name != null && f.name !== "",
-            );
+            (f) => f.type === FieldType.Hidden && f.name != null && f.name !== "",
+          );
       existingHiddenFields.forEach((ef) => {
         const matchedField = hiddenFields.find((f) => f.name === ef.name);
         if (matchedField == null || matchedField.value !== ef.value) {

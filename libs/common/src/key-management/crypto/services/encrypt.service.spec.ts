@@ -303,12 +303,6 @@ describe("EncryptService", () => {
         const actual = await encryptService.encapsulateKeyUnsigned(testKey, publicKey);
         expect(actual).toEqual(new EncString("encapsulated_key_unsigned"));
       });
-
-      it("throws if no data was provided", () => {
-        return expect(encryptService.rsaEncrypt(null, new Uint8Array(32))).rejects.toThrow(
-          "No data provided for encryption",
-        );
-      });
     });
 
     describe("decapsulateKeyUnsigned", () => {
@@ -336,25 +330,6 @@ describe("EncryptService", () => {
       cryptoFunctionService.hash.mockResolvedValue(Uint8Array.from([1, 2, 3]));
       expect(await encryptService.hash("test", "sha256")).toEqual("AQID");
       expect(cryptoFunctionService.hash).toHaveBeenCalledWith("test", "sha256");
-    });
-  });
-
-  describe("decryptItems", () => {
-    it("returns empty array if no items are provided", async () => {
-      const key = mock<SymmetricCryptoKey>();
-      const actual = await encryptService.decryptItems(null, key);
-      expect(actual).toEqual([]);
-    });
-
-    it("returns items decrypted with provided key", async () => {
-      const key = mock<SymmetricCryptoKey>();
-      const decryptable = {
-        decrypt: jest.fn().mockResolvedValue("decrypted"),
-      };
-      const items = [decryptable];
-      const actual = await encryptService.decryptItems(items as any, key);
-      expect(actual).toEqual(["decrypted"]);
-      expect(decryptable.decrypt).toHaveBeenCalledWith(key);
     });
   });
 });

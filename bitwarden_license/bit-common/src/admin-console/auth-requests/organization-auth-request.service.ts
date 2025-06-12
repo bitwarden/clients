@@ -20,7 +20,7 @@ export class OrganizationAuthRequestService {
     private keyService: KeyService,
     private encryptService: EncryptService,
     private organizationUserApiService: OrganizationUserApiService,
-  ) {}
+  ) { }
 
   async listPendingRequests(organizationId: string): Promise<PendingAuthRequestView[]> {
     return await this.organizationAuthRequestApiService.listPendingRequests(organizationId);
@@ -123,7 +123,7 @@ export class OrganizationAuthRequestService {
 
     // Decrypt Organization's encrypted Private Key with org key
     const orgSymKey = await this.keyService.getOrgKey(organizationId);
-    const decOrgPrivateKey = await this.encryptService.decryptToBytes(
+    const decOrgPrivateKey = await this.encryptService.decryptBytes(
       new EncString(encryptedOrgPrivateKey),
       orgSymKey,
     );

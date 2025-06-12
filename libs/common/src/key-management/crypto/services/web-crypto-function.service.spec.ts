@@ -85,7 +85,7 @@ describe("WebCrypto Function Service", () => {
       prk32Byte,
       64,
       "BnIqJlfnHm0e/2iB/15cbHyR19ARPIcWRp4oNS22CD9BV+" +
-        "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA==",
+      "/queOZenPNkDhmlVyL2WZ3OSU5+7ISNF5NhNfvZA==",
     );
     testHkdfExpand("sha512", prk64Byte, 32, "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlk=");
     testHkdfExpand(
@@ -93,7 +93,7 @@ describe("WebCrypto Function Service", () => {
       prk64Byte,
       64,
       "uLWbMWodSBms5uGJ5WTRTesyW+MD7nlpCZvagvIRXlkY5Pv0sB+" +
-        "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w==",
+      "MqvaopmkC6sD/j89zDwTV9Ib2fpucUydO8w==",
     );
 
     it("should fail with prk too small", async () => {
@@ -186,12 +186,6 @@ describe("WebCrypto Function Service", () => {
       const equal = await cryptoFunctionService.compare(a, b);
       expect(equal).toBe(false);
     });
-  });
-
-  describe("hmacFast", () => {
-    testHmacFast("sha1", Sha1Mac);
-    testHmacFast("sha256", Sha256Mac);
-    testHmacFast("sha512", Sha512Mac);
   });
 
   describe("compareFast", () => {
@@ -308,9 +302,9 @@ describe("WebCrypto Function Service", () => {
       const privKey = Utils.fromB64ToArray(RsaPrivateKey);
       const data = Utils.fromB64ToArray(
         "A1/p8BQzN9UrbdYxUY2Va5+kPLyfZXF9JsZrjeEXcaclsnHurdxVAJcnbEqYMP3UXV" +
-          "4YAS/mpf+Rxe6/X0WS1boQdA0MAHSgx95hIlAraZYpiMLLiJRKeo2u8YivCdTM9V5vuAEJwf9Tof/qFsFci3sApdbATkorCT" +
-          "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
-          "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
+        "4YAS/mpf+Rxe6/X0WS1boQdA0MAHSgx95hIlAraZYpiMLLiJRKeo2u8YivCdTM9V5vuAEJwf9Tof/qFsFci3sApdbATkorCT" +
+        "zFOIEPF2S1zgperEP23M01mr4dWVdYN18B32YF67xdJHMbFhp5dkQwv9CmscoWq7OE5HIfOb+JAh7BEZb+CmKhM3yWJvoR/D" +
+        "/5jcercUtK2o+XrzNrL4UQ7yLZcFz6Bfwb/j6ICYvqd/YJwXNE6dwlL57OfwJyCdw2rRYf0/qI00t9u8Iitw==",
       );
       const decValue = await cryptoFunctionService.rsaDecrypt(data, privKey, "sha1");
       expect(Utils.fromBufferToUtf8(decValue)).toBe("EncryptMe!");
@@ -520,20 +514,6 @@ function testHmac(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
       algorithm,
     );
     expect(Utils.fromBufferToHex(computedMac)).toBe(mac);
-  });
-}
-
-function testHmacFast(algorithm: "sha1" | "sha256" | "sha512", mac: string) {
-  it("should create valid " + algorithm + " hmac", async () => {
-    const cryptoFunctionService = getWebCryptoFunctionService();
-    const keyByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("secretkey"));
-    const dataByteString = Utils.fromBufferToByteString(Utils.fromUtf8ToArray("SignMe!!"));
-    const computedMac = await cryptoFunctionService.hmacFast(
-      dataByteString,
-      keyByteString,
-      algorithm,
-    );
-    expect(Utils.fromBufferToHex(Utils.fromByteStringToArray(computedMac))).toBe(mac);
   });
 }
 

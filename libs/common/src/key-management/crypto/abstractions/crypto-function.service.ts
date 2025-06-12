@@ -36,41 +36,56 @@ export abstract class CryptoFunctionService {
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512" | "md5",
   ): Promise<Uint8Array>;
-  abstract hmac(
-    value: Uint8Array,
-    key: Uint8Array,
-    algorithm: "sha1" | "sha256" | "sha512",
-  ): Promise<Uint8Array>;
-  abstract compare(a: Uint8Array, b: Uint8Array): Promise<boolean>;
+  /**
+   * Calculates the HMAC of a value using the given key and algorithm.
+   * @deprecated Only used by DDG integration, until DDG uses PKCS#7 padding. DO NOT USE THIS FOR NEW CODE.
+   */
   abstract hmacFast(
     value: Uint8Array | string,
     key: Uint8Array | string,
     algorithm: "sha1" | "sha256" | "sha512",
   ): Promise<Uint8Array | string>;
   abstract compareFast(a: Uint8Array | string, b: Uint8Array | string): Promise<boolean>;
+  /**
+   *  @deprecated DO NOT USE THIS FOR NEW CODE.
+   */
   abstract aesDecryptFastParameters(
     data: string,
     iv: string,
     mac: string,
     key: SymmetricCryptoKey,
   ): CbcDecryptParameters<Uint8Array | string>;
+  /**
+   * @deprecated DO NOT USE THIS FOR NEW CODE.
+   */
   abstract aesDecryptFast({
     mode,
     parameters,
   }:
     | { mode: "cbc"; parameters: CbcDecryptParameters<Uint8Array | string> }
     | { mode: "ecb"; parameters: EcbDecryptParameters<Uint8Array | string> }): Promise<string>;
+  /**
+   * @deprecated Only used by DDG integration until DDG uses PKCS#7 padding, and by lastpass importer.
+   * DO NOT USE THIS FOR NEW CODE.
+   */
   abstract aesDecrypt(
     data: Uint8Array,
     iv: Uint8Array,
     key: Uint8Array,
     mode: "cbc" | "ecb",
   ): Promise<Uint8Array>;
+  /**
+   * @deprecated Only used by DDG and Biometrics IPC. DO NOT USE THIS FOR NEW CODE.
+   */
   abstract rsaEncrypt(
     data: Uint8Array,
     publicKey: Uint8Array,
     algorithm: "sha1" | "sha256",
   ): Promise<Uint8Array>;
+  /**
+   *
+   * @deprecated DO NOTE USE THIS FOR NEW CODE.
+   */
   abstract rsaDecrypt(
     data: Uint8Array,
     privateKey: Uint8Array,

@@ -90,7 +90,6 @@ describe("BiometricMessageHandlerService", () => {
         reloadProcess: jest.fn(),
       },
     };
-    cryptoFunctionService.rsaEncrypt.mockResolvedValue(Utils.fromUtf8ToArray("encrypted"));
     cryptoFunctionService.randomBytes.mockResolvedValue(new Uint8Array(64) as CsprngArray);
 
     service = new BiometricMessageHandlerService(

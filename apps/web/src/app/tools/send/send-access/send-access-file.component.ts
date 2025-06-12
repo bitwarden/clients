@@ -30,7 +30,7 @@ export class SendAccessFileComponent {
     private encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
-  ) {}
+  ) { }
 
   protected download = async () => {
     if (this.send == null || this.decKey == null) {
@@ -63,7 +63,7 @@ export class SendAccessFileComponent {
 
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
-      const decBuf = await this.encryptService.decryptToBytes(encBuf, this.decKey);
+      const decBuf = await this.encryptService.decryptFileData(encBuf, this.decKey);
       this.fileDownloadService.download({
         fileName: this.send.file.fileName,
         blobData: decBuf,
