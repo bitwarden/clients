@@ -6,6 +6,9 @@ import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-pro
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -23,6 +26,8 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
   private pinService = inject(PinServiceAbstraction);
   private vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private biometricStateService = inject(BiometricStateService);
+  private policyService = inject(PolicyService);
+  private organizationService = inject(OrganizationService);
 
   nudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     const profileDate$ = from(this.vaultProfileService.getProfileCreationDate(userId)).pipe(
@@ -40,6 +45,8 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
       from(this.pinService.isPinSet(userId)),
       from(this.vaultTimeoutSettingsService.isBiometricLockSet(userId)),
       this.biometricStateService.biometricUnlockEnabled$,
+      this.organizationService.organizations$(userId),
+      this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
     ]).pipe(
       switchMap(
         async ([
@@ -49,18 +56,35 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
           isPinSet,
           isBiometricLockSet,
           biometricUnlockEnabled,
+          organizations,
+          policies,
         ]) => {
           const profileOlderThanCutoff = profileCreationDate.getTime() < profileCutoff;
 
+          const hasOrgWithRemovePinPolicyOn = organizations.some((org) => {
+            return policies.some(
+              (p) => p.type === PolicyType.RemoveUnlockWithPin && p.organizationId === org.id,
+            );
+          });
+
           const hideNudge =
-            profileOlderThanCutoff || isPinSet || isBiometricLockSet || biometricUnlockEnabled;
+            profileOlderThanCutoff ||
+            isPinSet ||
+            isBiometricLockSet ||
+            biometricUnlockEnabled ||
+            hasOrgWithRemovePinPolicyOn;
 
           const acctSecurityNudgeStatus = {
             hasBadgeDismissed: status.hasBadgeDismissed || hideNudge,
             hasSpotlightDismissed: status.hasSpotlightDismissed || hideNudge,
           };
 
-          if (isPinSet || isBiometricLockSet || biometricUnlockEnabled) {
+          if (
+            isPinSet ||
+            isBiometricLockSet ||
+            biometricUnlockEnabled ||
+            hasOrgWithRemovePinPolicyOn
+          ) {
             await this.setNudgeStatus(nudgeType, acctSecurityNudgeStatus, userId);
           }
           return acctSecurityNudgeStatus;
