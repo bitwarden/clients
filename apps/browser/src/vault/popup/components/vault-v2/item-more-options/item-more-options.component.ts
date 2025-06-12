@@ -113,6 +113,11 @@ export class ItemMoreOptionsComponent {
   get canViewPassword() {
     return this.cipher.viewPassword;
   }
+
+  get decryptionFailure() {
+    return CipherViewLikeUtils.isCipherListView(this.cipher);
+  }
+
   /**
    * Determines if the cipher can be autofilled.
    */
