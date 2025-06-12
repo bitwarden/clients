@@ -327,6 +327,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.cipherAuthorizationService,
           this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);

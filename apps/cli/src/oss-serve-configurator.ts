@@ -121,6 +121,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,

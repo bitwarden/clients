@@ -179,18 +179,6 @@ describe("CliRestrictedItemTypesService", () => {
       expect(result).toEqual([loginCipher, identityCipher]);
     });
 
-    it("returns null for single restricted cipher", async () => {
-      const result = await service.filterRestrictedCiphers(cardCipher, userId);
-
-      expect(result).toBeNull();
-    });
-
-    it("returns cipher for single non-restricted cipher", async () => {
-      const result = await service.filterRestrictedCiphers(loginCipher, userId);
-
-      expect(result).toEqual(loginCipher);
-    });
-
     it("returns empty array when all ciphers are restricted", async () => {
       policyApiService.getPolicy.mockImplementation(async (orgId) => {
         return createPolicyResponse(orgId, true, [
@@ -219,6 +207,37 @@ describe("CliRestrictedItemTypesService", () => {
       const result = await service.filterRestrictedCiphers([], userId);
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("isCipherTypeRestricted", () => {
+    beforeEach(() => {
+      policyApiService.getPolicy.mockImplementation(async (orgId) => {
+        if (orgId === "org1") {
+          return createPolicyResponse("org1", true, [CipherType.Card]);
+        }
+        if (orgId === "org2") {
+          return createPolicyResponse("org2", true, [CipherType.Identity, CipherType.SecureNote]);
+        }
+        throw new Error("Policy not found");
+      });
+    });
+
+    it("returns true for restricted cipher type", async () => {
+      const result = await service.isCipherTypeRestricted(CipherType.Card, userId);
+      expect(result).toBe(true);
+    });
+
+    it("returns false for non-restricted cipher type", async () => {
+      const result = await service.isCipherTypeRestricted(CipherType.Login, userId);
+      expect(result).toBe(false);
+    });
+
+    it("returns false when user has no organizations", async () => {
+      organizationService.organizations$.mockReturnValue(of([]));
+
+      const result = await service.isCipherTypeRestricted(CipherType.Card, userId);
+      expect(result).toBe(false);
     });
   });
 });

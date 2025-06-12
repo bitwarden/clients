@@ -167,12 +167,12 @@ export class GetCommand extends DownloadCommand {
         return Response.multipleResults(decCipher.map((c) => c.id));
       }
     } else {
-      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
-        decCipher,
-        activeUserId,
-      );
-
-      if (decCipher == null) {
+      const isCipherTypeRestricted =
+        await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
+          decCipher.type,
+          activeUserId,
+        );
+      if (isCipherTypeRestricted) {
         return Response.error("Access to this item type is restricted by organizational policy.");
       }
 

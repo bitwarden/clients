@@ -98,12 +98,11 @@ export class EditCommand {
     }
     cipherView = CipherExport.toView(req, cipherView);
 
-    const restrictedResult = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
-      cipherView,
+    const isCipherTypeRestricted = await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
+      cipherView.type,
       activeUserId,
     );
-
-    if (restrictedResult === null) {
+    if (isCipherTypeRestricted) {
       return Response.error("Editing this item type is restricted by organizational policy.");
     }
 

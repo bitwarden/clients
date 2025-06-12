@@ -94,12 +94,12 @@ export class CreateCommand {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipherView = CipherExport.toView(req);
-    const restrictedResult = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
-      cipherView,
+    const isCipherTypeRestricted = await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
+      cipherView.type,
       activeUserId,
     );
 
-    if (restrictedResult === null) {
+    if (isCipherTypeRestricted) {
       return Response.error("Creating this item type is restricted by organizational policy.");
     }
 

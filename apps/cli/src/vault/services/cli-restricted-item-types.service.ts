@@ -77,41 +77,29 @@ export class CliRestrictedItemTypesService {
   }
 
   /**
-   * Filters restricted ciphers based on organization policies.
+   * Filters out restricted cipher types from an array of ciphers.
    *
-   * @param ciphers - An array of ciphers to filter
+   * @param ciphers - Array of ciphers to filter
    * @param userId - The user ID to get restrictions for
    * @returns Promise resolving to filtered array with restricted ciphers removed
    */
-  async filterRestrictedCiphers(ciphers: CipherView[], userId: UserId): Promise<CipherView[]>;
-  /**
-   * Filters restricted cipher based on organization policies.
-   *
-   * @param cipher - A single cipher to check
-   * @param userId - The user ID to get restrictions for
-   * @returns Promise resolving to the cipher if allowed, or null if restricted
-   */
-  async filterRestrictedCiphers(ciphers: CipherView, userId: UserId): Promise<CipherView | null>;
-  /**
-   * Implementation for filterRestrictedCiphers method overloads.
-   *
-   * @internal
-   */
-  async filterRestrictedCiphers(
-    ciphers: CipherView | CipherView[],
-    userId: UserId,
-  ): Promise<CipherView | CipherView[] | null> {
+  async filterRestrictedCiphers(ciphers: CipherView[], userId: UserId): Promise<CipherView[]> {
     const restrictions = await this.getRestrictedTypes(userId);
+    const restrictedTypes = restrictions.map((r) => r.cipherType);
 
-    const isRestricted = (cipher: CipherView): boolean => {
-      return restrictions.some((item) => item.cipherType === cipher.type);
-    };
+    return ciphers.filter((cipher) => !restrictedTypes.includes(cipher.type));
+  }
 
-    if (Array.isArray(ciphers)) {
-      return ciphers.filter((cipher) => !isRestricted(cipher));
-    }
-
-    return isRestricted(ciphers) ? null : ciphers;
+  /**
+   * Checks if a specific cipher type is restricted for the user.
+   *
+   * @param cipherType - The cipher type to check
+   * @param userId - The user ID to get restrictions for
+   * @returns Promise resolving to true if the cipher type is restricted, false otherwise
+   */
+  async isCipherTypeRestricted(cipherType: CipherType, userId: UserId): Promise<boolean> {
+    const restrictions = await this.getRestrictedTypes(userId);
+    return restrictions.some((r) => r.cipherType === cipherType);
   }
 
   /**
