@@ -8,9 +8,6 @@
 import AuthenticationServices
 import os
 
-struct Localizations {
-    static let passkeyConfigurationMessage = "Setting up Bitwarden for passkey authentication..."
-}
 
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger: Logger
@@ -156,7 +153,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         self.view.isHidden = false
         
         // Set the localized message
-        statusLabel.stringValue = Localizations.passkeyConfigurationMessage
+        statusLabel.stringValue = NSLocalizedString("autofillConfigurationMessage", comment: "Message shown when Bitwarden is enabled in system settings")
         
         // Send the native status request
         client.sendNativeStatus(key: "request-sync", value: "")

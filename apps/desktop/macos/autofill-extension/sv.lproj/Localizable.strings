@@ -1,0 +1,2 @@
+/* Message shown when Bitwarden is enabled in system settings */
+"autofillConfigurationMessage" = "Aktiverar Bitwarden...";
