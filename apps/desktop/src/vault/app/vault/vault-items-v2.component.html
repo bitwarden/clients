@@ -75,7 +75,7 @@
     @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
       <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
         <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
-        {{ itemTypes.name | i18n }}
+        {{ itemTypes.labelKey | i18n }}
       </button>
     }
   </bit-menu>
