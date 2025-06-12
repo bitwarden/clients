@@ -30,7 +30,7 @@
           [attr.aria-pressed]="activeFilter.cipherType === typeFilter.type"
         >
           <i class="bwi bwi-fw {{ typeFilter.icon }}" aria-hidden="true"></i>&nbsp;{{
-            typeFilter.name | i18n
+            typeFilter.labelKey | i18n
           }}
         </button>
       </span>
