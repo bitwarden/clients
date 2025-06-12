@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { MenuModule } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -25,8 +26,9 @@ export class VaultItemsV2Component extends BaseVaultItemsComponent {
     private readonly searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
+    restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(searchService, cipherService, accountService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService);
 
     this.searchBarService.searchText$
       .pipe(distinctUntilChanged(), takeUntilDestroyed())
