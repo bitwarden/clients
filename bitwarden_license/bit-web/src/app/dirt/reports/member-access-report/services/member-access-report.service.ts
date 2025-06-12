@@ -106,7 +106,9 @@ export class MemberAccessReportService {
         collectionPermission: report.collectionId
           ? this.getPermissionText(report)
           : this.i18nService.t("memberAccessReportNoCollectionPermission"),
-        totalItems: report.cipherIds.length.toString(),
+        totalItems: report.cipherIds
+          .filter((_) => _ != "00000000-0000-0000-0000-000000000000")
+          .length.toString(),
       };
     });
     return exportItems.flat();
