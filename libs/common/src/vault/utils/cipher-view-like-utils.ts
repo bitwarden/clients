@@ -31,7 +31,7 @@ export class CipherViewLikeUtils {
   };
 
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
-  static getCipherViewLikeLogin = (cipher: CipherViewLike): LoginListView | LoginView | null => {
+  static getLogin = (cipher: CipherViewLike): LoginListView | LoginView | null => {
     if (this.isCipherListView(cipher)) {
       if (typeof cipher.type !== "object") {
         return null;
@@ -45,7 +45,7 @@ export class CipherViewLikeUtils {
 
   /** @returns The first URI for a login cipher. If the cipher is not of type Login or has no associated URIs, returns null. */
   static uri = (cipher: CipherViewLike) => {
-    const login = this.getCipherViewLikeLogin(cipher);
+    const login = this.getLogin(cipher);
     if (!login) {
       return null;
     }
@@ -141,7 +141,7 @@ export class CipherViewLikeUtils {
    * When a non-login cipher is passed, it will return false.
    */
   static canLaunch = (cipher: CipherViewLike): boolean => {
-    const login = this.getCipherViewLikeLogin(cipher);
+    const login = this.getLogin(cipher);
 
     if (!login) {
       return false;
@@ -155,7 +155,7 @@ export class CipherViewLikeUtils {
    * When a non-login cipher is passed or none of the URLs, it will return undefined.
    */
   static getLaunchUri = (cipher: CipherViewLike): string | undefined => {
-    const login = this.getCipherViewLikeLogin(cipher);
+    const login = this.getLogin(cipher);
 
     if (!login) {
       return undefined;
@@ -182,7 +182,7 @@ export class CipherViewLikeUtils {
       return cipher.login.matchesUri(targetUri, equivalentDomains, defaultUriMatch);
     }
 
-    const login = this.getCipherViewLikeLogin(cipher);
+    const login = this.getLogin(cipher);
     if (!login?.uris?.length) {
       return false;
     }

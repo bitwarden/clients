@@ -211,7 +211,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   cipherItemTitleKey = (cipher: CipherViewLike) =>
     this.currentURIIsBlocked$.pipe(
       map((uriIsBlocked) => {
-        const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+        const login = CipherViewLikeUtils.getLogin(cipher);
         const hasUsername = login?.username != null;
         const key = this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle";
         return hasUsername ? `${key}WithField` : key;

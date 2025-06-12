@@ -162,7 +162,7 @@ export class CopyCipherFieldService {
       return false;
     }
 
-    const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+    const login = CipherViewLikeUtils.getLogin(cipher);
 
     return (
       !!login?.totp &&

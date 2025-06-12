@@ -602,7 +602,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     return ciphers.filter((cipher) => {
       const type = CipherViewLikeUtils.getType(cipher);
-      const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+      const login = CipherViewLikeUtils.getLogin(cipher);
       const cipherIsLogin = login !== null;
 
       if (CipherViewLikeUtils.isDeleted(cipher)) {

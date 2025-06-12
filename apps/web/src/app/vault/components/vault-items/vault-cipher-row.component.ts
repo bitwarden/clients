@@ -85,7 +85,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showTotpCopyButton() {
-    const login = CipherViewLikeUtils.getCipherViewLikeLogin(this.cipher);
+    const login = CipherViewLikeUtils.getLogin(this.cipher);
 
     const hasTotp = login?.totp ?? false;
 

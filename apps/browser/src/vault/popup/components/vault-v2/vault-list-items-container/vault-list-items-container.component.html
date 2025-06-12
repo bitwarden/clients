@@ -102,7 +102,7 @@
             [appA11yTitle]="
               cipherItemTitleKey(cipher)
                 | async
-                | i18n: cipher.name : CipherViewLikeUtils.getCipherViewLikeLogin(cipher)?.username
+                | i18n: cipher.name : CipherViewLikeUtils.getLogin(cipher)?.username
             "
             class="{{ itemHeightClass }}"
           >

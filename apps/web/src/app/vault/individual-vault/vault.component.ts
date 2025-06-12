@@ -1005,7 +1005,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async cloneCipher(cipher: CipherView | CipherListView) {
-    const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+    const login = CipherViewLikeUtils.getLogin(cipher);
 
     if (login && login.fido2Credentials && login.fido2Credentials?.length > 0) {
       const confirmed = await this.dialogService.openSimpleDialog({
@@ -1203,7 +1203,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let value;
     let typeI18nKey;
 
-    const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+    const login = CipherViewLikeUtils.getLogin(cipher);
 
     if (!login) {
       this.toastService.showToast({

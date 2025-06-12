@@ -288,7 +288,7 @@ export class SearchService implements SearchServiceAbstraction {
         return true;
       }
 
-      const login = CipherViewLikeUtils.getCipherViewLikeLogin(c);
+      const login = CipherViewLikeUtils.getLogin(c);
 
       if (
         login &&
