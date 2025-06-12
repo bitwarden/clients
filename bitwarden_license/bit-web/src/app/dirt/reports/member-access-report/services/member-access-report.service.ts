@@ -55,7 +55,9 @@ export class MemberAccessReportService {
         userDataArray.map((data) => data.groupId).filter((id) => !!id),
       );
       const itemsCount = this.getDistinctCount<Guid>(
-        userDataArray.flatMap((data) => data.cipherIds),
+        userDataArray
+          .flatMap((data) => data.cipherIds)
+          .filter((id) => id !== "00000000-0000-0000-0000-000000000000"),
       );
       const aggregatedData = {
         userGuid: userGuid,
