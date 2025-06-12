@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Wymagana jest migracja klucza szyfrowania. Zaloguj się przez sejf internetowy, aby zaktualizować klucz szyfrowania."
+  "legacyEncryptionUnsupported": {
+    "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać swoje konto."
   },
   "premiumMembership": {
     "message": "Konto Premium"
@@ -3613,14 +3613,6 @@
   },
   "trustUser": {
     "message": "Zaufaj użytkownikowi"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Brak aktywnych wysyłek",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Użyj wysyłki, aby bezpiecznie dzielić się zaszyfrowanymi informacjami ze wszystkimi.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Wysyłaj bezpiecznie poufne informacje",
