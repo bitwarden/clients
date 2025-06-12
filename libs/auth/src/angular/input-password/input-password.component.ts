@@ -13,7 +13,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -121,9 +120,7 @@ export class InputPasswordComponent implements OnInit {
     | PasswordStrengthV2Component
     | undefined = undefined;
 
-  @Output() onPasswordFormSubmit = new EventEmitter<PasswordInputResult>();
   @Output() onSecondaryButtonClick = new EventEmitter<void>();
-  @Output() isSubmitting = new EventEmitter<boolean>();
 
   @Input({ required: true }) flow!: InputPasswordFlow;
 
@@ -192,7 +189,6 @@ export class InputPasswordComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private toastService: ToastService,
-    private validationService: ValidationService,
   ) {}
 
   ngOnInit(): void {
@@ -262,138 +258,129 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  submit = async () => {
-    try {
-      this.isSubmitting.emit(true);
+  submit = async (): Promise<PasswordInputResult | undefined> => {
+    this.verifyFlow();
 
-      this.verifyFlow();
+    this.formGroup.markAllAsTouched();
 
-      this.formGroup.markAllAsTouched();
+    if (this.formGroup.invalid) {
+      this.showErrorSummary = true;
+      return;
+    }
 
-      if (this.formGroup.invalid) {
-        this.showErrorSummary = true;
-        return;
+    const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
+    const newPassword = this.formGroup.controls.newPassword.value;
+    const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
+    const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
+
+    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      return this.handleChangePasswordDelegationFlow(newPassword);
+    }
+
+    if (!this.email) {
+      throw new Error("Email is required to create master key.");
+    }
+
+    // 1. Determine kdfConfig
+    if (this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration) {
+      this.kdfConfig = DEFAULT_KDF_CONFIG;
+    } else {
+      if (!this.userId) {
+        throw new Error("userId not passed down");
       }
+      this.kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
+    }
 
-      const currentPassword = this.formGroup.controls.currentPassword?.value ?? "";
-      const newPassword = this.formGroup.controls.newPassword.value;
-      const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
-      const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
+    if (this.kdfConfig == null) {
+      throw new Error("KdfConfig is required to create master key.");
+    }
 
-      if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
-        await this.handleChangePasswordDelegationFlow(newPassword);
-        return;
-      }
-
-      if (!this.email) {
-        throw new Error("Email is required to create master key.");
-      }
-
-      // 1. Determine kdfConfig
-      if (this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration) {
-        this.kdfConfig = DEFAULT_KDF_CONFIG;
-      } else {
-        if (!this.userId) {
-          throw new Error("userId not passed down");
-        }
-        this.kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(this.userId));
-      }
-
-      if (this.kdfConfig == null) {
-        throw new Error("KdfConfig is required to create master key.");
-      }
-
-      // 2. Verify current password is correct (if necessary)
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        const currentPasswordVerified = await this.verifyCurrentPassword(
-          currentPassword,
-          this.kdfConfig,
-        );
-        if (!currentPasswordVerified) {
-          return;
-        }
-      }
-
-      // 3. Verify new password
-      const newPasswordVerified = await this.verifyNewPassword(
-        newPassword,
-        this.passwordStrengthScore,
-        checkForBreaches,
+    // 2. Verify current password is correct (if necessary)
+    if (
+      this.flow === InputPasswordFlow.ChangePassword ||
+      this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+    ) {
+      const currentPasswordVerified = await this.verifyCurrentPassword(
+        currentPassword,
+        this.kdfConfig,
       );
-      if (!newPasswordVerified) {
+      if (!currentPasswordVerified) {
         return;
       }
+    }
 
-      // 4. Create cryptographic keys and build a PasswordInputResult object
-      const newMasterKey = await this.keyService.makeMasterKey(
-        newPassword,
+    // 3. Verify new password
+    const newPasswordVerified = await this.verifyNewPassword(
+      newPassword,
+      this.passwordStrengthScore,
+      checkForBreaches,
+    );
+    if (!newPasswordVerified) {
+      return;
+    }
+
+    // 4. Create cryptographic keys and build a PasswordInputResult object
+    const newMasterKey = await this.keyService.makeMasterKey(
+      newPassword,
+      this.email,
+      this.kdfConfig,
+    );
+
+    const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
+      newMasterKey,
+      HashPurpose.ServerAuthorization,
+    );
+
+    const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
+      newPassword,
+      newMasterKey,
+      HashPurpose.LocalAuthorization,
+    );
+
+    const passwordInputResult: PasswordInputResult = {
+      newPassword,
+      newMasterKey,
+      newServerMasterKeyHash,
+      newLocalMasterKeyHash,
+      newPasswordHint,
+      kdfConfig: this.kdfConfig,
+    };
+
+    if (
+      this.flow === InputPasswordFlow.ChangePassword ||
+      this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+    ) {
+      const currentMasterKey = await this.keyService.makeMasterKey(
+        currentPassword,
         this.email,
         this.kdfConfig,
       );
 
-      const newServerMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
+      const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
+        currentPassword,
+        currentMasterKey,
         HashPurpose.ServerAuthorization,
       );
 
-      const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
+      const currentLocalMasterKeyHash = await this.keyService.hashMasterKey(
+        currentPassword,
+        currentMasterKey,
         HashPurpose.LocalAuthorization,
       );
 
-      const passwordInputResult: PasswordInputResult = {
-        newPassword,
-        newMasterKey,
-        newServerMasterKeyHash,
-        newLocalMasterKeyHash,
-        newPasswordHint,
-        kdfConfig: this.kdfConfig,
-      };
-
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        const currentMasterKey = await this.keyService.makeMasterKey(
-          currentPassword,
-          this.email,
-          this.kdfConfig,
-        );
-
-        const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-          HashPurpose.ServerAuthorization,
-        );
-
-        const currentLocalMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-          HashPurpose.LocalAuthorization,
-        );
-
-        passwordInputResult.currentPassword = currentPassword;
-        passwordInputResult.currentMasterKey = currentMasterKey;
-        passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
-        passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
-      }
-
-      if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-        passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
-      }
-
-      // 5. Emit cryptographic keys and other password related properties
-      this.onPasswordFormSubmit.emit(passwordInputResult);
-    } catch (e) {
-      this.validationService.showError(e);
-    } finally {
-      this.isSubmitting.emit(false);
+      passwordInputResult.currentPassword = currentPassword;
+      passwordInputResult.currentMasterKey = currentMasterKey;
+      passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
+      passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
     }
+
+    if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
+      passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
+    }
+
+    // 5. Emit cryptographic keys and other password related properties
+    return passwordInputResult;
   };
 
   /**
@@ -442,7 +429,9 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  private async handleChangePasswordDelegationFlow(newPassword: string) {
+  private async handleChangePasswordDelegationFlow(
+    newPassword: string,
+  ): Promise<PasswordInputResult | undefined> {
     const newPasswordVerified = await this.verifyNewPassword(
       newPassword,
       this.passwordStrengthScore,
@@ -452,11 +441,9 @@ export class InputPasswordComponent implements OnInit {
       return;
     }
 
-    const passwordInputResult: PasswordInputResult = {
+    return {
       newPassword,
     };
-
-    this.onPasswordFormSubmit.emit(passwordInputResult);
   }
 
   /**
