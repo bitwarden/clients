@@ -129,16 +129,14 @@ export class VaultPopupItemsService {
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
             .filter((c) => !CipherViewLikeUtils.isDeleted(c))
-            .map(
-              (cipher) =>
-                ({
-                  ...cipher,
-                  collections: cipher.collectionIds?.map(
-                    (colId) => collectionMap[colId as CollectionId],
-                  ),
-                  organization: orgMap[cipher.organizationId as OrganizationId],
-                }) as PopupCipherViewLike,
-            );
+            .map((cipher) => {
+              (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
+                (colId) => collectionMap[colId as CollectionId],
+              );
+              (cipher as PopupCipherViewLike).organization =
+                orgMap[cipher.organizationId as OrganizationId];
+              return cipher;
+            });
         }),
       ),
     ),
