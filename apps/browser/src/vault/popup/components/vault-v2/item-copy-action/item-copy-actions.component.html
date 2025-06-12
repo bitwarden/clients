@@ -40,7 +40,7 @@
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="singleCopiableLogin.key"
+        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableLogin.key : cipher.name"
         [appCopyField]="singleCopiableLogin.field"
         [cipher]="cipher"
       ></button>
@@ -107,7 +107,7 @@
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="'copyCustomField' | i18n: singleCopiableCard.key"
+        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableCard.key : cipher.name"
         [appCopyField]="singleCopiableCard.field"
         [cipher]="cipher"
         showToast
@@ -142,7 +142,7 @@
     type="button"
     bitIconButton="bwi-clone"
     size="small"
-    [appA11yTitle]="'copyCustomField' | i18n: singleCopiableIdentity.key"
+    [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableIdentity.key : cipher.name"
     [appCopyField]="singleCopiableIdentity.field"
     [cipher]="cipher"
     showToast
