@@ -58,7 +58,7 @@ export class CipherViewLikeUtils {
   };
 
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
-  static getCipherViewLikeCard = (cipher: CipherViewLike): CardListView | CardView | null => {
+  static getCard = (cipher: CipherViewLike): CardListView | CardView | null => {
     if (this.isCipherListView(cipher)) {
       if (typeof cipher.type !== "object") {
         return null;

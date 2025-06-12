@@ -38,7 +38,7 @@ export function buildCipherIcon(
 
   const cipherType = CipherViewLikeUtils.getType(cipher);
   const uri = CipherViewLikeUtils.uri(cipher);
-  const card = CipherViewLikeUtils.getCipherViewLikeCard(cipher);
+  const card = CipherViewLikeUtils.getCard(cipher);
 
   switch (cipherType) {
     case CipherType.Login:
