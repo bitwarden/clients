@@ -43,12 +43,12 @@ import {
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
-import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import {
   ExtensionAnonLayoutWrapperComponent,
   ExtensionAnonLayoutWrapperData,
 } from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
+import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
