@@ -2,8 +2,8 @@ import { Component } from "@angular/core";
 import { map } from "rxjs";
 
 import { TypeFilterComponent as BaseTypeFilterComponent } from "@bitwarden/angular/vault/vault-filter/components/type-filter.component";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 @Component({
   selector: "app-type-filter",

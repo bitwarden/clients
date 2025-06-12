@@ -20,7 +20,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import {
   CachedFilterState,

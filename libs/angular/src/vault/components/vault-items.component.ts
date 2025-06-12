@@ -21,9 +21,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { RestrictedItemTypesService } from "@bitwarden/vault";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
 @Directive()
 export class VaultItemsComponent implements OnInit, OnDestroy {
@@ -39,43 +38,10 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   organization: Organization;
   CipherType = CipherType;
 
-  itemTypes = [
-    {
-      id: "login",
-      name: "typeLogin",
-      type: CipherType.Login,
-      icon: "bwi-globe",
-    },
-    {
-      id: "card",
-      name: "typeCard",
-      type: CipherType.Card,
-      icon: "bwi-credit-card",
-    },
-    {
-      id: "identity",
-      name: "typeIdentity",
-      type: CipherType.Identity,
-      icon: "bwi-id-card",
-    },
-    {
-      id: "note",
-      name: "typeSecureNote",
-      type: CipherType.SecureNote,
-      icon: "bwi-sticky-note",
-    },
-    {
-      id: "sshKey",
-      name: "typeSshKey",
-      type: CipherType.SshKey,
-      icon: "bwi-key",
-    },
-  ];
-
   protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
     map((restrictedItemTypes) =>
       // Filter out restricted item types
-      this.itemTypes.filter(
+      CIPHER_MENU_ITEMS.filter(
         (itemType) =>
           !restrictedItemTypes.some(
             (restrictedType) => restrictedType.cipherType === itemType.type,

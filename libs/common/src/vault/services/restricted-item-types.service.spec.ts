@@ -1,4 +1,3 @@
-import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
@@ -7,7 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -15,7 +14,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { RestrictedItemTypesService, RestrictedCipherType } from "./restricted-item-types.service";
 
-describe("RestrictedItemTypesService", () => {
+describe("RestrictedItemTypesService (standalone)", () => {
   let service: RestrictedItemTypesService;
   let policyService: MockProxy<PolicyService>;
   let organizationService: MockProxy<OrganizationService>;
@@ -49,19 +48,16 @@ describe("RestrictedItemTypesService", () => {
     fakeAccount = { id: Utils.newGuid() as UserId } as Account;
     accountService.activeAccount$ = of(fakeAccount);
 
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: PolicyService, useValue: policyService },
-        { provide: OrganizationService, useValue: organizationService },
-        { provide: AccountService, useValue: accountService },
-        { provide: ConfigService, useValue: configService },
-      ],
-    });
-
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
-    service = TestBed.inject(RestrictedItemTypesService);
+
+    service = new RestrictedItemTypesService(
+      configService,
+      accountService,
+      organizationService,
+      policyService,
+    );
   });
 
   it("emits empty array when feature flag is disabled", async () => {
@@ -106,7 +102,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("returns empty allowViewOrgIds when all orgs restrict the same type", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
@@ -117,7 +112,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("aggregates multiple types and computes allowViewOrgIds correctly", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(
       of([

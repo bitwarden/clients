@@ -12,8 +12,11 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
-import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
