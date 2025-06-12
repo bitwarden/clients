@@ -1,3 +1,5 @@
+// FIXME (PM-22628): angular imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";

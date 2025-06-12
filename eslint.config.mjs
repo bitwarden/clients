@@ -284,6 +284,7 @@ export default tseslint.config(
     files: ["apps/browser/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports([
+        "@angular",
         "bitwarden_license/**",
         "@bitwarden/bit-common/*",
         "@bitwarden/bit-web/*",
