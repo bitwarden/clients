@@ -3,10 +3,10 @@ import { Component, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
+  ButtonLinkDirective,
   ButtonModule,
   DialogModule,
   DialogService,
-  AnchorLinkDirective,
   DIALOG_DATA,
   DialogRef,
 } from "@bitwarden/components";
@@ -17,7 +17,7 @@ export type AdvancedUriOptionDialogParams = {
 
 @Component({
   templateUrl: "advanced-uri-option-dialog.component.html",
-  imports: [JslibModule, ButtonModule, DialogModule, AnchorLinkDirective],
+  imports: [ButtonLinkDirective, ButtonModule, DialogModule, JslibModule],
 })
 export class AdvancedUriOptionDialogComponent {
   constructor(private dialogRef: DialogRef<boolean>) {}
@@ -35,6 +35,11 @@ export class AdvancedUriOptionDialogComponent {
 
   continueClick() {
     this.dialogRef.close(true);
+  }
+
+  openLink(event: Event) {
+    event.preventDefault();
+    this.platformUtilsService.launchUri("https://bitwarden.com/help/uri-match-detection/");
   }
 
   static open(

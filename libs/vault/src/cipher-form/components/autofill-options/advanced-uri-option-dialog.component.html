@@ -11,9 +11,9 @@
     <p>
       {{ contentKey | i18n }}
       <br />
-      <a bitLink href="https://bitwarden.com/help/uri-match-detection">
+      <button bitLink type="button" linkType="primary" (click)="openLink($event)">
         {{ "uriMatchWarningDialogLink" | i18n }}
-      </a>
+      </button>
     </p>
   </div>
   <ng-container bitDialogFooter>

@@ -18,6 +18,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
+import { pairwise } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -26,11 +27,14 @@ import {
 } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   SelectComponent,
   SelectModule,
 } from "@bitwarden/components";
+
+import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
 @Component({
   selector: "vault-autofill-uri-option",
@@ -83,6 +87,11 @@ export class UriOptionComponent implements ControlValueAccessor {
   protected hintMap: Partial<Record<UriMatchStrategySetting, string>> = {
     [UriMatchStrategy.StartsWith]: "startsWithUriMatchWarningHint",
     [UriMatchStrategy.RegularExpression]: "regExUriMatchWarningHint",
+  };
+
+  protected advancedContentKeyMap: Partial<Record<UriMatchStrategySetting, string>> = {
+    [UriMatchStrategy.StartsWith]: "uriMatchWarningDialogStartsWithContent",
+    [UriMatchStrategy.RegularExpression]: "uriMatchWarningDialogRegExContent",
   };
 
   /**
@@ -157,6 +166,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   constructor(
+    private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
   ) {
@@ -167,6 +177,21 @@ export class UriOptionComponent implements ControlValueAccessor {
     this.uriForm.statusChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.onTouched();
     });
+
+    this.uriForm
+      .get("matchDetection")
+      ?.valueChanges.pipe(takeUntilDestroyed(), pairwise())
+      .subscribe(([prev, curr]) => {
+        if (
+          (curr === UriMatchStrategy.StartsWith || curr === UriMatchStrategy.RegularExpression) &&
+          prev !== curr
+        ) {
+          const contentKey = this.advancedContentKeyMap[curr];
+          if (contentKey) {
+            AdvancedUriOptionDialogComponent.open(this.dialogService, { contentKey });
+          }
+        }
+      });
   }
 
   focusInput() {
