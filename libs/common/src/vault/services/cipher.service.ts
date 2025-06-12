@@ -1259,16 +1259,22 @@ export class CipherService implements CipherServiceAbstraction {
         ? this.i18nService.collator.compare(aName, bName)
         : aName.localeCompare(bName);
 
-      if (result !== 0 || a.type !== CipherType.Login || b.type !== CipherType.Login) {
+      const aType = CipherViewLikeUtils.getType(a);
+      const bType = CipherViewLikeUtils.getType(b);
+
+      if (result !== 0 || aType !== CipherType.Login || bType !== CipherType.Login) {
         return result;
       }
 
-      if (a.login.username != null) {
-        aName += a.login.username;
+      const aLogin = CipherViewLikeUtils.getLogin(a);
+      const bLogin = CipherViewLikeUtils.getLogin(b);
+
+      if (aLogin.username != null) {
+        aName += aLogin.username;
       }
 
-      if (b.login.username != null) {
-        bName += b.login.username;
+      if (bLogin.username != null) {
+        bName += bLogin.username;
       }
 
       return this.i18nService.collator
