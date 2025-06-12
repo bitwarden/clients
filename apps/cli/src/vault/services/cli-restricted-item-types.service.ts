@@ -77,27 +77,27 @@ export class CliRestrictedItemTypesService {
   }
 
   /**
-   * Removes restricted ciphers based on organization policies.
+   * Filters restricted ciphers based on organization policies.
    *
    * @param ciphers - An array of ciphers to filter
    * @param userId - The user ID to get restrictions for
    * @returns Promise resolving to filtered array with restricted ciphers removed
    */
-  async removeRestrictedCiphers(ciphers: CipherView[], userId: UserId): Promise<CipherView[]>;
+  async filterRestrictedCiphers(ciphers: CipherView[], userId: UserId): Promise<CipherView[]>;
   /**
-   * Removes restricted cipher based on organization policies.
+   * Filters restricted cipher based on organization policies.
    *
    * @param cipher - A single cipher to check
    * @param userId - The user ID to get restrictions for
    * @returns Promise resolving to the cipher if allowed, or null if restricted
    */
-  async removeRestrictedCiphers(ciphers: CipherView, userId: UserId): Promise<CipherView | null>;
+  async filterRestrictedCiphers(ciphers: CipherView, userId: UserId): Promise<CipherView | null>;
   /**
-   * Implementation for removeRestrictedCiphers method overloads.
+   * Implementation for filterRestrictedCiphers method overloads.
    *
    * @internal
    */
-  async removeRestrictedCiphers(
+  async filterRestrictedCiphers(
     ciphers: CipherView | CipherView[],
     userId: UserId,
   ): Promise<CipherView | CipherView[] | null> {

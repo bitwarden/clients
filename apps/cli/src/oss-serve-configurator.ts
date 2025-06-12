@@ -100,6 +100,7 @@ export class OssServeConfigurator {
       this.serviceContainer.apiService,
       this.serviceContainer.folderApiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,

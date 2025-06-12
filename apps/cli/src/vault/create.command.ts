@@ -94,7 +94,7 @@ export class CreateCommand {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipherView = CipherExport.toView(req);
-    const restrictedResult = await this.cliRestrictedItemTypesService.removeRestrictedCiphers(
+    const restrictedResult = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
       cipherView,
       activeUserId,
     );

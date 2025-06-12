@@ -174,19 +174,19 @@ describe("CliRestrictedItemTypesService", () => {
     it("filters out restricted cipher types from array", async () => {
       const ciphers = [cardCipher, loginCipher, identityCipher];
 
-      const result = await service.removeRestrictedCiphers(ciphers, userId);
+      const result = await service.filterRestrictedCiphers(ciphers, userId);
 
       expect(result).toEqual([loginCipher, identityCipher]);
     });
 
     it("returns null for single restricted cipher", async () => {
-      const result = await service.removeRestrictedCiphers(cardCipher, userId);
+      const result = await service.filterRestrictedCiphers(cardCipher, userId);
 
       expect(result).toBeNull();
     });
 
     it("returns cipher for single non-restricted cipher", async () => {
-      const result = await service.removeRestrictedCiphers(loginCipher, userId);
+      const result = await service.filterRestrictedCiphers(loginCipher, userId);
 
       expect(result).toEqual(loginCipher);
     });
@@ -201,7 +201,7 @@ describe("CliRestrictedItemTypesService", () => {
       });
 
       const ciphers = [cardCipher, loginCipher, identityCipher];
-      const result = await service.removeRestrictedCiphers(ciphers, userId);
+      const result = await service.filterRestrictedCiphers(ciphers, userId);
 
       expect(result).toEqual([]);
     });
@@ -210,13 +210,13 @@ describe("CliRestrictedItemTypesService", () => {
       configService.getFeatureFlag.mockResolvedValue(false);
 
       const ciphers = [cardCipher, loginCipher, identityCipher];
-      const result = await service.removeRestrictedCiphers(ciphers, userId);
+      const result = await service.filterRestrictedCiphers(ciphers, userId);
 
       expect(result).toEqual(ciphers);
     });
 
     it("handles empty cipher array", async () => {
-      const result = await service.removeRestrictedCiphers([], userId);
+      const result = await service.filterRestrictedCiphers([], userId);
 
       expect(result).toEqual([]);
     });

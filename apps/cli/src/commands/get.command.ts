@@ -144,7 +144,7 @@ export class GetCommand extends DownloadCommand {
 
     if (Array.isArray(decCipher)) {
       // Apply restricted ciphers filter
-      decCipher = await this.cliRestrictedItemTypesService.removeRestrictedCiphers(
+      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
         decCipher,
         activeUserId,
       );
@@ -167,7 +167,7 @@ export class GetCommand extends DownloadCommand {
         return Response.multipleResults(decCipher.map((c) => c.id));
       }
     } else {
-      decCipher = await this.cliRestrictedItemTypesService.removeRestrictedCiphers(
+      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
         decCipher,
         activeUserId,
       );
