@@ -8,6 +8,7 @@ import {
   combineLatest,
   filter,
   from,
+  map,
   of,
   switchMap,
   takeUntil,
@@ -37,6 +38,51 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   deleted = false;
   organization: Organization;
   CipherType = CipherType;
+
+  itemTypes = [
+    {
+      id: "login",
+      name: "typeLogin",
+      type: CipherType.Login,
+      icon: "bwi-globe",
+    },
+    {
+      id: "card",
+      name: "typeCard",
+      type: CipherType.Card,
+      icon: "bwi-credit-card",
+    },
+    {
+      id: "identity",
+      name: "typeIdentity",
+      type: CipherType.Identity,
+      icon: "bwi-id-card",
+    },
+    {
+      id: "note",
+      name: "typeSecureNote",
+      type: CipherType.SecureNote,
+      icon: "bwi-sticky-note",
+    },
+    {
+      id: "sshKey",
+      name: "typeSshKey",
+      type: CipherType.SshKey,
+      icon: "bwi-key",
+    },
+  ];
+
+  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types
+      this.itemTypes.filter(
+        (itemType) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === itemType.type,
+          ),
+      ),
+    ),
+  );
 
   protected searchPending = false;
 
