@@ -1436,6 +1436,9 @@
     "message": "Copy security code",
     "description": "Copy credit card security code (CVV)"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "premiumMembership": {
     "message": "Premium membership"
   },

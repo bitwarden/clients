@@ -72,8 +72,8 @@ export class ItemCopyActionsComponent implements OnInit {
 
   get singleCopiableCard() {
     const cardItems: CipherItem[] = [
-      { key: "code", field: "securityCode" },
-      { key: "number", field: "cardNumber" },
+      { key: "securityCode", field: "securityCode" },
+      { key: "cardNumber", field: "cardNumber" },
     ];
     return this.findSingleCopiableItem(cardItems);
   }

@@ -1823,6 +1823,9 @@
   "securityCode": {
     "message": "Security code"
   },
+  "cardNumber": {
+    "message": "card number"
+  },
   "ex": {
     "message": "ex."
   },
