@@ -71,7 +71,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
-import { CipherViewLike } from "../utils/cipher-view-like-utils";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -574,18 +574,23 @@ export class CipherService implements CipherServiceAbstraction {
         filter((c) => c != null),
         switchMap(
           async (ciphers) =>
-            await this.filterCiphersForUrl(ciphers, url, includeOtherTypes, defaultMatch),
+            await this.filterCiphersForUrl<CipherView>(
+              ciphers,
+              url,
+              includeOtherTypes,
+              defaultMatch,
+            ),
         ),
       ),
     );
   }
 
-  async filterCiphersForUrl(
-    ciphers: CipherView[],
+  async filterCiphersForUrl<C extends CipherViewLike>(
+    ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch: UriMatchStrategySetting = null,
-  ): Promise<CipherView[]> {
+  ): Promise<C[]> {
     if (url == null && includeOtherTypes == null) {
       return [];
     }
@@ -596,22 +601,20 @@ export class CipherService implements CipherServiceAbstraction {
     defaultMatch ??= await firstValueFrom(this.domainSettingsService.defaultUriMatchStrategy$);
 
     return ciphers.filter((cipher) => {
-      const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
+      const type = CipherViewLikeUtils.getType(cipher);
+      const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+      const cipherIsLogin = login !== null;
 
-      if (cipher.deletedDate !== null) {
+      if (CipherViewLikeUtils.isDeleted(cipher)) {
         return false;
       }
 
-      if (
-        Array.isArray(includeOtherTypes) &&
-        includeOtherTypes.includes(cipher.type) &&
-        !cipherIsLogin
-      ) {
+      if (Array.isArray(includeOtherTypes) && includeOtherTypes.includes(type) && !cipherIsLogin) {
         return true;
       }
 
       if (cipherIsLogin) {
-        return cipher.login.matchesUri(url, equivalentDomains, defaultMatch);
+        return CipherViewLikeUtils.matchesUri(cipher, url, equivalentDomains, defaultMatch);
       }
 
       return false;
@@ -1204,7 +1207,7 @@ export class CipherService implements CipherServiceAbstraction {
     return await this.deleteAttachment(id, cipherData.revisionDate, attachmentId, userId);
   }
 
-  sortCiphersByLastUsed(a: CipherView, b: CipherView): number {
+  sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number {
     const aLastUsed =
       a.localData && a.localData.lastUsedDate ? (a.localData.lastUsedDate as number) : null;
     const bLastUsed =
@@ -1228,7 +1231,7 @@ export class CipherService implements CipherServiceAbstraction {
     return 0;
   }
 
-  sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number {
+  sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number {
     const result = this.sortCiphersByLastUsed(a, b);
     if (result !== 0) {
       return result;

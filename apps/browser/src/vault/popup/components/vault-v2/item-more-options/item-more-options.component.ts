@@ -17,6 +17,10 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
   DialogService,
   IconButtonModule,
   ItemModule,
@@ -34,12 +38,12 @@ import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
 export class ItemMoreOptionsComponent {
-  private _cipher$ = new BehaviorSubject<CipherView>(undefined);
+  private _cipher$ = new BehaviorSubject<CipherViewLike>(undefined);
 
   @Input({
     required: true,
   })
-  set cipher(c: CipherView) {
+  set cipher(c: CipherViewLike) {
     this._cipher$.next(c);
   }
 
@@ -114,12 +118,12 @@ export class ItemMoreOptionsComponent {
    */
   get canAutofill() {
     return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
-      this.cipher.type,
+      CipherViewLikeUtils.getType(this.cipher),
     );
   }
 
   get isLogin() {
-    return this.cipher.type === CipherType.Login;
+    return CipherViewLikeUtils.getType(this.cipher) === CipherType.Login;
   }
 
   get favoriteText() {
@@ -127,11 +131,13 @@ export class ItemMoreOptionsComponent {
   }
 
   async doAutofill() {
-    await this.vaultPopupAutofillService.doAutofill(this.cipher);
+    const cipher = await this.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofill(cipher);
   }
 
   async doAutofillAndSave() {
-    await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
+    const cipher = await this.getFullCipherView(this.cipher);
+    await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
   }
 
   async onView() {
@@ -140,7 +146,7 @@ export class ItemMoreOptionsComponent {
       return;
     }
     await this.router.navigate(["/view-cipher"], {
-      queryParams: { cipherId: this.cipher.id, type: this.cipher.type },
+      queryParams: { cipherId: this.cipher.id, type: CipherViewLikeUtils.getType(this.cipher) },
     });
   }
 
@@ -148,11 +154,14 @@ export class ItemMoreOptionsComponent {
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    this.cipher.favorite = !this.cipher.favorite;
+    const cipher = await this.getFullCipherView(this.cipher);
+
+    cipher.favorite = !cipher.favorite;
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const encryptedCipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+
+    const encryptedCipher = await this.cipherService.encrypt(cipher, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
     this.toastService.showToast({
       variant: "success",
@@ -175,8 +184,8 @@ export class ItemMoreOptionsComponent {
     ) {
       return;
     }
-
-    if (this.cipher.login?.hasFido2Credentials) {
+    const login = CipherViewLikeUtils.getCipherViewLikeLogin(this.cipher);
+    if (login?.fido2Credentials?.length) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "passkeyNotCopied" },
         content: { key: "passkeyNotCopiedAlert" },
@@ -192,7 +201,7 @@ export class ItemMoreOptionsComponent {
       queryParams: {
         clone: true.toString(),
         cipherId: this.cipher.id,
-        type: this.cipher.type.toString(),
+        type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
     });
   }
@@ -206,5 +215,18 @@ export class ItemMoreOptionsComponent {
     await this.router.navigate(["/assign-collections"], {
       queryParams: { cipherId: this.cipher.id },
     });
+  }
+
+  /** Fetches the full `CipherView` when a `CipherListView` is passed. */
+  private async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
+    if (CipherViewLikeUtils.isCipherListView(c)) {
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const cipher = await this.cipherService.get(c.id!, activeUserId);
+      return this.cipherService.decrypt(cipher, activeUserId);
+    }
+
+    return Promise.resolve(c);
   }
 }

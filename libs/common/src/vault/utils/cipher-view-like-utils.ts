@@ -1,9 +1,19 @@
+import {
+  UriMatchStrategy,
+  UriMatchStrategySetting,
+} from "@bitwarden/common/models/domain/domain-service";
 import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
-import { CardListView, CipherListView, LoginListView } from "@bitwarden/sdk-internal";
+import {
+  CardListView,
+  CipherListView,
+  CopiableCipherFields,
+  LoginListView,
+} from "@bitwarden/sdk-internal";
 
 import { CipherType } from "../enums";
 import { CardView } from "../models/view/card.view";
 import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
 import { LoginView } from "../models/view/login.view";
 
 /**
@@ -153,4 +163,107 @@ export class CipherViewLikeUtils {
 
     return login.uris?.map((u) => u.uri).find((uri) => uri && SafeUrls.canLaunch(uri));
   };
+
+  /**
+   * @returns `true` when the `targetUri` matches for any URI on the cipher.
+   * Uses the existing logic from `LoginView.matchesUri` for both `CipherView` and `CipherListView`
+   */
+  static matchesUri = (
+    cipher: CipherViewLike,
+    targetUri: string,
+    equivalentDomains: Set<string>,
+    defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain,
+  ): boolean => {
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      return false;
+    }
+
+    if (!this.isCipherListView(cipher)) {
+      return cipher.login.matchesUri(targetUri, equivalentDomains, defaultUriMatch);
+    }
+
+    const login = this.getCipherViewLikeLogin(cipher);
+    if (!login?.uris?.length) {
+      return false;
+    }
+
+    const loginUriViews = login.uris
+      .filter((u) => !!u.uri)
+      .map((u) => {
+        const view = new LoginUriView();
+        view.match = u.match ?? defaultUriMatch;
+        view.uri = u.uri!; // above `filter` ensures `u.uri` is not null or undefined
+        return view;
+      });
+
+    return loginUriViews.some((uriView) =>
+      uriView.matchesUri(targetUri, equivalentDomains, defaultUriMatch),
+    );
+  };
+
+  /** @returns true when the `copyField` is populated on the given cipher. */
+  static hasCopiableValue = (cipher: CipherViewLike, copyField: string): boolean => {
+    // `CipherListView` instances do not contain the values to be copied, but rather a list of copiable fields.
+    // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
+    if (this.isCipherListView(cipher)) {
+      let _copyField = copyField;
+
+      if (_copyField === "username" && this.getType(cipher) === CipherType.Login) {
+        _copyField = "usernameLogin";
+      } else if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
+        _copyField = "usernameIdentity";
+      }
+
+      return cipher.copiableFields.includes(copyActionToCopiableFieldMap[_copyField]);
+    }
+
+    // When the full cipher is available, check the specific field
+    switch (copyField) {
+      case "username":
+        return !!cipher.login?.username || !!cipher.identity?.username;
+      case "password":
+        return !!cipher.login?.password;
+      case "totp":
+        return !!cipher.login?.totp;
+      case "cardNumber":
+        return !!cipher.card?.number;
+      case "securityCode":
+        return !!cipher.card?.code;
+      case "email":
+        return !!cipher.identity?.email;
+      case "phone":
+        return !!cipher.identity?.phone;
+      case "address":
+        return !!cipher.identity?.fullAddressForCopy;
+      case "secureNote":
+        return !!cipher.notes;
+      case "privateKey":
+        return !!cipher.sshKey?.privateKey;
+      case "publicKey":
+        return !!cipher.sshKey?.publicKey;
+      case "keyFingerprint":
+        return !!cipher.sshKey?.keyFingerprint;
+      default:
+        return false;
+    }
+  };
 }
+
+/**
+ * Mapping between the generic copy actions and the specific fields in a `CipherViewLike`.
+ */
+const copyActionToCopiableFieldMap: Record<string, CopiableCipherFields> = {
+  usernameLogin: "LoginUsername",
+  password: "LoginPassword",
+  totp: "LoginTotp",
+  cardNumber: "CardNumber",
+  securityCode: "CardSecurityCode",
+  usernameIdentity: "IdentityUsername",
+  email: "IdentityEmail",
+  phone: "IdentityPhone",
+  address: "IdentityAddress",
+  secureNote: "SecureNotes",
+  privateKey: "SshKey",
+  publicKey: "SshKey",
+  keyFingerprint: "SshKey",
+};

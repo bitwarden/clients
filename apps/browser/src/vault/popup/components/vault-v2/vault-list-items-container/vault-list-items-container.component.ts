@@ -29,7 +29,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -53,7 +56,7 @@ import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
-import { PopupCipherView } from "../../../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
 
@@ -82,6 +85,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+  protected CipherViewLikeUtils = CipherViewLikeUtils;
 
   @ViewChild(CdkVirtualScrollViewport, { static: false }) viewPort: CdkVirtualScrollViewport;
   @ViewChild(DisclosureComponent) disclosure: DisclosureComponent;
@@ -115,7 +119,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
-  ciphers = input<PopupCipherView[]>([]);
+  ciphers = input<PopupCipherViewLike[]>([]);
 
   /**
    * If true, we will group ciphers by type (Login, Card, Identity)
@@ -129,16 +133,16 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   cipherGroups$ = computed<
     {
       subHeaderKey?: string | null;
-      ciphers: PopupCipherView[];
+      ciphers: PopupCipherViewLike[];
     }[]
   >(() => {
-    const groups: { [key: string]: CipherView[] } = {};
+    const groups: { [key: string]: PopupCipherViewLike[] } = {};
 
     this.ciphers().forEach((cipher) => {
       let groupKey;
 
       if (this.groupByType()) {
-        switch (cipher.type) {
+        switch (CipherViewLikeUtils.getType(cipher)) {
           case CipherType.Card:
             groupKey = "cards";
             break;
@@ -204,10 +208,11 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  cipherItemTitleKey = (cipher: CipherView) =>
+  cipherItemTitleKey = (cipher: CipherViewLike) =>
     this.currentURIIsBlocked$.pipe(
       map((uriIsBlocked) => {
-        const hasUsername = cipher.login?.username != null;
+        const login = CipherViewLikeUtils.getCipherViewLikeLogin(cipher);
+        const hasUsername = login?.username != null;
         const key = this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle";
         return hasUsername ? `${key}WithField` : key;
       }),
@@ -256,12 +261,12 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    * @param cipher
    */
-  orgIconTooltip(cipher: PopupCipherView) {
-    if (cipher.collectionIds.length > 1) {
-      return this.i18nService.t("nCollections", cipher.collectionIds.length);
+  orgIconTooltip({ collectionIds, collections }: PopupCipherViewLike) {
+    if (collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", collectionIds.length);
     }
 
-    return cipher.collections[0]?.name;
+    return collections[0]?.name;
   }
 
   protected autofillShortcutTooltip = signal<string | undefined>(undefined);
@@ -299,7 +304,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async primaryActionOnSelect(cipher: CipherView) {
+  async primaryActionOnSelect(cipher: PopupCipherViewLike) {
     const isBlocked = await firstValueFrom(this.currentURIIsBlocked$);
 
     return this.primaryActionAutofill && !isBlocked
@@ -310,8 +315,8 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   /**
    * Launches the login cipher in a new browser tab.
    */
-  async launchCipher(cipher: CipherView) {
-    if (!cipher.canLaunch) {
+  async launchCipher(cipher: CipherViewLike) {
+    if (!CipherViewLikeUtils.canLaunch(cipher)) {
       return;
     }
 
@@ -324,18 +329,28 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.cipherService.updateLastLaunchedDate(cipher.id, activeUserId);
 
-    await BrowserApi.createNewTab(cipher.login.launchUri);
+    await BrowserApi.createNewTab(CipherViewLikeUtils.getLaunchUri(cipher));
 
     if (BrowserPopupUtils.inPopup(window)) {
       BrowserApi.closePopup(window);
     }
   }
 
-  async doAutofill(cipher: PopupCipherView) {
-    await this.vaultPopupAutofillService.doAutofill(cipher);
+  async doAutofill(cipher: PopupCipherViewLike) {
+    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher);
+      return;
+    }
+
+    // When only the `CipherListView` is available, fetch the full cipher details
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const _cipher = await this.cipherService.get(cipher.id, activeUserId);
+    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+
+    await this.vaultPopupAutofillService.doAutofill(cipherView);
   }
 
-  async onViewCipher(cipher: PopupCipherView) {
+  async onViewCipher(cipher: PopupCipherViewLike) {
     // We already have a view action in progress, don't start another
     if (this.viewCipherTimeout != null) {
       return;
@@ -345,7 +360,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     this.viewCipherTimeout = window.setTimeout(
       async () => {
         try {
-          if (cipher.decryptionFailure) {
+          if ("decryptionFailure" in cipher && cipher.decryptionFailure) {
             DecryptionFailureDialogComponent.open(this.dialogService, {
               cipherIds: [cipher.id as CipherId],
             });
@@ -364,7 +379,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
           this.viewCipherTimeout = null;
         }
       },
-      cipher.canLaunch ? 200 : 0,
+      CipherViewLikeUtils.canLaunch(cipher) ? 200 : 0,
     );
   }
 

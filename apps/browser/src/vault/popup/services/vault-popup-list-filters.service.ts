@@ -39,7 +39,10 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipSelectOption } from "@bitwarden/components";
+
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -210,43 +213,47 @@ export class VaultPopupListFiltersService {
   /**
    * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
    */
-  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = this.filters$.pipe(
-    map(
-      (filters) => (ciphers: CipherView[]) =>
-        ciphers.filter((cipher) => {
-          // Vault popup lists never shows deleted ciphers
-          if (cipher.isDeleted) {
-            return false;
-          }
-
-          if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
-            return false;
-          }
-
-          if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
-            return false;
-          }
-
-          if (filters.folder && cipher.folderId !== filters.folder.id) {
-            return false;
-          }
-
-          const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-          if (isMyVault) {
-            if (cipher.organizationId !== null) {
+  filterFunction$: Observable<(ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[]> =
+    this.filters$.pipe(
+      map(
+        (filters) => (ciphers: PopupCipherViewLike[]) =>
+          ciphers.filter((cipher) => {
+            // Vault popup lists never shows deleted ciphers
+            if (CipherViewLikeUtils.isDeleted(cipher)) {
               return false;
             }
-          } else if (filters.organization) {
-            if (cipher.organizationId !== filters.organization.id) {
+
+            if (
+              filters.cipherType !== null &&
+              CipherViewLikeUtils.getType(cipher) !== filters.cipherType
+            ) {
               return false;
             }
-          }
 
-          return true;
-        }),
-    ),
-  );
+            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
+              return false;
+            }
+
+            if (filters.folder && cipher.folderId !== filters.folder.id) {
+              return false;
+            }
+
+            const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+            if (isMyVault) {
+              if (cipher.organizationId !== null) {
+                return false;
+              }
+            } else if (filters.organization) {
+              if (cipher.organizationId !== filters.organization.id) {
+                return false;
+              }
+            }
+
+            return true;
+          }),
+      ),
+    );
 
   /**
    * All available cipher types

@@ -21,6 +21,7 @@ import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export type EncryptionContext = {
   cipher: Cipher;
@@ -67,12 +68,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
   ): Promise<CipherView[]>;
-  abstract filterCiphersForUrl(
-    ciphers: CipherView[],
+  abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
+    ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
-  ): Promise<CipherView[]>;
+  ): Promise<C[]>;
   abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
@@ -200,9 +201,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin: boolean,
   ): Promise<CipherData>;
-  abstract sortCiphersByLastUsed(a: CipherView, b: CipherView): number;
-  abstract sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number;
-  abstract getLocaleSortingFunction(): (a: CipherView, b: CipherView) => number;
+  abstract sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number;
+  abstract sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number;
+  abstract getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number;
   abstract softDelete(id: string | string[], userId: UserId): Promise<any>;
   abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
