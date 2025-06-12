@@ -115,7 +115,7 @@ export class ItemMoreOptionsComponent {
   }
 
   get decryptionFailure() {
-    return CipherViewLikeUtils.isCipherListView(this.cipher);
+    return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
   /**
