@@ -8,8 +8,14 @@
 import AuthenticationServices
 import os
 
+struct Localizations {
+    static let passkeyConfigurationMessage = "Setting up Bitwarden for passkey authentication..."
+}
+
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger: Logger
+    
+    @IBOutlet weak var statusLabel: NSTextField!
     
     // There is something a bit strange about the initialization/deinitialization in this class.
     // Sometimes deinit won't be called after a request has successfully finished,
@@ -148,6 +154,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     override func prepareInterfaceForExtensionConfiguration() {
         // Show the configuration UI
         self.view.isHidden = false
+        
+        // Set the localized message
+        statusLabel.stringValue = Localizations.passkeyConfigurationMessage
         
         // Send the native status request
         client.sendNativeStatus(key: "request-sync", value: "")
