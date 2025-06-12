@@ -249,25 +249,34 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
     if (isVaultLocked) {
-      return render(
-        NotificationContainer({
-          ...notificationBarIframeInitData,
-          headerMessage,
-          type: resolvedType,
-          notificationTestId,
-          theme: resolvedTheme,
-          personalVaultIsAllowed: !personalVaultDisallowed,
-          handleCloseNotification,
-          handleSaveAction: (e) => {
-            sendSaveCipherMessage(true);
+      const notificationConfig = {
+        ...notificationBarIframeInitData,
+        headerMessage,
+        type: resolvedType,
+        notificationTestId,
+        theme: resolvedTheme,
+        personalVaultIsAllowed: !personalVaultDisallowed,
+        handleCloseNotification,
+        handleEditOrUpdateAction,
+        i18n,
+      };
 
-            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
-          },
-          handleEditOrUpdateAction,
-          i18n,
-        }),
-        document.body,
-      );
+      const handleSaveAction = () => {
+        sendSaveCipherMessage(true);
+
+        render(
+          NotificationContainer({
+            ...notificationConfig,
+            handleSaveAction: () => {},
+            isLoading: true,
+          }),
+          document.body,
+        );
+      };
+
+      const UnlockNotification = NotificationContainer({ ...notificationConfig, handleSaveAction });
+
+      return render(UnlockNotification, document.body);
     }
 
     // Handle AtRiskPasswordNotification render

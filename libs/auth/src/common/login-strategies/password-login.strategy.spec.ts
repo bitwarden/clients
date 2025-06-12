@@ -202,7 +202,10 @@ describe("PasswordLoginStrategy", () => {
       localHashedPassword,
       userId,
     );
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
   });
