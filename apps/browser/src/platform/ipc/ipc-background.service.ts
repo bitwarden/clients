@@ -69,7 +69,9 @@ export class IpcBackgroundService extends IpcService {
           ),
         );
       });
+
       await super.initWithClient(new IpcClient(this.communicationBackend));
+
       if (this.platformUtilsService.isDev()) {
         await ipcRegisterDiscoverHandler(this.client, {
           version: await this.platformUtilsService.getApplicationVersion(),
