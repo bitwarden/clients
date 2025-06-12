@@ -76,7 +76,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       newMasterKey,
       userId,
     );
-    if (!masterKeyEncryptedUserKey || !masterKeyEncryptedUserKey[1].encryptedString) {
+    if (masterKeyEncryptedUserKey == null || !masterKeyEncryptedUserKey[1].encryptedString) {
       throw new Error("masterKeyEncryptedUserKey not found. Could not set password.");
     }
 
@@ -116,6 +116,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
       }
 
+      if (keyPair == null) {
+        throw new Error("keyPair not found. Could not set password.");
+      }
       if (!keyPair[1].encryptedString) {
         throw new Error("encrypted private key not found. Could not set password.");
       }
@@ -221,9 +224,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       orgPublicKey,
     );
 
-    if (!orgPublicKeyEncryptedUserKey.encryptedString) {
+    if (orgPublicKeyEncryptedUserKey == null || !orgPublicKeyEncryptedUserKey.encryptedString) {
       throw new Error(
-        "orgPublicKeyEncryptedUserKey.encryptedString not found. Could not handle reset password auto enroll.",
+        "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
       );
     }
 
