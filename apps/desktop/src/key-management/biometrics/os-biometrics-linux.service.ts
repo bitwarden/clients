@@ -46,7 +46,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
-  private clientKeyHalves = new Map<string, Uint8Array | null>();
+  private clientKeyHalves = new Map<UserId Uint8Array | null>();
 
   async setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     const clientKeyPartB64 = Utils.fromBufferToB64(
