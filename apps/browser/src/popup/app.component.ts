@@ -49,7 +49,7 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   styles: [],
   animations: [routerTransition],
   template: `
-    @if (showSdkWarning) {
+    @if (showSdkWarning | async) {
       <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
         <bit-callout type="danger">
           {{ "wasmNotSupported" | i18n }}
@@ -84,7 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Show a warning if the SDK is not available.
   protected showSdkWarning = this.sdkService.client$.pipe(
-    map(() => of(false)),
+    map(() => false),
     catchError(() => of(true)),
   );
 
