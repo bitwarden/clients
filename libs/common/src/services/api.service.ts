@@ -1860,6 +1860,9 @@ export class ApiService implements ApiServiceAbstraction {
     if (authed) {
       const authHeader = await this.getActiveBearerToken();
       headers.set("Authorization", "Bearer " + authHeader);
+    } else {
+      const appId = await this.appIdService.getAppId();
+      headers.set("Device-Identifier", appId);
     }
 
     if (body != null) {
