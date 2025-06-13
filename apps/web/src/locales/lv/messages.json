@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Divpakāpju pieteikšanās var pastāvīgi liegt piekļuvi Bitwarden kontam. Atkopšanas kods ļauj piekļūt tam gadījumā, kad vairs nav iespējams izmantot ierasto divpakāpju pieteikšanās nodrošinātāju (piemēram, ir pazaudēta ierīce). Bitwarden atbalsts nevarēs palīdzēt, ja tiks pazaudēta piekļuve kontam. Ir ieteicams, ka atkopšanas kods tiek pierakstīts vai izdrukāts un turēts drošā vietā."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Noņemt karšu vienumu veidu"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Neļaut dalībniekiem izveidot karšu vienumu veidus."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Vienreizējas izmantošanas atkopes kodu var izmantot, lai izslēgtu divpakāpju pieteikšanos gadījumā, ja tiek zaudēta piekļuve savam divpakāpju pieteikšanās nodrošinātājam. Bitwarden iesaka pierakstīt atkopes kodu un glabāt to drošā vietā."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Šifrēšanas atslēgas atjaunināšana nav iespējama"
-  },
   "editFieldLabel": {
     "message": "Labot $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Šifrēšanas atslēgas atjaunināšanas laikā mapes nevarēja atšifrēt. Lai turpinātu atjaunināšanu, mapes ir jāizdzēš. Glabātavas vienumi netiks izdzēsti, ja turpināsi."
-  },
-  "keyUpdated": {
-    "message": "Atslēga atjaunināta"
-  },
-  "updateEncryptionKey": {
-    "message": "Atjaunināt šifrēšanas atslēgu"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Mēs esam mainījuši šifrēšanas veidu, lai nodrošinātu labāku drošību. Savu šifrēšanas atslēgu var atjaunināt tagad, zemāk ievadot savu galveno paroli."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Pēc šifrēšanas atslēgas atjaunināšanas ir nepieciešams atteikties un tad pieteikties visās Bitwarden lietotnēs, kas pašreiz tiek izmantotas (piemēram, tālruņa lietotnē vai pārlūku paplašinājumā). Ja tas netiks darīts (tā tiek lejupielādēta jaunā šifrēšanas atslēga), dati var tikt bojāti. Tiks veikts automātisks atteikšanās mēģinājums, tomēr tas var notikt ar aizkavi."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Jebkuras konta ierobežotās izguves, kas ir saglabātas, kļūs nederīgas."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Mantota šifrēšana vairs netiek atbalstīta. Lūgums sazināties ar atbalstu, lai atkoptu savu kontu."
   },
   "subscription": {
     "message": "Abonements"
@@ -8619,14 +8613,6 @@
   "deviceTrusted": {
     "message": "Ierīce ir uzticama"
   },
-  "sendsNoItemsTitle": {
-    "message": "Nav spēkā esošu Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Send ir izmantojams, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "inviteUsers": {
     "message": "Uzaicināt lietotājus"
   },
@@ -10652,7 +10638,7 @@
     "message": "Lūgums klikšķināt pogu \"Apmaksāt ar PayPal, lai pievienotu savu maksājumu veidu."
   },
   "revokeActiveSponsorshipConfirmation": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "message": "Ja noņemsi $EMAIL$, beigsies šī ģimeņu plāna pabalstītājdarbība. Vieta apvienībā kļūs pieejama dalībniekiem vai pabalstītājdarbībai pēc atbalstītās apvienības atjaunošanas datuma $DATE$.",
     "placeholders": {
       "email": {
         "content": "$1",

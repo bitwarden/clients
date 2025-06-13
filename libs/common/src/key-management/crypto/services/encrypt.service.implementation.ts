@@ -26,6 +26,7 @@ import {
   getFeatureFlagValue,
 } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {
@@ -242,6 +243,7 @@ export class EncryptServiceImplementation implements EncryptService {
       if (encString == null || encString.encryptedString == null) {
         throw new Error("encString is null or undefined");
       }
+      await SdkLoadService.Ready;
       return PureCrypto.symmetric_decrypt(encString.encryptedString, key.toEncoded());
     }
     this.logService.debug("decrypting with javascript");
@@ -324,6 +326,7 @@ export class EncryptServiceImplementation implements EncryptService {
         encThing.dataBytes,
         encThing.macBytes,
       ).buffer;
+      await SdkLoadService.Ready;
       return PureCrypto.symmetric_decrypt_array_buffer(buffer, key.toEncoded());
     }
     this.logService.debug("[EncryptService] Decrypting bytes with javascript");

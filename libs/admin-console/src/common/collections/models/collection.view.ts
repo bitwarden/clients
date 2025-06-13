@@ -6,7 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { View } from "@bitwarden/common/models/view/view";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import { Collection } from "./collection";
+import { Collection, CollectionType } from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 
 export const NestingDelimiter = "/";
@@ -21,6 +21,7 @@ export class CollectionView implements View, ITreeNodeObject {
   hidePasswords: boolean = null;
   manage: boolean = null;
   assigned: boolean = null;
+  type: CollectionType = null;
 
   constructor(c?: Collection | CollectionAccessDetailsResponse) {
     if (!c) {
@@ -39,6 +40,7 @@ export class CollectionView implements View, ITreeNodeObject {
     if (c instanceof CollectionAccessDetailsResponse) {
       this.assigned = c.assigned;
     }
+    this.type = c.type;
   }
 
   canEditItems(org: Organization): boolean {

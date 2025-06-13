@@ -1,5 +1,5 @@
-// This test skips all the initilization of the background script and just
-// focuses on making sure we don't accidently delete the initilization of
+// This test skips all the initialization of the background script and just
+// focuses on making sure we don't accidentally delete the initialization of
 // background vault syncing. This has happened before!
 describe("MainBackground sync task scheduling", () => {
   it("includes code to schedule the sync interval task", () => {

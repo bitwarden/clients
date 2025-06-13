@@ -14,7 +14,6 @@ import { SharedModule } from "../../../shared";
 
 @Component({
   templateUrl: "deauthorize-sessions.component.html",
-  standalone: true,
   imports: [SharedModule, UserVerificationFormInputComponent],
 })
 export class DeauthorizeSessionsComponent {

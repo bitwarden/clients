@@ -1,6 +1,9 @@
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { SecurityTask } from "@bitwarden/common/vault/tasks";
 
 import { CollectionView } from "../../content/components/common-types";
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
@@ -32,10 +35,17 @@ interface AddUnlockVaultQueueMessage extends NotificationQueueMessage {
   type: "unlock";
 }
 
+interface AtRiskPasswordQueueMessage extends NotificationQueueMessage {
+  type: "at-risk-password";
+  organizationName: string;
+  passwordChangeUri?: string;
+}
+
 type NotificationQueueMessageItem =
   | AddLoginQueueMessage
   | AddChangePasswordQueueMessage
-  | AddUnlockVaultQueueMessage;
+  | AddUnlockVaultQueueMessage
+  | AtRiskPasswordQueueMessage;
 
 type LockedVaultPendingNotificationsData = {
   commandToRetry: {
@@ -48,6 +58,13 @@ type LockedVaultPendingNotificationsData = {
     sender: chrome.runtime.MessageSender;
   };
   target: string;
+};
+
+type AtRiskPasswordNotificationsData = {
+  activeUserId: UserId;
+  cipher: CipherView;
+  securityTask: SecurityTask;
+  uri: string;
 };
 
 type AdjustNotificationBarMessageData = {
@@ -76,7 +93,8 @@ type NotificationBackgroundExtensionMessage = {
   data?: Partial<LockedVaultPendingNotificationsData> &
     Partial<AdjustNotificationBarMessageData> &
     Partial<ChangePasswordMessageData> &
-    Partial<UnlockVaultMessageData>;
+    Partial<UnlockVaultMessageData> &
+    Partial<AtRiskPasswordNotificationsData>;
   login?: AddLoginMessageData;
   folder?: string;
   edit?: boolean;
@@ -101,10 +119,20 @@ type NotificationBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<CollectionView[]>;
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgOpenAtRisksPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgOpenAtRiskPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgTriggerAddLoginNotification: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
+  bgTriggerChangedPasswordNotification: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
+  bgTriggerAtRiskPasswordNotification: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<boolean>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   bgOpenAddEditVaultItemPopout: ({

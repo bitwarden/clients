@@ -22,7 +22,6 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 import { ChangePasswordService } from "./change-password.service.abstraction";
 
 @Component({
-  standalone: true,
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
   imports: [InputPasswordComponent, I18nPipe],

@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Maximálna veľkosť súboru je 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Vyžaduje sa migrácia šifrovacieho kľúča. Na aktualizáciu šifrovacieho kľúča sa prihláste cez webový trezor."
+  "legacyEncryptionUnsupported": {
+    "message": "Staršie šifrovanie už nie je podporované. Ak chcete obnoviť svoj účet, obráťte sa na podporu."
   },
   "editedFolder": {
     "message": "Priečinok upravený"
