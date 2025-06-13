@@ -3,6 +3,7 @@
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
+import { map, shareReplay } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -22,6 +23,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
@@ -35,6 +38,18 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
+  menuItems$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types from the default CIPHER_MENU_ITEMS array
+      CIPHER_MENU_ITEMS.filter(
+        (typeOption) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === typeOption.type,
+          ),
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   constructor(
     cipherService: CipherService,
@@ -59,6 +74,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     cipherAuthorizationService: CipherAuthorizationService,
     sdkService: SdkService,
     sshImportPromptService: SshImportPromptService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(
       cipherService,
