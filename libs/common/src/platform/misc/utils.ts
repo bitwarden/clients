@@ -6,7 +6,7 @@ import * as path from "path";
 import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
-import { Merge } from "type-fest";
+import { Merge, NonNegative } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -620,6 +620,21 @@ export class Utils {
     }
 
     return null;
+  }
+
+  static chunkArray<T>(a: T[], chunkSize: NonNegative<number>): T[][] {
+    if (chunkSize <= 0) {
+      throw new Error("Chunk size must be greater than 0");
+    }
+    if (a == null || a.length === 0) {
+      return [];
+    }
+
+    const res = [];
+    for (let i = 0; i < a.length; i += chunkSize) {
+      res.push(a.slice(i, i + chunkSize));
+    }
+    return res;
   }
 }
 
