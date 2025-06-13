@@ -2153,8 +2153,8 @@
   "setYourPinCode": {
     "message": "Установите PIN-код для разблокировки Bitwarden. Настройки PIN-кода будут сброшены, если вы когда-либо полностью выйдете из приложения."
   },
-  "setYourPinCode1": {
-    "message": "Ваш PIN-код будет использоваться для разблокировки Bitwarden вместо мастер-пароля. PIN-код будет сброшен, если вы выйдете из Bitwarden."
+  "setPinCode": {
+    "message": "Вы можете использовать этот PIN-код для разблокировки Bitwarden. PIN-код будет сброшен, если вы когда-либо полностью выйдете из приложения."
   },
   "pinRequired": {
     "message": "Необходим PIN-код."
@@ -2515,6 +2515,10 @@
   "change": {
     "message": "Изменить"
   },
+  "changePassword": {
+    "message": "Изменить пароль",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Изменить пароль - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2527,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Пароль, подверженный риску"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
@@ -2557,6 +2564,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Ваш пароль для этого сайта подвержен риску. Организация $ORGANIZATION$ попросила вас изменить его.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "Организация $ORGANIZATION$ просит вас изменить этот пароль, поскольку он подвержен риску. Перейдите в настройки аккаунта для изменения пароля.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Проверить и изменить один пароль, подверженный риску"

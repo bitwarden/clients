@@ -303,7 +303,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           .map((r) => r.cipherType);
         const toExclude = [...excludeTypes, ...restrictedByAll];
         return this.allTypeFilters.filter(
-          (f) => typeof f.type !== "string" && !toExclude.includes(f.type),
+          (f) => typeof f.type === "string" || !toExclude.includes(f.type),
         );
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
