@@ -7,7 +7,7 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { sendExtensionMessage, setElementStyles } from "../../../utils";
+import { matchAllowedColorSchemes, sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   NotificationsExtensionMessage,
   OverlayNotificationsContentService as OverlayNotificationsContentServiceInterface,
@@ -175,13 +175,18 @@ export class OverlayNotificationsContentService
    * @param initData - The initialization data for the notification bar.
    */
   private createNotificationBarIframeElement(initData: NotificationBarIframeInitData) {
+    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
+      ?.content;
+    const allowedColorScheme = matchAllowedColorSchemes(content);
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
+    this.notificationBarIframeElement.src = chrome.runtime.getURL(
+      `notification/bar.html?colorScheme=${encodeURIComponent(allowedColorScheme)}`,
+    );
     setElementStyles(
       this.notificationBarIframeElement,
       {
