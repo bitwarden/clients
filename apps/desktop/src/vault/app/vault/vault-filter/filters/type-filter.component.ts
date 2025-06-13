@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { map } from "rxjs";
+import { map, shareReplay } from "rxjs";
 
 import { TypeFilterComponent as BaseTypeFilterComponent } from "@bitwarden/angular/vault/vault-filter/components/type-filter.component";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -23,6 +23,7 @@ export class TypeFilterComponent extends BaseTypeFilterComponent {
           ),
       ),
     ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   constructor(private restrictedItemTypesService: RestrictedItemTypesService) {
