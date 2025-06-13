@@ -10,6 +10,7 @@ import { Subject, firstValueFrom } from "rxjs";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
@@ -187,14 +188,19 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-
+    const encryptService = new EncryptServiceImplementation(
+      this.mainCryptoFunctionService,
+      this.logService,
+      true,
+    );
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
       this.logService,
-      this.messagingService,
       process.platform,
       biometricStateService,
+      encryptService,
+      this.mainCryptoFunctionService,
     );
 
     this.windowMain = new WindowMain(
