@@ -116,18 +116,22 @@ class MyWebPushConnector implements WebPushConnector {
     private readonly pushChangeEvent$: Observable<PushSubscriptionChangeEvent>,
   ) {
     this.notifications$ = this.getOrCreateSubscription$(this.vapidPublicKey).pipe(
-      concatMap((subscription) => {
-        return defer(() => {
-          if (subscription == null) {
-            throw new Error("Expected a non-null subscription.");
-          }
-          return this.webPushApiService.putSubscription(subscription.toJSON());
-        }).pipe(
-          switchMap(() => this.pushEvent$),
-          map((e) => {
-            return new NotificationResponse(e.data.json().data);
-          }),
-        );
+      concatMap(async ([isExistingSubscription, subscription]) => {
+        if (subscription == null) {
+          throw new Error("Expected a non-null subscription.");
+        }
+
+        // If this is an existing subscription we don't need to push it to our server
+        // we can just start listening to messages.
+        if (isExistingSubscription) {
+          return;
+        }
+
+        await this.webPushApiService.putSubscription(subscription.toJSON());
+      }),
+      switchMap(() => this.pushEvent$),
+      map((e) => {
+        return new NotificationResponse(e.data.json().data);
       }),
     );
   }
@@ -146,7 +150,7 @@ class MyWebPushConnector implements WebPushConnector {
           await this.serviceWorkerRegistration.pushManager.getSubscription();
 
         if (existingSubscription == null) {
-          return await this.pushManagerSubscribe(key);
+          return [false, await this.pushManagerSubscribe(key)] as const;
         }
 
         const subscriptionKey = Utils.fromBufferToUrlB64(
@@ -159,12 +163,12 @@ class MyWebPushConnector implements WebPushConnector {
         if (subscriptionKey !== key) {
           // There is a subscription, but it's not for the current server, unsubscribe and then make a new one
           await existingSubscription.unsubscribe();
-          return await this.pushManagerSubscribe(key);
+          return [false, await this.pushManagerSubscribe(key)] as const;
         }
 
-        return existingSubscription;
+        return [true, existingSubscription] as const;
       }),
-      this.pushChangeEvent$.pipe(map((event) => event.newSubscription)),
+      this.pushChangeEvent$.pipe(map((event) => [false, event.newSubscription] as const)),
     );
   }
 }
