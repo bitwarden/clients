@@ -19,7 +19,7 @@ export interface OsBiometricService {
   /**
    * Starts automatic biometric setup, which places the required configuration files / changes the required settings.
    */
-  runSetup: () => Promise<void>;
+  runSetup: Promise<void>;
   authenticateBiometric(): Promise<boolean>;
   getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null>;
   setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
