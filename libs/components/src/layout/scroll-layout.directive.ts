@@ -1,6 +1,12 @@
 import { Directionality } from "@angular/cdk/bidi";
-import { CdkVirtualScrollable, ScrollDispatcher, VIRTUAL_SCROLLABLE } from "@angular/cdk/scrolling";
 import {
+  CdkVirtualScrollable,
+  CdkVirtualScrollViewport,
+  ScrollDispatcher,
+  VIRTUAL_SCROLLABLE,
+} from "@angular/cdk/scrolling";
+import {
+  AfterViewChecked,
   Directive,
   ElementRef,
   Injectable,
@@ -9,26 +15,18 @@ import {
   OnInit,
   Optional,
   inject,
+  signal,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { filter, fromEvent, Observable, switchMap } from "rxjs";
 
 /**
  * A service is needed because we can't inject a directive defined in the template of a parent component. The parent's template is initialized after projected content.
  **/
 @Injectable({ providedIn: "root" })
 export class ScrollLayoutService {
-  private _scrollableRef: ElementRef<HTMLElement> | null = null;
-
-  get scrollableRef(): ElementRef<HTMLElement> | null {
-    if (!this._scrollableRef) {
-      // eslint-disable-next-line no-console
-      console.error("No scrollable ref provided by ScrollLayoutHostDirective.");
-    }
-    return this._scrollableRef;
-  }
-
-  set scrollableRef(value: ElementRef<HTMLElement> | null) {
-    this._scrollableRef = value;
-  }
+  scrollableRef = signal<ElementRef<HTMLElement> | null>(null);
+  scrollableRef$ = toObservable(this.scrollableRef);
 }
 
 /**
@@ -48,11 +46,11 @@ export class ScrollLayoutHostDirective implements OnDestroy {
   private service = inject(ScrollLayoutService);
 
   constructor() {
-    this.service.scrollableRef = this.ref as ElementRef<HTMLElement>;
+    this.service.scrollableRef.set(this.ref as ElementRef<HTMLElement>);
   }
 
   ngOnDestroy(): void {
-    this.service.scrollableRef = null;
+    this.service.scrollableRef.set(null);
   }
 }
 
@@ -78,16 +76,35 @@ export class ScrollLayoutDirective extends CdkVirtualScrollable implements OnIni
     super(service.scrollableRef!, scrollDispatcher, ngZone, dir);
   }
 
+  override elementScrolled(): Observable<Event> {
+    return this.service.scrollableRef$.pipe(
+      filter((ref) => ref !== null),
+      switchMap((ref) => fromEvent(ref.nativeElement, "scroll")),
+    );
+  }
+
   override getElementRef(): ElementRef<HTMLElement> {
-    return this.service.scrollableRef!;
+    return this.service.scrollableRef()!;
   }
 
   override measureBoundingClientRectWithScrollOffset(
     from: "left" | "top" | "right" | "bottom",
   ): number {
     return (
-      this.service.scrollableRef!.nativeElement.getBoundingClientRect()[from] -
+      this.service.scrollableRef()!.nativeElement.getBoundingClientRect()[from] -
       this.measureScrollOffset(from)
     );
+  }
+}
+
+@Directive({
+  selector: "cdk-virtual-scroll-viewport[bitScrollLayout]",
+  standalone: true,
+})
+export class ScrollViewportFix implements AfterViewChecked {
+  private viewport = inject(CdkVirtualScrollViewport);
+
+  ngAfterViewChecked(): void {
+    this.viewport.checkViewportSize();
   }
 }
