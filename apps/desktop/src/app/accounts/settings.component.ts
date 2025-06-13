@@ -232,7 +232,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
+    this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
 
     if (activeAccount == null || activeAccount.id == null) {
       return;
@@ -875,30 +875,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return "unlockWithWindowsHello";
       case DeviceType.LinuxDesktop:
         return "unlockWithPolkit";
-      default:
-        throw new Error("Unsupported platform");
-    }
-  }
-
-  get autoPromptBiometricsText() {
-    switch (this.platformUtilsService.getDevice()) {
-      case DeviceType.MacOsDesktop:
-        return "autoPromptTouchId";
-      case DeviceType.WindowsDesktop:
-        return "autoPromptWindowsHello";
-      case DeviceType.LinuxDesktop:
-        return "autoPromptPolkit";
-      default:
-        throw new Error("Unsupported platform");
-    }
-  }
-
-  get additionalBiometricSettingsText() {
-    switch (this.platformUtilsService.getDevice()) {
-      case DeviceType.MacOsDesktop:
-        return "additionalTouchIdSettings";
-      case DeviceType.WindowsDesktop:
-        return "additionalWindowsHelloSettings";
       default:
         throw new Error("Unsupported platform");
     }

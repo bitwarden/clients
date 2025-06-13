@@ -126,13 +126,17 @@
                     {{ biometricText | i18n }}
                   </label>
                 </div>
-                <small class="help-block" *ngIf="this.form.value.biometric && !this.isLinux">{{
-                  additionalBiometricSettingsText | i18n
-                }}</small>
+                <small
+                  class="help-block"
+                  *ngIf="this.form.value.biometric && !this.isLinux && !this.isWindows"
+                  >{{ "additionalTouchIdSettings" | i18n }}</small
+                >
               </div>
               <div
                 class="form-group"
-                *ngIf="supportsBiometric && this.form.value.biometric && !this.isLinux"
+                *ngIf="
+                  supportsBiometric && this.form.value.biometric && !this.isLinux && !this.isWindows
+                "
               >
                 <div class="checkbox form-group-child">
                   <label for="autoPromptBiometrics">
@@ -142,7 +146,7 @@
                       formControlName="autoPromptBiometrics"
                       (change)="updateAutoPromptBiometrics()"
                     />
-                    {{ autoPromptBiometricsText | i18n }}
+                    {{ "autoPromptTouchId" | i18n }}
                   </label>
                 </div>
               </div>
@@ -152,7 +156,8 @@
                   supportsBiometric &&
                   this.form.value.biometric &&
                   (userHasMasterPassword || (this.form.value.pin && userHasPinSet)) &&
-                  !this.isLinux
+                  !this.isLinux &&
+                  !this.isWindows
                 "
               >
                 <div class="checkbox form-group-child">
@@ -170,9 +175,6 @@
                     }
                   </label>
                 </div>
-                <small class="help-block form-group-child" *ngIf="isWindows">{{
-                  "recommendedForSecurity" | i18n
-                }}</small>
               </div>
             </ng-container>
           </div>
