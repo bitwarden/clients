@@ -1,19 +1,11 @@
-import { Directionality } from "@angular/cdk/bidi";
+import { CdkVirtualScrollable, VIRTUAL_SCROLLABLE } from "@angular/cdk/scrolling";
 import {
-  CdkVirtualScrollable,
-  CdkVirtualScrollViewport,
-  ScrollDispatcher,
-  VIRTUAL_SCROLLABLE,
-} from "@angular/cdk/scrolling";
-import {
-  AfterViewChecked,
   Directive,
   ElementRef,
   Injectable,
-  NgZone,
   OnDestroy,
   OnInit,
-  Optional,
+  effect,
   inject,
   signal,
 } from "@angular/core";
@@ -67,13 +59,21 @@ export class ScrollLayoutHostDirective implements OnDestroy {
   providers: [{ provide: VIRTUAL_SCROLLABLE, useExisting: ScrollLayoutDirective }],
 })
 export class ScrollLayoutDirective extends CdkVirtualScrollable implements OnInit {
-  constructor(
-    scrollDispatcher: ScrollDispatcher,
-    ngZone: NgZone,
-    @Optional() dir: Directionality,
-    private service: ScrollLayoutService,
-  ) {
-    super(service.scrollableRef!, scrollDispatcher, ngZone, dir);
+  private service = inject(ScrollLayoutService);
+
+  constructor() {
+    super();
+
+    effect(() => {
+      const scrollableRef = this.service.scrollableRef();
+      if (!scrollableRef) {
+        // eslint-disable-next-line no-console
+        console.error("ScrollLayoutDirective can't find scroll host");
+        return;
+      }
+
+      this.elementRef = scrollableRef;
+    });
   }
 
   override elementScrolled(): Observable<Event> {
@@ -94,17 +94,5 @@ export class ScrollLayoutDirective extends CdkVirtualScrollable implements OnIni
       this.service.scrollableRef()!.nativeElement.getBoundingClientRect()[from] -
       this.measureScrollOffset(from)
     );
-  }
-}
-
-@Directive({
-  selector: "cdk-virtual-scroll-viewport[bitScrollLayout]",
-  standalone: true,
-})
-export class ScrollViewportFix implements AfterViewChecked {
-  private viewport = inject(CdkVirtualScrollViewport);
-
-  ngAfterViewChecked(): void {
-    this.viewport.checkViewportSize();
   }
 }

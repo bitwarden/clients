@@ -24,7 +24,6 @@ import {
   MultiSelectModule,
   ProgressModule,
   RadioButtonModule,
-  ScrollViewportFix,
   SectionComponent,
   SelectModule,
   TableModule,
@@ -75,8 +74,6 @@ import {
     ToggleGroupModule,
     TypographyModule,
 
-    ScrollViewportFix,
-
     // Web specific
   ],
   exports: [
@@ -112,7 +109,6 @@ import {
     TabsModule,
     ToggleGroupModule,
     TypographyModule,
-    ScrollViewportFix,
 
     // Web specific
   ],
