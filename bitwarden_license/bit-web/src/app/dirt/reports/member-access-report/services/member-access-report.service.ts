@@ -42,6 +42,8 @@ export class MemberAccessReportService {
       itemsCount: userData.totalItemCount,
       userGuid: userData.userGuid,
       usesKeyConnector: userData.usesKeyConnector,
+      twoFactorEnabled: userData.twoFactorEnabled,
+      accountRecoveryEnabled: userData.accountRecoveryEnabled,
     }));
     return memberAccessReportViewCollection;
   }
