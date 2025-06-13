@@ -1,3 +1,5 @@
+// FIXME (PM-22628): angular imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 
