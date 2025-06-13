@@ -4,8 +4,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -53,7 +51,6 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
   private permissionPriority = [
@@ -65,10 +62,7 @@ export class VaultCipherRowComponent implements OnInit {
   ];
   protected organization?: Organization;
 
-  constructor(
-    private i18nService: I18nService,
-    private configService: ConfigService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   /**
    * Lifecycle hook for component initialization.
@@ -172,7 +166,7 @@ export class VaultCipherRowComponent implements OnInit {
       this.showAttachments ||
       this.showClone ||
       this.canEditCipher ||
-      this.cipher.isDeleted
+      (this.cipher.isDeleted && this.canRestoreCipher)
     );
   }
 

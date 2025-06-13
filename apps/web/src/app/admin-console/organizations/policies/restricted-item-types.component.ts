@@ -7,7 +7,7 @@ import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 export class RestrictedItemTypesPolicy extends BasePolicy {
   name = "restrictedItemTypesPolicy";
   description = "restrictedItemTypesPolicyDesc";
-  type = PolicyType.RestrictedItemTypesPolicy;
+  type = PolicyType.RestrictedItemTypes;
   component = RestrictedItemTypesPolicyComponent;
 }
 
