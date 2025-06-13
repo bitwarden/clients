@@ -15,7 +15,7 @@ import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-u
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 export class ExtensionLockComponentService implements LockComponentService {

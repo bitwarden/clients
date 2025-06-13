@@ -18,7 +18,7 @@ jest.mock("../../platform/popup/browser-popup-utils", () => ({
 }));
 
 import { openTwoFactorAuthEmailPopout } from "../../auth/popup/utils/auth-popout-window";
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 
 import { ExtensionTwoFactorAuthEmailComponentService } from "./extension-two-factor-auth-email-component.service";
 

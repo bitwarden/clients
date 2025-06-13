@@ -18,7 +18,7 @@ import {
 import { UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { ExtensionLockComponentService } from "./extension-lock-component.service";
