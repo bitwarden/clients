@@ -25,12 +25,14 @@ const defaultRoutes: RedirectRoutes = {
 };
 
 /**
- * Guard that consolidates all redirection logic, should be applied to root route.
+ * Redirects the user to the appropriate route based on their `AuthenticationStatus`.
+ * This guard should be applied to the root route.
  *
  * TODO: This should return Observable<boolean | UrlTree> once we can get rid of all the promises
  */
 export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActivateFn {
   const routes = { ...defaultRoutes, ...overrides };
+
   return async (route) => {
     const authService = inject(AuthService);
     const keyService = inject(KeyService);
@@ -41,16 +43,21 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
 
     const authStatus = await authService.getAuthStatus();
 
+    // Logged Out
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return router.createUrlTree([routes.loggedOut], { queryParams: route.queryParams });
     }
 
+    // Unlocked
     if (authStatus === AuthenticationStatus.Unlocked) {
       return router.createUrlTree([routes.loggedIn], { queryParams: route.queryParams });
     }
 
-    // If locked, TDE is enabled, and the user hasn't decrypted yet, then redirect to the
-    // login decryption options component.
+    // Locked: TDE Locked State
+    //  - If user meets all 3 of the following conditions:
+    //    1. Auth status is Locked
+    //    2. TDE is enabled
+    //    3. User has never had a user key (has not decrypted yet)
     const tdeEnabled = await firstValueFrom(deviceTrustService.supportsDeviceTrust$);
     const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
     const everHadUserKey = await firstValueFrom(keyService.everHadUserKey$(userId));
@@ -64,6 +71,7 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
       return router.createUrlTree([routes.notDecrypted], { queryParams: route.queryParams });
     }
 
+    // Locked: Standard Locked State
     if (authStatus === AuthenticationStatus.Locked) {
       return router.createUrlTree([routes.locked], { queryParams: route.queryParams });
     }
