@@ -188,7 +188,7 @@ jobs:
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
           MACOS_CERTIFICATE_NAME: "Developer ID Application: 8bit Solutions LLC"
-        run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --timestamp ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}/bw
+        run: codesign --sign "$MACOS_CERTIFICATE_NAME" --verbose=3 --force --options=runtime --entitlements ./entitlements.plist --timestamp ./dist/${{ matrix.license_type.build_prefix }}/${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}/bw
 
       - name: Zip Unix
         run: |
