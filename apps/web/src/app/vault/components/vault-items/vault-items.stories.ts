@@ -36,6 +36,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { LayoutComponent } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -131,6 +132,12 @@ export default {
             canCloneCipher$() {
               return of(true);
             },
+          },
+        },
+        {
+          provide: RestrictedItemTypesService,
+          useValue: {
+            restricted$: of([]), // No restricted item types for this story
           },
         },
       ],
