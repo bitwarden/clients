@@ -1,3 +1,9 @@
+import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemDirective } from "@bitwarden/components";
 import { CopyCipherFieldService } from "@bitwarden/vault";
@@ -9,23 +15,31 @@ describe("CopyCipherFieldDirective", () => {
     copy: jest.fn().mockResolvedValue(null),
     totpAllowed: jest.fn().mockResolvedValue(true),
   };
+  let mockAccountService: AccountService;
+  let mockCipherService: CipherService;
 
   let copyCipherFieldDirective: CopyCipherFieldDirective;
 
   beforeEach(() => {
     copyFieldService.copy.mockClear();
     copyFieldService.totpAllowed.mockClear();
+    mockAccountService = mock<AccountService>();
+    mockAccountService.activeAccount$ = of({ id: "test-account-id" } as Account);
+    mockCipherService = mock<CipherService>();
 
     copyCipherFieldDirective = new CopyCipherFieldDirective(
       copyFieldService as unknown as CopyCipherFieldService,
+      mockAccountService,
+      mockCipherService,
     );
     copyCipherFieldDirective.cipher = new CipherView();
+    copyCipherFieldDirective.cipher.type = CipherType.Login;
   });
 
   describe("disabled state", () => {
     it("should be enabled when the field is available", async () => {
       copyCipherFieldDirective.action = "username";
-      copyCipherFieldDirective.cipher.login.username = "test-username";
+      (copyCipherFieldDirective.cipher as CipherView).login.username = "test-username";
 
       await copyCipherFieldDirective.ngOnChanges();
 
@@ -35,6 +49,7 @@ describe("CopyCipherFieldDirective", () => {
     it("should be disabled when the field is not available", async () => {
       // create empty cipher
       copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
 
       copyCipherFieldDirective.action = "username";
 
@@ -52,11 +67,15 @@ describe("CopyCipherFieldDirective", () => {
 
       copyCipherFieldDirective = new CopyCipherFieldDirective(
         copyFieldService as unknown as CopyCipherFieldService,
+        mockAccountService,
+        mockCipherService,
         undefined,
         iconButton as unknown as BitIconButtonComponent,
       );
 
       copyCipherFieldDirective.action = "password";
+      copyCipherFieldDirective.cipher = new CipherView();
+      copyCipherFieldDirective.cipher.type = CipherType.Login;
 
       await copyCipherFieldDirective.ngOnChanges();
 
@@ -70,6 +89,8 @@ describe("CopyCipherFieldDirective", () => {
 
       copyCipherFieldDirective = new CopyCipherFieldDirective(
         copyFieldService as unknown as CopyCipherFieldService,
+        mockAccountService,
+        mockCipherService,
         menuItemDirective as unknown as MenuItemDirective,
       );
 
@@ -83,9 +104,11 @@ describe("CopyCipherFieldDirective", () => {
 
   describe("login", () => {
     beforeEach(() => {
-      copyCipherFieldDirective.cipher.login.username = "test-username";
-      copyCipherFieldDirective.cipher.login.password = "test-password";
-      copyCipherFieldDirective.cipher.login.totp = "test-totp";
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.Login;
+      cipher.login.username = "test-username";
+      cipher.login.password = "test-password";
+      cipher.login.totp = "test-totp";
     });
 
     it.each([
@@ -107,10 +130,12 @@ describe("CopyCipherFieldDirective", () => {
 
   describe("identity", () => {
     beforeEach(() => {
-      copyCipherFieldDirective.cipher.identity.username = "test-username";
-      copyCipherFieldDirective.cipher.identity.email = "test-email";
-      copyCipherFieldDirective.cipher.identity.phone = "test-phone";
-      copyCipherFieldDirective.cipher.identity.address1 = "test-address-1";
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.Identity;
+      cipher.identity.username = "test-username";
+      cipher.identity.email = "test-email";
+      cipher.identity.phone = "test-phone";
+      cipher.identity.address1 = "test-address-1";
     });
 
     it.each([
@@ -133,8 +158,10 @@ describe("CopyCipherFieldDirective", () => {
 
   describe("card", () => {
     beforeEach(() => {
-      copyCipherFieldDirective.cipher.card.number = "test-card-number";
-      copyCipherFieldDirective.cipher.card.code = "test-card-code";
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.Card;
+      cipher.card.number = "test-card-number";
+      cipher.card.code = "test-card-code";
     });
 
     it.each([
@@ -155,7 +182,9 @@ describe("CopyCipherFieldDirective", () => {
 
   describe("secure note", () => {
     beforeEach(() => {
-      copyCipherFieldDirective.cipher.notes = "test-secure-note";
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.SecureNote;
+      cipher.notes = "test-secure-note";
     });
 
     it("copies secure note field to clipboard", async () => {
@@ -173,9 +202,11 @@ describe("CopyCipherFieldDirective", () => {
 
   describe("ssh key", () => {
     beforeEach(() => {
-      copyCipherFieldDirective.cipher.sshKey.privateKey = "test-private-key";
-      copyCipherFieldDirective.cipher.sshKey.publicKey = "test-public-key";
-      copyCipherFieldDirective.cipher.sshKey.keyFingerprint = "test-key-fingerprint";
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.SshKey;
+      cipher.sshKey.privateKey = "test-private-key";
+      cipher.sshKey.publicKey = "test-public-key";
+      cipher.sshKey.keyFingerprint = "test-key-fingerprint";
     });
 
     it.each([

@@ -19,18 +19,21 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 @Directive()
-export class VaultItemsComponent implements OnInit, OnDestroy {
+export class VaultItemsComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   @Input() activeCipherId: string = null;
-  @Output() onCipherClicked = new EventEmitter<CipherView>();
-  @Output() onCipherRightClicked = new EventEmitter<CipherView>();
+  @Output() onCipherClicked = new EventEmitter<C>();
+  @Output() onCipherRightClicked = new EventEmitter<C>();
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
   @Output() onAddCipherOptions = new EventEmitter();
 
   loaded = false;
-  ciphers: CipherView[] = [];
+  ciphers: C[] = [];
   deleted = false;
   organization: Organization;
   CipherType = CipherType;
@@ -38,7 +41,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   protected searchPending = false;
 
   /** Construct filters as an observable so it can be appended to the cipher stream. */
-  private _filter$ = new BehaviorSubject<(cipher: CipherView) => boolean | null>(null);
+  private _filter$ = new BehaviorSubject<(cipher: C) => boolean | null>(null);
   private destroy$ = new Subject<void>();
   private isSearchable: boolean = false;
   private _searchText$ = new BehaviorSubject<string>("");
@@ -54,7 +57,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     return this._filter$.value;
   }
 
-  set filter(value: (cipher: CipherView) => boolean | null) {
+  set filter(value: (cipher: C) => boolean | null) {
     this._filter$.next(value);
   }
 
@@ -84,13 +87,13 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async load(filter: (cipher: CipherView) => boolean = null, deleted = false) {
+  async load(filter: (cipher: C) => boolean = null, deleted = false) {
     this.deleted = deleted ?? false;
     await this.applyFilter(filter);
     this.loaded = true;
   }
 
-  async reload(filter: (cipher: CipherView) => boolean = null, deleted = false) {
+  async reload(filter: (cipher: C) => boolean = null, deleted = false) {
     this.loaded = false;
     await this.load(filter, deleted);
   }
@@ -99,15 +102,15 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     await this.reload(this.filter, this.deleted);
   }
 
-  async applyFilter(filter: (cipher: CipherView) => boolean = null) {
+  async applyFilter(filter: (cipher: C) => boolean = null) {
     this.filter = filter;
   }
 
-  selectCipher(cipher: CipherView) {
+  selectCipher(cipher: C) {
     this.onCipherClicked.emit(cipher);
   }
 
-  rightClickCipher(cipher: CipherView) {
+  rightClickCipher(cipher: C) {
     this.onCipherRightClicked.emit(cipher);
   }
 
@@ -123,7 +126,8 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     return !this.searchPending && this.isSearchable;
   }
 
-  protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
+  protected deletedFilter: (cipher: C) => boolean = (c) =>
+    CipherViewLikeUtils.isDeleted(c) === this.deleted;
 
   /**
    * Creates stream of dependencies that results in the list of ciphers to display
@@ -138,7 +142,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((userId) =>
           combineLatest([
-            this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+            this.cipherService.cipherListViews$(userId).pipe(filter((ciphers) => ciphers != null)),
             this.cipherService.failedToDecryptCiphers$(userId),
             this._searchText$,
             this._filter$,
@@ -146,12 +150,11 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
           ]),
         ),
         switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId]) => {
-          let allCiphers = indexedCiphers ?? [];
+          let allCiphers = (indexedCiphers as C[]) ?? [];
           const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers];
-
-          return this.searchService.searchCiphers(
+          allCiphers = [..._failedCiphers, ...allCiphers] as C[];
+          return this.searchService.searchCiphers<C>(
             userId,
             searchText,
             [filter, this.deletedFilter],
