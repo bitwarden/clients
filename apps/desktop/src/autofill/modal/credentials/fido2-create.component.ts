@@ -120,6 +120,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return;
     }
 
+    await this.resetModalState();
     this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
   }
 
