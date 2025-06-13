@@ -99,7 +99,7 @@ const BroadcasterSubscriptionId = "VaultComponent";
     },
     {
       provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
+      useExisting: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,
