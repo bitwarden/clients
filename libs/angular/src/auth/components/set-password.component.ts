@@ -130,6 +130,8 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
           this.resetPasswordAutoEnroll = orgAutoEnrollStatusResponse.resetPasswordEnabled;
         }),
         switchMap((orgAutoEnrollStatusResponse: OrganizationAutoEnrollStatusResponse) =>
+          // Does this actually need to confirm for all organizations.
+
           // Must get org id from response to get master password policy options
           this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(
             orgAutoEnrollStatusResponse.id,

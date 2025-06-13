@@ -174,4 +174,43 @@ describe("DefaultChangePasswordService", () => {
       );
     });
   });
+
+  describe("changePasswordForAccountRecovery()", () => {
+    it("should call the putUpdateTempPassword() API method with the correct UpdateTempPasswordRequest credentials", async () => {
+      // Act
+      await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
+          key: newMasterKeyEncryptedUserKey[1].encryptedString,
+        }),
+      );
+    });
+
+    it("should throw an error if user key decryption fails", async () => {
+      // Arrange
+      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
+
+      // Act
+      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      await expect(testFn).rejects.toThrow("Could not decrypt user key");
+    });
+
+    it("should throw an error if putUpdateTempPassword() fails", async () => {
+      // Arrange
+      masterPasswordApiService.putUpdateTempPassword.mockRejectedValueOnce(new Error("error"));
+
+      // Act
+      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+
+      // Assert
+      await expect(testFn).rejects.toThrow("Could not change password");
+      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalled();
+    });
+  });
 });

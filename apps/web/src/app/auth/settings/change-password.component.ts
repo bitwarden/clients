@@ -244,8 +244,7 @@ export class ChangePasswordComponent
       await this.masterPasswordApiService.postPassword(request);
       this.toastService.showToast({
         variant: "success",
-        title: this.i18nService.t("masterPasswordChanged"),
-        message: this.i18nService.t("masterPasswordChangedDesc"),
+        message: this.i18nService.t("masterPasswordChanged"),
       });
       this.messagingService.send("logout");
     } catch {

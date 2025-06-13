@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 import { RouterModule } from "@angular/router";
@@ -35,7 +33,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() subtitle: string;
   @Input() icon: Icon;
-  @Input() showReadonlyHostname: boolean;
+  @Input() showReadonlyHostname?: boolean;
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
   @Input() hideIcon: boolean = false;
@@ -52,10 +50,10 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  @Input() maxWidth: "md" | "3xl" = "md";
+  @Input() maxWidth: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" = "md";
 
   protected logo = BitwardenLogo;
-  protected year = "2024";
+  protected year: string;
   protected clientType: ClientType;
   protected hostname: string;
   protected version: string;
@@ -73,7 +71,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   async ngOnInit() {
     this.maxWidth = this.maxWidth ?? "md";
-    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? null;
+    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? undefined;
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 
