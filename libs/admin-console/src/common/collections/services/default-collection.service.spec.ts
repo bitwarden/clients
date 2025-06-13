@@ -19,7 +19,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { CollectionData } from "../models";
 
-import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
+import { ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
 
 describe("DefaultCollectionService", () => {
@@ -259,40 +259,6 @@ describe("DefaultCollectionService", () => {
         },
       ]);
     });
-  });
-
-  it("clearDecryptedState", async () => {
-    await setEncryptedState([collectionDataFactory(), collectionDataFactory()]);
-
-    await collectionService.clearDecryptedState(userId);
-
-    // Encrypted state remains
-    const encryptedState = await firstValueFrom(collectionService.encryptedCollections$(userId));
-    expect(encryptedState.length).toEqual(2);
-
-    // Decrypted state is cleared
-    const decryptedCollections = await firstValueFrom(
-      stateProvider.getUserState$(DECRYPTED_COLLECTION_DATA_KEY, userId),
-    );
-
-    expect(decryptedCollections.length).toEqual(0);
-  });
-
-  it("clear", async () => {
-    await setEncryptedState([collectionDataFactory(), collectionDataFactory()]);
-    cryptoKeys.next({});
-
-    await collectionService.clear(userId);
-
-    // Encrypted state is cleared
-    const encryptedState = await firstValueFrom(collectionService.encryptedCollections$(userId));
-    expect(encryptedState.length).toEqual(0);
-
-    // Decrypted state is cleared
-    const decryptedCollections = await firstValueFrom(
-      collectionService.decryptedCollections$(userId),
-    );
-    expect(decryptedCollections.length).toEqual(0);
   });
 
   describe("delete", () => {

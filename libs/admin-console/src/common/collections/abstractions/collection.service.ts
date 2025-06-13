@@ -12,30 +12,19 @@ export abstract class CollectionService {
   abstract upsert: (collection: CollectionData | CollectionData[], userId: UserId) => Promise<any>;
   abstract replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   /**
-   * Clear decrypted state without affecting encrypted state.
-   * Used for locking the vault.
-   */
-  abstract clearDecryptedState: (userId: UserId) => Promise<void>;
-  /**
-   * Clear decrypted and encrypted state.
-   * Used for logging out.
-   */
-  /**
    * @deprecated This method will soon be made private, use `decryptedCollections$` instead.
    */
-  abstract decryptMany: (
+  abstract decryptMany$: (
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
-    userId: UserId,
-  ) => Promise<CollectionView[]>;
-  abstract clear: (userId: UserId) => Promise<void>;
+  ) => Observable<CollectionView[]>;
   abstract delete: (id: CollectionId | CollectionId[], userId: UserId) => Promise<any>;
   abstract encrypt: (model: CollectionView, userId: UserId) => Promise<Collection>;
   /**
    * Transforms the input CollectionViews into TreeNodes
    */
   abstract getAllNested: (collections: CollectionView[]) => TreeNode<CollectionView>[];
-  /**
+  /*
    * Transforms the input CollectionViews into TreeNodes and then returns the Treenode with the specified id
    */
   abstract getNested: (collections: CollectionView[], id: string) => TreeNode<CollectionView>;

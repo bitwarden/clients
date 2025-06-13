@@ -2,11 +2,14 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
+  from,
   map,
   Observable,
   of,
   shareReplay,
   switchMap,
+  take,
+  tap,
 } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -61,8 +64,19 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
-    return (
-      this.collectionViews$(userId).pipe(shareReplay({ refCount: true, bufferSize: 1 })) ?? of([])
+    return combineLatest([
+      this.encryptedCollections$(userId),
+      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+      this.decryptedState(userId).state$.pipe(take(1)),
+    ]).pipe(
+      switchMap(([collections, orgKeys, decrypted]) =>
+        decrypted?.length
+          ? of(decrypted)
+          : this.decryptMany$(collections, orgKeys).pipe(
+              tap((collections) => this.setDecryptedCollections(collections, userId)),
+            ),
+      ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
   }
 
@@ -70,7 +84,6 @@ export class DefaultCollectionService implements CollectionService {
     if (toUpdate == null) {
       return;
     }
-    await this.clearDecryptedState(userId);
     await this.encryptedState(userId).update((collections) => {
       if (collections == null) {
         collections = {};
@@ -90,19 +103,6 @@ export class DefaultCollectionService implements CollectionService {
     await this.encryptedState(userId).update(() => collections);
   }
 
-  async clearDecryptedState(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-
-    await this.setDecryptedCollections([], userId);
-  }
-
-  async clear(userId: UserId): Promise<void> {
-    await this.encryptedState(userId).update(() => null);
-    await this.clearDecryptedState(userId);
-  }
-
   async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
     await this.encryptedState(userId).update((collections) => {
       if (collections == null) {
@@ -117,6 +117,9 @@ export class DefaultCollectionService implements CollectionService {
       }
       return collections;
     });
+
+    // Invalidate decrypted state
+    await this.decryptedState(userId).update(() => null);
   }
 
   async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
@@ -142,35 +145,25 @@ export class DefaultCollectionService implements CollectionService {
 
   // TODO: this should be private.
   // See https://bitwarden.atlassian.net/browse/PM-12375
-  async decryptMany(
+  decryptMany$(
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
-    userId: UserId,
-  ): Promise<CollectionView[]> {
-    const decrypted = await firstValueFrom(this.decryptedState(userId).state$);
-
-    if (decrypted?.length) {
-      return decrypted;
-    }
-
+  ): Observable<CollectionView[]> {
     if (collections === null || collections.length === 0 || orgKeys === null) {
-      return [];
+      return of([]);
     }
-    const decCollections: CollectionView[] = [];
-    const promises: Promise<any>[] = [];
+
+    const decCollections: Observable<CollectionView>[] = [];
 
     collections.forEach((collection) => {
-      promises.push(
-        collection
-          .decrypt(orgKeys[collection.organizationId as OrganizationId])
-          .then((c) => decCollections.push(c)),
+      decCollections.push(
+        from(collection.decrypt(orgKeys[collection.organizationId as OrganizationId])),
       );
     });
 
-    await Promise.all(promises);
-    const sortedCollections = decCollections.sort(Utils.getSortFunction(this.i18nService, "name"));
-    await this.setDecryptedCollections(sortedCollections, userId);
-    return sortedCollections;
+    return combineLatest(decCollections).pipe(
+      map((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
+    );
   }
 
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {
@@ -195,18 +188,6 @@ export class DefaultCollectionService implements CollectionService {
       nestedCollections,
       id,
     ) as TreeNode<CollectionView>;
-  }
-
-  /**
-   * Returns an Observable of decrypted Collection Views for the given userId.
-   */
-  private collectionViews$(userId: UserId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.encryptedCollections$(userId),
-      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-    ])
-      .pipe(switchMap(([collections, orgKeys]) => this.decryptMany(collections, orgKeys, userId)))
-      .pipe(shareReplay({ refCount: false, bufferSize: 1 }));
   }
 
   /**

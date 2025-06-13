@@ -8,10 +8,10 @@ import {
   BehaviorSubject,
   combineLatest,
   concatMap,
-  firstValueFrom,
   from,
   lastValueFrom,
   map,
+  Observable,
   switchMap,
   tap,
 } from "rxjs";
@@ -250,23 +250,23 @@ export class GroupsComponent {
     this.dataSource.data = this.dataSource.data.filter((g) => g !== groupRow);
   }
 
-  private async toCollectionMap(response: ListResponse<CollectionResponse>) {
+  private toCollectionMap(
+    response: ListResponse<CollectionResponse>,
+  ): Observable<Record<string, CollectionView>> {
     const collections = response.data.map(
       (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
     );
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
-    const decryptedCollections = await this.collectionService.decryptMany(
-      collections,
-      orgKeys,
-      userId,
-    );
-
     // Convert to an object using collection Ids as keys for faster name lookups
     const collectionMap: Record<string, CollectionView> = {};
-    decryptedCollections.forEach((c) => (collectionMap[c.id] = c));
-
-    return collectionMap;
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.keyService.orgKeys$(userId)),
+      switchMap((orgKeys) => this.collectionService.decryptMany$(collections, orgKeys)),
+      map((collections) => {
+        collections.forEach((c) => (collectionMap[c.id] = c));
+        return collectionMap;
+      }),
+    );
   }
 }

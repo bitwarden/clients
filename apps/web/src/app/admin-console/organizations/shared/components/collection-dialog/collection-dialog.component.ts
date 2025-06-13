@@ -408,7 +408,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       collectionView.name = this.formGroup.controls.name.value;
     }
 
-    const savedCollection = await this.collectionAdminService.save(collectionView);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const savedCollection = await this.collectionAdminService.save(collectionView, userId);
 
     this.toastService.showToast({
       variant: "success",

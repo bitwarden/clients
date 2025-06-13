@@ -209,9 +209,11 @@ export class ListCommand {
         .filter((c) => c.organizationId === options.organizationId)
         .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
       const orgKeys = await firstValueFrom(
-        this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+        this.keyService.orgKeys$(userId).pipe(filter((k) => !!k)),
       );
-      let decCollections = await this.collectionService.decryptMany(collections, orgKeys, userId);
+      let decCollections = await firstValueFrom(
+        this.collectionService.decryptMany$(collections, orgKeys),
+      );
       if (options.search != null && options.search.trim() !== "") {
         decCollections = CliUtils.searchCollections(decCollections, options.search);
       }
