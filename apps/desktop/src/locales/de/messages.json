@@ -692,7 +692,7 @@
     "message": "Die maximale Dateigröße beträgt 500 MB."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Die veraltete Verschlüsselung wird nicht mehr unterstützt. Bitte kontaktiere den Support, um dein Konto wiederherzustellen."
   },
   "editedFolder": {
     "message": "Ordner gespeichert"
