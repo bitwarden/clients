@@ -144,10 +144,7 @@ export class GetCommand extends DownloadCommand {
 
     if (Array.isArray(decCipher)) {
       // Apply restricted ciphers filter
-      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
-        decCipher,
-        activeUserId,
-      );
+      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(decCipher);
 
       if (decCipher.length === 0) {
         return Response.error("Access to this item type is restricted by organizational policy.");
@@ -168,10 +165,7 @@ export class GetCommand extends DownloadCommand {
       }
     } else {
       const isCipherTypeRestricted =
-        await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
-          decCipher.type,
-          activeUserId,
-        );
+        await this.cliRestrictedItemTypesService.isCipherTypeRestricted(decCipher.type);
       if (isCipherTypeRestricted) {
         return Response.error("Access to this item type is restricted by organizational policy.");
       }

@@ -136,10 +136,7 @@ export class ListCommand {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
 
-    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(
-      ciphers,
-      activeUserId,
-    );
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
 
     await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 

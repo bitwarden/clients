@@ -65,7 +65,6 @@ export class DeleteCommand {
 
     const isCipherTypeRestricted = await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
       cipher.type,
-      activeUserId,
     );
     if (isCipherTypeRestricted) {
       return Response.error("Deleting this item type is restricted by organizational policy.");

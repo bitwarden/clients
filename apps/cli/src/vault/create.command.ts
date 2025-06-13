@@ -96,7 +96,6 @@ export class CreateCommand {
     const cipherView = CipherExport.toView(req);
     const isCipherTypeRestricted = await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
       cipherView.type,
-      activeUserId,
     );
 
     if (isCipherTypeRestricted) {
