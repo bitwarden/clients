@@ -92,12 +92,32 @@ export class EmergencyAccessTakeoverDialogComponent implements OnInit {
 
   async ngOnInit() {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    /**
+     * The ONLY time this call will return an array of policies is when the Grantor is the OWNER
+     * of an organization. In all other scenarios the server returns null. Even if the Grantor
+     * is the member of an org that has enforced MP policies, the server will still return null
+     * because in the Emergency Access Takeover process, the Grantor gets removed from the org upon
+     * takeover, and therefore the MP policies are irrelevant.
+     *
+     * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
+     * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
+     */
     const grantorPolicies = await this.emergencyAccessService.getGrantorPolicies(
       this.dialogData.emergencyAccessId,
     );
 
+    /**
+     * If `grantorPolicies` is null/undefined, then fallback to an empty array. This ensures that
+     * masterPasswordPolicyOptions$() always uses the Grantor's policies, even if there are none (empty array),
+     * and never the Grantee's policies. If we were to leave `grantorPolicies` as null/undefined, the
+     * masterPasswordPolicyOptions$() method would use the `activeUserId` and get the Grantee's policies instead.
+     * But we only care about the Grantor's policies in the takeover process (even if empty).
+     *
+     * See the masterPasswordPolicyOptions$() implementation for more details.
+     */
     this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(activeUserId, grantorPolicies),
+      this.policyService.masterPasswordPolicyOptions$(activeUserId, grantorPolicies ?? []),
     );
 
     this.initializing = false;
