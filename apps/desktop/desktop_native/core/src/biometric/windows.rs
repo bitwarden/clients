@@ -1,20 +1,13 @@
-use std::{
-    ffi::c_void,
-    str::FromStr,
-    sync::{atomic::AtomicBool, Arc},
-};
+use std::{ffi::c_void, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 use windows::{
-    core::{factory, h, HSTRING},
-    Security::{
-        Credentials::{
-            KeyCredentialCreationOption, KeyCredentialManager, KeyCredentialStatus, UI::*,
-        },
-        Cryptography::CryptographicBuffer,
+    core::{factory, HSTRING},
+    Security::Credentials::UI::{
+        UserConsentVerificationResult, UserConsentVerifier, UserConsentVerifierAvailability,
     },
     Win32::{Foundation::HWND, System::WinRT::IUserConsentVerifierInterop},
 };
@@ -25,10 +18,7 @@ use crate::{
     crypto::CipherString,
 };
 
-use super::{
-    decrypt, encrypt,
-    windows_focus::set_focus,
-};
+use super::{decrypt, encrypt, windows_focus::set_focus};
 
 /// The Windows OS implementation of the biometric trait.
 pub struct Biometric {}
@@ -133,7 +123,7 @@ fn random_challenge() -> [u8; 16] {
 mod tests {
     use super::*;
 
-    use crate::biometric::{encrypt, BiometricTrait};
+    use crate::biometric::BiometricTrait;
 
     #[test]
     fn test_derive_key_material() {
