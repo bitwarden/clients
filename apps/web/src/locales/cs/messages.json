@@ -21,7 +21,7 @@
     "message": "Rizikové heslo"
   },
   "reviewAtRiskPasswords": {
-    "message": "Zkontrolujte riziková hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s rizikovými hesly."
+    "message": "Zkontrolujte ohrožená hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s ohroženými hesly."
   },
   "dataLastUpdated": {
     "message": "Data naposledy aktualizována: $DATE$",
@@ -90,7 +90,7 @@
     "message": "Neoznačili jste žádné aplikace jako kritické"
   },
   "noCriticalAppsDescription": {
-    "message": "Vyberte své nejkritičtější aplikace, abyste objevili riziková hesla a upozorněte uživatele na změnu těchto hesel."
+    "message": "Vyberte své nejkritičtější aplikace, abyste objevili ohrožená hesla a upozorněte uživatele na změnu těchto hesel."
   },
   "markCriticalApps": {
     "message": "Označit kritické aplikace"
@@ -120,7 +120,7 @@
     "message": "Ohrožení členové"
   },
   "atRiskMembersWithCount": {
-    "message": "Rizikoví členové ($COUNT$)",
+    "message": "Ohrožení členové ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -129,7 +129,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Rizikové aplikace ($COUNT$)",
+    "message": "Ohrožené aplikace ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -171,7 +171,7 @@
     "message": "Celkem členů"
   },
   "atRiskApplications": {
-    "message": "Rizikové aplikace"
+    "message": "Ohrožené aplikace"
   },
   "totalApplications": {
     "message": "Celkem aplikací"
@@ -10383,7 +10383,7 @@
     "message": "Otevřeno rozšíření prohlížeče"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše riziková hesla."
+    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
   },
   "openExtensionManuallyPart1": {
     "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden",
