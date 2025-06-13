@@ -9,7 +9,7 @@ export interface OsBiometricService {
    *
    * @returns true if biometrics support requires setup, false if it does not (is already setup, or did not require it in the first place)
    */
-  needsSetup: () => Promise<boolean>;
+  needsSetup: Promise<boolean>;
   /**
    * Check whether biometrics can be automatically setup, or requires user interaction.
    *
