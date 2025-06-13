@@ -64,7 +64,7 @@ describe("vault filter service", () => {
 
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
-    collectionService.decryptedCollections$ = collectionViews;
+    collectionService.decryptedCollections$.mockReturnValue(collectionViews);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.PersonalOwnership, mockUserId)
       .mockReturnValue(personalOwnershipPolicy);
