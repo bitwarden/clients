@@ -65,6 +65,7 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abs
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   InternalOrganizationServiceAbstraction,
+  OrganizationService,
   OrganizationService as OrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -76,6 +77,7 @@ import { OrganizationManagementPreferencesService } from "@bitwarden/common/admi
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
+  PolicyService,
   PolicyService as PolicyServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
@@ -296,6 +298,7 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
@@ -677,6 +680,11 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       KdfConfigService,
     ],
+  }),
+  safeProvider({
+    provide: RestrictedItemTypesService,
+    useClass: RestrictedItemTypesService,
+    deps: [ConfigService, AccountService, OrganizationService, PolicyService],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,

@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgForm } from "@angular/forms";
 import { map } from "rxjs";
 
@@ -25,6 +24,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
@@ -38,6 +38,17 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
+  menuItems$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types from the default CIPHER_MENU_ITEMS array
+      CIPHER_MENU_ITEMS.filter(
+        (typeOption) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === typeOption.type,
+          ),
+      ),
+    ),
+  );
 
   constructor(
     cipherService: CipherService,
@@ -87,20 +98,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       sdkService,
       sshImportPromptService,
     );
-    this.restrictedItemTypesService.restricted$
-      .pipe(
-        takeUntilDestroyed(),
-        map((restrictedItemTypes) => {
-          // Filter out restricted item types from the typeOptions array
-          this.typeOptions = this.typeOptions.filter(
-            (typeOption) =>
-              !restrictedItemTypes.some(
-                (restrictedType) => restrictedType.cipherType === typeOption.value,
-              ),
-          );
-        }),
-      )
-      .subscribe();
   }
 
   async ngOnInit() {

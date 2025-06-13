@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH key"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "New $TYPE$",
     "placeholders": {
