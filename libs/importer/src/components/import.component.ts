@@ -62,6 +62,7 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
@@ -134,6 +135,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
+
+  restrictedItemTypes: string[];
 
   private _organizationId: string;
 
@@ -220,6 +223,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
     protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -253,6 +257,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     await this.handlePolicies();
+    this.restrictedItemTypesService.restricted$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((restrictedItemTypes) => {
+        this.restrictedItemTypes = restrictedItemTypes.map((type) => type.toString());
+      });
   }
 
   private async handleOrganizationImportInit() {
