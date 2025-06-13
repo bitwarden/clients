@@ -6,7 +6,7 @@ import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 import {
   CardListView,
   CipherListView,
-  CopiableCipherFields,
+  CopyableCipherFields,
   LoginListView,
 } from "@bitwarden/sdk-internal";
 
@@ -202,8 +202,8 @@ export class CipherViewLikeUtils {
   };
 
   /** @returns true when the `copyField` is populated on the given cipher. */
-  static hasCopiableValue = (cipher: CipherViewLike, copyField: string): boolean => {
-    // `CipherListView` instances do not contain the values to be copied, but rather a list of copiable fields.
+  static hasCopyableValue = (cipher: CipherViewLike, copyField: string): boolean => {
+    // `CipherListView` instances do not contain the values to be copied, but rather a list of copyable fields.
     // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
     if (this.isCipherListView(cipher)) {
       let _copyField = copyField;
@@ -214,7 +214,7 @@ export class CipherViewLikeUtils {
         _copyField = "usernameIdentity";
       }
 
-      return cipher.copiableFields.includes(copyActionToCopiableFieldMap[_copyField]);
+      return cipher.copyableFields.includes(copyActionToCopyableFieldMap[_copyField]);
     }
 
     // When the full cipher is available, check the specific field
@@ -267,7 +267,7 @@ export class CipherViewLikeUtils {
 /**
  * Mapping between the generic copy actions and the specific fields in a `CipherViewLike`.
  */
-const copyActionToCopiableFieldMap: Record<string, CopiableCipherFields> = {
+const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   usernameLogin: "LoginUsername",
   password: "LoginPassword",
   totp: "LoginTotp",

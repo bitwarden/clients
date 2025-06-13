@@ -438,7 +438,7 @@ describe("CipherViewLikeUtils", () => {
     });
   });
 
-  describe("hasCopiableValue", () => {
+  describe("hasCopyableValue", () => {
     describe("CipherView", () => {
       it("returns true for login fields", () => {
         const cipherView = createCipherView(CipherType.Login);
@@ -446,16 +446,16 @@ describe("CipherViewLikeUtils", () => {
         cipherView.login.username = "testuser";
         cipherView.login.password = "testpass";
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "username")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "password")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "username")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "password")).toBe(true);
       });
 
       it("returns true for card fields", () => {
         const cipherView = createCipherView(CipherType.Card);
         cipherView.card = { number: "1234-5678-9012-3456", code: "123" } as any;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "cardNumber")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "securityCode")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "cardNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "securityCode")).toBe(true);
       });
 
       it("returns true for identity fields", () => {
@@ -464,73 +464,73 @@ describe("CipherViewLikeUtils", () => {
         cipherView.identity.email = "example@bitwarden.com";
         cipherView.identity.phone = "123-456-7890";
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "email")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "phone")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "email")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "phone")).toBe(true);
       });
 
       it("returns false when values are not populated", () => {
         const cipherView = createCipherView(CipherType.Login);
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "email")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "password")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "securityCode")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherView, "username")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "email")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "password")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "securityCode")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "username")).toBe(false);
       });
     });
 
     describe("CipherListView", () => {
-      it("returns true for copiable fields in a login cipher", () => {
+      it("returns true for copyable fields in a login cipher", () => {
         const cipherListView = {
           type: { login: { username: "testuser" } },
-          copiableFields: ["LoginUsername", "LoginPassword"],
+          copyableFields: ["LoginUsername", "LoginPassword"],
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "username")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "password")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "password")).toBe(true);
       });
 
-      it("returns true for copiable fields in a card cipher", () => {
+      it("returns true for copyable fields in a card cipher", () => {
         const cipherListView = {
           type: { card: { brand: "MasterCard" } },
-          copiableFields: ["CardNumber", "CardSecurityCode"],
+          copyableFields: ["CardNumber", "CardSecurityCode"],
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "cardNumber")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "securityCode")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "cardNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "securityCode")).toBe(true);
       });
 
-      it("returns true for copiable fields in an sshKey ciphers", () => {
+      it("returns true for copyable fields in an sshKey ciphers", () => {
         const cipherListView = {
           type: "sshKey",
-          copiableFields: ["SshKey"],
+          copyableFields: ["SshKey"],
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "privateKey")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "publicKey")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "keyFingerprint")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "privateKey")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "publicKey")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "keyFingerprint")).toBe(true);
       });
 
-      it("returns true for copiable fields in an identity cipher", () => {
+      it("returns true for copyable fields in an identity cipher", () => {
         const cipherListView = {
           type: "identity",
-          copiableFields: ["IdentityUsername", "IdentityEmail", "IdentityPhone"],
+          copyableFields: ["IdentityUsername", "IdentityEmail", "IdentityPhone"],
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "username")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "email")).toBe(true);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "phone")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "email")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(true);
       });
 
       it("returns false for when missing a field", () => {
         const cipherListView = {
           type: { login: {} },
-          copiableFields: ["LoginUsername"],
+          copyableFields: ["LoginUsername"],
         } as CipherListView;
 
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "password")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "phone")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "address")).toBe(false);
-        expect(CipherViewLikeUtils.hasCopiableValue(cipherListView, "publicKey")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "password")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "address")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "publicKey")).toBe(false);
       });
     });
   });

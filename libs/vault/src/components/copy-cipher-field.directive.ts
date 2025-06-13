@@ -88,7 +88,7 @@ export class CopyCipherFieldDirective implements OnChanges {
 
   /** Returns `true` when the cipher has the associated value as populated. */
   private hasValueToCopy() {
-    return CipherViewLikeUtils.hasCopiableValue(this.cipher, this.action);
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, this.action);
   }
 
   /** Returns the value of the cipher to be copied. */

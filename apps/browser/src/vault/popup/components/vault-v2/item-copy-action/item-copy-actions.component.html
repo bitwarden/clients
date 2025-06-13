@@ -36,15 +36,15 @@
   <ng-template #loginCopyMenu>
     <bit-item-action>
       <button
-        *ngIf="singleCopiableLogin"
+        *ngIf="singleCopyableLogin"
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableLogin.key : cipher.name"
-        [appCopyField]="singleCopiableLogin.field"
+        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
+        [appCopyField]="singleCopyableLogin.field"
         [cipher]="cipher"
       ></button>
-      <ng-container *ngIf="!singleCopiableLogin">
+      <ng-container *ngIf="!singleCopyableLogin">
         <button
           type="button"
           bitIconButton="bwi-clone"
@@ -103,16 +103,16 @@
   <ng-template #cardCopyMenu>
     <bit-item-action>
       <button
-        *ngIf="singleCopiableCard"
+        *ngIf="singleCopyableCard"
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableCard.key : cipher.name"
-        [appCopyField]="singleCopiableCard.field"
+        [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
+        [appCopyField]="singleCopyableCard.field"
         [cipher]="cipher"
         showToast
       ></button>
-      <ng-container *ngIf="!singleCopiableCard">
+      <ng-container *ngIf="!singleCopyableCard">
         <button
           type="button"
           bitIconButton="bwi-clone"
@@ -138,16 +138,16 @@
 
 <bit-item-action *ngIf="CipherViewLikeUtils.getType(cipher) === CipherType.Identity">
   <button
-    *ngIf="singleCopiableIdentity"
+    *ngIf="singleCopyableIdentity"
     type="button"
     bitIconButton="bwi-clone"
     size="small"
-    [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopiableIdentity.key : cipher.name"
-    [appCopyField]="singleCopiableIdentity.field"
+    [appA11yTitle]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : cipher.name"
+    [appCopyField]="singleCopyableIdentity.field"
     [cipher]="cipher"
     showToast
   ></button>
-  <ng-container *ngIf="!singleCopiableIdentity">
+  <ng-container *ngIf="!singleCopyableIdentity">
     <button
       type="button"
       bitIconButton="bwi-clone"
