@@ -2153,8 +2153,8 @@
   "setYourPinCode": {
     "message": "Nastavte svůj PIN kód pro odemknutí trezoru. Pokud se zcela odhlásíte z aplikace bude Váš aktuální PIN resetován."
   },
-  "setYourPinCode1": {
-    "message": "Váš PIN bude použit k odemknutí Bitwardenu namísto hlavního hesla. Pokud se někdy plně odhlásíte z Bitwarden, Váš PIN kód se obnoví."
+  "setPinCode": {
+    "message": "Tento PIN můžete použít k odemknutí Bitwardenu. Váš PIN bude resetován, pokud seněkdy úplně odhlásíte z aplikace."
   },
   "pinRequired": {
     "message": "Je vyžadován PIN kód."
@@ -2515,6 +2515,10 @@
   "change": {
     "message": "Změnit"
   },
+  "changePassword": {
+    "message": "Změnit heslo",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Změnit heslo - $ITEMNAME$",
     "placeholders": {
@@ -2524,11 +2528,14 @@
       }
     }
   },
+  "atRiskPassword": {
+    "message": "Ohrožené heslo"
+  },
   "atRiskPasswords": {
     "message": "Ohrožená hesla"
   },
   "atRiskPasswordDescSingleOrg": {
-    "message": "$ORGANIZATION$ Vás žádá o změnu 1 hesla, protože je v ohrožení.",
+    "message": "$ORGANIZATION$ Vás žádá o změnu 1 hesla, protože je ohroženo.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2537,7 +2544,7 @@
     }
   },
   "atRiskPasswordsDescSingleOrgPlural": {
-    "message": "$ORGANIZATION$ Vás žádá o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "message": "$ORGANIZATION$ Vás žádá o změnu $COUNT$ hesel, protože jsou ohrožena.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2550,13 +2557,33 @@
     }
   },
   "atRiskPasswordsDescMultiOrgPlural": {
-    "message": "Vaše organizace Vás žádají o změnu $COUNT$ hesel, protože jsou v ohrožení.",
+    "message": "Vaše organizace Vás žádají o změnu $COUNT$ hesel, protože jsou ohrožena.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Vaše heslo pro tuto stránku je ohrožené. $ORGANIZATION$ Vás požádala, abyste jej změnili.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ chce, abyste změnili toto heslo, protože je ohrožené. Přejděte do nastavení účtu a změňte heslo.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Zkontrolovat a změnit jedno ohrožené heslo"
@@ -2577,20 +2604,20 @@
     "message": "Aktualizujte svá nastavení, abyste mohli rychle automaticky vyplňovat hesla a generovat nová hesla."
   },
   "reviewAtRiskLogins": {
-    "message": "Kontrola rizikových přihlášení"
+    "message": "Kontrola ohrožených přihlášení"
   },
   "reviewAtRiskPasswords": {
-    "message": "Kontrola rizikových hesel"
+    "message": "Kontrola ohrožených hesel"
   },
   "reviewAtRiskLoginsSlideDesc": {
     "message": "Hesla Vaší organizace jsou ohrožena, protože jsou slabá, opakovaně používaná nebo odhalená.",
     "description": "Description of the review at-risk login slide on the at-risk password page carousel"
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
-    "message": "Ilustrace seznamu přihlášení, která jsou riziková."
+    "message": "Ilustrace seznamu přihlášení, která jsou ohrožená."
   },
   "generatePasswordSlideDesc": {
-    "message": "Rychle vygeneruje silné, unikátní heslo s nabídkou automatického vyplňování Bitwarden na rizikových stránkách.",
+    "message": "Rychle vygeneruje silné, unikátní heslo s nabídkou automatického vyplňování Bitwarden na ohrožených stránkách.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
