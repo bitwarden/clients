@@ -5403,5 +5403,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

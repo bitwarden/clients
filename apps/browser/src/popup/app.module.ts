@@ -20,6 +20,8 @@ import {
   ButtonModule,
   FormFieldModule,
   ToastModule,
+  CalloutModule,
+  LinkModule,
 } from "@bitwarden/components";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
@@ -87,6 +89,8 @@ import "../platform/popup/locales";
     CurrentAccountComponent,
     FormFieldModule,
     ExtensionAnonLayoutWrapperComponent,
+    CalloutModule,
+    LinkModule,
   ],
   declarations: [
     AppComponent,
