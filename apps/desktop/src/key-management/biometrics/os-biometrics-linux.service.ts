@@ -148,7 +148,6 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
     if (this._osKeyHalf == null) {
       const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
-      // osKeyHalf is based on the iv and in contrast to windows is not locked behind user verification!
       this._osKeyHalf = keyMaterial.keyB64;
       this._iv = keyMaterial.ivB64;
     }
