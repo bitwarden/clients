@@ -260,6 +260,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.restrictedItemTypesService.restricted$
       .pipe(takeUntil(this.destroy$))
       .subscribe((restrictedItemTypes) => {
+        // If/when restricted item types are expanded to include all item types this array
+        // can be used to format the message displayed in the callout.
         this.restrictedItemTypes = restrictedItemTypes.map((type) => type.toString());
       });
   }
