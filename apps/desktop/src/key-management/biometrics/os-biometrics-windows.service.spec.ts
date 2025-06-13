@@ -91,21 +91,13 @@ describe("OsBiometricsServiceWindows", function () {
     it("should return the biometricKey and setBiometricSecret called if password is not encrypted", async () => {
       const biometricKey = "biometricKey";
       passwords.getPassword = jest.fn().mockResolvedValue(biometricKey);
-      jest.spyOn(sut, "getStorageDetails").mockResolvedValue({
-        key_material: {
-          osKeyPartB64: "testKeyB64",
-          clientKeyPartB64: clientKeyHalfB64,
-        },
-        ivB64: "testIvB64",
-      });
+      sut["_osKeyHalf"] = "testKeyB64";
+      sut["_iv"] = "testIvB64";
 
       const result = await sut.getBiometricKey(service, storageKey, clientKeyHalfB64);
 
       expect(result).toBe(biometricKey);
       expect(passwords.getPassword).toHaveBeenCalledWith(service, storageKey);
-      expect(sut.getStorageDetails).toHaveBeenCalledWith({
-        clientKeyHalfB64: clientKeyHalfB64,
-      });
       expect(biometrics.setBiometricSecret).toHaveBeenCalledWith(
         service,
         storageKey,
@@ -122,24 +114,14 @@ describe("OsBiometricsServiceWindows", function () {
       const biometricKey = "biometricKey";
       const biometricKeyEncrypted = "2.testId|data|mac";
       passwords.getPassword = jest.fn().mockResolvedValue(biometricKeyEncrypted);
-      jest.spyOn(sut, "getStorageDetails").mockResolvedValue({
-        key_material: {
-          osKeyPartB64: "testKeyB64",
-          clientKeyPartB64: clientKeyHalfB64,
-        },
-        ivB64: "testIvB64",
-      });
-      jest.spyOn(sut, "setIv").mockImplementation();
+      sut["_osKeyHalf"] = "testKeyB64";
+      sut["_iv"] = "testIvB64";
       biometrics.getBiometricSecret = jest.fn().mockResolvedValue(biometricKey);
 
       const result = await sut.getBiometricKey(service, storageKey, clientKeyHalfB64);
 
       expect(result).toBe(biometricKey);
       expect(passwords.getPassword).toHaveBeenCalledWith(service, storageKey);
-      expect(sut.getStorageDetails).toHaveBeenCalledWith({
-        clientKeyHalfB64: clientKeyHalfB64,
-      });
-      expect(sut.setIv).toHaveBeenCalledWith("testId");
       expect(biometrics.setBiometricSecret).not.toHaveBeenCalled();
     });
   });
@@ -161,7 +143,7 @@ describe("OsBiometricsServiceWindows", function () {
         };
         biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue(derivedKeyMaterial);
 
-        const result = await sut.getStorageDetails({ clientKeyHalfB64 });
+        const result = await sut["getStorageDetails"]({ clientKeyHalfB64 });
 
         expect(result).toEqual({
           key_material: {
@@ -186,7 +168,7 @@ describe("OsBiometricsServiceWindows", function () {
       biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue(derivedKeyMaterial);
 
       await expect(
-        sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" }),
+        sut["getStorageDetails"]({ clientKeyHalfB64: "testClientKeyHalfB64" }),
       ).rejects.toThrow("Initialization Vector is null");
 
       expect(biometrics.deriveKeyMaterial).toHaveBeenCalledWith("testIvB64");
@@ -198,7 +180,7 @@ describe("OsBiometricsServiceWindows", function () {
       const iv = "testIv";
       sut["_osKeyHalf"] = "testOsKeyHalf";
 
-      sut.setIv(iv);
+      sut["setIv"](iv);
 
       expect(sut["_iv"]).toBe(iv);
       expect(sut["_osKeyHalf"]).toBeNull();
@@ -207,7 +189,7 @@ describe("OsBiometricsServiceWindows", function () {
     it("should set the iv to null when iv is undefined and reset the osKeyHalf", () => {
       sut["_osKeyHalf"] = "testOsKeyHalf";
 
-      sut.setIv(undefined);
+      sut["setIv"](undefined);
 
       expect(sut["_iv"]).toBeNull();
       expect(sut["_osKeyHalf"]).toBeNull();
