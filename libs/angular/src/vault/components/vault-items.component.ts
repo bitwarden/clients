@@ -10,6 +10,7 @@ import {
   from,
   map,
   of,
+  shareReplay,
   switchMap,
   takeUntil,
 } from "rxjs";
@@ -48,6 +49,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
           ),
       ),
     ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   protected searchPending = false;

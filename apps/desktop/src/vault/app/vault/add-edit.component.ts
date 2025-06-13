@@ -3,7 +3,7 @@
 import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { map } from "rxjs";
+import { map, shareReplay } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -48,6 +48,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
           ),
       ),
     ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   constructor(

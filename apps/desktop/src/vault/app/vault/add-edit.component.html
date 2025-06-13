@@ -12,8 +12,8 @@
           <div class="box-content-row" *ngIf="!editMode" appBoxRow>
             <label for="type">{{ "type" | i18n }}</label>
             <select id="type" name="Type" [(ngModel)]="cipher.type" (change)="typeChange()">
-              <option *ngFor="let o of menuItems$ | async" [ngValue]="o.type">
-                {{ o.labelKey | i18n }}
+              <option *ngFor="let item of menuItems$ | async" [ngValue]="item.type">
+                {{ item.labelKey | i18n }}
               </option>
             </select>
           </div>
