@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { combineLatest, map, of, Observable } from "rxjs";
 import { switchMap, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
@@ -16,7 +15,6 @@ export type RestrictedCipherType = {
   allowViewOrgIds: string[];
 };
 
-@Injectable({ providedIn: "root" })
 export class RestrictedItemTypesService {
   /**
    * Emits an array of RestrictedCipherType objects:

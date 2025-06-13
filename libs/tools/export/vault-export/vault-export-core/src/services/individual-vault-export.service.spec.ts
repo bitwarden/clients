@@ -26,6 +26,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
   DEFAULT_KDF_CONFIG,
   PBKDF2KdfConfig,
   KdfConfigService,
@@ -170,6 +174,8 @@ describe("VaultExportService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountService: MockProxy<AccountService>;
   let apiService: MockProxy<ApiService>;
+  let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
+  let restrictedItemTypesService: RestrictedItemTypesService;
   let fetchMock: jest.Mock;
 
   const userId = "" as UserId;
@@ -186,6 +192,10 @@ describe("VaultExportService", () => {
     apiService = mock<ApiService>();
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+    restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
+    restrictedItemTypesService = {
+      restricted$: restrictedSubject.asObservable(),
+    } as RestrictedItemTypesService;
 
     const accountInfo: AccountInfo = {
       email: "",
@@ -223,6 +233,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
+      restrictedItemTypesService,
     );
   });
 
@@ -260,6 +271,34 @@ describe("VaultExportService", () => {
     expect(typeof actual.data).toBe("string");
     const exportedData = actual as ExportedVaultAsString;
     expectEqualCiphers(UserCipherDomains.slice(0, 2), exportedData.data);
+  });
+
+  it("does not unencrypted export restricted user items", async () => {
+    restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+    const cardCipher = generateCipherView(false);
+    cardCipher.type = CipherType.Card;
+    const testCiphers = [UserCipherViews[0], cardCipher, UserCipherViews[1]];
+    cipherService.getAllDecrypted.mockResolvedValue(testCiphers);
+
+    const actual = await exportService.getExport("json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+
+    expectEqualCiphers([UserCipherViews[0], UserCipherViews[1]], exportedData.data);
+  });
+
+  it("does not encrypted export restricted user items", async () => {
+    restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+    const cardCipher = generateCipherDomain(false);
+    cardCipher.type = CipherType.Card;
+    const testCiphers = [UserCipherDomains[0], cardCipher, UserCipherDomains[1]];
+    cipherService.getAll.mockResolvedValue(testCiphers);
+
+    const actual = await exportService.getExport("encrypted_json");
+    expect(typeof actual.data).toBe("string");
+    const exportedData = actual as ExportedVaultAsString;
+
+    expectEqualCiphers([UserCipherDomains[0], UserCipherDomains[1]], exportedData.data);
   });
 
   describe("zip export", () => {
