@@ -229,8 +229,11 @@ export class UriOptionComponent implements ControlValueAccessor {
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
   }
 
-  getMatchHintKey(): string | null {
+  getMatchHintKey(): string {
     const strategy = this.uriForm.get("matchDetection")?.value;
-    return this.hintMap[strategy] || null;
+    if (strategy === null) {
+      return "uriMatchDefaultStrategyHint";
+    }
+    return this.hintMap[strategy] || "";
   }
 }
