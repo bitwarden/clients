@@ -1,3 +1,5 @@
+import { randomBytes } from "node:crypto";
+
 import { BrowserWindow } from "electron";
 import { mock } from "jest-mock-extended";
 
@@ -23,6 +25,7 @@ jest.mock("@bitwarden/desktop-napi", () => {
     },
     passwords: {
       getPassword: jest.fn().mockResolvedValue(null),
+      deletePassword: jest.fn().mockImplementation(() => {}),
     },
   };
 });
@@ -35,7 +38,11 @@ describe("OsBiometricsServiceWindows", function () {
 
   let sut: OsBiometricsServiceWindows;
 
-  beforeEach(function () {
+  const service = "testService";
+  const storageKey = "testStorageKey";
+  const clientKeyHalfB64 = "testClientKeyHalfB64";
+
+  beforeEach(() => {
     windowMain.win = browserWindow;
     jest.clearAllMocks();
     sut = new OsBiometricsServiceWindows(i18nService, windowMain, logService);
@@ -60,10 +67,6 @@ describe("OsBiometricsServiceWindows", function () {
   });
 
   describe("getBiometricKey", () => {
-    const service = "testService";
-    const storageKey = "testStorageKey";
-    const clientKeyHalfB64 = "testClientKeyHalfB64";
-
     beforeEach(() => {
       biometrics.prompt = jest.fn().mockResolvedValue(true);
     });
@@ -123,6 +126,40 @@ describe("OsBiometricsServiceWindows", function () {
       expect(result).toBe(biometricKey);
       expect(passwords.getPassword).toHaveBeenCalledWith(service, storageKey);
       expect(biometrics.setBiometricSecret).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteBiometricKey", () => {
+    it("should delete the biometric key", async () => {
+      await sut.deleteBiometricKey(service, storageKey);
+
+      expect(passwords.deletePassword).toHaveBeenCalledWith(service, storageKey);
+    });
+  });
+
+  describe("authenticateBiometric", () => {
+    const hwnd = randomBytes(32).buffer;
+    const consentMessage = "Test Windows Hello Consent Message";
+
+    beforeEach(() => {
+      windowMain.win.getNativeWindowHandle = jest.fn().mockReturnValue(hwnd);
+      i18nService.t.mockReturnValue(consentMessage);
+    });
+
+    it("should return true when biometric authentication is successful", async () => {
+      const result = await sut.authenticateBiometric();
+
+      expect(result).toBe(true);
+      expect(biometrics.prompt).toHaveBeenCalledWith(hwnd, consentMessage);
+    });
+
+    it("should return false when biometric authentication fails", async () => {
+      biometrics.prompt = jest.fn().mockResolvedValue(false);
+
+      const result = await sut.authenticateBiometric();
+
+      expect(result).toBe(false);
+      expect(biometrics.prompt).toHaveBeenCalledWith(hwnd, consentMessage);
     });
   });
 
