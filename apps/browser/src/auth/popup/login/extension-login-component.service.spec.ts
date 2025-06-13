@@ -16,7 +16,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../../../popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { ExtensionLoginComponentService } from "./extension-login-component.service";
 

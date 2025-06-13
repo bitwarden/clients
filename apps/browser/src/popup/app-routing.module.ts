@@ -16,10 +16,7 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   DevicesIcon,
-  LockIcon,
   LoginComponent,
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
@@ -41,13 +38,10 @@ import {
   UserLockIcon,
   VaultIcon,
 } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
-import {
-  ExtensionAnonLayoutWrapperComponent,
-  ExtensionAnonLayoutWrapperData,
-} from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
@@ -89,6 +83,10 @@ import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 
 import { RouteElevation } from "./app-routing.animations";
+import {
+  ExtensionAnonLayoutWrapperComponent,
+  ExtensionAnonLayoutWrapperData,
+} from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -504,7 +502,7 @@ const routes: Routes = [
         path: "lock",
         canActivate: [lockGuard()],
         data: {
-          pageIcon: LockIcon,
+          pageIcon: Icons.LockIcon,
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
