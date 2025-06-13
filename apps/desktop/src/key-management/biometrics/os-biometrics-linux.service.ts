@@ -46,7 +46,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
-  private clientKeyHalves = new Map<UserId Uint8Array | null>();
+  private clientKeyHalves = new Map<UserId, Uint8Array | null>();
 
   async setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     const clientKeyPartB64 = Utils.fromBufferToB64(
@@ -77,7 +77,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     if (value == null || value == "") {
       return null;
     } else {
-      const clientKeyHalf = this.clientKeyHalves.get(userId.toString());
+      const clientKeyHalf = this.clientKeyHalves.get(userId);
       const clientKeyPartB64 = Utils.fromBufferToB64(clientKeyHalf);
       const encValue = new EncString(value);
       this.setIv(encValue.iv);
@@ -200,7 +200,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
     }
 
-    this.clientKeyHalves.set(userId.toString(), clientKeyHalf);
+    this.clientKeyHalves.set(userId, clientKeyHalf);
 
     return clientKeyHalf;
   }
