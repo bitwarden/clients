@@ -1,4 +1,4 @@
-import { filter, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -208,9 +208,10 @@ export class ListCommand {
       const collections = response.data
         .filter((c) => c.organizationId === options.organizationId)
         .map((r) => new Collection(new CollectionData(r as ApiCollectionDetailsResponse)));
-      const orgKeys = await firstValueFrom(
-        this.keyService.orgKeys$(userId).pipe(filter((k) => !!k)),
-      );
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      if (orgKeys == null) {
+        throw new Error("Organization keys not found.");
+      }
       let decCollections = await firstValueFrom(
         this.collectionService.decryptMany$(collections, orgKeys),
       );

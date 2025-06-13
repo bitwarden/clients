@@ -76,7 +76,7 @@ export class DefaultCollectionService implements CollectionService {
               tap((collections) => this.setDecryptedCollections(collections, userId)),
             ),
       ),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      shareReplay({ refCount: false, bufferSize: 1 }),
     );
   }
 
