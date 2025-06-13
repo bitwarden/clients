@@ -13,6 +13,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/common/spec";
 
@@ -90,6 +91,10 @@ describe("Vault Nudges Service", () => {
         {
           provide: VaultTimeoutSettingsService,
           useValue: mock<VaultTimeoutSettingsService>(),
+        },
+        {
+          provide: BiometricStateService,
+          useValue: mock<BiometricStateService>(),
         },
       ],
     });

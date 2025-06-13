@@ -534,6 +534,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         if (!successful) {
           await this.biometricStateService.setFingerprintValidated(false);
         }
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockBiometricSet"),
+        });
       } catch (error) {
         this.form.controls.biometric.setValue(false);
         this.validationService.showError(error);
