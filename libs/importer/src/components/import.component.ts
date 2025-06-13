@@ -16,7 +16,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatestWith, filter, map, shareReplay, switchMap, takeUntil } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -258,7 +258,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     await this.handlePolicies();
     this.restrictedItemTypesService.restricted$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }))
       .subscribe((restrictedItemTypes) => {
         // If/when restricted item types are expanded to include all item types this array
         // can be used to format the message displayed in the callout.
