@@ -19,6 +19,7 @@ jest.mock("@bitwarden/desktop-napi", () => {
         keyB64: "",
         ivB64: "",
       }),
+      prompt: jest.fn().mockResolvedValue(true),
     },
     passwords: {
       getPassword: jest.fn().mockResolvedValue(null),
@@ -62,6 +63,18 @@ describe("OsBiometricsServiceWindows", function () {
     const service = "testService";
     const storageKey = "testStorageKey";
     const clientKeyHalfB64 = "testClientKeyHalfB64";
+
+    beforeEach(() => {
+      biometrics.prompt = jest.fn().mockResolvedValue(true);
+    });
+
+    it("should throw error when unsuccessfully authenticated biometrics", async () => {
+      biometrics.prompt = jest.fn().mockResolvedValue(false);
+
+      await expect(sut.getBiometricKey(service, storageKey, clientKeyHalfB64)).rejects.toThrow(
+        new Error("Biometric authentication failed"),
+      );
+    });
 
     it.each([null, undefined, ""])(
       "should return null if no password is found '%s'",
@@ -140,7 +153,6 @@ describe("OsBiometricsServiceWindows", function () {
     ])(
       "should derive key material and ivB64 and return it when os key half not saved yet",
       async (clientKeyHalfB64, ivB64) => {
-        browserWindow.isFocused.mockReturnValue(true);
         sut["_iv"] = ivB64;
 
         const derivedKeyMaterial = {
@@ -161,40 +173,10 @@ describe("OsBiometricsServiceWindows", function () {
         expect(biometrics.deriveKeyMaterial).toHaveBeenCalledWith(ivB64);
         expect(sut["_osKeyHalf"]).toEqual(derivedKeyMaterial.keyB64);
         expect(sut["_iv"]).toEqual(derivedKeyMaterial.ivB64);
-        expect(browserWindow.showInactive).not.toHaveBeenCalled();
-        expect(browserWindow.focus).not.toHaveBeenCalled();
-        expect(windowMain.win.setAlwaysOnTop).not.toHaveBeenCalled();
       },
     );
 
-    it("should bring the window to foreground and focus the window when not focused", async () => {
-      browserWindow.isFocused.mockReturnValue(false);
-      browserWindow.isAlwaysOnTop.mockReturnValue(false);
-
-      await sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" });
-
-      expect(browserWindow.showInactive).toHaveBeenCalled();
-      expect(browserWindow.focus).toHaveBeenCalled();
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(1, true);
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(2, false);
-    });
-
-    it("should bring the window to foreground and focus the window then bring back always on top setting when not focused and always on top setting was true", async () => {
-      browserWindow.isFocused.mockReturnValue(false);
-      browserWindow.isAlwaysOnTop.mockReturnValue(true);
-
-      await sut.getStorageDetails({ clientKeyHalfB64: "testClientKeyHalfB64" });
-
-      expect(browserWindow.showInactive).toHaveBeenCalled();
-      expect(browserWindow.focus).toHaveBeenCalled();
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(1, false);
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(2, true);
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(3, false);
-      expect(windowMain.win.setAlwaysOnTop).toHaveBeenNthCalledWith(4, true);
-    });
-
     it("should throw an error when deriving key material and returned iv is null", async () => {
-      browserWindow.isFocused.mockReturnValue(true);
       sut["_iv"] = "testIvB64";
 
       const derivedKeyMaterial = {
