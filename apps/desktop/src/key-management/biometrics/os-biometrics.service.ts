@@ -15,7 +15,7 @@ export interface OsBiometricService {
    *
    * @returns true if biometrics support can be automatically setup, false if it requires user interaction.
    */
-  canAutoSetup: () => Promise<boolean>;
+  canAutoSetup: Promise<boolean>;
   /**
    * Starts automatic biometric setup, which places the required configuration files / changes the required settings.
    */
