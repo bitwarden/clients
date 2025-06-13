@@ -42,7 +42,7 @@
       fullWidth
       placeholderIcon="bwi-list"
       [placeholderText]="'type' | i18n"
-      [options]="cipherTypes"
+      [options]="cipherTypes$ | async"
     >
     </bit-chip-select>
   </form>
