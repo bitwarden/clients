@@ -19,7 +19,6 @@ import { WebLayoutModule } from "./web-layout.module";
 @Component({
   selector: "app-user-layout",
   templateUrl: "user-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

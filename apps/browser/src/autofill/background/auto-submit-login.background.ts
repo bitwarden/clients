@@ -10,8 +10,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -42,7 +40,6 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     private autofillService: AutofillService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private policyService: PolicyService,
     private accountService: AccountService,
@@ -51,25 +48,19 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   }
 
   /**
-   * Initializes the auto-submit login policy. Will return early if
-   * the feature flag is not set. If the policy is not enabled, it
+   * Initializes the auto-submit login policy. If the policy is not enabled, it
    * will trigger a removal of any established listeners.
    */
   async init() {
-    const featureFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.IdpAutoSubmitLogin,
-    );
-    if (featureFlagEnabled) {
-      this.accountService.activeAccount$
-        .pipe(
-          getUserId,
-          switchMap((userId) =>
-            this.policyService.policiesByType$(PolicyType.AutomaticAppLogIn, userId),
-          ),
-          getFirstPolicy,
-        )
-        .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
-    }
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policiesByType$(PolicyType.AutomaticAppLogIn, userId),
+        ),
+        getFirstPolicy,
+      )
+      .subscribe(this.handleAutoSubmitLoginPolicySubscription.bind(this));
   }
 
   /**

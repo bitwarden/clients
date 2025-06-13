@@ -8,7 +8,6 @@ import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "export-web.component.html",
-  standalone: true,
   imports: [SharedModule, ExportComponent, HeaderModule],
 })
 export class ExportWebComponent {

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
@@ -18,6 +20,12 @@ import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+
+export type EncryptionContext = {
+  cipher: Cipher;
+  /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
+  encryptedFor: UserId;
+};
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
@@ -40,7 +48,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     keyForEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher?: Cipher,
-  ): Promise<Cipher>;
+  ): Promise<EncryptionContext>;
   abstract encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]>;
   abstract encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field>;
   abstract get(id: string, userId: UserId): Promise<Cipher>;
@@ -92,7 +100,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    *
    * @returns A promise that resolves to the created cipher
    */
-  abstract createWithServer(cipher: Cipher, orgAdmin?: boolean): Promise<Cipher>;
+  abstract createWithServer(
+    { cipher, encryptedFor }: EncryptionContext,
+    orgAdmin?: boolean,
+  ): Promise<Cipher>;
   /**
    * Update a cipher with the server
    * @param cipher The cipher to update
@@ -102,7 +113,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @returns A promise that resolves to the updated cipher
    */
   abstract updateWithServer(
-    cipher: Cipher,
+    { cipher, encryptedFor }: EncryptionContext,
     orgAdmin?: boolean,
     isNotClone?: boolean,
   ): Promise<Cipher>;

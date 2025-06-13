@@ -228,15 +228,19 @@ export class DefaultPolicyService implements PolicyService {
       case PolicyType.MaximumVaultTimeout:
         // Max Vault Timeout applies to everyone except owners
         return organization.isOwner;
+      // the following policies apply to everyone
       case PolicyType.PasswordGenerator:
-        // password generation policy applies to everyone
+        // password generation policy
+        return false;
+      case PolicyType.FreeFamiliesSponsorshipPolicy:
+        // free Bitwarden families policy
+        return false;
+      case PolicyType.RestrictedItemTypes:
+        // restricted item types policy
         return false;
       case PolicyType.PersonalOwnership:
         // individual vault policy applies to everyone except admins and owners
         return organization.isAdmin;
-      case PolicyType.FreeFamiliesSponsorshipPolicy:
-        // free Bitwarden families policy applies to everyone
-        return false;
       default:
         return organization.canManagePolicies;
     }

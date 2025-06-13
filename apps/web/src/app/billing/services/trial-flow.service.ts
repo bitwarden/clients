@@ -133,6 +133,7 @@ export class TrialFlowService {
   private async navigateToPaymentMethod(orgId: string) {
     await this.router.navigate(["organizations", `${orgId}`, "billing", "payment-method"], {
       state: { launchPaymentModalAutomatically: true },
+      queryParams: { launchPaymentModalAutomatically: true },
     });
   }
 

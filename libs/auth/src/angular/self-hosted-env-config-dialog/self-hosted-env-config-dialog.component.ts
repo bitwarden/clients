@@ -16,6 +16,8 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   DialogRef,
   AsyncActionsModule,
@@ -53,7 +55,6 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
  * Dialog for configuring self-hosted environment settings.
  */
 @Component({
-  standalone: true,
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",
   imports: [

@@ -28,7 +28,6 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
 @Component({
   selector: "bit-toast",
   templateUrl: "toast.component.html",
-  standalone: true,
   imports: [SharedModule, IconButtonModule, TypographyModule],
 })
 export class ToastComponent {

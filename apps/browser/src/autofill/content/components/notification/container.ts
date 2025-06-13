@@ -29,8 +29,10 @@ export type NotificationContainerProps = NotificationBarIframeInitData & {
   folders?: FolderView[];
   headerMessage?: string;
   i18n: I18n;
+  isLoading?: boolean;
   organizations?: OrgView[];
   personalVaultIsAllowed?: boolean;
+  notificationTestId: string;
   type: NotificationType; // @TODO typing override for generic `NotificationBarIframeInitData.type`
 };
 
@@ -43,15 +45,17 @@ export function NotificationContainer({
   folders,
   headerMessage,
   i18n,
+  isLoading,
   organizations,
   personalVaultIsAllowed = true,
+  notificationTestId,
   theme = ThemeTypes.Light,
   type,
 }: NotificationContainerProps) {
   const showBody = type !== NotificationTypes.Unlock;
 
   return html`
-    <div class=${notificationContainerStyles(theme)}>
+    <div data-testid="${notificationTestId}" class=${notificationContainerStyles(theme)}>
       ${NotificationHeader({
         handleCloseNotification,
         i18n,
@@ -72,6 +76,7 @@ export function NotificationContainer({
         collections,
         folders,
         i18n,
+        isLoading,
         notificationType: type,
         organizations,
         personalVaultIsAllowed,

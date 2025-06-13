@@ -4,7 +4,6 @@ import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appA11yTitle]",
-  standalone: true,
 })
 export class A11yTitleDirective implements OnInit {
   @Input() set appA11yTitle(title: string) {

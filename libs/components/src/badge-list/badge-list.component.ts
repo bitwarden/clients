@@ -10,7 +10,6 @@ import { BadgeModule, BadgeVariant } from "../badge";
 @Component({
   selector: "bit-badge-list",
   templateUrl: "badge-list.component.html",
-  standalone: true,
   imports: [BadgeModule, I18nPipe],
 })
 export class BadgeListComponent implements OnChanges {

@@ -6,17 +6,14 @@ import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkPasswordRandomizer } from "../../engine";
 import { passphraseLeastPrivilege, PassphrasePolicyConstraints } from "../../policies";
-import {
-  CredentialGenerator,
-  GeneratorDependencyProvider,
-  PassphraseGenerationOptions,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CredentialGenerator, PassphraseGenerationOptions } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const sdkPassphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
   id: Algorithm.sdkPassphrase,
-  category: Type.password,
+  type: Type.password,
   weight: 130,
   i18nKeys: {
     name: "passphrase",

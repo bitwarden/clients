@@ -2,6 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -17,7 +19,8 @@ import { FakeStateProvider, mockAccountServiceWith } from "../../../../../libs/c
 import {
   HasItemsNudgeService,
   EmptyVaultNudgeService,
-  DownloadBitwardenNudgeService,
+  NewAccountNudgeService,
+  VaultSettingsImportNudgeService,
 } from "./custom-nudges-services";
 import { DefaultSingleNudgeService } from "./default-single-nudge.service";
 import { NudgesService, NudgeType } from "./nudges.service";
@@ -31,7 +34,7 @@ describe("Vault Nudges Service", () => {
     getFeatureFlag: jest.fn().mockReturnValue(true),
   };
 
-  const nudgeServices = [EmptyVaultNudgeService, DownloadBitwardenNudgeService];
+  const nudgeServices = [EmptyVaultNudgeService, NewAccountNudgeService];
 
   beforeEach(async () => {
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith("user-id" as UserId));
@@ -55,12 +58,16 @@ describe("Vault Nudges Service", () => {
           useValue: mock<HasItemsNudgeService>(),
         },
         {
-          provide: DownloadBitwardenNudgeService,
-          useValue: mock<DownloadBitwardenNudgeService>(),
+          provide: NewAccountNudgeService,
+          useValue: mock<NewAccountNudgeService>(),
         },
         {
           provide: EmptyVaultNudgeService,
           useValue: mock<EmptyVaultNudgeService>(),
+        },
+        {
+          provide: VaultSettingsImportNudgeService,
+          useValue: mock<VaultSettingsImportNudgeService>(),
         },
         {
           provide: ApiService,

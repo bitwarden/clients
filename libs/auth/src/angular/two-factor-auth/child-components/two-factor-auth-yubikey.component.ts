@@ -3,6 +3,8 @@ import { Component, Input } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   DialogModule,
   ButtonModule,
@@ -13,7 +15,6 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-yubikey",
   templateUrl: "two-factor-auth-yubikey.component.html",
   imports: [

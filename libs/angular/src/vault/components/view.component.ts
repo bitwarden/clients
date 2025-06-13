@@ -40,7 +40,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -54,6 +54,8 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { TotpInfo } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "BaseViewComponent";
@@ -95,7 +97,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   cipherType = CipherType;
 
   private previousCipherId: string;
-  private passwordReprompted = false;
+  protected passwordReprompted = false;
 
   /**
    * Represents TOTP information including display formatting and timing
@@ -519,9 +521,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.collectionId as CollectionId,
-    ]);
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
     this.canRestoreCipher$ = this.cipherAuthorizationService.canRestoreCipher$(this.cipher);
 
     if (this.cipher.folderId) {

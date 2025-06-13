@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { NgClass } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+
+import { AvatarModule } from "@bitwarden/components";
 
 @Component({
   selector: "selectable-avatar",
@@ -24,7 +27,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
     >
     </bit-avatar>
   </span>`,
-  standalone: false,
+  imports: [NgClass, AvatarModule],
 })
 export class SelectableAvatarComponent {
   @Input() id: string;

@@ -2,8 +2,14 @@
 // @ts-strict-ignore
 import { combineLatest, concatMap, filter, firstValueFrom, map, timeout } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { SearchService } from "../../../abstractions/search.service";
@@ -43,7 +49,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
     private biometricService: BiometricsService,
-    private lockedCallback: (userId?: string) => Promise<void> = null,
+    private lockedCallback: (userId: UserId) => Promise<void> = null,
     private loggedOutCallback: (
       logoutReason: LogoutReason,
       userId?: string,
@@ -160,7 +166,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     this.messagingService.send("locked", { userId: lockingUserId });
 
     if (this.lockedCallback != null) {
-      await this.lockedCallback(userId);
+      await this.lockedCallback(lockingUserId);
     }
   }
 
