@@ -240,7 +240,8 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "rpm": {
-    "artifactName": "${productName}-${version}-${arch}.${ext}"
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "fpm": ["--rpm-rpmbuild-define", "_build_id_links none"]
   },
   "freebsd": {
     "artifactName": "${productName}-${version}-${arch}.${ext}"
