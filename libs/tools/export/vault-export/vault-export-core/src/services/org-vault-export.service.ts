@@ -24,6 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -52,6 +53,7 @@ export class OrganizationVaultExportService
     private collectionService: CollectionService,
     kdfConfigService: KdfConfigService,
     private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
@@ -133,6 +135,8 @@ export class OrganizationVaultExportService
     const decCiphers: CipherView[] = [];
     const promises = [];
 
+    const restrictedTypes = await this.getRestrictedTypes();
+
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
         const exportPromises: any = [];
@@ -156,7 +160,9 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    decCiphers.push(decCipher);
+                    if (!restrictedTypes.includes(decCipher.type)) {
+                      decCiphers.push(decCipher);
+                    }
                   }),
                 );
               });
@@ -190,6 +196,8 @@ export class OrganizationVaultExportService
       }),
     );
 
+    const restrictedTypes = await this.getRestrictedTypes();
+
     promises.push(
       this.apiService.getCiphersOrganization(organizationId).then((c) => {
         if (c != null && c.data != null && c.data.length > 0) {
@@ -198,6 +206,9 @@ export class OrganizationVaultExportService
             .forEach((item) => {
               const cipher = new Cipher(new CipherData(item));
               ciphers.push(cipher);
+              if (!restrictedTypes.includes(cipher.type)) {
+                ciphers.push(cipher);
+              }
             });
         }
       }),
@@ -218,6 +229,8 @@ export class OrganizationVaultExportService
     let decCollections: CollectionView[] = [];
     const promises = [];
 
+    const restrictedTypes = await this.getRestrictedTypes();
+
     promises.push(
       this.collectionService.getAllDecrypted().then(async (collections) => {
         decCollections = collections.filter((c) => c.organizationId == organizationId && c.manage);
@@ -235,7 +248,8 @@ export class OrganizationVaultExportService
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)),
+        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)) &&
+        !restrictedTypes.includes(f.type),
     );
 
     if (format === "csv") {
@@ -267,11 +281,14 @@ export class OrganizationVaultExportService
 
     await Promise.all(promises);
 
+    const restrictedTypes = await this.getRestrictedTypes();
+
     encCiphers = allCiphers.filter(
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)),
+        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
+        !restrictedTypes.includes(f.type),
     );
 
     return this.BuildEncryptedExport(organizationId, encCollections, encCiphers);
@@ -352,5 +369,10 @@ export class OrganizationVaultExportService
       jsonDoc.items.push(cipher);
     });
     return JSON.stringify(jsonDoc, null, "  ");
+  }
+
+  private async getRestrictedTypes(): Promise<CipherType[]> {
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+    return restrictions.map((r) => r.cipherType);
   }
 }
