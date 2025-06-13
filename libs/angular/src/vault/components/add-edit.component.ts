@@ -105,13 +105,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected writeableCollections: CollectionView[];
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
-  protected typeOptions = [
-    { name: this.i18nService.t("typeLogin"), value: CipherType.Login },
-    { name: this.i18nService.t("typeCard"), value: CipherType.Card },
-    { name: this.i18nService.t("typeIdentity"), value: CipherType.Identity },
-    { name: this.i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
-    { name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey },
-  ];
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
