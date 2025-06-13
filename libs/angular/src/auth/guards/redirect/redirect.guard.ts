@@ -25,8 +25,8 @@ const defaultRoutes: RedirectRoutes = {
 };
 
 /**
- * The `redirectGuard` redirects the user to the appropriate route based on their authentication status.
- * It should be applied to the root route.
+ * Redirects the user to the appropriate route based on their `AuthenticationStatus`.
+ * This guard should be applied to the root route.
  *
  * TODO: This should return Observable<boolean | UrlTree> once we can get rid of all the promises
  */
@@ -54,7 +54,7 @@ export function redirectGuard(overrides: Partial<RedirectRoutes> = {}): CanActiv
     }
 
     // Locked: TDE Locked State
-    //  - User meets all 3 of the following conditions:
+    //  - If user meets all 3 of the following conditions:
     //    1. Auth status is Locked
     //    2. TDE is enabled
     //    3. User has never had a user key (has not decrypted yet)
