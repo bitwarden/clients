@@ -253,6 +253,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.organizationId = model.organizationId;
     cipher.type = model.type;
     cipher.collectionIds = model.collectionIds;
+    cipher.creationDate = model.creationDate;
     cipher.revisionDate = model.revisionDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
@@ -484,12 +485,12 @@ export class CipherService implements CipherServiceAbstraction {
           if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
             return await this.bulkEncryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           } else {
             return await this.encryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           }
         }),

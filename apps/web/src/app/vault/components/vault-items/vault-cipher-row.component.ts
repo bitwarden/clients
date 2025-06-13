@@ -208,7 +208,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       this.showAttachments ||
       this.showClone ||
       this.canEditCipher ||
-      CipherViewLikeUtils.isDeleted(this.cipher)
+      (CipherViewLikeUtils.isDeleted(this.cipher) && this.canRestoreCipher)
     );
   }
 
