@@ -195,7 +195,7 @@ export class Fido2ClientService<ParentWindowReference>
     }
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.authenticatorSelection?.userVerification,
+      makeCredentialParams.requireUserVerification,
       params.timeout,
     );
 
@@ -319,7 +319,7 @@ export class Fido2ClientService<ParentWindowReference>
 
     const timeoutSubscription = this.setAbortTimeout(
       abortController,
-      params.userVerification,
+      getAssertionParams.requireUserVerification,
       params.timeout,
     );
 
@@ -442,13 +442,13 @@ export class Fido2ClientService<ParentWindowReference>
 
   private setAbortTimeout = (
     abortController: AbortController,
-    userVerification?: UserVerification,
+    requireUserVerification: boolean,
     timeout?: number,
   ): Subscription => {
     let clampedTimeout: number;
 
     const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
-    if (userVerification === "required") {
+    if (requireUserVerification) {
       timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
       clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
     } else {
