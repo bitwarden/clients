@@ -483,11 +483,15 @@ function mapToMakeCredentialParams({
       type: credential.type,
     })) ?? [];
 
+  /**
+   * Quirk: Accounts for the fact that some RP's mistakenly submits 'requireResidentKey' as a string
+   */
   const requireResidentKey =
     params.authenticatorSelection?.residentKey === "required" ||
     params.authenticatorSelection?.residentKey === "preferred" ||
     (params.authenticatorSelection?.residentKey === undefined &&
-      params.authenticatorSelection?.requireResidentKey === true);
+      (params.authenticatorSelection?.requireResidentKey === true ||
+        (params.authenticatorSelection?.requireResidentKey as unknown as string) === "true"));
 
   const requireUserVerification =
     params.authenticatorSelection?.userVerification === "required" ||
