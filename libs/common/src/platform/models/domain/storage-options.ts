@@ -1,9 +1,1 @@
-import { HtmlStorageLocation, StorageLocation } from "../../enums";
-
-export type StorageOptions = {
-  storageLocation?: StorageLocation;
-  useSecureStorage?: boolean;
-  userId?: string;
-  htmlStorageLocation?: HtmlStorageLocation;
-  keySuffix?: string;
-};
+export type { StorageOptions } from "@bitwarden/storage-core";
