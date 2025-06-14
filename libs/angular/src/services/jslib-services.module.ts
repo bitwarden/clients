@@ -37,7 +37,7 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiService,
+  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
@@ -1172,6 +1172,11 @@ const safeProviders: SafeProvider[] = [
     deps: [DevicesApiServiceAbstraction, AppIdServiceAbstraction],
   }),
   safeProvider({
+    provide: AuthRequestApiServiceAbstraction,
+    useClass: DefaultAuthRequestApiService,
+    deps: [ApiServiceAbstraction, LogService],
+  }),
+  safeProvider({
     provide: DeviceTrustServiceAbstraction,
     useClass: DeviceTrustService,
     deps: [
@@ -1195,12 +1200,12 @@ const safeProviders: SafeProvider[] = [
     useClass: AuthRequestService,
     deps: [
       AppIdServiceAbstraction,
-      AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyService,
       EncryptService,
       ApiServiceAbstraction,
       StateProvider,
+      AuthRequestApiServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -1466,11 +1471,6 @@ const safeProviders: SafeProvider[] = [
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
     deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
-  }),
-  safeProvider({
-    provide: AuthRequestApiService,
-    useClass: DefaultAuthRequestApiService,
-    deps: [ApiServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: LoginApprovalComponentServiceAbstraction,

@@ -6,8 +6,10 @@ import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
+  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
+  DefaultAuthRequestApiService,
   DefaultLockService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -374,6 +376,7 @@ export default class MainBackground {
   devicesService: DevicesServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestServiceAbstraction;
+  authRequestApiService: AuthRequestApiServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
   pinService: PinServiceAbstraction;
@@ -811,14 +814,16 @@ export default class MainBackground {
       this.appIdService,
     );
 
+    this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
+
     this.authRequestService = new AuthRequestService(
       this.appIdService,
-      this.accountService,
       this.masterPasswordService,
       this.keyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
+      this.authRequestApiService,
     );
 
     this.authService = new AuthService(
