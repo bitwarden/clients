@@ -16,7 +16,7 @@ We export a similar directive, `bitScrollLayout`, that integrates with `bit-layo
 and should be used instead of `scrollWindow`.
 
 ```html
-<!-- Descendant of bit-layout -->
+<!-- Descendant of bit-layout or popup-page -->
 <cdk-virtual-scroll-viewport bitScrollLayout>
   <!-- virtual scroll implementation here -->
 </cdk-virtual-scroll-viewport>
@@ -27,7 +27,10 @@ and should be used instead of `scrollWindow`.
 Due to the initialization order of Angular components and their templates, `bitScrollLayout` will
 error if it is used _in the same template_ as the layout component:
 
+With `bit-layout`:
+
 ```html
+<!-- Will cause `bitScrollLayout` to error -->
 <bit-layout>
   <cdk-virtual-scroll-viewport bitScrollLayout>
     <!-- virtual scroll implementation here -->
@@ -35,11 +38,24 @@ error if it is used _in the same template_ as the layout component:
 </bit-layout>
 ```
 
+With `popup-page`:
+
+```html
+<!-- Will cause `bitScrollLayout` to error -->
+<popup-page>
+  <cdk-virtual-scroll-viewport bitScrollLayout>
+    <!-- virtual scroll implementation here -->
+  </cdk-virtual-scroll-viewport>
+</popup-page>
+```
+
 In this particular composition, the child content gets constructed before the template of
-`bit-layout` and thus has no scroll container to reference. Workarounds include:
+`bit-layout` (or `popup-page`) and thus has no scroll container to reference. Workarounds include:
 
 1. Wrap the child in another component. (This tends to happen by default when the layout is
    integrated with a `router-outlet`.)
+
+With `bit-layout`:
 
 ```html
 <bit-layout>
@@ -47,7 +63,17 @@ In this particular composition, the child content gets constructed before the te
 </bit-layout>
 ```
 
+With `popup-page`:
+
+```html
+<popup-page>
+  <component-that-contains-bitScrollLayout></component-that-contains-bitScrollLayout>
+</popup-page>
+```
+
 2. Use a `defer` block.
+
+With `bit-layout`:
 
 ```html
 <bit-layout>
@@ -57,4 +83,16 @@ In this particular composition, the child content gets constructed before the te
     </div>
   }
 </bit-layout>
+```
+
+With `popup-page`:
+
+```html
+<popup-page>
+  @defer (on immediate) {
+    <cdk-virtual-scroll-viewport bitScrollLayout>
+      <!-- virtual scroll implementation here -->
+    </div>
+  }
+</popup-page>
 ```
