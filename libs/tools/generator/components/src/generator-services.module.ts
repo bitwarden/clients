@@ -5,6 +5,7 @@ import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { SafeInjectionToken } from "@bitwarden/angular/services/injection-tokens";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -115,7 +116,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
     }),
     safeProvider({
       provide: GENERATOR_SERVICE_PROVIDER,
-      useFactory: (
+      useFactory: async (
         system: SystemServiceProvider,
         random: Randomizer,
         encryptor: LegacyEncryptorProvider,
@@ -134,6 +135,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           userStateDeps,
           system,
           Object.values(BuiltIn),
+          await system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
         );
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
@@ -141,6 +143,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           randomizer: random,
           client: new RestClient(api, i18n),
           i18nService: i18n,
+          sdk: system.sdk,
         };
 
         const userState: UserStateSubjectDependencyProvider = {
