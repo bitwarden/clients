@@ -696,7 +696,7 @@
     "message": "City / town"
   },
   "stateProvince": {
-    "message": "County"
+    "message": "State / Province"
   },
   "zipPostalCode": {
     "message": "Postcode"
