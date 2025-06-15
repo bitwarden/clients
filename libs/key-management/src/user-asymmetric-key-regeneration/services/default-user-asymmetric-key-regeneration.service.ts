@@ -162,17 +162,26 @@ export class DefaultUserAsymmetricKeysRegenerationService
     const ciphers = await this.cipherService.getAll(userId);
     const cipher = ciphers.find((cipher) => cipher.organizationId == null);
 
-    if (cipher != null) {
-      try {
-        await cipher.decrypt(userKey);
-        return true;
-      } catch (error) {
+    if (!cipher) {
+      return false;
+    }
+
+    try {
+      const cipherView = await cipher.decrypt(userKey);
+
+      if (cipherView.decryptionFailure) {
         this.logService.error(
-          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: Cipher decryption failed",
         );
         return false;
       }
+
+      return true;
+    } catch (error) {
+      this.logService.error(
+        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+      );
+      return false;
     }
-    return false;
   }
 }
