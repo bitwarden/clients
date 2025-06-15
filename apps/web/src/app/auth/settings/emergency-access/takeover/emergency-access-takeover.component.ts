@@ -5,6 +5,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { switchMap, takeUntil } from "rxjs";
 
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
+import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -22,6 +23,7 @@ import {
 } from "@bitwarden/components";
 import { KdfType, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
+import { SharedModule } from "../../../../shared";
 import { EmergencyAccessService } from "../../../emergency-access";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -38,9 +40,9 @@ type EmergencyAccessTakeoverDialogData = {
   emergencyAccessId: string;
 };
 @Component({
-  selector: "emergency-access-takeover",
   templateUrl: "emergency-access-takeover.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [SharedModule, PasswordCalloutComponent],
 })
 export class EmergencyAccessTakeoverComponent
   extends ChangePasswordComponent
