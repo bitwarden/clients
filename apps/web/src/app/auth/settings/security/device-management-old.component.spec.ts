@@ -118,7 +118,7 @@ describe("DeviceManagementOldComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DeviceManagementComponent);
+    fixture = TestBed.createComponent(DeviceManagementOldComponent);
 
     vaultBannersService = TestBed.inject(VaultBannersService);
   });

@@ -5,8 +5,8 @@
       *ngFor="let column of columnConfig"
       [class]="column.headerClass"
       bitCell
-      [bitSortable]="column.sortable ? column.name : null"
-      [default]="column.name === 'loginStatus' ? 'desc' : null"
+      [bitSortable]="column.sortable ? column.name : ''"
+      [default]="column.name === 'loginStatus' ? 'desc' : 'asc'"
       scope="col"
       role="columnheader"
     >
