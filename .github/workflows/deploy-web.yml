@@ -321,7 +321,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           initial-status: 'in_progress'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           environment: ${{ env._ENVIRONMENT_NAME }}
           task: 'deploy'
           description: 'Deployment from branch/tag: ${{ inputs.branch-or-tag }}'
@@ -409,7 +409,7 @@ jobs:
         uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           state: 'success'
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
@@ -418,7 +418,7 @@ jobs:
         uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
-          environment_url: ${{ env._ENVIRONMENT_URL }}
+          environment-url: ${{ env._ENVIRONMENT_URL }}
           state: 'failure'
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
