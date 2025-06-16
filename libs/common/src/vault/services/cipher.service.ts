@@ -448,12 +448,12 @@ export class CipherService implements CipherServiceAbstraction {
           if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
             return await this.bulkEncryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           } else {
             return await this.encryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           }
         }),

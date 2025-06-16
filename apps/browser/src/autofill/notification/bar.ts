@@ -12,7 +12,7 @@ import { NotificationConfirmationContainer } from "../content/components/notific
 import { NotificationContainer } from "../content/components/notification/container";
 import { selectedFolder as selectedFolderSignal } from "../content/components/signals/selected-folder";
 import { selectedVault as selectedVaultSignal } from "../content/components/signals/selected-vault";
-import { buildSvgDomElement } from "../utils";
+import { buildSvgDomElement, matchAllowedColorSchemes } from "../utils";
 import { circleCheckIcon } from "../utils/svg-icons";
 
 import {
@@ -238,6 +238,15 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   const i18n = getI18n();
   const resolvedTheme = getResolvedTheme(theme ?? ThemeTypes.Light);
 
+  // https://drafts.csswg.org/css-color-adjust-1/#preferred
+  // Prevents preferred color scheme from forcing an opaque background in the iframe
+  const colorScheme = new URLSearchParams(window.location.search).get("colorScheme") || "";
+  const allowedColorScheme = matchAllowedColorSchemes(colorScheme);
+  const meta = document.createElement("meta");
+  meta.setAttribute("name", "color-scheme");
+  meta.setAttribute("content", allowedColorScheme);
+  document.getElementsByTagName("head")[0].appendChild(meta);
+
   if (useComponentBar) {
     const resolvedType = resolveNotificationType(notificationBarIframeInitData);
     const headerMessage = getNotificationHeaderMessage(i18n, resolvedType);
@@ -249,25 +258,34 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     document.head.querySelectorAll('link[rel="stylesheet"]').forEach((node) => node.remove());
 
     if (isVaultLocked) {
-      return render(
-        NotificationContainer({
-          ...notificationBarIframeInitData,
-          headerMessage,
-          type: resolvedType,
-          notificationTestId,
-          theme: resolvedTheme,
-          personalVaultIsAllowed: !personalVaultDisallowed,
-          handleCloseNotification,
-          handleSaveAction: (e) => {
-            sendSaveCipherMessage(true);
+      const notificationConfig = {
+        ...notificationBarIframeInitData,
+        headerMessage,
+        type: resolvedType,
+        notificationTestId,
+        theme: resolvedTheme,
+        personalVaultIsAllowed: !personalVaultDisallowed,
+        handleCloseNotification,
+        handleEditOrUpdateAction,
+        i18n,
+      };
 
-            // @TODO can't close before vault has finished decrypting, but can't leave open during long decrypt because it looks like the experience has failed
-          },
-          handleEditOrUpdateAction,
-          i18n,
-        }),
-        document.body,
-      );
+      const handleSaveAction = () => {
+        sendSaveCipherMessage(true);
+
+        render(
+          NotificationContainer({
+            ...notificationConfig,
+            handleSaveAction: () => {},
+            isLoading: true,
+          }),
+          document.body,
+        );
+      };
+
+      const UnlockNotification = NotificationContainer({ ...notificationConfig, handleSaveAction });
+
+      return render(UnlockNotification, document.body);
     }
 
     // Handle AtRiskPasswordNotification render
