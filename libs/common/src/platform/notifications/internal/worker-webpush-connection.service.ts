@@ -9,6 +9,7 @@ import {
   Subject,
   Subscription,
   switchMap,
+  withLatestFrom,
 } from "rxjs";
 
 import { PushTechnology } from "../../../enums/push-technology.enum";
@@ -17,6 +18,7 @@ import { UserId } from "../../../types/guid";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { SupportStatus } from "../../misc/support-status";
 import { Utils } from "../../misc/utils";
+import { KeyDefinition, StateProvider, WEB_PUSH_SUBSCRIPTION } from "../../state";
 
 import { WebPushNotificationsApiService } from "./web-push-notifications-api.service";
 import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
@@ -48,6 +50,7 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
     private readonly configService: ConfigService,
     private readonly webPushApiService: WebPushNotificationsApiService,
     private readonly serviceWorkerRegistration: ServiceWorkerRegistration,
+    private readonly stateProvider: StateProvider,
   ) {}
 
   start(): Subscription {
@@ -97,6 +100,7 @@ export class WorkerWebPushConnectionService implements WebPushConnectionService 
             this.serviceWorkerRegistration,
             this.pushEvent,
             this.pushChangeEvent,
+            this.stateProvider,
           ),
         } satisfies SupportStatus<WebPushConnector>;
       }),
@@ -114,19 +118,31 @@ class MyWebPushConnector implements WebPushConnector {
     private readonly serviceWorkerRegistration: ServiceWorkerRegistration,
     private readonly pushEvent$: Observable<PushEvent>,
     private readonly pushChangeEvent$: Observable<PushSubscriptionChangeEvent>,
+    private readonly stateProvider: StateProvider,
   ) {
+    const subscriptionUsersState = this.stateProvider.getGlobal(WEB_PUSH_SUBSCRIPTION_USERS);
     this.notifications$ = this.getOrCreateSubscription$(this.vapidPublicKey).pipe(
-      concatMap(async ([isExistingSubscription, subscription]) => {
+      withLatestFrom(subscriptionUsersState.state$.pipe(map((x) => x ?? {}))),
+      concatMap(async ([[isExistingSubscription, subscription], subscriptionUsers]) => {
         if (subscription == null) {
           throw new Error("Expected a non-null subscription.");
         }
 
-        // If this is an existing subscription we don't need to push it to our server
-        // we can just start listening to messages.
-        if (isExistingSubscription) {
-          return;
+        // If this is a new subscription, we can clear state and start over
+        if (!isExistingSubscription) {
+          subscriptionUsers = {};
         }
 
+        // If the user is already subscribed, we don't need to do anything
+        if (subscriptionUsers[subscription.endpoint]?.includes(this.userId)) {
+          return;
+        }
+        subscriptionUsers[subscription.endpoint] ??= [];
+        subscriptionUsers[subscription.endpoint].push(this.userId);
+        // Update the state with the new subscription-user association
+        await subscriptionUsersState.update(() => subscriptionUsers);
+
+        // Inform the server about the new subscription-user association
         await this.webPushApiService.putSubscription(subscription.toJSON());
       }),
       switchMap(() => this.pushEvent$),
@@ -172,3 +188,21 @@ class MyWebPushConnector implements WebPushConnector {
     );
   }
 }
+
+export const WEB_PUSH_SUBSCRIPTION_USERS = new KeyDefinition<Record<string, UserId[]>>(
+  WEB_PUSH_SUBSCRIPTION,
+  "subUsers",
+  {
+    deserializer: (obj) => {
+      if (obj == null) {
+        return {};
+      }
+
+      const result: Record<string, UserId[]> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = Array.isArray(value) ? value : [];
+      }
+      return result;
+    },
+  },
+);
