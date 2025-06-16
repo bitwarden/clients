@@ -73,7 +73,7 @@ export class DeviceManagementTableComponent implements OnChanges {
     if (result !== undefined && typeof result === "boolean") {
       // Auth request was approved or denied, so clear the
       // pending auth request and re-sort the device array
-      const updatedDevices = this.devices
+      this.tableDataSource.data = this.devices
         .map((device) => {
           if (device.pendingAuthRequest?.id === pendingAuthRequest.id) {
             device.pendingAuthRequest = null;
@@ -82,8 +82,6 @@ export class DeviceManagementTableComponent implements OnChanges {
           return device;
         })
         .sort(deviceReSort);
-
-      this.tableDataSource.data = updatedDevices;
     }
   }
 }

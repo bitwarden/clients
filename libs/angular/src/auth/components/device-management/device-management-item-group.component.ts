@@ -34,7 +34,7 @@ export class DeviceManagementItemGroupComponent {
     if (result !== undefined && typeof result === "boolean") {
       // Auth request was approved or denied, so clear the
       // pending auth request and re-sort the device array
-      const updatedDevices = this.devices
+      this.devices = this.devices
         .map((device) => {
           if (device.pendingAuthRequest?.id === pendingAuthRequest.id) {
             device.pendingAuthRequest = null;
@@ -43,8 +43,6 @@ export class DeviceManagementItemGroupComponent {
           return device;
         })
         .sort(deviceReSort);
-
-      this.devices = updatedDevices;
     }
   }
 }
