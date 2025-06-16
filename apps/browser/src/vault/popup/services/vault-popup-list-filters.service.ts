@@ -215,7 +215,7 @@ export class VaultPopupListFiltersService {
    */
   filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
     this.filters$,
-    this.restrictedItemTypesService.restricted$,
+    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
   ]).pipe(
     map(
       ([filters, restrictions]) =>
