@@ -5,7 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { IntroCarouselService } from "../popup/services/intro-carousel.service";
+import { IntroCarouselService } from "../services/intro-carousel.service";
 
 export const IntroCarouselGuard = async () => {
   const router = inject(Router);

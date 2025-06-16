@@ -342,8 +342,6 @@ export class VaultItemsComponent {
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
 
-    this.selection.clear();
-
     // All ciphers are selectable, collections only if they can be edited or deleted
     this.editableItems = items.filter(
       (item) =>

@@ -11,4 +11,5 @@ export { Folder } from "./folder";
 export { Globe } from "./globe";
 export { PencilSquare } from "./pencil-square";
 export { Shield } from "./shield";
+export { Spinner } from "./spinner";
 export { User } from "./user";

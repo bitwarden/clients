@@ -5,7 +5,7 @@ import { of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { IntroCarouselService } from "../popup/services/intro-carousel.service";
+import { IntroCarouselService } from "../services/intro-carousel.service";
 
 import { IntroCarouselGuard } from "./intro-carousel.guard";
 

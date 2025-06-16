@@ -14,6 +14,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 
 export class EncryptServiceImplementation implements EncryptService {

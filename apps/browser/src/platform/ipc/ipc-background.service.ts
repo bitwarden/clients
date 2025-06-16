@@ -23,14 +23,14 @@ export class IpcBackgroundService extends IpcService {
       await SdkLoadService.Ready;
       this.communicationBackend = new IpcCommunicationBackend({
         async send(message: OutgoingMessage): Promise<void> {
-          if (typeof message.destination === "object") {
+          if (typeof message.destination === "object" && message.destination.Web != undefined) {
             await BrowserApi.tabSendMessage(
               { id: message.destination.Web.id } as chrome.tabs.Tab,
               {
                 type: "bitwarden-ipc-message",
                 message: {
                   destination: message.destination,
-                  payload: message.payload,
+                  payload: [...message.payload],
                   topic: message.topic,
                 },
               } satisfies IpcMessage,
@@ -44,7 +44,7 @@ export class IpcBackgroundService extends IpcService {
       });
 
       BrowserApi.messageListener("platform.ipc", (message, sender) => {
-        if (!isIpcMessage(message)) {
+        if (!isIpcMessage(message) || message.message.destination !== "BrowserBackground") {
           return;
         }
 
@@ -53,10 +53,14 @@ export class IpcBackgroundService extends IpcService {
           return;
         }
 
-        this.communicationBackend?.deliver_message(
-          new IncomingMessage(message.message.payload, message.message.destination, {
-            Web: { id: sender.tab.id },
-          }),
+        this.communicationBackend?.receive(
+          new IncomingMessage(
+            new Uint8Array(message.message.payload),
+            message.message.destination,
+            {
+              Web: { id: sender.tab.id },
+            },
+          ),
         );
       });
 
