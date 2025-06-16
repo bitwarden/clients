@@ -167,7 +167,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
     }
 
     #[napi(object)]

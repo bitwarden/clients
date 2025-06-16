@@ -62,9 +62,6 @@ impl PeerInfo {
     }
 
     pub fn host_key(&self) -> Vec<u8> {
-        self.host_key
-            .lock()
-            .expect("Mutex is not poisoned")
-            .clone()
+        self.host_key.lock().expect("Mutex is not poisoned").clone()
     }
 }
