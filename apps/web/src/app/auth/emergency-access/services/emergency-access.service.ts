@@ -88,18 +88,18 @@ export class EmergencyAccessService
    * Returns policies that apply to the grantor if the grantor is the owner of an org, otherwise returns null.
    * Intended for grantee.
    * @param id emergency access id
+   *
+   * @remarks
+   * The ONLY time the API call will return an array of policies is when the Grantor is the OWNER
+   * of an organization. In all other scenarios the server returns null. Even if the Grantor
+   * is the member of an org that has enforced MP policies, the server will still return null
+   * because in the Emergency Access Takeover process, the Grantor gets removed from the org upon
+   * takeover, and therefore the MP policies are irrelevant.
+   *
+   * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
+   * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
    */
   async getGrantorPolicies(id: string): Promise<Policy[]> {
-    /**
-     * The ONLY time this call will return an array of policies is when the Grantor is the OWNER
-     * of an organization. In all other scenarios the server returns null. Even if the Grantor
-     * is the member of an org that has enforced MP policies, the server will still return null
-     * because in the Emergency Access Takeover process, the Grantor gets removed from the org upon
-     * takeover, and therefore the MP policies are irrelevant.
-     *
-     * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
-     * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
-     */
     const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);
     let policies: Policy[] = [];
     if (response.data != null && response.data.length > 0) {
