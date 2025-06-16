@@ -9,7 +9,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
+import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 /**
  * This guard verifies the user's authentication status.
