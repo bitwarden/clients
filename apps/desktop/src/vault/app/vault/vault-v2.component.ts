@@ -633,9 +633,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
   }
 
   async editFolder(folderId: string) {
+    if (!this.activeUserId) {
+      return;
+    }
     const folderView = await firstValueFrom(
       this.folderService.getDecrypted$(folderId, this.activeUserId),
     );
+
+    if (!folderView) {
+      return;
+    }
 
     const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
       editFolderConfig: {
@@ -651,7 +658,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
       result === AddEditFolderDialogResult.Deleted ||
       result === AddEditFolderDialogResult.Created
     ) {
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
+      await this.vaultFilterComponent?.reloadCollectionsAndFolders(this.activeFilter);
     }
   }
 
@@ -694,10 +701,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
         replaceUrl: true,
       })
       .catch(() => {});
-  }
-
-  private addCipherWithChangeDetection(type: CipherType) {
-    this.functionWithChangeDetection(() => this.addCipher(type).catch(() => {}));
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {

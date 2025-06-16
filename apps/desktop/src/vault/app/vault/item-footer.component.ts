@@ -25,6 +25,7 @@ export class ItemFooterComponent implements OnInit {
   @Input() collectionId: string | null = null;
   @Input({ required: true }) action: string = "view";
   @Input() isSubmitting: boolean = false;
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
   @Output() onEdit = new EventEmitter<CipherView>();
   @Output() onClone = new EventEmitter<CipherView>();
   @Output() onDelete = new EventEmitter<CipherView>();
@@ -34,8 +35,7 @@ export class ItemFooterComponent implements OnInit {
 
   canDeleteCipher$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
-
-  private passwordReprompted = false;
+  passwordReprompted: boolean = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -51,6 +51,7 @@ export class ItemFooterComponent implements OnInit {
   async ngOnInit() {
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   async clone() {
