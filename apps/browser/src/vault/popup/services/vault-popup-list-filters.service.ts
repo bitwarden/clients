@@ -227,18 +227,8 @@ export class VaultPopupListFiltersService {
             }
 
             // Check if cipher type is restricted (with organization exemptions)
-            if (restrictions && restrictions.length > 0) {
-              const isRestricted = restrictions.some(
-                (restrictedType) =>
-                  restrictedType.cipherType === cipher.type &&
-                  (cipher.organizationId
-                    ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-                    : restrictedType.allowViewOrgIds.length === 0),
-              );
-
-              if (isRestricted) {
-                return false;
-              }
+            if (ServiceUtils.isCipherViewRestricted(cipher, restrictions)) {
+              return false;
             }
 
             if (filters.cipherType !== null && cipher.type !== filters.cipherType) {

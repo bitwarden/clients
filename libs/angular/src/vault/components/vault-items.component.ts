@@ -22,6 +22,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
@@ -170,18 +171,8 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
           allCiphers = [..._failedCiphers, ...allCiphers];
 
-          // Filter the cipher if that type is restricted unless
-          // - The cipher belongs to an organization and that organization allows viewing the cipher type
-          // OR
-          // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
           const restrictedTypeFilter = (cipher: CipherView) =>
-            !restricted.some(
-              (restrictedType) =>
-                restrictedType.cipherType === cipher.type &&
-                (cipher.organizationId
-                  ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-                  : restrictedType.allowViewOrgIds.length === 0),
-            );
+            !ServiceUtils.isCipherViewRestricted(cipher, restricted);
 
           return this.searchService.searchCiphers(
             userId,
