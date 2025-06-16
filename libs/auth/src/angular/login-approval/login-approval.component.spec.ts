@@ -119,7 +119,7 @@ describe("LoginApprovalComponent", () => {
       expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(false, response);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "info",
-        title: null,
+        title: "",
         message: "denied message",
       });
     });
