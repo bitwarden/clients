@@ -128,12 +128,19 @@ describe("Fido2CreateComponent", () => {
       expect(component.session).toBe(mockSession);
     });
 
-    it("should throw error when no active session found", async () => {
+    it("should show error dialog when no active session found", async () => {
       mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(null);
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "Cannot read properties of null (reading 'getRpId')",
-      );
+      await component.ngOnInit();
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "unableToSavePasskey" },
+        content: { key: "closeThisBitwardenWindow" },
+        type: "danger",
+        acceptButtonText: { key: "closeBitwarden" },
+        cancelButtonText: null,
+      });
     });
   });
 
