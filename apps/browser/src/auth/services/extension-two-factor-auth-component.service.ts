@@ -7,6 +7,8 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   AuthPopoutType,
   closeSsoAuthResultPopout,
