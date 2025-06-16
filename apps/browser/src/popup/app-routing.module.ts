@@ -496,7 +496,8 @@ const routes: Routes = [
         canActivate: [tdeDecryptionRequiredGuard()],
         data: {
           pageIcon: DevicesIcon,
-        },
+          showAcctSwitcher: true,
+        } satisfies ExtensionAnonLayoutWrapperData,
         children: [{ path: "", component: LoginDecryptionOptionsComponent }],
       },
       {
