@@ -133,11 +133,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected load = async (): Promise<void> => {
     this.loading = true;
     try {
-      const { accountCredit, paymentSource, subscriptionStatus } =
+      const { accountCredit, paymentSource, subscriptionStatus, taxInformation } =
         await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
       this.accountCredit = accountCredit;
       this.paymentSource = paymentSource;
       this.subscriptionStatus = subscriptionStatus;
+      this.taxInformation = taxInformation;
 
       if (this.organizationId) {
         const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
@@ -258,9 +259,6 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   }
 
   private async checkBillingAddressForTrialingOrg(): Promise<boolean> {
-    const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
-    this.taxInformation = TaxInformation.from(taxInfo);
-
     const hasBillingAddress =
       this.taxInformation?.postalCode ||
       this.taxInformation?.country ||
