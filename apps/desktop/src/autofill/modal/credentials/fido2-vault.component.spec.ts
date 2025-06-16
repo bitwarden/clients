@@ -10,7 +10,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -72,40 +71,41 @@ describe("Fido2VaultComponent", () => {
     component = fixture.componentInstance;
   });
 
-  function createMockCiphers(): CipherView[] {
-    const cipher1 = new CipherView();
-    cipher1.id = "cipher-1";
-    cipher1.name = "Test Cipher 1";
-    cipher1.type = CipherType.Login;
-    cipher1.login = new LoginView();
-    cipher1.login.username = "test1@example.com";
-    cipher1.reprompt = CipherRepromptType.None;
-    cipher1.deletedDate = null;
-
-    const cipher2 = new CipherView();
-    cipher2.id = "cipher-2";
-    cipher2.name = "Test Cipher 2";
-    cipher2.type = CipherType.Login;
-    cipher2.login = new LoginView();
-    cipher2.login.username = "test2@example.com";
-    cipher2.reprompt = CipherRepromptType.None;
-    cipher2.deletedDate = null;
-
-    const cipher3 = new CipherView();
-    cipher3.id = "cipher-3";
-    cipher3.name = "Test Cipher 3";
-    cipher3.type = CipherType.Login;
-    cipher3.login = new LoginView();
-    cipher3.login.username = "test3@example.com";
-    cipher3.reprompt = CipherRepromptType.Password;
-    cipher3.deletedDate = null;
-
-    return [cipher1, cipher2, cipher3];
-  }
+  const mockCiphers: any[] = [
+    {
+      id: "cipher-1",
+      name: "Test Cipher 1",
+      type: CipherType.Login,
+      login: {
+        username: "test1@example.com",
+      },
+      reprompt: CipherRepromptType.None,
+      deletedDate: null,
+    },
+    {
+      id: "cipher-2",
+      name: "Test Cipher 2",
+      type: CipherType.Login,
+      login: {
+        username: "test2@example.com",
+      },
+      reprompt: CipherRepromptType.None,
+      deletedDate: null,
+    },
+    {
+      id: "cipher-3",
+      name: "Test Cipher 3",
+      type: CipherType.Login,
+      login: {
+        username: "test3@example.com",
+      },
+      reprompt: CipherRepromptType.Password,
+      deletedDate: null,
+    },
+  ];
 
   describe("ngOnInit", () => {
     it("should initialize session and load ciphers successfully", async () => {
-      const mockCiphers = createMockCiphers();
       mockCipherService.getAllDecryptedForIds.mockResolvedValue(mockCiphers);
 
       await component.ngOnInit();
@@ -123,7 +123,6 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("should filter out deleted ciphers", async () => {
-      const mockCiphers = createMockCiphers();
       mockCiphers[1].deletedDate = new Date();
       mockCipherService.getAllDecryptedForIds.mockResolvedValue(mockCiphers);
 
@@ -150,12 +149,13 @@ describe("Fido2VaultComponent", () => {
   });
 
   describe("chooseCipher", () => {
+    const cipher = mockCiphers[0];
+
     beforeEach(() => {
       component.session = mockSession;
     });
 
     it("should choose cipher when access is validated", async () => {
-      const cipher = createMockCiphers()[0];
       cipher.reprompt = CipherRepromptType.None;
 
       await component.chooseCipher(cipher);
@@ -166,7 +166,6 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("should prompt for password when cipher requires reprompt", async () => {
-      const cipher = createMockCiphers()[0];
       cipher.reprompt = CipherRepromptType.Password;
       mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
@@ -177,7 +176,6 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("should not choose cipher when password reprompt is cancelled", async () => {
-      const cipher = createMockCiphers()[0];
       cipher.reprompt = CipherRepromptType.Password;
       mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
 
