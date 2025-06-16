@@ -1,12 +1,16 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedCipherType } from "@bitwarden/vault";
 
 import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherView) => boolean;
 
-export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
+export function createFilterFunction(
+  filter: RoutedVaultFilterModel,
+  restrictedTypes?: RestrictedCipherType[],
+): FilterFunction {
   return (cipher) => {
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
@@ -80,6 +84,24 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
       return false;
     }
 
+    // Restricted types
+    if (restrictedTypes && restrictedTypes.length > 0) {
+      // Filter the cipher if that type is restricted unless
+      // - The cipher belongs to an organization and that organization allows viewing the cipher type
+      // OR
+      // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
+      if (
+        restrictedTypes.some(
+          (restrictedType) =>
+            restrictedType.cipherType === cipher.type &&
+            (cipher.organizationId
+              ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+              : restrictedType.allowViewOrgIds.length === 0),
+        )
+      ) {
+        return false;
+      }
+    }
     return true;
   };
 }

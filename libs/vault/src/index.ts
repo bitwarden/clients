@@ -24,6 +24,10 @@ export * as VaultIcons from "./icons";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
+export {
+  RestrictedItemTypesService,
+  RestrictedCipherType,
+} from "./services/restricted-item-types.service";
 
 export * from "./abstractions/change-login-password.service";
 export * from "./services/default-change-login-password.service";
