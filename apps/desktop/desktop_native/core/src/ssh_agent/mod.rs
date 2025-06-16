@@ -162,7 +162,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
         &self,
         session_bind_info_result: &SessionBindResult,
         connection_info: &peerinfo::models::PeerInfo,
-    ) -> () {
+    ) {
         match session_bind_info_result {
             SessionBindResult::Success(session_bind_info) => {
                 connection_info.set_forwarding(session_bind_info.is_forwarding);
