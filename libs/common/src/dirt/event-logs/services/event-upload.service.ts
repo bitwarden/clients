@@ -71,12 +71,7 @@ export class EventUploadService implements EventUploadServiceAbstraction {
       return;
     }
     const eventRequests = eventCollection.map((e) => {
-      const req = new EventRequest();
-      req.type = e.type;
-      req.cipherId = e.cipherId;
-      req.date = e.date;
-      req.organizationId = e.organizationId;
-      return req;
+      return this.eventDataToEventRequest(e);
     });
 
     let failedEvents: EventRequest[];
@@ -99,6 +94,15 @@ export class EventUploadService implements EventUploadServiceAbstraction {
       });
       await this.stateProvider.setUserState(EVENT_COLLECTION, failedEventData, userId);
     }
+  }
+
+  eventDataToEventRequest(event: EventData): EventRequest {
+    const req = new EventRequest();
+    req.type = event.type;
+    req.cipherId = event.cipherId;
+    req.date = event.date;
+    req.organizationId = event.organizationId;
+    return req;
   }
 
   /** Return user's events and then clear them from state
