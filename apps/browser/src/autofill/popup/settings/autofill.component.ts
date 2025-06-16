@@ -11,7 +11,7 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -116,6 +116,7 @@ export class AutofillComponent implements OnInit {
   protected restrictedCardType$: Observable<boolean> =
     this.restrictedItemTypesService.restricted$.pipe(
       map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
   protected autofillOnPageLoadForm = new FormGroup({
