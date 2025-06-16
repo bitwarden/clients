@@ -13,7 +13,7 @@ jest.mock("../popup/utils/auth-popout-window", () => {
   };
 });
 
-jest.mock("../../platform/popup/browser-popup-utils", () => ({
+jest.mock("../../platform/browser/browser-popup-utils", () => ({
   inPopup: jest.fn(),
 }));
 
