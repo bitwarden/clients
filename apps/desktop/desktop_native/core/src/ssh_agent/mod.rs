@@ -58,7 +58,10 @@ impl SshKey for BitwardenSshKey {
 
     fn public_key_bytes(&self) -> Vec<u8> {
         if let Some(ref private_key) = self.private_key {
-            private_key.public_key().to_bytes().unwrap_or_default()
+            private_key
+                .public_key()
+                .to_bytes()
+                .expect("Cipher private key is always correctly parsed")
         } else {
             Vec::new()
         }
