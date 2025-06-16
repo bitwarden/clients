@@ -93,13 +93,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get showFixOldAttachments() {
-    // hasOldAttachments is missing from CipherListView, so we check for CipherView
-    if ("hasOldAttachments" in this.cipher) {
-      return this.cipher.hasOldAttachments && this.cipher.organizationId != null;
-    }
-
-    // TODO: Handle CipherListView case, possibly not needed?
-    return false;
+    return this.cipher.hasOldAttachments && this.cipher.organizationId == null;
   }
 
   protected get hasAttachments() {
