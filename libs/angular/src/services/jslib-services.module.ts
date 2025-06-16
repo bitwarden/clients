@@ -65,7 +65,6 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abs
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   InternalOrganizationServiceAbstraction,
-  OrganizationService,
   OrganizationService as OrganizationServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -684,7 +683,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
-    deps: [ConfigService, AccountService, OrganizationService, PolicyService],
+    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyService],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,

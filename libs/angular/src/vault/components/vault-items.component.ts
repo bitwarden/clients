@@ -168,25 +168,25 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
           let allCiphers = indexedCiphers ?? [];
           const _failedCiphers = failedCiphers ?? [];
 
+          allCiphers = [..._failedCiphers, ...allCiphers];
+
           // Filter the cipher if that type is restricted unless
           // - The cipher belongs to an organization and that organization allows viewing the cipher type
           // OR
           // - The cipher belongs to the user's personal vault and at least one other organization does not restrict that type
-          allCiphers = [..._failedCiphers, ...allCiphers].filter(
-            (cipher) =>
-              !restricted.some(
-                (restrictedType) =>
-                  restrictedType.cipherType === cipher.type &&
-                  (cipher.organizationId
-                    ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-                    : restrictedType.allowViewOrgIds.length === 0),
-              ),
-          );
+          const restrictedTypeFilter = (cipher: CipherView) =>
+            !restricted.some(
+              (restrictedType) =>
+                restrictedType.cipherType === cipher.type &&
+                (cipher.organizationId
+                  ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+                  : restrictedType.allowViewOrgIds.length === 0),
+            );
 
           return this.searchService.searchCiphers(
             userId,
             searchText,
-            [filter, this.deletedFilter],
+            [filter, this.deletedFilter, restrictedTypeFilter],
             allCiphers,
           );
         }),
