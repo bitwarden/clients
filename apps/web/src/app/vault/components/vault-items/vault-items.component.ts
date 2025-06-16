@@ -382,7 +382,7 @@ export class VaultItemsComponent {
     }
 
     if (this.selection.selected.length === 0) {
-      return true;
+      return false;
     }
 
     const hasPersonalItems = this.hasPersonalItems();
