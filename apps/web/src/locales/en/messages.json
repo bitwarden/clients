@@ -2226,7 +2226,7 @@
     "message": "Turn off"
   },
   "orgUserDetailsNotFound": {
-    "message": "Org user details not found"
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revoke access"
