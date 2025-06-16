@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import * as chalk from "chalk";
-import { program, Command, OptionValues } from "commander";
+import { program, Command, Option, OptionValues } from "commander";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -47,6 +47,17 @@ export class SendProgram extends BaseProgram {
         "-d, --deleteInDays <days>",
         "The number of days in the future to set deletion date, defaults to 7",
         "7",
+      )
+      .addOption(
+        new Option(
+          "--password <password>",
+          "optional password to access this Send. Can also be specified in JSON.",
+        ).conflicts("emails"),
+      )
+      .option(
+        "--email <email>",
+        "optional emails to access this Send. Can also be specified in JSON.",
+        parseEmail,
       )
       .option("-a, --maxAccessCount <amount>", "The amount of max possible accesses.")
       .option("--hidden", "Hide <data> in web by default. Valid only if --file is not set.")
@@ -205,9 +216,16 @@ export class SendProgram extends BaseProgram {
       .option("--file <path>", "file to Send. Can also be specified in parent's JSON.")
       .option("--text <text>", "text to Send. Can also be specified in parent's JSON.")
       .option("--hidden", "text hidden flag. Valid only with the --text option.")
+      .addOption(
+        new Option(
+          "--password <password>",
+          "optional password to access this Send. Can also be specified in JSON.",
+        ).conflicts("emails"),
+      )
       .option(
-        "--password <password>",
-        "optional password to access this Send. Can also be specified in JSON",
+        "--email <email>",
+        "optional emails to access this Send. Can also be specified in JSON.",
+        parseEmail,
       )
       .on("--help", () => {
         writeLn("");
@@ -218,7 +236,7 @@ export class SendProgram extends BaseProgram {
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         // Work-around to support `--fullObject` option for `send create --fullObject`
         // Calling `option('--fullObject', ...)` above won't work due to Commander doesn't like same option
-        // to be defind on both parent-command and sub-command
+        // to be defined on both parent-command and sub-command
         const { fullObject = false } = args.parent.opts();
         const mergedOptions = {
           ...options,
@@ -336,4 +354,38 @@ export class SendProgram extends BaseProgram {
     );
     return await cmd.run(encodedJson, options);
   }
+}
+
+function parseEmail(input: string, previousInput: string[]) {
+  function isEmail(input: string) {
+    return !!input && !!input.match(/^(\w+?)@([\w.]+?)$/);
+  }
+
+  function parseList(value: string, separator: string) {
+    const parts = value.split(separator).map((v) => v.trim());
+    process.stdout.write(JSON.stringify(parts));
+    const filtered = parts.filter(isEmail);
+    process.stdout.write(JSON.stringify(filtered));
+
+    return filtered;
+  }
+
+  let result = previousInput ?? [];
+
+  if (input.includes("[")) {
+    const json = JSON.parse(input);
+    if (!Array.isArray(json)) {
+      throw new Error("invalid JSON formatting. `emails` must be an array.");
+    }
+
+    result = result.concat(json);
+  } else if (input.includes(",")) {
+    result = result.concat(parseList(input, ","));
+  } else if (input.includes(" ")) {
+    result = result.concat(parseList(input, " "));
+  } else {
+    result.push(input);
+  }
+
+  return result;
 }

@@ -26,6 +26,7 @@ export class SendResponse implements BaseResponse {
     req.deletionDate = this.getStandardDeletionDate(deleteInDays);
     req.expirationDate = null;
     req.password = null;
+    req.emails = null;
     req.disabled = false;
     req.hideEmail = false;
     return req;
@@ -87,6 +88,7 @@ export class SendResponse implements BaseResponse {
   expirationDate: Date;
   password: string;
   passwordSet: boolean;
+  emails?: Array<string>;
   disabled: boolean;
   hideEmail: boolean;
 

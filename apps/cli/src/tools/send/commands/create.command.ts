@@ -76,8 +76,13 @@ export class SendCreateCommand {
     const filePath = req.file?.fileName ?? options.file;
     const text = req.text?.text ?? options.text;
     const hidden = req.text?.hidden ?? options.hidden;
-    const password = req.password ?? options.password;
+    const password = req.password ?? options.password ?? undefined;
+    const emails = req.emails ?? options.emails ?? undefined;
     const maxAccessCount = req.maxAccessCount ?? options.maxAccessCount;
+
+    if (emails !== undefined && password !== undefined) {
+      return Response.badRequest("--password and --emails are mutually exclusive.");
+    }
 
     req.key = null;
     req.maxAccessCount = maxAccessCount;
@@ -133,6 +138,7 @@ export class SendCreateCommand {
       // Add dates from template
       encSend.deletionDate = sendView.deletionDate;
       encSend.expirationDate = sendView.expirationDate;
+      encSend.emails = emails && emails.join(",");
 
       await this.sendApiService.save([encSend, fileData]);
       const newSend = await this.sendService.getFromState(encSend.id);
@@ -151,12 +157,14 @@ class Options {
   text: string;
   maxAccessCount: number;
   password: string;
+  emails: Array<string>;
   hidden: boolean;
 
   constructor(passedOptions: Record<string, any>) {
     this.file = passedOptions?.file;
     this.text = passedOptions?.text;
     this.password = passedOptions?.password;
+    this.emails = passedOptions?.email;
     this.hidden = CliUtils.convertBooleanOption(passedOptions?.hidden);
     this.maxAccessCount =
       passedOptions?.maxAccessCount != null ? parseInt(passedOptions.maxAccessCount, null) : null;

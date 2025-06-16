@@ -20,6 +20,7 @@ export class SendResponse extends BaseResponse {
   expirationDate: string;
   deletionDate: string;
   password: string;
+  emails: string;
   disable: boolean;
   hideEmail: boolean;
 
@@ -37,6 +38,7 @@ export class SendResponse extends BaseResponse {
     this.expirationDate = this.getResponseProperty("ExpirationDate");
     this.deletionDate = this.getResponseProperty("DeletionDate");
     this.password = this.getResponseProperty("Password");
+    this.emails = this.getResponseProperty("Emails");
     this.disable = this.getResponseProperty("Disabled") || false;
     this.hideEmail = this.getResponseProperty("HideEmail") || false;
 
