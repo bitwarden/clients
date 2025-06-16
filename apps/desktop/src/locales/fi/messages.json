@@ -237,6 +237,24 @@
   "enableSshAgentHelp": {
     "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
   },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Aina"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Ei koskaan"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "Premium vaaditaan"
   },
@@ -333,12 +351,6 @@
   "other": {
     "message": "Muut"
   },
-  "generatePassword": {
-    "message": "Luo salasana"
-  },
-  "generatePassphrase": {
-    "message": "Luo salalause"
-  },
   "type": {
     "message": "Tyyppi"
   },
@@ -394,16 +406,16 @@
     "message": "Todennusavain (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Todennusavain"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Automaattitäytön asetukset"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Verkkosivusto (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Verkkosivusto (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -413,43 +425,49 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Verkkosivusto lisättiin"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Lisää verkkosivusto"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Poista verkkosivusto"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Omistaja"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Lisää kenttä"
+  },
+  "editField": {
+    "message": "Muokkaa kenttää"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Kentän tyyppi"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Kentän nimi"
   },
   "add": {
-    "message": "Add"
+    "message": "Lisää"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Käytä tekstikenttiä esimerkiksi turvakysymysten kaltaisille tiedoille"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Käytä piilotettuja kenttiä esimerkiksi salasanojen kaltaisille arkaluonteisille tiedoille"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Käytä valintaruutuja esimerkiksi sähköpostiosoitteen muistamisen kaltaisten valintaruutujen automaattiseen merkintään"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Käytä linkitettyjä kenttiä kohdatessasi sivustokohtaisia automaattitäytön ongelmia."
   },
   "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+    "message": "Syötä kentän HTML-koodista löytyvä id-, name-, aria-label- tai placeholder-arvo."
   },
   "folder": {
     "message": "Kansio"
@@ -477,7 +495,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Valintaruutu"
   },
   "linkedValue": {
     "message": "Linkitetty arvo",
@@ -673,8 +691,8 @@
   "maxFileSize": {
     "message": "Tiedoston enimmäiskoko on 500 Mt."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Salausavaimen siirto vaaditaan. Päivitä salausavaimesi kirjautumalla verkkoholviin."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Kansio tallennettiin"
@@ -1078,9 +1096,6 @@
   },
   "addNewItem": {
     "message": "Uusi kohde"
-  },
-  "addNewFolder": {
-    "message": "Uusi kansio"
   },
   "view": {
     "message": "Näytä"
@@ -1701,39 +1716,8 @@
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Tiedoston salasana\" ja \"Vahvista tiedoston salasana\" eivät täsmää."
   },
-  "hCaptchaUrl": {
-    "message": "hCaptcha-URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Lataa esteettömyyseväste"
-  },
-  "registerAccessibilityUser": {
-    "message": "Rekisteröidy esteettömyyskäyttäjäksi osoitteessa",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Kopioi ja liitä alla olevaan sähköpostiosoitteeseen lähetetty linkki"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Lataa hCaptcha-esteettömyyseväste syöttämällä URL",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "hCaptcha-URL vaaditaan",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "Virheellinen URL"
-  },
   "done": {
     "message": "Valmis"
-  },
-  "accessibilityCookieSaved": {
-    "message": "Esteettömyyseväste tallennettiin!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "Esteettömyysevästettä ei tallennettu"
   },
   "warning": {
     "message": "VAROITUS",
@@ -1977,10 +1961,10 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kortin tiedot"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$-tiedot",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1989,29 +1973,44 @@
     }
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Lue lisää todentajista"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Kopioi todennusavain (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Tee kaksivaiheisesta kirjautumisesta saumatonta"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kopioi ja liitä todennusavain tähän kenttään."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden voi säilyttää ja täyttää kaksivaiheisen kirjautumisen koodit. Kamerakuvakkeella voit kaapata todennusavaimen avoimen sivun QR-koodista automaattisesti, tai voit kopioida ja liittää sen tähän kenttään manuaalisesti."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Ilmaiset organisaatiot eivät voi käyttää liitteitä"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "Yksi kenttä vaatii huomiotasi."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ kenttää vaatii huomiotasi.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Vanhentunut kortti"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Jos olet uudistanut kortin, päivitä sen tiedot"
   },
   "verificationRequired": {
     "message": "Vahvistus vaaditaan",
@@ -2183,13 +2182,13 @@
     "message": "Organisaatiokäytäntö estää kohteiden tuonnin yksityiseen holviisi."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Henkilökohtaiset tiedot"
   },
   "identification": {
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact information"
+    "message": "Yhteystiedot"
   },
   "allSends": {
     "message": "Kaikki Sendit",
@@ -2507,14 +2506,14 @@
   "removedMasterPassword": {
     "message": "Pääsalasana poistettiin"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ käyttää kertakirjautumista (SSO) itse ylläpidetyllä avainpalvelimella. Organisaation jäsenet eivät enää tarvitse pääsalasanaa kirjautumiseen.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Poistu organisaatiosta"
@@ -2626,7 +2625,25 @@
     "message": "Luo sähköpostiosoite"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Käyttäjätunnusgeneraattori"
+  },
+  "generatePassword": {
+    "message": "Luo salasana"
+  },
+  "generatePassphrase": {
+    "message": "Luo salalause"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
   },
   "spinboxBoundariesHint": {
     "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
@@ -2680,6 +2697,15 @@
   },
   "useThisEmail": {
     "message": "Käytä tätä sähköpostia"
+  },
+  "useThisPassword": {
+    "message": "Käytä tätä salasanaa"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Käytä tätä käyttäjätunnusta"
   },
   "random": {
     "message": "Satunnainen"
@@ -3046,12 +3072,6 @@
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Havaittiin heikko ja tietovuodosta löytynyt salasana. Sinun tulisi suojata tilisi vahvalla ja ainutlaatuisella salasanalla. Haluatko varmasti käyttää tätä salasanaa?"
   },
-  "useThisPassword": {
-    "message": "Käytä tätä salasanaa"
-  },
-  "useThisUsername": {
-    "message": "Käytä tätä käyttäjätunnusta"
-  },
   "checkForBreaches": {
     "message": "Tarkasta esiintyykö salasanaa tunnetuissa tietovuodoissa"
   },
@@ -3151,6 +3171,30 @@
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
+  },
+  "trustOrganization": {
+    "message": "Luota organisaatioon"
+  },
+  "trust": {
+    "message": "Luota"
+  },
+  "doNotTrust": {
+    "message": "Älä luota"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisaatio ei ole luotettu"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Luota käyttäjään"
   },
   "inputRequired": {
     "message": "Syöte vaaditaan."
@@ -3550,10 +3594,10 @@
     "message": "Kertakirjautumiselle ei löytynyt vapaita portteja."
   },
   "securePasswordGenerated": {
-    "message": "Secure password generated! Don't forget to also update your password on the website."
+    "message": "Turvallinen salasana luotiin! Muista vaihtaa se myös verkkosivuston tiliasetuksiin."
   },
   "useGeneratorHelpTextPartOne": {
-    "message": "Use the generator",
+    "message": "Käytä generaattoria",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
@@ -3567,10 +3611,10 @@
     "message": "Biometrinen lukituksen avaus ei ole tällä hetkellä käytettävissä."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä virheellisesti määritettyjen järjestelmätiedostojen takia."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrinen avaus ei ole käytettävissä virheellisesti määritettyjen järjestelmätiedostojen takia."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
     "message": "Biometrinen avaus ei ole käytettävissä, koska sitä ei ole otettu käyttöön osoitteelle $EMAIL$ Bitwardenin työpöytäsovelluksessa.",
@@ -3583,6 +3627,27 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometrinen avaus ei ole tällä hetkellä käytettävissä tuntemattomasta syystä."
+  },
+  "itemDetails": {
+    "message": "Kohteen tiedot"
+  },
+  "itemName": {
+    "message": "Kohteen nimi"
+  },
+  "loginCredentials": {
+    "message": "Kirjautumistiedot"
+  },
+  "additionalOptions": {
+    "message": "Lisävalinnat"
+  },
+  "itemHistory": {
+    "message": "Kohteen historia"
+  },
+  "lastEdited": {
+    "message": "Viimeksi muokattu"
+  },
+  "upload": {
+    "message": "Lähetä"
   },
   "authorize": {
     "message": "Valtuuta"
@@ -3597,7 +3662,7 @@
     "message": "Warning: Agent Forwarding"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Tämä pyyntö tulee etälaitteelta, johon olet kirjautunut"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "pyytää pääsyä"
@@ -3632,63 +3697,6 @@
   "fileSavedToDevice": {
     "message": "Tiedosto tallennettiin laitteelle. Hallitse sitä laitteesi latauksista."
   },
-  "importantNotice": {
-    "message": "Tärkeä ilmoitus"
-  },
-  "setupTwoStepLogin": {
-    "message": "Määritä kaksivaiheinen kirjautuminen"
-  },
-  "itemDetails": {
-    "message": "Item details"
-  },
-  "itemName": {
-    "message": "Item name"
-  },
-  "loginCredentials": {
-    "message": "Login credentials"
-  },
-  "additionalOptions": {
-    "message": "Additional options"
-  },
-  "itemHistory": {
-    "message": "Item history"
-  },
-  "lastEdited": {
-    "message": "Last edited"
-  },
-  "upload": {
-    "message": "Upload"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden lähettää tilisi sähköpostiosoitteeseen koodin, jolla voit vahvistaa kirjautumiset uusista laitteista helmikuusta 2025 alkaen."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Voit määrittää kaksivaiheisen kirjautumisen tilisi vaihtoehtoiseksi suojaustavaksi tai vaihtaa sähköpostiosoitteesi sellaiseen, johon sinulla on pääsy."
-  },
-  "remindMeLater": {
-    "message": "Muistuta myöhemmin"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Onko sinulla luotettava pääsy sähköpostiisi, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Ei ole"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Kyllä, voin käyttää sähköpostiani luotettavasti"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Ota kaksivaiheinen kirjautuminen käyttöön"
-  },
-  "changeAcctEmail": {
-    "message": "Muuta tilin sähköpostiosoitetta"
-  },
   "allowScreenshots": {
     "message": "Salli kuvankaappaus"
   },
@@ -3710,7 +3718,99 @@
   "changeAtRiskPassword": {
     "message": "Vaihda vaarantunut salasana"
   },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Siirrä"
+  },
+  "newFolder": {
+    "message": "Uusi kansio"
+  },
+  "folderName": {
+    "message": "Kansion nimi"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Säästä aikaa automaattitäytöllä"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Verkkosivusto",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   }
 }

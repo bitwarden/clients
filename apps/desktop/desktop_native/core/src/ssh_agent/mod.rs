@@ -7,7 +7,10 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 
-use bitwarden_russh::{session_bind::SessionBindResult, ssh_agent::{self, SshKey}};
+use bitwarden_russh::{
+    session_bind::SessionBindResult,
+    ssh_agent::{self, SshKey},
+};
 
 #[cfg_attr(target_os = "windows", path = "windows.rs")]
 #[cfg_attr(target_os = "macos", path = "unix.rs")]
@@ -70,8 +73,15 @@ impl SshKey for BitwardenSshKey {
     }
 }
 
-impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for BitwardenDesktopAgent<BitwardenSshKey> {
-    async fn confirm(&self, ssh_key: BitwardenSshKey, data: &[u8], info: &peerinfo::models::PeerInfo) -> bool {
+impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey>
+    for BitwardenDesktopAgent<BitwardenSshKey>
+{
+    async fn confirm(
+        &self,
+        ssh_key: BitwardenSshKey,
+        data: &[u8],
+        info: &peerinfo::models::PeerInfo,
+    ) -> bool {
         if !self.is_running() {
             println!("[BitwardenDesktopAgent] Agent is not running, but tried to call confirm");
             return false;
@@ -148,7 +158,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
         false
     }
 
-    async fn set_session_bind_info(
+    async fn set_sessionbind_info(
         &self,
         session_bind_info_result: &SessionBindResult,
         connection_info: &peerinfo::models::PeerInfo,
@@ -157,7 +167,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo, BitwardenSshKey> for Bitwarden
             SessionBindResult::Success(session_bind_info) => {
                 connection_info.set_forwarding(session_bind_info.is_forwarding);
                 connection_info.set_host_key(session_bind_info.host_key.clone());
-            },
+            }
             SessionBindResult::SignatureFailure => {
                 println!("[BitwardenDesktopAgent] Session bind failure: Signature failure");
             }

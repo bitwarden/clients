@@ -15,7 +15,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-text-details",
   templateUrl: "./send-text-details.component.html",
-  standalone: true,
   imports: [
     CheckboxModule,
     CommonModule,

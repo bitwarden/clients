@@ -17,7 +17,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class AuthRequestLoginStrategyData implements LoginStrategyData {
   tokenRequest: PasswordTokenRequest;
-  captchaBypassToken: string;
   authRequestCredentials: AuthRequestLoginCredentials;
 
   static fromJSON(obj: Jsonify<AuthRequestLoginStrategyData>): AuthRequestLoginStrategyData {
@@ -54,7 +53,6 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     data.tokenRequest = new PasswordTokenRequest(
       credentials.email,
       credentials.accessCode,
-      null,
       await this.buildTwoFactor(credentials.twoFactor, credentials.email),
       await this.buildDeviceRequest(),
     );
@@ -66,12 +64,8 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     return authResult;
   }
 
-  override async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
+  override async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const data = this.cache.value;
-    data.tokenRequest.captchaResponse = captchaResponse ?? data.captchaBypassToken;
     this.cache.next(data);
 
     return super.logInTwoFactor(twoFactor);
@@ -101,7 +95,9 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     // User now may or may not have a master password
     // but set the master key encrypted user key if it exists regardless
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     if (authRequestCredentials.decryptedUserKey) {
       await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);

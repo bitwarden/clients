@@ -8,7 +8,6 @@ import { SharedModule } from "../shared/shared.module";
 import { TypographyModule } from "../typography";
 
 @Component({
-  standalone: true,
   selector: "bit-popover",
   imports: [A11yModule, IconButtonModule, SharedModule, TypographyModule],
   templateUrl: "./popover.component.html",

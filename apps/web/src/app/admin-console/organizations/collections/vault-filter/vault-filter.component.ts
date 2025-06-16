@@ -12,6 +12,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -26,6 +27,7 @@ import { CollectionFilter } from "../../../../vault/individual-vault/vault-filte
   selector: "app-organization-vault-filter",
   templateUrl:
     "../../../../vault/individual-vault/vault-filter/components/vault-filter.component.html",
+  standalone: false,
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
@@ -50,6 +52,7 @@ export class VaultFilterComponent
     protected dialogService: DialogService,
     protected configService: ConfigService,
     protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(
       vaultFilterService,
@@ -61,6 +64,7 @@ export class VaultFilterComponent
       dialogService,
       configService,
       accountService,
+      restrictedItemTypesService,
     );
   }
 
@@ -105,14 +109,14 @@ export class VaultFilterComponent
           id: "AllCollections",
           name: "collections",
           type: "all",
-          icon: "bwi-collection",
+          icon: "bwi-collection-shared",
         },
         [
           {
             id: "AllCollections",
             name: "Collections",
             type: "all",
-            icon: "bwi-collection",
+            icon: "bwi-collection-shared",
           },
         ],
       ),

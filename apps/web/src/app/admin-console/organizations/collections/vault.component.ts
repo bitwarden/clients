@@ -13,6 +13,7 @@ import {
   Subject,
 } from "rxjs";
 import {
+  catchError,
   concatMap,
   debounceTime,
   distinctUntilChanged,
@@ -23,7 +24,6 @@ import {
   switchMap,
   takeUntil,
   tap,
-  catchError,
 } from "rxjs/operators";
 
 import {
@@ -44,6 +44,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -61,8 +62,8 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
-  DialogRef,
   BannerModule,
+  DialogRef,
   DialogService,
   Icons,
   NoItemsModule,
@@ -77,6 +78,8 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/services/organization-warnings.service";
+import { ResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/reseller-renewal-warning.component";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -85,6 +88,7 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
+import { FreeTrialWarningComponent } from "../../../billing/warnings/free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -121,20 +125,25 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+  getNestedCollectionTree_vNext,
+} from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum AddAccessStatusType {
   All = 0,
   AddAccess = 1,
 }
 
 @Component({
-  standalone: true,
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
   imports: [
@@ -145,6 +154,8 @@ enum AddAccessStatusType {
     SharedModule,
     BannerModule,
     NoItemsModule,
+    FreeTrialWarningComponent,
+    ResellerRenewalWarningComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -174,8 +185,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected showCollectionAccessRestricted: boolean;
   private hasSubscription$ = new BehaviorSubject<boolean>(false);
   protected currentSearchText$: Observable<string>;
-  protected freeTrial$: Observable<FreeTrial>;
-  protected resellerWarning$: Observable<ResellerWarning | null>;
+  protected useOrganizationWarningsService$: Observable<boolean>;
+  protected freeTrialWhenWarningsServiceDisabled$: Observable<FreeTrial>;
+  protected resellerWarningWhenWarningsServiceDisabled$: Observable<ResellerWarning | null>;
   protected prevCipherId: string | null = null;
   protected userId: UserId;
   /**
@@ -255,6 +267,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private resellerWarningService: ResellerWarningService,
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
+    private organizationWarningsService: OrganizationWarningsService,
   ) {}
 
   async ngOnInit() {
@@ -352,8 +365,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (this.organization.canEditAllCiphers) {
           return collections;
         }
-        // The user is only allowed to add/edit items to assigned collections that are not readonly
-        return collections.filter((c) => c.assigned && !c.readOnly);
+        return collections.filter((c) => c.assigned);
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -411,9 +423,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+    const nestedCollections$ = combineLatest([
+      allCollections$,
+      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
+    ]).pipe(
+      map(
+        ([collections, shouldOptimize]) =>
+          (shouldOptimize
+            ? getNestedCollectionTree_vNext(collections)
+            : getNestedCollectionTree(collections)) as TreeNode<CollectionAdminView>[],
+      ),
     );
 
     const collections$ = combineLatest([
@@ -628,9 +647,23 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.unpaidSubscriptionDialog$.pipe(takeUntil(this.destroy$)).subscribe();
+    // Billing Warnings
+    this.useOrganizationWarningsService$ = this.configService.getFeatureFlag$(
+      FeatureFlag.UseOrganizationWarningsService,
+    );
 
-    this.freeTrial$ = combineLatest([
+    this.useOrganizationWarningsService$
+      .pipe(
+        switchMap((enabled) =>
+          enabled
+            ? this.organizationWarningsService.showInactiveSubscriptionDialog$(this.organization)
+            : this.unpaidSubscriptionDialog$,
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    const freeTrial$ = combineLatest([
       organization$,
       this.hasSubscription$.pipe(filter((hasSubscription) => hasSubscription !== null)),
     ]).pipe(
@@ -655,7 +688,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       filter((result) => result !== null),
     );
 
-    this.resellerWarning$ = organization$.pipe(
+    this.freeTrialWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
+      filter((enabled) => !enabled),
+      switchMap(() => freeTrial$),
+    );
+
+    const resellerWarning$ = organization$.pipe(
       filter((org) => org.isOwner),
       switchMap((org) =>
         from(this.billingApiService.getOrganizationBillingMetadata(org.id)).pipe(
@@ -664,6 +702,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       map(({ org, metadata }) => this.resellerWarningService.getWarning(org, metadata)),
     );
+
+    this.resellerWarningWhenWarningsServiceDisabled$ = this.useOrganizationWarningsService$.pipe(
+      filter((enabled) => !enabled),
+      switchMap(() => resellerWarning$),
+    );
+    // End Billing Warnings
 
     firstSetup$
       .pipe(
@@ -820,6 +864,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
       organizationId: cipher.organizationId as OrganizationId,
+      admin: true,
     });
 
     const result = await firstValueFrom(dialogRef.closed);

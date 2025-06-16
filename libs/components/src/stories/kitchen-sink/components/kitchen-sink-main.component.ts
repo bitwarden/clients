@@ -9,7 +9,6 @@ import { KitchenSinkTable } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleList } from "./kitchen-sink-toggle-list.component";
 
 @Component({
-  standalone: true,
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-dialog title="Dialog Title" dialogSize="large">
@@ -26,7 +25,6 @@ class KitchenSinkDialog {
 }
 
 @Component({
-  standalone: true,
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule, KitchenSinkTable, KitchenSinkToggleList, KitchenSinkForm],
   template: `
@@ -172,7 +170,7 @@ export class KitchenSinkMainComponent {
   }
 
   navItems = [
-    { icon: "bwi-collection", name: "Password Managers", route: "/" },
-    { icon: "bwi-collection", name: "Favorites", route: "/" },
+    { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
+    { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
   ];
 }

@@ -519,7 +519,7 @@
                   appA11yTitle="{{ 'importSshKeyFromClipboard' | i18n }}"
                   (click)="importSshKeyFromClipboard()"
                 >
-                  <i class="bwi bwi-lg bwi-paste" aria-hidden="true"></i>
+                  <i class="bwi bwi-lg bwi-import" aria-hidden="true"></i>
                 </button>
               </div>
             </div>
@@ -788,7 +788,13 @@
       <button
         type="button"
         (click)="share()"
-        *ngIf="editMode && cipher && !cipher.organizationId && !cloneMode"
+        *ngIf="
+          editMode &&
+          cipher &&
+          !cipher.organizationId &&
+          !cloneMode &&
+          writeableCollections.length > 0
+        "
       >
         {{ "move" | i18n }}
       </button>

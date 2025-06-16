@@ -16,7 +16,6 @@ import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
 export class UserApiLoginStrategyData implements LoginStrategyData {
   tokenRequest: UserApiTokenRequest;
-  captchaBypassToken: string;
 
   static fromJSON(obj: Jsonify<UserApiLoginStrategyData>): UserApiLoginStrategyData {
     return Object.assign(new UserApiLoginStrategyData(), obj, {
@@ -64,7 +63,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    await this.keyService.setMasterKeyEncryptedUserKey(response.key, userId);
+    if (response.key) {
+      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
 
     if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));

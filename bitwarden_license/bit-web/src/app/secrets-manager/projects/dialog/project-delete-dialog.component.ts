@@ -27,6 +27,7 @@ export interface ProjectDeleteOperation {
 
 @Component({
   templateUrl: "./project-delete-dialog.component.html",
+  standalone: false,
 })
 export class ProjectDeleteDialogComponent implements OnInit {
   formGroup = new FormGroup({

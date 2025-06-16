@@ -8,6 +8,7 @@ import { ProductSwitcherService } from "./shared/product-switcher.service";
 @Component({
   selector: "product-switcher",
   templateUrl: "./product-switcher.component.html",
+  standalone: false,
 })
 export class ProductSwitcherComponent implements AfterViewInit {
   /**

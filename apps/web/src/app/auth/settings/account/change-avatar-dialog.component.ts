@@ -24,6 +24,10 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared";
+
+import { SelectableAvatarComponent } from "./selectable-avatar.component";
+
 type ChangeAvatarDialogData = {
   profile: ProfileResponse;
 };
@@ -31,6 +35,7 @@ type ChangeAvatarDialogData = {
 @Component({
   templateUrl: "change-avatar-dialog.component.html",
   encapsulation: ViewEncapsulation.None,
+  imports: [SharedModule, SelectableAvatarComponent],
 })
 export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   profile: ProfileResponse;

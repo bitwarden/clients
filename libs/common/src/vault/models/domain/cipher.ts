@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
+
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -143,17 +145,13 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
 
-      const keyBytes = await encryptService.decryptToBytes(
-        this.key,
-        encKey,
-        `Cipher Id: ${this.id}; Content: CipherKey; IsEncryptedByOrgKey: ${this.organizationId != null}`,
-      );
-      if (keyBytes == null) {
+      const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
+      if (cipherKey == null) {
         model.name = "[error: cannot decrypt]";
         model.decryptionFailure = true;
         return model;
       }
-      encKey = new SymmetricCryptoKey(keyBytes);
+      encKey = cipherKey;
       bypassValidation = false;
     }
 
@@ -294,6 +292,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const domain = new Cipher();
     const name = EncString.fromJSON(obj.name);
     const notes = EncString.fromJSON(obj.notes);
+    const creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     const deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
     const attachments = obj.attachments?.map((a: any) => Attachment.fromJSON(a));
@@ -304,6 +303,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     Object.assign(domain, obj, {
       name,
       notes,
+      creationDate,
       revisionDate,
       deletedDate,
       attachments,
@@ -333,5 +333,78 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     return domain;
+  }
+
+  /**
+   * Maps Cipher to SDK format.
+   *
+   * @returns {SdkCipher} The SDK cipher object.
+   */
+  toSdkCipher(): SdkCipher {
+    const sdkCipher: SdkCipher = {
+      id: this.id,
+      organizationId: this.organizationId ?? undefined,
+      folderId: this.folderId ?? undefined,
+      collectionIds: this.collectionIds ?? [],
+      key: this.key?.toJSON(),
+      name: this.name.toJSON(),
+      notes: this.notes?.toJSON(),
+      type: this.type,
+      favorite: this.favorite ?? false,
+      organizationUseTotp: this.organizationUseTotp ?? false,
+      edit: this.edit,
+      permissions: this.permissions
+        ? {
+            delete: this.permissions.delete,
+            restore: this.permissions.restore,
+          }
+        : undefined,
+      viewPassword: this.viewPassword,
+      localData: this.localData
+        ? {
+            lastUsedDate: this.localData.lastUsedDate
+              ? new Date(this.localData.lastUsedDate).toISOString()
+              : undefined,
+            lastLaunched: this.localData.lastLaunched
+              ? new Date(this.localData.lastLaunched).toISOString()
+              : undefined,
+          }
+        : undefined,
+      attachments: this.attachments?.map((a) => a.toSdkAttachment()),
+      fields: this.fields?.map((f) => f.toSdkField()),
+      passwordHistory: this.passwordHistory?.map((ph) => ph.toSdkPasswordHistory()),
+      revisionDate: this.revisionDate?.toISOString(),
+      creationDate: this.creationDate?.toISOString(),
+      deletedDate: this.deletedDate?.toISOString(),
+      reprompt: this.reprompt,
+      // Initialize all cipher-type-specific properties as undefined
+      login: undefined,
+      identity: undefined,
+      card: undefined,
+      secureNote: undefined,
+      sshKey: undefined,
+    };
+
+    switch (this.type) {
+      case CipherType.Login:
+        sdkCipher.login = this.login.toSdkLogin();
+        break;
+      case CipherType.SecureNote:
+        sdkCipher.secureNote = this.secureNote.toSdkSecureNote();
+        break;
+      case CipherType.Card:
+        sdkCipher.card = this.card.toSdkCard();
+        break;
+      case CipherType.Identity:
+        sdkCipher.identity = this.identity.toSdkIdentity();
+        break;
+      case CipherType.SshKey:
+        sdkCipher.sshKey = this.sshKey.toSdkSshKey();
+        break;
+      default:
+        break;
+    }
+
+    return sdkCipher;
   }
 }

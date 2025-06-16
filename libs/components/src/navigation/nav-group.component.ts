@@ -27,7 +27,6 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  standalone: true,
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
 export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {

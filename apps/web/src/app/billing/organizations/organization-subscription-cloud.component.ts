@@ -44,6 +44,7 @@ import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.comp
 
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
+  standalone: false,
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
   static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
@@ -495,9 +496,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get showChangePlanButton() {
     return (
-      !this.showChangePlan &&
-      this.sub.plan.productTier !== ProductTierType.Enterprise &&
-      !this.sub.subscription?.cancelled
+      (!this.showChangePlan &&
+        this.sub.plan.productTier !== ProductTierType.Enterprise &&
+        !this.sub.subscription?.cancelled) ||
+      (this.sub.subscription?.cancelled && this.sub.plan.productTier === ProductTierType.Free)
     );
   }
 

@@ -63,7 +63,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
-  standalone: true,
   providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
   imports: [
     CommonModule,

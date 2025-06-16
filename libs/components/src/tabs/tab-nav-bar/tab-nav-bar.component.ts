@@ -21,7 +21,6 @@ import { TabLinkComponent } from "./tab-link.component";
   host: {
     class: "tw-block",
   },
-  standalone: true,
   imports: [TabHeaderComponent, TabListContainerDirective],
 })
 export class TabNavBarComponent implements AfterContentInit {

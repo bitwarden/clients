@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map, Observable, switchMap } from "rxjs";
 import { first } from "rxjs/operators";
@@ -15,6 +15,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import {
   ChangePlanDialogResultType,
@@ -23,7 +25,7 @@ import {
 import { All } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { PolicyListService } from "../../core/policy-list.service";
-import { BasePolicy } from "../policies";
+import { BasePolicy, RestrictedItemTypesPolicy } from "../policies";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.component";
@@ -31,11 +33,9 @@ import { PolicyEditComponent, PolicyEditDialogResult } from "./policy-edit.compo
 @Component({
   selector: "app-org-policies",
   templateUrl: "policies.component.html",
+  standalone: false,
 })
 export class PoliciesComponent implements OnInit {
-  @ViewChild("editTemplate", { read: ViewContainerRef, static: true })
-  editModalRef: ViewContainerRef;
-
   loading = true;
   organizationId: string;
   policies: BasePolicy[];
@@ -53,6 +53,7 @@ export class PoliciesComponent implements OnInit {
     private policyListService: PolicyListService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -93,6 +94,12 @@ export class PoliciesComponent implements OnInit {
   }
 
   async load() {
+    if (
+      (await this.configService.getFeatureFlag(FeatureFlag.RemoveCardItemTypePolicy)) &&
+      this.policyListService.getPolicies().every((p) => !(p instanceof RestrictedItemTypesPolicy))
+    ) {
+      this.policyListService.addPolicies([new RestrictedItemTypesPolicy()]);
+    }
     const response = await this.policyApiService.getPolicies(this.organizationId);
     this.orgPolicies = response.data != null && response.data.length > 0 ? response.data : [];
     this.orgPolicies.forEach((op) => {

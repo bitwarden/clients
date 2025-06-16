@@ -46,8 +46,8 @@ describe("DefaultvNextCollectionService", () => {
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
 
     // Set up mock decryption
-    encryptService.decryptToUtf8
-      .calledWith(expect.any(EncString), expect.any(SymmetricCryptoKey), expect.any(String))
+    encryptService.decryptString
+      .calledWith(expect.any(EncString), expect.any(SymmetricCryptoKey))
       .mockImplementation((encString, key) =>
         Promise.resolve(encString.data.replace("ENC_", "DEC_")),
       );
@@ -103,15 +103,14 @@ describe("DefaultvNextCollectionService", () => {
       ]);
 
       // Assert that the correct org keys were used for each encrypted string
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+      // This should be replaced with decryptString when the platform PR (https://github.com/bitwarden/clients/pull/14544) is merged
+      expect(encryptService.decryptString).toHaveBeenCalledWith(
         expect.objectContaining(new EncString(collection1.name)),
         orgKey1,
-        expect.any(String),
       );
-      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+      expect(encryptService.decryptString).toHaveBeenCalledWith(
         expect.objectContaining(new EncString(collection2.name)),
         orgKey2,
-        expect.any(String),
       );
     });
 

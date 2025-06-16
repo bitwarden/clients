@@ -49,7 +49,9 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -77,11 +79,13 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  RestrictedItemTypesService,
 } from "@bitwarden/vault";
 
 import {
   getNestedCollectionTree,
   getFlatCollectionTree,
+  getNestedCollectionTree_vNext,
 } from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
@@ -130,7 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
 @Component({
-  standalone: true,
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [
@@ -270,6 +273,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     private trialFlowService: TrialFlowService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private billingNotificationService: BillingNotificationService,
+    private configService: ConfigService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   async ngOnInit() {
@@ -326,8 +331,15 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const filter$ = this.routedVaultFilterService.filter$;
     const allCollections$ = this.collectionService.decryptedCollections$;
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
+    const nestedCollections$ = combineLatest([
+      allCollections$,
+      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
+    ]).pipe(
+      map(([collections, shouldOptimize]) =>
+        shouldOptimize
+          ? getNestedCollectionTree_vNext(collections)
+          : getNestedCollectionTree(collections),
+      ),
     );
 
     this.searchText$
@@ -346,12 +358,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
       filter$,
       this.currentSearchText$,
+      this.restrictedItemTypesService.restricted$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
+        const filterFunction = createFilterFunction(filter, restrictedTypes);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
@@ -933,7 +946,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (orgId && orgId !== "MyVault") {
       const organization = this.allOrganizations.find((o) => o.id === orgId);
       availableCollections = this.allCollections.filter(
-        (c) => c.organizationId === organization.id && !c.readOnly,
+        (c) => c.organizationId === organization.id,
       );
     }
 

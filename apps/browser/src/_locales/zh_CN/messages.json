@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "新增项目（在新窗口中打开）",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "保存前编辑",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ 已保存到 Bitwarden。",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "已保存到 Bitwarden。",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ 已在 Bitwarden 中更新。",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "已更新到 Bitwarden。",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "选择 $ITEMTYPE$，$ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "保存为新的登录",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "更新登录",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "解锁以保存此登录",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "保存登录",
@@ -1131,7 +1141,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的措施。",
+    "message": "干得好！您采取了使您和 $ORGANIZATION$ 更加安全的步骤。",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1355,8 +1365,8 @@
   "featureUnavailable": {
     "message": "功能不可用"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。"
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "premiumMembership": {
     "message": "高级会员"
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "自动填充建议"
+  },
+  "autofillSpotlightTitle": {
+    "message": "轻松找到自动填充建议"
+  },
+  "autofillSpotlightDesc": {
+    "message": "关闭浏览器的自动填充设置，以免与 Bitwarden 产生冲突。"
+  },
+  "turnOffBrowserAutofill": {
+    "message": "关闭 $BROWSER$ 的自动填充",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "关闭自动填充"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段中显示自动填充建议"
@@ -2125,8 +2153,8 @@
   "setYourPinCode": {
     "message": "设定您用来解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销此应用程序时被重置。"
   },
-  "setYourPinCode1": {
-    "message": "您的 PIN 码将代替主密码用于解锁 Bitwarden。如果您完全注销 Bitwarden，PIN 码将被重置。"
+  "setPinCode": {
+    "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
   },
   "pinRequired": {
     "message": "需要 PIN 码。"
@@ -2176,18 +2204,21 @@
   "useThisPassword": {
     "message": "使用此密码"
   },
+  "useThisPassphrase": {
+    "message": "使用此密码短语"
+  },
   "useThisUsername": {
     "message": "使用此用户名"
   },
   "securePasswordGenerated": {
-    "message": "安全的密码生成好了！别忘了在网站上也更新一下您的密码。"
+    "message": "安全的密码已生成！不要忘记在网站上更新您的密码。"
   },
   "useGeneratorHelpTextPartOne": {
     "message": "使用生成器",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "创建一个强大且唯一的密码",
+    "message": "创建强大且唯一的密码",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
@@ -2198,15 +2229,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "超时动作"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "新的自定义选项"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "自定义您的密码库体验，包括快速复制操作、紧凑模式等！"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "查看所有外观设置"
   },
   "lock": {
     "message": "锁定",
@@ -2493,6 +2515,10 @@
   "change": {
     "message": "更改"
   },
+  "changePassword": {
+    "message": "更改密码",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "更改密码 - $ITEMNAME$",
     "placeholders": {
@@ -2501,6 +2527,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "存在风险的密码"
   },
   "atRiskPasswords": {
     "message": "存在风险的密码"
@@ -2535,6 +2564,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "该网站密码存在风险，$ORGANIZATION$ 要求您更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ 希望您更改此密码，因为它存在风险。请前往账户设置更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "审查并更改 1 个存在风险的密码"
@@ -2654,6 +2703,10 @@
   "allSends": {
     "message": "所有 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "已达最大访问次数",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "默认隐藏文本"
@@ -2995,14 +3048,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "未找到唯一的标识符。"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ 使用自托管密钥服务器 SSO。这个组织的成员登录时将不再需要主密码。",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。"
+  },
+  "organizationName": {
+    "message": "组织名称"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector 域名"
   },
   "leaveOrganization": {
     "message": "退出组织"
@@ -3564,12 +3617,36 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
-  "sendsNoItemsTitle": {
-    "message": "没有活跃的 Send",
+  "trustOrganization": {
+    "message": "信任组织"
+  },
+  "trust": {
+    "message": "信任"
+  },
+  "doNotTrust": {
+    "message": "不信任"
+  },
+  "organizationNotTrusted": {
+    "message": "组织未被信任"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "为了您的账户安全，确认前请先确认：您已授予该用户紧急访问权限，以及其指纹与其账户中显示的指纹相匹配"
+  },
+  "orgTrustWarning": {
+    "message": "为了您的账户安全，继续前请先确认：您是启用了账户恢复功能的该组织的成员，以及下方显示的指纹与此组织的指纹相匹配。"
+  },
+  "orgTrustWarning1": {
+    "message": "此组织有一个企业策略，将为您注册账户恢复。注册后将允许组织管理员更改您的主密码。继续前请先确认：您认识此组织，以及下方显示的指纹短语与此组织的指纹相匹配。"
+  },
+  "trustUser": {
+    "message": "信任用户"
+  },
+  "sendsTitleNoItems": {
+    "message": "安全地发送敏感信息",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 与任何人安全地分享加密信息。",
+  "sendsBodyNoItems": {
+    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4468,7 +4545,7 @@
     "message": "添加附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "最大文件大小为 500 MB"
+    "message": "文件最大为 500 MB"
   },
   "deleteAttachmentName": {
     "message": "删除附件 $NAME$",
@@ -4487,6 +4564,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "下载 Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "在所有设备上下载 Bitwarden"
+  },
+  "getTheMobileApp": {
+    "message": "获取移动 App"
+  },
+  "getTheMobileAppDesc": {
+    "message": "使用 Bitwarden 移动 App，随时随地访问您的密码。"
+  },
+  "getTheDesktopApp": {
+    "message": "获取桌面 App"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "无需使用浏览器访问您的密码库，然后在桌面 App 和浏览器扩展中同时设置生物识别解锁，即可实现快速解锁。"
+  },
+  "downloadFromBitwardenNow": {
+    "message": "立即从 bitwarden.com 下载"
+  },
+  "getItOnGooglePlay": {
+    "message": "从 Google Play 获取"
+  },
+  "downloadOnTheAppStore": {
+    "message": "从 App Store 下载"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您确定要永久删除此附件吗？"
@@ -4603,7 +4707,7 @@
     "message": "过期的支付卡"
   },
   "cardExpiredMessage": {
-    "message": "如果您的支付卡已续期，请更新该卡的信息。"
+    "message": "如果您的支付卡已续期，请更新该卡的信息"
   },
   "cardDetails": {
     "message": "支付卡详细信息"
@@ -4890,7 +4994,7 @@
     "message": "自定义超时时间最小为 1 分钟。"
   },
   "additionalContentAvailable": {
-    "message": "有更多内容可用"
+    "message": "更多内容可用"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -4948,6 +5052,15 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "由于某个未知的原因，生物识别解锁当前不可用。"
+  },
+  "unlockVault": {
+    "message": "数秒内解锁您的密码库"
+  },
+  "unlockVaultDesc": {
+    "message": "您可以自定义解锁和超时设置，以便更快速地访问您的密码库。"
+  },
+  "unlockPinSet": {
+    "message": "解锁 PIN 设置"
   },
   "authenticating": {
     "message": "正在验证"
@@ -5111,42 +5224,6 @@
   "beta": {
     "message": "Beta 版"
   },
-  "importantNotice": {
-    "message": "重要通知"
-  },
-  "setupTwoStepLogin": {
-    "message": "设置两步登录"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "从 2025 年 02 月起，当有来自新设备的登录时，Bitwarden 将向您的账户电子邮箱发送验证码。"
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "您可以设置两步登录作为保护账户的替代方法，或将您的电子邮箱更改为您可以访问的电子邮箱。"
-  },
-  "remindMeLater": {
-    "message": "稍后提醒我"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "您可以正常访问您的电子邮箱 $EMAIL$ 吗？",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "不，我不能"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "是的，我可以正常访问我的电子邮箱"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "启用两步登录"
-  },
-  "changeAcctEmail": {
-    "message": "更改账户电子邮箱"
-  },
   "extensionWidth": {
     "message": "扩展宽度"
   },
@@ -5184,7 +5261,7 @@
     "message": "SSH 密钥导入成功"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "您无法删除仅具有「查看」权限的集合：$COLLECTIONS$",
+    "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5200,6 +5277,12 @@
   },
   "changeAtRiskPassword": {
     "message": "更改有风险的密码"
+  },
+  "settingsVaultOptions": {
+    "message": "密码库选项"
+  },
+  "emptyVaultDescription": {
+    "message": "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。"
   },
   "introCarouselLabel": {
     "message": "欢迎使用 Bitwarden"
@@ -5227,5 +5310,98 @@
   },
   "secureDevicesBody": {
     "message": "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。"
+  },
+  "nudgeBadgeAria": {
+    "message": "1 个通知"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "导入现有密码"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "使用导入器快速将登录传输到 Bitwarden 而无需手动添加。"
+  },
+  "emptyVaultNudgeButton": {
+    "message": "立即导入"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "欢迎来到您的密码库！"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "为当前页面自动填充项目"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "收藏项目以便轻松访问"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "在密码库中搜索其他内容"
+  },
+  "newLoginNudgeTitle": {
+    "message": "使用自动填充节省时间"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "包含",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "网站",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "以便将此登录显示为自动填充建议。",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "无缝在线结账"
+  },
+  "newCardNudgeBody": {
+    "message": "使用支付卡，安全准确地轻松自动填充付款表单。"
+  },
+  "newIdentityNudgeTitle": {
+    "message": "简化账户的创建"
+  },
+  "newIdentityNudgeBody": {
+    "message": "使用身份，快速自动填充冗长的注册或联系表单。"
+  },
+  "newNoteNudgeTitle": {
+    "message": "保持您的敏感数据的安全"
+  },
+  "newNoteNudgeBody": {
+    "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
+  },
+  "newSshNudgeTitle": {
+    "message": "开发人员友好的 SSH 访问权限"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "存储您的密钥并与 SSH 代理连接，以进行快速、加密的身份验证。",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "进一步了解 SSH 代理",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "快速创建密码"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "一键创建强大且唯一的密码",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "帮助您保持登录安全。",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "点击「生成密码」按钮，轻松创建强大且唯一的密码，帮助您保持登录安全。",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   }
 }

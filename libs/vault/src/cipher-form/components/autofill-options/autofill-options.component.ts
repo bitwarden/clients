@@ -22,7 +22,6 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  SectionComponent,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
@@ -40,10 +39,8 @@ interface UriField {
 @Component({
   selector: "vault-autofill-options",
   templateUrl: "./autofill-options.component.html",
-  standalone: true,
   imports: [
     DragDropModule,
-    SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
     JslibModule,
@@ -239,7 +236,7 @@ export class AutofillOptionsComponent implements OnInit {
         (control) =>
           Object.assign(new LoginUriView(), {
             uri: control.value.uri,
-            matchDetection: control.value.matchDetection ?? null,
+            match: control.value.matchDetection ?? null,
           }) as LoginUriView,
       );
       return cipher;

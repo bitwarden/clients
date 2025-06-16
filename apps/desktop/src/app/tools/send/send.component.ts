@@ -25,6 +25,8 @@ import { SearchBarService } from "../../layout/search/search-bar.service";
 
 import { AddEditComponent } from "./add-edit.component";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 enum Action {
   None = "",
   Add = "add",
@@ -36,7 +38,6 @@ const BroadcasterSubscriptionId = "SendComponent";
 @Component({
   selector: "app-send",
   templateUrl: "send.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, FormsModule, NavComponent, AddEditComponent],
 })
 export class SendComponent extends BaseSendComponent implements OnInit, OnDestroy {

@@ -10,7 +10,6 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { NewDeviceVerificationNoticeGuard } from "@bitwarden/angular/vault/guards";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -41,11 +40,7 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { LockComponent } from "@bitwarden/key-management-ui";
-import {
-  NewDeviceVerificationNoticePageOneComponent,
-  NewDeviceVerificationNoticePageTwoComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
+import { VaultIcons } from "@bitwarden/vault";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -53,7 +48,7 @@ import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/m
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
-import { deepLinkGuard } from "./auth/guards/deep-link.guard";
+import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
 import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
 import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
@@ -72,6 +67,7 @@ import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/com
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
+import { ReportsModule } from "./dirt/reports";
 import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
@@ -80,7 +76,6 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
-import { ReportsModule } from "./tools/reports";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -155,13 +150,6 @@ const routes: Routes = [
         component: UpdatePasswordComponent,
         canActivate: [authGuard],
         data: { titleId: "updatePassword" } satisfies RouteDataProperties,
-      },
-      {
-        path: "migrate-legacy-encryption",
-        loadComponent: () =>
-          import("./key-management/migrate-encryption/migrate-legacy-encryption.component").then(
-            (mod) => mod.MigrateFromLegacyEncryptionComponent,
-          ),
       },
     ],
   },
@@ -587,36 +575,9 @@ const routes: Routes = [
     ],
   },
   {
-    path: "new-device-notice",
-    component: AnonLayoutWrapperComponent,
-    canActivate: [],
-    children: [
-      {
-        path: "",
-        component: NewDeviceVerificationNoticePageOneComponent,
-        data: {
-          pageIcon: VaultIcons.ExclamationTriangle,
-          pageTitle: {
-            key: "importantNotice",
-          },
-        },
-      },
-      {
-        path: "setup",
-        component: NewDeviceVerificationNoticePageTwoComponent,
-        data: {
-          pageIcon: VaultIcons.UserLock,
-          pageTitle: {
-            key: "setupTwoStepLogin",
-          },
-        },
-      },
-    ],
-  },
-  {
     path: "",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), authGuard, NewDeviceVerificationNoticeGuard],
+    canActivate: [deepLinkGuard(), authGuard],
     children: [
       {
         path: "vault",

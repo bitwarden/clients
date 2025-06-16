@@ -12,7 +12,7 @@ export class DefaultLoginSuccessHandlerService implements LoginSuccessHandlerSer
     private loginEmailService: LoginEmailService,
   ) {}
   async run(userId: UserId): Promise<void> {
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, { skipTokenRefresh: true });
     await this.userAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
     await this.loginEmailService.clearLoginEmail();
   }

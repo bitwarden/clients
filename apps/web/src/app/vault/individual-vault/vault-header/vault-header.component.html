@@ -11,7 +11,7 @@
     <ng-container>
       <bit-breadcrumb
         *ngFor="let collection of collections"
-        icon="bwi-collection"
+        icon="bwi-collection-shared"
         [route]="[]"
         [queryParams]="{ collectionId: collection.id }"
         queryParamsHandling="merge"
@@ -77,37 +77,23 @@
         id="newItemDropdown"
         appA11yTitle="{{ 'new' | i18n }}"
       >
-        <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+        <i class="bwi bwi-plus" aria-hidden="true"></i>
         {{ "new" | i18n }}<i class="bwi tw-ml-2" aria-hidden="true"></i>
       </button>
       <bit-menu #addOptions aria-labelledby="newItemDropdown">
-        <button type="button" bitMenuItem (click)="addCipher(CipherType.Login)">
-          <i class="bwi bwi-globe" slot="start" aria-hidden="true"></i>
-          {{ "typeLogin" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="addCipher(CipherType.Card)">
-          <i class="bwi bwi-credit-card" slot="start" aria-hidden="true"></i>
-          {{ "typeCard" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="addCipher(CipherType.Identity)">
-          <i class="bwi bwi-id-card" slot="start" aria-hidden="true"></i>
-          {{ "typeIdentity" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="addCipher(CipherType.SecureNote)">
-          <i class="bwi bwi-sticky-note" slot="start" aria-hidden="true"></i>
-          {{ "note" | i18n }}
-        </button>
-        <button type="button" bitMenuItem (click)="addCipher(CipherType.SshKey)">
-          <i class="bwi bwi-key" slot="start" aria-hidden="true"></i>
-          {{ "typeSshKey" | i18n }}
-        </button>
+        @for (item of cipherMenuItems$ | async; track item.type) {
+          <button type="button" bitMenuItem (click)="addCipher(item.type)">
+            <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+            {{ item.labelKey | i18n }}
+          </button>
+        }
         <bit-menu-divider />
         <button type="button" bitMenuItem (click)="addFolder()">
           <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
           {{ "folder" | i18n }}
         </button>
         <button *ngIf="canCreateCollections" type="button" bitMenuItem (click)="addCollection()">
-          <i class="bwi bwi-fw bwi-collection" aria-hidden="true"></i>
+          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
           {{ "collection" | i18n }}
         </button>
       </bit-menu>

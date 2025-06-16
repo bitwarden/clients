@@ -17,7 +17,6 @@ import { TableDataSource } from "./table-data-source";
 
 @Directive({
   selector: "ng-template[body]",
-  standalone: true,
 })
 export class TableBodyDirective {
   // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
@@ -27,7 +26,6 @@ export class TableBodyDirective {
 @Component({
   selector: "bit-table",
   templateUrl: "./table.component.html",
-  standalone: true,
   imports: [CommonModule],
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {

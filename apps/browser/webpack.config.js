@@ -8,6 +8,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
 const manifest = require("./webpack/manifest");
+const AngularCheckPlugin = require("./webpack/angular-check");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -81,6 +82,8 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: ENV === "development",
+          compact: ENV !== "development",
         },
       },
     ],
@@ -205,6 +208,20 @@ const mainConfig = {
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
   },
+  cache:
+    ENV !== "development"
+      ? false
+      : {
+          type: "filesystem",
+          name: "main-cache",
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack-browser-main"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+  },
   optimization: {
     minimize: ENV !== "development",
     minimizer: [
@@ -263,6 +280,7 @@ const mainConfig = {
       fs: false,
       path: require.resolve("path-browserify"),
     },
+    cache: true,
   },
   output: {
     filename: "[name].js",
@@ -307,8 +325,6 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
-  mainConfig.entry["content/fido2-page-script-append-mv2"] =
-    "./src/autofill/fido2/content/fido2-page-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
     "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
 
@@ -357,6 +373,23 @@ if (manifestVersion == 2) {
       ],
       noParse: /argon2(-simd)?\.wasm$/,
     },
+    cache:
+      ENV !== "development"
+        ? false
+        : {
+            type: "filesystem",
+            name: "background-cache",
+            cacheDirectory: path.resolve(
+              __dirname,
+              "../../node_modules/.cache/webpack-browser-background",
+            ),
+            buildDependencies: {
+              config: [__filename],
+            },
+          },
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
     experiments: {
       asyncWebAssembly: true,
     },
@@ -369,9 +402,10 @@ if (manifestVersion == 2) {
         fs: false,
         path: require.resolve("path-browserify"),
       },
+      cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins],
+    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist

@@ -6,6 +6,7 @@ import {
   combineLatest,
   concatMap,
   filter,
+  firstValueFrom,
   map,
   Observable,
   ReplaySubject,
@@ -13,15 +14,17 @@ import {
   switchMap,
 } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import {
   canAccessOrgAdmin,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderType } from "@bitwarden/common/admin-console/enums";
+import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 
@@ -100,10 +103,11 @@ export class ProductSwitcherService {
     private providerService: ProviderService,
     private route: ActivatedRoute,
     private router: Router,
-    private i18n: I18nPipe,
     private syncService: SyncService,
     private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
+    private policyService: PolicyService,
+    private i18nService: I18nService,
   ) {
     this.pollUntilSynced();
   }
@@ -193,7 +197,7 @@ export class ProductSwitcherService {
           },
           isActive: this.router.url.includes("/sm/"),
           otherProductOverrides: {
-            supportingText: this.i18n.transform("secureYourInfrastructure"),
+            supportingText: this.i18nService.t("secureYourInfrastructure"),
           },
         },
         ac: {
@@ -218,7 +222,7 @@ export class ProductSwitcherService {
           marketingRoute: orgsMarketingRoute,
           otherProductOverrides: {
             name: "Share your passwords",
-            supportingText: this.i18n.transform("protectYourFamilyOrBusiness"),
+            supportingText: this.i18nService.t("protectYourFamilyOrBusiness"),
           },
         },
       } satisfies Record<string, ProductSwitcherItem>;
@@ -235,7 +239,15 @@ export class ProductSwitcherService {
       if (acOrg) {
         bento.push(products.ac);
       } else {
-        other.push(products.orgs);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(getUserId),
+        );
+        const userHasSingleOrgPolicy = await firstValueFrom(
+          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, activeUserId),
+        );
+        if (!userHasSingleOrgPolicy) {
+          other.push(products.orgs);
+        }
       }
 
       if (providers.length > 0) {

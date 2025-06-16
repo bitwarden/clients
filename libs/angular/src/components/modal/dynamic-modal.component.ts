@@ -18,6 +18,7 @@ import { ModalRef } from "./modal.ref";
 @Component({
   selector: "app-modal",
   template: "<ng-template #modalContent></ng-template>",
+  standalone: false,
 })
 export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   componentRef: ComponentRef<any>;
