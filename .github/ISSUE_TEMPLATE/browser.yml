@@ -1,4 +1,4 @@
-name: Browser Bug Report
+name: Browser Extension Bug Report
 description: File a bug report
 labels: [bug, browser]
 body:
@@ -77,7 +77,6 @@ body:
         - Opera
         - Brave
         - Vivaldi
-        - DuckDuckGo
     validations:
       required: true
   - type: input
