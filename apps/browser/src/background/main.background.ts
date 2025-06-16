@@ -2040,7 +2040,7 @@ export default class MainBackground {
       this.themeStateService,
       this.totpService,
       this.accountService,
-      () => this.generatePassword(),
+      this.yieldGeneratedPassword,
       (password) => this.addPasswordToHistory(password),
     );
 
