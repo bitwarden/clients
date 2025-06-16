@@ -96,6 +96,11 @@ export class Main {
       appDataPath = path.join(process.env.SNAP_USER_DATA, "appdata");
     }
 
+    // Workaround for bug described here: https://github.com/electron/electron/issues/46538
+    if (process.platform === "linux") {
+      app.commandLine.appendSwitch("gtk-version", "3");
+    }
+
     app.on("ready", () => {
       // on ready stuff...
     });
