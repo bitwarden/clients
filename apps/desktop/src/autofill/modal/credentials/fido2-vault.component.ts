@@ -52,7 +52,6 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  containsExcludedCiphers: boolean = false;
   cipherIds$: Observable<string[]> | undefined;
   readonly Icons = { BitwardenShield };
 
@@ -122,10 +121,6 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   }
 
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
-    if (this.containsExcludedCiphers) {
-      return false;
-    }
-
     if (cipher.reprompt !== CipherRepromptType.None) {
       return this.passwordRepromptService.showPasswordPrompt();
     }
