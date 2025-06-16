@@ -6,7 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -14,7 +14,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { RestrictedItemTypesService, RestrictedCipherType } from "./restricted-item-types.service";
 
-describe("RestrictedItemTypesService (standalone)", () => {
+describe("RestrictedItemTypesService", () => {
   let service: RestrictedItemTypesService;
   let policyService: MockProxy<PolicyService>;
   let organizationService: MockProxy<OrganizationService>;
