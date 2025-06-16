@@ -185,7 +185,7 @@ export class ServiceUtils {
    * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
    */
   static isCipherViewRestricted = (cipher: CipherView, restrictedTypes?: RestrictedCipherType[]) =>
-    restrictedTypes.some(
+    restrictedTypes?.some(
       (restrictedType) =>
         restrictedType.cipherType === cipher.type &&
         (cipher.organizationId
