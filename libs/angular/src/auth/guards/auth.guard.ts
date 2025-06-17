@@ -14,8 +14,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 export const authGuard: CanActivateFn = async (
@@ -28,6 +30,7 @@ export const authGuard: CanActivateFn = async (
   const keyConnectorService = inject(KeyConnectorService);
   const accountService = inject(AccountService);
   const masterPasswordService = inject(MasterPasswordServiceAbstraction);
+  const configService = inject(ConfigService);
 
   const authStatus = await authService.getAuthStatus();
 
@@ -65,11 +68,20 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/set-password"]);
   }
 
+  // When the PM16117_ChangeExistingPasswordRefactor flag is removed also remove the conditional check
+  // for update-temp-password here. That route will no longer be in effect.
   if (
     forceSetPasswordReason !== ForceSetPasswordReason.None &&
-    !routerState.url.includes("update-temp-password")
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("change-password")
   ) {
-    return router.createUrlTree(["/update-temp-password"]);
+    const setInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
+
+    const route = setInitialPasswordRefactorFlagOn ? "/change-password" : "/update-temp-password";
+
+    return router.createUrlTree([route]);
   }
 
   return true;

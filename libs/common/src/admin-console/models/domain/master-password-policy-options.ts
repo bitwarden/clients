@@ -19,7 +19,16 @@ export class MasterPasswordPolicyOptions extends Domain {
   enforceOnLogin = false;
 
   static fromResponse(policy: MasterPasswordPolicyResponse): MasterPasswordPolicyOptions {
-    if (policy == null) {
+    // Check if the policy is null or if all the values in the response object is null.
+    // Exclude the response object because the MasterPasswordPolicyResponse extends
+    // BaseResponse and we should omit that when checking for null values. Doing this
+    // programmatically makes this less brittle for future contract changes.
+    if (
+      policy == null ||
+      Object.entries(policy)
+        .filter(([key]) => key !== "response")
+        .every(([, value]) => value == null)
+    ) {
       return null;
     }
     const options = new MasterPasswordPolicyOptions();

@@ -15,6 +15,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
@@ -40,7 +41,9 @@ import {
   DeviceVerificationIcon,
   UserLockIcon,
   VaultIcon,
+  ChangePasswordComponent,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
@@ -330,7 +333,15 @@ const routes: Routes = [
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
+    canActivate: [
+      canAccessFeature(
+        FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+        false,
+        `/change-password`,
+        false,
+      ),
+      authGuard,
+    ],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -546,6 +557,20 @@ const routes: Routes = [
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
       },
+      {
+        path: "change-password",
+        data: {
+          elevation: 1,
+          hideFooter: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+        ],
+        canActivate: [authGuard],
+      },
     ],
   },
   {
@@ -695,7 +720,7 @@ export class NoRouteReuseStrategy implements RouteReuseStrategy {
     RouterModule.forRoot(routes, {
       useHash: true,
       onSameUrlNavigation: "reload",
-      /*enableTracing: true,*/
+      enableTracing: true,
     }),
   ],
   exports: [RouterModule],

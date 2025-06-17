@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -22,6 +22,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutComponent,
   CheckboxModule,
   DialogService,
   FormFieldModule,
@@ -87,6 +88,7 @@ interface InputPasswordForm {
   imports: [
     AsyncActionsModule,
     ButtonModule,
+    CalloutComponent,
     CheckboxModule,
     FormFieldModule,
     IconButtonModule,
@@ -107,13 +109,15 @@ export class InputPasswordComponent implements OnInit {
 
   @Input() userId?: UserId;
   @Input() loading = false;
-  @Input() masterPasswordPolicyOptions: MasterPasswordPolicyOptions | null = null;
+  @Input() masterPasswordPolicyOptions?: MasterPasswordPolicyOptions;
 
   @Input() inlineButtons = false;
   @Input() primaryButtonText?: Translation;
   protected primaryButtonTextStr: string = "";
   @Input() secondaryButtonText?: Translation;
   protected secondaryButtonTextStr: string = "";
+
+  @Input() showChangePasswordWarning: boolean = true;
 
   protected InputPasswordFlow = InputPasswordFlow;
   private kdfConfig: KdfConfig | null = null;
@@ -158,7 +162,7 @@ export class InputPasswordComponent implements OnInit {
 
   protected get minPasswordLengthMsg() {
     if (
-      this.masterPasswordPolicyOptions != null &&
+      this.masterPasswordPolicyOptions != undefined &&
       this.masterPasswordPolicyOptions.minLength > 0
     ) {
       return this.i18nService.t("characterMinimum", this.masterPasswordPolicyOptions.minLength);

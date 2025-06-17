@@ -18,9 +18,11 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -122,6 +124,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -225,7 +228,29 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const credentials = new PasswordLoginCredentials(email, masterPassword);
+    let credentials: PasswordLoginCredentials;
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      // Try to retrieve any org policies from an org invite now so we can send it to the
+      // login strategies. Since it is optional and we only want to be doing this on the
+      // web we will only send in content in the right context.
+      const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+        ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+        : null;
+
+      const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+
+      credentials = new PasswordLoginCredentials(
+        email,
+        masterPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
+    } else {
+      credentials = new PasswordLoginCredentials(email, masterPassword);
+    }
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
@@ -284,7 +309,7 @@ export class LoginComponent implements OnInit, OnDestroy {
          This is now unsupported and requires a downgraded client */
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccured"),
+        title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("legacyEncryptionUnsupported"),
       });
       return;
@@ -307,26 +332,30 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Determine where to send the user next
     // The AuthGuard will handle routing to update-temp-password based on state
 
-    // TODO: PM-18269 - evaluate if we can combine this with the
-    // password evaluation done in the password login strategy.
-    // If there's an existing org invite, use it to get the org's password policies
-    // so we can evaluate the MP against the org policies
-    if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
-      const orgPolicies: PasswordPolicies | null =
-        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
+    if (
+      !(await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor))
+    ) {
+      // TODO: PM-18269 - evaluate if we can combine this with the
+      // password evaluation done in the password login strategy.
+      // If there's an existing org invite, use it to get the org's password policies
+      // so we can evaluate the MP against the org policies
+      if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
+        const orgPolicies: PasswordPolicies | null =
+          await this.loginComponentService.getOrgPoliciesFromOrgInvite();
 
-      if (orgPolicies) {
-        // Since we have retrieved the policies, we can go ahead and set them into state for future use
-        // e.g., the update-password page currently only references state for policy data and
-        // doesn't fallback to pulling them from the server like it should if they are null.
-        await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
+        if (orgPolicies) {
+          // Since we have retrieved the policies, we can go ahead and set them into state for future use
+          // e.g., the update-password page currently only references state for policy data and
+          // doesn't fallback to pulling them from the server like it should if they are null.
+          await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
 
-        const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
-          orgPolicies.enforcedPasswordPolicyOptions,
-        );
-        if (isPasswordChangeRequired) {
-          await this.router.navigate(["update-password"]);
-          return;
+          const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
+            orgPolicies.enforcedPasswordPolicyOptions,
+          );
+          if (isPasswordChangeRequired) {
+            await this.router.navigate(["update-password"]);
+            return;
+          }
         }
       }
     }

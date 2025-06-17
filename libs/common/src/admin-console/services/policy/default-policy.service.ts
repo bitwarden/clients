@@ -87,63 +87,62 @@ export class DefaultPolicyService implements PolicyService {
     policies?: Policy[],
   ): Observable<MasterPasswordPolicyOptions | undefined> {
     const policies$ = policies ? of(policies) : this.policies$(userId);
-    return policies$.pipe(
-      map((obsPolicies) => {
-        let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
-        const filteredPolicies =
-          obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
+    return policies$.pipe(map((obsPolicies) => this.combineMasterPasswordPolicies(obsPolicies)));
+  }
 
-        if (filteredPolicies.length === 0) {
-          return;
-        }
+  combineMasterPasswordPolicies(policies: Policy[]): MasterPasswordPolicyOptions | undefined {
+    let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
+    const filteredPolicies = policies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
 
-        filteredPolicies.forEach((currentPolicy) => {
-          if (!currentPolicy.enabled || !currentPolicy.data) {
-            return;
-          }
+    if (filteredPolicies.length === 0) {
+      return;
+    }
 
-          if (!enforcedOptions) {
-            enforcedOptions = new MasterPasswordPolicyOptions();
-          }
+    filteredPolicies.forEach((currentPolicy) => {
+      if (!currentPolicy.enabled || !currentPolicy.data) {
+        return;
+      }
 
-          if (
-            currentPolicy.data.minComplexity != null &&
-            currentPolicy.data.minComplexity > enforcedOptions.minComplexity
-          ) {
-            enforcedOptions.minComplexity = currentPolicy.data.minComplexity;
-          }
+      if (!enforcedOptions) {
+        enforcedOptions = new MasterPasswordPolicyOptions();
+      }
 
-          if (
-            currentPolicy.data.minLength != null &&
-            currentPolicy.data.minLength > enforcedOptions.minLength
-          ) {
-            enforcedOptions.minLength = currentPolicy.data.minLength;
-          }
+      if (
+        currentPolicy.data.minComplexity != null &&
+        currentPolicy.data.minComplexity > enforcedOptions.minComplexity
+      ) {
+        enforcedOptions.minComplexity = currentPolicy.data.minComplexity;
+      }
 
-          if (currentPolicy.data.requireUpper) {
-            enforcedOptions.requireUpper = true;
-          }
+      if (
+        currentPolicy.data.minLength != null &&
+        currentPolicy.data.minLength > enforcedOptions.minLength
+      ) {
+        enforcedOptions.minLength = currentPolicy.data.minLength;
+      }
 
-          if (currentPolicy.data.requireLower) {
-            enforcedOptions.requireLower = true;
-          }
+      if (currentPolicy.data.requireUpper) {
+        enforcedOptions.requireUpper = true;
+      }
 
-          if (currentPolicy.data.requireNumbers) {
-            enforcedOptions.requireNumbers = true;
-          }
+      if (currentPolicy.data.requireLower) {
+        enforcedOptions.requireLower = true;
+      }
 
-          if (currentPolicy.data.requireSpecial) {
-            enforcedOptions.requireSpecial = true;
-          }
+      if (currentPolicy.data.requireNumbers) {
+        enforcedOptions.requireNumbers = true;
+      }
 
-          if (currentPolicy.data.enforceOnLogin) {
-            enforcedOptions.enforceOnLogin = true;
-          }
-        });
+      if (currentPolicy.data.requireSpecial) {
+        enforcedOptions.requireSpecial = true;
+      }
 
-        return enforcedOptions;
-      }),
-    );
+      if (currentPolicy.data.enforceOnLogin) {
+        enforcedOptions.enforceOnLogin = true;
+      }
+    });
+
+    return enforcedOptions;
   }
 
   evaluateMasterPassword(
