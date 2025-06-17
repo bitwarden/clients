@@ -58,6 +58,9 @@
   --color-marketing-logo: 23 93 220;
 
   --tw-ring-offset-color: #ffffff;
+
+  --color-icon-button-hover: rgb(26 65 172 / 0.1);
+  --color-icon-button-hover-contrast: rgb(219 229 246 / 0.15);
 }
 
 .theme_light {
@@ -116,6 +119,9 @@
   --color-marketing-logo: 255 255 255;
 
   --tw-ring-offset-color: #1f242e;
+
+  --color-icon-button-hover: rgb(170 95 239 / 0.1);
+  --color-icon-button-hover-contrast: rgb(26 39 78 / 0.15);
 }
 
 /**
