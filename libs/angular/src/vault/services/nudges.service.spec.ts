@@ -6,6 +6,8 @@ import { firstValueFrom, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -95,6 +97,14 @@ describe("Vault Nudges Service", () => {
         {
           provide: BiometricStateService,
           useValue: mock<BiometricStateService>(),
+        },
+        {
+          provide: PolicyService,
+          useValue: mock<PolicyService>(),
+        },
+        {
+          provide: OrganizationService,
+          useValue: mock<OrganizationService>(),
         },
       ],
     });
