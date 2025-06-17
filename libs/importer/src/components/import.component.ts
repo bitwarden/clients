@@ -16,7 +16,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { combineLatestWith, filter, map, shareReplay, switchMap, takeUntil } from "rxjs/operators";
+import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -44,6 +44,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   AsyncActionsModule,
@@ -136,7 +137,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  restrictedItemTypes: string[];
+  restrictedItemTypes: CipherType[] = [];
 
   private _organizationId: string;
 
@@ -258,11 +259,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     await this.handlePolicies();
     this.restrictedItemTypesService.restricted$
-      .pipe(takeUntil(this.destroy$), shareReplay({ bufferSize: 1, refCount: true }))
+      .pipe(takeUntil(this.destroy$))
       .subscribe((restrictedItemTypes) => {
         // If/when restricted item types are expanded to include all item types this array
         // can be used to format the message displayed in the callout.
-        this.restrictedItemTypes = restrictedItemTypes.map((type) => type.toString());
+        this.restrictedItemTypes = restrictedItemTypes.map((type) => type.cipherType);
       });
   }
 
