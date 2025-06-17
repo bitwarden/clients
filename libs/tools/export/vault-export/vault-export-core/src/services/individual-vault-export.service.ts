@@ -20,6 +20,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
@@ -171,13 +172,13 @@ export class IndividualVaultExportService
       }),
     );
 
-    const restrictedTypes = await this.getRestrictedTypes();
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
-        decCiphers = ciphers.filter((f) => f.deletedDate == null);
-
-        decCiphers = decCiphers.filter((c) => !restrictedTypes.includes(c.type));
+        decCiphers = ciphers
+          .filter((f) => f.deletedDate == null)
+          .filter((c) => !ServiceUtils.isCipherRestricted(c, restrictions));
       }),
     );
 
@@ -209,13 +210,13 @@ export class IndividualVaultExportService
       }),
     );
 
-    const restrictedTypes = await this.getRestrictedTypes();
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     promises.push(
       this.cipherService.getAll(activeUserId).then((c) => {
-        ciphers = c.filter((f) => f.deletedDate == null);
-
-        ciphers = ciphers.filter((cipher) => !restrictedTypes.includes(cipher.type));
+        ciphers = c
+          .filter((f) => f.deletedDate == null)
+          .filter((c) => !ServiceUtils.isCipherRestricted(c, restrictions));
       }),
     );
 
@@ -313,10 +314,5 @@ export class IndividualVaultExportService
     });
 
     return JSON.stringify(jsonDoc, null, "  ");
-  }
-
-  private async getRestrictedTypes(): Promise<CipherType[]> {
-    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
-    return restrictions.map((r) => r.cipherType);
   }
 }

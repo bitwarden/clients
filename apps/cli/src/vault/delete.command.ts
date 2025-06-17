@@ -63,9 +63,8 @@ export class DeleteCommand {
       return Response.error("You do not have permission to delete this item.");
     }
 
-    const isCipherTypeRestricted = await this.cliRestrictedItemTypesService.isCipherTypeRestricted(
-      cipher.type,
-    );
+    const isCipherTypeRestricted =
+      await this.cliRestrictedItemTypesService.isCipherRestricted(cipher);
     if (isCipherTypeRestricted) {
       return Response.error("Deleting this item type is restricted by organizational policy.");
     }

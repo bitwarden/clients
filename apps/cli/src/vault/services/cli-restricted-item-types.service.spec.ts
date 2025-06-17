@@ -14,6 +14,24 @@ describe("CliRestrictedItemTypesService", () => {
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
   let restrictedItemTypesService: RestrictedItemTypesService;
 
+  const cardCipher: CipherView = {
+    id: "cipher1",
+    type: CipherType.Card,
+    organizationId: "org1",
+  } as CipherView;
+
+  const loginCipher: CipherView = {
+    id: "cipher2",
+    type: CipherType.Login,
+    organizationId: "org1",
+  } as CipherView;
+
+  const identityCipher: CipherView = {
+    id: "cipher3",
+    type: CipherType.Identity,
+    organizationId: "org2",
+  } as CipherView;
+
   beforeEach(() => {
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
@@ -25,24 +43,6 @@ describe("CliRestrictedItemTypesService", () => {
   });
 
   describe("filterRestrictedCiphers", () => {
-    const cardCipher: CipherView = {
-      id: "cipher1",
-      type: CipherType.Card,
-      organizationId: "org1",
-    } as CipherView;
-
-    const loginCipher: CipherView = {
-      id: "cipher2",
-      type: CipherType.Login,
-      organizationId: "org1",
-    } as CipherView;
-
-    const identityCipher: CipherView = {
-      id: "cipher3",
-      type: CipherType.Identity,
-      organizationId: "org2",
-    } as CipherView;
-
     it("filters out restricted cipher types from array", async () => {
       restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
       const ciphers = [cardCipher, loginCipher, identityCipher];
@@ -68,25 +68,32 @@ describe("CliRestrictedItemTypesService", () => {
     });
   });
 
-  describe("isCipherTypeRestricted", () => {
-    it("returns true for restricted cipher type", async () => {
+  describe("isCipherRestricted", () => {
+    it("returns true for restricted cipher type with no organization exemptions", async () => {
       restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
 
-      const result = await service.isCipherTypeRestricted(CipherType.Card);
+      const result = await service.isCipherRestricted(cardCipher);
       expect(result).toBe(true);
     });
 
     it("returns false for non-restricted cipher type", async () => {
       restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
 
-      const result = await service.isCipherTypeRestricted(CipherType.Login);
+      const result = await service.isCipherRestricted(loginCipher);
       expect(result).toBe(false);
     });
 
-    it("returns false when user has no organizations", async () => {
+    it("returns false when no restrictions exist", async () => {
       restrictedSubject.next([]);
 
-      const result = await service.isCipherTypeRestricted(CipherType.Card);
+      const result = await service.isCipherRestricted(cardCipher);
+      expect(result).toBe(false);
+    });
+
+    it("returns false for organization cipher when organization is in allowViewOrgIds", async () => {
+      restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: ["org1"] }]);
+
+      const result = await service.isCipherRestricted(cardCipher);
       expect(result).toBe(false);
     });
   });
