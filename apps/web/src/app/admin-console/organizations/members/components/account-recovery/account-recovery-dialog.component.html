@@ -1,0 +1,21 @@
+<bit-dialog [title]="'recoverAccount' | i18n" [subtitle]="dialogData.name">
+  <ng-container bitDialogContent>
+    <bit-callout type="warning"
+      >{{ "resetPasswordLoggedOutWarning" | i18n: loggedOutWarningName }}
+    </bit-callout>
+
+    <auth-input-password
+      [flow]="inputPasswordFlow"
+      [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
+    ></auth-input-password>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" [bitAction]="handlePrimaryButtonClick">
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
