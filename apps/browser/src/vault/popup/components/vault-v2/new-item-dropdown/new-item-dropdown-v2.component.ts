@@ -3,12 +3,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { RouterLink } from "@angular/router";
+import { map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherMenuItem, CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
-import { AddEditFolderDialogComponent } from "@bitwarden/vault";
+import { AddEditFolderDialogComponent, RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -34,7 +36,22 @@ export class NewItemDropdownV2Component implements OnInit {
   @Input()
   initialValues: NewItemInitialValues;
 
-  constructor(private dialogService: DialogService) {}
+  /**
+   * Observable of cipher menu items that are not restricted by policy
+   */
+  readonly cipherMenuItems$: Observable<CipherMenuItem[]> =
+    this.restrictedItemTypeService.restricted$.pipe(
+      map((restrictedTypes) => {
+        const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
+
+        return CIPHER_MENU_ITEMS.filter((menuItem) => !restrictedTypeArr.includes(menuItem.type));
+      }),
+    );
+
+  constructor(
+    private dialogService: DialogService,
+    private restrictedItemTypeService: RestrictedItemTypesService,
+  ) {}
 
   async ngOnInit() {
     this.tab = await BrowserApi.getTabFromCurrentWindow();
