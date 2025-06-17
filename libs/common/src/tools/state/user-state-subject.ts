@@ -166,6 +166,8 @@ export class UserStateSubject<
             // related: ALWAYS_UPDATE_KLUDGE FIXME
             delete stored[ALWAYS_UPDATE_KLUDGE];
           }
+
+          return stored;
         }),
         this.declassify(encryptor$),
         this.adjust(combineLatestWith(constraints$)),
