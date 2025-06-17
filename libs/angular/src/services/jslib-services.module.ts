@@ -14,8 +14,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AnonLayoutWrapperDataService,
-  DefaultAnonLayoutWrapperDataService,
   DefaultLoginApprovalComponentService,
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
@@ -299,7 +297,11 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
-import { ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  DefaultAnonLayoutWrapperDataService,
+  ToastService,
+} from "@bitwarden/components";
 import {
   GeneratorHistoryService,
   LocalGeneratorHistoryService,

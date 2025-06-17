@@ -7,13 +7,9 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ButtonModule } from "../../../../components/src/button";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { I18nMockService } from "../../../../components/src/utils/i18n-mock.service";
-import { LockIcon } from "../icons";
+import { ButtonModule } from "../button";
+import { LockIcon } from "../icon/icons";
+import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { AnonLayoutComponent } from "./anon-layout.component";
 
@@ -23,7 +19,7 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
 }
 
 export default {
-  title: "Auth/Anon Layout",
+  title: "Component Library/Anon Layout",
   component: AnonLayoutComponent,
   decorators: [
     moduleMetadata({
@@ -38,6 +34,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               accessing: "Accessing",
+              appLogoLabel: "app logo label",
             });
           },
         },
