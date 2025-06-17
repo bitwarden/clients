@@ -1,19 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, ViewChild } from "@angular/core";
-import { BehaviorSubject, combineLatest, map, switchMap } from "rxjs";
+import { switchMap } from "rxjs";
 
-import {
-  InputPasswordComponent,
-  InputPasswordFlow,
-  PasswordInputResult,
-} from "@bitwarden/auth/angular";
+import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  AsyncActionsModule,
   ButtonModule,
   CalloutModule,
   DIALOG_DATA,
@@ -70,6 +66,7 @@ export type AccountRecoveryDialogResultType =
   selector: "app-account-recovery-dialog",
   templateUrl: "account-recovery-dialog.component.html",
   imports: [
+    AsyncActionsModule,
     ButtonModule,
     CalloutModule,
     CommonModule,
@@ -81,16 +78,6 @@ export type AccountRecoveryDialogResultType =
 export class AccountRecoveryDialogComponent {
   @ViewChild(InputPasswordComponent)
   inputPasswordComponent: InputPasswordComponent | undefined = undefined;
-
-  private parentSubmittingBehaviorSubject = new BehaviorSubject(false);
-  parentSubmitting$ = this.parentSubmittingBehaviorSubject.asObservable();
-
-  private childSubmittingBehaviorSubject = new BehaviorSubject(false);
-  childSubmitting$ = this.childSubmittingBehaviorSubject.asObservable();
-
-  submitting$ = combineLatest([this.parentSubmitting$, this.childSubmitting$]).pipe(
-    map(([parentIsSubmitting, childIsSubmitting]) => parentIsSubmitting || childIsSubmitting),
-  );
 
   masterPasswordPolicyOptions$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -108,7 +95,6 @@ export class AccountRecoveryDialogComponent {
     private accountService: AccountService,
     private dialogRef: DialogRef<AccountRecoveryDialogResultType>,
     private i18nService: I18nService,
-    private logService: LogService,
     private policyService: PolicyService,
     private resetPasswordService: OrganizationUserResetPasswordService,
     private toastService: ToastService,
@@ -119,37 +105,26 @@ export class AccountRecoveryDialogComponent {
       throw new Error("InputPasswordComponent is not initialized");
     }
 
-    await this.inputPasswordComponent.submit();
-  };
-
-  async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
-    this.parentSubmittingBehaviorSubject.next(true);
-
-    try {
-      await this.resetPasswordService.resetMasterPassword(
-        passwordInputResult.newPassword,
-        this.dialogData.email,
-        this.dialogData.organizationUserId,
-        this.dialogData.organizationId,
-      );
-
-      this.toastService.showToast({
-        variant: "success",
-        title: "",
-        message: this.i18nService.t("resetPasswordSuccess"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-    } finally {
-      this.parentSubmittingBehaviorSubject.next(false);
+    const passwordInputResult = await this.inputPasswordComponent.submit();
+    if (!passwordInputResult) {
+      return;
     }
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
-  }
+    await this.resetPasswordService.resetMasterPassword(
+      passwordInputResult.newPassword,
+      this.dialogData.email,
+      this.dialogData.organizationUserId,
+      this.dialogData.organizationId,
+    );
 
-  protected handleIsSubmittingChange(isSubmitting: boolean) {
-    this.childSubmittingBehaviorSubject.next(isSubmitting);
-  }
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("resetPasswordSuccess"),
+    });
+
+    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+  };
 
   /**
    * Strongly typed helper to open an `AccountRecoveryDialogComponent`
