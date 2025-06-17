@@ -67,7 +67,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     ),
     this.activeUserId$.pipe(
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     ),
   ]).pipe(

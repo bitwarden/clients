@@ -104,7 +104,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   protected destroy$ = new Subject<void>();
   protected writeableCollections: CollectionView[];
-  private personalOwnershipPolicyAppliesToActiveUser: boolean;
+  private organizationDataOwnershipAppliesToUser: boolean;
   private previousCipherId: string;
 
   get fido2CredentialCreationDateValue(): string {
@@ -203,10 +203,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
       .pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
         concatMap(async (policyAppliesToActiveUser) => {
-          this.personalOwnershipPolicyAppliesToActiveUser = policyAppliesToActiveUser;
+          this.organizationDataOwnershipAppliesToUser = policyAppliesToActiveUser;
           await this.init();
         }),
         takeUntil(this.destroy$),
@@ -228,7 +228,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (this.ownershipOptions.length) {
       this.ownershipOptions = [];
     }
-    if (this.personalOwnershipPolicyAppliesToActiveUser) {
+    if (this.organizationDataOwnershipAppliesToUser) {
       this.allowPersonal = false;
     } else {
       const myEmail = await firstValueFrom(

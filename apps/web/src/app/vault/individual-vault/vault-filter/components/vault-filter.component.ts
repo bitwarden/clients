@@ -175,7 +175,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
             this.policyService
-              .policiesByType$(PolicyType.PersonalOwnership, userId)
+              .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),
           ),
         ),
@@ -268,7 +268,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
     );

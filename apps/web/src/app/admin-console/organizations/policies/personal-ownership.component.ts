@@ -7,7 +7,7 @@ import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 export class PersonalOwnershipPolicy extends BasePolicy {
   name = "personalOwnership";
   description = "personalOwnershipPolicyDesc";
-  type = PolicyType.PersonalOwnership;
+  type = PolicyType.OrganizationDataOwnership;
   component = PersonalOwnershipPolicyComponent;
 }
 

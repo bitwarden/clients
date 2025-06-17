@@ -34,7 +34,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
     map((p) => !p),
   );

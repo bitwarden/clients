@@ -212,7 +212,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.disablePersonalOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     );
 
