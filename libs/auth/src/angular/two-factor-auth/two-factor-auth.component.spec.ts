@@ -27,6 +27,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -77,6 +78,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
   let mockAuthService: MockProxy<AuthService>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -112,6 +114,7 @@ describe("TwoFactorAuthComponent", () => {
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
     mockAuthService = mock<AuthService>();
+    mockConfigService = mock<ConfigService>();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -211,6 +214,7 @@ describe("TwoFactorAuthComponent", () => {
           useValue: mockTwoFactorAuthCompCacheService,
         },
         { provide: AuthService, useValue: mockAuthService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
