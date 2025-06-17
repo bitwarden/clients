@@ -161,6 +161,12 @@ export class UserStateSubject<
     this.outputSubscription = userState$
       .pipe(
         switchMap((userState) => userState.state$),
+        map((stored) => {
+          if (typeof stored === "object" && ALWAYS_UPDATE_KLUDGE in stored) {
+            // related: ALWAYS_UPDATE_KLUDGE FIXME
+            delete stored[ALWAYS_UPDATE_KLUDGE];
+          }
+        }),
         this.declassify(encryptor$),
         this.adjust(combineLatestWith(constraints$)),
         takeUntil(anyComplete(account$)),
