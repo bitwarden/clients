@@ -386,7 +386,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
         cipher.collectionIds.includes(c.id),
       ) ?? null;
     this.action = "view";
+
     await this.go().catch(() => {});
+    await this.eventCollectionService.collect(
+      EventType.Cipher_ClientViewed,
+      cipher.id,
+      false,
+      cipher.organizationId,
+    );
   }
 
   async openAttachmentsDialog() {
