@@ -290,7 +290,7 @@ jobs:
           ResourceHacker -open version-info.rc -save version-info.res -action compile
           ResourceHacker -open %WIN_PKG_BUILT% -save %WIN_PKG_BUILT% -action addoverwrite -resource version-info.res
 
-      - name: Azure Login
+      - name: Log in to Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
@@ -311,7 +311,7 @@ jobs:
             code-signing-client-secret,
             code-signing-cert-name"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
@@ -490,7 +490,7 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         if: failure()
         uses: bitwarden/gh-actions/azure-login@main
@@ -507,7 +507,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         if: failure()
         uses: bitwarden/gh-actions/azure-logout@main
 

@@ -205,7 +205,7 @@ jobs:
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       ########## ACRs ##########
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
@@ -332,7 +332,7 @@ jobs:
       - name: Log out of Docker
         run: docker logout $_AZ_REGISTRY
 
-      - name: Azure Logout
+      - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
@@ -352,7 +352,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -367,7 +367,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
@@ -391,7 +391,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -406,7 +406,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Trigger web vault deploy using GitHub Run ID
@@ -445,7 +445,7 @@ jobs:
           && contains(needs.*.result, 'failure')
         run: exit 1
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -461,7 +461,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Notify Slack on failure

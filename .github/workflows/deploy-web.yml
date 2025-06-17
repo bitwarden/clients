@@ -212,7 +212,7 @@ jobs:
           branch: ${{ inputs.branch-or-tag }}
           artifacts: ${{ env._ENVIRONMENT_ARTIFACT }}
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: bitwarden/gh-actions/azure-login@main
@@ -229,7 +229,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: bitwarden/gh-actions/azure-logout@main
 

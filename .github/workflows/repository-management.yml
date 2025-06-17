@@ -69,7 +69,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-24.04
     steps:
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -77,14 +77,14 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
@@ -139,7 +139,7 @@ jobs:
         with:
           version: ${{ inputs.version_number_override }}
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -147,14 +147,14 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
@@ -497,7 +497,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -505,14 +505,14 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-org-bitwarden
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
       - name: Generate GH App token
         uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3

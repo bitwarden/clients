@@ -244,7 +244,7 @@ jobs:
           npm --version
           choco --version
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -263,7 +263,7 @@ jobs:
             code-signing-client-secret,
             code-signing-cert-name"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Node dependencies
@@ -454,7 +454,7 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -462,7 +462,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -503,7 +503,7 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
@@ -610,7 +610,7 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -618,7 +618,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -659,7 +659,7 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
@@ -840,7 +840,7 @@ jobs:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -848,7 +848,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -889,7 +889,7 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
             jq -r .value | base64 -d > $HOME/certificates/macdev-cert.p12
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
@@ -1019,7 +1019,7 @@ jobs:
           description: 'Deployment ${{ needs.setup.outputs.release_version }} to channel ${{ needs.setup.outputs.release_channel }} from branch ${{ needs.setup.outputs.branch_name }}'
           task: release
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -1036,7 +1036,7 @@ jobs:
             aws-electron-access-key,
             aws-electron-bucket-name"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Download all artifacts

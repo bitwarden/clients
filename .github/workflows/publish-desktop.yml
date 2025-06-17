@@ -118,7 +118,7 @@ jobs:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -135,7 +135,7 @@ jobs:
             aws-electron-access-key,
             aws-electron-bucket-name"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Create artifacts directory
@@ -201,7 +201,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -216,7 +216,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "snapcraft-store-token"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Install Snap
@@ -259,7 +259,7 @@ jobs:
           dotnet --version
           dotnet nuget --version
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -274,7 +274,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "cli-choco-api-key"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Setup Chocolatey

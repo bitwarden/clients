@@ -24,7 +24,7 @@ jobs:
           - app_name: web
             crowdin_project_id: "308189"
     steps:
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -32,7 +32,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -46,7 +46,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token, github-gpg-private-key, github-gpg-private-key-passphrase"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
