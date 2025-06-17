@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "檔案最大為 500MB。"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "需要遷移加密金鑰。請透過網頁版登入密碼庫以更新您的加密金鑰。"
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "資料夾已儲存"
