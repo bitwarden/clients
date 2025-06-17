@@ -1,11 +1,17 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { provideAnimations } from "@angular/platform-browser/animations";
-import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
+import { RouterTestingModule } from "@angular/router/testing";
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { getAllByRole, userEvent } from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
+import { IconButtonModule } from "../icon-button";
+import { LayoutComponent } from "../layout";
+import { SharedModule } from "../shared";
+import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { DialogModule } from "./dialog.module";
@@ -16,7 +22,12 @@ interface Animal {
 }
 
 @Component({
-  template: `<button bitButton type="button" (click)="openDialog()">Open Dialog</button>`,
+  template: `
+    <bit-layout>
+      <button class="tw-mr-2" bitButton type="button" (click)="openDialog()">Open Dialog</button>
+      <button bitButton type="button" (click)="openDrawer()">Open Drawer</button>
+    </bit-layout>
+  `,
   imports: [ButtonModule],
 })
 class StoryDialogComponent {
@@ -24,6 +35,14 @@ class StoryDialogComponent {
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
+
+  openDrawer() {
+    this.dialogService.openDrawer(StoryDialogContentComponent, {
       data: {
         animal: "panda",
       },
@@ -64,7 +83,21 @@ export default {
   title: "Component Library/Dialogs/Service",
   component: StoryDialogComponent,
   decorators: [
+    positionFixedWrapperDecorator(),
     moduleMetadata({
+      declarations: [StoryDialogContentComponent],
+      imports: [
+        SharedModule,
+        ButtonModule,
+        NoopAnimationsModule,
+        DialogModule,
+        IconButtonModule,
+        RouterTestingModule,
+        LayoutComponent,
+      ],
+      providers: [DialogService],
+    }),
+    applicationConfig({
       providers: [
         provideAnimations(),
         DialogService,
@@ -73,7 +106,13 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               close: "Close",
-              loading: "Loading",
+              search: "Search",
+              skipToContent: "Skip to content",
+              submenu: "submenu",
+              toggleCollapse: "toggle collapse",
+              toggleSideNavigation: "Toggle side navigation",
+              yes: "Yes",
+              no: "No",
             });
           },
         },
@@ -90,4 +129,21 @@ export default {
 
 type Story = StoryObj<StoryDialogComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[0];
+    await userEvent.click(button);
+  },
+};
+
+/** Drawers must be a descendant of `bit-layout`. */
+export const Drawer: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+
+    const button = getAllByRole(canvas, "button")[1];
+    await userEvent.click(button);
+  },
+};

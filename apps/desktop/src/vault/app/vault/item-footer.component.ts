@@ -7,7 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -49,9 +49,7 @@ export class ItemFooterComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher, [
-      this.collectionId as CollectionId,
-    ]);
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
   }
 
