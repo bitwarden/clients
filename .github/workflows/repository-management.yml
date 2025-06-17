@@ -44,6 +44,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       branch: ${{ steps.set-branch.outputs.branch }}
+    permissions: {}
     steps:
       - name: Set branch
         id: set-branch

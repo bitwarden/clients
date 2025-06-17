@@ -42,6 +42,9 @@ jobs:
       release_channel: ${{ steps.release_channel.outputs.channel }}
       tag_name: ${{ steps.version.outputs.tag_name }}
       deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}

@@ -48,6 +48,10 @@ jobs:
     defaults:
       run:
         working-directory: .
+    permissions:
+      contents: read
+      deployments: write
+
     steps:
       - name: Branch check
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -240,6 +244,10 @@ jobs:
       - npm
       - snap
       - choco
+    permissions:
+      contents: read
+      deployments: write
+
     if: ${{ always() && inputs.publish_type != 'Dry Run' }}
     steps:
       - name: Check if any job failed
