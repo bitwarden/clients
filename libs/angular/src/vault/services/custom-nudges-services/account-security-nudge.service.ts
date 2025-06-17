@@ -43,7 +43,6 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       of(Date.now() - THIRTY_DAYS_MS),
       from(this.pinService.isPinSet(userId)),
-      from(this.vaultTimeoutSettingsService.isBiometricLockSet(userId)),
       this.biometricStateService.biometricUnlockEnabled$,
       this.organizationService.organizations$(userId),
       this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
@@ -54,7 +53,6 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
           status,
           profileCutoff,
           isPinSet,
-          isBiometricLockSet,
           biometricUnlockEnabled,
           organizations,
           policies,
@@ -70,7 +68,6 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
           const hideNudge =
             profileOlderThanCutoff ||
             isPinSet ||
-            isBiometricLockSet ||
             biometricUnlockEnabled ||
             hasOrgWithRemovePinPolicyOn;
 
@@ -79,12 +76,7 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
             hasSpotlightDismissed: status.hasSpotlightDismissed || hideNudge,
           };
 
-          if (
-            isPinSet ||
-            isBiometricLockSet ||
-            biometricUnlockEnabled ||
-            hasOrgWithRemovePinPolicyOn
-          ) {
+          if (isPinSet || biometricUnlockEnabled || hasOrgWithRemovePinPolicyOn) {
             await this.setNudgeStatus(nudgeType, acctSecurityNudgeStatus, userId);
           }
           return acctSecurityNudgeStatus;
