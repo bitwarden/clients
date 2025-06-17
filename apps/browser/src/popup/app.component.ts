@@ -11,7 +11,17 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap, map } from "rxjs";
+import {
+  Subject,
+  takeUntil,
+  firstValueFrom,
+  concatMap,
+  filter,
+  tap,
+  catchError,
+  of,
+  map,
+} from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
@@ -23,6 +33,7 @@ import { AnimationControlService } from "@bitwarden/common/platform/abstractions
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -48,22 +59,44 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   styles: [],
   animations: [routerTransition],
   template: `
-    <div [@routerTransition]="getRouteElevation(outlet)">
-      <router-outlet #outlet="outlet"></router-outlet>
-    </div>
-    <bit-toast-container></bit-toast-container>
+    @if (showSdkWarning | async) {
+      <div class="tw-h-screen tw-flex tw-justify-center tw-items-center tw-p-4">
+        <bit-callout type="danger">
+          {{ "wasmNotSupported" | i18n }}
+          <a
+            bitLink
+            href="https://bitwarden.com/help/wasm-not-supported/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {{ "learnMore" | i18n }}
+          </a>
+        </bit-callout>
+      </div>
+    } @else {
+      <div [@routerTransition]="getRouteElevation(outlet)">
+        <router-outlet #outlet="outlet"></router-outlet>
+      </div>
+      <bit-toast-container></bit-toast-container>
+    }
   `,
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private compactModeService = inject(PopupCompactModeService);
+  private sdkService = inject(SdkService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
-  private recordActivitySubject = new Subject<void>();
   private routerAnimations = false;
 
   private destroy$ = new Subject<void>();
+
+  // Show a warning if the SDK is not available.
+  protected showSdkWarning = this.sdkService.client$.pipe(
+    map(() => false),
+    catchError(() => of(true)),
+  );
 
   constructor(
     private authService: AuthService,
