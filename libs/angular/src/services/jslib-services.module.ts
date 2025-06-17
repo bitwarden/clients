@@ -74,7 +74,6 @@ import { OrganizationManagementPreferencesService } from "@bitwarden/common/admi
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
-  PolicyService,
   PolicyService as PolicyServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
@@ -685,7 +684,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
-    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyService],
+    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
   }),
   safeProvider({
     provide: PasswordStrengthServiceAbstraction,
