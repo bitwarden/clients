@@ -155,9 +155,13 @@ export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
 
 // Vault
 
-export const COLLECTION_DATA = new StateDefinition("collection", "disk", {
+export const COLLECTION_DISK = new StateDefinition("collection", "disk", {
   web: "memory",
 });
+export const COLLECTION_MEMORY = new StateDefinition("collection", "disk", {
+  web: "memory",
+});
+
 export const FOLDER_DISK = new StateDefinition("folder", "disk", { web: "memory" });
 export const FOLDER_MEMORY = new StateDefinition("decryptedFolders", "memory", {
   browser: "memory-large-object",
