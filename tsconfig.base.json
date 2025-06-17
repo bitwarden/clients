@@ -37,6 +37,7 @@
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
       "@bitwarden/key-management-ui": ["./libs/key-management-ui/src"],
+      "@bitwarden/logging": ["libs/logging/src"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/nx-plugin": ["libs/nx-plugin/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],

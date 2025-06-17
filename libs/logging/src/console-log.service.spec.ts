@@ -1,6 +1,5 @@
-import { interceptConsole, restoreConsole } from "../../../spec";
-
 import { ConsoleLogService } from "./console-log.service";
+import { interceptConsole, restoreConsole } from "./intercept-console";
 
 describe("ConsoleLogService", () => {
   const error = new Error("this is an error");
