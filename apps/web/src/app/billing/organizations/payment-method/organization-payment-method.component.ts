@@ -259,14 +259,7 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   }
 
   private async checkBillingAddressForTrialingOrg(): Promise<boolean> {
-    const hasBillingAddress =
-      this.taxInformation?.postalCode ||
-      this.taxInformation?.country ||
-      this.taxInformation?.line1 ||
-      this.taxInformation?.line2 ||
-      this.taxInformation?.city ||
-      this.taxInformation?.state;
-
+    const hasBillingAddress = this.taxInformation != null;
     if (!hasBillingAddress) {
       this.toastService.showToast({
         variant: "error",
