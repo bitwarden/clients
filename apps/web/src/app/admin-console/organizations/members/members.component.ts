@@ -309,7 +309,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       switchMap((userId) => this.keyService.orgKeys$(userId)),
       withLatestFrom(response),
       switchMap(([orgKeys, collections]) =>
-        this.collectionService.decryptMany$(collections, orgKeys),
+        this.collectionService.decryptManyStateless(collections, orgKeys),
       ),
       map((collections) => {
         const collectionMap = new Map<string, string>();

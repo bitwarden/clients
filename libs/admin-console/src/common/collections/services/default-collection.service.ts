@@ -2,13 +2,11 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
-  from,
   map,
   Observable,
   of,
   shareReplay,
   switchMap,
-  take,
   tap,
 } from "rxjs";
 
@@ -60,6 +58,7 @@ export class DefaultCollectionService implements CollectionService {
 
         return Object.values(collections).map((c) => new Collection(c));
       }),
+      tap(() => this.decryptedState(userId).update(() => null)),
     );
   }
 
@@ -67,15 +66,8 @@ export class DefaultCollectionService implements CollectionService {
     return combineLatest([
       this.encryptedCollections$(userId),
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-      this.decryptedState(userId).state$.pipe(take(1)),
     ]).pipe(
-      switchMap(([collections, orgKeys, decrypted]) =>
-        decrypted?.length
-          ? of(decrypted)
-          : this.decryptMany$(collections, orgKeys).pipe(
-              tap((collections) => this.setDecryptedCollections(collections, userId)),
-            ),
-      ),
+      switchMap(([collections, orgKeys]) => this.decryptMany$(collections, orgKeys, userId)),
       shareReplay({ refCount: false, bufferSize: 1 }),
     );
   }
@@ -145,25 +137,38 @@ export class DefaultCollectionService implements CollectionService {
 
   // TODO: this should be private.
   // See https://bitwarden.atlassian.net/browse/PM-12375
-  decryptMany$(
+  private decryptMany$(
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey>,
+    userId: UserId,
+  ): Observable<CollectionView[]> {
+    return this.decryptedState(userId).state$.pipe(
+      switchMap((decState) => {
+        // This wont tell us if the state is stale, so we now invalidate the state when encrytpedState$ has an emission.
+        if (decState?.length) {
+          return of(decState);
+        }
+        if (collections === null || collections.length === 0 || orgKeys === null) {
+          return of([]);
+        }
+
+        const decCollections = collections.map((c) =>
+          c.decrypt(orgKeys[c.organizationId as OrganizationId]),
+        );
+
+        return combineLatest(decCollections).pipe(
+          map((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
+          tap((decCollections) => this.setDecryptedCollections(decCollections, userId)),
+        );
+      }),
+    );
+  }
+
+  decryptManyStateless(
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Observable<CollectionView[]> {
-    if (collections === null || collections.length === 0 || orgKeys === null) {
-      return of([]);
-    }
-
-    const decCollections: Observable<CollectionView>[] = [];
-
-    collections.forEach((collection) => {
-      decCollections.push(
-        from(collection.decrypt(orgKeys[collection.organizationId as OrganizationId])),
-      );
-    });
-
-    return combineLatest(decCollections).pipe(
-      map((collections) => collections.sort(Utils.getSortFunction(this.i18nService, "name"))),
-    );
+    return of();
   }
 
   getAllNested(collections: CollectionView[]): TreeNode<CollectionView>[] {

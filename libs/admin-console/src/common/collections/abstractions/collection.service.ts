@@ -14,7 +14,7 @@ export abstract class CollectionService {
   /**
    * @deprecated This method will soon be made private, use `decryptedCollections$` instead.
    */
-  abstract decryptMany$: (
+  abstract decryptManyStateless: (
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ) => Observable<CollectionView[]>;

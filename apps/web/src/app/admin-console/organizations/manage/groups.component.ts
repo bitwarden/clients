@@ -258,12 +258,12 @@ export class GroupsComponent {
     );
 
     // Convert to an object using collection Ids as keys for faster name lookups
-    const collectionMap: Record<string, CollectionView> = {};
     return this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.keyService.orgKeys$(userId)),
-      switchMap((orgKeys) => this.collectionService.decryptMany$(collections, orgKeys)),
+      switchMap((orgKeys) => this.collectionService.decryptManyStateless(collections, orgKeys)),
       map((collections) => {
+        const collectionMap: Record<string, CollectionView> = {};
         collections.forEach((c) => (collectionMap[c.id] = c));
         return collectionMap;
       }),
