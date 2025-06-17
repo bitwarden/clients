@@ -6,13 +6,13 @@ on:
     paths:
       - '**/crowdin.yml'
 
-permissions:
-  contents: read
-
 jobs:
   lint-crowdin-config:
     name: Lint Crowdin Config ${{ matrix.app.name }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         app: [
