@@ -788,7 +788,13 @@
       <button
         type="button"
         (click)="share()"
-        *ngIf="editMode && cipher && !cipher.organizationId && !cloneMode"
+        *ngIf="
+          editMode &&
+          cipher &&
+          !cipher.organizationId &&
+          !cloneMode &&
+          writeableCollections.length > 0
+        "
       >
         {{ "move" | i18n }}
       </button>

@@ -2153,8 +2153,8 @@
   "setYourPinCode": {
     "message": "设定您用来解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销此应用程序时被重置。"
   },
-  "setYourPinCode1": {
-    "message": "您的 PIN 码将代替主密码用于解锁 Bitwarden。如果您完全注销 Bitwarden，PIN 码将被重置。"
+  "setPinCode": {
+    "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
   },
   "pinRequired": {
     "message": "需要 PIN 码。"
@@ -2515,6 +2515,10 @@
   "change": {
     "message": "更改"
   },
+  "changePassword": {
+    "message": "更改密码",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "更改密码 - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2527,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "存在风险的密码"
   },
   "atRiskPasswords": {
     "message": "存在风险的密码"
@@ -2557,6 +2564,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "该网站密码存在风险，$ORGANIZATION$ 要求您更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ 希望您更改此密码，因为它存在风险。请前往账户设置更改此密码。",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "审查并更改 1 个存在风险的密码"
