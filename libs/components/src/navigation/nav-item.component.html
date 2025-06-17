@@ -6,7 +6,7 @@
   >
     <div
       *ngIf="data.open || icon"
-      class="tw-relative tw-rounded-md"
+      class="tw-relative tw-rounded-md tw-h-10"
       [ngClass]="[
         showActiveStyles
           ? 'tw-bg-background-alt4'
@@ -14,14 +14,14 @@
         fvwStyles$ | async,
       ]"
     >
-      <div class="tw-relative tw-flex">
+      <div class="tw-relative tw-flex tw-items-center tw-h-full">
         <ng-container *ngIf="route; then isAnchor; else isButton"></ng-container>
 
         <!-- Main content of `NavItem` -->
         <ng-template #anchorAndButtonContent>
-          <div [title]="text" class="tw-truncate tw-flex tw-gap-2 tw-items-center">
+          <div [title]="text" class="tw-truncate tw-gap-2 tw-items-center tw-font-bold" [ngClass]="{'tw-text-center': !data.open, 'tw-flex': data.open}">
             <i
-              class="bwi bwi-fw tw-text-alt2 {{ icon }}"
+              class="!tw-m-0 bwi bwi-fw tw-text-alt2 {{ icon }}"
               [attr.aria-hidden]="data.open"
               [attr.aria-label]="text"
             ></i
@@ -34,7 +34,7 @@
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
-            class="tw-w-full tw-px-3 tw-py-2 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+            class="tw-w-full tw-px-3 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
             data-fvw
             [routerLink]="route"
             [relativeTo]="relativeTo"
@@ -54,7 +54,7 @@
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
-            class="tw-w-full tw-px-3 tw-py-2 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+            class="tw-w-full tw-px-3 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
             data-fvw
             (click)="mainContentClicked.emit()"
           >
@@ -64,7 +64,7 @@
 
         <div
           *ngIf="data.open"
-          class="tw-flex tw-py-2 tw-pe-1.5 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
+          class="tw-flex tw-items-center tw-pe-1.5 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
         >
           <ng-content select="[slot=end]"></ng-content>
         </div>
