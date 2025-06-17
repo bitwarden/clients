@@ -133,6 +133,11 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
     // Get the authStatus early because we use it in both flows
     this.authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
 
+    if (this.authStatus === AuthenticationStatus.Unlocked) {
+      await this.router.navigate(["vault"]);
+      return;
+    }
+
     const userHasAuthenticatedViaSSO = this.authStatus === AuthenticationStatus.Locked;
 
     if (userHasAuthenticatedViaSSO) {
