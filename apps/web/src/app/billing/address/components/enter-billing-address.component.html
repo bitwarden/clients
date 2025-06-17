@@ -1,0 +1,81 @@
+<form [formGroup]="group">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "country" | i18n }}</bit-label>
+        <bit-select [formControl]="group.controls.country">
+          @for (selectableCountry of selectableCountries; track selectableCountry.value) {
+            <bit-option
+              [value]="selectableCountry.value"
+              [disabled]="selectableCountry.disabled"
+              [label]="selectableCountry.name"
+            ></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="group.controls.postalCode"
+          autocomplete="postal-code"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "address1" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="group.controls.line1"
+          autocomplete="address-line1"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "address2" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="group.controls.line2"
+          autocomplete="address-line2"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "cityTown" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="group.controls.city"
+          autocomplete="address-level2"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <bit-form-field [disableMargin]="true">
+        <bit-label>{{ "stateProvince" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="text"
+          [formControl]="group.controls.state"
+          autocomplete="address-level1"
+        />
+      </bit-form-field>
+    </div>
+    @if (supportsTaxId$ | async) {
+      <div class="tw-col-span-6">
+        <bit-form-field [disableMargin]="true">
+          <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
+          <input bitInput type="text" [formControl]="group.controls.taxId" />
+        </bit-form-field>
+      </div>
+    }
+  </div>
+</form>
