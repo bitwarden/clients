@@ -224,8 +224,8 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    describe("PersonalOwnership policy", () => {
-      it('calls policyAppliesToUser$ with "PersonalOwnership"', () => {
+    describe("OrganizationDataOwnership policy", () => {
+      it('calls policyAppliesToUser$ with "OrganizationDataOwnership"', () => {
         expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
           PolicyType.OrganizationDataOwnership,
           "userId",

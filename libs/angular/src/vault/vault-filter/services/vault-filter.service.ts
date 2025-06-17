@@ -123,7 +123,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     );
   }
 
-  async checkForPersonalOwnershipPolicy(): Promise<boolean> {
+  async checkForOrganizationDataOwnershipPolicy(): Promise<boolean> {
     return await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
