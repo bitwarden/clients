@@ -689,10 +689,10 @@
     "message": "Оберіть файл"
   },
   "maxFileSize": {
-    "message": "Максимальний розмір файлу 500 Мб."
+    "message": "Максимальний розмір файлу 500 МБ."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -2634,16 +2634,16 @@
     "message": "Генерувати парольну фразу"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Пароль згенеровано"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Парольну фразу згенеровано"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Ім'я користувача згенеровано"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Адресу е-пошти згенеровано"
   },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
@@ -2702,7 +2702,7 @@
     "message": "Використати цей пароль"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Використати цю парольну фразу"
   },
   "useThisUsername": {
     "message": "Використати це ім'я користувача"

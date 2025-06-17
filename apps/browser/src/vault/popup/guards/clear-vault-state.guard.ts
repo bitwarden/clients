@@ -1,9 +1,9 @@
 import { inject } from "@angular/core";
 import { CanDeactivateFn } from "@angular/router";
 
-import { VaultV2Component } from "../popup/components/vault-v2/vault-v2.component";
-import { VaultPopupItemsService } from "../popup/services/vault-popup-items.service";
-import { VaultPopupListFiltersService } from "../popup/services/vault-popup-list-filters.service";
+import { VaultV2Component } from "../components/vault-v2/vault-v2.component";
+import { VaultPopupItemsService } from "../services/vault-popup-items.service";
+import { VaultPopupListFiltersService } from "../services/vault-popup-list-filters.service";
 
 /**
  * Guard to clear the vault state (search and filter) when navigating away from the vault view.
