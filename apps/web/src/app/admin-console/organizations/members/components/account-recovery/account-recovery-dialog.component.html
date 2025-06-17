@@ -7,19 +7,11 @@
     <auth-input-password
       [flow]="inputPasswordFlow"
       [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
-      (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
-      (isSubmitting)="handleIsSubmittingChange($event)"
     ></auth-input-password>
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      [disabled]="submitting$ | async"
-      (click)="handlePrimaryButtonClick()"
-    >
+    <button type="button" bitButton buttonType="primary" [bitAction]="handlePrimaryButtonClick">
       {{ "save" | i18n }}
     </button>
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
