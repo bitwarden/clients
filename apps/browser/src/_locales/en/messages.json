@@ -5062,6 +5062,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
