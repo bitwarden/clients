@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Directive, HostListener, Input, InjectionToken, Inject, Optional } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,6 +5,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 import { ToastService, ToastVariant } from "../";
 
+/**
+ * Listener that can be provided to receive copy events to allow for customized behavior.
+ */
 export interface CopyClickListener {
   onCopy(value: string): void;
 }
@@ -33,7 +34,7 @@ export class CopyClickDirective {
    * When set, the toast displayed will show `<valueLabel> copied`
    * instead of the default messaging.
    */
-  @Input() valueLabel: string;
+  @Input() valueLabel?: string;
 
   /**
    * When set without a value, a success toast will be shown when the value is copied
@@ -72,7 +73,6 @@ export class CopyClickDirective {
 
       this.toastService.showToast({
         variant: this.toastVariant,
-        title: null,
         message,
       });
     }

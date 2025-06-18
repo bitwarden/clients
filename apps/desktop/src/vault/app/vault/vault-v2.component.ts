@@ -13,8 +13,6 @@ import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rx
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -155,14 +153,12 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     ),
   );
 
-  private modal: ModalRef | null = null;
   private componentIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
-    private modalService: ModalService,
     private broadcasterService: BroadcasterService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
@@ -359,6 +355,9 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     }
   }
 
+  /**
+   * Handler for Vault level CopyClickDirectives to send the minimizeOnCopy message
+   */
   onCopy() {
     this.messagingService.send("minimizeOnCopy");
   }
