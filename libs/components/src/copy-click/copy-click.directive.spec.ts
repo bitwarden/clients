@@ -2,9 +2,7 @@ import { Component, ElementRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
-import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ToastService, CopyClickListener, COPY_CLICK_LISTENER } from "../";
@@ -37,8 +35,6 @@ describe("CopyClickDirective", () => {
   let fixture: ComponentFixture<TestCopyClickComponent>;
   const copyToClipboard = jest.fn();
   const showToast = jest.fn();
-  const sendMessage = jest.fn();
-  const getClientType = jest.fn().mockReturnValue(ClientType.Web);
   const copyClickListener = mock<CopyClickListener>();
 
   beforeEach(async () => {
@@ -60,9 +56,8 @@ describe("CopyClickDirective", () => {
             },
           },
         },
-        { provide: PlatformUtilsService, useValue: { copyToClipboard, getClientType } },
+        { provide: PlatformUtilsService, useValue: { copyToClipboard } },
         { provide: ToastService, useValue: { showToast } },
-        { provide: MessagingService, useValue: { send: sendMessage } },
         { provide: COPY_CLICK_LISTENER, useValue: copyClickListener },
       ],
     }).compileComponents();
