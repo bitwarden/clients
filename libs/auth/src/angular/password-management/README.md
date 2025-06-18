@@ -1,4 +1,4 @@
-# Password Management Flows
+# Master Password Management Flows
 
 The Auth Team manages several components that allow a user to either:
 
@@ -11,21 +11,18 @@ This document maps all of our password management flows to the components that h
 
 **Table of Contents**
 
+> [The Base `InputPasswordComponent`](#the-base-inputpasswordcomponent)
+>
 > [Set Initial Password Flows](#set-initial-password-flows)
 >
-> - [Concise Table](#set-initial-password-flows)
-> - [Detailed Breakdown](#account-registration)
->
 > [Change Password Flows](#change-password-flows)
->
-> - [Concise Table](#change-password-flows)
-> - [Detailed Breakdown]()
 
 <br>
 
 **Acronyms**
 
 <ul>
+  <li>MP = "master password"</li>
   <li>MPE = "master password ecryption"</li>
   <li>TDE = "trusted device encryption"</li>
   <li>JIT Provisioned = "just-in-time provisioned"</li>
@@ -33,7 +30,13 @@ This document maps all of our password management flows to the components that h
 
 <br>
 
-# Set Initial Password Flows
+## The Base `InputPasswordComponent`
+
+Central to our master password management flows is the base [InputPasswordComponent](https://components.bitwarden.com/?path=/docs/auth-input-password--docs), which is responsible for displaying the appropriate form fields, performing form validation, and generating appropriate cryptographic properties for each flow. This keeps our UI, validation, and key generation consistent across all master password management flows.
+
+<br>
+
+## Set Initial Password Flows
 
 <table>
   <thead>
@@ -78,10 +81,10 @@ This document maps all of our password management flows to the components that h
         <strong>Existing Authed User</strong>
         <br><br>
         <ol>
-            <li>JIT provisioned MPE org user</li><br>
-            <li>JIT provisioned TDE org user w/ starting role</li><br>
-            <li>TDE user authenticates after role upgrade</li><br>
-            <li>TDE user authenticates after TDE offboarding</li><br>
+            <li>User JIT provisions* into MPE org</li><br>
+            <li>User JIT provisions* into TDE org with the "manage account recovery" permission</li><br>
+            <li>TDE user authenticates after permissions were upgraded to include "manage account recovery"</li><br>
+            <li>User authenticates after TDE offboarding</li><br>
         </ol>
       </td>
       <td><code>/set-initial-password</code></td>
@@ -93,63 +96,14 @@ This document maps all of our password management flows to the components that h
   </tbody>
 </table>
 
-<br>
+\* A note on JIT provisioned user flows:
 
-### Account Registration
-
-1. **Standard Flow**
-
-   - On `/signup` a user enters their email and clicks "Continue"
-   - A verification email gets sent to the user's email inbox
-   - User clicks the link in the verification email, which directs them to `/finish-signup` to finish registration by setting a password
-
-2. **Self Hosted Flow**
-
-   - On `/signup` a user enters their email and clicks "Continue"
-   - User gets directed immediately to `/finish-signup` to finish registration by setting a password
-
-3. **Email Invite Flows**
-
-   - In these flows, an existing Bitwarden user (**User A**) takes the initiative and invites some person (**Person B**) via email to register a Bitwarden account. There are 4 variations of the email invite flow, each of which sends Person B to one of our `/accept-*` routes:
-
-     - Flow 1 &rsaquo; _Organization Invite_
-
-       - On `/organizations/{orgId}/members`, an org admin (**User A**) invites **Person B** to join the org
-       - **Person B** receives an email in their inbox, inviting them to register a Bitwarden account and join the org
-       - **Person B** clicks the link in the email, which directs them to `/accept-organization` with query params
-       - The `AcceptOrganizationComponent` extracts the query params and directs **Person B** to `/finish-signup` to finish registration by setting a password
-
-     - Flow 2 &rsaquo; _Enterprise Organization Sponsored Family Plan Invite_
-
-       > In this flow, the user actually invites _themself_ to register a Bitwarden account with their personal email address.
-
-       - User (`user@COMPANY.com`) is member of an enterprise org that [sponsors free family plans](https://bitwarden.com/help/families-for-enterprise/) for its employees
-
-         - On `/settings/sponsored-families`, user enters their personal email address (`user@PERSONAL.com`) for which they want to redeem a free Bitwarden Families subscription
-         - User receives an email in their personal email inbox (`user@PERSONAL.com`), inviting them to register a Bitwarden account and redeem a free Bitwarden Families subscription
-         - User clicks the link in the email, which directs them to `/accept-families-for-enterprise` with query params
-         - The `AcceptFamilySponsorshipComponent` extracts the query params and directs the user to `/finish-signup` to finish registration by setting by setting a password
-
-     - Flow 3 &rsaquo; _Emergency Contact Invite_
-
-       - On `/settings/emergency-access`, **User A** invites **Person B** to become an [Emergency Contact](https://bitwarden.com/help/emergency-access/) for **User A**
-       - **Person B** receives an email in their inbox, inviting them to register a Bitwarden account and become an Emergency Contact for **User A**
-       - **Person B** clicks the link in the email, which directs them to `/accept-emergency` with query params
-       - The `AcceptEmergencyComponent` extracts the query params and directs **Person B** to `/finish-signup` to finish registration by setting a password
-
-     - Flow 4 &rsaquo; _Provider or Reseller Provider Invite_
-
-       - Coming soon
+- Even though a JIT provisioned user is a brand-new user who was “just” created, we consider them to be an “existing authed user” _from the perspective of the set-password flow_. This is because at the time they set their initial password, their account already exists in the database (before setting their password) and they have already authenticated via SSO.
+- The same is not true in the _Account Registration_ flows above—that is, during account registration when a user reaches the `/finish-signup` or `/trial-initiation` page to set their initial password, their account does not yet exist in the database, and will only be created once they set an initial password.
 
 <br>
 
-### Trial Initiation
-
-### Existing Authed User
-
-<br><br>
-
-# Change Password Flows
+## Change Password Flows
 
 <table>
   <thead>
@@ -163,11 +117,12 @@ This document maps all of our password management flows to the components that h
     <tr>
       <td>
         <strong>Account Settings</strong>
-        <br><br> User changes master password via account settings <small>( web only ) 🌐</small>
+        (<small><a href="https://bitwarden.com/help/master-password/#change-master-password" target="_blank" rel="noopener noreferrer">Docs</a></small>)
+        <br><br>User changes MP via account settings <small>( 🌐 web only )</small>
       </td>
       <td>
         <code>/settings/security/password</code>
-        <br> defined in <code>security-routing.module.ts</code>
+        <br>(<code>security-routing.module.ts</code>)
       </td>
       <td>
         <code>PasswordSettingsComponent</code>
@@ -178,9 +133,9 @@ This document maps all of our password management flows to the components that h
     <tr>
       <td>
         <strong>On Login</strong>
-        <br><br>1. User clicks an org email invite link and logs in with their master password that does not meet the org’s policy requirements <small>( web only ) 🌐</small>
-        <br><br>2. User logs in with a master password that does not meet recently updated org policy requirements
-        <br><br>3. User logs in after their master password was reset via Account Recovery, and must now change their password
+        <br><br>1. User clicks an org email invite link and logs in with their MP that does not meet the org’s policy requirements <small>( 🌐 web only )</small>
+        <br><br>2. User logs in with their MP that does not meet recently updated org policy requirements
+        <br><br>3. User logs in after their MP was reset via Account Recovery, and must now change their password
       </td>
       <td><code>/change-password</code></td>
       <td>
@@ -191,7 +146,9 @@ This document maps all of our password management flows to the components that h
     <tr>
       <td>
         <strong>Emergency Access Takeover</strong>
-        <br><br> Emergency access Grantee sets a master password for the Grantor <small>( web only ) 🌐</small>
+        (<small><a href="https://bitwarden.com/help/emergency-access/" target="_blank" rel="noopener noreferrer">Docs</a></small>)
+        <br><br>
+        <small>Emergency access Grantee changes the MP for the Grantor ( 🌐 web only )</small>
       </td>
       <td>Grantee opens dialog while on<code>/settings/emergency-access</code></td>
       <td>
@@ -202,9 +159,11 @@ This document maps all of our password management flows to the components that h
     <tr>
       <td>
         <strong>Account Recovery</strong>
-        <br><br> Org admin sets a master password for an org user via Account Recovery <small>( web only ) 🌐</small>
+        (<small><a href="https://bitwarden.com/help/account-recovery/" target="_blank" rel="noopener noreferrer">Docs</a></small>)
+        <br><br>
+        <small>Org member with "manage account recovery" permission changes the MP for another org user via Account Recovery ( 🌐 web only )</small>
       </td>
-      <td><code>COMING SOON</code></td>
+      <td>Org member opens dialog while on <code>/organizations/{org-id}/members</code></td>
       <td>
         <code>ResetPasswordDialogComponent</code>
         <br><small>- embeds <code>InputPasswordComponent</code></small>
@@ -213,134 +172,12 @@ This document maps all of our password management flows to the components that h
   </tbody>
 </table>
 
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
+<br>
+<br>
+<br>
+<br>
 
-<table>
-  <thead>
-    <tr>
-      <th>Flow</th>
-      <th>Route</th>
-      <th>Component(s)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <br>
-        <strong>Account Registration</strong>
-        <br><br>
-        <ol>
-            <li>Standard Flow</li><br>
-            <li>Self Hosted Flow</li><br>
-            <li>Email Invite Flows</li><small>( 🌐 web only )</small><br>
-            <br>
-        </ol>
-      </td>
-      <td><code>/finish-signup</code></td>
-      <td>
-        <code>RegistrationFinishComponent</code>
-        <br><small>- embeds <code>InputPasswordComponent</code></small>
-    </tr>
-    <tr>
-      <td>
-        <strong>Trial Initiation</strong><br>
-        <small>( 🌐 web only )</small>
-      </td>
-      <td><code>/trial-initiation</code> or<br> <code>/secrets-manager-trial-initiation</code></td>
-      <td>
-        <code>CompleteTrialInitiationComponent</code>
-        <br><small>- embeds <code>InputPasswordComponent</code></small>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <br>
-        <strong>Existing Authed User</strong>
-        <br><br>
-        <ol>
-            <li>User JIT provisions into an MPE org</li><br>
-            <li>User JIT provisions into a TDE org &mdash; invited with starting role that requires MP</li><br>
-            <li>TDE user authenticates after role upgraded to one that requires MP</li><br>
-            <li>User authenticates after TDE offboarding</li><br>
-        </ol>
-      </td>
-      <td><code>/set-initial-password</code></td>
-      <td>
-        <code>SetInitialPasswordComponent</code>
-        <br><small>- embeds <code>InputPasswordComponent</code></small>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-
-<table>
-  <thead>
-    <tr>
-      <th>Flow</th>
-      <th>Route</th>
-      <th>Component(s)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <strong>Account Registration</strong>
-        <ol>
-          <li>Standard Flow</li>
-          <li>Self Hosted Flow</li>
-          <li>Email Invite Flows</li>
-        </ol>
-      </td>
-      <td><code>/finish-signup</code></td>
-      <td>
-        <code>RegistrationFinishComponent</code>
-        <br>- embeds <code>InputPasswordComponent</code></td>
-    </tr>
-    <tr>
-      <td><strong>Trial Initiation</strong></td>
-      <td><code>/trial-initiation</code> or<br> <code>/secrets-manager-trial-initiation</code></td>
-      <td>
-        <code>CompleteTrialInitiationComponent</code>
-        <br>- embeds <code>InputPasswordComponent</code>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <strong>Existing Authed User</strong>
-        <br><br>
-        <ol>
-            <li>A user being "just-in-time" (JIT) provisioned into a master-password-encryption org</li>
-            <li>A user being "just-in-time" (JIT) provisioned into a trusted-device-encryption org with a starting role that requires a master password (admin, owner, etc.)</li>
-            <li>A user in a trusted-device-encryption org whose role was upgraded to one that requires a master password (admin, owner, etc.)</li>
-            <li>A user in an org that offboarded from trusted device encryption and is now a master-password-encryption org</li>
-        </ol>
-      </td>
-      <td><code>/set-initial-password</code></td>
-      <td>
-        <code>SetInitialPasswordComponent</code>
-        <br>- embeds <code>InputPasswordComponent</code>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<br>
-<br>
-<br>
-<br>
-<br>
+**Set Initial Password**
 
 - Account Registration
   - Standard Flow
@@ -355,6 +192,8 @@ This document maps all of our password management flows to the components that h
 
 <br>
 <br>
+
+**Change Password**
 
 - Account Settings
 - On Login
