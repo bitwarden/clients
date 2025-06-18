@@ -105,11 +105,11 @@
   ></button>
   <bit-menu #cipherOptions>
     <ng-container *ngIf="isNotDeletedLoginCipher">
-      <button bitMenuItem type="button" (click)="copy('username')">
+      <button bitMenuItem type="button" (click)="copy('username')" *ngIf="cipher.login.username">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyUsername" | i18n }}
       </button>
-      <button bitMenuItem type="button" (click)="copy('password')" *ngIf="cipher.viewPassword">
+      <button bitMenuItem type="button" (click)="copy('password')" *ngIf="cipher.login.password">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyPassword" | i18n }}
       </button>

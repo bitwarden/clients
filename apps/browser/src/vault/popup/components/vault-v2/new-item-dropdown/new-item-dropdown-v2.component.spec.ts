@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,6 +13,7 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
@@ -23,6 +25,7 @@ describe("NewItemDropdownV2Component", () => {
   let fixture: ComponentFixture<NewItemDropdownV2Component>;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let browserApiMock: jest.Mocked<typeof BrowserApi>;
+  let restrictedItemTypesServiceMock: jest.Mocked<RestrictedItemTypesService>;
 
   const mockTab = { url: "https://example.com" };
 
@@ -44,6 +47,9 @@ describe("NewItemDropdownV2Component", () => {
     const folderServiceMock = mock<FolderService>();
     const folderApiServiceAbstractionMock = mock<FolderApiServiceAbstraction>();
     const accountServiceMock = mock<AccountService>();
+    restrictedItemTypesServiceMock = {
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -65,6 +71,7 @@ describe("NewItemDropdownV2Component", () => {
         { provide: FolderService, useValue: folderServiceMock },
         { provide: FolderApiServiceAbstraction, useValue: folderApiServiceAbstractionMock },
         { provide: AccountService, useValue: accountServiceMock },
+        { provide: RestrictedItemTypesService, useValue: restrictedItemTypesServiceMock },
       ],
     }).compileComponents();
   });
