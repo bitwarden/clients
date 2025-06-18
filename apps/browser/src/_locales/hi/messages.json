@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Feature Unavailable"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium Membership"
@@ -2153,8 +2153,8 @@
   "setYourPinCode": {
     "message": "बिटवर्डन को अनलॉक करने के लिए अपना पिन कोड सेट करें यदि आप कभी भी आवेदन से पूरी तरह लॉग आउट करते हैं तो आपकी पिन सेटिंग्स रीसेट हो जाएंगी।"
   },
-  "setYourPinCode1": {
-    "message": "बिटवर्डन को अनलॉक करने के लिए आपके मास्टर पासवर्ड के बजाय आपके पिन का उपयोग किया जाएगा। यदि आप कभी भी बिटवर्डन से पूरी तरह लॉग आउट हो जाते हैं तो आपका पिन रीसेट हो जाएगा।"
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "पिन-कोड आवश्यक है |"
@@ -2203,6 +2203,9 @@
   },
   "useThisPassword": {
     "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Use this username"
@@ -2512,6 +2515,10 @@
   "change": {
     "message": "Change"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
     "placeholders": {
@@ -2520,6 +2527,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -2554,6 +2564,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Review and change one at-risk password"
@@ -2673,6 +2703,10 @@
   "allSends": {
     "message": "सभी Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Hide text by default"
@@ -3014,14 +3048,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "No unique identifier found."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Leave organization"
@@ -3607,12 +3641,12 @@
   "trustUser": {
     "message": "उपयोगकर्ता पर भरोसा रखें"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5019,6 +5053,15 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5340,6 +5383,23 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."

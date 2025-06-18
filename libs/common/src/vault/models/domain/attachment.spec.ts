@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec";

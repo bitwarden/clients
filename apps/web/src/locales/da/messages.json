@@ -547,12 +547,6 @@
     "message": "Fold sammen/ud",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Generér adgangskode"
-  },
-  "generatePassphrase": {
-    "message": "Generér adgangssætning"
-  },
   "checkPassword": {
     "message": "Tjek, om adgangskode er blevet kompromitteret."
   },
@@ -2158,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Opsætning af totrins-login kan permanent låse en bruger ude af sin Bitwarden-konto. En gendannelseskode muliggør kontoadgang, såfremt den normale totrins-loginudbyder ikke længere kan bruges (f.eks. ved tab af en enhed). Bitwarden-supporten kan ikke hjælpe ved mistet kontoadgang. Det anbefales at nedskrive/udskrive gendannelseskoden samt gemme denne et sikkert sted."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
@@ -4478,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Krypteringsnøgleopdatering kan ikke fortsætte"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4533,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Under opdatering af krypteringsnøglen kunne de relevante mapper ikke dekrypteres. For at fortsætte opdateringen skal mapperne slettes. Ingen boks-emner slettes, hvis der fortsættes."
-  },
-  "keyUpdated": {
-    "message": "Nøgle opdateret"
-  },
-  "updateEncryptionKey": {
-    "message": "Opdatér krypteringsnøgle"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Vi har ændret krypteringsmetoden mhp. bedre sikkerhed. Opdatér krypteringsnøglen nu ved at angive din hovedadgangskode nedenfor."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Efter opdatering af din krypteringsnøgle skal du logge ud og ind igen i alle Bitwarden-programmer, du bruger i øjeblikket (f.eks. mobilapp eller browserudvidelser). Hvis du ikke logger ud og ind (som downloader din nye krypteringsnøgle), kan det resultere i data korruption. Vi vil forsøge at logge dig ud automatisk, men det kan blive forsinket."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Abonnement"
@@ -6476,14 +6464,11 @@
   "invalidVerificationCode": {
     "message": "Ugyldig bekræftelseskode"
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ anvender SSO med en selv-hostet nøgleserver. Organisationsmedlemmer afkræves ikke længere en hovedadgangskode for at logge ind.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Forlad organisation"
@@ -6827,6 +6812,24 @@
   "generateEmail": {
     "message": "Generér e-mail"
   },
+  "generatePassword": {
+    "message": "Generér adgangskode"
+  },
+  "generatePassphrase": {
+    "message": "Generér adgangssætning"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Værdi skal være mellem $MIN$ og $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6889,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Anvend denne adgangskode"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Anvend dette brugernavn"
@@ -8606,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Enhed betroet"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Ingen aktive Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Brug Send til at dele krypterede oplysninger sikkert med nogen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invitér bruger"
@@ -10556,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10613,5 +10636,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

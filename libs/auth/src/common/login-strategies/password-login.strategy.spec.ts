@@ -202,7 +202,10 @@ describe("PasswordLoginStrategy", () => {
       localHashedPassword,
       userId,
     );
-    expect(keyService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(tokenResponse.key, userId);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
     expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     expect(keyService.setPrivateKey).toHaveBeenCalledWith(tokenResponse.privateKey, userId);
   });
@@ -236,6 +239,26 @@ describe("PasswordLoginStrategy", () => {
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
+  });
+
+  it("should not set a force set password reason if we get an IdentityTwoFactorResponse after entering a weak MP that does not meet policy requirements", async () => {
+    passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
+    policyService.evaluateMasterPassword.mockReturnValue(false);
+    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const token2FAResponse = new IdentityTwoFactorResponse({
+      TwoFactorProviders: ["0"],
+      TwoFactorProviders2: { 0: null },
+      error: "invalid_grant",
+      error_description: "Two factor required.",
+      MasterPasswordPolicy: masterPasswordPolicy,
+    });
+
+    // First login request fails requiring 2FA
+    apiService.postIdentityToken.mockResolvedValueOnce(token2FAResponse);
+    await passwordLoginStrategy.logIn(credentials);
+
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalled();
   });
 
   it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {

@@ -109,7 +109,6 @@ interface OnSuccessArgs {
 
 @Component({
   templateUrl: "./change-plan-dialog.component.html",
-  standalone: true,
   imports: [BillingSharedModule],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
@@ -240,13 +239,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
-      try {
-        const { accountCredit, paymentSource } =
-          await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
-        this.accountCredit = accountCredit;
-        this.paymentSource = paymentSource;
-      } catch (error) {
-        this.billingNotificationService.handleError(error);
+      if (this.sub?.subscription?.status !== "canceled") {
+        try {
+          const { accountCredit, paymentSource } =
+            await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
+          this.accountCredit = accountCredit;
+          this.paymentSource = paymentSource;
+        } catch (error) {
+          this.billingNotificationService.handleError(error);
+        }
       }
     }
 
@@ -318,8 +319,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   resolveHeaderName(subscription: OrganizationSubscriptionResponse): string {
     if (subscription.subscription != null) {
-      this.isSubscriptionCanceled = subscription.subscription.cancelled;
-      if (subscription.subscription.cancelled) {
+      this.isSubscriptionCanceled =
+        subscription.subscription.cancelled && this.sub?.plan.productTier !== ProductTierType.Free;
+      if (this.isSubscriptionCanceled) {
         return this.i18nService.t("restartSubscription");
       }
     }
@@ -607,6 +609,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     return (
       plan.PasswordManager.additionalStoragePricePerGb *
+      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
     );
   }
@@ -627,6 +631,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSubtotal() {
+    if (!this.selectedPlan || !this.selectedPlan.PasswordManager) {
+      return 0;
+    }
+
     let subTotal = this.selectedPlan.PasswordManager.basePrice;
     if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
       subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
@@ -638,10 +646,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   secretsManagerSubtotal() {
-    this.secretsManagerTotal = 0;
-    const plan = this.selectedSecretsManagerPlan;
+    const plan = this.selectedPlan;
+    if (!plan || !plan.SecretsManager) {
+      return this.secretsManagerTotal || 0;
+    }
 
-    if (!this.organization.useSecretsManager) {
+    if (this.secretsManagerTotal) {
       return this.secretsManagerTotal;
     }
 
@@ -653,6 +663,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get passwordManagerSeats() {
+    if (!this.selectedPlan) {
+      return 0;
+    }
+
     if (this.selectedPlan.productTier === ProductTierType.Families) {
       return this.selectedPlan.PasswordManager.baseSeats;
     }
@@ -660,7 +674,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get total() {
-    if (this.organization && this.organization.useSecretsManager) {
+    if (!this.organization || !this.selectedPlan) {
+      return 0;
+    }
+
+    if (this.organization.useSecretsManager) {
       return (
         this.passwordManagerSubtotal +
         this.additionalStorageTotal(this.selectedPlan) +
@@ -680,6 +698,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get additionalServiceAccount() {
+    if (!this.currentPlan || !this.currentPlan.SecretsManager) {
+      return 0;
+    }
+
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
     const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
 
@@ -748,7 +770,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.sub?.subscription?.status === "canceled") {
+      const sub = this.sub?.subscription;
+      const isCanceled = sub?.status === "canceled";
+      const isCancelledDowngradedToFreeOrg =
+        sub?.cancelled && this.organization.productTierType === ProductTierType.Free;
+
+      if (isCanceled || isCancelledDowngradedToFreeOrg) {
         await this.restartSubscription();
         orgId = this.organizationId;
       } else {
@@ -1096,8 +1123,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   get submitButtonLabel(): string {
     if (
+      this.organization &&
+      this.sub &&
       this.organization.productTierType !== ProductTierType.Free &&
-      this.sub.subscription.status === "canceled"
+      this.sub.subscription?.status === "canceled"
     ) {
       return this.i18nService.t("restart");
     } else {

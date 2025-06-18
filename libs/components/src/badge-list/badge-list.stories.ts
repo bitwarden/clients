@@ -2,6 +2,7 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { BadgeModule } from "../badge";
 import { SharedModule } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -44,7 +45,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-badge-list [variant]="variant" [maxItems]="maxItems" [items]="items" [truncate]="truncate"></bit-badge-list>
+      <bit-badge-list ${formatArgsForCodeSnippet<BadgeListComponent>(args)}></bit-badge-list>
     `,
   }),
 

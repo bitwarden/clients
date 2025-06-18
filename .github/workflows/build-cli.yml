@@ -46,6 +46,9 @@ defaults:
   run:
     working-directory: apps/cli
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup
@@ -168,13 +171,6 @@ jobs:
             exit 1
           fi
 
-      - name: Create checksums Unix
-        run: |
-          cd ./dist
-          shasum -a 256 bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip \
-            | awk '{split($0, a); print a[1]}' > bw${{
-          matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
-
       - name: Upload unix zip asset
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
@@ -182,12 +178,20 @@ jobs:
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-${{ env._PACKAGE_VERSION }}.zip
           if-no-files-found: error
 
-      - name: Upload unix checksum asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-${{ env.LOWER_RUNNER_OS }}${{ matrix.os.target_suffix }}-sha256-${{ env._PACKAGE_VERSION }}.txt
-          if-no-files-found: error
+      # We want to confirm the CLI is runnable using the dependencies defined in `apps/cli/package.json`.
+      - name: Remove node_modules (root)
+        run: rm -rf node_modules
+        working-directory: ./
+
+      - name: Remove package.json (root)
+        run: rm package.json
+        working-directory: ./
+
+      - name: Install (CLI)
+        run: npm i
+
+      - name: Output help
+        run: node ./build/bw.js --help
 
   cli-windows:
     name: Windows - ${{ matrix.license_type.readable }}
@@ -364,23 +368,11 @@ jobs:
             Throw "Version test failed."
           }
 
-      - name: Create checksums Windows
-        run: |
-          checksum -f="./dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${env:_PACKAGE_VERSION}.zip" `
-            -t sha256 | Out-File -Encoding ASCII ./dist/bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${env:_PACKAGE_VERSION}.txt
-
       - name: Upload windows zip asset
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
           path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-${{ env._PACKAGE_VERSION }}.zip
-          if-no-files-found: error
-
-      - name: Upload windows checksum asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: apps/cli/dist/bw${{ matrix.license_type.artifact_prefix }}-windows-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
       - name: Upload Chocolatey asset
@@ -442,13 +434,6 @@ jobs:
         with:
           path: apps/cli/dist/snap
 
-      - name: Create checksum
-        run: |
-          cd dist/snap
-          ls -alth
-          sha256sum bw_${{ env._PACKAGE_VERSION }}_amd64.snap \
-            | awk '{split($0, a); print a[1]}' > bw-snap-sha256-${{ env._PACKAGE_VERSION }}.txt
-
       - name: Install Snap
         run: sudo snap install dist/snap/bw*.snap --dangerous
 
@@ -471,13 +456,6 @@ jobs:
         with:
           name: bw_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/cli/dist/snap/bw_${{ env._PACKAGE_VERSION }}_amd64.snap
-          if-no-files-found: error
-
-      - name: Upload snap checksum asset
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: bw-snap-sha256-${{ env._PACKAGE_VERSION }}.txt
-          path: apps/cli/dist/snap/bw-snap-sha256-${{ env._PACKAGE_VERSION }}.txt
           if-no-files-found: error
 
 

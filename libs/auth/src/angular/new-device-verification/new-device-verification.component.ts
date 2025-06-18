@@ -9,6 +9,8 @@ import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -23,7 +25,6 @@ import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login
  * Component for verifying a new device via a one-time password (OTP).
  */
 @Component({
-  standalone: true,
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",
   imports: [
@@ -136,6 +137,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.loginSuccessHandlerService.run(authResult.userId);
 
       // If verification succeeds, navigate to vault

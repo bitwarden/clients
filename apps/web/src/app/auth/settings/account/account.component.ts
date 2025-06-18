@@ -8,16 +8,26 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
 
+import { ChangeEmailComponent } from "./change-email.component";
+import { DangerZoneComponent } from "./danger-zone.component";
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
 import { DeleteAccountDialogComponent } from "./delete-account-dialog.component";
+import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
 @Component({
-  selector: "app-account",
   templateUrl: "account.component.html",
-  standalone: false,
+  imports: [
+    SharedModule,
+    HeaderModule,
+    ProfileComponent,
+    ChangeEmailComponent,
+    DangerZoneComponent,
+  ],
 })
 export class AccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

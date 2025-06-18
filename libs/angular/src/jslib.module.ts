@@ -85,11 +85,11 @@ import { IconComponent } from "./vault/components/icon.component";
     TextDragDirective,
     CopyClickDirective,
     A11yTitleDirective,
+    AutofocusDirective,
   ],
   declarations: [
     A11yInvalidDirective,
     ApiActionDirective,
-    AutofocusDirective,
     BoxRowDirective,
     DeprecatedCalloutComponent,
     CopyTextDirective,

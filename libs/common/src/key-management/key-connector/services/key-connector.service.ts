@@ -1,8 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { combineLatest, filter, firstValueFrom, Observable, of, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
   KdfConfig,
@@ -15,7 +20,6 @@ import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../../admin-console/enums";
 import { Organization } from "../../../admin-console/models/domain/organization";
-import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeysRequest } from "../../../models/request/keys.request";
@@ -23,12 +27,7 @@ import { KeyGenerationService } from "../../../platform/abstractions/key-generat
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import {
-  ActiveUserState,
-  KEY_CONNECTOR_DISK,
-  StateProvider,
-  UserKeyDefinition,
-} from "../../../platform/state";
+import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
@@ -42,23 +41,15 @@ export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
   {
     deserializer: (usesKeyConnector) => usesKeyConnector,
     clearOn: ["logout"],
-  },
-);
-
-export const CONVERT_ACCOUNT_TO_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(
-  KEY_CONNECTOR_DISK,
-  "convertAccountToKeyConnector",
-  {
-    deserializer: (convertAccountToKeyConnector) => convertAccountToKeyConnector,
-    clearOn: ["logout"],
+    cleanupDelayMs: 0,
   },
 );
 
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
-  private usesKeyConnectorState: ActiveUserState<boolean>;
-  private convertAccountToKeyConnectorState: ActiveUserState<boolean>;
+  readonly convertAccountRequired$: Observable<boolean>;
+
   constructor(
-    private accountService: AccountService,
+    accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
     private apiService: ApiService,
@@ -69,9 +60,27 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
     private stateProvider: StateProvider,
   ) {
-    this.usesKeyConnectorState = this.stateProvider.getActive(USES_KEY_CONNECTOR);
-    this.convertAccountToKeyConnectorState = this.stateProvider.getActive(
-      CONVERT_ACCOUNT_TO_KEY_CONNECTOR,
+    this.convertAccountRequired$ = accountService.activeAccount$.pipe(
+      filter((account) => account != null),
+      switchMap((account) =>
+        combineLatest([
+          of(account.id),
+          this.organizationService
+            .organizations$(account.id)
+            .pipe(filter((organizations) => organizations != null)),
+          this.stateProvider
+            .getUserState$(USES_KEY_CONNECTOR, account.id)
+            .pipe(filter((usesKeyConnector) => usesKeyConnector != null)),
+          tokenService.hasAccessToken$(account.id).pipe(filter((hasToken) => hasToken)),
+        ]),
+      ),
+      switchMap(async ([userId, organizations, usesKeyConnector]) => {
+        const loggedInUsingSso = await this.tokenService.getIsExternal(userId);
+        const requiredByOrganization = this.findManagingOrganization(organizations) != null;
+        const userIsNotUsingKeyConnector = !usesKeyConnector;
+
+        return loggedInUsingSso && requiredByOrganization && userIsNotUsingKeyConnector;
+      }),
     );
   }
 
@@ -79,42 +88,33 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.stateProvider.getUser(userId, USES_KEY_CONNECTOR).update(() => usesKeyConnector);
   }
 
-  getUsesKeyConnector(userId: UserId): Promise<boolean> {
-    return firstValueFrom(this.stateProvider.getUserState$(USES_KEY_CONNECTOR, userId));
+  async getUsesKeyConnector(userId: UserId): Promise<boolean> {
+    return (
+      (await firstValueFrom(this.stateProvider.getUserState$(USES_KEY_CONNECTOR, userId))) ?? false
+    );
   }
 
-  async userNeedsMigration(userId: UserId) {
-    const loggedInUsingSso = await this.tokenService.getIsExternal(userId);
-    const requiredByOrganization = (await this.getManagingOrganization(userId)) != null;
-    const userIsNotUsingKeyConnector = !(await this.getUsesKeyConnector(userId));
-
-    return loggedInUsingSso && requiredByOrganization && userIsNotUsingKeyConnector;
-  }
-
-  async migrateUser(userId?: UserId) {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    const organization = await this.getManagingOrganization(userId);
+  async migrateUser(keyConnectorUrl: string, userId: UserId) {
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
       Utils.fromBufferToB64(masterKey.inner().encryptionKey),
     );
 
     try {
-      await this.apiService.postUserKeyToKeyConnector(
-        organization.keyConnectorUrl,
-        keyConnectorRequest,
-      );
+      await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
       this.handleKeyConnectorError(e);
     }
 
     await this.apiService.postConvertToKeyConnector();
+
+    await this.setUsesKeyConnector(true, userId);
   }
 
   // TODO: UserKey should be renamed to MasterKey and typed accordingly
-  async setMasterKeyFromUrl(url: string, userId: UserId) {
+  async setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId) {
     try {
-      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(url);
+      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(keyConnectorUrl);
       const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
       const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
       await this.masterPasswordService.setMasterKey(masterKey, userId);
@@ -123,15 +123,9 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     }
   }
 
-  async getManagingOrganization(userId?: UserId): Promise<Organization> {
-    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
-    return orgs.find(
-      (o) =>
-        o.keyConnectorEnabled &&
-        o.type !== OrganizationUserType.Admin &&
-        o.type !== OrganizationUserType.Owner &&
-        !o.isProviderUser,
-    );
+  async getManagingOrganization(userId: UserId): Promise<Organization> {
+    const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
+    return this.findManagingOrganization(organizations);
   }
 
   async convertNewSsoUserToKeyConnector(
@@ -166,7 +160,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
 
     const userKey = await this.keyService.makeUserKey(masterKey);
     await this.keyService.setUserKey(userKey[0], userId);
-    await this.keyService.setMasterKeyEncryptedUserKey(userKey[1].encryptedString, userId);
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
     const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
 
@@ -188,18 +182,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
   }
 
-  async setConvertAccountRequired(status: boolean, userId?: UserId) {
-    await this.stateProvider.setUserState(CONVERT_ACCOUNT_TO_KEY_CONNECTOR, status, userId);
-  }
-
-  getConvertAccountRequired(): Promise<boolean> {
-    return firstValueFrom(this.convertAccountToKeyConnectorState.state$);
-  }
-
-  async removeConvertAccountRequired(userId?: UserId) {
-    await this.setConvertAccountRequired(null, userId);
-  }
-
   private handleKeyConnectorError(e: any) {
     this.logService.error(e);
     if (this.logoutCallback != null) {
@@ -208,5 +190,15 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       this.logoutCallback("keyConnectorError");
     }
     throw new Error("Key Connector error");
+  }
+
+  private findManagingOrganization(organizations: Organization[]): Organization | undefined {
+    return organizations.find(
+      (o) =>
+        o.keyConnectorEnabled &&
+        o.type !== OrganizationUserType.Admin &&
+        o.type !== OrganizationUserType.Owner &&
+        !o.isProviderUser,
+    );
   }
 }

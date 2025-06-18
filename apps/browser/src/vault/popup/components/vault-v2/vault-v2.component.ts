@@ -16,13 +16,15 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   ButtonModule,
   DialogService,
@@ -30,13 +32,7 @@ import {
   NoItemsModule,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  DecryptionFailureDialogComponent,
-  NudgesService,
-  NudgeType,
-  SpotlightComponent,
-  VaultIcons,
-} from "@bitwarden/vault";
+import { DecryptionFailureDialogComponent, VaultIcons } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -60,18 +56,17 @@ import { VaultHeaderV2Component } from "./vault-header/vault-header-v2.component
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-enum VaultState {
-  Empty,
-  NoResults,
-  DeactivatedOrg,
-}
+const VaultState = {
+  Empty: 0,
+  NoResults: 1,
+  DeactivatedOrg: 2,
+} as const;
+
+type VaultState = UnionOfValues<typeof VaultState>;
 
 @Component({
   selector: "app-vault",
   templateUrl: "vault-v2.component.html",
-  standalone: true,
   imports: [
     BlockedInjectionBanner,
     PopupPageComponent,
@@ -159,7 +154,6 @@ export class VaultV2Component implements OnInit, AfterViewInit, OnDestroy {
     private introCarouselService: IntroCarouselService,
     private nudgesService: NudgesService,
     private router: Router,
-    private i18nService: I18nService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

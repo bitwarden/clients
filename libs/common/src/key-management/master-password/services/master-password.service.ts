@@ -130,7 +130,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
   }
 
   async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
-    if (encryptedKey == null) {
+    if (encryptedKey == null || encryptedKey.encryptedString == null) {
       throw new Error("Encrypted Key is required.");
     }
     if (userId == null) {

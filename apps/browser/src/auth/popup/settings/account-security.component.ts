@@ -22,6 +22,8 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
+import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { FingerprintDialogComponent, VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -43,6 +45,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   DialogRef,
   CardComponent,
@@ -77,7 +80,6 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 @Component({
   templateUrl: "account-security.component.html",
-  standalone: true,
   imports: [
     CardComponent,
     CheckboxModule,
@@ -96,6 +98,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SpotlightComponent,
     TypographyModule,
     VaultTimeoutInputComponent,
   ],
@@ -120,6 +123,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     enableAutoBiometricsPrompt: true,
   });
 
+  protected showAccountSecurityNudge$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.vaultNudgesService.showNudgeSpotlight$(NudgeType.AccountSecurity, userId),
+      ),
+    );
+
   private refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
 
@@ -142,6 +153,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private biometricStateService: BiometricStateService,
     private toastService: ToastService,
     private biometricsService: BiometricsService,
+    private vaultNudgesService: NudgesService,
+    private validationService: ValidationService,
   ) {}
 
   async ngOnInit() {
@@ -402,6 +415,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected async dismissAccountSecurityNudge() {
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      return;
+    }
+    await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, activeAccount.id);
+  }
+
   async saveVaultTimeoutAction(value: VaultTimeoutAction) {
     if (value === VaultTimeoutAction.LogOut) {
       const confirmed = await this.dialogService.openSimpleDialog({
@@ -453,8 +474,17 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
       const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
+      if (userHasPinSet) {
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockPinSet"),
+        });
+        await this.vaultNudgesService.dismissNudge(NudgeType.AccountSecurity, userId);
+      }
     } else {
-      await this.vaultTimeoutSettingsService.clear();
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.vaultTimeoutSettingsService.clear(userId);
     }
   }
 
@@ -494,13 +524,24 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.keyService.refreshAdditionalKeys();
+      try {
+        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        await this.keyService.refreshAdditionalKeys(userId);
 
-      const successful = await this.trySetupBiometrics();
-      this.form.controls.biometric.setValue(successful);
-      await this.biometricStateService.setBiometricUnlockEnabled(successful);
-      if (!successful) {
-        await this.biometricStateService.setFingerprintValidated(false);
+        const successful = await this.trySetupBiometrics();
+        this.form.controls.biometric.setValue(successful);
+        await this.biometricStateService.setBiometricUnlockEnabled(successful);
+        if (!successful) {
+          await this.biometricStateService.setFingerprintValidated(false);
+        }
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockBiometricSet"),
+        });
+      } catch (error) {
+        this.form.controls.biometric.setValue(false);
+        this.validationService.showError(error);
       }
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);

@@ -2,12 +2,16 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
@@ -528,8 +532,9 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  putShareCiphers(request: CipherBulkShareRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/share", request, true, false);
+  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/share", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(
@@ -632,24 +637,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
     return new AttachmentUploadDataResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment", data, true, true);
-    return new CipherResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentAdminLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment-admin", data, true, true);
-    return new CipherResponse(r);
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {

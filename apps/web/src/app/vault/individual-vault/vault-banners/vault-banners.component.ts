@@ -16,7 +16,6 @@ import { SharedModule } from "../../../shared";
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
 @Component({
-  standalone: true,
   selector: "app-vault-banners",
   templateUrl: "./vault-banners.component.html",
   imports: [VerifyEmailComponent, SharedModule, BannerModule],
@@ -99,7 +98,7 @@ export class VaultBannersComponent implements OnInit {
       showVerifyEmail ? VisibleVaultBanner.VerifyEmail : null,
       showLowKdf ? VisibleVaultBanner.KDFSettings : null,
       showPendingAuthRequest ? VisibleVaultBanner.PendingAuthRequest : null,
-    ].filter((banner): banner is VisibleVaultBanner => banner !== null); // ensures the filtered array contains only VisibleVaultBanner values
+    ].filter((banner) => banner !== null);
   }
 
   freeTrialMessage(organization: FreeTrial) {
