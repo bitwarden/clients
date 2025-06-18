@@ -3,7 +3,7 @@ import { Observable, Subject } from "rxjs";
 import {
   AnonLayoutWrapperDataService,
   DefaultAnonLayoutWrapperDataService,
-} from "@bitwarden/auth/angular";
+} from "@bitwarden/components";
 
 import { ExtensionAnonLayoutWrapperData } from "./extension-anon-layout-wrapper.component";
 

@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { Cipher } from "./models/domain/cipher";

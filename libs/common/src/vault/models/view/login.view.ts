@@ -116,13 +116,18 @@ export class LoginView extends ItemView {
       return undefined;
     }
 
-    const passwordRevisionDate =
-      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
-    const uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+    const loginView = new LoginView();
 
-    return Object.assign(new LoginView(), obj, {
-      passwordRevisionDate,
-      uris,
-    });
+    loginView.username = obj.username ?? null;
+    loginView.password = obj.password ?? null;
+    loginView.passwordRevisionDate =
+      obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
+    loginView.totp = obj.totp ?? null;
+    loginView.autofillOnPageLoad = obj.autofillOnPageLoad ?? null;
+    loginView.uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+    // FIDO2 credentials are not decrypted here, they remain encrypted
+    loginView.fido2Credentials = null;
+
+    return loginView;
   }
 }

@@ -48,9 +48,6 @@ describe("RestrictedItemTypesService", () => {
     fakeAccount = { id: Utils.newGuid() as UserId } as Account;
     accountService.activeAccount$ = of(fakeAccount);
 
-    organizationService.organizations$.mockReturnValue(of([org1, org2]));
-    policyService.policiesByType$.mockReturnValue(of([]));
-
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
@@ -105,7 +102,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("returns empty allowViewOrgIds when all orgs restrict the same type", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
@@ -116,7 +112,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("aggregates multiple types and computes allowViewOrgIds correctly", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(
       of([

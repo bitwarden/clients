@@ -3,7 +3,7 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { RestrictedCipherType } from "@bitwarden/vault";
+import { RestrictedCipherType } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { createFilterFunction } from "./filter-function";
 import { All } from "./routed-vault-filter.model";
