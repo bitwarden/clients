@@ -31,6 +31,11 @@ import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./
 const NestingDelimiter = "/";
 
 export class DefaultCollectionService implements CollectionService {
+  /**
+   * This is used to cache in-progress decryptions so that multiple simultaneous calls to collectionViews$
+   * will not result in multiple duplicate decryptions. An observable is removed after decryption is complete and
+   * decryptedState has been updated with the result.
+   */
   private inProgressDecryptions = new Map<UserId, Observable<never>>();
 
   constructor(
