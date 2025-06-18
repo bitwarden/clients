@@ -11,11 +11,9 @@ This document maps all of our password management flows to the components that h
 
 **Table of Contents**
 
-> [The Base `InputPasswordComponent`](#the-base-inputpasswordcomponent)
->
-> [Set Initial Password Flows](#set-initial-password-flows)
->
-> [Change Password Flows](#change-password-flows)
+> - [The Base `InputPasswordComponent`](#the-base-inputpasswordcomponent)
+> - [Set Initial Password Flows](#set-initial-password-flows)
+> - [Change Password Flows](#change-password-flows)
 
 <br>
 
@@ -25,7 +23,7 @@ This document maps all of our password management flows to the components that h
   <li>MP = "master password"</li>
   <li>MPE = "master password encryption"</li>
   <li>TDE = "trusted device encryption"</li>
-  <li>JIT Provisioned = "just-in-time provisioned"</li>
+  <li>JIT provision = "just-in-time provision"</li>
 </ul>
 
 <br>
@@ -42,7 +40,7 @@ Central to our master password management flows is the base [InputPasswordCompon
   <thead>
     <tr>
       <th>Flow</th>
-      <th>Route <br><small style="font-weight: normal;">(on which user sets MP)</small></th>
+      <td><strong>Route</strong><br><small>(on which user sets MP)</small></td>
       <th>Component(s)</th>
     </tr>
   </thead>
@@ -126,7 +124,7 @@ Central to our master password management flows is the base [InputPasswordCompon
   <thead>
     <tr>
       <th>Flow</th>
-      <th>Route <br><small style="font-weight: normal;">(on which user changes MP)</small></th>
+      <td><strong>Route</strong><br><small>(on which user changes MP)</small></td>
       <th>Component(s)</th>
     </tr>
   </thead>
@@ -135,7 +133,7 @@ Central to our master password management flows is the base [InputPasswordCompon
       <td>
         <br>
         <strong>Account Settings</strong>
-        (<small><a href="https://bitwarden.com/help/master-password/#change-master-password" target="_blank" rel="noopener noreferrer">Docs</a></small>)
+        (<small><a href="https://bitwarden.com/help/master-password/#change-master-password">Docs</a></small>)
         <br>
         <small>(🌐 web only)</small>
         <br><br>
@@ -184,7 +182,7 @@ Central to our master password management flows is the base [InputPasswordCompon
       <td>
         <br>
         <strong>Emergency Access Takeover</strong>
-        <small>(<a href="https://bitwarden.com/help/emergency-access/" target="_blank" rel="noopener noreferrer">Docs</a>)</small>
+        <small>(<a href="https://bitwarden.com/help/emergency-access/">Docs</a>)</small>
         <br>
         <small>(🌐 web only)</small>
         <br><br>
@@ -201,7 +199,7 @@ Central to our master password management flows is the base [InputPasswordCompon
       <td>
         <br>
         <strong>Account Recovery</strong>
-        <small>(<a href="https://bitwarden.com/help/account-recovery/" target="_blank" rel="noopener noreferrer">Docs</a>)</small>
+        <small>(<a href="https://bitwarden.com/help/account-recovery/">Docs</a>)</small>
         <br>
         <small>(🌐 web only)</small>
         <br><br>
