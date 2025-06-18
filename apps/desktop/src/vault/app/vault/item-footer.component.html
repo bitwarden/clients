@@ -19,7 +19,6 @@
       type="button"
       class="primary"
       (click)="edit()"
-      [disabled]="!cipher.edit"
       appA11yTitle="{{ 'edit' | i18n }}"
       *ngIf="!cipher.isDeleted && action === 'view'"
     >
