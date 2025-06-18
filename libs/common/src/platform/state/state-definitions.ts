@@ -155,10 +155,10 @@ export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
 
 // Vault
 
-export const COLLECTION_DISK = new StateDefinition("collection", "disk", {
+export const COLLECTION_DISK = new StateDefinition("collectionDisk", "disk", {
   web: "memory",
 });
-export const COLLECTION_MEMORY = new StateDefinition("collection", "disk", {
+export const COLLECTION_MEMORY = new StateDefinition("collectionMemory", "disk", {
   web: "memory",
 });
 

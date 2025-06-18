@@ -75,7 +75,7 @@ export class DefaultCollectionService implements CollectionService {
     return this.decryptedState(userId).state$.pipe(
       switchMap((decryptedState) => {
         // If decrypted state is already populated, return that
-        if (decryptedState != null) {
+        if (decryptedState?.length) {
           return of(decryptedState);
         }
 
@@ -85,33 +85,34 @@ export class DefaultCollectionService implements CollectionService {
           return this.inProgressDecryptions.get(userId)!;
         }
 
-        // If we are the very first caller, kick off the decryption and save it to an internal map
-        const initializeDecryptedState$ = combineLatest([
-          this.encryptedCollections$(userId),
-          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-        ]).pipe(
-          switchMap(([collections, orgKeys]) =>
-            this.decryptMany$(collections, orgKeys).pipe(
-              // delayWhen is basically used as an async tap here; wait for decryption to be finished
-              delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
-              // once decrypted state has been set, we can remove ourselves from the internal map
-              tap(() => this.inProgressDecryptions.delete(userId)),
-            ),
-          ),
-          // setDecryptedCollections will trigger a new emission from decryptedState, which is ultimately what
-          // the caller will receive as the first emission. Here we finish with NEVER so that this observable
-          // never emits, and will be automatically unsubscribed by the outer switchMap when decryptedState emits.
-          switchMap(() => NEVER),
-          shareReplay({ bufferSize: 1, refCount: true }),
-        );
-
-        this.inProgressDecryptions.set(userId, initializeDecryptedState$);
+        this.inProgressDecryptions.set(userId, this.initializeDecryptedState(userId));
         return this.inProgressDecryptions.get(userId)!;
       }),
     );
   }
 
-  async upsert(toUpdate: CollectionData | CollectionData[], userId: UserId): Promise<void> {
+  private initializeDecryptedState(userId: UserId) {
+    return combineLatest([
+      this.encryptedCollections$(userId),
+      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+    ]).pipe(
+      switchMap(([collections, orgKeys]) =>
+        this.decryptMany$(collections, orgKeys).pipe(
+          // delayWhen is basically used as an async tap here; wait for decryption to be finished
+          delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
+          // once decrypted state has been set, we can remove ourselves from the internal map
+          tap(() => this.inProgressDecryptions.delete(userId)),
+        ),
+      ),
+      // setDecryptedCollections will trigger a new emission from decryptedState, which is ultimately what
+      // the caller will receive as the first emission. Here we finish with NEVER so that this observable
+      // never emits, and will be automatically unsubscribed by the outer switchMap when decryptedState emits.
+      switchMap(() => NEVER),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  async upsert(toUpdate: CollectionData[], userId: UserId): Promise<void> {
     if (toUpdate == null) {
       return;
     }
@@ -119,42 +120,77 @@ export class DefaultCollectionService implements CollectionService {
       if (collections == null) {
         collections = {};
       }
-      if (Array.isArray(toUpdate)) {
-        toUpdate.forEach((c) => {
-          collections[c.id] = c;
-        });
-      } else {
-        collections[toUpdate.id] = toUpdate;
-      }
+      toUpdate.forEach((c) => {
+        collections[c.id] = c;
+      });
+
       return collections;
     });
 
-    // TODO: also upsert into decryptedState
+    const decryptedCollections = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        filter((orgKeys) => !!orgKeys),
+        switchMap((orgKeys) =>
+          this.decryptMany$(
+            toUpdate.map((c) => new Collection(c)),
+            orgKeys,
+          ),
+        ),
+      ),
+    );
+
+    await this.decryptedState(userId).update((collections) => {
+      if (collections == null) {
+        collections = [];
+      }
+
+      toUpdate.forEach((c) => {
+        const decryptedCollection = decryptedCollections.find(
+          (collection) => collection.id == c.id,
+        );
+        if (!decryptedCollection) {
+          return;
+        }
+
+        const existingIndex = collections.findIndex((collection) => collection.id == c.id);
+        if (existingIndex >= 0) {
+          collections[existingIndex] = decryptedCollection;
+        } else {
+          collections.push(decryptedCollection);
+        }
+      });
+
+      return collections;
+    });
   }
 
   async replace(collections: Record<CollectionId, CollectionData>, userId: UserId): Promise<void> {
     await this.encryptedState(userId).update(() => collections);
-    // TODO: also invalidate decryptedState
+    await this.decryptedState(userId).update(() => null);
   }
 
-  async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
+  async delete(ids: CollectionId[], userId: UserId): Promise<any> {
     await this.encryptedState(userId).update((collections) => {
       if (collections == null) {
         collections = {};
       }
-      if (typeof id === "string") {
-        delete collections[id];
-      } else {
-        (id as CollectionId[]).forEach((i) => {
-          delete collections[i];
-        });
-      }
+      ids.forEach((i) => {
+        delete collections[i];
+      });
       return collections;
     });
 
-    // Invalidate decrypted state
-    // TODO: delete from decrypted state without having to decrypt everything from scratch
-    await this.decryptedState(userId).update(() => null);
+    await this.decryptedState(userId).update((collections) => {
+      if (collections == null) {
+        collections = [];
+      }
+      ids.forEach((i) => {
+        if (collections?.length) {
+          collections = collections.filter((c) => c.id != i) ?? [];
+        }
+      });
+      return collections;
+    });
   }
 
   async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
