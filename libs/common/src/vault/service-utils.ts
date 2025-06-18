@@ -1,9 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ITreeNodeObject, TreeNode } from "./models/domain/tree-node";
-import { RestrictedCipherType } from "./services/restricted-item-types.service";
 
 export class ServiceUtils {
   static nestedTraverse(
@@ -174,22 +172,4 @@ export class ServiceUtils {
     }
     return null;
   }
-
-  /**
-   * Filter that returns whether a cipher is restricted from being viewed by the user
-   * Criteria:
-   * - the cipher's type is restricted by at least one org
-   * UNLESS
-   * - the cipher belongs to an organization and that organization does not restrict that type
-   * OR
-   * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
-   */
-  static isCipherViewRestricted = (cipher: CipherView, restrictedTypes?: RestrictedCipherType[]) =>
-    restrictedTypes?.some(
-      (restrictedType) =>
-        restrictedType.cipherType === cipher.type &&
-        (cipher.organizationId
-          ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-          : restrictedType.allowViewOrgIds.length === 0),
-    );
 }

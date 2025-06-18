@@ -39,7 +39,10 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  isCipherViewRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ChipSelectOption } from "@bitwarden/components";
 
@@ -227,7 +230,7 @@ export class VaultPopupListFiltersService {
             }
 
             // Check if cipher type is restricted (with organization exemptions)
-            if (ServiceUtils.isCipherViewRestricted(cipher, restrictions)) {
+            if (isCipherViewRestricted(cipher, restrictions)) {
               return false;
             }
 

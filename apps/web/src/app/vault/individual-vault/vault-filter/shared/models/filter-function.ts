@@ -1,8 +1,10 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { RestrictedCipherType } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  isCipherViewRestricted,
+  RestrictedCipherType,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
@@ -86,7 +88,7 @@ export function createFilterFunction(
     }
 
     // Restricted types
-    if (ServiceUtils.isCipherViewRestricted(cipher, restrictedTypes)) {
+    if (!restrictedTypes || isCipherViewRestricted(cipher, restrictedTypes)) {
       return false;
     }
     return true;

@@ -22,8 +22,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  isCipherViewRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
 @Directive()
@@ -172,7 +174,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
           allCiphers = [..._failedCiphers, ...allCiphers];
 
           const restrictedTypeFilter = (cipher: CipherView) =>
-            !ServiceUtils.isCipherViewRestricted(cipher, restricted);
+            isCipherViewRestricted(cipher, restricted);
 
           return this.searchService.searchCiphers(
             userId,
