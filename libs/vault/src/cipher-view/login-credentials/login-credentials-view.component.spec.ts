@@ -9,7 +9,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -74,7 +73,6 @@ describe("LoginCredentialsViewComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>({ collect }) },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: CopyService, useValue: mock<CopyService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
         { provide: ConfigService, useValue: mock<ConfigService>() },

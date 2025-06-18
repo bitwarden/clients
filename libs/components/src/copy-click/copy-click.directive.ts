@@ -1,9 +1,17 @@
-import { Directive, HostListener, Input } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Directive, HostListener, Input, InjectionToken, Inject, Optional } from "@angular/core";
 
-import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ToastService, ToastVariant } from "../";
+
+export interface CopyClickListener {
+  onCopy(value: string): void;
+}
+
+export const COPY_CLICK_LISTENER = new InjectionToken<CopyClickListener>("CopyClickListener");
 
 @Directive({
   selector: "[appCopyClick]",
@@ -13,9 +21,10 @@ export class CopyClickDirective {
   private toastVariant: ToastVariant = "success";
 
   constructor(
-    private copyService: CopyService,
+    private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    @Optional() @Inject(COPY_CLICK_LISTENER) private copyListener?: CopyClickListener,
   ) {}
 
   @Input("appCopyClick") valueToCopy = "";
@@ -24,7 +33,7 @@ export class CopyClickDirective {
    * When set, the toast displayed will show `<valueLabel> copied`
    * instead of the default messaging.
    */
-  @Input() valueLabel?: string;
+  @Input() valueLabel: string;
 
   /**
    * When set without a value, a success toast will be shown when the value is copied
@@ -50,7 +59,11 @@ export class CopyClickDirective {
   }
 
   @HostListener("click") onClick() {
-    this.copyService.copyToClipboard(this.valueToCopy);
+    this.platformUtilsService.copyToClipboard(this.valueToCopy);
+
+    if (this.copyListener) {
+      this.copyListener.onCopy(this.valueToCopy);
+    }
 
     if (this._showToast) {
       const message = this.valueLabel
@@ -59,6 +72,7 @@ export class CopyClickDirective {
 
       this.toastService.showToast({
         variant: this.toastVariant,
+        title: null,
         message,
       });
     }

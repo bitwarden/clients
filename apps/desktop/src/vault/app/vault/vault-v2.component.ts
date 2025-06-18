@@ -7,13 +7,14 @@ import {
   OnInit,
   ViewChild,
   ViewContainerRef,
-  Injectable,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -23,14 +24,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import {
-  PlatformUtilsService,
-  ClipboardOptions,
-} from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DefaultCopyService } from "@bitwarden/common/platform/services/default-copy.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -47,6 +43,8 @@ import {
   DialogService,
   ItemModule,
   ToastService,
+  CopyClickListener,
+  COPY_CLICK_LISTENER,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -79,25 +77,6 @@ import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultItemsV2Component } from "./vault-items-v2.component";
 
 const BroadcasterSubscriptionId = "VaultComponent";
-
-/**
- * Extends the default copy service to add Vault specific desktop behavior (minimizing the app on copy).
- */
-@Injectable()
-class DesktopVaultCopyService extends DefaultCopyService {
-  constructor(
-    platformUtilsService: PlatformUtilsService,
-    private messagingService: MessagingService,
-  ) {
-    super(platformUtilsService);
-  }
-
-  copyToClipboard(text: string, options?: ClipboardOptions): void | boolean {
-    const result = super.copyToClipboard(text, options);
-    this.messagingService.send("minimizeOnCopy");
-    return result;
-  }
-}
 
 @Component({
   selector: "app-vault",
@@ -134,12 +113,12 @@ class DesktopVaultCopyService extends DefaultCopyService {
     },
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
     {
-      provide: CopyService,
-      useClass: DesktopVaultCopyService,
+      provide: COPY_CLICK_LISTENER,
+      useExisting: VaultV2Component,
     },
   ],
 })
-export class VaultV2Component implements OnInit, OnDestroy {
+export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
   @ViewChild(VaultItemsV2Component, { static: true })
   vaultItemsComponent: VaultItemsV2Component | null = null;
   @ViewChild(VaultFilterComponent, { static: true })
@@ -176,12 +155,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
     ),
   );
 
+  private modal: ModalRef | null = null;
   private componentIsDestroyed$ = new Subject<boolean>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
+    private modalService: ModalService,
     private broadcasterService: BroadcasterService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
@@ -376,6 +357,10 @@ export class VaultV2Component implements OnInit, OnDestroy {
     if (this.vaultItemsComponent) {
       await this.vaultItemsComponent.reload(this.activeFilter.buildFilter()).catch(() => {});
     }
+  }
+
+  onCopy() {
+    this.messagingService.send("minimizeOnCopy");
   }
 
   async viewCipher(cipher: CipherView) {
