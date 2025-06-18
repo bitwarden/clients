@@ -1,12 +1,13 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock } from "jest-mock-extended";
 
 import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { ToastService } from "../";
+import { ToastService, CopyClickListener, COPY_CLICK_LISTENER } from "../";
 
 import { CopyClickDirective } from "./copy-click.directive";
 
@@ -38,10 +39,12 @@ describe("CopyClickDirective", () => {
   const showToast = jest.fn();
   const sendMessage = jest.fn();
   const getClientType = jest.fn().mockReturnValue(ClientType.Web);
+  const copyClickListener = mock<CopyClickListener>();
 
   beforeEach(async () => {
     copyToClipboard.mockClear();
     showToast.mockClear();
+    copyClickListener.onCopy.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [TestCopyClickComponent],
@@ -60,6 +63,7 @@ describe("CopyClickDirective", () => {
         { provide: PlatformUtilsService, useValue: { copyToClipboard, getClientType } },
         { provide: ToastService, useValue: { showToast } },
         { provide: MessagingService, useValue: { send: sendMessage } },
+        { provide: COPY_CLICK_LISTENER, useValue: copyClickListener },
       ],
     }).compileComponents();
 
@@ -122,11 +126,11 @@ describe("CopyClickDirective", () => {
     });
   });
 
-  it("sends minimize message when client is desktop", () => {
-    getClientType.mockReturnValue(ClientType.Desktop);
+  it("should call copyClickListener.onCopy when value is copied", () => {
     const successToastButton = fixture.componentInstance.successToastButton.nativeElement;
 
     successToastButton.click();
-    expect(sendMessage).toHaveBeenCalledWith("minimizeOnCopy");
+
+    expect(copyClickListener.onCopy).toHaveBeenCalledWith("success toast shown");
   });
 });
