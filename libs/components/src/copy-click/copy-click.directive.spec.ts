@@ -1,10 +1,8 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ClientType } from "@bitwarden/common/enums";
+import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { ToastService } from "../";
 
@@ -36,8 +34,6 @@ describe("CopyClickDirective", () => {
   let fixture: ComponentFixture<TestCopyClickComponent>;
   const copyToClipboard = jest.fn();
   const showToast = jest.fn();
-  const sendMessage = jest.fn();
-  const getClientType = jest.fn().mockReturnValue(ClientType.Web);
 
   beforeEach(async () => {
     copyToClipboard.mockClear();
@@ -57,9 +53,8 @@ describe("CopyClickDirective", () => {
             },
           },
         },
-        { provide: PlatformUtilsService, useValue: { copyToClipboard, getClientType } },
+        { provide: CopyService, useValue: { copyToClipboard } },
         { provide: ToastService, useValue: { showToast } },
-        { provide: MessagingService, useValue: { send: sendMessage } },
       ],
     }).compileComponents();
 
@@ -123,13 +118,5 @@ describe("CopyClickDirective", () => {
       title: null,
       variant: "success",
     });
-  });
-
-  it("sends minimize message when client is desktop", () => {
-    getClientType.mockReturnValue(ClientType.Desktop);
-    const successToastButton = fixture.componentInstance.successToastButton.nativeElement;
-
-    successToastButton.click();
-    expect(sendMessage).toHaveBeenCalledWith("minimizeOnCopy");
   });
 });

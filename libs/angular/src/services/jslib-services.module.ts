@@ -178,6 +178,7 @@ import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platf
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import {
   EnvironmentService,
   RegionConfig,
@@ -219,6 +220,7 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
+import { DefaultCopyService } from "@bitwarden/common/platform/services/default-copy.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
@@ -1568,6 +1570,11 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: CopyService,
+    useClass: DefaultCopyService,
+    deps: [PlatformUtilsServiceAbstraction],
   }),
 ];
 
