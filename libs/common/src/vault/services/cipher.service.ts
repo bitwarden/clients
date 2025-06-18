@@ -128,11 +128,11 @@ export class CipherService implements CipherServiceAbstraction {
    * Observable that emits an array of decrypted ciphers for given userId.
    * This observable will not emit until the encrypted ciphers have either been loaded from state or after sync.
    *
-   * This uses the SDK for decryption, when the `PM19941MigrateCipherDomainToSdk` feature flag is disabled the full `cipherViews$` observable will be emitted.
+   * This uses the SDK for decryption, when the `PM22134SdkCipherListView` feature flag is disabled the full `cipherViews$` observable will be emitted.
    * Usage of the {@link CipherViewLike} type is recommended to ensure both `CipherView` and `CipherListView` are supported.
    */
   cipherListViews$ = perUserCache$((userId: UserId) => {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM19941MigrateCipherDomainToSdk).pipe(
+    return this.configService.getFeatureFlag$(FeatureFlag.PM22134SdkCipherListView).pipe(
       switchMap((useSdk) => {
         if (!useSdk) {
           return this.cipherViews$(userId);
