@@ -8,7 +8,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
@@ -128,6 +128,7 @@ describe("CopyCipherFieldService", () => {
     describe("totp", () => {
       beforeEach(() => {
         actionType = "totp";
+        cipher.type = CipherType.Login;
         cipher.login = new LoginView();
         cipher.login.totp = "secret-totp";
         cipher.reprompt = CipherRepromptType.None;

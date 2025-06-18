@@ -40,8 +40,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipSelectOption } from "@bitwarden/components";
 import { RestrictedItemTypesService } from "@bitwarden/vault";
+
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -213,62 +216,66 @@ export class VaultPopupListFiltersService {
   /**
    * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
    */
-  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
-    this.filters$,
-    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
-  ]).pipe(
-    map(
-      ([filters, restrictions]) =>
-        (ciphers: CipherView[]) =>
-          ciphers.filter((cipher) => {
-            // Vault popup lists never shows deleted ciphers
-            if (cipher.isDeleted) {
-              return false;
-            }
-
-            // Check if cipher type is restricted (with organization exemptions)
-            if (restrictions && restrictions.length > 0) {
-              const isRestricted = restrictions.some(
-                (restrictedType) =>
-                  restrictedType.cipherType === cipher.type &&
-                  (cipher.organizationId
-                    ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-                    : restrictedType.allowViewOrgIds.length === 0),
-              );
-
-              if (isRestricted) {
+  filterFunction$: Observable<(ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[]> =
+    combineLatest([
+      this.filters$,
+      this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+    ]).pipe(
+      map(
+        ([filters, restrictions]) =>
+          (ciphers: PopupCipherViewLike[]) =>
+            ciphers.filter((cipher) => {
+              // Vault popup lists never shows deleted ciphers
+              if (CipherViewLikeUtils.isDeleted(cipher)) {
                 return false;
               }
-            }
 
-            if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
-              return false;
-            }
+              // Check if cipher type is restricted (with organization exemptions)
+              if (restrictions && restrictions.length > 0) {
+                const isRestricted = restrictions.some(
+                  (restrictedType) =>
+                    restrictedType.cipherType === CipherViewLikeUtils.getType(cipher) &&
+                    (cipher.organizationId
+                      ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+                      : restrictedType.allowViewOrgIds.length === 0),
+                );
 
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
-              return false;
-            }
+                if (isRestricted) {
+                  return false;
+                }
+              }
 
-            if (filters.folder && cipher.folderId !== filters.folder.id) {
-              return false;
-            }
-
-            const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-            if (isMyVault) {
-              if (cipher.organizationId !== null) {
+              if (
+                filters.cipherType !== null &&
+                CipherViewLikeUtils.getType(cipher) !== filters.cipherType
+              ) {
                 return false;
               }
-            } else if (filters.organization) {
-              if (cipher.organizationId !== filters.organization.id) {
+
+              if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
                 return false;
               }
-            }
 
-            return true;
-          }),
-    ),
-  );
+              if (filters.folder && cipher.folderId !== filters.folder.id) {
+                return false;
+              }
+
+              const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+              if (isMyVault) {
+                if (cipher.organizationId !== null) {
+                  return false;
+                }
+              } else if (filters.organization) {
+                if (cipher.organizationId !== filters.organization.id) {
+                  return false;
+                }
+              }
+
+              return true;
+            }),
+      ),
+    );
 
   /**
    * All available cipher types (filtered by policy restrictions)

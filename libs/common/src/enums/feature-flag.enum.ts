@@ -50,6 +50,7 @@ export enum FeatureFlag {
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   CipherKeyEncryption = "cipher-key-encryption",
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
@@ -99,6 +100,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM22134SdkCipherListView]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
