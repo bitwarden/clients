@@ -188,10 +188,10 @@ Central to our master password management flows is the base [InputPasswordCompon
         <br>
         <small>(🌐 web only)</small>
         <br><br>
-        <p>Emergency access Grantee changes the MP for the Grantor</p>
+        <p>Emergency access Grantee changes the MP for the Grantor.</p>
         <br>
       </td>
-      <td>Grantee opens dialog while on<code>/settings/emergency-access</code></td>
+      <td>Grantee opens dialog while on <code>/settings/emergency-access</code></td>
       <td>
         <code>EmergencyAccessTakeoverDialogComponent</code>
         <br><small>- embeds <code>InputPasswordComponent</code></small>
