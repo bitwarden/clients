@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Najveća veličina datoteke je 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Potrebna je migracija ključa za šifriranje. Prijavi se na web trezoru za ažuriranje ključa za šifriranje."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Mapa spremljena"

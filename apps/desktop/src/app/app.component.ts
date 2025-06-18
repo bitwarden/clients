@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  DestroyRef,
   NgZone,
   OnDestroy,
   OnInit,
@@ -25,9 +26,14 @@ import {
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { DESKTOP_SSO_CALLBACK, LogoutReason } from "@bitwarden/auth/common";
+import {
+  DESKTOP_SSO_CALLBACK,
+  LogoutReason,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -163,8 +169,14 @@ export class AppComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private deviceTrustToastService: DeviceTrustToastService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private readonly destroyRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
@@ -409,15 +421,35 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
             break;
           case "switchAccount": {
-            if (message.userId != null) {
-              await this.accountService.switchAccount(message.userId);
+            if (message.userId == null) {
+              this.logService.error("'switchAccount' message received without userId.");
+              return;
             }
+
+            await this.accountService.switchAccount(message.userId);
+
             const locked =
               (await this.authService.getAuthStatus(message.userId)) ===
               AuthenticationStatus.Locked;
             if (locked) {
               this.modalService.closeAll();
-              await this.router.navigate(["lock"]);
+
+              // We only have to handle TDE lock on "switchAccount" message scenarios but not normal
+              // lock scenarios since the user will have always decrypted the vault at least once in those cases.
+              const tdeEnabled = await firstValueFrom(
+                this.userDecryptionOptionsService
+                  .userDecryptionOptionsById$(message.userId)
+                  .pipe(map((decryptionOptions) => decryptionOptions?.trustedDeviceOption != null)),
+              );
+
+              const everHadUserKey = await firstValueFrom(
+                this.keyService.everHadUserKey$(message.userId),
+              );
+              if (tdeEnabled && !everHadUserKey) {
+                await this.router.navigate(["login-initiated"]);
+              } else {
+                await this.router.navigate(["lock"]);
+              }
             } else {
               this.messagingService.send("unlocked");
               this.loading = true;
@@ -593,6 +625,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new LogoutService
+  // (requires creating a desktop specific implementation of the LogoutService)
   // Even though the userId parameter is no longer optional doesn't mean a message couldn't be
   // passing null-ish values to us.
   private async logOut(logoutReason: LogoutReason, userId: UserId) {

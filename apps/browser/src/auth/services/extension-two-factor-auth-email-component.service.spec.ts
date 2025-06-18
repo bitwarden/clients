@@ -17,7 +17,11 @@ jest.mock("../../platform/popup/browser-popup-utils", () => ({
   inPopup: jest.fn(),
 }));
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openTwoFactorAuthEmailPopout } from "../../auth/popup/utils/auth-popout-window";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { ExtensionTwoFactorAuthEmailComponentService } from "./extension-two-factor-auth-email-component.service";

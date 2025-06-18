@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Didžiausias failo dydis – 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Privaloma migruoti šifravimo raktą. Prašome prisijungti per internetinę saugyklą norint jį atnaujinti."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Aplankas išsaugotas"
