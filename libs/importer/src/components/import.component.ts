@@ -46,6 +46,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -63,7 +64,6 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
