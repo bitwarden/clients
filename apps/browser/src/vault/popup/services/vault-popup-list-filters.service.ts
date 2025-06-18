@@ -223,7 +223,7 @@ export class VaultPopupListFiltersService {
     ]).pipe(
       map(
         ([filters, restrictions]) =>
-          (ciphers: CipherView[]) =>
+          (ciphers: PopupCipherViewLike[]) =>
             ciphers.filter((cipher) => {
               // Vault popup lists never shows deleted ciphers
               if (CipherViewLikeUtils.isDeleted(cipher)) {
