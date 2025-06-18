@@ -162,7 +162,7 @@ export class UserStateSubject<
       .pipe(
         switchMap((userState) => userState.state$),
         map((stored) => {
-          if (typeof stored === "object" && ALWAYS_UPDATE_KLUDGE in stored) {
+          if (stored && typeof stored === "object" && ALWAYS_UPDATE_KLUDGE in stored) {
             // related: ALWAYS_UPDATE_KLUDGE FIXME
             delete stored[ALWAYS_UPDATE_KLUDGE];
           }
