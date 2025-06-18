@@ -86,7 +86,6 @@ export function createFilterFunction(
     ) {
       return false;
     }
-
     // Restricted types
     if (restrictedTypes && isCipherViewRestricted(cipher, restrictedTypes)) {
       return false;
