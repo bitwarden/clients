@@ -378,10 +378,6 @@ export class VaultV2Component implements OnInit, OnDestroy {
     }
   }
 
-  onCopy() {
-    this.messagingService.send("minimizeOnCopy");
-  }
-
   async viewCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher, "view")) {
       return;
