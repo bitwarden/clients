@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Uključivanje prijave dvostrukom autentifikacijom može ti trajno onemogućiti pristup Bitwarden računu. Kôd za oporavak ti omogućuje pristup računu u slučaju kada više ne možeš koristiti redovnog pružatelja prijave dvostrukom autentifikacijom (npr. izgubiš svoj uređaj). Bitwarden podrška neće ti moći pomoći ako izgubiš pristup svojem računu. Savjetujemo da zapišeš ili ispišeš kôd za oporavak i spremiš ga na sigurno mjesto."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Tvoj jednokratni kôd za oporavak može se koristiti za isključivanje prijave dvostruke autentifikacije u slučaju da izgubiš pristup svom davatelju usluge dvostruke autentifikacije. Bitwarden preporučuje da zapišeš kôd za oporavak i čuvaš ga na sigurnom mjestu."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Ažuriranje ključa za šifriranje ne može se nastaviti"
-  },
   "editFieldLabel": {
     "message": "Uredi $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Prilikom ažuriranja tvojeg ključa za šifriranje, mape se nisu mogle dešifrirati. Za nastavak ažuriranja, tvoje mape moraju biti izbrisane. Nijedna stavka iz trezora neće biti izbrisana ako nastaviš."
-  },
-  "keyUpdated": {
-    "message": "Ključ ažuriran"
-  },
-  "updateEncryptionKey": {
-    "message": "Ažuriraj ključ za šifriranje"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Promijenili smo shemu šifriranja kako bismo pružili bolju sigurnost. Ažuriraj odmah svoj ključ za šifriranje unošenjem svoje glavne lozinke."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Nakon ažuriranja svojeg ključa za šifriranje, obavezno se trebaš odjaviti i ponovno prijaviti u sve Bitwarden aplikacije koje trenutno koristiš (npr. mobilna aplikacija, proširenje preglednika, ...). Ako se ne odjaviš i ponovno prijaviš (čime se preuzima tvoj novi ključ za šifriranje) može doći do oštećenja spremljenih podataka. Pokušati ćemo te automatski odjaviti, no, to bi možda moglo potrajati."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Pretplata"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Uređaj pouzdan"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Nema aktivnih Sendova",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Koristi Send za sigurno slanje šifriranih podataka bilo kome.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Pozovi korisnike"

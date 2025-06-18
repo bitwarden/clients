@@ -122,15 +122,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.setPrivateKey(encPrivateKey, userId);
   }
 
-  async refreshAdditionalKeys(): Promise<void> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Can only refresh keys while there is an active user.");
+  async refreshAdditionalKeys(userId: UserId): Promise<void> {
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
-    const key = await this.getUserKey(activeUserId);
-    await this.setUserKey(key, activeUserId);
+    const key = await firstValueFrom(this.userKey$(userId));
+    if (key == null) {
+      throw new Error("No user key found for: " + userId);
+    }
+
+    await this.setUserKey(key, userId);
   }
 
   everHadUserKey$(userId: UserId): Observable<boolean> {
@@ -248,29 +250,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearAllStoredUserKeys(userId);
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    }
-    if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
-  }
-
-  async setMasterKeyEncryptedUserKey(userKeyMasterKey: string, userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      new EncString(userKeyMasterKey),
-      userId,
-    );
+    if (keySuffix === KeySuffixOptions.Auto) {
+      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
+    }
+    if (keySuffix === KeySuffixOptions.Pin) {
+      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
+    }
   }
 
   // TODO: Move to MasterPasswordService

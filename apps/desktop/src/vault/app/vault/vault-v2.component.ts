@@ -9,7 +9,7 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observable } from "rxjs";
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
@@ -19,6 +19,8 @@ import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/vie
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -57,10 +59,12 @@ import {
   CipherFormMode,
   CipherFormModule,
   CipherViewComponent,
+  CollectionAssignmentResult,
   DecryptionFailureDialogComponent,
   DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  CipherFormComponent,
 } from "@bitwarden/vault";
 
 import { NavComponent } from "../../../app/layout/nav.component";
@@ -69,6 +73,7 @@ import { DesktopCredentialGenerationService } from "../../../services/desktop-ci
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
 
+import { AssignCollectionsDesktopComponent } from "./assign-collections";
 import { ItemFooterComponent } from "./item-footer.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -119,6 +124,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
   vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef | null = null;
+  @ViewChild(CipherFormComponent)
+  cipherFormComponent: CipherFormComponent | null = null;
 
   action: CipherFormMode | "view" | null = null;
   cipherId: string | null = null;
@@ -142,6 +149,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
   config: CipherFormConfig | null = null;
   isSubmitting = false;
 
+  private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    switchMap((id) => this.organizationService.organizations$(id)),
+  );
+
   protected canAccessAttachments$ = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => !!account),
     switchMap((account) =>
@@ -151,6 +163,8 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   private modal: ModalRef | null = null;
   private componentIsDestroyed$ = new Subject<boolean>();
+  private allOrganizations: Organization[] = [];
+  private allCollections: CollectionView[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -176,6 +190,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
     private formConfigService: CipherFormConfigService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private collectionService: CollectionService,
+    private organizationService: OrganizationService,
     private folderService: FolderService,
   ) {}
 
@@ -312,6 +327,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
           });
         });
     }
+
+    this.organizations$.pipe(takeUntil(this.componentIsDestroyed$)).subscribe((orgs) => {
+      this.allOrganizations = orgs;
+    });
+
+    this.collectionService.decryptedCollections$
+      .pipe(takeUntil(this.componentIsDestroyed$))
+      .subscribe((collections) => {
+        this.allCollections = collections;
+      });
   }
 
   ngOnDestroy() {
@@ -364,7 +389,14 @@ export class VaultV2Component implements OnInit, OnDestroy {
         cipher.collectionIds.includes(c.id),
       ) ?? null;
     this.action = "view";
+
     await this.go().catch(() => {});
+    await this.eventCollectionService.collect(
+      EventType.Cipher_ClientViewed,
+      cipher.id,
+      false,
+      cipher.organizationId,
+    );
   }
 
   async openAttachmentsDialog() {
@@ -381,6 +413,26 @@ export class VaultV2Component implements OnInit, OnDestroy {
       result?.action === AttachmentDialogResult.Uploaded
     ) {
       await this.vaultItemsComponent?.refresh().catch(() => {});
+
+      if (this.cipherFormComponent == null) {
+        return;
+      }
+
+      const updatedCipher = await this.cipherService.get(
+        this.cipherId as CipherId,
+        this.activeUserId as UserId,
+      );
+      const updatedCipherView = await this.cipherService.decrypt(
+        updatedCipher,
+        this.activeUserId as UserId,
+      );
+
+      this.cipherFormComponent.patchCipher((currentCipher) => {
+        currentCipher.attachments = updatedCipherView.attachments;
+        currentCipher.revisionDate = updatedCipherView.revisionDate;
+
+        return currentCipher;
+      });
     }
   }
 
@@ -418,6 +470,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
               this.cloneCipher(cipher).catch(() => {});
             });
           },
+        });
+      }
+
+      if (cipher.canAssignToCollections) {
+        menu.push({
+          label: this.i18nService.t("assignToCollections"),
+          click: () =>
+            this.functionWithChangeDetection(async () => {
+              await this.shareCipher(cipher);
+            }),
         });
       }
     }
@@ -531,6 +593,36 @@ export class VaultV2Component implements OnInit, OnDestroy {
     await this.go().catch(() => {});
   }
 
+  async shareCipher(cipher: CipherView) {
+    if (!cipher) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nothingSelected"),
+      });
+      return;
+    }
+
+    if (!(await this.passwordReprompt(cipher))) {
+      return;
+    }
+
+    const availableCollections = this.getAvailableCollections(cipher);
+
+    const dialog = AssignCollectionsDesktopComponent.open(this.dialogService, {
+      data: {
+        ciphers: [cipher],
+        organizationId: cipher.organizationId as OrganizationId,
+        availableCollections,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+    if (result === CollectionAssignmentResult.Saved) {
+      await this.savedCipher(cipher);
+    }
+  }
+
   async addCipher(type: CipherType) {
     if (this.action === "add") {
       return;
@@ -601,6 +693,16 @@ export class VaultV2Component implements OnInit, OnDestroy {
       ?.reload(this.activeFilter.buildFilter(), vaultFilter.status === "trash")
       .catch(() => {});
     await this.go().catch(() => {});
+  }
+
+  private getAvailableCollections(cipher: CipherView): CollectionView[] {
+    const orgId = cipher.organizationId;
+    if (!orgId || orgId === "MyVault") {
+      return [];
+    }
+
+    const organization = this.allOrganizations.find((o) => o.id === orgId);
+    return this.allCollections.filter((c) => c.organizationId === organization?.id && !c.readOnly);
   }
 
   private calculateSearchBarLocalizationString(vaultFilter: VaultFilter): string {

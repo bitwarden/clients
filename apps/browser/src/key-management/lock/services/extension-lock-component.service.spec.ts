@@ -1,3 +1,5 @@
+// FIXME (PM-22628): angular imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
@@ -18,7 +20,11 @@ import {
 import { UnlockOptions } from "@bitwarden/key-management-ui";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { ExtensionLockComponentService } from "./extension-lock-component.service";
