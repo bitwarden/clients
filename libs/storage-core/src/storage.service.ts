@@ -17,7 +17,7 @@ export interface ObservableStorageService {
   get updates$(): Observable<StorageUpdate>;
 }
 
-export abstract class AbstractStorageService {
+export abstract class StorageService {
   abstract get valuesRequireDeserialization(): boolean;
   abstract get<T>(key: string, options?: StorageOptions): Promise<T>;
   abstract has(key: string, options?: StorageOptions): Promise<boolean>;

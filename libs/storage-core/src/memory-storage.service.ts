@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { AbstractStorageService, StorageUpdate } from "./storage.service";
+import { StorageService, StorageUpdate } from "./storage.service";
 
-export class MemoryStorageService extends AbstractStorageService {
+export class MemoryStorageService extends StorageService {
   protected store = new Map<string, unknown>();
   private updatesSubject = new Subject<StorageUpdate>();
 

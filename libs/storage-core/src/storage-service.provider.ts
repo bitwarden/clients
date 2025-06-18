@@ -1,6 +1,6 @@
 import { ClientLocations } from "./client-locations";
 import { StorageLocation } from "./storage-location";
-import { AbstractStorageService, ObservableStorageService } from "./storage.service";
+import { StorageService, ObservableStorageService } from "./storage.service";
 
 export type PossibleLocation = StorageLocation | ClientLocations[keyof ClientLocations];
 
@@ -9,8 +9,8 @@ export type PossibleLocation = StorageLocation | ClientLocations[keyof ClientLoc
  */
 export class StorageServiceProvider {
   constructor(
-    protected readonly diskStorageService: AbstractStorageService & ObservableStorageService,
-    protected readonly memoryStorageService: AbstractStorageService & ObservableStorageService,
+    protected readonly diskStorageService: StorageService & ObservableStorageService,
+    protected readonly memoryStorageService: StorageService & ObservableStorageService,
   ) {}
 
   /**
@@ -26,7 +26,7 @@ export class StorageServiceProvider {
   get(
     defaultLocation: PossibleLocation,
     overrides: Partial<ClientLocations>,
-  ): [location: PossibleLocation, service: AbstractStorageService & ObservableStorageService] {
+  ): [location: PossibleLocation, service: StorageService & ObservableStorageService] {
     switch (defaultLocation) {
       case "disk":
         return [defaultLocation, this.diskStorageService];

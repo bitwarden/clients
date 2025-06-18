@@ -2,10 +2,10 @@
 // @ts-strict-ignore
 import { Subject } from "rxjs";
 
-import { AbstractStorageService, ObservableStorageService, StorageUpdate } from "./storage.service";
+import { StorageService, ObservableStorageService, StorageUpdate } from "./storage.service";
 
 export class SerializedMemoryStorageService
-  extends AbstractStorageService
+  extends StorageService
   implements ObservableStorageService
 {
   protected store: Record<string, string> = {};
