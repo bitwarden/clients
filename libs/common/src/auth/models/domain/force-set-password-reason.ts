@@ -11,7 +11,7 @@ export enum ForceSetPasswordReason {
   None,
 
   /**
-   * Occurs when an organization admin forces a user to reset their password.
+   * Occurs when an organization admin forces a user to reset their password via Account Recovery.
    * Communicated via server flag.
    */
   AdminForcePasswordReset,
@@ -24,7 +24,7 @@ export enum ForceSetPasswordReason {
   WeakMasterPassword,
 
   /**
-   * Occurs when a TDE user without a password obtains the password reset permission.
+   * Occurs when a TDE user without a password obtains the password reset ("manage account recovery") permission.
    * Set post login & decryption client side and by server in sync (to catch logged in users).
    */
   TdeUserWithoutPasswordHasPasswordResetPermission,
