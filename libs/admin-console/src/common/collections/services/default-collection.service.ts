@@ -123,10 +123,13 @@ export class DefaultCollectionService implements CollectionService {
       }
       return collections;
     });
+
+    // TODO: also upsert into decryptedState
   }
 
   async replace(collections: Record<CollectionId, CollectionData>, userId: UserId): Promise<void> {
     await this.encryptedState(userId).update(() => collections);
+    // TODO: also invalidate decryptedState
   }
 
   async delete(id: CollectionId | CollectionId[], userId: UserId): Promise<any> {
@@ -145,6 +148,7 @@ export class DefaultCollectionService implements CollectionService {
     });
 
     // Invalidate decrypted state
+    // TODO: delete from decrypted state without having to decrypt everything from scratch
     await this.decryptedState(userId).update(() => null);
   }
 
