@@ -24,8 +24,10 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  isCipherRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -161,7 +163,7 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    if (!ServiceUtils.isCipherRestricted(decCipher, restrictions)) {
+                    if (!isCipherRestricted(decCipher, restrictions)) {
                       decCiphers.push(decCipher);
                     }
                   }),
@@ -205,7 +207,7 @@ export class OrganizationVaultExportService
           ciphers = c.data
             .filter((item) => item.deletedDate === null)
             .map((item) => new Cipher(new CipherData(item)))
-            .filter((cipher) => !ServiceUtils.isCipherRestricted(cipher, restrictions));
+            .filter((cipher) => !isCipherRestricted(cipher, restrictions));
         }
       }),
     );
@@ -245,7 +247,7 @@ export class OrganizationVaultExportService
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)) &&
-        !ServiceUtils.isCipherRestricted(f, restrictions),
+        !isCipherRestricted(f, restrictions),
     );
 
     if (format === "csv") {
@@ -284,7 +286,7 @@ export class OrganizationVaultExportService
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
-        !ServiceUtils.isCipherRestricted(f, restrictions),
+        !isCipherRestricted(f, restrictions),
     );
 
     return this.BuildEncryptedExport(organizationId, encCollections, encCiphers);

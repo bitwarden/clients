@@ -20,8 +20,10 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  isCipherRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -176,9 +178,9 @@ export class IndividualVaultExportService
 
     promises.push(
       this.cipherService.getAllDecrypted(activeUserId).then((ciphers) => {
-        decCiphers = ciphers
-          .filter((f) => f.deletedDate == null)
-          .filter((c) => !ServiceUtils.isCipherRestricted(c, restrictions));
+        decCiphers = ciphers.filter(
+          (f) => f.deletedDate == null && !isCipherRestricted(f, restrictions),
+        );
       }),
     );
 
@@ -214,9 +216,7 @@ export class IndividualVaultExportService
 
     promises.push(
       this.cipherService.getAll(activeUserId).then((c) => {
-        ciphers = c
-          .filter((f) => f.deletedDate == null)
-          .filter((c) => !ServiceUtils.isCipherRestricted(c, restrictions));
+        ciphers = c.filter((f) => f.deletedDate == null && !isCipherRestricted(f, restrictions));
       }),
     );
 

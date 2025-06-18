@@ -2,8 +2,8 @@ import { firstValueFrom } from "rxjs";
 
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import {
+  isCipherRestricted,
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -29,7 +29,7 @@ export class CliRestrictedItemTypesService {
   async filterRestrictedCiphers(ciphers: CipherView[]): Promise<CipherView[]> {
     const restrictions = await this.getRestrictedTypes();
 
-    return ciphers.filter((cipher) => !ServiceUtils.isCipherRestricted(cipher, restrictions));
+    return ciphers.filter((cipher) => !isCipherRestricted(cipher, restrictions));
   }
 
   /**
@@ -40,6 +40,6 @@ export class CliRestrictedItemTypesService {
    */
   async isCipherRestricted(cipher: Cipher | CipherView): Promise<boolean> {
     const restrictions = await this.getRestrictedTypes();
-    return ServiceUtils.isCipherRestricted(cipher, restrictions) ?? false;
+    return isCipherRestricted(cipher, restrictions) ?? false;
   }
 }

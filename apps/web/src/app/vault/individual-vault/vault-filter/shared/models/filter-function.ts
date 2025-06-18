@@ -2,7 +2,7 @@ import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  isCipherViewRestricted,
+  isCipherRestricted,
   RestrictedCipherType,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
@@ -87,7 +87,7 @@ export function createFilterFunction(
       return false;
     }
     // Restricted types
-    if (restrictedTypes && isCipherViewRestricted(cipher, restrictedTypes)) {
+    if (restrictedTypes && isCipherRestricted(cipher, restrictedTypes)) {
       return false;
     }
     return true;

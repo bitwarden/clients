@@ -11,6 +11,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { Cipher } from "../models/domain/cipher";
+
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
@@ -78,6 +80,7 @@ export class RestrictedItemTypesService {
   ) {}
 }
 
+type CipherLike = Cipher | CipherView;
 /**
  * Filter that returns whether a cipher is restricted from being viewed by the user
  * Criteria:
@@ -87,10 +90,7 @@ export class RestrictedItemTypesService {
  * OR
  * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
  */
-export function isCipherViewRestricted(
-  cipher: CipherView,
-  restrictedTypes: RestrictedCipherType[],
-) {
+export function isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]) {
   return restrictedTypes.some(
     (restrictedType) =>
       restrictedType.cipherType === cipher.type &&
