@@ -147,6 +147,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasPasswordToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
+  }
+
+  protected get hasUsernameToCopy() {
+    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
+  }
+
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
       return this.i18nService.t("manageCollection");
