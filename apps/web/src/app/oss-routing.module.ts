@@ -11,8 +11,6 @@ import {
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
@@ -22,7 +20,6 @@ import {
   RegistrationLinkExpiredComponent,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockIcon,
   TwoFactorTimeoutIcon,
   UserLockIcon,
   SsoKeyIcon,
@@ -39,6 +36,7 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import { VaultIcons } from "@bitwarden/vault";
 
@@ -399,7 +397,7 @@ const routes: Routes = [
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
-          pageIcon: LockIcon,
+          pageIcon: Icons.LockIcon,
           showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
       },
