@@ -1,21 +1,22 @@
 import {
   combineLatest,
+  delayWhen,
   filter,
   firstValueFrom,
   from,
   map,
+  NEVER,
   Observable,
   of,
   shareReplay,
   switchMap,
-  take,
   tap,
 } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { StateProvider } from "@bitwarden/common/platform/state";
+import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -30,6 +31,8 @@ import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./
 const NestingDelimiter = "/";
 
 export class DefaultCollectionService implements CollectionService {
+  private inProgressDecryptions = new Map<UserId, Observable<never>>();
+
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -47,7 +50,7 @@ export class DefaultCollectionService implements CollectionService {
   /**
    * @returns a SingleUserState for decrypted collection data.
    */
-  private decryptedState(userId: UserId) {
+  private decryptedState(userId: UserId): SingleUserState<CollectionView[]> {
     return this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY);
   }
 
@@ -63,20 +66,43 @@ export class DefaultCollectionService implements CollectionService {
     );
   }
 
-  decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.encryptedCollections$(userId),
-      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-      this.decryptedState(userId).state$.pipe(take(1)),
-    ]).pipe(
-      switchMap(([collections, orgKeys, decrypted]) =>
-        decrypted?.length
-          ? of(decrypted)
-          : this.decryptMany$(collections, orgKeys).pipe(
-              tap((collections) => this.setDecryptedCollections(collections, userId)),
+  decryptedCollections$(userId: UserId) {
+    return this.decryptedState(userId).state$.pipe(
+      switchMap((decryptedState) => {
+        // If decrypted state is already populated, return that
+        if (decryptedState != null) {
+          return of(decryptedState);
+        }
+
+        // If decrypted state is not populated but decryption is in progress,
+        // return the observable that represents the decryption progress
+        if (this.inProgressDecryptions.has(userId)) {
+          return this.inProgressDecryptions.get(userId)!;
+        }
+
+        // If we are the very first caller, kick off the decryption and save it to an internal map
+        const initializeDecryptedState$ = combineLatest([
+          this.encryptedCollections$(userId),
+          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+        ]).pipe(
+          switchMap(([collections, orgKeys]) =>
+            this.decryptMany$(collections, orgKeys).pipe(
+              // delayWhen is basically used as an async tap here; wait for decryption to be finished
+              delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
+              // once decrypted state has been set, we can remove ourselves from the internal map
+              tap(() => this.inProgressDecryptions.delete(userId)),
             ),
-      ),
-      shareReplay({ refCount: false, bufferSize: 1 }),
+          ),
+          // setDecryptedCollections will trigger a new emission from decryptedState, which is ultimately what
+          // the caller will receive as the first emission. Here we finish with NEVER so that this observable
+          // never emits, and will be automatically unsubscribed by the outer switchMap when decryptedState emits.
+          switchMap(() => NEVER),
+          shareReplay({ bufferSize: 1, refCount: true }),
+        );
+
+        this.inProgressDecryptions.set(userId, initializeDecryptedState$);
+        return this.inProgressDecryptions.get(userId)!;
+      }),
     );
   }
 
