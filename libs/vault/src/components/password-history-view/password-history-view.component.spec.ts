@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { CopyService } from "@bitwarden/common/platform/abstractions/copy.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -38,6 +40,7 @@ describe("PasswordHistoryViewComponent", () => {
       providers: [
         { provide: CipherService, useValue: mockCipherService },
         { provide: PlatformUtilsService },
+        { provide: CopyService, useValue: mock<CopyService>() },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],

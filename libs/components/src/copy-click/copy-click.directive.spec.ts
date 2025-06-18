@@ -92,7 +92,6 @@ describe("CopyClickDirective", () => {
     successToastButton.click();
     expect(showToast).toHaveBeenCalledWith({
       message: "copySuccessful",
-      title: null,
       variant: "success",
     });
   });
@@ -103,7 +102,6 @@ describe("CopyClickDirective", () => {
     infoToastButton.click();
     expect(showToast).toHaveBeenCalledWith({
       message: "copySuccessful",
-      title: null,
       variant: "info",
     });
   });
@@ -115,7 +113,6 @@ describe("CopyClickDirective", () => {
 
     expect(showToast).toHaveBeenCalledWith({
       message: "valueCopied Content",
-      title: null,
       variant: "success",
     });
   });
