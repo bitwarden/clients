@@ -23,7 +23,7 @@ This document maps all of our password management flows to the components that h
 
 <ul>
   <li>MP = "master password"</li>
-  <li>MPE = "master password ecryption"</li>
+  <li>MPE = "master password encryption"</li>
   <li>TDE = "trusted device encryption"</li>
   <li>JIT Provisioned = "just-in-time provisioned"</li>
 </ul>
