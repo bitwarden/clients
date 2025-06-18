@@ -14,24 +14,19 @@ import {
   EnvironmentService,
   Environment,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { ButtonModule } from "@bitwarden/components";
 
-// FIXME: remove `/apps` import from `/libs`
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line import/no-restricted-paths, no-restricted-imports
-import { PreloadedEnglishI18nModule } from "../../../../../apps/web/src/app/core/tests";
-import { LockIcon } from "../icons";
-import { RegistrationCheckEmailIcon } from "../icons/registration-check-email.icon";
+import { ButtonModule } from "../button";
+import { LockIcon, RegistrationCheckEmailIcon } from "../icon/icons";
+import { I18nMockService } from "../utils";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "./anon-layout-wrapper.component";
 import { DefaultAnonLayoutWrapperDataService } from "./default-anon-layout-wrapper-data.service";
 
 export default {
-  title: "Auth/Anon Layout Wrapper",
+  title: "Component Library/Anon Layout Wrapper",
   component: AnonLayoutWrapperComponent,
 } as Meta;
 
@@ -84,13 +79,21 @@ const decorators = (options: {
             getClientType: () => options.clientType || ClientType.Web,
           } as Partial<PlatformUtilsService>,
         },
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              setAStrongPassword: "Set a strong password",
+              appLogoLabel: "app logo label",
+              finishCreatingYourAccountBySettingAPassword:
+                "Finish creating your account by setting a password",
+            });
+          },
+        },
       ],
     }),
     applicationConfig({
-      providers: [
-        importProvidersFrom(RouterModule.forRoot(options.routes)),
-        importProvidersFrom(PreloadedEnglishI18nModule),
-      ],
+      providers: [importProvidersFrom(RouterModule.forRoot(options.routes))],
     }),
   ];
 };
@@ -102,18 +105,21 @@ type Story = StoryObj<AnonLayoutWrapperComponent>;
 @Component({
   selector: "bit-default-primary-outlet-example-component",
   template: "<p>Primary Outlet Example: <br> your primary component goes here</p>",
+  standalone: false,
 })
 export class DefaultPrimaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-secondary-outlet-example-component",
   template: "<p>Secondary Outlet Example: <br> your secondary component goes here</p>",
+  standalone: false,
 })
 export class DefaultSecondaryOutletExampleComponent {}
 
 @Component({
   selector: "bit-default-env-selector-outlet-example-component",
   template: "<p>Env Selector Outlet Example: <br> your env selector component goes here</p>",
+  standalone: false,
 })
 export class DefaultEnvSelectorOutletExampleComponent {}
 
@@ -188,6 +194,7 @@ const changedData: AnonLayoutWrapperData = {
   template: `
     <button type="button" bitButton buttonType="primary" (click)="toggleData()">Toggle Data</button>
   `,
+  standalone: false,
 })
 export class DynamicContentExampleComponent {
   initialData = true;

@@ -502,7 +502,7 @@ jobs:
         run: |
           npm run pack:win
 
-      - name: Pack & Sign (dev)
+      - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
           ELECTRON_BUILDER_SIGN: 1
