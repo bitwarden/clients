@@ -39,9 +39,9 @@ Central to our master password management flows is the base [InputPasswordCompon
 <table>
   <thead>
     <tr>
-      <th>Flow</th>
+      <td><strong>Flow</strong></td>
       <td><strong>Route</strong><br><small>(on which user sets MP)</small></td>
-      <th>Component(s)</th>
+      <td><strong>Component(s)</strong></td>
     </tr>
   </thead>
   <tbody>
@@ -123,9 +123,9 @@ Central to our master password management flows is the base [InputPasswordCompon
 <table>
   <thead>
     <tr>
-      <th>Flow</th>
+      <td><strong>Flow</strong></td>
       <td><strong>Route</strong><br><small>(on which user changes MP)</small></td>
-      <th>Component(s)</th>
+      <td><strong>Component(s)</strong></td>
     </tr>
   </thead>
   <tbody>
