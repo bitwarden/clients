@@ -1677,21 +1677,21 @@ export default class MainBackground {
       // Set route of the popup before attempting to open it.
       // If the vault is locked, this won't have an effect as the auth guards will
       // redirect the user to the login page.
-      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+      await browserAction.setPopup({ popup: PopupPageUrls.AtRiskPasswords });
 
       await this.openPopup();
     } finally {
       // Reset the popup route to the default route so any subsequent
       // popup openings will not open to the at-risk-passwords page.
       await browserAction.setPopup({
-        popup: "popup/index.html#/",
+        popup: PopupPageUrls.Default,
       });
     }
   }
 
   /**
    * Opens the popup to the given page
-   * @default "popup/index.html"
+   * @default PopupPageUrls.Default
    */
   async openTheExtensionToPage(page: PopupPageUrls = PopupPageUrls.Default) {
     const browserAction = BrowserApi.getBrowserAction();
