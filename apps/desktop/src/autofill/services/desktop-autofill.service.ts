@@ -261,7 +261,7 @@ export class DesktopAutofillService implements OnDestroy {
           }
 
           const response = await this.fido2AuthenticatorService.getAssertion(
-            this.convertAssertionRequest(request),
+            this.convertAssertionRequest(request, true),
             { windowXy: request.windowXy },
             controller,
           );
@@ -359,6 +359,7 @@ export class DesktopAutofillService implements OnDestroy {
     request:
       | autofill.PasskeyAssertionRequest
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    assumeUserPresence: boolean = false,
   ): Fido2AuthenticatorGetAssertionParams {
     let allowedCredentials;
     if ("credentialId" in request) {
@@ -383,7 +384,7 @@ export class DesktopAutofillService implements OnDestroy {
       requireUserVerification:
         request.userVerification === "required" || request.userVerification === "preferred",
       fallbackSupported: false,
-      assumeUserPresence: true, // For desktop assertions, it's safe to assume UP has been checked by OS dialogues
+      assumeUserPresence,
     };
   }
 
