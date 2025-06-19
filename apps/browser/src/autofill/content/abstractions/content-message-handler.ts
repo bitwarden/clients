@@ -7,7 +7,7 @@ type ContentMessageWindowData = {
   state?: string;
   data?: string;
   remember?: boolean;
-  page?: ExtensionPageUrls;
+  url?: ExtensionPageUrls;
 };
 type ContentMessageWindowEventParams = {
   data: ContentMessageWindowData;

@@ -2,7 +2,7 @@ const VaultMessages = {
   HasBwInstalled: "hasBwInstalled",
   checkBwInstalled: "checkIfBWExtensionInstalled",
   OpenAtRiskPasswords: "openAtRiskPasswords",
-  OpenBrowserExtensionToPage: "openBrowserExtensionToPage",
+  OpenBrowserExtensionToUrl: "openBrowserExtensionToUrl",
   PopupOpened: "popupOpened",
 } as const;
 

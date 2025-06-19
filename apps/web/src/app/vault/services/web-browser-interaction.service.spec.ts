@@ -67,7 +67,7 @@ describe("WebBrowserInteractionService", () => {
       service.openExtension().catch(() => {});
 
       expect(postMessage).toHaveBeenCalledWith({
-        command: VaultMessages.OpenBrowserExtensionToPage,
+        command: VaultMessages.OpenBrowserExtensionToUrl,
       });
 
       tick(1500);
@@ -77,8 +77,8 @@ describe("WebBrowserInteractionService", () => {
       service.openExtension(ExtensionPageUrls.Index).catch(() => {});
 
       expect(postMessage).toHaveBeenCalledWith({
-        command: VaultMessages.OpenBrowserExtensionToPage,
-        page: ExtensionPageUrls.Index,
+        command: VaultMessages.OpenBrowserExtensionToUrl,
+        url: ExtensionPageUrls.Index,
       });
 
       tick(1500);

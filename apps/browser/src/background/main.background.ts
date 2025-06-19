@@ -1693,14 +1693,14 @@ export default class MainBackground {
    * Opens the popup to the given page
    * @default ExtensionPageUrls.Index
    */
-  async openTheExtensionToPage(page: ExtensionPageUrls = ExtensionPageUrls.Index) {
+  async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
     const browserAction = BrowserApi.getBrowserAction();
 
     try {
       // Set route of the popup before attempting to open it.
       // If the vault is locked, this won't have an effect as the auth guards will
       // redirect the user to the login page.
-      await browserAction.setPopup({ popup: page });
+      await browserAction.setPopup({ popup: url });
 
       await this.openPopup();
     } finally {

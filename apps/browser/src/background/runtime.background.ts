@@ -296,8 +296,8 @@ export default class RuntimeBackground {
         await this.main.openAtRisksPasswordsPage();
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToPage:
-        await this.main.openTheExtensionToPage(msg.page);
+      case VaultMessages.OpenBrowserExtensionToUrl:
+        await this.main.openTheExtensionToPage(msg.url);
         this.announcePopupOpen();
         break;
       case "bgUpdateContextMenu":

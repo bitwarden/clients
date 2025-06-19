@@ -31,7 +31,7 @@ export class WebBrowserInteractionService {
   );
 
   /** Attempts to open the extension, rejects if the extension is not installed or it fails to open.  */
-  openExtension = (page?: ExtensionPageUrls) => {
+  openExtension = (url?: ExtensionPageUrls) => {
     return new Promise<void>((resolve, reject) => {
       if (this._extensionInstalled$.getValue() === false) {
         return reject("Extension is not installed");
@@ -53,7 +53,7 @@ export class WebBrowserInteractionService {
           resolve();
         });
 
-      window.postMessage({ command: VaultMessages.OpenBrowserExtensionToPage, page });
+      window.postMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
     });
   };
 
