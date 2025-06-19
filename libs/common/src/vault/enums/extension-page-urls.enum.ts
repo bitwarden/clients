@@ -5,7 +5,7 @@ import { UnionOfValues } from "../types/union-of-values";
  * Useful when opening a specific page within the popup.
  */
 export const ExtensionPageUrls: Record<string, `popup/index.html#/${string}`> = {
-  Default: "popup/index.html#/",
+  Index: "popup/index.html#/",
   AtRiskPasswords: "popup/index.html#/at-risk-passwords",
 } as const;
 

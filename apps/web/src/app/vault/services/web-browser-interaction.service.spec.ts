@@ -81,11 +81,11 @@ describe("WebBrowserInteractionService", () => {
     });
 
     it("posts a message with the passed page", async () => {
-      service.openExtension(ExtensionPageUrls.Default).catch(() => {});
+      service.openExtension(ExtensionPageUrls.Index).catch(() => {});
 
       expect(postMessage).toHaveBeenCalledWith({
         command: VaultMessages.OpenBrowserExtensionToPage,
-        page: ExtensionPageUrls.Default,
+        page: ExtensionPageUrls.Index,
       });
 
       jest.advanceTimersByTime(1000);

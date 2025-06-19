@@ -1684,16 +1684,16 @@ export default class MainBackground {
       // Reset the popup route to the default route so any subsequent
       // popup openings will not open to the at-risk-passwords page.
       await browserAction.setPopup({
-        popup: ExtensionPageUrls.Default,
+        popup: ExtensionPageUrls.Index,
       });
     }
   }
 
   /**
    * Opens the popup to the given page
-   * @default ExtensionPageUrls.Default
+   * @default ExtensionPageUrls.Index
    */
-  async openTheExtensionToPage(page: ExtensionPageUrls = ExtensionPageUrls.Default) {
+  async openTheExtensionToPage(page: ExtensionPageUrls = ExtensionPageUrls.Index) {
     const browserAction = BrowserApi.getBrowserAction();
 
     try {
@@ -1707,7 +1707,7 @@ export default class MainBackground {
       // Reset the popup route to the default route so any subsequent
       // popup openings will not open to the at-risk-passwords page.
       await browserAction.setPopup({
-        popup: ExtensionPageUrls.Default,
+        popup: ExtensionPageUrls.Index,
       });
     }
   }
