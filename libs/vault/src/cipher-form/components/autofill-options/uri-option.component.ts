@@ -84,12 +84,12 @@ export class UriOptionComponent implements ControlValueAccessor {
     { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
   ];
 
-  protected hintMap: Partial<Record<UriMatchStrategySetting, string>> = {
+  protected advancedOptionHintMap: Partial<Record<UriMatchStrategySetting, string>> = {
     [UriMatchStrategy.StartsWith]: "startsWithUriMatchWarningHint",
     [UriMatchStrategy.RegularExpression]: "regExUriMatchWarningHint",
   };
 
-  protected advancedContentKeyMap: Partial<Record<UriMatchStrategySetting, string>> = {
+  protected advancedOptionContentMap: Partial<Record<UriMatchStrategySetting, string>> = {
     [UriMatchStrategy.StartsWith]: "uriMatchWarningDialogStartsWithContent",
     [UriMatchStrategy.RegularExpression]: "uriMatchWarningDialogRegExContent",
   };
@@ -199,7 +199,7 @@ export class UriOptionComponent implements ControlValueAccessor {
       return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedContentKeyMap[current],
+      contentKey: this.advancedOptionContentMap[current],
       onContinue: () => {
         this.uriForm.controls.matchDetection.setValue(current);
       },
@@ -251,7 +251,7 @@ export class UriOptionComponent implements ControlValueAccessor {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.hintMap[strategy]);
+      hints.push(this.advancedOptionHintMap[strategy]);
     }
     return hints;
   }

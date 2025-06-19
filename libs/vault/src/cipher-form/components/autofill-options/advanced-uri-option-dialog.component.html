@@ -17,10 +17,10 @@
     </p>
   </div>
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="primary" (click)="continueClick()">
+    <button bitButton type="button" buttonType="primary" (click)="onContinue()">
       {{ "continue" | i18n }}
     </button>
-    <button bitButton type="button" buttonType="secondary" (click)="cancelClick()">
+    <button bitButton type="button" buttonType="secondary" (click)="onCancel()">
       {{ "cancel" | i18n }}
     </button>
   </ng-container>
