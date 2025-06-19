@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { Params } from "@angular/router";
 
-import { BitwardenLogo } from "@bitwarden/auth/angular";
+import { Icons } from "@bitwarden/components";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
 @Component({
@@ -10,13 +10,15 @@ import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept
   standalone: false,
 })
 export class SetupProviderComponent extends BaseAcceptComponent {
-  protected logo = BitwardenLogo;
+  protected logo = Icons.BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 
   requiredParameters = ["providerId", "email", "token"];
 
   async authedHandler(qParams: Params) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/providers/setup"], { queryParams: qParams });
   }
 
@@ -25,6 +27,8 @@ export class SetupProviderComponent extends BaseAcceptComponent {
   }
 
   login() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/login"], { queryParams: { email: this.email } });
   }
 }

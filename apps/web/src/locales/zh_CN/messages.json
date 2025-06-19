@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。当您无法使用常规的两步登录提供程序（例如您丢失了设备）时，可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您写下或打印恢复代码，并将其妥善保管。"
   },
+  "restrictedItemTypesPolicy": {
+    "message": "禁用支付卡项目类型"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "不允许成员创建支付卡项目类型。"
+  },
   "yourSingleUseRecoveryCode": {
     "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于停用两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
   },
@@ -4377,7 +4383,7 @@
     "message": "附加选项"
   },
   "additionalOptionsDesc": {
-    "message": "如需更多管理您的订阅的帮助，请联系客服支持。"
+    "message": "如需更多管理您的订阅的帮助，请联系客户支持。"
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
     "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用。"
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "加密密钥更新无法继续"
-  },
   "editFieldLabel": {
     "message": "编辑 $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "更新加密密钥时，无法解密您的文件夹。要继续更新，必须删除文件夹。继续操作不会删除任何密码库项目。"
-  },
-  "keyUpdated": {
-    "message": "密钥已更新"
-  },
-  "updateEncryptionKey": {
-    "message": "更新加密密钥"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "为了提高安全性，我们更改了加密方案。请在下方输入您的主密码以立即更新您的加密密钥。"
-  },
   "updateEncryptionKeyWarning": {
     "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "所有您已保存的账户限制的导出文件将失效。"
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "旧版加密方式已不再受支持。请联系客服恢复您的账户。"
   },
   "subscription": {
     "message": "订阅"
@@ -4718,7 +4712,7 @@
     "message": "此项目有需要修复的旧文件附件。"
   },
   "attachmentFixDescription": {
-    "message": "此附件使用了过时的加密方式。选择「修复」将下载、重新加密并重新上传此附件。"
+    "message": "此附件使用了过时的加密方式。请选择「修复」以下载、重新加密并重新上传附件。"
   },
   "fix": {
     "message": "修复",
@@ -8619,14 +8613,6 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
-  "sendsNoItemsTitle": {
-    "message": "没有活跃的 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 与任何人安全地分享加密信息。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "inviteUsers": {
     "message": "邀请用户"
   },
@@ -9727,7 +9713,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "注意：本月晚些时候，客户密码库隐私将被改进，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
+    "message": "通知：本月晚些时候，客户密码库隐私将进行升级，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -10092,7 +10078,7 @@
     "message": "添加附件"
   },
   "maxFileSizeSansPunctuation": {
-    "message": "最大文件大小为 500 MB"
+    "message": "文件最大为 500 MB"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "确定要永久删除此附件吗？"
@@ -10643,7 +10629,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "restart": {
-    "message": "重新启动"
+    "message": "重启"
   },
   "verifyProviderBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在提供商的订阅页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将失效。"

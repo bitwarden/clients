@@ -1,5 +1,7 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum SecureNoteType {
-  Generic = 0,
-}
+import { UnionOfValues } from "../types/union-of-values";
+
+export const SecureNoteType = {
+  Generic: 0,
+} as const;
+
+export type SecureNoteType = UnionOfValues<typeof SecureNoteType>;
