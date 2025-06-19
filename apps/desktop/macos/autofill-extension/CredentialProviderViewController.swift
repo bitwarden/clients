@@ -8,8 +8,11 @@
 import AuthenticationServices
 import os
 
+
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger: Logger
+    
+    @IBOutlet weak var statusLabel: NSTextField!
     
     // There is something a bit strange about the initialization/deinitialization in this class.
     // Sometimes deinit won't be called after a request has successfully finished,
@@ -108,7 +111,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         
         logger.log("[autofill-extension] initializing extension")
         
-        super.init(nibName: nil, bundle: nil)
+        super.init(nibName: "CredentialProviderViewController", bundle: nil)
         
         // Setup connection monitoring now that self is available
         setupConnectionMonitoring()
@@ -124,16 +127,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         // Stop the connection monitor timer
         connectionMonitorTimer?.invalidate()
         connectionMonitorTimer = nil
-    }
-    
-    
-    @IBAction func cancel(_ sender: AnyObject?) {
-        self.extensionContext.cancelRequest(withError: NSError(domain: ASExtensionErrorDomain, code: ASExtensionError.userCanceled.rawValue))
-    }
-    
-    @IBAction func passwordSelected(_ sender: AnyObject?) {
-        let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
-        self.extensionContext.completeRequest(withSelectedCredential: passwordCredential, completionHandler: nil)
     }
     
     private func getWindowPosition() -> Position {
@@ -155,16 +148,27 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         return Position(x: positionX, y: positionY)
     }
     
-    override func loadView() {
-        let view = NSView()
-        // Hide the native window since we only need the IPC connection
-        view.isHidden = true    
-        self.view = view
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Initially hide the view
+        self.view.isHidden = true
     }
     
     override func prepareInterfaceForExtensionConfiguration() {
+        // Show the configuration UI
+        self.view.isHidden = false
+        
+        // Set the localized message
+        statusLabel.stringValue = NSLocalizedString("autofillConfigurationMessage", comment: "Message shown when Bitwarden is enabled in system settings")
+        
+        // Send the native status request
         client.sendNativeStatus(key: "request-sync", value: "")
-        self.extensionContext.completeExtensionConfigurationRequest()
+        
+        // Complete the configuration after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            self?.extensionContext.completeExtensionConfigurationRequest()
+        }
     }
        
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
