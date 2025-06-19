@@ -102,8 +102,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const relevantCiphers = await this.getRelevantCiphers();
-      this.ciphersSubject.next(relevantCiphers);
+      const displayedCiphers = await this.getDisplayedCiphers();
+      this.ciphersSubject.next(displayedCiphers);
     } catch {
       await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
     }
@@ -113,7 +113,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     await this.accountService.setShowHeader(true);
   }
 
-  async addPasskeyToCipher(cipher: CipherView): Promise<void> {
+  async addCredentialToCipher(cipher: CipherView): Promise<void> {
     const isConfirmed = await this.validateCipherAccess(cipher);
     if (!this.session) {
       await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
@@ -144,7 +144,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     this.session.confirmChosenCipher(null);
   }
 
-  private async getRelevantCiphers(): Promise<CipherView[]> {
+  private async getDisplayedCiphers(): Promise<CipherView[]> {
     const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
     const rpid = await this.session?.getRpId();
     const activeUserId = await firstValueFrom(

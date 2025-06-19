@@ -152,7 +152,7 @@ describe("Fido2CreateComponent", () => {
     });
   });
 
-  describe("addPasskeyToCipher", () => {
+  describe("addCredentialToCipher", () => {
     beforeEach(() => {
       component.session = mockSession;
     });
@@ -160,7 +160,7 @@ describe("Fido2CreateComponent", () => {
     it("should add passkey to cipher", async () => {
       const cipher = createMockCiphers()[0];
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true, cipher);
     });
@@ -170,7 +170,7 @@ describe("Fido2CreateComponent", () => {
       cipher.reprompt = CipherRepromptType.Password;
       mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
@@ -182,7 +182,7 @@ describe("Fido2CreateComponent", () => {
       });
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "overwritePasskey" },
@@ -199,7 +199,7 @@ describe("Fido2CreateComponent", () => {
       });
       mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
