@@ -1,9 +1,10 @@
 import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
+import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
-import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { CipherType } from "../enums";
@@ -17,6 +18,43 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     private sdkService: SdkService,
     private logService: LogService,
   ) {}
+
+  async encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          const sdkCipherView = model.toSdkCipherView();
+
+          if (model.type === CipherType.Login && model.login?.hasFido2Credentials) {
+            // Encrypt Fido2 credentials separately
+            const fido2Credentials = model.login.fido2Credentials?.map((f) =>
+              f.toSdkFido2CredentialFullView(),
+            );
+            const encryptedFido2Credentials = fido2Credentials.map((f) =>
+              ref.value.vault().ciphers().encrypt_fido2_credentials(sdkCipherView, f),
+            );
+            sdkCipherView.login!.fido2Credentials = encryptedFido2Credentials;
+          }
+
+          const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
+
+          return {
+            cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+          };
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt cipher: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
 
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
     return firstValueFrom(

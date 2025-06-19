@@ -1,3 +1,4 @@
+import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
@@ -9,6 +10,15 @@ import { CipherView } from "../models/view/cipher.view";
  * Service responsible for encrypting and decrypting ciphers.
  */
 export abstract class CipherEncryptionService {
+  /**
+   * Encrypts a cipher using the SDK for the given userId.
+   * @param model The cipher view to encrypt
+   * @param userId The user ID to initialize the SDK client with
+   *
+   * @returns A promise that resolves to the encryption context, or undefined if encryption fails
+   */
+  abstract encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined>;
+
   /**
    * Decrypts a cipher using the SDK for the given userId.
    *
