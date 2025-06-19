@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { uuidToString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { uuidToString, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
@@ -11,7 +11,7 @@ import { DeepJsonify } from "../../../types/deep-jsonify";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
-import { LocalData } from "../data/local.data";
+import { LocalData, toSdkLocalData, fromSdkLocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
@@ -200,6 +200,8 @@ export class CipherView implements View, InitializerMetadata {
     const attachments = obj.attachments?.map((a: any) => AttachmentView.fromJSON(a));
     const fields = obj.fields?.map((f: any) => FieldView.fromJSON(f));
     const passwordHistory = obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph));
+    const permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    const key = obj.key ? EncString.fromJSON(obj.key) : undefined;
 
     Object.assign(view, obj, {
       creationDate: creationDate,
@@ -208,6 +210,8 @@ export class CipherView implements View, InitializerMetadata {
       attachments: attachments,
       fields: fields,
       passwordHistory: passwordHistory,
+      permissions: permissions,
+      key: key,
     });
 
     switch (obj.type) {
@@ -253,16 +257,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.permissions = CipherPermissionsApi.fromSdkCipherPermissions(obj.permissions);
     cipherView.edit = obj.edit;
     cipherView.viewPassword = obj.viewPassword;
-    cipherView.localData = obj.localData
-      ? {
-          lastUsedDate: obj.localData.lastUsedDate
-            ? new Date(obj.localData.lastUsedDate).getTime()
-            : undefined,
-          lastLaunched: obj.localData.lastLaunched
-            ? new Date(obj.localData.lastLaunched).getTime()
-            : undefined,
-        }
-      : undefined;
+    cipherView.localData = fromSdkLocalData(obj.localData);
     cipherView.attachments =
       obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)) ?? null;
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? null;
@@ -295,5 +290,67 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     return cipherView;
+  }
+
+  /**
+   * Maps CipherView to SdkCipherView
+   *
+   * @returns {SdkCipherView} The SDK cipher view object
+   */
+  toSdkCipherView(): SdkCipherView {
+    const sdkCipherView: SdkCipherView = {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      name: this.name ?? "",
+      notes: this.notes,
+      type: this.type ?? CipherType.Login,
+      favorite: this.favorite,
+      organizationUseTotp: this.organizationUseTotp,
+      permissions: this.permissions?.toSdkCipherPermissions(),
+      edit: this.edit,
+      viewPassword: this.viewPassword,
+      localData: toSdkLocalData(this.localData),
+      attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
+      fields: this.fields?.map((f) => f.toSdkFieldView()),
+      passwordHistory: this.passwordHistory?.map((ph) => ph.toSdkPasswordHistoryView()),
+      collectionIds: this.collectionIds?.map((i) => i) ?? [],
+      // Revision and creation dates are non-nullable in SDKCipherView
+      revisionDate: (this.revisionDate ?? new Date()).toISOString(),
+      creationDate: (this.creationDate ?? new Date()).toISOString(),
+      deletedDate: this.deletedDate?.toISOString(),
+      reprompt: this.reprompt ?? CipherRepromptType.None,
+      key: this.key?.toJSON(),
+      // Cipher type specific properties are set in the switch statement below
+      // CipherView initializes each with default constructors (undefined values)
+      // The SDK does not expect those undefined values and will throw exceptions
+      login: undefined,
+      card: undefined,
+      identity: undefined,
+      secureNote: undefined,
+      sshKey: undefined,
+    };
+
+    switch (this.type) {
+      case CipherType.Card:
+        sdkCipherView.card = this.card.toSdkCardView();
+        break;
+      case CipherType.Identity:
+        sdkCipherView.identity = this.identity.toSdkIdentityView();
+        break;
+      case CipherType.Login:
+        sdkCipherView.login = this.login.toSdkLoginView();
+        break;
+      case CipherType.SecureNote:
+        sdkCipherView.secureNote = this.secureNote.toSdkSecureNoteView();
+        break;
+      case CipherType.SshKey:
+        sdkCipherView.sshKey = this.sshKey.toSdkSshKeyView();
+        break;
+      default:
+        break;
+    }
+
+    return sdkCipherView;
   }
 }

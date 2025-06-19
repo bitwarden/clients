@@ -10,7 +10,7 @@ import { linkedFieldOption } from "../../linked-field-option.decorator";
 
 import { ItemView } from "./item.view";
 
-export class IdentityView extends ItemView {
+export class IdentityView extends ItemView implements SdkIdentityView {
   @linkedFieldOption(LinkedId.Title, { sortPosition: 0 })
   title: string = null;
   @linkedFieldOption(LinkedId.MiddleName, { sortPosition: 2 })
@@ -191,5 +191,13 @@ export class IdentityView extends ItemView {
     identityView.licenseNumber = obj.licenseNumber ?? null;
 
     return identityView;
+  }
+
+  /**
+   * Converts the IdentityView to an SDK IdentityView.
+   * The view implements the SdkView so we can safely return `this`
+   */
+  toSdkIdentityView(): SdkIdentityView {
+    return this;
   }
 }

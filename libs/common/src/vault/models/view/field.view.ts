@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { FieldView as SdkFieldView } from "@bitwarden/sdk-internal";
+import { FieldView as SdkFieldView, FieldType as SdkFieldType } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { FieldType, LinkedIdType } from "../../enums";
@@ -49,5 +49,17 @@ export class FieldView implements View {
     view.linkedId = obj.linkedId as unknown as LinkedIdType;
 
     return view;
+  }
+
+  /**
+   * Converts the FieldView to an SDK FieldView.
+   */
+  toSdkFieldView(): SdkFieldView {
+    return {
+      name: this.name ?? undefined,
+      value: this.value ?? undefined,
+      type: this.type ?? SdkFieldType.Text,
+      linkedId: this.linkedId ?? undefined,
+    };
   }
 }

@@ -129,6 +129,15 @@ export class LoginUriView implements View {
     return view;
   }
 
+  /** Converts a LoginUriView object to an SDK LoginUriView object. */
+  toSdkLoginUriView(): SdkLoginUriView {
+    return {
+      uri: this.uri ?? undefined,
+      match: this.match ?? undefined,
+      uriChecksum: undefined, // SDK handles uri checksum generation internally
+    };
+  }
+
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
