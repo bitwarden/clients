@@ -147,11 +147,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         // passkey modals are 600x600.
         let modalHeight: CGFloat = 600;
         let modalWidth: CGFloat = 600;
-        let centerX = Int32(round(frame.origin.x + estimatedWidth/2))
-        let centerY = Int32(round(screenHeight - (frame.origin.y + estimatedHeight/2)))
+        let centerX = round(frame.origin.x + estimatedWidth/2)
+        let centerY = round(screenHeight - (frame.origin.y + estimatedHeight/2))
         // Check if centerX or centerY are beyond either edge of the screen.  If they are find the center of the screen, otherwise use the original value.
-        let positionX = CGFloat(centerX) + modalWidth >= screenWidth || CGFloat(centerX) - modalWidth <= 0 ? Int32(screenWidth/2) : centerX
-        let positionY = CGFloat(centerY) + modalHeight >= screenHeight || CGFloat(centerY) - modalHeight <= 0 ? Int32(screenHeight/2) : centerY
+        let positionX = centerX + modalWidth >= screenWidth || CGFloat(centerX) - modalWidth <= 0 ? Int32(screenWidth/2) : Int32(centerX)
+        let positionY = centerY + modalHeight >= screenHeight || CGFloat(centerY) - modalHeight <= 0 ? Int32(screenHeight/2) : Int32(centerY)
         return Position(x: positionX, y: positionY)
     }
     
