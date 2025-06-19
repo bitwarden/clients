@@ -13,6 +13,8 @@ import {
 
 export type AdvancedUriOptionDialogParams = {
   contentKey: string;
+  onContinue?: () => void;
+  onCancel?: () => void;
 };
 
 @Component({
@@ -30,10 +32,12 @@ export class AdvancedUriOptionDialogComponent {
   }
 
   cancelClick() {
+    this.params.onCancel?.();
     this.dialogRef.close(false);
   }
 
   continueClick() {
+    this.params.onContinue?.();
     this.dialogRef.close(true);
   }
 

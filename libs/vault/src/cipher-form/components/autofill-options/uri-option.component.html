@@ -46,11 +46,12 @@
           [disabled]="o.disabled"
         ></bit-option>
       </bit-select>
-      <bit-hint *ngIf="getMatchHintKey() as hintKey">
-        <b *ngIf="hintKey !== 'uriMatchDefaultStrategyHint'">
-          {{ "warningCapitalized" | i18n }}:
-        </b>
-        {{ hintKey | i18n }}
+      <bit-hint *ngIf="getMatchHints() as hints">
+        {{ hints[0] | i18n }}
+        <ng-container *ngIf="hints.length > 1">
+          <b>{{ "warningCapitalized" | i18n }}:</b>
+          {{ hints[1] | i18n }}
+        </ng-container>
       </bit-hint>
     </bit-form-field>
   </div>

@@ -4217,7 +4217,7 @@
     "description": "Hint which warns a user when selecting starts with matching strategy as a cipher match strategy"
   },
    "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions. This default is used when one isn't provided at the login item level.",
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."  
   },
    "uriMatchWarningDialogRegExContent": {

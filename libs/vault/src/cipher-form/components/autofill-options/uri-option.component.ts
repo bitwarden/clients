@@ -18,7 +18,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { pairwise } from "rxjs";
+import { concatMap, pairwise } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -178,20 +178,35 @@ export class UriOptionComponent implements ControlValueAccessor {
       this.onTouched();
     });
 
-    this.uriForm
-      .get("matchDetection")
-      ?.valueChanges.pipe(takeUntilDestroyed(), pairwise())
-      .subscribe(([prev, curr]) => {
-        if (
-          (curr === UriMatchStrategy.StartsWith || curr === UriMatchStrategy.RegularExpression) &&
-          prev !== curr
-        ) {
-          const contentKey = this.advancedContentKeyMap[curr];
-          if (contentKey) {
-            AdvancedUriOptionDialogComponent.open(this.dialogService, { contentKey });
-          }
-        }
-      });
+    this.uriForm.controls.matchDetection.valueChanges
+      .pipe(
+        pairwise(),
+        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
+
+  private async handleAdvancedMatch(
+    previous: UriMatchStrategySetting,
+    current: UriMatchStrategySetting,
+  ) {
+    const valueChange = previous !== current;
+    const isAdvanced =
+      current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
+
+    if (!valueChange || !isAdvanced) {
+      return;
+    }
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedContentKeyMap[current],
+      onContinue: () => {
+        this.uriForm.controls.matchDetection.setValue(current);
+      },
+      onCancel: () => {
+        this.uriForm.controls.matchDetection.setValue(previous);
+      },
+    });
   }
 
   focusInput() {
@@ -229,11 +244,15 @@ export class UriOptionComponent implements ControlValueAccessor {
     isDisabled ? this.uriForm.disable() : this.uriForm.enable();
   }
 
-  getMatchHintKey(): string {
+  getMatchHints() {
+    const hints = ["uriMatchDefaultStrategyHint"];
     const strategy = this.uriForm.get("matchDetection")?.value;
-    if (strategy === null) {
-      return "uriMatchDefaultStrategyHint";
+    if (
+      strategy === UriMatchStrategy.StartsWith ||
+      strategy === UriMatchStrategy.RegularExpression
+    ) {
+      hints.push(this.hintMap[strategy]);
     }
-    return this.hintMap[strategy] || "";
+    return hints;
   }
 }
