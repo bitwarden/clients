@@ -85,4 +85,21 @@ export class SshKey extends Domain {
       fingerprint: this.keyFingerprint.toJSON(),
     };
   }
+
+  /**
+   * Maps an SDK SshKey object to a SshKey
+   * @param obj - The SDK SshKey object
+   */
+  static fromSdkSshKey(obj: SdkSshKey): SshKey | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const sshKey = new SshKey();
+    sshKey.privateKey = EncString.fromJSON(obj.privateKey);
+    sshKey.publicKey = EncString.fromJSON(obj.publicKey);
+    sshKey.keyFingerprint = EncString.fromJSON(obj.fingerprint);
+
+    return sshKey;
+  }
 }

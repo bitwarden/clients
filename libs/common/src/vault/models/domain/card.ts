@@ -103,4 +103,24 @@ export class Card extends Domain {
       code: this.code?.toJSON(),
     };
   }
+
+  /**
+   * Maps an SDK Card object to a Card
+   * @param obj - The SDK Card object
+   */
+  static fromSdkCard(obj: SdkCard): Card | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const card = new Card();
+    card.cardholderName = EncString.fromJSON(obj.cardholderName);
+    card.brand = EncString.fromJSON(obj.brand);
+    card.number = EncString.fromJSON(obj.number);
+    card.expMonth = EncString.fromJSON(obj.expMonth);
+    card.expYear = EncString.fromJSON(obj.expYear);
+    card.code = EncString.fromJSON(obj.code);
+
+    return card;
+  }
 }

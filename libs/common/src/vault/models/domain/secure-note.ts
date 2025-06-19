@@ -54,4 +54,19 @@ export class SecureNote extends Domain {
       type: this.type,
     };
   }
+
+  /**
+   * Maps an SDK SecureNote object to a SecureNote
+   * @param obj - The SDK SecureNote object
+   */
+  static fromSdkSecureNote(obj: SdkSecureNote): SecureNote | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const secureNote = new SecureNote();
+    secureNote.type = obj.type;
+
+    return secureNote;
+  }
 }

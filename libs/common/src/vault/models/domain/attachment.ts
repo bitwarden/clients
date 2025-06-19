@@ -131,4 +131,24 @@ export class Attachment extends Domain {
       key: this.key?.toJSON(),
     };
   }
+
+  /**
+   * Maps an SDK Attachment object to an Attachment
+   * @param obj - The SDK attachment object
+   */
+  static fromSdkAttachment(obj: SdkAttachment): Attachment | undefined {
+    if (!obj) {
+      return undefined;
+    }
+
+    const attachment = new Attachment();
+    attachment.id = obj.id;
+    attachment.url = obj.url;
+    attachment.size = obj.size;
+    attachment.sizeName = obj.sizeName;
+    attachment.fileName = EncString.fromJSON(obj.fileName);
+    attachment.key = EncString.fromJSON(obj.key);
+
+    return attachment;
+  }
 }
