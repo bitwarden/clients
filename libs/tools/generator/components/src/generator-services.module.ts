@@ -1,4 +1,5 @@
 import { NgModule } from "@angular/core";
+import { from, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -116,7 +117,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
     }),
     safeProvider({
       provide: GENERATOR_SERVICE_PROVIDER,
-      useFactory: async (
+      useFactory: (
         system: SystemServiceProvider,
         random: Randomizer,
         encryptor: LegacyEncryptorProvider,
@@ -131,11 +132,16 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           now: Date.now,
         } satisfies UserStateSubjectDependencyProvider;
 
+        const featureFlagObs$ = from(
+          system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
+        );
+        let featureFlag = undefined;
+        featureFlagObs$.pipe(take(1)).subscribe((ff) => (featureFlag = ff));
         const metadata = new providers.GeneratorMetadataProvider(
           userStateDeps,
           system,
           Object.values(BuiltIn),
-          await system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
+          featureFlag,
         );
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
