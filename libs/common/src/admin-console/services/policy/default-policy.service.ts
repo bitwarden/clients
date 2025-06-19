@@ -239,7 +239,7 @@ export class DefaultPolicyService implements PolicyService {
         // restricted item types policy
         return false;
       case PolicyType.OrganizationDataOwnership:
-        // individual vault policy applies to everyone except admins and owners
+        // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;
       default:
         return organization.canManagePolicies;
