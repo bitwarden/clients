@@ -1,4 +1,4 @@
-import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -11,7 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { KeyService, BiometricStateService, BiometricsCommands } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -81,9 +81,6 @@ export class NativeMessagingBackground {
 
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
-
-  isConnectedToOutdatedDesktopClient = true;
-
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -137,7 +134,6 @@ export class NativeMessagingBackground {
       // Safari has a bundled native component which is always available, no need to
       // check if the desktop app is running.
       if (this.platformUtilsService.isSafari()) {
-        this.isConnectedToOutdatedDesktopClient = false;
         connectedCallback();
       }
 
@@ -188,14 +184,6 @@ export class NativeMessagingBackground {
 
             this.secureChannel.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.logService.info("[Native Messaging IPC] Secure channel established");
-
-            if ("messageId" in message) {
-              this.logService.info("[Native Messaging IPC] Non-legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = false;
-            } else {
-              this.logService.info("[Native Messaging IPC] Legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = true;
-            }
 
             this.secureChannel.setupResolve();
             break;
@@ -285,29 +273,6 @@ export class NativeMessagingBackground {
 
   async callCommand(message: Message): Promise<any> {
     const messageId = this.messageId++;
-
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      // TODO remove after 2025.3
-      // wait until there is no other callbacks, or timeout
-      const call = await firstValueFrom(
-        race(
-          from([false]).pipe(delay(5000)),
-          timer(0, 100).pipe(
-            filter(() => this.callbacks.size === 0),
-            map(() => true),
-          ),
-        ),
-      );
-      if (!call) {
-        this.logService.info(
-          `[Native Messaging IPC] Message of type ${message.command} did not get a response before timing out`,
-        );
-        return;
-      }
-    }
 
     const callback = new Promise((resolver, rejecter) => {
       this.callbacks.set(messageId, { resolver, rejecter });
@@ -416,22 +381,6 @@ export class NativeMessagingBackground {
     }
 
     const messageId = message.messageId;
-
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      this.logService.info(
-        `[Native Messaging IPC] Received legacy message of type ${message.command}`,
-      );
-      const messageId: number | undefined = this.callbacks.keys().next().value;
-      if (messageId != null) {
-        const resolver = this.callbacks.get(messageId);
-        this.callbacks.delete(messageId);
-        resolver!.resolver(message);
-      }
-      return;
-    }
 
     if (this.callbacks.has(messageId)) {
       const callback = this.callbacks!.get(messageId)!;

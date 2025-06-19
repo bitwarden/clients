@@ -35,7 +35,6 @@ type ChangeAvatarDialogData = {
 @Component({
   templateUrl: "change-avatar-dialog.component.html",
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
   imports: [SharedModule, SelectableAvatarComponent],
 })
 export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {

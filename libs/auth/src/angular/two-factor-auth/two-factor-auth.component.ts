@@ -41,6 +41,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -49,7 +50,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import {
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthEmailIcon,
@@ -77,7 +77,6 @@ import {
 } from "./two-factor-options.component";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth",
   templateUrl: "two-factor-auth.component.html",
   imports: [
@@ -266,6 +265,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   private listenForAuthnSessionTimeout() {
     this.loginStrategyService.authenticationSessionTimeout$
       .pipe(takeUntilDestroyed(this.destroyRef))
+      // TODO: Fix this!
+      // eslint-disable-next-line rxjs/no-async-subscribe
       .subscribe(async (expired) => {
         if (!expired) {
           return;

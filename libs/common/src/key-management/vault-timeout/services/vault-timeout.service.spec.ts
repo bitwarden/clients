@@ -417,16 +417,12 @@ describe("VaultTimeoutService", () => {
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user1");
     });
 
-    it("should call locked callback if no user passed into lock", async () => {
+    it("should call locked callback with the locking user if no userID is passed in.", async () => {
       setupLock();
 
       await vaultTimeoutService.lock();
 
-      // Currently these pass `undefined` (or what they were given) as the userId back
-      // but we could change this to give the user that was locked (active) to these methods
-      // so they don't have to get it their own way, but that is a behavioral change that needs
-      // to be tested.
-      expect(lockedCallback).toHaveBeenCalledWith(undefined);
+      expect(lockedCallback).toHaveBeenCalledWith("user1");
     });
 
     it("should call state event runner with user passed into lock", async () => {

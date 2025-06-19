@@ -1,12 +1,19 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  isCipherViewRestricted,
+  RestrictedCipherType,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherView) => boolean;
 
-export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
+export function createFilterFunction(
+  filter: RoutedVaultFilterModel,
+  restrictedTypes?: RestrictedCipherType[],
+): FilterFunction {
   return (cipher) => {
     if (filter.type === "favorites" && !cipher.favorite) {
       return false;
@@ -79,7 +86,10 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     ) {
       return false;
     }
-
+    // Restricted types
+    if (restrictedTypes && isCipherViewRestricted(cipher, restrictedTypes)) {
+      return false;
+    }
     return true;
   };
 }
