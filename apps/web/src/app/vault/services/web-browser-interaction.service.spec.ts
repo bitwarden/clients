@@ -1,5 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { WebBrowserInteractionService } from "./web-browser-interaction.service";
@@ -74,6 +75,17 @@ describe("WebBrowserInteractionService", () => {
 
       expect(postMessage).toHaveBeenCalledWith({
         command: VaultMessages.OpenBrowserExtensionToPage,
+      });
+
+      jest.advanceTimersByTime(1000);
+    });
+
+    it("posts a message with the passed page", async () => {
+      service.openExtension(ExtensionPageUrls.Default).catch(() => {});
+
+      expect(postMessage).toHaveBeenCalledWith({
+        command: VaultMessages.OpenBrowserExtensionToPage,
+        page: ExtensionPageUrls.Default,
       });
 
       jest.advanceTimersByTime(1000);
