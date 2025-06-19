@@ -124,7 +124,10 @@ export class LoginView extends ItemView {
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
     loginView.totp = obj.totp ?? null;
     loginView.autofillOnPageLoad = obj.autofillOnPageLoad ?? null;
-    loginView.uris = obj.uris?.map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
+    loginView.uris =
+      obj.uris
+        ?.filter((uri) => uri.uri != null && uri.uri !== "")
+        .map((uri) => LoginUriView.fromSdkLoginUriView(uri)) || [];
     // FIDO2 credentials are not decrypted here, they remain encrypted
     loginView.fido2Credentials = null;
 

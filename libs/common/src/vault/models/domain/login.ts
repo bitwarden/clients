@@ -175,7 +175,8 @@ export class Login extends Domain {
 
     const login = new Login();
 
-    login.uris = obj.uris?.map((uri) => LoginUri.fromSdkLoginUri(uri)) ?? [];
+    login.uris =
+      obj.uris?.filter((u) => u.uri != null).map((uri) => LoginUri.fromSdkLoginUri(uri)) ?? [];
     login.username = EncString.fromJSON(obj.username);
     login.password = EncString.fromJSON(obj.password);
     login.passwordRevisionDate = obj.passwordRevisionDate
