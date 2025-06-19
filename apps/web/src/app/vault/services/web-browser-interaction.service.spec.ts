@@ -67,4 +67,37 @@ describe("WebBrowserInteractionService", () => {
       });
     });
   });
+
+  describe("openExtension", () => {
+    it("posts a message to open the extension", async () => {
+      service.openExtension().catch(() => {});
+
+      expect(postMessage).toHaveBeenCalledWith({
+        command: VaultMessages.OpenBrowserExtensionToPage,
+      });
+
+      jest.advanceTimersByTime(1000);
+    });
+
+    it("resolves when the extension opens", async () => {
+      const openExtensionPromise = service.openExtension().catch(() => {
+        fail();
+      });
+
+      window.dispatchEvent(
+        new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
+      );
+
+      await openExtensionPromise;
+    });
+
+    it("rejects if the extension does not open within the timeout", (done) => {
+      service.openExtension().catch((error) => {
+        expect(error).toBe("Extension failed to open");
+        done();
+      });
+
+      jest.advanceTimersByTime(1000);
+    });
+  });
 });

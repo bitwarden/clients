@@ -1,3 +1,5 @@
+import { PopupPageUrls } from "@bitwarden/common/vault/enums";
+
 type ContentMessageWindowData = {
   command: string;
   lastpass?: boolean;
@@ -5,6 +7,7 @@ type ContentMessageWindowData = {
   state?: string;
   data?: string;
   remember?: boolean;
+  page?: PopupPageUrls;
 };
 type ContentMessageWindowEventParams = {
   data: ContentMessageWindowData;
