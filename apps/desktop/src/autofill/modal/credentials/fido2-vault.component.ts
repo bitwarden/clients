@@ -52,8 +52,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
   ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  private cipherIdsSubject = new BehaviorSubject<string[]>([]);
-  cipherIds$: Observable<string[]>;
+  cipherIds$: Observable<string[]> | undefined;
   readonly Icons = { BitwardenShield };
 
   constructor(
@@ -66,14 +65,48 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     private readonly router: Router,
   ) {}
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     await this.accountService.setShowHeader(false);
+    this.session = this.fido2UserInterfaceService.getCurrentSession();
+    this.cipherIds$ = this.session.availableCipherIds$;
+    await this.loadCiphers();
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    await this.accountService.setShowHeader(true);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async chooseCipher(cipher: CipherView): Promise<void> {
+    if (!this.session) {
+      this.logService.error("No active FIDO2 session");
+      return;
+    }
+
+    const isConfirmed = await this.validateCipherAccess(cipher);
+    this.session.confirmChosenCipher(cipher.id, isConfirmed);
+
+    await this.resetModalState();
+  }
+
+  async closeModal(): Promise<void> {
+    await this.resetModalState();
+
+    if (this.session) {
+      this.session.notifyConfirmCreateCredential(false);
+      this.session.confirmChosenCipher(null);
+    }
+  }
+
+  private async loadCiphers(): Promise<void> {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
-    this.session = this.fido2UserInterfaceService.getCurrentSession();
-    this.cipherIds$ = this.session?.availableCipherIds$;
+    if (!activeUserId) {
+      return;
+    }
 
     this.cipherIds$.pipe(takeUntil(this.destroy$)).subscribe((cipherIds) => {
       this.cipherService
@@ -81,34 +114,22 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
         .then((ciphers) => {
           this.ciphersSubject.next(ciphers.filter((cipher) => !cipher.deletedDate));
         })
-        .catch((error) => this.logService.error(error));
+        .catch((error) => {
+          this.logService.error("Failed to load ciphers", error);
+        });
     });
   }
 
-  async ngOnDestroy() {
-    await this.accountService.setShowHeader(true);
-    this.cipherIdsSubject.complete(); // Clean up the BehaviorSubject
-  }
-
-  async chooseCipher(cipher: CipherView) {
-    if (
-      cipher.reprompt !== CipherRepromptType.None &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      this.session?.confirmChosenCipher(cipher.id, false);
-    } else {
-      this.session?.confirmChosenCipher(cipher.id, true);
+  private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
+    if (cipher.reprompt !== CipherRepromptType.None) {
+      return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setModalMode(false);
+    return true;
   }
 
-  async closeModal() {
+  private async resetModalState(): Promise<void> {
     await this.router.navigate(["/"]);
     await this.desktopSettingsService.setModalMode(false);
-
-    this.session.notifyConfirmCreateCredential(false);
-    this.session.confirmChosenCipher(null);
   }
 }
