@@ -1,4 +1,4 @@
-import { PopupPageUrls } from "@bitwarden/common/vault/enums";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 
 type ContentMessageWindowData = {
   command: string;
@@ -7,7 +7,7 @@ type ContentMessageWindowData = {
   state?: string;
   data?: string;
   remember?: boolean;
-  page?: PopupPageUrls;
+  page?: ExtensionPageUrls;
 };
 type ContentMessageWindowEventParams = {
   data: ContentMessageWindowData;

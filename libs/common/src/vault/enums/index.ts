@@ -3,4 +3,4 @@ export * from "./cipher-type";
 export * from "./field-type.enum";
 export * from "./linked-id-type.enum";
 export * from "./secure-note-type.enum";
-export * from "./popup-page-urls.enum";
+export * from "./extension-page-urls.enum";

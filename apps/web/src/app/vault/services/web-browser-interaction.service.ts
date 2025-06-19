@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { BehaviorSubject, filter, first, fromEvent, takeUntil, tap, timer } from "rxjs";
 
-import { PopupPageUrls } from "@bitwarden/common/vault/enums";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 @Injectable({
@@ -27,7 +27,7 @@ export class WebBrowserInteractionService {
   );
 
   /** Attempts to open the extension, rejects if the extension is not installed or it fails to open.  */
-  openExtension = (page?: PopupPageUrls) => {
+  openExtension = (page?: ExtensionPageUrls) => {
     return new Promise<void>((resolve, reject) => {
       if (this._extensionInstalled$.getValue() === false) {
         return reject("Extension is not installed");

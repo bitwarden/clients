@@ -1,4 +1,4 @@
-import { PopupPageUrls } from "@bitwarden/common/vault/enums";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import {
@@ -80,7 +80,7 @@ function handleOpenAtRiskPasswordsMessage() {
   sendExtensionRuntimeMessage({ command: VaultMessages.OpenAtRiskPasswords });
 }
 
-function handleOpenBrowserExtensionToPageMessage({ page }: { page?: PopupPageUrls }) {
+function handleOpenBrowserExtensionToPageMessage({ page }: { page?: ExtensionPageUrls }) {
   sendExtensionRuntimeMessage({ command: VaultMessages.OpenBrowserExtensionToPage, page });
 }
 
