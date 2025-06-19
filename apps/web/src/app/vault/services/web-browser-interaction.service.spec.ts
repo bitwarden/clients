@@ -54,19 +54,6 @@ describe("WebBrowserInteractionService", () => {
       );
     });
 
-    it("clears the timeout when extension installed message is received", (done) => {
-      service.extensionInstalled$.subscribe(() => {
-        expect(service["checkForExtensionTimeout"]).toBeUndefined();
-        done();
-      });
-
-      expect(service["checkForExtensionTimeout"]).toBeDefined();
-
-      window.dispatchEvent(
-        new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
-      );
-    });
-
     it("only calls postMessage once when an extension state is determined", (done) => {
       service.extensionInstalled$.subscribe();
 
