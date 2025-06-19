@@ -1,9 +1,15 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, filter, first, fromEvent, takeUntil, tap, timer } from "rxjs";
+import { BehaviorSubject, filter, fromEvent, map, race, take, tap, timer } from "rxjs";
 
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+
+/**
+ * The amount of time in milliseconds to wait for a response from the browser extension.
+ * NOTE: This value isn't computed by any means, it is just a reasonable timeout for the extension to respond.
+ */
+const MESSAGE_RESPONSE_TIMEOUT_MS = 1500;
 
 @Injectable({
   providedIn: "root",
@@ -12,8 +18,6 @@ export class WebBrowserInteractionService {
   destroyRef = inject(DestroyRef);
 
   private _extensionInstalled$ = new BehaviorSubject<boolean | null>(null);
-
-  private checkForExtensionTimeout: number | undefined;
 
   private messages$ = fromEvent<MessageEvent>(window, "message").pipe(
     takeUntilDestroyed(this.destroyRef),
@@ -33,19 +37,20 @@ export class WebBrowserInteractionService {
         return reject("Extension is not installed");
       }
 
-      this.messages$
-        .pipe(
+      race(
+        this.messages$.pipe(
           filter((event) => event.data.command === VaultMessages.PopupOpened),
-          first(),
-          takeUntil(timer(1000)), // only wait a second for the extension to respond.
-        )
-        .subscribe({
-          next: () => {
-            resolve();
-          },
-          complete: () => {
-            return reject("Extension failed to open");
-          },
+          map(() => true),
+        ),
+        timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+      )
+        .pipe(take(1))
+        .subscribe((didOpen) => {
+          if (!didOpen) {
+            return reject("Failed to open the extension");
+          }
+
+          resolve();
         });
 
       window.postMessage({ command: VaultMessages.OpenBrowserExtensionToPage, page });
@@ -55,33 +60,21 @@ export class WebBrowserInteractionService {
   /** Sends a message via the window object to check if the extension is installed */
   private checkForExtension(isExtensionInstalled: boolean | null) {
     if (isExtensionInstalled !== null) {
-      this.clearExtensionTimeout();
       return;
     }
 
-    this.messages$
-      .pipe(
+    race(
+      this.messages$.pipe(
         filter((event) => event.data.command === VaultMessages.HasBwInstalled),
-        first(),
-        takeUntil(timer(1000)), // Timeout after 1 second
-      )
-      .subscribe({
-        next: () => {
-          this._extensionInstalled$.next(true);
-        },
-        complete: () => {
-          this._extensionInstalled$.next(false);
-        },
+        map(() => true),
+      ),
+      timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+    )
+      .pipe(take(1))
+      .subscribe((installed) => {
+        this._extensionInstalled$.next(installed);
       });
 
     window.postMessage({ command: VaultMessages.checkBwInstalled });
-  }
-
-  /** When populated, clears the check extension timeout and clears the value */
-  private clearExtensionTimeout() {
-    if (this.checkForExtensionTimeout) {
-      window.clearTimeout(this.checkForExtensionTimeout);
-      this.checkForExtensionTimeout = undefined;
-    }
   }
 }

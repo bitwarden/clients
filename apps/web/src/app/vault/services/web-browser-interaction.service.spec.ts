@@ -1,4 +1,4 @@
-import { TestBed } from "@angular/core/testing";
+import { fakeAsync, TestBed, tick } from "@angular/core/testing";
 
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -15,15 +15,9 @@ describe("WebBrowserInteractionService", () => {
       providers: [WebBrowserInteractionService],
     });
 
-    jest.useFakeTimers();
     postMessage.mockClear();
 
     service = TestBed.inject(WebBrowserInteractionService);
-  });
-
-  afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
   });
 
   describe("extensionInstalled$", () => {
@@ -35,14 +29,13 @@ describe("WebBrowserInteractionService", () => {
       });
     });
 
-    it("returns false after the timeout", (done) => {
+    it("returns false after the timeout", fakeAsync(() => {
       service.extensionInstalled$.subscribe((installed) => {
         expect(installed).toBe(false);
-        done();
       });
 
-      jest.advanceTimersByTime(1000);
-    });
+      tick(1500);
+    }));
 
     it("returns true when the extension is installed", (done) => {
       service.extensionInstalled$.subscribe((installed) => {
@@ -70,17 +63,17 @@ describe("WebBrowserInteractionService", () => {
   });
 
   describe("openExtension", () => {
-    it("posts a message to open the extension", async () => {
+    it("posts a message to open the extension", fakeAsync(() => {
       service.openExtension().catch(() => {});
 
       expect(postMessage).toHaveBeenCalledWith({
         command: VaultMessages.OpenBrowserExtensionToPage,
       });
 
-      jest.advanceTimersByTime(1000);
-    });
+      tick(1500);
+    }));
 
-    it("posts a message with the passed page", async () => {
+    it("posts a message with the passed page", fakeAsync(() => {
       service.openExtension(ExtensionPageUrls.Index).catch(() => {});
 
       expect(postMessage).toHaveBeenCalledWith({
@@ -88,8 +81,8 @@ describe("WebBrowserInteractionService", () => {
         page: ExtensionPageUrls.Index,
       });
 
-      jest.advanceTimersByTime(1000);
-    });
+      tick(1500);
+    }));
 
     it("resolves when the extension opens", async () => {
       const openExtensionPromise = service.openExtension().catch(() => {
@@ -103,13 +96,12 @@ describe("WebBrowserInteractionService", () => {
       await openExtensionPromise;
     });
 
-    it("rejects if the extension does not open within the timeout", (done) => {
+    it("rejects if the extension does not open within the timeout", fakeAsync(() => {
       service.openExtension().catch((error) => {
-        expect(error).toBe("Extension failed to open");
-        done();
+        expect(error).toBe("Failed to open the extension");
       });
 
-      jest.advanceTimersByTime(1000);
-    });
+      tick(1500);
+    }));
   });
 });
