@@ -125,10 +125,11 @@ export class UpdateBadge {
   }
 
   async setBadgeIcon(iconSuffix: string, windowId?: number) {
+    const safariSuffix = BrowserPlatformUtilsService.isSafari(this.win) ? "_transparent" : "";
     const options: IconDetails = {
       path: {
-        19: "/images/icon19" + iconSuffix + ".png",
-        38: "/images/icon38" + iconSuffix + ".png",
+        19: "/images/icon19" + iconSuffix + safariSuffix + ".png",
+        38: "/images/icon38" + iconSuffix + safariSuffix + ".png",
       },
     };
     if (windowId && this.platformUtilsService.isFirefox()) {
