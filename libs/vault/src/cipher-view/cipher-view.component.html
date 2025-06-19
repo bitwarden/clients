@@ -67,12 +67,12 @@
   </ng-container>
 
   <!-- CUSTOM FIELDS -->
-  <ng-container *ngIf="cipher.fields">
+  <ng-container *ngIf="cipher.hasFields">
     <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
   </ng-container>
 
   <!-- ATTACHMENTS SECTION -->
-  <ng-container *ngIf="cipher.attachments">
+  <ng-container *ngIf="cipher.hasAttachments">
     <app-attachments-v2-view
       [emergencyAccessId]="emergencyAccessId"
       [cipher]="cipher"

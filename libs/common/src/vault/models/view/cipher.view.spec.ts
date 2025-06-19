@@ -198,7 +198,7 @@ describe("CipherView", () => {
             __fromSdk: true,
           },
         ],
-        passwordHistory: null,
+        passwordHistory: [],
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         revisionDate: new Date("2022-01-02T12:00:00.000Z"),
         deletedDate: null,

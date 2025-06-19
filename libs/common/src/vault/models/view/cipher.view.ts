@@ -43,9 +43,9 @@ export class CipherView implements View, InitializerMetadata {
   card = new CardView();
   secureNote = new SecureNoteView();
   sshKey = new SshKeyView();
-  attachments: AttachmentView[] = null;
-  fields: FieldView[] = null;
-  passwordHistory: PasswordHistoryView[] = null;
+  attachments: AttachmentView[] = [];
+  fields: FieldView[] = [];
+  passwordHistory: PasswordHistoryView[] = [];
   collectionIds: string[] = null;
   revisionDate: Date = null;
   creationDate: Date = null;
@@ -259,11 +259,11 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.viewPassword = obj.viewPassword;
     cipherView.localData = fromSdkLocalData(obj.localData);
     cipherView.attachments =
-      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)) ?? null;
-    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? null;
+      obj.attachments?.map((a) => AttachmentView.fromSdkAttachmentView(a)) ?? [];
+    cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? [];
     cipherView.passwordHistory =
-      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? null;
-    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidToString(i)) ?? null;
+      obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? [];
+    cipherView.collectionIds = obj.collectionIds?.map((i) => uuidToString(i)) ?? [];
     cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
