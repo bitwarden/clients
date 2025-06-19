@@ -25,7 +25,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   CipherService,
   EncryptionContext,
@@ -84,7 +84,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   showCardNumber = false;
   showCardCode = false;
   cipherType = CipherType;
-  typeOptions: any[];
   cardBrandOptions: any[];
   cardExpMonthOptions: any[];
   identityTitleOptions: any[];
@@ -139,13 +138,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected sdkService: SdkService,
     private sshImportPromptService: SshImportPromptService,
   ) {
-    this.typeOptions = [
-      { name: i18nService.t("typeLogin"), value: CipherType.Login },
-      { name: i18nService.t("typeCard"), value: CipherType.Card },
-      { name: i18nService.t("typeIdentity"), value: CipherType.Identity },
-      { name: i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
-    ];
-
     this.cardBrandOptions = [
       { name: "-- " + i18nService.t("select") + " --", value: null },
       { name: "Visa", value: "Visa" },
@@ -215,8 +207,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
-
-    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {
@@ -348,7 +338,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
       this.cipher,
-      [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
 
