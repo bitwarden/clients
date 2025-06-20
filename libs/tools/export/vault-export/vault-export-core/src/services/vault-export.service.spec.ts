@@ -163,7 +163,7 @@ describe("VaultExportService", () => {
   let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
-  let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -192,8 +192,10 @@ describe("VaultExportService", () => {
     accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
     restrictedItemTypesService = {
-      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]).asObservable(),
-    } as RestrictedItemTypesService;
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+      isCipherRestricted: jest.fn().mockReturnValue(false),
+      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
+    };
 
     exportService = new IndividualVaultExportService(
       folderService,
@@ -205,7 +207,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
-      restrictedItemTypesService,
+      restrictedItemTypesService as RestrictedItemTypesService,
     );
   });
 

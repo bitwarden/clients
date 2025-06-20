@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -12,7 +12,7 @@ import { CliRestrictedItemTypesService } from "./cli-restricted-item-types.servi
 describe("CliRestrictedItemTypesService", () => {
   let service: CliRestrictedItemTypesService;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
-  let restrictedItemTypesService: RestrictedItemTypesService;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
 
   const cardCipher: CipherView = {
     id: "cipher1",
@@ -36,15 +36,24 @@ describe("CliRestrictedItemTypesService", () => {
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
     restrictedItemTypesService = {
-      restricted$: restrictedSubject.asObservable(),
-    } as RestrictedItemTypesService;
+      restricted$: restrictedSubject,
+      isCipherRestricted: jest.fn(),
+      isCipherRestricted$: jest.fn(),
+    };
 
-    service = new CliRestrictedItemTypesService(restrictedItemTypesService);
+    service = new CliRestrictedItemTypesService(
+      restrictedItemTypesService as RestrictedItemTypesService,
+    );
   });
 
   describe("filterRestrictedCiphers", () => {
     it("filters out restricted cipher types from array", async () => {
       restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+
+      (restrictedItemTypesService.isCipherRestricted as jest.Mock)
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(false);
       const ciphers = [cardCipher, loginCipher, identityCipher];
 
       const result = await service.filterRestrictedCiphers(ciphers);
@@ -54,6 +63,8 @@ describe("CliRestrictedItemTypesService", () => {
 
     it("returns all ciphers when no restrictions exist", async () => {
       restrictedSubject.next([]);
+
+      (restrictedItemTypesService.isCipherRestricted as jest.Mock).mockReturnValue(false);
 
       const ciphers = [cardCipher, loginCipher, identityCipher];
       const result = await service.filterRestrictedCiphers(ciphers);
@@ -70,28 +81,28 @@ describe("CliRestrictedItemTypesService", () => {
 
   describe("isCipherRestricted", () => {
     it("returns true for restricted cipher type with no organization exemptions", async () => {
-      restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+      (restrictedItemTypesService.isCipherRestricted$ as jest.Mock).mockReturnValue(of(true));
 
       const result = await service.isCipherRestricted(cardCipher);
       expect(result).toBe(true);
     });
 
     it("returns false for non-restricted cipher type", async () => {
-      restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
+      (restrictedItemTypesService.isCipherRestricted$ as jest.Mock).mockReturnValue(of(false));
 
       const result = await service.isCipherRestricted(loginCipher);
       expect(result).toBe(false);
     });
 
     it("returns false when no restrictions exist", async () => {
-      restrictedSubject.next([]);
+      (restrictedItemTypesService.isCipherRestricted$ as jest.Mock).mockReturnValue(of(false));
 
       const result = await service.isCipherRestricted(cardCipher);
       expect(result).toBe(false);
     });
 
     it("returns false for organization cipher when organization is in allowViewOrgIds", async () => {
-      restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: ["org1"] }]);
+      (restrictedItemTypesService.isCipherRestricted$ as jest.Mock).mockReturnValue(of(false));
 
       const result = await service.isCipherRestricted(cardCipher);
       expect(result).toBe(false);

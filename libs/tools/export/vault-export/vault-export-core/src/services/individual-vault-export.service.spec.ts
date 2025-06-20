@@ -175,7 +175,7 @@ describe("VaultExportService", () => {
   let accountService: MockProxy<AccountService>;
   let apiService: MockProxy<ApiService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
-  let restrictedItemTypesService: RestrictedItemTypesService;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
   let fetchMock: jest.Mock;
 
   const userId = "" as UserId;
@@ -194,8 +194,10 @@ describe("VaultExportService", () => {
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
     restrictedItemTypesService = {
-      restricted$: restrictedSubject.asObservable(),
-    } as RestrictedItemTypesService;
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+      isCipherRestricted: jest.fn().mockReturnValue(false),
+      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
+    };
 
     const accountInfo: AccountInfo = {
       email: "",
@@ -233,7 +235,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
-      restrictedItemTypesService,
+      restrictedItemTypesService as RestrictedItemTypesService,
     );
   });
 
@@ -277,6 +279,12 @@ describe("VaultExportService", () => {
     restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
     const cardCipher = generateCipherView(false);
     cardCipher.type = CipherType.Card;
+
+    (restrictedItemTypesService.isCipherRestricted as jest.Mock)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true) // cardCipher - restricted
+      .mockReturnValueOnce(false);
+
     const testCiphers = [UserCipherViews[0], cardCipher, UserCipherViews[1]];
     cipherService.getAllDecrypted.mockResolvedValue(testCiphers);
 
@@ -291,6 +299,12 @@ describe("VaultExportService", () => {
     restrictedSubject.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] }]);
     const cardCipher = generateCipherDomain(false);
     cardCipher.type = CipherType.Card;
+
+    (restrictedItemTypesService.isCipherRestricted as jest.Mock)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true) // cardCipher - restricted
+      .mockReturnValueOnce(false);
+
     const testCiphers = [UserCipherDomains[0], cardCipher, UserCipherDomains[1]];
     cipherService.getAll.mockResolvedValue(testCiphers);
 
