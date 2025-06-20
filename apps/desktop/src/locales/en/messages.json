@@ -3949,5 +3949,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype"
+  },
+  "enableAutotypeDescription": {
+    "message": "Enable autotype description"
   }
 }

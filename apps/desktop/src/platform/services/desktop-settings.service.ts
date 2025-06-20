@@ -97,6 +97,10 @@ const PREVENT_SCREENSHOTS = new KeyDefinition<boolean>(
   },
 );
 
+const AUTOTYPE_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "autotypeEnabled", {
+  deserializer: (b) => b,
+});
+
 /**
  * Various settings for controlling application behavior specific to the desktop client.
  */
@@ -192,6 +196,13 @@ export class DesktopSettingsService {
   private readonly modalModeState = this.stateProvider.getGlobal(MODAL_MODE);
 
   modalMode$ = this.modalModeState.state$;
+
+  private readonly autotypeEnabled = this.stateProvider.getGlobal(AUTOTYPE_ENABLED);
+
+  /**
+   * The application setting for whether or not autotype is enabled.
+   */
+  autotypeEnabled$ = this.autotypeEnabled.state$.pipe(map(Boolean));
 
   constructor(private stateProvider: StateProvider) {
     this.window$ = this.windowState.state$.pipe(
@@ -338,5 +349,13 @@ export class DesktopSettingsService {
    */
   async setPreventScreenshots(value: boolean) {
     await this.preventScreenshotState.update(() => value);
+  }
+
+  /**
+   * Sets the setting for whether or not autotype is enabled.
+   * @param value `true` if autotype is enabled, `false` if it is not.
+   */
+  async setAutotypeEnabled(value: boolean) {
+    await this.autotypeEnabled.update(() => value);
   }
 }
