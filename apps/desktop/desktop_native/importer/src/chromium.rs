@@ -159,6 +159,8 @@ struct OneProfile {
 struct OsCrypt {
     #[allow(dead_code)]
     encrypted_key: Option<String>,
+    #[allow(dead_code)]
+    app_bound_encrypted_key: Option<String>,
 }
 
 fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {

@@ -576,6 +576,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "chacha20poly1305"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10cd79432192d1c0f4e1a0fef9527696cc039165d729fb41b3f4f4f354c2dc35"
+dependencies = [
+ "aead",
+ "chacha20",
+ "cipher",
+ "poly1305",
+ "zeroize",
+]
+
+[[package]]
 name = "cipher"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -588,9 +601,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.38"
+version = "4.5.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed93b9805f8ba930df42c2590f05453d5ec36cbb85d018868a5b24d31f6ac000"
+checksum = "40b6887a1d8685cebccf115538db5c0efe625ccac9696ad45c409d96566e910f"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -598,9 +611,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.38"
+version = "4.5.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "379026ff283facf611b0ea629334361c4211d1b12ee01024eec1591133b04120"
+checksum = "e0c66c08ce9f0c698cbce5c0279d0bb6ac936d8674174fe48f736533b964f59e"
 dependencies = [
  "anstream",
  "anstyle",
@@ -610,9 +623,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.32"
+version = "4.5.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09176aae279615badda0765c0c0b3f6ed53f4709118af73cf4655d85d1530cd7"
+checksum = "d2c7947ae4cc3d851207c1adb5b5e260ff0cca11446b1d6d1423788e442257ce"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -647,10 +660,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "colog"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c426b7af8d5e0ad79de6713996632ce31f0d68ba84068fb0d654b396e519df0"
+dependencies = [
+ "colored",
+ "env_logger",
+ "log",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
+
+[[package]]
+name = "colored"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
+dependencies = [
+ "lazy_static",
+ "windows-sys 0.59.0",
+]
 
 [[package]]
 name = "concurrent-queue"
@@ -915,18 +949,26 @@ dependencies = [
  "async-trait",
  "base64",
  "cbc",
+ "chacha20poly1305",
+ "clap",
+ "colog",
+ "env_logger",
  "hex",
  "homedir",
+ "log",
  "oo7",
  "pbkdf2",
  "rand 0.9.1",
  "rusqlite",
+ "scopeguard",
  "security-framework",
  "serde",
  "serde_json",
  "sha1",
+ "tokio",
  "winapi",
  "windows 0.61.1",
+ "windows-service",
 ]
 
 [[package]]
@@ -1096,6 +1138,29 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "env_filter"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "186e05a59d4c50738528153b83b0b0194d3a29507dfec16eccd4b342903397d0"
+dependencies = [
+ "log",
+ "regex",
+]
+
+[[package]]
+name = "env_logger"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13c863f0904021b108aa8b2f55046443e6b1ebde8fd4a15c399893aae4fa069f"
+dependencies = [
+ "anstream",
+ "anstyle",
+ "env_filter",
+ "jiff",
+ "log",
 ]
 
 [[package]]
@@ -1604,6 +1669,30 @@ name = "itoa"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
+
+[[package]]
+name = "jiff"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be1f93b8b1eb69c77f24bbb0afdf66f54b632ee39af40ca21c4365a1d7347e49"
+dependencies = [
+ "jiff-static",
+ "log",
+ "portable-atomic",
+ "portable-atomic-util",
+ "serde",
+]
+
+[[package]]
+name = "jiff-static"
+version = "0.2.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03343451ff899767262ec32146f6d559dd759fdadf42ff0e227c7c48f72594b4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "keytar"
@@ -2385,6 +2474,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "portable-atomic"
+version = "1.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f84267b20a16ea918e43c6a88433c2d54fa145c92a811b5b047ccbe153674483"
+
+[[package]]
+name = "portable-atomic-util"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507"
+dependencies = [
+ "portable-atomic",
+]
+
+[[package]]
 name = "potential_utf"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3131,6 +3235,7 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
+ "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
@@ -3746,6 +3851,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c64fd11a4fd95df68efcfee5f44a294fe71b8bc6a91993e2791938abcc712252"
 dependencies = [
  "windows-link",
+]
+
+[[package]]
+name = "windows-service"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "193cae8e647981c35bc947fdd57ba7928b1fa0d4a79305f6dd2dc55221ac35ac"
+dependencies = [
+ "bitflags",
+ "widestring",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
