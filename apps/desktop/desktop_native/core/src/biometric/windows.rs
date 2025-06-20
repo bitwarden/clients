@@ -9,7 +9,10 @@ use windows::{
     Security::Credentials::UI::{
         UserConsentVerificationResult, UserConsentVerifier, UserConsentVerifierAvailability,
     },
-    Win32::{Foundation::HWND, System::WinRT::IUserConsentVerifierInterop},
+    Win32::{
+        Foundation::HWND, System::WinRT::IUserConsentVerifierInterop,
+        UI::WindowsAndMessaging::GetForegroundWindow,
+    },
 };
 use windows_future::IAsyncOperation;
 
@@ -34,9 +37,15 @@ impl super::BiometricTrait for Biometric {
         //  should set the window to the foreground and focus it.
         set_focus(window);
 
+        // Windows Hello prompt must be in foreground, focused, otherwise the face or fingerprint
+        //  unlock will not work. We get the current foreground window, which will either be the
+        //  Bitwarden desktop app or the browser extension.
+        let foreground_window = unsafe { GetForegroundWindow() };
+
         let interop = factory::<UserConsentVerifier, IUserConsentVerifierInterop>()?;
-        let operation: IAsyncOperation<UserConsentVerificationResult> =
-            unsafe { interop.RequestVerificationForWindowAsync(window, &HSTRING::from(message))? };
+        let operation: IAsyncOperation<UserConsentVerificationResult> = unsafe {
+            interop.RequestVerificationForWindowAsync(foreground_window, &HSTRING::from(message))?
+        };
         let result = operation.get()?;
 
         match result {
