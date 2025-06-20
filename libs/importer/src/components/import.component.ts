@@ -44,7 +44,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
@@ -137,8 +136,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   collections$: Observable<CollectionView[]>;
   organizations$: Observable<Organization[]>;
 
-  restrictedItemTypes: CipherType[] = [];
-
   private _organizationId: string;
 
   get organizationId(): string {
@@ -164,6 +161,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
+
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
@@ -258,13 +258,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     await this.handlePolicies();
-    this.restrictedItemTypesService.restricted$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((restrictedItemTypes) => {
-        // If/when restricted item types are expanded to include all item types this array
-        // can be used to format the message displayed in the callout.
-        this.restrictedItemTypes = restrictedItemTypes.map((type) => type.cipherType);
-      });
   }
 
   private async handleOrganizationImportInit() {
