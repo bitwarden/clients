@@ -255,7 +255,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
-    this.yieldedPassword$ = this.yieldGeneratedPassword(merge(this.requestGeneratedPassword$));
+    this.yieldedPassword$ = this.yieldGeneratedPassword(this.requestGeneratedPassword$);
     this.yieldedPassword$
       .pipe(
         tap(async ({ credential }) => {
