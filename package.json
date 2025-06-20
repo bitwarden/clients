@@ -45,7 +45,7 @@
     "@babel/core": "7.24.9",
     "@babel/preset-env": "7.24.8",
     "@compodoc/compodoc": "1.1.26",
-    "@electron/notarize": "2.5.0",
+    "@electron/notarize": "3.0.1",
     "@electron/rebuild": "3.7.2",
     "@eslint/compat": "1.2.9",
     "@lit-labs/signals": "0.1.2",
