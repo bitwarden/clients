@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH açarı"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Yeni $TYPE$",
     "placeholders": {
@@ -2516,7 +2519,7 @@
     "message": "Dəyişdir"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Parolu dəyişdir",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2529,7 +2532,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Riskli parollar"
   },
   "atRiskPasswords": {
     "message": "Riskli parollar"
@@ -2566,7 +2569,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "Bu saytdakı parolunuz risk altındadır. $ORGANIZATION$ onu dəyişdirməyinizi tələb edir.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2576,7 +2579,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$, bu parolun risk altında olduğu üçün dəyişdirməyinizi istəyir. Parolu dəyişdirmək üçün hesabınızın ayarlarına gedin.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "PIN ilə kilid açma təyini"
   },
+  "unlockBiometricSet": {
+    "message": "Biometrik ilə kilidi aç ayarı"
+  },
   "authenticating": {
     "message": "Kimlik doğrulama"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly brauzerinizdə dəstəklənmir və ya fəal deyil. WebAssembly, Bitwarden tətbiqini istifadə etmək üçün tələb olunur.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

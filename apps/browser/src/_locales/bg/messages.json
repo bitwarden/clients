@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeNote": {
+    "message": "Бележка"
+  },
   "newItemHeader": {
     "message": "Ново $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Зададен е ПИН код за отключване"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Удостоверяване"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не е включено или не се поддържа от Вашия браузър. За ползването на приложението на Битуорден е необходимо WebAssembly да работи.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

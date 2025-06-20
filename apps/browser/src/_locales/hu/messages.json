@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeNote": {
+    "message": "Jegyzet"
+  },
   "newItemHeader": {
     "message": "Új $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
   },
+  "unlockBiometricSet": {
+    "message": "Biometriai beállítások feloldása"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
+  },
+  "wasmNotSupported": {
+    "message": "A WebAssembly nem támogatott a böngészőben vagy nincs engedélyezve. A WebAssembly szükséges a Bitwarden alkalmazás használatához.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

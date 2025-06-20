@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logotip de Bitwarden"
   },
   "extName": {
     "message": "Bitwarden - Gestor de contrasenyes",
@@ -1921,6 +1921,9 @@
   },
   "typeSshKey": {
     "message": "Clau SSH"
+  },
+  "typeNote": {
+    "message": "Nota"
   },
   "newItemHeader": {
     "message": "Nou $TYPE$",
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "S'està autenticant"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

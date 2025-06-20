@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeNote": {
+    "message": "Нотатка"
+  },
   "newItemHeader": {
     "message": "Новий $TYPE$",
     "placeholders": {
@@ -2154,7 +2157,7 @@
     "message": "Встановіть PIN-код для розблокування Bitwarden. Налаштування PIN-коду будуть скинуті, якщо ви коли-небудь повністю вийдете з програми."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Ви можете використовувати цей PIN-код для розблокування Bitwarden. PIN-код буде скинуто, якщо ви вийдете з програми."
   },
   "pinRequired": {
     "message": "Необхідний PIN-код."
@@ -2516,7 +2519,7 @@
     "message": "Змінити"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Змінити пароль",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2529,7 +2532,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Ризикований пароль"
   },
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
@@ -2566,7 +2569,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "Пароль для цього сайту ризикований. Організація $ORGANIZATION$ попросила вас змінити його.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2576,7 +2579,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ хоче, щоб ви змінили цей пароль, тому що він ризикований. Перейдіть до налаштувань облікового запису, щоб змінити пароль.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Розблокування PIN-кодом встановлено"
   },
+  "unlockBiometricSet": {
+    "message": "Біометричне розблокування налаштовано"
+  },
   "authenticating": {
     "message": "Аутентифікація"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

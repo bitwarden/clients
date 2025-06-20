@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo Bitwarden"
   },
   "extName": {
     "message": "Rheolydd cyfrineiriau Bitwarden",
@@ -335,7 +335,7 @@
     "message": "Mwy gan Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Parhau i bitwarden.com?"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden for Business"
@@ -668,13 +668,13 @@
     "message": "Mae eich cell ar glo. Gwiriwch eich hunaniaeth i barhau."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Mae eich cell ar glo"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Mae eich cyfrif ar glo"
   },
   "or": {
-    "message": "or"
+    "message": "neu"
   },
   "unlock": {
     "message": "Datgloi"
@@ -762,7 +762,7 @@
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Awgrym o'ch prif gyfrinair"
   },
   "errorOccurred": {
     "message": "Bu gwall"
@@ -799,13 +799,13 @@
     "message": "Mae eich cyfrif wedi cael ei greu!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Rydych wedi cael eich mewngofnodi!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "You successfully logged in"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Gallwch cau'r ffenestr hon bellach"
   },
   "masterPassSent": {
     "message": "Rydym ni wedi anfon ebost atoch gydag awgrym ar gyfer eich prif gyfrinair."
@@ -860,7 +860,7 @@
     "message": "Logged out"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Rydych wedi cael eich allgofnodi o'ch cyfrif."
   },
   "loginExpired": {
     "message": "Mae eich sesiwn wedi dod i ben."
@@ -872,13 +872,13 @@
     "message": "Mewngofnodi i Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Rhowch y cod a anfonwyd i'ch ebost"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Rhowch y cod o'ch ap dilysu"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Gwasgwch eich YubiKey i ddilysu"
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
@@ -929,13 +929,13 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Parhau i'r ap gwe?"
   },
   "editedFolder": {
     "message": "Ffolder wedi'i chadw"
   },
   "deleteFolderConfirmation": {
-    "message": "Are you sure you want to delete this folder?"
+    "message": "Ydych chi'n sicr yr hoffech chi ddileu'r ffolder hon?"
   },
   "deletedFolder": {
     "message": "Ffolder wedi'i dileu"
@@ -1076,11 +1076,11 @@
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Golygu cyn cadw",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Hysbysiad newydd"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Allwedd SSH"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "$TYPE$ newydd",
     "placeholders": {
@@ -2090,7 +2093,7 @@
     "message": "Tynnu"
   },
   "default": {
-    "message": "Default"
+    "message": "Rhagosodiad"
   },
   "dateUpdated": {
     "message": "Updated",
@@ -2222,7 +2225,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultCustomization": {
-    "message": "Vault customization"
+    "message": "Addasu'r gell"
   },
   "vaultTimeoutAction": {
     "message": "Vault timeout action"
@@ -3159,7 +3162,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " Defnyddiwch $RECOMMENDED$ neu fwy o eiriau i gynhyrchu cyfrinymadrodd cryff.",
+    "message": " Defnyddiwch $RECOMMENDED$ neu fwy o eiriau i gynhyrchu cyfrinymadrodd cryf.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -4042,7 +4045,7 @@
     "message": "Passkey"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Yn cysylltu â"
   },
   "loggedInExclamation": {
     "message": "Logged in!"
@@ -4199,7 +4202,7 @@
     "message": "Account limit reached. Log out of an account to add another."
   },
   "active": {
-    "message": "active"
+    "message": "gweithredol"
   },
   "locked": {
     "message": "locked"
@@ -4673,7 +4676,7 @@
     "message": "Delete website"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Rhagosodiad ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -4722,10 +4725,10 @@
     }
   },
   "enableAnimations": {
-    "message": "Enable animations"
+    "message": "Galluogi animeiddio"
   },
   "showAnimations": {
-    "message": "Show animations"
+    "message": "Dangos animeiddio"
   },
   "addAccount": {
     "message": "Ychwanegu cyfrif"
@@ -4949,7 +4952,7 @@
     "message": "Text Sends"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Gweithredoedd y cyfrif"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
@@ -4958,7 +4961,7 @@
     "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
-    "message": "System default"
+    "message": "Rhagosodiad y sytem"
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Enterprise policy requirements have been applied to this setting"
@@ -5061,6 +5064,9 @@
   },
   "unlockPinSet": {
     "message": "Unlock PIN set"
+  },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
   },
   "authenticating": {
     "message": "Authenticating"
@@ -5225,13 +5231,13 @@
     "message": "Beta"
   },
   "extensionWidth": {
-    "message": "Extension width"
+    "message": "Lled yr estyniad"
   },
   "wide": {
-    "message": "Wide"
+    "message": "Llydan"
   },
   "extraWide": {
-    "message": "Extra wide"
+    "message": "Llydan iawn"
   },
   "sshKeyWrongPassword": {
     "message": "The password you entered is incorrect."
@@ -5279,7 +5285,7 @@
     "message": "Change at-risk password"
   },
   "settingsVaultOptions": {
-    "message": "Vault options"
+    "message": "Dewisiadau'r gell"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

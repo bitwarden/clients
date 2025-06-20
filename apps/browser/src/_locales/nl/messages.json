@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeNote": {
+    "message": "Notitie"
+  },
   "newItemHeader": {
     "message": "Nieuwe $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "PIN-code ontgrendelen instellen"
   },
+  "unlockBiometricSet": {
+    "message": "Biometrische set ontgrendelen"
+  },
   "authenticating": {
     "message": "Aan het inloggen"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly wordt niet ondersteund in je browser of is niet ingeschakeld. WebAssembly is vereist om de Bitwarden-app te gebruiken.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
