@@ -88,62 +88,33 @@ export class DefaultPolicyService implements PolicyService {
   ): Observable<MasterPasswordPolicyOptions | undefined> {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
-      map((obsPolicies) => {
-        let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
-        const filteredPolicies =
-          obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
-
-        if (filteredPolicies.length === 0) {
-          return;
-        }
-
-        filteredPolicies.forEach((currentPolicy) => {
-          if (!currentPolicy.enabled || !currentPolicy.data) {
-            return;
-          }
-
-          if (!enforcedOptions) {
-            enforcedOptions = new MasterPasswordPolicyOptions();
-          }
-
-          if (
-            currentPolicy.data.minComplexity != null &&
-            currentPolicy.data.minComplexity > enforcedOptions.minComplexity
-          ) {
-            enforcedOptions.minComplexity = currentPolicy.data.minComplexity;
-          }
-
-          if (
-            currentPolicy.data.minLength != null &&
-            currentPolicy.data.minLength > enforcedOptions.minLength
-          ) {
-            enforcedOptions.minLength = currentPolicy.data.minLength;
-          }
-
-          if (currentPolicy.data.requireUpper) {
-            enforcedOptions.requireUpper = true;
-          }
-
-          if (currentPolicy.data.requireLower) {
-            enforcedOptions.requireLower = true;
-          }
-
-          if (currentPolicy.data.requireNumbers) {
-            enforcedOptions.requireNumbers = true;
-          }
-
-          if (currentPolicy.data.requireSpecial) {
-            enforcedOptions.requireSpecial = true;
-          }
-
-          if (currentPolicy.data.enforceOnLogin) {
-            enforcedOptions.enforceOnLogin = true;
-          }
-        });
-
-        return enforcedOptions;
-      }),
+      map((obsPolicies) => this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies)),
     );
+  }
+
+  combinePoliciesIntoMasterPasswordPolicyOptions(
+    policies: Policy[],
+  ): MasterPasswordPolicyOptions | undefined {
+    let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
+    const filteredPolicies = policies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
+
+    if (filteredPolicies.length === 0) {
+      return;
+    }
+
+    filteredPolicies.forEach((currentPolicy) => {
+      if (!currentPolicy.enabled || !currentPolicy.data) {
+        return undefined;
+      }
+
+      if (!enforcedOptions) {
+        enforcedOptions = new MasterPasswordPolicyOptions();
+      }
+
+      this.mergeMasterPasswordPolicyOptions(enforcedOptions, currentPolicy.data);
+    });
+
+    return enforcedOptions;
   }
 
   evaluateMasterPassword(
@@ -243,6 +214,31 @@ export class DefaultPolicyService implements PolicyService {
         return organization.isAdmin;
       default:
         return organization.canManagePolicies;
+    }
+  }
+
+  private mergeMasterPasswordPolicyOptions(
+    target: MasterPasswordPolicyOptions | undefined,
+    source: MasterPasswordPolicyOptions | undefined,
+  ) {
+    if (!target) {
+      target = new MasterPasswordPolicyOptions();
+    }
+
+    // Take the max of the complexity or the required length of the password.
+    // For boolean properties, take the target's value if the source is undefined,
+    // otherwise take true in other scenarios.
+    if (source) {
+      target.minComplexity = Math.max(
+        target.minComplexity,
+        source.minComplexity ?? target.minComplexity,
+      );
+      target.minLength = Math.max(target.minLength, source.minLength ?? target.minLength);
+      target.requireUpper = Boolean(target.requireUpper || source.requireUpper);
+      target.requireLower = Boolean(target.requireLower || source.requireLower);
+      target.requireNumbers = Boolean(target.requireNumbers || source.requireNumbers);
+      target.requireSpecial = Boolean(target.requireSpecial || source.requireSpecial);
+      target.enforceOnLogin = Boolean(target.enforceOnLogin || source.enforceOnLogin);
     }
   }
 }
