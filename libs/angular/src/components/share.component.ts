@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -54,7 +54,13 @@ export class ShareComponent implements OnInit, OnDestroy {
   }
 
   async load() {
-    const allCollections = await this.collectionService.getAllDecrypted();
+    const allCollections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    );
+
     this.writeableCollections = allCollections.map((c) => c).filter((c) => !c.readOnly);
 
     const userId = await firstValueFrom(
