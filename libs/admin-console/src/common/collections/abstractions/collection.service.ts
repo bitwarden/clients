@@ -9,7 +9,7 @@ import { CollectionData, Collection, CollectionView } from "../models";
 export abstract class CollectionService {
   abstract encryptedCollections$: (userId: UserId) => Observable<Collection[]>;
   abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[]>;
-  abstract upsert: (collection: CollectionData[], userId: UserId) => Promise<any>;
+  abstract upsert: (collection: CollectionData, userId: UserId) => Promise<any>;
   abstract replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   /**
    * @deprecated This method will soon be made private, use `decryptedCollections$` instead.

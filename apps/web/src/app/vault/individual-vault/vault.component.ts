@@ -847,7 +847,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(getUserId),
         );
-        await this.collectionService.upsert([c], activeUserId);
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     }
@@ -869,7 +869,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       if (result.collection) {
         // Update CollectionService with the new collection
         const c = new CollectionData(result.collection as CollectionDetailsResponse);
-        await this.collectionService.upsert([c], activeUserId);
+        await this.collectionService.upsert(c, activeUserId);
       }
       this.refresh();
     } else if (result.action === CollectionDialogAction.Deleted) {

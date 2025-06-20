@@ -112,7 +112,7 @@ export class DefaultCollectionService implements CollectionService {
     );
   }
 
-  async upsert(toUpdate: CollectionData[], userId: UserId): Promise<void> {
+  async upsert(toUpdate: CollectionData, userId: UserId): Promise<void> {
     if (toUpdate == null) {
       return;
     }
@@ -120,9 +120,7 @@ export class DefaultCollectionService implements CollectionService {
       if (collections == null) {
         collections = {};
       }
-      toUpdate.forEach((c) => {
-        collections[c.id] = c;
-      });
+      collections[toUpdate.id] = toUpdate;
 
       return collections;
     });
@@ -130,12 +128,7 @@ export class DefaultCollectionService implements CollectionService {
     const decryptedCollections = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(
         filter((orgKeys) => !!orgKeys),
-        switchMap((orgKeys) =>
-          this.decryptMany$(
-            toUpdate.map((c) => new Collection(c)),
-            orgKeys,
-          ),
-        ),
+        switchMap((orgKeys) => this.decryptMany$([new Collection(toUpdate)], orgKeys)),
       ),
     );
 
@@ -144,21 +137,17 @@ export class DefaultCollectionService implements CollectionService {
         collections = [];
       }
 
-      toUpdate.forEach((c) => {
-        const decryptedCollection = decryptedCollections.find(
-          (collection) => collection.id == c.id,
-        );
-        if (!decryptedCollection) {
-          return;
-        }
+      if (!decryptedCollections?.length) {
+        return collections;
+      }
 
-        const existingIndex = collections.findIndex((collection) => collection.id == c.id);
-        if (existingIndex >= 0) {
-          collections[existingIndex] = decryptedCollection;
-        } else {
-          collections.push(decryptedCollection);
-        }
-      });
+      const decryptedCollection = decryptedCollections[0];
+      const existingIndex = collections.findIndex((collection) => collection.id == toUpdate.id);
+      if (existingIndex >= 0) {
+        collections[existingIndex] = decryptedCollection;
+      } else {
+        collections.push(decryptedCollection);
+      }
 
       return collections;
     });
