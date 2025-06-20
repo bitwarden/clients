@@ -7614,9 +7614,9 @@
     "message": "A szolgáltatás fiók frissítésre került.",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Gépeljük be vagy válasszunk projekteket vagy titkos kódokat",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Projektek begépelése vagy kiválasztása",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Gépelés a szűréshez",

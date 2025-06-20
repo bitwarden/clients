@@ -21,7 +21,7 @@
     "message": "Rizikové heslo"
   },
   "reviewAtRiskPasswords": {
-    "message": "Zkontrolujte riziková hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s rizikovými hesly."
+    "message": "Zkontrolujte ohrožená hesla (slabá, odhalená nebo opakovaně používaná) ve všech aplikacích. Vyberte nejkritičtější aplikace a stanovte priority bezpečnostních opatření pro uživatele, abyste se vypořádali s ohroženými hesly."
   },
   "dataLastUpdated": {
     "message": "Data naposledy aktualizována: $DATE$",
@@ -90,7 +90,7 @@
     "message": "Neoznačili jste žádné aplikace jako kritické"
   },
   "noCriticalAppsDescription": {
-    "message": "Vyberte své nejkritičtější aplikace, abyste objevili riziková hesla a upozorněte uživatele na změnu těchto hesel."
+    "message": "Vyberte své nejkritičtější aplikace, abyste objevili ohrožená hesla a upozorněte uživatele na změnu těchto hesel."
   },
   "markCriticalApps": {
     "message": "Označit kritické aplikace"
@@ -120,7 +120,7 @@
     "message": "Ohrožení členové"
   },
   "atRiskMembersWithCount": {
-    "message": "Rizikoví členové ($COUNT$)",
+    "message": "Ohrožení členové ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -129,7 +129,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "Rizikové aplikace ($COUNT$)",
+    "message": "Ohrožené aplikace ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -171,7 +171,7 @@
     "message": "Celkem členů"
   },
   "atRiskApplications": {
-    "message": "Rizikové aplikace"
+    "message": "Ohrožené aplikace"
   },
   "totalApplications": {
     "message": "Celkem aplikací"
@@ -587,7 +587,7 @@
     "message": "Upravit"
   },
   "searchCollection": {
-    "message": "Prohledat kolekci"
+    "message": "Prohledat sbírku"
   },
   "searchFolder": {
     "message": "Prohledat složku"
@@ -666,7 +666,7 @@
     "message": "Složky"
   },
   "collections": {
-    "message": "Kolekce"
+    "message": "Sbírky"
   },
   "firstName": {
     "message": "Křestní jméno"
@@ -1367,13 +1367,13 @@
     "message": "Žádné položky k zobrazení."
   },
   "noPermissionToViewAllCollectionItems": {
-    "message": "Nemáte oprávnění k zobrazení všech položek v této kolekci."
+    "message": "Nemáte oprávnění k zobrazení všech položek v této sbírce."
   },
   "youDoNotHavePermissions": {
-    "message": "Nemáte oprávnění k této kolekci"
+    "message": "Nemáte oprávnění k této sbírce"
   },
   "noCollectionsInList": {
-    "message": "Žádné kolekce k zobrazení."
+    "message": "Žádné sbírky k zobrazení."
   },
   "noGroupsInList": {
     "message": "Žádné skupiny k zobrazení."
@@ -1539,7 +1539,7 @@
     "message": "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky."
   },
   "collectionsDesc": {
-    "message": "Upravte kolekce, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto kolekcím, budou moci tuto položku vidět."
+    "message": "Upravte sbírky, ve kterých je tato položka sdílená. Pouze uživatelé organizace, kteří mají přístup k těmto sbírkám, budou moci tuto položku vidět."
   },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ položek bude přesunuto do koše.",
@@ -1551,7 +1551,7 @@
     }
   },
   "deleteSelectedCollectionsDesc": {
-    "message": "$COUNT$ kolekcí bude trvale smazáno.",
+    "message": "$COUNT$ sbírek bude trvale smazáno.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2019,7 +2019,7 @@
     "message": "Zvolte složku"
   },
   "selectImportCollection": {
-    "message": "Zvolte kolekci"
+    "message": "Zvolte sbírku"
   },
   "importTargetHint": {
     "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
@@ -2201,7 +2201,7 @@
     "message": "Spravovat"
   },
   "manageCollection": {
-    "message": "Spravovat kolekci"
+    "message": "Spravovat sbírku"
   },
   "viewItems": {
     "message": "Zobrazit položky"
@@ -3141,7 +3141,7 @@
     }
   },
   "limitedCollections": {
-    "message": "Omezeno na $COUNT$ kolekcí",
+    "message": "Omezeno na $COUNT$ sbírek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3162,7 +3162,7 @@
     "message": "Neomezený počet uživatelů"
   },
   "createUnlimitedCollections": {
-    "message": "Neomezený počet kolekcí"
+    "message": "Neomezený počet sbírek"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ šifrovaného úložiště",
@@ -3264,7 +3264,7 @@
     "message": "Opustili jste organizaci"
   },
   "defaultCollection": {
-    "message": "Výchozí kolekce"
+    "message": "Výchozí sbírka"
   },
   "getHelp": {
     "message": "Získat nápovědu"
@@ -3339,7 +3339,7 @@
     "message": "Externí SSO ID je nešifrovaná reference mezi Bitwardenem a Vaším nastaveným poskytovatelem SSO."
   },
   "nestCollectionUnder": {
-    "message": "Vnořit kolekci pod"
+    "message": "Vnořit sbírku pod"
   },
   "accessControl": {
     "message": "Správa přístupů"
@@ -3348,19 +3348,19 @@
     "message": "Jen ke čtení"
   },
   "newCollection": {
-    "message": "Nová kolekce"
+    "message": "Nová sbírka"
   },
   "addCollection": {
-    "message": "Přidat kolekci"
+    "message": "Přidat sbírku"
   },
   "editCollection": {
-    "message": "Upravit kolekci"
+    "message": "Upravit sbírku"
   },
   "collectionInfo": {
-    "message": "Informace o kolekci"
+    "message": "Informace o sbírce"
   },
   "deleteCollectionConfirmation": {
-    "message": "Opravdu chcete smazat tuto kolekci?"
+    "message": "Opravdu chcete smazat tuto sbírku?"
   },
   "editMember": {
     "message": "Upravit člena"
@@ -3420,13 +3420,13 @@
     "message": "Administrátor"
   },
   "adminDesc": {
-    "message": "Spravuje přístup v organizaci, všechny kolekce, členy, hlášení a nastavení zabezpečení."
+    "message": "Spravuje přístup v organizaci, všechny sbírky, členy, hlášení a nastavení zabezpečení."
   },
   "user": {
     "message": "Uživatel"
   },
   "userDesc": {
-    "message": "Přistupuje k přiřazeným kolekcím a přidává je."
+    "message": "Přistupuje k přiřazeným sbírkám a přidává položky."
   },
   "all": {
     "message": "Vše"
@@ -3607,7 +3607,7 @@
     }
   },
   "viewCollectionWithName": {
-    "message": "Byla zobrazena kolekce $NAME$.",
+    "message": "Zobrazit sbírku - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3661,7 +3661,7 @@
     }
   },
   "createdCollectionId": {
-    "message": "Byla vytvořena kolekce $ID$.",
+    "message": "Byla vytvořena sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3670,7 +3670,7 @@
     }
   },
   "editedCollectionId": {
-    "message": "Byla upravena kolekce $ID$.",
+    "message": "Byla upravena sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3679,10 +3679,10 @@
     }
   },
   "deletedCollections": {
-    "message": "Byly smazány kolekce."
+    "message": "Byly smazány sbírky."
   },
   "deletedCollectionId": {
-    "message": "Byla smazána kolekce $ID$.",
+    "message": "Byla smazána sbírka $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3799,7 +3799,7 @@
     }
   },
   "editedCollectionsForItem": {
-    "message": "Byly upraveny kolekce pro položku $ID$.",
+    "message": "Byly upraveny sbírky pro položku $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4004,7 +4004,7 @@
     "message": "Přístup skupiny"
   },
   "groupAccessUserDesc": {
-    "message": "Udělí členům přístup ke kolekcím přidáním do 1 nebo více skupin."
+    "message": "Udělí členům přístup ke sbírkám přidáním do 1 nebo více skupin."
   },
   "invitedUsers": {
     "message": "Uživatelé byli pozváni"
@@ -4775,7 +4775,7 @@
     "message": "Měnit klíč API"
   },
   "selectOneCollection": {
-    "message": "Musíte vybrat alespoň jednu kolekci."
+    "message": "Musíte vybrat alespoň jednu sbírku."
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Nepodařilo se nám strhnout platbu z Vaší karty. Prohlédněte si a zaplaťte nezaplacenou fakturu uvedenou níže."
@@ -5382,7 +5382,7 @@
     "message": "Majitelé a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "personalOwnershipSubmitError": {
-    "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí."
+    "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných sbírek."
   },
   "disableSend": {
     "message": "Odebrat Send"
@@ -5472,16 +5472,16 @@
     "message": "K provedení této akce nemáte potřebná oprávnění."
   },
   "manageAllCollections": {
-    "message": "Správa všech kolekcí"
+    "message": "Správa všech sbírek"
   },
   "createNewCollections": {
-    "message": "Vytváření nových kolekcí"
+    "message": "Vytváření nových sbírek"
   },
   "editAnyCollection": {
-    "message": "Úprava jakékoli kolekce"
+    "message": "Úprava jakékoli sbírky"
   },
   "deleteAnyCollection": {
-    "message": "Smazání jakékoli kolekce"
+    "message": "Smazání jakékoli sbírky"
   },
   "manageGroups": {
     "message": "Správa skupin"
@@ -6318,7 +6318,7 @@
     "message": "Prémiový přístup až pro 6 uživatelů"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "Sdílené kolekce pro členy rodiny"
+    "message": "Sdílené sbírky pro členy rodiny"
   },
   "memberFamilies": {
     "message": "Rodiny členů"
@@ -7614,9 +7614,9 @@
     "message": "Účet služby byl aktualizován",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Napište nebo vyberte projekty nebo tajné klíče",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Napište nebo vyberte projekty",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Pište pro filtrování",
@@ -7795,19 +7795,19 @@
     "message": "Informace o skupině"
   },
   "editGroupMembersDesc": {
-    "message": "Udělí členům přístup k přiřazeným kolekcím skupiny."
+    "message": "Udělí členům přístup k přiřazeným sbírkám skupiny."
   },
   "editGroupCollectionsDesc": {
-    "message": "Udělí členům přístup ke kolekcím přidáním do této skupiny."
+    "message": "Udělí členům přístup ke sbírkám přidáním do této skupiny."
   },
   "restrictedCollectionAssignmentDesc": {
-    "message": "Můžete přiřadit jen Vámi spravované kolekce."
+    "message": "Můžete přiřadit jen Vámi spravované sbírky."
   },
   "selectMembers": {
     "message": "Vybrat členy"
   },
   "selectCollections": {
-    "message": "Vybrat kolekce"
+    "message": "Vybrat sbírku"
   },
   "role": {
     "message": "Role"
@@ -7816,13 +7816,13 @@
     "message": "Odebrat člena"
   },
   "collection": {
-    "message": "Kolekce"
+    "message": "Sbírka"
   },
   "noCollection": {
-    "message": "Žádná kolekce"
+    "message": "Žádná sbírka"
   },
   "noCollectionsAdded": {
-    "message": "Nebyly přidány žádné kolekce"
+    "message": "Nebyly přidány žádné sbírky"
   },
   "noMembersAdded": {
     "message": "Nebyli přidáni žádní členové"
@@ -8023,7 +8023,7 @@
     }
   },
   "freeOrgMaxCollectionReachedManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ kolekcí. Chcete-li přidat více kolekcí, přejděte na placený tarif.",
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Chcete-li přidat více sbírek, přejděte na placený tarif.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8032,7 +8032,7 @@
     }
   },
   "freeOrgMaxCollectionReachedNoManageBilling": {
-    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ kolekcí. Pro aktualizaci kontaktujte majitele organizace.",
+    "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ sbírek. Pro aktualizaci kontaktujte majitele organizace.",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -8692,25 +8692,25 @@
     }
   },
   "collectionManagement": {
-    "message": "Správa kolekce"
+    "message": "Správa sbírky"
   },
   "collectionManagementDesc": {
-    "message": "Spravuje chování kolekce pro organizaci"
+    "message": "Spravuje chování sbírky pro organizaci"
   },
   "limitCollectionCreationDesc": {
-    "message": "Omezí vytváření kolekce na vlastníky a správce"
+    "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
   "limitCollectionDeletionDesc": {
-    "message": "Omezí mazání kolekce na vlastníky a správce"
+    "message": "Omezí mazání sbírky na vlastníky a správce"
   },
   "limitItemDeletionDescription": {
-    "message": "Omezit smazání položky na členy s oprávněním Spravovat kolekci"
+    "message": "Omezit smazání položky na členy s oprávněním Spravovat sbírku"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
+    "message": "Vlastníci a správci mohou spravovat všechny sbírky a položky"
   },
   "updatedCollectionManagement": {
-    "message": "Aktualizované nastavení správy kolekce"
+    "message": "Aktualizované nastavení správy sbírky"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného Správce hesel"
@@ -8743,10 +8743,10 @@
     "message": "Beta"
   },
   "assignCollectionAccess": {
-    "message": "Přiřadit přístup ke kolekci"
+    "message": "Přiřadit přístup ke sbírce"
   },
   "editedCollections": {
-    "message": "Upravené kolekce"
+    "message": "Upravené sbírky"
   },
   "baseUrl": {
     "message": "URL serveru"
@@ -8777,7 +8777,7 @@
     "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?"
   },
   "modifiedCollectionManagement": {
-    "message": "Upraveno nastavení správy kolekce $ID$.",
+    "message": "Upraveno nastavení správy sbírky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8811,25 +8811,25 @@
     "message": "Byl dosažen limit počtu uživatelů. Kontaktujte svého poskytovatele pro zakoupení dalších uživatelů."
   },
   "collectionAccessRestricted": {
-    "message": "Přístup ke kolekci je omezen"
+    "message": "Přístup ke sbírce je omezen"
   },
   "readOnlyCollectionAccess": {
-    "message": "Nemáte přístup ke správě této kolekce."
+    "message": "Nemáte přístup ke správě této sbírky."
   },
   "grantManageCollectionWarningTitle": {
-    "message": "Chybějící oprávnění pro správu kolekcí"
+    "message": "Chybějící oprávnění pro správu sbírky"
   },
   "grantManageCollectionWarning": {
-    "message": "Udělte oprávnění \"Spravovat kolekci\" pro úplnou správu kolekce, včetně jejího smazání."
+    "message": "Udělte oprávnění \"Spravovat sbírku\" pro úplnou správu sbírky, včetně jejího smazání."
   },
   "grantCollectionAccess": {
-    "message": "Udělí skupinám nebo členům přístup k této kolekci."
+    "message": "Udělí skupinám nebo členům přístup k této sbírce."
   },
   "grantCollectionAccessMembersOnly": {
-    "message": "Udělí členům přístup k této kolekci."
+    "message": "Udělí členům přístup k této sbírce."
   },
   "adminCollectionAccess": {
-    "message": "Správci mohou přistupovat ke kolekcím a spravovat je."
+    "message": "Správci mohou přistupovat ke sbírkám a spravovat je."
   },
   "serviceAccountAccessUpdated": {
     "message": "Přístup účtu služby byl aktualizován"
@@ -8918,31 +8918,31 @@
     "message": "Do skupin nemůžete přidat sami sebe."
   },
   "cannotAddYourselfToCollections": {
-    "message": "Do kolekcí nemůžete přidat sami sebe."
+    "message": "Do sbírek nemůžete přidat sami sebe."
   },
   "assign": {
     "message": "Přiřadit"
   },
   "assignToCollections": {
-    "message": "Přiřadit ke kolekcím"
+    "message": "Přiřadit ke sbírkám"
   },
   "assignToTheseCollections": {
-    "message": "Přiřadit k těmto kolekcím"
+    "message": "Přiřadit k těmto sbírkám"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položku."
+    "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
+    "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
   },
   "selectCollectionsToAssign": {
-    "message": "Vyberte kolekce pro přiřazení"
+    "message": "Vyberte sbírky pro přiřazení"
   },
   "noCollectionsAssigned": {
-    "message": "Nebyly přiřazeny žádné kolekce"
+    "message": "Nebyly přiřazeny žádné sbírky"
   },
   "successfullyAssignedCollections": {
-    "message": "Kolekce byly úspěšně přiřazeny"
+    "message": "Sbírky byly úspěšně přiřazeny"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -9254,7 +9254,7 @@
     "message": "Smazání poskytovatele je trvalé. Tuto akci nelze vrátit zpět."
   },
   "errorAssigningTargetCollection": {
-    "message": "Chyba při přiřazování cílové kolekce."
+    "message": "Chyba při přiřazování do cílové sbírky."
   },
   "errorAssigningTargetFolder": {
     "message": "Chyba při přiřazování cílové složky."
@@ -9412,7 +9412,7 @@
     "message": "Žádný přístup"
   },
   "collectionAdminConsoleManaged": {
-    "message": "Tato kolekce je přístupná pouze z konzole správce"
+    "message": "Tato sbírka je přístupná pouze z konzole správce"
   },
   "organizationOptionsMenu": {
     "message": "Přepnout menu organizace"
@@ -9421,7 +9421,7 @@
     "message": "Vybrat položku trezoru"
   },
   "collectionItemSelect": {
-    "message": "Vybrat položku kolekce"
+    "message": "Vybrat položku sbírky"
   },
   "manageBillingFromProviderPortalMessage": {
     "message": "Spravovat fakturaci z portálu poskytovatele"
@@ -9494,7 +9494,7 @@
     "message": "Zobrazit přístup"
   },
   "noCollectionsSelected": {
-    "message": "Nevybrali jste žádné kolekce."
+    "message": "Nevybrali jste žádné sbírky."
   },
   "updateName": {
     "message": "Aktualizovat název"
@@ -9603,13 +9603,13 @@
     "message": "Ujistěte se, že členové mají přístup k správným údajům a jejich účty jsou bezpečné. Použijte tuto zprávu k získání CSV přístupu členů a konfigurací účtu."
   },
   "memberAccessReportPageDesc": {
-    "message": "Audit přístupu členů organizace ke skupinám, kolekcím a položkám kolekcí. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke kolekcím a konfiguracích účtů."
+    "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám kolekcí. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
   "memberAccessReportNoCollection": {
-    "message": "(Žádná kolekce)"
+    "message": "(Žádná sbírka)"
   },
   "memberAccessReportNoCollectionPermission": {
-    "message": "(Žádné oprávnění ke kolekci)"
+    "message": "(Žádné oprávnění ke sbírce)"
   },
   "memberAccessReportNoGroup": {
     "message": "(Žádná skupina)"
@@ -9971,7 +9971,7 @@
     "message": "Neomezené sdílení"
   },
   "unlimitedCollections": {
-    "message": "Neomezené kolekce"
+    "message": "Neomezené sbírky"
   },
   "secureDataSharing": {
     "message": "Zabezpečené sdílení dat"
@@ -10110,7 +10110,7 @@
     }
   },
   "deleteOrganizationUserWarningDesc": {
-    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky kolekcí nejsou ovlivněny.",
+    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky sbírky nejsou ovlivněny.",
     "description": "Warning description for the delete organization user dialog",
     "placeholders": {
       "name": {
@@ -10120,7 +10120,7 @@
     }
   },
   "deleteManyOrganizationUsersWarningDesc": {
-    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky kolekcí nejsou ovlivněny.",
+    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky sbírky nejsou ovlivněny.",
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
@@ -10193,7 +10193,7 @@
     "message": "Kód z popisu"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
+    "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -10383,7 +10383,7 @@
     "message": "Otevřeno rozšíření prohlížeče"
   },
   "openedExtensionViewAtRiskPasswords": {
-    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše riziková hesla."
+    "message": "Rozšíření Bitwarden pro prohlížeč bylo úspěšně otevřeno. Nyní můžete zkontrolovat Vaše ohrožená hesla."
   },
   "openExtensionManuallyPart1": {
     "message": "Měli jsme potíže s otevřením rozšíření Bitwarden pro pohlížeč. Klepněte na ikonu Bitwarden",
@@ -10543,7 +10543,7 @@
     "message": "Tyto události jsou jen příklady a neodrážejí skutečné události v rámci Vaší organizace Bitwarden."
   },
   "cannotCreateCollection": {
-    "message": "Bezplatné organizace mohou mít až 2 kolekce. Chcete-li přidat více kolekcí, přejděte na placený tarif."
+    "message": "Bezplatné organizace mohou mít až 2 sbírky. Chcete-li přidat více sbírek, přejděte na placený tarif."
   },
   "businessUnit": {
     "message": "Obchodní jednotka"

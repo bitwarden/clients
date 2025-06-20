@@ -7614,9 +7614,9 @@
     "message": "Hizmet hesabı güncellendi",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Projeleri veya sırları yazın veya seçin",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Projeleri yazın veya seçin",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Filtrelemek için yaz",

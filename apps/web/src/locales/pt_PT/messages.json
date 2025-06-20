@@ -7614,9 +7614,9 @@
     "message": "Conta de serviço atualizada",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Escreva ou selecione projetos ou segredos",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Introduza ou selecione projetos",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Escreva para filtrar",
@@ -9733,7 +9733,7 @@
     "message": "Selecionar pasta"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
+    "message": "1 item será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
@@ -9745,7 +9745,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
+    "message": "1 item será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
     "placeholders": {
       "org": {
         "content": "$1",

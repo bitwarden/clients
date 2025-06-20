@@ -7614,9 +7614,9 @@
     "message": "Xidmət hesabı güncəlləndi",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Layihələri və ya sirləri yazın və ya seçin",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Layihələri yaz və ya seç",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Filtrləmək üçün yazın",

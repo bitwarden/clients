@@ -7614,9 +7614,9 @@
     "message": "Pakalpojumu konts ir atjaunināts",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Rakstīt vai atlasīt projektus vai noslēpumus",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Ierakstīt vai atlasīt projektus",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Rakstīt, lai atlasītu",

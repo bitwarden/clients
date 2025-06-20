@@ -7614,9 +7614,9 @@
     "message": "Na-update na ang serbisyo account",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Mag type o pumili ng mga proyekto o lihim",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Mag-type para i-filter",

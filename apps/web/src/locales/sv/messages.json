@@ -7614,9 +7614,9 @@
     "message": "Tjänstkonto uppdaterat",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Skriv eller välj projekt eller hemligheter",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Skriv för att filtrera",
