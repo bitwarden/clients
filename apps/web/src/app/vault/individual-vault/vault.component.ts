@@ -354,17 +354,26 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
-    const ciphers$ = combineLatest([
+    /**
+     * This observable filters the ciphers based on the active user ID and the restricted item types.
+     */
+    const allowedCiphers$ = combineLatest([
       this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
-      filter$,
-      this.currentSearchText$,
       this.restrictedItemTypesService.restricted$,
     ]).pipe(
+      map(([ciphers, restrictedTypes]) =>
+        ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+        ),
+      ),
+    );
+
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, restrictedTypes);
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 

@@ -20,6 +20,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
   DEFAULT_KDF_CONFIG,
   PBKDF2KdfConfig,
   KdfConfigService,
@@ -159,6 +163,7 @@ describe("VaultExportService", () => {
   let accountService: MockProxy<AccountService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let apiService: MockProxy<ApiService>;
+  let restrictedItemTypesService: Partial<RestrictedItemTypesService>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -186,6 +191,12 @@ describe("VaultExportService", () => {
     const activeAccount = { id: userId, ...accountInfo };
     accountService.activeAccount$ = new BehaviorSubject(activeAccount);
 
+    restrictedItemTypesService = {
+      restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+      isCipherRestricted: jest.fn().mockReturnValue(false),
+      isCipherRestricted$: jest.fn().mockReturnValue(of(false)),
+    };
+
     exportService = new IndividualVaultExportService(
       folderService,
       cipherService,
@@ -196,6 +207,7 @@ describe("VaultExportService", () => {
       kdfConfigService,
       accountService,
       apiService,
+      restrictedItemTypesService as RestrictedItemTypesService,
     );
   });
 
