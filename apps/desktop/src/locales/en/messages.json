@@ -3949,5 +3949,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable Autotype"
+  },
+  "enableAutotypeDesc": {
+    "message": "Warning: Bitwarden gives you full control of autotype, and does not validate input locations. Please be careful! (Currently this feature is available on Windows only.)"
   }
 }

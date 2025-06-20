@@ -72,6 +72,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
+  showEnableAutotype = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -133,6 +134,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
+    enableAutotype: false,
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -166,6 +168,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
     // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
     this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -190,6 +193,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = isMac;
+
+    // Autotype is only for Windows initially
+    this.showEnableAutotype = isWindows;
 
     const localeOptions: any[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {
@@ -333,6 +339,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
+      enableAutotype: await firstValueFrom(this.desktopSettingsService.autotypeEnabled$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -851,6 +858,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
       }
     }
+  }
+
+  async saveEnableAutotype() {
+    await this.desktopSettingsService.setAutotypeEnabled(this.form.value.enableAutotype);
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {

@@ -1,0 +1,11 @@
+[package]
+name = "autotype"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+windows = { git = "https://github.com/microsoft/windows-rs.git", rev = "bbe2bf3a5a020893e785ca79b0a09fc8770ba7e7", features = ["Win32_UI_Input_KeyboardAndMouse"] }
+windows-core = { git = "https://github.com/microsoft/windows-rs.git", rev = "bbe2bf3a5a020893e785ca79b0a09fc8770ba7e7" }
+windows-result = { git = "https://github.com/microsoft/windows-rs.git", rev = "bbe2bf3a5a020893e785ca79b0a09fc8770ba7e7" }

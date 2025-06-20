@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator"]
+members = ["napi", "core", "proxy", "macos_provider", "windows_plugin_authenticator", "autotype"]
 
 [workspace.package]
 version = "0.0.0"

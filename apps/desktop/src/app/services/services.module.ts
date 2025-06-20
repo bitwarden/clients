@@ -140,6 +140,7 @@ import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 
@@ -450,6 +451,14 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsServiceAbstraction, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeService,
+    deps: [
+      CipherServiceAbstraction,
+      LogService,
+      DesktopSettingsService,
+    ],
   }),
 ];
 
