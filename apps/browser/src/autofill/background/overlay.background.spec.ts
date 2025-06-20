@@ -3604,12 +3604,14 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to the list port indicating that the generated password should be updated", async () => {
+        overlayBackground["generatedPassword"] = "refresh";
+
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
         await flushPromises();
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuGeneratedPassword",
-          generatedPassword,
+          generatedPassword: "refresh",
           refreshPassword: true,
         });
       });

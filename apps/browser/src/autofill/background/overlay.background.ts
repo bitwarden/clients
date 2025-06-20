@@ -1813,7 +1813,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Generates a password based on the user defined password generation options.
    */
-  private async requestGeneratedPassword(source: GenerateRequest["source"]) {
+  private requestGeneratedPassword(source: GenerateRequest["source"]) {
     this.requestGeneratedPassword$.next({ source, type: Type.password });
   }
 
@@ -1824,7 +1824,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.generatedPassword || refreshPassword) {
-      await this.requestGeneratedPassword("inline-menu");
+      this.requestGeneratedPassword("inline-menu");
     }
 
     this.postMessageToPort(this.inlineMenuListPort, {
@@ -3089,7 +3089,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!this.generatedPassword) {
-      await this.requestGeneratedPassword();
+      this.requestGeneratedPassword("inline-menu");
     }
 
     return true;
