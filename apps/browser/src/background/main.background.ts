@@ -1083,6 +1083,7 @@ export default class MainBackground {
           this.configService,
           new WebPushNotificationsApiService(this.apiService, this.appIdService),
           registration,
+          this.stateProvider,
         );
       } else {
         this.webPushConnectionService = new UnsupportedWebPushConnectionService();
