@@ -10,7 +10,9 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterVerificationEmailClickedRequest } from "@bitwarden/common/auth/models/request/registration/register-verification-email-clicked.request";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -77,6 +79,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -194,7 +197,15 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
 
-      await this.router.navigate(["/vault"]);
+      const endUserActivationFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM19315EndUserActivationMvp,
+      );
+
+      if (endUserActivationFlagEnabled) {
+        await this.router.navigate(["/setup-extension"]);
+      } else {
+        await this.router.navigate(["/vault"]);
+      }
     } catch (e) {
       // If login errors, redirect to login page per product. Don't show error
       this.logService.error("Error logging in after registration: ", e.message);
