@@ -5373,6 +5373,9 @@
       }
     }
   },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
+  },
   "personalOwnership": {
     "message": "Remove individual vault"
   },

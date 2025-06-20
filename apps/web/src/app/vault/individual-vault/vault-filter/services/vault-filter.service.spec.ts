@@ -36,7 +36,7 @@ describe("vault filter service", () => {
   let folderViews: ReplaySubject<FolderView[]>;
   let collectionViews: ReplaySubject<CollectionView[]>;
   let cipherViews: ReplaySubject<CipherView[]>;
-  let personalOwnershipPolicy: ReplaySubject<boolean>;
+  let organizationDataOwnershipPolicy: ReplaySubject<boolean>;
   let singleOrgPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
 
@@ -59,15 +59,15 @@ describe("vault filter service", () => {
     folderViews = new ReplaySubject<FolderView[]>(1);
     collectionViews = new ReplaySubject<CollectionView[]>(1);
     cipherViews = new ReplaySubject<CipherView[]>(1);
-    personalOwnershipPolicy = new ReplaySubject<boolean>(1);
+    organizationDataOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
 
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
     policyService.policyAppliesToUser$
-      .calledWith(PolicyType.PersonalOwnership, mockUserId)
-      .mockReturnValue(personalOwnershipPolicy);
+      .calledWith(PolicyType.OrganizationDataOwnership, mockUserId)
+      .mockReturnValue(organizationDataOwnershipPolicy);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
@@ -113,7 +113,7 @@ describe("vault filter service", () => {
     beforeEach(() => {
       const storedOrgs = [createOrganization("1", "org1"), createOrganization("2", "org2")];
       organizations.next(storedOrgs);
-      personalOwnershipPolicy.next(false);
+      organizationDataOwnershipPolicy.next(false);
       singleOrgPolicy.next(false);
     });
 
@@ -125,8 +125,8 @@ describe("vault filter service", () => {
       expect(tree.children.find((o) => o.node.name === "org2"));
     });
 
-    it("hides My Vault if personal ownership policy is enabled", async () => {
-      personalOwnershipPolicy.next(true);
+    it("hides My Vault if organization data ownership policy is enabled", async () => {
+      organizationDataOwnershipPolicy.next(true);
 
       const tree = await firstValueFrom(vaultFilterService.organizationTree$);
 
@@ -144,9 +144,9 @@ describe("vault filter service", () => {
       expect(tree.children.find((o) => o.node.id === "MyVault"));
     });
 
-    it("returns 1 organization if both single organization and personal ownership policies are enabled", async () => {
+    it("returns 1 organization if both single organization and organization data ownership policies are enabled", async () => {
       singleOrgPolicy.next(true);
-      personalOwnershipPolicy.next(true);
+      organizationDataOwnershipPolicy.next(true);
 
       const tree = await firstValueFrom(vaultFilterService.organizationTree$);
 

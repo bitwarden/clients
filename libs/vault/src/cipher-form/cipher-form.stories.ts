@@ -57,7 +57,7 @@ const defaultConfig: CipherFormConfig = {
   mode: "add",
   cipherType: CipherType.Login,
   admin: false,
-  allowPersonalOwnership: true,
+  organizationDataOwnershipDisabled: true,
   collections: [
     {
       id: "col1",
@@ -354,13 +354,13 @@ export const WithSubmitButton: Story = {
   },
 };
 
-export const NoPersonalOwnership: Story = {
+export const OrganizationDataOwnershipEnabled: Story = {
   ...Add,
   args: {
     config: {
       ...defaultConfig,
       mode: "add",
-      allowPersonalOwnership: false,
+      organizationDataOwnershipDisabled: false,
       originalCipher: defaultConfig.originalCipher,
       organizations: defaultConfig.organizations!,
     },

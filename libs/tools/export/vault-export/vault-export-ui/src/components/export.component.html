@@ -19,7 +19,7 @@
           [label]="'myVault' | i18n"
           value="myVault"
           icon="bwi-user"
-          *ngIf="!(disablePersonalOwnershipPolicy$ | async)"
+          *ngIf="!(organizationDataOwnershipPolicy$ | async)"
         />
         <bit-option
           *ngFor="let o of organizations$ | async"
