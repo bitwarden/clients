@@ -26,6 +26,7 @@ import {
 import { SendFileResponse } from "./models/send-file.response";
 import { SendTextResponse } from "./models/send-text.response";
 import { SendResponse } from "./models/send.response";
+import { parseEmail } from "./util";
 
 const writeLn = CliUtils.writeLn;
 
@@ -354,38 +355,4 @@ export class SendProgram extends BaseProgram {
     );
     return await cmd.run(encodedJson, options);
   }
-}
-
-function parseEmail(input: string, previousInput: string[]) {
-  function isEmail(input: string) {
-    return !!input && !!input.match(/^(\w+?)@([\w.]+?)$/);
-  }
-
-  function parseList(value: string, separator: string) {
-    const parts = value.split(separator).map((v) => v.trim());
-    process.stdout.write(JSON.stringify(parts));
-    const filtered = parts.filter(isEmail);
-    process.stdout.write(JSON.stringify(filtered));
-
-    return filtered;
-  }
-
-  let result = previousInput ?? [];
-
-  if (input.includes("[")) {
-    const json = JSON.parse(input);
-    if (!Array.isArray(json)) {
-      throw new Error("invalid JSON formatting. `emails` must be an array.");
-    }
-
-    result = result.concat(json);
-  } else if (input.includes(",")) {
-    result = result.concat(parseList(input, ","));
-  } else if (input.includes(" ")) {
-    result = result.concat(parseList(input, " "));
-  } else {
-    result.push(input);
-  }
-
-  return result;
 }
