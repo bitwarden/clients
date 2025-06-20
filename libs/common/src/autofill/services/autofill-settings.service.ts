@@ -151,8 +151,6 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   private clearClipboardDelayState: ActiveUserState<ClearClipboardDelaySetting>;
   readonly clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
 
-  readonly showCardSettings: Observable<boolean>;
-
   constructor(
     private stateProvider: StateProvider,
     private policyService: PolicyService,
@@ -209,13 +207,6 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.clearClipboardDelayState = this.stateProvider.getActive(CLEAR_CLIPBOARD_DELAY);
     this.clearClipboardDelay$ = this.clearClipboardDelayState.state$.pipe(
       map((x) => x ?? ClearClipboardDelay.Never),
-    );
-
-    this.showCardSettings = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.RestrictedItemTypes, userId),
-      ),
     );
   }
 
