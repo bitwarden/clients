@@ -8,7 +8,7 @@
   -->
   <div
     #nonScrollable
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-640px)/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-640px)/2))]"
+    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
     [ngClass]="{
       'tw-invisible !tw-p-0 !tw-border-none': loading || nonScrollable.childElementCount === 0,
       'tw-border-secondary-300': scrolled(),
@@ -28,7 +28,7 @@
     (scroll)="handleScroll($event)"
     [ngClass]="{
       'tw-invisible': loading,
-      'tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-640px)/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-640px)/2))]':
+      'tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]':
         !disablePadding,
     }"
     bitScrollLayoutHost
