@@ -76,23 +76,22 @@ export class CriticalApplicationsComponent implements OnInit {
     combineLatest([
       this.dataService.applications$,
       this.criticalAppsService.getAppsListForOrg(this.organizationId),
+      this.dataService.cipherViewsForOrganization$,
     ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        map(([applications, criticalApps]) => {
+        map(([applications, criticalApps, cipherViewsForOrg]) => {
           const criticalUrls = criticalApps.map((ca) => ca.uri);
           const data = applications?.map((app) => ({
             ...app,
             isMarkedAsCritical: criticalUrls.includes(app.applicationName),
           })) as ApplicationHealthReportDetailWithCriticalFlag[];
-          return data?.filter((app) => app.isMarkedAsCritical);
+          const dataWithCriticalAppsFlag = data?.filter((app) => app.isMarkedAsCritical);
+          return { data: dataWithCriticalAppsFlag, cipherViews: cipherViewsForOrg };
         }),
-        switchMap(async (data) => {
+        switchMap(async ({ data, cipherViews }) => {
           if (data) {
-            const dataWithCiphers = await this.reportService.identifyCiphers(
-              data,
-              this.organizationId,
-            );
+            const dataWithCiphers = await this.reportService.identifyCiphers(data, cipherViews);
             return dataWithCiphers;
           }
           return null;

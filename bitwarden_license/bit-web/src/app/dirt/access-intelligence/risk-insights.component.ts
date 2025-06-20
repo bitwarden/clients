@@ -2,8 +2,8 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY, Observable } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { combineLatest, Observable, of } from "rxjs";
+import { map } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -11,11 +11,9 @@ import {
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  ApplicationHealthReportDetail,
   DrawerType,
   PasswordHealthReportApplicationsResponse,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -77,15 +75,14 @@ export class RiskInsightsComponent implements OnInit {
 
   private organizationId: string | null = null;
   private destroyRef = inject(DestroyRef);
-  isLoading$: Observable<boolean> = new Observable<boolean>();
-  isRefreshing$: Observable<boolean> = new Observable<boolean>();
-  dataLastUpdated$: Observable<Date | null> = new Observable<Date | null>();
+  isLoading$: Observable<boolean> = this.dataService.isLoading$;
+  isRefreshing$: Observable<boolean> = this.dataService.isRefreshing$;
+  dataLastUpdated$: Observable<Date | null> = this.dataService.dataLastUpdated$;
   refetching: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
     private criticalAppsService: CriticalAppsService,
   ) {
@@ -99,30 +96,36 @@ export class RiskInsightsComponent implements OnInit {
   async ngOnInit() {
     this.showDebugTabs = devFlagEnabled("showRiskInsightsDebug");
 
+    this.isLoading$ = this.dataService.isLoading$;
+    this.isRefreshing$ = this.dataService.isRefreshing$;
+    this.dataLastUpdated$ = this.dataService.dataLastUpdated$;
+
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId: string | null) => {
-          if (orgId) {
-            this.organizationId = orgId;
-            this.dataService.fetchApplicationsReport(orgId);
-            this.isLoading$ = this.dataService.isLoading$;
-            this.isRefreshing$ = this.dataService.isRefreshing$;
-            this.dataLastUpdated$ = this.dataService.dataLastUpdated$;
-            return this.dataService.applications$;
-          } else {
-            return EMPTY;
-          }
-        }),
       )
-      .subscribe({
-        next: (applications: ApplicationHealthReportDetail[] | null) => {
-          if (applications) {
-            this.appsCount = applications.length;
-          }
-          this.criticalAppsService.setOrganizationId(this.organizationId as OrganizationId);
-        },
+      .subscribe((orgId: string | null) => {
+        if (orgId) {
+          this.criticalAppsService.setOrganizationId(orgId as OrganizationId);
+          this.organizationId = orgId;
+        }
+      });
+
+    combineLatest([
+      this.dataService.applications$,
+      this.dataService.dataLastUpdated$,
+      this.criticalAppsService.getAppsListForOrg(this.organizationId as string),
+    ])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([applications, dataLastUpdated, criticalApps]) => {
+        this.dataLastUpdated$ = of(dataLastUpdated);
+
+        if (applications) {
+          this.appsCount = applications.length;
+          this.criticalAppsCount = criticalApps.length;
+          this.dataLastUpdated = new Date(dataLastUpdated);
+        }
       });
   }
 
