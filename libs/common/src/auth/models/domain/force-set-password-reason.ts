@@ -16,6 +16,11 @@ export enum ForceSetPasswordReason {
   ---------------------------*/
 
   /**
+   * Occurs when a user JIT provisions into a master-password-encryption org via SSO and must set their initial password.
+   */
+  SsoNewJitProvisionedUser,
+
+  /**
    * Occurs when a TDE org user without a password obtains the password reset ("manage account recovery")
    * permission, which requires the TDE user to have/set a password.
    *
@@ -28,11 +33,6 @@ export enum ForceSetPasswordReason {
    * which forces the org user to set an initial password.
    */
   TdeOffboarding,
-
-  /**
-   * Occurs when a user JIT provisions into a master-password-encryption org via SSO and must set their initial password.
-   */
-  SsoNewJitProvisionedUser,
 
   /*----------------------------
       Change Existing Password  

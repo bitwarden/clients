@@ -60,12 +60,22 @@ export const authGuard: CanActivateFn = async (
     masterPasswordService.forceSetPasswordReason$(userId),
   );
 
+  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_SetInitialPasswordRefactor,
+  );
   const isChangePasswordFlagOn = await configService.getFeatureFlag(
     FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
   );
-  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-  );
+
+  // User JIT provisioned into a master-password-encryption org
+  if (
+    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    !routerState.url.includes("set-password-jit") &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
+    return router.createUrlTree([route]);
+  }
 
   // TDE org user has "manage account recovery" permission
   if (
@@ -75,16 +85,6 @@ export const authGuard: CanActivateFn = async (
     !routerState.url.includes("set-initial-password")
   ) {
     const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password";
-    return router.createUrlTree([route]);
-  }
-
-  // User JIT provisioned into a master-password-encryption org
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-password-jit") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
     return router.createUrlTree([route]);
   }
 
