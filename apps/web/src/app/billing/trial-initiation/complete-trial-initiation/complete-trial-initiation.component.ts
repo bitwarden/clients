@@ -225,7 +225,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   async orgNameEntrySubmit(): Promise<void> {
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    if (isTrialPaymentOptional) {
+    /** Only skip payment if the flag is on AND trialLength > 0 */
+    if (isTrialPaymentOptional && this.trialLength > 0) {
       await this.createOrganizationOnTrial();
     } else {
       await this.conditionallyCreateOrganization();
