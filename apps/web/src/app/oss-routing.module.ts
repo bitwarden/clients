@@ -78,6 +78,7 @@ import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
+import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -567,6 +568,15 @@ const routes: Routes = [
             path: "",
             component: BrowserExtensionPromptInstallComponent,
             outlet: "secondary",
+          },
+        ],
+      },
+      {
+        path: "setup-extension",
+        children: [
+          {
+            path: "",
+            component: SetupExtensionComponent,
           },
         ],
       },
