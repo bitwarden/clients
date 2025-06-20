@@ -1,3 +1,6 @@
+import { combineLatest, timer } from "rxjs";
+import { switchMap, filter } from "rxjs/operators";
+
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -26,6 +29,25 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {
     super();
+    // Always connect to the native messaging background if biometrics are enabled, not just when it is used
+    // so that there is no wait when used.
+    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
+    combineLatest([timer(0, 5000), biometricsEnabled])
+      .pipe(
+        filter(([_, enabled]) => enabled),
+        filter(([_]) => !this.nativeMessagingBackground().connected),
+        switchMap(async () => {
+          try {
+            await this.nativeMessagingBackground().connect();
+          } catch (e) {
+            this.logService.warning(
+              "[BackgroundBrowserBiometrics] Failed to connect to native messaging for biometrics",
+              e,
+            );
+          }
+        }),
+      )
+      .subscribe();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
