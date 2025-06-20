@@ -7614,9 +7614,9 @@
     "message": "חשבון השירות עודכן",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "הקלד או בחר פרויקטים או סודות",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "הקלד כדי לסנן",

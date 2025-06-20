@@ -7614,9 +7614,9 @@
     "message": "Ο λογαριασμός υπηρεσίας ενημερώθηκε",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Πληκτρολογήστε ή επιλέξτε έργα ή μυστικά",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Πληκτρολογήστε για φιλτράρισμα",

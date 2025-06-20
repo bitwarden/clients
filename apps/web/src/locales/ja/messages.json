@@ -7614,9 +7614,9 @@
     "message": "サービスアカウントを更新しました",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "プロジェクトまたはシークレットを入力・選択",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "入力して絞り込む",

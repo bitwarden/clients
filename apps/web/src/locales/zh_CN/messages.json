@@ -12,7 +12,7 @@
     "message": "没有关键应用程序存在风险"
   },
   "accessIntelligence": {
-    "message": "智慧访问"
+    "message": "Access Intelligence"
   },
   "riskInsights": {
     "message": "风险洞察"
@@ -4082,7 +4082,7 @@
     "message": "更新浏览器"
   },
   "generatingYourRiskInsights": {
-    "message": "正在生成您的风险洞察..."
+    "message": "正在生成风险洞察..."
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的网页浏览器。网页密码库可能无法正常运行。"
@@ -4564,7 +4564,7 @@
     "message": "已退款"
   },
   "nothingSelected": {
-    "message": "您尚未选择任何内容。"
+    "message": "您没有选择任何内容。"
   },
   "receiveMarketingEmailsV2": {
     "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
@@ -7614,9 +7614,9 @@
     "message": "服务账户已更新",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "输入或选择工程或机密",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "输入或选择工程",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "输入以筛选",
