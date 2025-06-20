@@ -65,6 +65,7 @@ ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
 
 RUN apk add curl \
+    icu-libs \
     && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community gosu \
     && rm -rf /var/cache/apk/*
 
