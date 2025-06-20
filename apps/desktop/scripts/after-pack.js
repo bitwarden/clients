@@ -172,10 +172,8 @@ async function addElectronFuses(context) {
 
     // Currently, asar integrity is only implemented for macOS and Windows
     // https://www.electronjs.org/docs/latest/tutorial/asar-integrity
-    // On macOS, it works by default, but on Windows it requires the
-    // asarIntegrity feature of electron-builder v25, currently in alpha
-    // https://github.com/electron-userland/electron-builder/releases/tag/v25.0.0-alpha.10
-    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: platform === "darwin",
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]:
+      platform == "darwin" || platform == "win32",
 
     [FuseV1Options.OnlyLoadAppFromAsar]: true,
 
