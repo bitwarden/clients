@@ -1,6 +1,11 @@
 import { Observable } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/key-management";
+
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { HashPurpose } from "../../../platform/enums";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
@@ -33,7 +38,7 @@ export abstract class MasterPasswordServiceAbstraction {
   /**
    * Decrypts the user key with the provided master key
    * @param masterKey The user's master key
-   *    * @param userId The desired user
+   * @param userId The desired user
    * @param userKey The user's encrypted symmetric key
    * @throws If either the MasterKey or UserKey are not resolved, or if the UserKey encryption type
    *         is neither AesCbc256_B64 nor AesCbc256_HmacSha256_B64
@@ -44,6 +49,51 @@ export abstract class MasterPasswordServiceAbstraction {
     userId: string,
     userKey?: EncString,
   ) => Promise<UserKey | null>;
+  /**
+   * @param password The user's master password that will be used to derive a master key if one isn't found
+   * @param userId The desired user
+   * @throws Error when userId is null/undefined.
+   * @throws Error when email or Kdf configuration cannot be found for the user.
+   * @returns The user's master key if it exists, or a newly derived master key.
+   */
+  abstract getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey>;
+  /**
+   * Generates a master key from the provided password
+   * @param password The user's master password
+   * @param email The user's email
+   * @param KdfConfig The user's key derivation function configuration
+   * @returns A master key derived from the provided password
+   */
+  abstract makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey>;
+  /**
+   * Creates a master password hash from the user's master password. Can
+   * be used for local authentication or for server authentication depending
+   * on the hashPurpose provided.
+   * @param password The user's master password
+   * @param key The user's master key or active's user master key.
+   * @param hashPurpose The iterations to use for the hash
+   * @throws Error when password is null/undefined or key is null/undefined.
+   * @returns The user's master password hash
+   */
+  abstract hashMasterKey(
+    password: string,
+    key: MasterKey,
+    hashPurpose?: HashPurpose,
+  ): Promise<string>;
+  /**
+   * Compares the provided master password to the stored password hash.
+   * @param masterPassword The user's master password
+   * @param masterKey The user's master key
+   * @param userId The id of the user to do the operation for.
+   * @throws Error when master key is null/undefined.
+   * @returns True if the provided master password matches either the stored
+   * key hash or the server key hash
+   */
+  abstract compareKeyHash(
+    masterPassword: string,
+    masterKey: MasterKey,
+    userId: UserId,
+  ): Promise<boolean>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {

@@ -28,7 +28,7 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -60,7 +60,6 @@ import {
   KeyService as KeyServiceAbstraction,
   UserPrivateKeyDecryptionFailedError,
 } from "./abstractions/key.service";
-import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
@@ -263,126 +262,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
   }
 
-  // TODO: Move to MasterPasswordService
-  async getOrDeriveMasterKey(password: string, userId?: UserId) {
-    const [resolvedUserId, email] = await firstValueFrom(
-      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
-        map(([activeAccount, accounts]) => {
-          userId ??= activeAccount?.id;
-          if (userId == null || accounts[userId] == null) {
-            throw new Error("No user found");
-          }
-          return [userId, accounts[userId].email];
-        }),
-      ),
-    );
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(resolvedUserId));
-    if (masterKey != null) {
-      return masterKey;
-    }
-
-    const kdf = await firstValueFrom(this.kdfConfigService.getKdfConfig$(resolvedUserId));
-    if (kdf == null) {
-      throw new Error("No kdf found for user");
-    }
-    return await this.makeMasterKey(password, email, kdf);
-  }
-
-  /**
-   * Derive a master key from a password and email.
-   *
-   * @remarks
-   * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
-   * TODO: Move to MasterPasswordService
-   */
-  async makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
-    const start = new Date().getTime();
-    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
-      password,
-      email,
-      KdfConfig,
-    )) as MasterKey;
-    const end = new Date().getTime();
-    this.logService.info(`[KeyService] Deriving master key took ${end - start}ms`);
-
-    return masterKey;
-  }
-
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]> {
     userKey ||= await this.getUserKey();
     return await this.buildProtectedSymmetricKey(masterKey, userKey);
-  }
-
-  // TODO: move to MasterPasswordService
-  async hashMasterKey(
-    password: string,
-    key: MasterKey | null,
-    hashPurpose?: HashPurpose,
-  ): Promise<string> {
-    if (key == null) {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-      if (userId == null) {
-        throw new Error("No active user found.");
-      }
-
-      key = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    }
-
-    if (password == null || key == null) {
-      throw new Error("Invalid parameters.");
-    }
-
-    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
-    const hash = await this.cryptoFunctionService.pbkdf2(
-      key.inner().encryptionKey,
-      password,
-      "sha256",
-      iterations,
-    );
-    return Utils.fromBufferToB64(hash);
-  }
-
-  // TODO: move to MasterPasswordService
-  async compareKeyHash(
-    masterPassword: string | null,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean> {
-    if (masterKey == null) {
-      throw new Error("'masterKey' is required to be non-null.");
-    }
-
-    if (masterPassword == null) {
-      // If they don't give us a master password, we can't hash it, and therefore
-      // it will never match what we have stored.
-      return false;
-    }
-
-    // Retrieve the current password hash
-    const storedPasswordHash = await firstValueFrom(
-      this.masterPasswordService.masterKeyHash$(userId),
-    );
-
-    if (storedPasswordHash == null) {
-      return false;
-    }
-
-    // Hash the key for local use
-    const localKeyHash = await this.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    // Check if the stored hash is already equal to the hash we create locally
-    if (localKeyHash == null || storedPasswordHash !== localKeyHash) {
-      return false;
-    }
-
-    return true;
   }
 
   async setOrgKeys(

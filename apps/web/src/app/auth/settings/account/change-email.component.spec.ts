@@ -7,6 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -24,12 +25,14 @@ describe("ChangeEmailComponent", () => {
   let apiService: MockProxy<ApiService>;
   let accountService: FakeAccountService;
   let keyService: MockProxy<KeyService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let kdfConfigService: MockProxy<KdfConfigService>;
 
   beforeEach(async () => {
     apiService = mock<ApiService>();
     keyService = mock<KeyService>();
     kdfConfigService = mock<KdfConfigService>();
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
     accountService = mockAccountServiceWith("UserId" as UserId);
 
     await TestBed.configureTestingModule({
@@ -42,6 +45,7 @@ describe("ChangeEmailComponent", () => {
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: KdfConfigService, useValue: kdfConfigService },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: MasterPasswordServiceAbstraction, useValue: masterPasswordService },
         { provide: FormBuilder, useClass: FormBuilder },
       ],
     }).compileComponents();
@@ -88,10 +92,10 @@ describe("ChangeEmailComponent", () => {
         newEmail: "test@example.com",
       });
 
-      keyService.getOrDeriveMasterKey
-        .calledWith("password", "UserId")
+      masterPasswordService.getOrDeriveMasterKey
+        .calledWith("password", "UserId" as UserId)
         .mockResolvedValue("getOrDeriveMasterKey" as any);
-      keyService.hashMasterKey
+      masterPasswordService.hashMasterKey
         .calledWith("password", "getOrDeriveMasterKey" as any)
         .mockResolvedValue("existingHash");
     });
@@ -140,10 +144,10 @@ describe("ChangeEmailComponent", () => {
           .mockReturnValue(of("kdfConfig" as any));
         keyService.userKey$.calledWith("UserId" as any).mockReturnValue(of("userKey" as any));
 
-        keyService.makeMasterKey
+        masterPasswordService.makeMasterKey
           .calledWith("password", "test@example.com", "kdfConfig" as any)
           .mockResolvedValue("newMasterKey" as any);
-        keyService.hashMasterKey
+        masterPasswordService.hashMasterKey
           .calledWith("password", "newMasterKey" as any)
           .mockResolvedValue("newMasterKeyHash");
 

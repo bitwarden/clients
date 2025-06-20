@@ -652,10 +652,12 @@ export default class MainBackground {
 
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
-      this.stateService,
       this.keyGenerationService,
       this.encryptService,
       this.logService,
+      this.accountService,
+      this.kdfConfigService,
+      this.cryptoFunctionService,
     );
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
@@ -891,7 +893,6 @@ export default class MainBackground {
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 
     this.userVerificationService = new UserVerificationService(
-      this.keyService,
       this.accountService,
       this.masterPasswordService,
       this.i18nService,

@@ -332,7 +332,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     }
     kdfConfig.validateKdfConfigForPrelogin();
 
-    return await this.keyService.makeMasterKey(masterPassword, email, kdfConfig);
+    return await this.masterPasswordService.makeMasterKey(masterPassword, email, kdfConfig);
   }
 
   private async clearCache(): Promise<void> {

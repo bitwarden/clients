@@ -83,12 +83,15 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    data.localMasterKeyHash = await this.keyService.hashMasterKey(
+    data.localMasterKeyHash = await this.masterPasswordService.hashMasterKey(
       masterPassword,
       data.masterKey,
       HashPurpose.LocalAuthorization,
     );
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
+    const serverMasterKeyHash = await this.masterPasswordService.hashMasterKey(
+      masterPassword,
+      data.masterKey,
+    );
 
     data.tokenRequest = new PasswordTokenRequest(
       email,

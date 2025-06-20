@@ -4,7 +4,7 @@ import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/mo
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -17,8 +17,6 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-
-import { KdfConfig } from "../models/kdf-config";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -171,20 +169,6 @@ export abstract class KeyService {
    */
   abstract clearStoredUserKey(keySuffix: KeySuffixOptions, userId: string): Promise<void>;
   /**
-   * @throws Error when userId is null and no active user
-   * @param password The user's master password that will be used to derive a master key if one isn't found
-   * @param userId The desired user
-   */
-  abstract getOrDeriveMasterKey(password: string, userId?: string): Promise<MasterKey>;
-  /**
-   * Generates a master key from the provided password
-   * @param password The user's master password
-   * @param email The user's email
-   * @param KdfConfig The user's key derivation function configuration
-   * @returns A master key derived from the provided password
-   */
-  abstract makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey>;
-  /**
    * Encrypts the existing (or provided) user key with the
    * provided master key
    * @param masterKey The user's master key
@@ -195,34 +179,6 @@ export abstract class KeyService {
     masterKey: MasterKey,
     userKey?: UserKey,
   ): Promise<[UserKey, EncString]>;
-  /**
-   * Creates a master password hash from the user's master password. Can
-   * be used for local authentication or for server authentication depending
-   * on the hashPurpose provided.
-   * @throws Error when password is null or key is null and no active user or active user have no master key
-   * @param password The user's master password
-   * @param key The user's master key or active's user master key.
-   * @param hashPurpose The iterations to use for the hash
-   * @returns The user's master password hash
-   */
-  abstract hashMasterKey(
-    password: string,
-    key: MasterKey | null,
-    hashPurpose?: HashPurpose,
-  ): Promise<string>;
-  /**
-   * Compares the provided master password to the stored password hash.
-   * @param masterPassword The user's master password
-   * @param key The user's master key
-   * @param userId The id of the user to do the operation for.
-   * @returns True if the provided master password matches either the stored
-   * key hash or the server key hash
-   */
-  abstract compareKeyHash(
-    masterPassword: string,
-    masterKey: MasterKey,
-    userId: UserId,
-  ): Promise<boolean>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

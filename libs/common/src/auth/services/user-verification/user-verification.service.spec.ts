@@ -15,7 +15,6 @@ import {
   BiometricsService,
   BiometricsStatus,
   KdfConfig,
-  KeyService,
   KdfConfigService,
 } from "@bitwarden/key-management";
 
@@ -37,7 +36,6 @@ import { UserVerificationService } from "./user-verification.service";
 describe("UserVerificationService", () => {
   let sut: UserVerificationService;
 
-  const keyService = mock<KeyService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const i18nService = mock<I18nService>();
   const userVerificationApiService = mock<UserVerificationApiServiceAbstraction>();
@@ -55,7 +53,6 @@ describe("UserVerificationService", () => {
     accountService = mockAccountServiceWith(mockUserId);
 
     sut = new UserVerificationService(
-      keyService,
       accountService,
       masterPasswordService,
       i18nService,
@@ -197,7 +194,7 @@ describe("UserVerificationService", () => {
 
       kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
       masterPasswordService.masterKey$.mockReturnValue(of("masterKey" as unknown as MasterKey));
-      keyService.hashMasterKey
+      masterPasswordService.hashMasterKey
         .calledWith("password", "masterKey" as unknown as MasterKey, HashPurpose.LocalAuthorization)
         .mockResolvedValue("localHash");
     });
@@ -208,7 +205,7 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        keyService.compareKeyHash.mockResolvedValueOnce(true);
+        masterPasswordService.compareKeyHash.mockResolvedValueOnce(true);
 
         const result = await sut.verifyUserByMasterPassword(
           {
@@ -219,7 +216,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(keyService.compareKeyHash).toHaveBeenCalled();
+        expect(masterPasswordService.compareKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -234,7 +231,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        keyService.compareKeyHash.mockResolvedValueOnce(false);
+        masterPasswordService.compareKeyHash.mockResolvedValueOnce(false);
 
         await expect(
           sut.verifyUserByMasterPassword(
@@ -247,7 +244,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(keyService.compareKeyHash).toHaveBeenCalled();
+        expect(masterPasswordService.compareKeyHash).toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -259,7 +256,7 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        keyService.hashMasterKey
+        masterPasswordService.hashMasterKey
           .calledWith(
             "password",
             "masterKey" as unknown as MasterKey,
@@ -279,7 +276,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(keyService.compareKeyHash).not.toHaveBeenCalled();
+        expect(masterPasswordService.compareKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -294,7 +291,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        keyService.hashMasterKey
+        masterPasswordService.hashMasterKey
           .calledWith(
             "password",
             "masterKey" as unknown as MasterKey,
@@ -314,7 +311,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(keyService.compareKeyHash).not.toHaveBeenCalled();
+        expect(masterPasswordService.compareKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -376,7 +373,7 @@ describe("UserVerificationService", () => {
       it("throws if master key cannot be created", async () => {
         kdfConfigService.getKdfConfig.mockResolvedValueOnce("kdfConfig" as unknown as KdfConfig);
         masterPasswordService.masterKey$.mockReturnValueOnce(of(null));
-        keyService.makeMasterKey.mockResolvedValueOnce(null);
+        masterPasswordService.makeMasterKey.mockResolvedValueOnce(null);
 
         await expect(
           sut.verifyUserByMasterPassword(

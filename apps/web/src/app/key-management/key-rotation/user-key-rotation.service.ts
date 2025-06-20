@@ -6,6 +6,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -69,6 +70,7 @@ export class UserKeyRotationService {
     private configService: ConfigService,
     private cryptoFunctionService: CryptoFunctionService,
     private kdfConfigService: KdfConfigService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   /**
@@ -504,12 +506,12 @@ export class UserKeyRotationService {
     masterKeyKdfConfig: KdfConfig,
     masterKeySalt: string,
   ): Promise<string> {
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.masterPasswordService.makeMasterKey(
       masterPassword,
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(
+    return this.masterPasswordService.hashMasterKey(
       masterPassword,
       masterKey,
       HashPurpose.ServerAuthorization,
