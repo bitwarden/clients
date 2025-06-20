@@ -14,7 +14,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-core-foundation = "=0.10.0"
+core-foundation = "=0.10.1"
 
 [build-dependencies]
 cc = "=1.2.4"
