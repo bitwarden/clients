@@ -22,16 +22,12 @@
           bitCell
           bitSortable="name"
           [fn]="sortByName"
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
+          [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'"
         >
           {{ "name" | i18n }}
         </th>
         <!-- Individual vault -->
-        <th
-          *ngIf="!showAdminActions"
-          bitCell
-          [class]="showExtraColumn ? 'lg:tw-w-3/5' : 'tw-w-full'"
-        >
+        <th *ngIf="!showAdminActions" bitCell [class]="showExtraColumn ? 'tw-w-3/5' : 'tw-w-full'">
           {{ "name" | i18n }}
         </th>
         <th bitCell *ngIf="showOwner" class="tw-hidden tw-w-2/5 lg:tw-table-cell">
