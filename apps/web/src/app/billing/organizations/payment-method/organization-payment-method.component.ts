@@ -33,6 +33,10 @@ import {
   AdjustPaymentDialogComponent,
   AdjustPaymentDialogResultType,
 } from "../../shared/adjust-payment-dialog/adjust-payment-dialog.component";
+import {
+  TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
+  TrialPaymentMethodDialogComponent,
+} from "../../shared/trial-subscription-dialog/trial-payment-method-dialog.component";
 import { FreeTrial } from "../../types/free-trial";
 
 @Component({
@@ -190,15 +194,15 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   };
 
   changePayment = async () => {
-    const dialogRef = AdjustPaymentDialogComponent.open(this.dialogService, {
+    const dialogRef = TrialPaymentMethodDialogComponent.open(this.dialogService, {
       data: {
-        initialPaymentMethod: this.paymentSource?.type,
         organizationId: this.organizationId,
-        productTier: this.organization?.productTierType,
+        subscription: this.organizationSubscriptionResponse,
+        productTierType: this.organization.productTierType,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === AdjustPaymentDialogResultType.Submitted) {
+    if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
       this.location.replaceState(this.location.path(), "", {});
       if (this.launchPaymentModalAutomatically && !this.organization.enabled) {
         await this.syncService.fullSync(true);
