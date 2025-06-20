@@ -75,7 +75,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     if (response.assigned) {
       await this.collectionService.upsert(new CollectionData(response), userId);
     } else {
-      await this.collectionService.delete(collection.id as CollectionId, userId);
+      await this.collectionService.delete([collection.id as CollectionId], userId);
     }
 
     return response;

@@ -9,7 +9,7 @@ import { CollectionData, Collection, CollectionView } from "../models";
 export abstract class CollectionService {
   abstract encryptedCollections$: (userId: UserId) => Observable<Collection[]>;
   abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[]>;
-  abstract upsert: (collection: CollectionData | CollectionData[], userId: UserId) => Promise<any>;
+  abstract upsert: (collection: CollectionData, userId: UserId) => Promise<any>;
   abstract replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   /**
    * @deprecated This method will soon be made private, use `decryptedCollections$` instead.
@@ -18,7 +18,7 @@ export abstract class CollectionService {
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ) => Observable<CollectionView[]>;
-  abstract delete: (id: CollectionId | CollectionId[], userId: UserId) => Promise<any>;
+  abstract delete: (ids: CollectionId[], userId: UserId) => Promise<any>;
   abstract encrypt: (model: CollectionView, userId: UserId) => Promise<Collection>;
   /**
    * Transforms the input CollectionViews into TreeNodes

@@ -190,49 +190,69 @@ describe("DefaultCollectionService", () => {
 
   describe("upsert", () => {
     it("upserts to existing collections", async () => {
-      const collection1 = collectionDataFactory();
-      const collection2 = collectionDataFactory();
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+      const collection1 = collectionDataFactory(org1);
 
-      await setEncryptedState([collection1, collection2]);
+      await setEncryptedState([collection1]);
+      cryptoKeys.next({
+        [collection1.organizationId]: orgKey1,
+      });
 
       const updatedCollection1 = Object.assign(new CollectionData({} as any), collection1, {
         name: makeEncString("UPDATED_ENC_NAME_" + collection1.id).encryptedString,
       });
-      const newCollection3 = collectionDataFactory();
 
-      await collectionService.upsert([updatedCollection1, newCollection3], userId);
+      await collectionService.upsert(updatedCollection1, userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toBe(3);
-      expect(result).toContainPartialObjects([
+      const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
+
+      expect(encryptedResult.length).toBe(1);
+      expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("UPDATED_ENC_NAME_" + collection1.id),
         },
+      ]);
+
+      const decryptedResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(decryptedResult.length).toBe(1);
+      expect(decryptedResult).toContainPartialObjects([
         {
-          id: collection2.id,
-          name: makeEncString("ENC_NAME_" + collection2.id),
-        },
-        {
-          id: newCollection3.id,
-          name: makeEncString("ENC_NAME_" + newCollection3.id),
+          id: collection1.id,
+          name: "UPDATED_DEC_NAME_" + collection1.id,
         },
       ]);
     });
 
     it("upserts to a null state", async () => {
-      const collection1 = collectionDataFactory();
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+      const collection1 = collectionDataFactory(org1);
+
+      cryptoKeys.next({
+        [collection1.organizationId]: orgKey1,
+      });
 
       await setEncryptedState(null);
 
       await collectionService.upsert(collection1, userId);
 
-      const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toBe(1);
-      expect(result).toContainPartialObjects([
+      const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
+      expect(encryptedResult.length).toBe(1);
+      expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,
           name: makeEncString("ENC_NAME_" + collection1.id),
+        },
+      ]);
+
+      const decryptedResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(decryptedResult.length).toBe(1);
+      expect(decryptedResult).toContainPartialObjects([
+        {
+          id: collection1.id,
+          name: "DEC_NAME_" + collection1.id,
         },
       ]);
     });
@@ -267,7 +287,7 @@ describe("DefaultCollectionService", () => {
       const collection2 = collectionDataFactory();
       await setEncryptedState([collection1, collection2]);
 
-      await collectionService.delete(collection1.id, userId);
+      await collectionService.delete([collection1.id], userId);
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toEqual(1);
@@ -291,7 +311,7 @@ describe("DefaultCollectionService", () => {
       const collection1 = collectionDataFactory();
       await setEncryptedState(null);
 
-      await collectionService.delete(collection1.id, userId);
+      await collectionService.delete([collection1.id], userId);
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
       expect(result.length).toEqual(0);
