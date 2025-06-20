@@ -174,7 +174,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
           allCiphers = [..._failedCiphers, ...allCiphers];
 
           const restrictedTypeFilter = (cipher: CipherView) =>
-            isCipherRestricted(cipher, restricted);
+            !isCipherRestricted(cipher, restricted);
 
           return this.searchService.searchCiphers(
             userId,
