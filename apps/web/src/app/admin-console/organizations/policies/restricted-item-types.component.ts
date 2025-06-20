@@ -5,8 +5,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { BasePolicy, BasePolicyComponent } from "./base-policy.component";
 
 export class RestrictedItemTypesPolicy extends BasePolicy {
-  name = "restrictedItemTypesPolicy";
-  description = "restrictedItemTypesPolicyDesc";
+  name = "restrictedItemTypePolicy";
+  description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
   component = RestrictedItemTypesPolicyComponent;
 }
