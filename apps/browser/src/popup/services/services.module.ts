@@ -110,6 +110,8 @@ import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/imp
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { SystemNotificationServiceAbstraction } from "@bitwarden/common/platform/system-notifications";
+import { BrowserSystemNotificationService } from "@bitwarden/common/platform/system-notifications/browser-system-notification.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -670,6 +672,11 @@ const safeProviders: SafeProvider[] = [
     provide: NotificationsService,
     useClass: ForegroundNotificationsService,
     deps: [LogService],
+  }),
+  safeProvider({
+    provide: SystemNotificationServiceAbstraction,
+    useClass: BrowserSystemNotificationService,
+    deps: [LogService, PlatformUtilsService],
   }),
 ];
 
