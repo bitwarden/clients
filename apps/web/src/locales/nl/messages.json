@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Door aanmelden in twee stappen in te schakelen, kun je jezelf definitief buitensluiten van je Bitwarden-account. Een herstelcode geeft je toegang tot je account in het geval dat je je normale tweestapsaanmelding niet meer kunt gebruiken (bijv. als je je apparaat verliest). De Bitwarden-klantondersteuning kan je niet helpen als je de toegang tot je account verliest. We raden je met klem aan de herstelcode op te schrijven of af te drukken en op een veilige plaats te bewaren."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Verwijder kaart item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Aanmaken van kaart item types niet toestaan voor leden."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Met je herstelcode voor eenmalig gebruik kun je tweestapsaanmelding uitschakelen in het geval dat je toegang verliest tot je tweestapsaanmeldingsprovider. Bitwarden adviseert de herstelcode op te schrijven en op een veilige plaats te bewaren."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Bijwerken encryptiesleutel kan niet verder gaan"
-  },
   "editFieldLabel": {
     "message": "$LABEL$ bewerken",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Bij het bijwerken van je encryptiesleutel konden we je mappen niet decoderen. Om door te gaan met de update, moeten je mappen worden verwijderd. Geen kluisitems worden verwijderd als je doorgaat."
-  },
-  "keyUpdated": {
-    "message": "Sleutel bijgewerkt"
-  },
-  "updateEncryptionKey": {
-    "message": "Encryptiesleutel bijwerken"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Wij hebben de versleutelings- methode aangepast om betere beveiliging te kunnen leveren. Voer uw hoofdwachtwoord in om dit door te voeren."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Alle account-beperkte bewaarde exports die je hebt opgeslagen worden ongeldig."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Oude versleuteling wordt niet langer ondersteund. Neem contact op voor ondersteuning om je account te herstellen."
   },
   "subscription": {
     "message": "Abonnement"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Geen actieve Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Gebruik Verzenden voor het veilig delen van versleutelde informatie met wie dan ook.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Gebruikers uitnodigen"

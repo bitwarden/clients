@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "El tamaño máximo de archivo es de 500MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Se requiere migración de la clave de cifrado. Por favor, inicia sesión a través de la caja fuerte web para actualizar su clave de cifrado."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Carpeta editada"
@@ -968,7 +968,7 @@
     "message": "No reconocemos este dispositivo. Introduce el código enviado a tu correo electrónico para verificar tu identidad."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Continuar el inicio de sesión"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"

@@ -1,6 +1,45 @@
 // FIXME: Update this file to be type safe and remove this and next line
+import type {
+  AssertCredentialResult,
+  CreateCredentialResult,
+} from "../../abstractions/fido2/fido2-client.service.abstraction";
+
 // @ts-strict-ignore
 export class Fido2Utils {
+  static createResultToJson(result: CreateCredentialResult): any {
+    return {
+      id: result.credentialId,
+      rawId: result.credentialId,
+      response: {
+        clientDataJSON: result.clientDataJSON,
+        authenticatorData: result.authData,
+        transports: result.transports,
+        publicKey: result.publicKey,
+        publicKeyAlgorithm: result.publicKeyAlgorithm,
+        attestationObject: result.attestationObject,
+      },
+      authenticatorAttachment: "platform",
+      clientExtensionResults: result.extensions,
+      type: "public-key",
+    };
+  }
+
+  static getResultToJson(result: AssertCredentialResult): any {
+    return {
+      id: result.credentialId,
+      rawId: result.credentialId,
+      response: {
+        clientDataJSON: result.clientDataJSON,
+        authenticatorData: result.authenticatorData,
+        signature: result.signature,
+        userHandle: result.userHandle,
+      },
+      authenticatorAttachment: "platform",
+      clientExtensionResults: {},
+      type: "public-key",
+    };
+  }
+
   static bufferToString(bufferSource: BufferSource): string {
     return Fido2Utils.fromBufferToB64(Fido2Utils.bufferSourceToUint8Array(bufferSource))
       .replace(/\+/g, "-")

@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Zapnutie dvojstupňového prihlásenia vás môže natrvalo vymknúť z vášho Bitwarden účtu. Záchranný kód umožňuje prístup k vášmu kontu v prípade že už nemôžete použiť svoj normálny dvojstupňový spôsob overenia. (napríklad ak stratíte zariadenie) Zákaznícka podpora nebude schopná pomôcť vám ak stratíte prístup k účtu. Preto vám odporúčame zapísať si, alebo si vytlačiť záchranný kód a uložiť ho na bezpečnom mieste."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Odstrániť typ položky pre kartu"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Nedovoliť členom vytvárať typy položiek pre karty."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Váš jednorázový záchranný kód sa dá použiť na vypnutie dvojstupňového prihlasovania ak ste stratili pristúp k jeho poskytovateľovi. Bitwarden odporúča, aby ste si záchranný kód zapísali a odložili na bezpečné miesto."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Aktualizácia šifrovacieho kľúča nemôže pokračovať"
-  },
   "editFieldLabel": {
     "message": "Upraviť $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Pri aktualizácii šifrovacieho kľúča nebolo možné dešifrovať vaše priečinky. Ak chcete pokračovať v aktualizácii, vaše priečinky sa musia odstrániť. Ak budete pokračovať, nebudú odstránené žiadne položky trezora."
-  },
-  "keyUpdated": {
-    "message": "Kľúč aktualizovaný"
-  },
-  "updateEncryptionKey": {
-    "message": "Aktualizovať šifrovací kľúč"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizácii šifrovacieho kľúča budete požiadaní o opätovné prihlásenie do všetkých Bitwarden aplikácii ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neprihlásite (touto operáciou sa stiahnu nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených dát. Pokúsime sa odhlásiť vás automaticky, ale môže to chvíľu trvať."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Všetky exporty obmedzené účtom budú neplatné."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Staršie šifrovanie už nie je podporované. Ak chcete obnoviť svoj účet, obráťte sa na podporu."
   },
   "subscription": {
     "message": "Predplatné"
@@ -6471,10 +6465,10 @@
     "message": "Neplatný verifikačný kód"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie."
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Doména Key Connectora"
   },
   "leaveOrganization": {
     "message": "Opustiť organizáciu"
@@ -6825,16 +6819,16 @@
     "message": "Generovať prístupovú frázu"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Heslo vygenerované"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Prístupová fráza vygenerovaná"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Používateľské meno vygenerované"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "E-mail vygenerovaný"
   },
   "spinboxBoundariesHint": {
     "message": "Hodnota musí byť medzi $MIN$ a $MAX$.",
@@ -6900,7 +6894,7 @@
     "message": "Použiť toto heslo"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Použiť túto prístupovú frázu"
   },
   "useThisUsername": {
     "message": "Použiť toto používateľské meno"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Žiadne aktívne Sendy",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Použite Send na bezpečné zdieľanie zašifrovaných informácii s kýmkoľvek.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Pozvať používateľov"
@@ -10569,28 +10555,28 @@
     "message": "Nová organizačná jednotka"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Rýchle vytváranie hesiel"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "aby ste mohli ochrániť prihlasovacie údaje.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na tlačidlo Generovať heslo, aby ste zabezpečili prihlasovacie údaje.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
@@ -10652,7 +10638,7 @@
     "message": "Pre pridanie platobnej metódy kliknite prosím na Zaplatiť cez PayPal."
   },
   "revokeActiveSponsorshipConfirmation": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "message": "Ak odstránite $EMAIL$, sponzorstvo tohto predplatného pre Rodiny skončí. Sedenie v organizácii bude dostupné pre členov alebo sponzorstvo od následujúceho fakturačného obdobia sponzorovanej organizácie dňa $DATE$.",
     "placeholders": {
       "email": {
         "content": "$1",

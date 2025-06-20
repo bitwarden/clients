@@ -8,10 +8,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 
 import {
+  NewAccountNudgeService,
   HasItemsNudgeService,
   EmptyVaultNudgeService,
-  AutofillNudgeService,
-  DownloadBitwardenNudgeService,
   NewItemNudgeService,
   AccountSecurityNudgeService,
   VaultSettingsImportNudgeService,
@@ -56,6 +55,7 @@ export const NUDGE_DISMISSED_DISK_KEY = new UserKeyDefinition<
 })
 export class NudgesService {
   private newItemNudgeService = inject(NewItemNudgeService);
+  private newAcctNudgeService = inject(NewAccountNudgeService);
 
   /**
    * Custom nudge services to use for specific nudge types
@@ -67,8 +67,9 @@ export class NudgesService {
     [NudgeType.EmptyVaultNudge]: inject(EmptyVaultNudgeService),
     [NudgeType.VaultSettingsImportNudge]: inject(VaultSettingsImportNudgeService),
     [NudgeType.AccountSecurity]: inject(AccountSecurityNudgeService),
-    [NudgeType.AutofillNudge]: inject(AutofillNudgeService),
-    [NudgeType.DownloadBitwarden]: inject(DownloadBitwardenNudgeService),
+    [NudgeType.AutofillNudge]: this.newAcctNudgeService,
+    [NudgeType.DownloadBitwarden]: this.newAcctNudgeService,
+    [NudgeType.GeneratorNudgeStatus]: this.newAcctNudgeService,
     [NudgeType.NewLoginItemStatus]: this.newItemNudgeService,
     [NudgeType.NewCardItemStatus]: this.newItemNudgeService,
     [NudgeType.NewIdentityItemStatus]: this.newItemNudgeService,
@@ -158,7 +159,11 @@ export class NudgesService {
    */
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
-    const nudgeTypes = [NudgeType.EmptyVaultNudge, NudgeType.DownloadBitwarden];
+    const nudgeTypes = [
+      NudgeType.EmptyVaultNudge,
+      NudgeType.DownloadBitwarden,
+      NudgeType.AutofillNudge,
+    ];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)

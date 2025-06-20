@@ -887,7 +887,10 @@ describe("Cipher DTO", () => {
         reprompt: SdkCipherRepromptType.None,
         organizationUseTotp: true,
         edit: true,
-        permissions: new CipherPermissionsApi(),
+        permissions: {
+          delete: false,
+          restore: false,
+        },
         viewPassword: true,
         localData: {
           lastUsedDate: "2025-04-15T12:00:00.000Z",

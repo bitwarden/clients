@@ -2153,6 +2153,12 @@
   "twoStepLoginRecoveryWarning": {
     "message": "A configuração da verificação de dois passos pode bloquear permanentemente a sua conta Bitwarden. Um código de recuperação permite-lhe aceder à sua conta no caso de já não poder utilizar o seu fornecedor normal de verificação de dois passos (por exemplo, se perder o seu dispositivo). O suporte Bitwarden não poderá ajudá-lo se perder o acesso à sua conta. Recomendamos que anote ou imprima o código de recuperação e o guarde num local seguro."
   },
+  "restrictedItemTypesPolicy": {
+    "message": "Remover o tipo de item do cartão"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Não permitir que os membros criem tipos de itens de cartão."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "O seu código de recuperação de utilização única pode ser utilizado para desativar a verificação de dois passos no caso de perder o acesso ao seu fornecedor de verificação de dois passos. O Bitwarden recomenda que anote o código de recuperação e o guarde num local seguro."
   },
@@ -4472,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "A atualização da chave de encriptação não pode prosseguir"
-  },
   "editFieldLabel": {
     "message": "Editar $LABEL$",
     "placeholders": {
@@ -4527,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Ao atualizar a sua chave de encriptação, as suas pastas não puderam ser desencriptadas. Para continuar com a atualização, as suas pastas têm de ser eliminadas. Nenhum item do cofre será eliminado se prosseguir."
-  },
-  "keyUpdated": {
-    "message": "Chave atualizada"
-  },
-  "updateEncryptionKey": {
-    "message": "Atualizar chave de encriptação"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Alterámos o esquema de encriptação para proporcionar uma melhor segurança. Atualize a sua chave de encriptação agora, introduzindo a sua palavra-passe mestra abaixo."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Depois de atualizar a sua chave de encriptação, é necessário terminar sessão e voltar a iniciar em todas as aplicações Bitwarden que está a utilizar atualmente (como a aplicação móvel ou as extensões do navegador). A falha em terminar sessão e voltar a iniciar (que descarrega a sua nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, pode demorar."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "A encriptação herdada já não é suportada. Por favor, contacte o suporte para recuperar a sua conta."
   },
   "subscription": {
     "message": "Subscrição"
@@ -8618,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Dispositivo de confiança"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Sem Sends ativos",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Utilize o Send para partilhar de forma segura informações encriptadas com qualquer pessoa.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Convidar utilizadores"
