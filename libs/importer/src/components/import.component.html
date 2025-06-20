@@ -1,6 +1,13 @@
 <bit-callout type="info" *ngIf="importBlockedByPolicy">
   {{ "personalOwnershipPolicyInEffectImports" | i18n }}
 </bit-callout>
+<bit-callout
+  [title]="'restrictCardTypeImport' | i18n"
+  type="info"
+  *ngIf="isCardTypeRestricted$ | async"
+>
+  {{ "restrictCardTypeImportDesc" | i18n }}
+</bit-callout>
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
