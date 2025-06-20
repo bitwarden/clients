@@ -39,11 +39,17 @@
     class="tw-grow tw-w-full tw-max-w-md tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
     [ngClass]="{ 'tw-max-w-md': maxWidth === 'md', 'tw-max-w-3xl': maxWidth === '3xl' }"
   >
-    <div
-      class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
-    >
-      <ng-content></ng-content>
-    </div>
+    @if (hideCardWrapper) {
+      <div class="tw-mb-6 sm:tw-mb-10">
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+    } @else {
+      <div
+        class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
+      >
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      </div>
+    }
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
 
@@ -60,3 +66,7 @@
     </ng-container>
   </footer>
 </main>
+
+<ng-template #defaultContent>
+  <ng-content></ng-content>
+</ng-template>

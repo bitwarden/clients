@@ -61,6 +61,7 @@ export default {
     showReadonlyHostname: true,
     icon: LockIcon,
     hideLogo: false,
+    hideCardWrapper: false,
   },
 } as Meta;
 
@@ -154,6 +155,27 @@ export const WithCustomIcon: Story = {
         <div>
           <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
           <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+      </auth-anon-layout>
+    `,
+  }),
+};
+
+export const HideCardWrapper: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      hideCardWrapper: true,
+    },
+    template: `
+      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" [hideCardWrapper]="hideCardWrapper">
+        <div>
+          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
+          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+        </div>
+        <div slot="secondary" class="text-center">
+          <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)</div>
+          <button bitButton>Perform Action</button>
         </div>
       </auth-anon-layout>
     `,
