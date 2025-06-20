@@ -1,9 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { BrowserApi } from "../browser/browser-api";
 
 import { ScrollOptions } from "./abstractions/browser-popup-utils.abstractions";
-import { PopupWidthOptions } from "./layout/popup-size.service";
+import { BrowserApi } from "./browser-api";
+
+/**
+ *
+ * Value represents width in pixels
+ */
+export const PopupWidthOptions = Object.freeze({
+  default: 380,
+  wide: 480,
+  "extra-wide": 600,
+});
+
+type PopupWidthOptions = typeof PopupWidthOptions;
+export type PopupWidthOption = keyof PopupWidthOptions;
 
 class BrowserPopupUtils {
   /**
