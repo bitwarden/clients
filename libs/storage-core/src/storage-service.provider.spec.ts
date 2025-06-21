@@ -1,12 +1,11 @@
 import { mock } from "jest-mock-extended";
 
-import { AbstractStorageService, ObservableStorageService } from "../abstractions/storage.service";
-
 import { StorageServiceProvider } from "./storage-service.provider";
+import { StorageService, ObservableStorageService } from "./storage.service";
 
 describe("StorageServiceProvider", () => {
-  const mockDiskStorage = mock<AbstractStorageService & ObservableStorageService>();
-  const mockMemoryStorage = mock<AbstractStorageService & ObservableStorageService>();
+  const mockDiskStorage = mock<StorageService & ObservableStorageService>();
+  const mockMemoryStorage = mock<StorageService & ObservableStorageService>();
 
   const sut = new StorageServiceProvider(mockDiskStorage, mockMemoryStorage);
 
