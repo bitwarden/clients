@@ -139,23 +139,12 @@ export abstract class KeyService {
   ): Promise<UserKey | null>;
 
   /**
-   * Determines whether the user key is available for the given user.
-   * @param userId The desired user. If not provided, the active user will be used. If no active user exists, the method will return false.
-   * @returns True if the user key is available
-   */
-  abstract hasUserKey(userId?: UserId): Promise<boolean>;
-  /**
    * Determines whether the user key is available for the given user in memory.
-   * @param userId The desired user. If not provided, the active user will be used. If no active user exists, the method will return false.
-   * @returns True if the user key is available
+   * @param userId The desired user. If null or undefined, will return false.
+   * @returns True if the user key is available, returns false otherwise.
    */
-  abstract hasUserKeyInMemory(userId?: string): Promise<boolean>;
-  /**
-   * @param keySuffix The desired version of the user's key to check
-   * @param userId The desired user
-   * @returns True if the provided version of the user key is stored
-   */
-  abstract hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: string): Promise<boolean>;
+  abstract hasUserKey(userId: UserId): Promise<boolean>;
+
   /**
    * Generates a new user key
    * @throws Error when master key is null and there is no active user
