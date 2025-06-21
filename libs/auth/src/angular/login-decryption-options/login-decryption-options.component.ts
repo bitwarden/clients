@@ -30,6 +30,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -39,8 +40,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
 
