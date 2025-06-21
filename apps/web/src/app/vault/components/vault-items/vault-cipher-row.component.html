@@ -94,13 +94,11 @@
     </button>
   </bit-menu>
   <button
-    *ngIf="!cipher.decryptionFailure"
-    [disabled]="disabled || disableMenu"
+    *ngIf="!cipher.decryptionFailure && !hideMenu"
     [bitMenuTriggerFor]="cipherOptions"
     size="small"
     bitIconButton="bwi-ellipsis-v"
     type="button"
-    appA11yTitle="{{ (disableMenu ? 'missingPermissions' : 'options') | i18n }}"
     appStopProp
   ></button>
   <bit-menu #cipherOptions>
