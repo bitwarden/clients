@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
 import { LoginApprovalComponent } from "@bitwarden/auth/angular";
-import { AuthRequestApiService } from "@bitwarden/auth/common";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import {
   DevicePendingAuthRequest,
@@ -61,7 +61,7 @@ export class DeviceManagementComponent {
     private toastService: ToastService,
     private validationService: ValidationService,
     private messageListener: MessageListener,
-    private authRequestApiService: AuthRequestApiService,
+    private authRequestApiService: AuthRequestApiServiceAbstraction,
     private destroyRef: DestroyRef,
   ) {
     void this.initializeDevices();
