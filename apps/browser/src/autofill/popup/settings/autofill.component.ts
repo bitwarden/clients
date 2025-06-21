@@ -1,15 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
@@ -140,13 +132,13 @@ export class AutofillComponent implements OnInit {
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
   enableAutoTotpCopy: boolean = false;
-  clearClipboard: ClearClipboardDelaySetting;
+  clearClipboard: ClearClipboardDelaySetting = ClearClipboardDelay.Never;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
-  autofillKeyboardHelperText: string;
+  autofillKeyboardHelperText: string = "";
   accountSwitcherEnabled: boolean = false;
 
   constructor(
@@ -158,7 +150,6 @@ export class AutofillComponent implements OnInit {
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
     private configService: ConfigService,
-    private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
     private nudgesService: NudgesService,
     private accountService: AccountService,
@@ -181,10 +172,7 @@ export class AutofillComponent implements OnInit {
     this.uriMatchOptions = [
       { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
-      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
       { name: i18nService.t("exact"), value: UriMatchStrategy.Exact },
-      { name: i18nService.t("never"), value: UriMatchStrategy.Never },
     ];
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
