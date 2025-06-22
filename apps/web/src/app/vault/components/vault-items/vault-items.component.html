@@ -1,4 +1,4 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" scrollWindow class="tw-pb-8">
+<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -52,12 +52,11 @@
           {{ "permission" | i18n }}
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
-          @let featureFlaggedDisable =
-            (limitItemDeletion$ | async) ? (disableMenu$ | async) : disableMenu;
+          @let menuDisabled = disableMenu$ | async;
           <button
-            [disabled]="disabled || isEmpty || featureFlaggedDisable"
+            [disabled]="disabled || isEmpty || menuDisabled"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="featureFlaggedDisable ? ('missingPermissions' | i18n) : ''"
+            [attr.title]="menuDisabled ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
@@ -89,9 +88,7 @@
               {{ "assignToCollections" | i18n }}
             </button>
             <button
-              *ngIf="
-                (limitItemDeletion$ | async) ? (canRestoreSelected$ | async) : showBulkTrashOptions
-              "
+              *ngIf="canRestoreSelected$ | async"
               type="button"
               bitMenuItem
               (click)="bulkRestore()"
@@ -100,7 +97,7 @@
               {{ "restoreSelected" | i18n }}
             </button>
             <button
-              *ngIf="(limitItemDeletion$ | async) ? (canDeleteSelected$ | async) : showDelete"
+              *ngIf="canDeleteSelected$ | async"
               type="button"
               bitMenuItem
               (click)="bulkDelete()"
@@ -161,11 +158,7 @@
           [canAssignCollections]="canAssignCollections(item.cipher)"
           [canManageCollection]="canManageCollection(item.cipher)"
           [canDeleteCipher]="
-            cipherAuthorizationService.canDeleteCipher$(
-              item.cipher,
-              [item.cipher.collectionId],
-              showAdminActions
-            ) | async
+            cipherAuthorizationService.canDeleteCipher$(item.cipher, showAdminActions) | async
           "
           [canRestoreCipher]="
             cipherAuthorizationService.canRestoreCipher$(item.cipher, showAdminActions) | async

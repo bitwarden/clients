@@ -437,7 +437,7 @@ export default class MainBackground {
 
   constructor() {
     // Services
-    const lockedCallback = async (userId?: string) => {
+    const lockedCallback = async (userId: UserId) => {
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
@@ -1230,6 +1230,9 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
+      this.taskService,
+      this.accountService,
+      this.cipherService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1325,7 +1328,6 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
-      this.configService,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
@@ -1537,6 +1539,7 @@ export default class MainBackground {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new ExtensionLogoutService
   async logout(logoutReason: LogoutReason, userId?: UserId) {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
