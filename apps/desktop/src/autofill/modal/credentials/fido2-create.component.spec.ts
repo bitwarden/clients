@@ -123,7 +123,6 @@ describe("Fido2CreateComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(false);
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
     });
@@ -141,14 +140,6 @@ describe("Fido2CreateComponent", () => {
         acceptButtonText: { key: "closeBitwarden" },
         cancelButtonText: null,
       });
-    });
-  });
-
-  describe("ngOnDestroy", () => {
-    it("should restore header visibility", async () => {
-      await component.ngOnDestroy();
-
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
     });
   });
 
@@ -214,12 +205,11 @@ describe("Fido2CreateComponent", () => {
       await component.confirmPasskey();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
     });
 
     it("should call openSimpleDialog when session is null", async () => {
       component.session = null;
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
       await component.confirmPasskey();
 
@@ -239,8 +229,6 @@ describe("Fido2CreateComponent", () => {
 
       await component.closeModal();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });

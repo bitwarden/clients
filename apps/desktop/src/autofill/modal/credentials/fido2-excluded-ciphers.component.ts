@@ -56,22 +56,19 @@ export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
   }
 
   async ngOnDestroy(): Promise<void> {
-    await this.accountService.setShowHeader(true);
+    await this.closeModal();
   }
 
   async closeModal(): Promise<void> {
-    await this.resetModalState();
-    this.session.notifyConfirmCreateCredential(false);
-    this.session.confirmChosenCipher(null);
-  }
-
-  private async resetModalState(): Promise<void> {
     await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setModalMode(false);
+
+    if (this.session) {
+      this.session.notifyConfirmCreateCredential(false);
+      this.session.confirmChosenCipher(null);
+    }
   }
 }

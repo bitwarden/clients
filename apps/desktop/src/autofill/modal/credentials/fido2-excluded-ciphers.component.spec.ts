@@ -55,20 +55,11 @@ describe("Fido2ExcludedCiphersComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should initialize session and set show header to false", async () => {
+    it("should initialize session", async () => {
       await component.ngOnInit();
 
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(false);
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
-    });
-  });
-
-  describe("ngOnDestroy", () => {
-    it("should restore header visibility", async () => {
-      await component.ngOnDestroy();
-
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
     });
   });
 
@@ -78,8 +69,6 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
       await component.closeModal();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });

@@ -94,7 +94,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     if (!this.session) {
       await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
@@ -110,18 +109,25 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async ngOnDestroy(): Promise<void> {
-    await this.accountService.setShowHeader(true);
+    await this.closeModal();
   }
 
   async addCredentialToCipher(cipher: CipherView): Promise<void> {
     const isConfirmed = await this.validateCipherAccess(cipher);
-    if (!this.session) {
+
+    try {
+      if (!this.session) {
+        await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+        return;
+      }
+
+      this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
+    } catch {
       await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
       return;
     }
 
-    await this.resetModalState();
-    this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
+    await this.closeModal();
   }
 
   async confirmPasskey(): Promise<void> {
@@ -132,16 +138,20 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       }
 
       this.session.notifyConfirmCreateCredential(true);
-      await this.resetModalState();
     } catch {
       await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
     }
+
+    await this.closeModal();
   }
 
   async closeModal(): Promise<void> {
-    await this.resetModalState();
-    this.session.notifyConfirmCreateCredential(false);
-    this.session.confirmChosenCipher(null);
+    await this.router.navigate(["/"]);
+
+    if (this.session) {
+      this.session.notifyConfirmCreateCredential(false);
+      this.session.confirmChosenCipher(null);
+    }
   }
 
   private async getDisplayedCiphers(): Promise<CipherView[]> {
@@ -191,15 +201,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {
-    const confirmed = await this.dialogService.openSimpleDialog(config);
-
-    if (confirmed) {
-      await this.closeModal();
-    }
-  }
-
-  private async resetModalState(): Promise<void> {
-    await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setModalMode(false);
+    await this.dialogService.openSimpleDialog(config);
+    await this.closeModal();
   }
 }

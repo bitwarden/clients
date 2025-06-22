@@ -14,6 +14,7 @@ import {
   BadgeModule,
   ButtonModule,
   DialogModule,
+  DialogService,
   IconModule,
   ItemModule,
   SectionComponent,
@@ -60,43 +61,50 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
     private readonly cipherService: CipherService,
     private readonly accountService: AccountService,
+    private readonly dialogService: DialogService,
     private readonly logService: LogService,
     private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    await this.accountService.setShowHeader(false);
     this.session = this.fido2UserInterfaceService.getCurrentSession();
     this.cipherIds$ = this.session.availableCipherIds$;
     await this.loadCiphers();
   }
 
   async ngOnDestroy(): Promise<void> {
-    await this.accountService.setShowHeader(true);
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   async chooseCipher(cipher: CipherView): Promise<void> {
     if (!this.session) {
-      this.logService.error("No active FIDO2 session");
+      await this.dialogService.openSimpleDialog({
+        title: { key: "unexpectedErrorShort" },
+        content: { key: "closeThisBitwardenWindow" },
+        type: "danger",
+        acceptButtonText: { key: "closeBitwarden" },
+        cancelButtonText: null,
+      });
+      await this.closeModal();
+
       return;
     }
 
     const isConfirmed = await this.validateCipherAccess(cipher);
     this.session.confirmChosenCipher(cipher.id, isConfirmed);
 
-    await this.resetModalState();
+    await this.closeModal();
   }
 
   async closeModal(): Promise<void> {
-    await this.resetModalState();
-
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
     }
+
+    await this.router.navigate(["/"]);
   }
 
   private async loadCiphers(): Promise<void> {
@@ -118,6 +126,8 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
           this.logService.error("Failed to load ciphers", error);
         });
     });
+
+    await this.closeModal();
   }
 
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
@@ -126,10 +136,5 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     }
 
     return true;
-  }
-
-  private async resetModalState(): Promise<void> {
-    await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setModalMode(false);
   }
 }
