@@ -1,8 +1,7 @@
-<div class="tw-ps-2 tw-pe-2">
+<div  *ngIf="{
+  open: sideNavService.open$ | async,
+} as data" class="tw-ps-2 tw-pe-2">
   <ng-container
-    *ngIf="{
-      open: sideNavService.open$ | async,
-    } as data"
   >
     <div
       *ngIf="data.open || icon"
