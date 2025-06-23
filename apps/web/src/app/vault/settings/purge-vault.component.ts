@@ -26,7 +26,6 @@ export interface PurgeVaultDialogData {
 
 @Component({
   templateUrl: "purge-vault.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class PurgeVaultComponent {

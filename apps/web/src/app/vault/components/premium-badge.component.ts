@@ -11,7 +11,6 @@ import { BadgeModule } from "@bitwarden/components";
       {{ "premium" | i18n }}
     </button>
   `,
-  standalone: true,
   imports: [JslibModule, BadgeModule],
 })
 export class PremiumBadgeComponent {
