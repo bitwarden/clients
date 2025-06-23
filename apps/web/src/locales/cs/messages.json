@@ -7701,8 +7701,8 @@
     "message": "Přístupové tokeny",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nový přístupový token",
+  "createAccessToken": {
+    "message": "Vytvořit přístupový token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

@@ -7701,8 +7701,8 @@
     "message": "אסימוני גישה",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "אסימון גישה חדש",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

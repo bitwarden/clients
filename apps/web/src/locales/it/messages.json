@@ -7701,8 +7701,8 @@
     "message": "Token di accesso",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nuovo token di accesso",
+  "createAccessToken": {
+    "message": "Genera token di accesso",
     "description": "Button label for creating a new access token."
   },
   "expires": {

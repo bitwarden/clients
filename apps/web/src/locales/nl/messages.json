@@ -7701,8 +7701,8 @@
     "message": "Toegangstoken",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nieuw toegangstoken",
+  "createAccessToken": {
+    "message": "Toegangstoken aanmaken",
     "description": "Button label for creating a new access token."
   },
   "expires": {

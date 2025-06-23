@@ -7615,7 +7615,7 @@
     "description": "Notifies that a service account has been updated"
   },
   "typeOrSelectProjects": {
-    "message": "Type or select projects",
+    "message": "Zadajte alebo vyberte projekty",
     "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
@@ -7701,8 +7701,8 @@
     "message": "Access tokens",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nový prístupový token",
+  "createAccessToken": {
+    "message": "Vytvoriť prístupový token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

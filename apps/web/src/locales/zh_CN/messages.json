@@ -7701,8 +7701,8 @@
     "message": "访问令牌",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "新增访问令牌",
+  "createAccessToken": {
+    "message": "创建访问令牌",
     "description": "Button label for creating a new access token."
   },
   "expires": {

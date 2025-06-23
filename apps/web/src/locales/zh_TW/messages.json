@@ -7701,8 +7701,8 @@
     "message": "存取權杖",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "新增存取權杖",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

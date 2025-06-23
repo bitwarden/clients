@@ -7701,8 +7701,8 @@
     "message": "Åtkomsttoken",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nytt åtkomsttoken",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

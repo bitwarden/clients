@@ -7701,8 +7701,8 @@
     "message": "Müraciət tokenləri",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Yeni müraciət tokeni",
+  "createAccessToken": {
+    "message": "Müraciət tokeni yarat",
     "description": "Button label for creating a new access token."
   },
   "expires": {

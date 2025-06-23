@@ -7701,8 +7701,8 @@
     "message": "Pristupni tokeni",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Novi pristupni token",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

@@ -7701,8 +7701,8 @@
     "message": "Piekļuves pilnvaras",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Jauna piekļuves pilnvara",
+  "createAccessToken": {
+    "message": "Izveidot piekļuves pilnvaru",
     "description": "Button label for creating a new access token."
   },
   "expires": {

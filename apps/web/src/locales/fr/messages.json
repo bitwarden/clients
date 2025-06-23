@@ -7701,8 +7701,8 @@
     "message": "Jetons d'accès",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nouveau jeton d'accès",
+  "createAccessToken": {
+    "message": "Créer un jeton d'accès",
     "description": "Button label for creating a new access token."
   },
   "expires": {

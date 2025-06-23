@@ -7701,8 +7701,8 @@
     "message": "Vezérjelek elérése",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Új hozzáférési vezérjel",
+  "createAccessToken": {
+    "message": "Elérési vezérjel létrehozása",
     "description": "Button label for creating a new access token."
   },
   "expires": {

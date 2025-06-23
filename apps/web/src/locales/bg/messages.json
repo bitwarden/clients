@@ -7701,8 +7701,8 @@
     "message": "Идентификатори за достъп",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Нов идентификатор за достъп",
+  "createAccessToken": {
+    "message": "Създаване на идентификатор за достъп",
     "description": "Button label for creating a new access token."
   },
   "expires": {
