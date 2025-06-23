@@ -170,6 +170,8 @@ import {
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
+import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -684,6 +686,11 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: SecurityStateService,
+    useClass: DefaultSecurityStateService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: RestrictedItemTypesService,
     useClass: RestrictedItemTypesService,
     deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
@@ -811,6 +818,7 @@ const safeProviders: SafeProvider[] = [
       TokenServiceAbstraction,
       AuthServiceAbstraction,
       StateProvider,
+      SecurityStateService,
     ],
   }),
   safeProvider({
@@ -1475,6 +1483,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       KdfConfigService,
       KeyService,
+      SecurityStateService,
     ],
   }),
   safeProvider({
