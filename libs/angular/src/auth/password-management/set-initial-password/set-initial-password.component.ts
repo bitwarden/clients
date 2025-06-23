@@ -6,7 +6,6 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AnonLayoutWrapperDataService,
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
@@ -23,7 +22,12 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CalloutComponent, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  CalloutComponent,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
