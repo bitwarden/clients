@@ -39,10 +39,13 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import {
+  isCipherViewRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipSelectOption } from "@bitwarden/components";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -227,6 +230,11 @@ export class VaultPopupListFiltersService {
             ciphers.filter((cipher) => {
               // Vault popup lists never shows deleted ciphers
               if (CipherViewLikeUtils.isDeleted(cipher)) {
+                return false;
+              }
+
+              // Check if cipher type is restricted (with organization exemptions)
+              if (isCipherViewRestricted(cipher, restrictions)) {
                 return false;
               }
 

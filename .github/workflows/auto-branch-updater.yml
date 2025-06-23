@@ -22,6 +22,8 @@ jobs:
     env:
       _BOT_EMAIL: 106330231+bitwarden-devops-bot@users.noreply.github.com
       _BOT_NAME: bitwarden-devops-bot
+    permissions:
+      contents: write
     steps:
       - name: Setup
         id: setup

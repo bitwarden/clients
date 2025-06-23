@@ -9,6 +9,7 @@ import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angul
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -29,8 +30,9 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
     private readonly searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
+    restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(searchService, cipherService, accountService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService);
 
     this.searchBarService.searchText$
       .pipe(distinctUntilChanged(), takeUntilDestroyed())

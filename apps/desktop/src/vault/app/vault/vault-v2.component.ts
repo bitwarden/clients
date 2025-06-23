@@ -13,8 +13,6 @@ import { firstValueFrom, Subject, takeUntil, switchMap, lastValueFrom, Observabl
 import { filter, map, take } from "rxjs/operators";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -49,6 +47,8 @@ import {
   DialogService,
   ItemModule,
   ToastService,
+  CopyClickListener,
+  COPY_CLICK_LISTENER,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -68,6 +68,7 @@ import {
   DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
+  CipherFormComponent,
 } from "@bitwarden/vault";
 
 import { NavComponent } from "../../../app/layout/nav.component";
@@ -118,15 +119,23 @@ const BroadcasterSubscriptionId = "VaultComponent";
       useClass: DesktopPremiumUpgradePromptService,
     },
     { provide: CipherFormGenerationService, useClass: DesktopCredentialGenerationService },
+    {
+      provide: COPY_CLICK_LISTENER,
+      useExisting: VaultV2Component,
+    },
   ],
 })
-export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDestroy {
+export class VaultV2Component<C extends CipherViewLike>
+  implements OnInit, OnDestroy, CopyClickListener
+{
   @ViewChild(VaultItemsV2Component, { static: true })
   vaultItemsComponent: VaultItemsV2Component<C> | null = null;
   @ViewChild(VaultFilterComponent, { static: true })
   vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
   folderAddEditModalRef: ViewContainerRef | null = null;
+  @ViewChild(CipherFormComponent)
+  cipherFormComponent: CipherFormComponent | null = null;
 
   action: CipherFormMode | "view" | null = null;
   cipherId: string | null = null;
@@ -162,7 +171,6 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
     ),
   );
 
-  private modal: ModalRef | null = null;
   private componentIsDestroyed$ = new Subject<boolean>();
   private allOrganizations: Organization[] = [];
   private allCollections: CollectionView[] = [];
@@ -171,7 +179,6 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
-    private modalService: ModalService,
     private broadcasterService: BroadcasterService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
@@ -379,6 +386,13 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
     }
   }
 
+  /**
+   * Handler for Vault level CopyClickDirectives to send the minimizeOnCopy message
+   */
+  onCopy() {
+    this.messagingService.send("minimizeOnCopy");
+  }
+
   async viewCipher(c: CipherViewLike) {
     const cipher = await this.getFullCipherView(c);
     if (await this.shouldReprompt(cipher, "view")) {
@@ -415,6 +429,26 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
       result?.action === AttachmentDialogResult.Uploaded
     ) {
       await this.vaultItemsComponent?.refresh().catch(() => {});
+
+      if (this.cipherFormComponent == null) {
+        return;
+      }
+
+      const updatedCipher = await this.cipherService.get(
+        this.cipherId as CipherId,
+        this.activeUserId as UserId,
+      );
+      const updatedCipherView = await this.cipherService.decrypt(
+        updatedCipher,
+        this.activeUserId as UserId,
+      );
+
+      this.cipherFormComponent.patchCipher((currentCipher) => {
+        currentCipher.attachments = updatedCipherView.attachments;
+        currentCipher.revisionDate = updatedCipherView.revisionDate;
+
+        return currentCipher;
+      });
     }
   }
 
@@ -718,9 +752,16 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
   }
 
   async editFolder(folderId: string) {
+    if (!this.activeUserId) {
+      return;
+    }
     const folderView = await firstValueFrom(
       this.folderService.getDecrypted$(folderId, this.activeUserId),
     );
+
+    if (!folderView) {
+      return;
+    }
 
     const dialogRef = AddEditFolderDialogComponent.open(this.dialogService, {
       editFolderConfig: {
@@ -736,7 +777,7 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
       result === AddEditFolderDialogResult.Deleted ||
       result === AddEditFolderDialogResult.Created
     ) {
-      await this.vaultFilterComponent.reloadCollectionsAndFolders(this.activeFilter);
+      await this.vaultFilterComponent?.reloadCollectionsAndFolders(this.activeFilter);
     }
   }
 
@@ -779,10 +820,6 @@ export class VaultV2Component<C extends CipherViewLike> implements OnInit, OnDes
         replaceUrl: true,
       })
       .catch(() => {});
-  }
-
-  private addCipherWithChangeDetection(type: CipherType) {
-    this.functionWithChangeDetection(() => this.addCipher(type).catch(() => {}));
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
