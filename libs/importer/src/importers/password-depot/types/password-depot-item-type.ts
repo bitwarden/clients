@@ -14,7 +14,12 @@ const _PasswordDepotItemType = {
 } as const;
 type _PasswordDepotItemType = typeof _PasswordDepotItemType;
 
+// This type represents the different item types in Password Depot
 export type PasswordDepotItemType = _PasswordDepotItemType[keyof _PasswordDepotItemType];
+
+// This object represents the different item types in Password Depot
+// It is a union of the string literals defined in _PasswordDepotItemType
+// Each key in _PasswordDepotItemType corresponds to a specific item type
 export const PasswordDepotItemType: Readonly<{
   [K in keyof typeof _PasswordDepotItemType]: PasswordDepotItemType;
 }> = Object.freeze(_PasswordDepotItemType);
