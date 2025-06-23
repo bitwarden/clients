@@ -10,6 +10,7 @@ import {
   CollectionService,
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
@@ -99,6 +100,7 @@ export class DefaultSyncService extends CoreSyncService {
     private tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
+    private accountSecurityStateService: SecurityStateService,
   ) {
     super(
       stateService,
@@ -237,8 +239,13 @@ export class DefaultSyncService extends CoreSyncService {
         response.id,
       );
       if (response.accountKeys.signatureKeyPair !== null) {
+        // User is V2 user
         await this.keyService.setUserSigningKey(
           response.accountKeys.signatureKeyPair.wrappedSigningKey,
+          response.id,
+        );
+        await this.accountSecurityStateService.setAccountSecurityState(
+          response.accountKeys.securityState.toSerializedSecurityState(),
           response.id,
         );
       }
