@@ -1923,7 +1923,7 @@
     "message": "SSH key"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "नोट"
   },
   "newItemHeader": {
     "message": "नया $TYPE$",

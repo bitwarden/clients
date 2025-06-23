@@ -1923,7 +1923,7 @@
     "message": "Chiave SSH"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "newItemHeader": {
     "message": "Nuovo $TYPE$",
@@ -2157,7 +2157,7 @@
     "message": "Imposta il tuo codice PIN per sbloccare Bitwarden. Le tue impostazioni PIN saranno resettate se esci completamente dall'app."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Puoi usare il PIN per sbloccare Bitwarden. Il PIN sarà disattivato ogni volta che ti scolleghi dall'account."
   },
   "pinRequired": {
     "message": "Codice PIN obbligatorio."
@@ -2519,7 +2519,7 @@
     "message": "Cambia"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Cambia password",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2532,7 +2532,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Password a rischio"
   },
   "atRiskPasswords": {
     "message": "Parola d'accesso a rischio"
@@ -2569,7 +2569,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "La tua password per questo sito è a rischio. $ORGANIZATION$ ha richiesto di modificarla.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2579,7 +2579,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ ti chiede di cambiare la tua password perché è a rischio. Vai alle impostazioni del tuo account per la modifica.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5066,7 +5066,7 @@
     "message": "Sblocca PIN impostato"
   },
   "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+    "message": "Sblocco biometrico"
   },
   "authenticating": {
     "message": "Autenticazione"
@@ -5411,7 +5411,7 @@
     "message": "Non hai i permessi per visualizzare questa pagina. Prova ad accedere con un altro account."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly non è supportato dal browser o non è abilitato. WebAssembly è richiesto per utilizzare l'app Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
