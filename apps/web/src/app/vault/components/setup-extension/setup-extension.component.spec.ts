@@ -1,11 +1,14 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { BehaviorSubject } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
 import { SetupExtensionComponent } from "./setup-extension.component";
 
@@ -15,6 +18,7 @@ describe("SetupExtensionComponent", () => {
 
   const getFeatureFlag = jest.fn().mockResolvedValue(false);
   const navigate = jest.fn().mockResolvedValue(true);
+  const extensionInstalled$ = new BehaviorSubject<boolean | null>(null);
 
   beforeEach(async () => {
     navigate.mockClear();
@@ -25,6 +29,7 @@ describe("SetupExtensionComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: ConfigService, useValue: { getFeatureFlag } },
         { provide: Router, useValue: { navigate } },
+        { provide: WebBrowserInteractionService, useValue: { extensionInstalled$ } },
       ],
     }).compileComponents();
 
@@ -69,6 +74,14 @@ describe("SetupExtensionComponent", () => {
 
       expect(getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.PM19315EndUserActivationMvp);
       expect(navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("extensionInstalled$", () => {
+    it("redirects the user to the vault when the first emitted value is true", () => {
+      extensionInstalled$.next(true);
+
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
     });
   });
 });
