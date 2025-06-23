@@ -15,6 +15,7 @@ import {
   inject,
   signal,
   input,
+  model,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -58,12 +59,13 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   readonly placeholderText = input.required<string>();
 
   /** Icon to show when there is no selected option or the selected option does not have an icon */
-  readonly placeholderIcon = input<string>(undefined);
+  readonly placeholderIcon = input<string>();
 
   private _options: ChipSelectOption<T>[];
-  /** The select options to render */
-  // TODO: Skipped for migration because:
+
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
+  /** The select options to render */
   @Input({ required: true })
   get options(): ChipSelectOption<T>[] {
     return this._options;
@@ -74,9 +76,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   }
 
   /** Disables the entire chip */
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input({ transform: booleanAttribute }) disabled = false;
+  disabled = model(false);
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
@@ -257,7 +257,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
