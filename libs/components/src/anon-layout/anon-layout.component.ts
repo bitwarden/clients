@@ -4,11 +4,11 @@ import { CommonModule } from "@angular/common";
 import {
   Component,
   HostBinding,
-  Input,
   OnChanges,
   OnInit,
   SimpleChanges,
   input,
+  model,
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -34,18 +34,10 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     return ["tw-h-full"];
   }
 
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input() title: string;
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input() subtitle: string;
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() icon: Icon;
-  readonly showReadonlyHostname = input<boolean>(undefined);
+  readonly title = input<string>();
+  readonly subtitle = input<string>();
+  icon = model<Icon>();
+  readonly showReadonlyHostname = input<boolean>(false);
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
   readonly hideIcon = input<boolean>(false);
@@ -53,20 +45,16 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   /**
    * Max width of the title area content
    *
-   * @default null
+   * @default undefined
    */
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() titleAreaMaxWidth?: "md";
+  titleAreaMaxWidth = model<"md">();
 
   /**
    * Max width of the layout content
    *
    * @default 'md'
    */
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() maxWidth: "md" | "3xl" = "md";
+  maxWidth = model<"md" | "3xl">("md");
 
   protected logo = BitwardenLogo;
   protected year = "2024";
@@ -86,20 +74,20 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   }
 
   async ngOnInit() {
-    this.maxWidth = this.maxWidth ?? "md";
-    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? null;
+    this.maxWidth.set(this.maxWidth() ?? "md");
+    this.titleAreaMaxWidth.set(this.titleAreaMaxWidth() ?? null);
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 
     // If there is no icon input, then use the default icon
-    if (this.icon == null) {
-      this.icon = BitwardenShield;
+    if (this.icon() == null) {
+      this.icon.set(BitwardenShield);
     }
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     if (changes.maxWidth) {
-      this.maxWidth = changes.maxWidth.currentValue ?? "md";
+      this.maxWidth.set(changes.maxWidth.currentValue ?? "md");
     }
   }
 }

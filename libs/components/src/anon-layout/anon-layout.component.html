@@ -15,29 +15,29 @@
 
   <div
     class="tw-text-center tw-mb-4 sm:tw-mb-6"
-    [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
+    [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth() === 'md' }"
   >
     <div *ngIf="!hideIcon()" class="tw-mx-auto tw-max-w-24 sm:tw-max-w-28 md:tw-max-w-32">
       <bit-icon [icon]="icon"></bit-icon>
     </div>
 
-    <ng-container *ngIf="title">
+    <ng-container *ngIf="title()">
       <!-- Small screens -->
       <h1 bitTypography="h3" class="tw-mt-2 sm:tw-hidden">
-        {{ title }}
+        {{ title() }}
       </h1>
       <!-- Medium to Larger screens -->
       <h1 bitTypography="h2" class="tw-mt-2 tw-hidden sm:tw-block">
-        {{ title }}
+        {{ title() }}
       </h1>
     </ng-container>
 
-    <div *ngIf="subtitle" class="tw-text-sm sm:tw-text-base">{{ subtitle }}</div>
+    <div *ngIf="subtitle()" class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
   </div>
 
   <div
     class="tw-grow tw-w-full tw-max-w-md tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
-    [ngClass]="{ 'tw-max-w-md': maxWidth === 'md', 'tw-max-w-3xl': maxWidth === '3xl' }"
+    [ngClass]="{ 'tw-max-w-md': maxWidth() === 'md', 'tw-max-w-3xl': maxWidth() === '3xl' }"
   >
     <div
       class="tw-rounded-2xl tw-mb-6 sm:tw-mb-10 tw-mx-auto tw-w-full sm:tw-bg-background sm:tw-border sm:tw-border-solid sm:tw-border-secondary-300 sm:tw-p-8"
