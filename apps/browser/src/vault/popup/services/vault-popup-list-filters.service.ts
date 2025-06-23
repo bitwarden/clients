@@ -39,10 +39,7 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import {
-  isCipherViewRestricted,
-  RestrictedItemTypesService,
-} from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipSelectOption } from "@bitwarden/components";
@@ -217,7 +214,7 @@ export class VaultPopupListFiltersService {
   filterVisibilityState$ = this.filterVisibilityState.state$;
 
   /**
-   * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
+   * Observable whose value is a function that filters an array of `PopupCipherViewLike` objects based on the current filters
    */
   filterFunction$: Observable<(ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[]> =
     combineLatest([
@@ -234,23 +231,8 @@ export class VaultPopupListFiltersService {
               }
 
               // Check if cipher type is restricted (with organization exemptions)
-              if (isCipherViewRestricted(cipher, restrictions)) {
+              if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
                 return false;
-              }
-
-              // Check if cipher type is restricted (with organization exemptions)
-              if (restrictions && restrictions.length > 0) {
-                const isRestricted = restrictions.some(
-                  (restrictedType) =>
-                    restrictedType.cipherType === CipherViewLikeUtils.getType(cipher) &&
-                    (cipher.organizationId
-                      ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-                      : restrictedType.allowViewOrgIds.length === 0),
-                );
-
-                if (isRestricted) {
-                  return false;
-                }
               }
 
               if (

@@ -1,10 +1,6 @@
 import { Unassigned } from "@bitwarden/admin-console/common";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
-  isCipherViewRestricted,
-  RestrictedCipherType,
-} from "@bitwarden/common/vault/services/restricted-item-types.service";
-import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -13,10 +9,7 @@ import { All, RoutedVaultFilterModel } from "./routed-vault-filter.model";
 
 export type FilterFunction = (cipher: CipherViewLike) => boolean;
 
-export function createFilterFunction(
-  filter: RoutedVaultFilterModel,
-  restrictedTypes?: RestrictedCipherType[],
-): FilterFunction {
+export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunction {
   return (cipher) => {
     const type = CipherViewLikeUtils.getType(cipher);
     const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
@@ -92,10 +85,7 @@ export function createFilterFunction(
     ) {
       return false;
     }
-    // Restricted types
-    if (restrictedTypes && isCipherViewRestricted(cipher, restrictedTypes)) {
-      return false;
-    }
+
     return true;
   };
 }

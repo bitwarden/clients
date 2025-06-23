@@ -373,18 +373,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       ) as Observable<C[]>;
 
-    const ciphers$ = combineLatest([
+    /**
+     * This observable filters the ciphers based on the active user ID and the restricted item types.
+     */
+    const allowedCiphers$ = combineLatest([
       _ciphers,
-      filter$,
-      this.currentSearchText$,
       this.restrictedItemTypesService.restricted$,
     ]).pipe(
+      map(([ciphers, restrictedTypes]) =>
+        ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+        ),
+      ),
+    );
+
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, restrictedTypes);
-        // TODO: https://bitwarden.atlassian.net/browse/PM-22515 - alter if needed to handle `CipherListView` failed decryptions
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
