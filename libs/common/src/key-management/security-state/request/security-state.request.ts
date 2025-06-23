@@ -1,4 +1,4 @@
-export class SecurityStateRequestModel {
+export class SecurityStateRequest {
   securityState: string;
   securityVersion: number;
 

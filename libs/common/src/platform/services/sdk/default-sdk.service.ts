@@ -15,7 +15,7 @@ import {
 } from "rxjs";
 
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import { SerializedSecurityState } from "@bitwarden/common/key-management/security-state/models/security-state";
+import { SecurityState } from "@bitwarden/common/key-management/security-state/models/security-state";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
@@ -210,7 +210,7 @@ export class DefaultSdkService implements SdkService {
     privateKey: EncryptedString,
     userKey: UserKey,
     signingKey: SigningKey | null,
-    securityState: SerializedSecurityState | null,
+    securityState: SecurityState | null,
     orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData> | null,
   ) {
     await client.crypto().initialize_user_crypto({
@@ -229,7 +229,7 @@ export class DefaultSdkService implements SdkService {
             },
       privateKey,
       signingKey: signingKey?.inner(),
-      securityState: securityState ?? null,
+      securityState: securityState.securityState,
     });
 
     // We initialize the org crypto even if the org_keys are

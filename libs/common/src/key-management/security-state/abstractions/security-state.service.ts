@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { SerializedSecurityState } from "../models/security-state";
+import { SecurityState } from "../models/security-state";
 
 export abstract class SecurityStateService {
   /**
@@ -10,12 +10,12 @@ export abstract class SecurityStateService {
    * Note: This state is not yet validated. To get a validated state, the SDK crypto client
    * must be used. This security state is validated on initialization of the SDK.
    */
-  abstract accountSecurityState$(userId: UserId): Observable<SerializedSecurityState | null>;
+  abstract accountSecurityState$(userId: UserId): Observable<SecurityState | null>;
   /**
    * Sets the security state for the provided user.
    */
   abstract setAccountSecurityState(
-    accountSecurityState: SerializedSecurityState,
+    accountSecurityState: SecurityState,
     userId: UserId,
   ): Promise<void>;
 }

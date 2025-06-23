@@ -5,7 +5,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { SecurityStateService } from "../abstractions/security-state.service";
-import { SerializedSecurityState } from "../models/security-state";
+import { SecurityState } from "../models/security-state";
 import { ACCOUNT_SECURITY_STATE } from "../state/account-security-state.state";
 
 export class DefaultSecurityStateService implements SecurityStateService {
@@ -14,14 +14,14 @@ export class DefaultSecurityStateService implements SecurityStateService {
   constructor(protected stateProvider: StateProvider) {}
 
   // Emits the provided user's security state, or null if there is no security state present for the user.
-  accountSecurityState$(userId: UserId): Observable<SerializedSecurityState | null> {
+  accountSecurityState$(userId: UserId): Observable<SecurityState | null> {
     return this.stateProvider.getUserState$(ACCOUNT_SECURITY_STATE, userId);
   }
 
   // Sets the security state for the provided user.
   // This is not yet validated, and is only validated upon SDK initialization.
   async setAccountSecurityState(
-    accountSecurityState: SerializedSecurityState,
+    accountSecurityState: SecurityState,
     userId: UserId,
   ): Promise<void> {
     await this.stateProvider.setUserState(ACCOUNT_SECURITY_STATE, accountSecurityState, userId);
