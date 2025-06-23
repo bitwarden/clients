@@ -13,11 +13,14 @@
   </div>
 }
 @if (!sideNavService.open) {
-  <bit-nav-item
-    class="tw-block tw-pt-5 tw-pb-7 tw-text-[1.875rem]"
-    [hideActiveStyles]="true"
-    [route]="route"
-    [icon]="closedIcon"
-    [text]="label"
-  ></bit-nav-item>
+  <a
+    [routerLink]="route"
+    class="tw-px-5 tw-pb-10 tw-pt-7 tw-block tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2"
+    [attr.aria-label]="label"
+    [title]="label"
+    routerLinkActive
+    [ariaCurrentWhenActive]="'page'"
+  >
+    <bit-icon [icon]="closedIcon"></bit-icon>
+  </a>
 }
