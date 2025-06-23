@@ -104,7 +104,7 @@ export class BadgeComponent implements FocusableElement {
   /**
    * Optional override for the automatic badge title when truncating.
    */
-  readonly title = input<string>(undefined);
+  readonly title = input<string>();
 
   /**
    * Variant, sets the background color of the badge.
