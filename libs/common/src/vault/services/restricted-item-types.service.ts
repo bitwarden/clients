@@ -9,7 +9,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
@@ -88,12 +89,12 @@ export class RestrictedItemTypesService {
  * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
  */
 export function isCipherViewRestricted(
-  cipher: CipherView,
+  cipher: CipherViewLike,
   restrictedTypes: RestrictedCipherType[],
 ) {
   return restrictedTypes.some(
     (restrictedType) =>
-      restrictedType.cipherType === cipher.type &&
+      restrictedType.cipherType === CipherViewLikeUtils.getType(cipher) &&
       (cipher.organizationId
         ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
         : restrictedType.allowViewOrgIds.length === 0),
