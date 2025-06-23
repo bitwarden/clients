@@ -4,8 +4,8 @@
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  @if (icon) {
-    <i class="bwi tw-align-middle tw-text-base" [ngClass]="icon" aria-hidden="true"></i>
+  @if (icon(); as iconClass) {
+    <i class="bwi tw-align-middle tw-text-base" [ngClass]="iconClass" aria-hidden="true"></i>
   }
   <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
   <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
