@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, Output } from "@angular/core";
+import { Directive, EventEmitter, Input, Output, input } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -11,16 +11,19 @@ export abstract class NavBaseComponent {
   /**
    * Text to display in main content
    */
-  @Input() text: string;
+  readonly text = input<string>(undefined);
 
   /**
    * `aria-label` for main content
    */
-  @Input() ariaLabel: string;
+  readonly ariaLabel = input<string>(undefined);
 
   /**
    * Optional icon, e.g. `"bwi-collection-shared"`
    */
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() icon: string;
 
   /**
@@ -34,41 +37,43 @@ export abstract class NavBaseComponent {
    *
    * See: {@link https://github.com/angular/angular/issues/24482}
    */
-  @Input() route?: RouterLink["routerLink"];
+  readonly route = input<RouterLink["routerLink"]>(undefined);
 
   /**
    * Passed to internal `routerLink`
    *
    * See {@link RouterLink.relativeTo}
    */
-  @Input() relativeTo?: RouterLink["relativeTo"];
+  readonly relativeTo = input<RouterLink["relativeTo"]>(undefined);
 
   /**
    * Passed to internal `routerLink`
    *
    * See {@link RouterLinkActive.routerLinkActiveOptions}
    */
-  @Input() routerLinkActiveOptions?: RouterLinkActive["routerLinkActiveOptions"] = {
+  readonly routerLinkActiveOptions = input<RouterLinkActive["routerLinkActiveOptions"]>({
     paths: "subset",
     queryParams: "ignored",
     fragment: "ignored",
     matrixParams: "ignored",
-  };
+  });
 
   /**
    * If this item is used within a tree, set `variant` to `"tree"`
    */
-  @Input() variant: "default" | "tree" = "default";
+  readonly variant = input<"default" | "tree">("default");
 
   /**
    * Depth level when nested inside of a `'tree'` variant
    */
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() treeDepth = 0;
 
   /**
    * If `true`, do not change styles when nav item is active.
    */
-  @Input() hideActiveStyles = false;
+  readonly hideActiveStyles = input(false);
 
   /**
    * Fires when main content is clicked

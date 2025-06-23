@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Component, HostBinding, Input, OnInit } from "@angular/core";
+import { Component, HostBinding, Input, OnInit, input } from "@angular/core";
 
 import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
@@ -26,12 +26,14 @@ export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  @Input() bitSortable: string;
+  readonly bitSortable = input<string>(undefined);
 
   private _default: SortDirection | boolean = false;
   /**
    * Mark the column as the default sort column
    */
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set default(value: SortDirection | boolean | "") {
     if (value === "desc" || value === "asc") {
       this._default = value;
@@ -51,7 +53,7 @@ export class SortableComponent implements OnInit {
    *  return direction === 'asc' ? result : -result;
    * }
    */
-  @Input() fn: SortFn;
+  readonly fn = input<SortFn>(undefined);
 
   constructor(private table: TableComponent) {}
 
@@ -69,7 +71,8 @@ export class SortableComponent implements OnInit {
   }
 
   protected setActive() {
-    if (this.table.dataSource) {
+    const dataSource = this.table.dataSource();
+    if (dataSource) {
       const defaultDirection = this._default === "desc" ? "desc" : "asc";
       const direction = this.isActive
         ? this.direction === "asc"
@@ -77,20 +80,20 @@ export class SortableComponent implements OnInit {
           : "asc"
         : defaultDirection;
 
-      this.table.dataSource.sort = {
-        column: this.bitSortable,
+      dataSource.sort = {
+        column: this.bitSortable(),
         direction: direction,
-        fn: this.fn,
+        fn: this.fn(),
       };
     }
   }
 
   private get sort() {
-    return this.table.dataSource?.sort;
+    return this.table.dataSource()?.sort;
   }
 
   get isActive() {
-    return this.sort?.column === this.bitSortable;
+    return this.sort?.column === this.bitSortable();
   }
 
   get direction() {

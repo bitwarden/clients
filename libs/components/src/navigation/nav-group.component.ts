@@ -10,6 +10,7 @@ import {
   Output,
   QueryList,
   SkipSelf,
+  input,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -37,7 +38,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   protected get parentHideActiveStyles(): boolean {
-    return this.hideActiveStyles || (this.open && this.sideNavService.open);
+    return this.hideActiveStyles() || (this.open && this.sideNavService.open);
   }
 
   /**
@@ -48,14 +49,15 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   /**
    * Is `true` if the expanded content is visible
    */
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input()
   open = false;
 
   /**
    * Automatically hide the nav group if there are no child buttons
    */
-  @Input({ transform: booleanAttribute })
-  hideIfEmpty = false;
+  readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
   @Output()
   openChange = new EventEmitter<boolean>();
@@ -84,7 +86,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
    * - For any nested NavGroupComponents or NavItemComponents, increment the `treeDepth` by 1.
    */
   private initNestedStyles() {
-    if (this.variant !== "tree") {
+    if (this.variant() !== "tree") {
       return;
     }
     [...this.nestedNavComponents].forEach((navGroupOrItem) => {
@@ -94,7 +96,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
 
   protected handleMainContentClicked() {
     if (!this.sideNavService.open) {
-      if (!this.route) {
+      if (!this.route()) {
         this.sideNavService.setOpen();
       }
       this.open = true;

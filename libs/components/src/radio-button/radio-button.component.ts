@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input } from "@angular/core";
+import { Component, HostBinding, Input, input } from "@angular/core";
 
 import { FormControlModule } from "../form-control/form-control.module";
 
@@ -13,13 +13,16 @@ let nextId = 0;
   imports: [FormControlModule, RadioInputComponent],
 })
 export class RadioButtonComponent {
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding("attr.id") @Input() id = `bit-radio-button-${nextId++}`;
   @HostBinding("class") get classList() {
     return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
   }
 
-  @Input() value: unknown;
-  @Input() disabled = false;
+  readonly value = input<unknown>(undefined);
+  readonly disabled = input(false);
 
   constructor(private groupComponent: RadioGroupComponent) {}
 
@@ -32,7 +35,7 @@ export class RadioButtonComponent {
   }
 
   get selected() {
-    return this.groupComponent.selected === this.value;
+    return this.groupComponent.selected === this.value();
   }
 
   get groupDisabled() {
@@ -40,11 +43,11 @@ export class RadioButtonComponent {
   }
 
   get block() {
-    return this.groupComponent.block;
+    return this.groupComponent.block();
   }
 
   protected onInputChange() {
-    this.groupComponent.onInputChange(this.value);
+    this.groupComponent.onInputChange(this.value());
   }
 
   protected onBlur() {

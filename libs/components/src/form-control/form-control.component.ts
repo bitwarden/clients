@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Component, ContentChild, HostBinding, Input } from "@angular/core";
+import { Component, ContentChild, HostBinding, Input, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -17,9 +17,11 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
   imports: [NgClass, TypographyDirective, I18nPipe],
 })
 export class FormControlComponent {
-  @Input() label: string;
+  readonly label = input<string>(undefined);
 
   private _inline = false;
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() get inline() {
     return this._inline;
   }
@@ -28,6 +30,8 @@ export class FormControlComponent {
   }
 
   private _disableMargin = false;
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set disableMargin(value: boolean | "") {
     this._disableMargin = coerceBooleanProperty(value);
   }

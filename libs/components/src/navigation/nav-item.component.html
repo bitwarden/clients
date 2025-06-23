@@ -15,11 +15,13 @@
   >
     <div
       [ngStyle]="{
-        'padding-left': data.open ? (variant === 'tree' ? 2.5 : 1) + treeDepth * 1.5 + 'rem' : '0',
+        'padding-left': data.open
+          ? (variant() === 'tree' ? 2.5 : 1) + treeDepth * 1.5 + 'rem'
+          : '0',
       }"
       class="tw-relative tw-flex"
     >
-      <div [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']">
+      <div [ngClass]="[variant() === 'tree' ? 'tw-py-1' : 'tw-py-2']">
         <div
           #slotStart
           class="[&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
@@ -30,7 +32,7 @@
         <div
           *ngIf="slotStart.childElementCount === 0"
           [ngClass]="{
-            'tw-w-0': variant !== 'tree',
+            'tw-w-0': variant() !== 'tree',
           }"
         >
           <button
@@ -43,27 +45,27 @@
         </div>
       </div>
 
-      <ng-container *ngIf="route; then isAnchor; else isButton"></ng-container>
+      <ng-container *ngIf="route(); then isAnchor; else isButton"></ng-container>
 
       <!-- Main content of `NavItem` -->
       <ng-template #anchorAndButtonContent>
         <div
-          [title]="text"
+          [title]="text()"
           class="tw-truncate"
           [ngClass]="[
-            variant === 'tree' ? 'tw-py-1' : 'tw-py-2',
+            variant() === 'tree' ? 'tw-py-1' : 'tw-py-2',
             data.open ? 'tw-pe-4' : 'tw-text-center',
           ]"
         >
           <i
             class="bwi bwi-fw tw-text-alt2 tw-mx-1 {{ icon }}"
             [attr.aria-hidden]="data.open"
-            [attr.aria-label]="text"
+            [attr.aria-label]="text()"
           ></i
           ><span
             *ngIf="data.open"
             [ngClass]="showActiveStyles ? 'tw-font-bold' : 'tw-font-semibold'"
-            >{{ text }}</span
+            >{{ text() }}</span
           >
         </div>
       </ng-template>
@@ -75,11 +77,11 @@
         <a
           class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-p-0 tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
           data-fvw
-          [routerLink]="route"
-          [relativeTo]="relativeTo"
-          [attr.aria-label]="ariaLabel || text"
+          [routerLink]="route()"
+          [relativeTo]="relativeTo()"
+          [attr.aria-label]="ariaLabel() || text()"
           routerLinkActive
-          [routerLinkActiveOptions]="routerLinkActiveOptions"
+          [routerLinkActiveOptions]="routerLinkActiveOptions()"
           [ariaCurrentWhenActive]="'page'"
           (isActiveChange)="setIsActive($event)"
           (click)="mainContentClicked.emit()"
@@ -104,7 +106,7 @@
       <div
         *ngIf="data.open"
         class="tw-flex -tw-ms-3 tw-pe-4 tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2 empty:tw-hidden"
-        [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']"
+        [ngClass]="[variant() === 'tree' ? 'tw-py-1' : 'tw-py-2']"
       >
         <ng-content select="[slot=end]"></ng-content>
       </div>

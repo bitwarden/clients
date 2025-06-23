@@ -10,6 +10,7 @@ import {
   Input,
   OnDestroy,
   ViewContainerRef,
+  input,
 } from "@angular/core";
 import { Observable, Subscription } from "rxjs";
 import { filter, mergeWith } from "rxjs/operators";
@@ -20,13 +21,16 @@ import { MenuComponent } from "./menu.component";
 export class MenuTriggerForDirective implements OnDestroy {
   @HostBinding("attr.aria-expanded") isOpen = false;
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
-    return this.menu?.ariaRole || "menu";
+    return this.menu()?.ariaRole() || "menu";
   }
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding("attr.role")
   @Input()
   role = "button";
 
-  @Input("bitMenuTriggerFor") menu: MenuComponent;
+  readonly menu = input<MenuComponent>(undefined, { alias: "bitMenuTriggerFor" });
 
   private overlayRef: OverlayRef;
   private defaultMenuConfig: OverlayConfig = {
@@ -65,14 +69,15 @@ export class MenuTriggerForDirective implements OnDestroy {
   }
 
   private openMenu() {
-    if (this.menu == null) {
+    const menu = this.menu();
+    if (menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
     this.overlayRef = this.overlay.create(this.defaultMenuConfig);
 
-    const templatePortal = new TemplatePortal(this.menu.templateRef, this.viewContainerRef);
+    const templatePortal = new TemplatePortal(menu.templateRef, this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
     this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
@@ -82,11 +87,11 @@ export class MenuTriggerForDirective implements OnDestroy {
       }
       this.destroyMenu();
     });
-    if (this.menu.keyManager) {
-      this.menu.keyManager.setFirstItemActive();
+    if (menu.keyManager) {
+      menu.keyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
-        .subscribe((event: KeyboardEvent) => this.menu.keyManager.onKeydown(event));
+        .subscribe((event: KeyboardEvent) => this.menu().keyManager.onKeydown(event));
     }
   }
 
@@ -97,19 +102,19 @@ export class MenuTriggerForDirective implements OnDestroy {
 
     this.isOpen = false;
     this.disposeAll();
-    this.menu.closed.emit();
+    this.menu().closed.emit();
   }
 
   private getClosedEvents(): Observable<any> {
     const detachments = this.overlayRef.detachments();
     const escKey = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
-        const keys = this.menu.ariaRole === "menu" ? ["Escape", "Tab"] : ["Escape"];
+        const keys = this.menu().ariaRole() === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
       }),
     );
     const backdrop = this.overlayRef.backdropClick();
-    const menuClosed = this.menu.closed;
+    const menuClosed = this.menu().closed;
 
     return detachments.pipe(mergeWith(escKey, backdrop, menuClosed));
   }

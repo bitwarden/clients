@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgTemplateOutlet } from "@angular/common";
-import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
+import { Component, ContentChild, HostBinding, Input, Optional, Self, input } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -20,6 +20,8 @@ export class RadioGroupComponent implements ControlValueAccessor {
   disabled = false;
 
   private _name?: string;
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() get name() {
     return this._name ?? this.ngControl?.name?.toString();
   }
@@ -27,9 +29,12 @@ export class RadioGroupComponent implements ControlValueAccessor {
     this._name = value;
   }
 
-  @Input() block = false;
+  readonly block = input(false);
 
   @HostBinding("attr.role") role = "radiogroup";
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding("attr.id") @Input() id = `bit-radio-group-${nextId++}`;
   @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 

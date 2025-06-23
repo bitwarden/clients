@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
+import { Component, Input, OnInit, Output, EventEmitter, input } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,19 +31,22 @@ const defaultIcon: Record<BannerType, string> = {
   imports: [CommonModule, IconButtonModule, I18nPipe],
 })
 export class BannerComponent implements OnInit {
-  @Input("bannerType") bannerType: BannerType = "info";
+  readonly bannerType = input<BannerType>("info");
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() icon: string;
-  @Input() useAlertRole = true;
-  @Input() showClose = true;
+  readonly useAlertRole = input(true);
+  readonly showClose = input(true);
 
   @Output() onClose = new EventEmitter<void>();
 
   ngOnInit(): void {
-    this.icon ??= defaultIcon[this.bannerType];
+    this.icon ??= defaultIcon[this.bannerType()];
   }
 
   get bannerClass() {
-    switch (this.bannerType) {
+    switch (this.bannerType()) {
       case "danger":
         return "tw-bg-danger-100 tw-border-b-danger-700";
       case "info":

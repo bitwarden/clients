@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, ViewChild, input } from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -43,9 +43,11 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() disabled: boolean;
-  @Input() placeholder: string;
-  @Input() autocomplete: string;
+  readonly placeholder = input<string>(undefined);
+  readonly autocomplete = input<string>(undefined);
 
   getFocusTarget() {
     return this.input?.nativeElement;

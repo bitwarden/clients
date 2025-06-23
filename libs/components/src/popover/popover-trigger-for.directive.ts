@@ -11,6 +11,7 @@ import {
   Input,
   OnDestroy,
   ViewContainerRef,
+  input,
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
@@ -22,25 +23,25 @@ import { PopoverComponent } from "./popover.component";
   exportAs: "popoverTrigger",
 })
 export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input()
   @HostBinding("attr.aria-expanded")
   popoverOpen = false;
 
-  @Input("bitPopoverTriggerFor")
-  popover: PopoverComponent;
+  readonly popover = input<PopoverComponent>(undefined, { alias: "bitPopoverTriggerFor" });
 
-  @Input("position")
-  position: string;
+  readonly position = input<string>(undefined);
 
   private overlayRef: OverlayRef;
   private closedEventsSub: Subscription;
 
   get positions() {
-    if (!this.position) {
+    if (!this.position()) {
       return defaultPositions;
     }
 
-    const preferredPosition = defaultPositions.find((position) => position.id === this.position);
+    const preferredPosition = defaultPositions.find((position) => position.id === this.position());
 
     if (preferredPosition) {
       return [preferredPosition, ...defaultPositions];
@@ -83,7 +84,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
     this.popoverOpen = true;
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
-    const templatePortal = new TemplatePortal(this.popover.templateRef, this.viewContainerRef);
+    const templatePortal = new TemplatePortal(this.popover().templateRef, this.viewContainerRef);
 
     this.overlayRef.attach(templatePortal);
     this.closedEventsSub = this.getClosedEvents().subscribe(() => {
@@ -97,7 +98,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
       .keydownEvents()
       .pipe(filter((event: KeyboardEvent) => event.key === "Escape"));
     const backdrop = this.overlayRef.backdropClick();
-    const popoverClosed = this.popover.closed;
+    const popoverClosed = this.popover().closed;
 
     return detachments.pipe(mergeWith(escKey, backdrop, popoverClosed));
   }

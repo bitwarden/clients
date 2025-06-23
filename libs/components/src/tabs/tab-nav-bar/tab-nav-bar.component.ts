@@ -6,8 +6,8 @@ import {
   Component,
   ContentChildren,
   forwardRef,
-  Input,
   QueryList,
+  input,
 } from "@angular/core";
 
 import { TabHeaderComponent } from "../shared/tab-header.component";
@@ -25,7 +25,7 @@ import { TabLinkComponent } from "./tab-link.component";
 })
 export class TabNavBarComponent implements AfterContentInit {
   @ContentChildren(forwardRef(() => TabLinkComponent)) tabLabels: QueryList<TabLinkComponent>;
-  @Input() label = "";
+  readonly label = input("");
 
   /**
    * Focus key manager for keeping tab controls accessible.

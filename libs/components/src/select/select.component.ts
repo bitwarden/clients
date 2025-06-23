@@ -12,6 +12,7 @@ import {
   ViewChild,
   Output,
   EventEmitter,
+  input,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -42,6 +43,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   private _items: Option<T>[] = [];
   /** Optional: Options can be provided using an array input or using `bit-option` */
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get items(): Option<T>[] {
     return this._items;
@@ -51,7 +54,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     this._selectedOption = this.findSelectedOption(next, this.selectedValue);
   }
 
-  @Input() placeholder = this.i18nService.t("selectPlaceholder");
+  readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
   @Output() closed = new EventEmitter();
 
   protected selectedValue: T;
@@ -88,6 +91,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   get disabledAttr() {
     return this.disabled || null;
   }
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get disabled() {
     return this._disabled ?? this.ngControl?.disabled ?? false;
@@ -153,9 +158,14 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()
   get required() {

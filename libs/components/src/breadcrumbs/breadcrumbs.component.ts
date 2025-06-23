@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ContentChildren, Input, QueryList } from "@angular/core";
+import { Component, ContentChildren, QueryList, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { IconButtonModule } from "../icon-button";
@@ -19,8 +19,7 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
   imports: [CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
 })
 export class BreadcrumbsComponent {
-  @Input()
-  show = 3;
+  readonly show = input(3);
 
   private breadcrumbs: BreadcrumbComponent[] = [];
 
@@ -31,14 +30,14 @@ export class BreadcrumbsComponent {
 
   protected get beforeOverflow() {
     if (this.hasOverflow) {
-      return this.breadcrumbs.slice(0, this.show - 1);
+      return this.breadcrumbs.slice(0, this.show() - 1);
     }
 
     return this.breadcrumbs;
   }
 
   protected get overflow() {
-    return this.breadcrumbs.slice(this.show - 1, -1);
+    return this.breadcrumbs.slice(this.show() - 1, -1);
   }
 
   protected get afterOverflow() {
@@ -46,6 +45,6 @@ export class BreadcrumbsComponent {
   }
 
   protected get hasOverflow() {
-    return this.breadcrumbs.length > this.show;
+    return this.breadcrumbs.length > this.show();
   }
 }

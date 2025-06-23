@@ -71,7 +71,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
       "focus:tw-outline-none",
     ]
       .concat(this.block ? ["tw-w-full", "tw-block"] : ["tw-inline-block"])
-      .concat(buttonStyles[this.buttonType ?? "secondary"])
+      .concat(buttonStyles[this.buttonType() ?? "secondary"])
       .concat(
         this.showDisabledStyles() || this.disabled()
           ? [
@@ -106,12 +106,14 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  @Input() buttonType: ButtonType = "secondary";
+  readonly buttonType = input<ButtonType>("secondary");
 
   size = input<ButtonSize>("default");
 
   private _block = false;
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get block(): boolean {
     return this._block;

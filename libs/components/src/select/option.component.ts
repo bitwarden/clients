@@ -9,15 +9,27 @@ import { Option } from "./option";
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
 export class OptionComponent<T = unknown> implements Option<T> {
+  // TODO: Skipped for migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input()
   icon?: string;
 
+  // TODO: Skipped for migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ required: true })
   value: T;
 
+  // TODO: Skipped for migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ required: true })
   label: string;
 
+  // TODO: Skipped for migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ transform: booleanAttribute })
   disabled: boolean;
 }

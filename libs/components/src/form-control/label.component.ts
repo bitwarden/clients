@@ -19,6 +19,8 @@ export class BitLabel {
     @Optional() private parentFormControl: FormControlComponent,
   ) {}
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("class") @Input() get classList() {
     return ["tw-inline-flex", "tw-gap-1", "tw-items-baseline", "tw-flex-row", "tw-min-w-0"];
   }
@@ -27,6 +29,9 @@ export class BitLabel {
     return this.elementRef.nativeElement.textContent.trim();
   }
 
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding() @Input() id = `bit-label-${nextId++}`;
 
   get isInsideFormControl() {

@@ -21,6 +21,8 @@ import { FocusableElement } from "../shared/focusable-element";
   selector: "[appAutofocus], [bitAutofocus]",
 })
 export class AutofocusDirective implements AfterContentChecked {
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set appAutofocus(condition: boolean | string) {
     this.autofocus = condition === "" || condition === true;
   }

@@ -38,6 +38,8 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input("bitAction") handler: FunctionReturningAwaitable;
 
   constructor(

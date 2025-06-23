@@ -39,6 +39,8 @@ export class MenuItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
   constructor(public elementRef: ElementRef<HTMLButtonElement>) {}

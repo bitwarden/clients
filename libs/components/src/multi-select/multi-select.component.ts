@@ -12,6 +12,7 @@ import {
   HostBinding,
   Optional,
   Self,
+  input,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -46,11 +47,17 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() baseItems: SelectItemView[];
   // Defaults to native ng-select behavior - set to "true" to clear selected items on dropdown close
-  @Input() removeSelectedItems = false;
+  readonly removeSelectedItems = input(false);
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() placeholder: string;
-  @Input() loading = false;
+  readonly loading = input(false);
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean;
 
   // Internal tracking of selected items
@@ -119,7 +126,7 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     this.onItemsConfirmed.emit(this.selectedItems);
 
     // Remove selected items from base list based on input property
-    if (this.removeSelectedItems) {
+    if (this.removeSelectedItems()) {
       let updatedBaseItems = this.baseItems;
       this.selectedItems.forEach((selectedItem) => {
         updatedBaseItems = updatedBaseItems.filter((item) => selectedItem.id !== item.id);
@@ -186,9 +193,14 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()
   get required() {

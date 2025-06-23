@@ -5,8 +5,8 @@
       linkType="primary"
       class="tw-my-2 tw-inline-block"
       [routerLink]="breadcrumb.route"
-      [queryParams]="breadcrumb.queryParams"
-      [queryParamsHandling]="breadcrumb.queryParamsHandling"
+      [queryParams]="breadcrumb.queryParams()"
+      [queryParamsHandling]="breadcrumb.queryParamsHandling()"
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
     </a>
@@ -44,8 +44,8 @@
           bitMenuItem
           linkType="primary"
           [routerLink]="breadcrumb.route"
-          [queryParams]="breadcrumb.queryParams"
-          [queryParamsHandling]="breadcrumb.queryParamsHandling"
+          [queryParams]="breadcrumb.queryParams()"
+          [queryParamsHandling]="breadcrumb.queryParamsHandling()"
         >
           <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
         </a>
@@ -65,8 +65,8 @@
         linkType="primary"
         class="tw-my-2 tw-inline-block"
         [routerLink]="breadcrumb.route"
-        [queryParams]="breadcrumb.queryParams"
-        [queryParamsHandling]="breadcrumb.queryParamsHandling"
+        [queryParams]="breadcrumb.queryParams()"
+        [queryParamsHandling]="breadcrumb.queryParamsHandling()"
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content"></ng-container>
       </a>

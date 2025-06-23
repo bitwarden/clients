@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, input } from "@angular/core";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 import { Icon, isIcon } from "./icon";
@@ -6,8 +6,8 @@ import { Icon, isIcon } from "./icon";
 @Component({
   selector: "bit-icon",
   host: {
-    "[attr.aria-hidden]": "!ariaLabel",
-    "[attr.aria-label]": "ariaLabel",
+    "[attr.aria-hidden]": "!ariaLabel()",
+    "[attr.aria-label]": "ariaLabel()",
     "[innerHtml]": "innerHtml",
   },
   template: ``,
@@ -15,6 +15,8 @@ import { Icon, isIcon } from "./icon";
 export class BitIconComponent {
   innerHtml: SafeHtml | null = null;
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set icon(icon: Icon) {
     if (!isIcon(icon)) {
       return;
@@ -24,7 +26,7 @@ export class BitIconComponent {
     this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
   }
 
-  @Input() ariaLabel: string | undefined = undefined;
+  readonly ariaLabel = input<string | undefined>(undefined);
 
   constructor(private domSanitizer: DomSanitizer) {}
 }

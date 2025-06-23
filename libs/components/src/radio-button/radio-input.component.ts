@@ -13,6 +13,9 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
+  // TODO: Skipped for migration because:
+  //  This input is used in combination with `@HostBinding` and migrating would
+  //  break.
   @HostBinding("attr.id") @Input() id = `bit-radio-input-${nextId++}`;
 
   @HostBinding("class")
@@ -74,6 +77,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
   get disabled() {
@@ -84,6 +89,8 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   }
   private _disabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get required() {
     return (

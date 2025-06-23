@@ -23,6 +23,8 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   /**
    * Whether the input is toggled to show the password.
    */
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @HostBinding("attr.aria-pressed") @Input() toggled = false;
   @Output() toggledChange = new EventEmitter<boolean>();
 

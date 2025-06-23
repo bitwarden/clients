@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
+import {
+  Component,
+  HostBinding,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  input,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -26,19 +34,29 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
     return ["tw-h-full"];
   }
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() title: string;
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() subtitle: string;
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() icon: Icon;
-  @Input() showReadonlyHostname: boolean;
-  @Input() hideLogo: boolean = false;
-  @Input() hideFooter: boolean = false;
-  @Input() hideIcon: boolean = false;
+  readonly showReadonlyHostname = input<boolean>(undefined);
+  readonly hideLogo = input<boolean>(false);
+  readonly hideFooter = input<boolean>(false);
+  readonly hideIcon = input<boolean>(false);
 
   /**
    * Max width of the title area content
    *
    * @default null
    */
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() titleAreaMaxWidth?: "md";
 
   /**
@@ -46,6 +64,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() maxWidth: "md" | "3xl" = "md";
 
   protected logo = BitwardenLogo;

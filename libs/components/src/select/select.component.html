@@ -2,7 +2,7 @@
   [(ngModel)]="selectedOption"
   (ngModelChange)="onChange($event)"
   [disabled]="disabled"
-  [placeholder]="placeholder"
+  [placeholder]="placeholder()"
   [items]="items"
   (blur)="onBlur()"
   [labelForId]="labelForId"
