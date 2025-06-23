@@ -20,7 +20,7 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 @Component({
