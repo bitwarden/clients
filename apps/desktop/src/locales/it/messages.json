@@ -24,7 +24,7 @@
     "message": "Identità"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Nota"
   },
   "typeSecureNote": {
     "message": "Nota sicura"
@@ -3817,28 +3817,28 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Assegna a una raccolta"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "Assegna a queste raccolte"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere l'elemento."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere gli elementi."
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "Nessuna raccolta assegnata"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Assegna"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere gli elementi."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Hai selezionato $TOTAL_COUNT$ elementi. Di questi, $READONLY_COUNT$ non possono essere aggiornati perché non hai l'autorizzazione per la modifica.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3850,10 +3850,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Seleziona le raccolte da assegnare"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementi saranno trasferiti definitivamente all'organizzazione selezionata e non saranno più di tua proprietà.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3862,7 +3862,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementi saranno trasferiti definitivamente a $ORG$ e non saranno più di tua proprietà.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3875,10 +3875,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "Un elemento sarà trasferito definitivamente all'organizzazione selezionata e non sarà più di tua proprietà."
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "Un elemento sarà trasferito definitivamente a $ORG$ e non sarà più di tua proprietà.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -3887,13 +3887,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Raccolte assegnate correttamente"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "La selezione è vuota."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Elementi spostati in $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3902,7 +3902,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Elemento spostato in $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3911,7 +3911,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Elementi selezionati spostati in $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
