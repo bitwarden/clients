@@ -13,7 +13,6 @@ import { DefaultSendFormConfigService, SendAddEditDialogComponent } from "@bitwa
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  standalone: true,
   imports: [JslibModule, CommonModule, ButtonModule, MenuModule, BadgeModule],
   providers: [DefaultSendFormConfigService],
 })

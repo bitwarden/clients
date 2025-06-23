@@ -41,7 +41,6 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "app-preferences",
   templateUrl: "preferences.component.html",
-  standalone: true,
   imports: [SharedModule, HeaderModule, VaultTimeoutInputComponent],
 })
 export class PreferencesComponent implements OnInit, OnDestroy {

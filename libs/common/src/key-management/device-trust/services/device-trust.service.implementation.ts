@@ -89,7 +89,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
       map((options) => {
-        return options?.trustedDeviceOption != null ?? false;
+        return options?.trustedDeviceOption != null;
       }),
     );
   }
@@ -97,7 +97,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   supportsDeviceTrustByUserId$(userId: UserId): Observable<boolean> {
     return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
       map((options) => {
-        return options?.trustedDeviceOption != null ?? false;
+        return options?.trustedDeviceOption != null;
       }),
     );
   }
@@ -196,7 +196,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     oldUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ): Promise<DeviceKeysUpdateRequest[]> {
+  ): Promise<OtherDeviceKeysUpdateRequest[]> {
     if (!userId) {
       throw new Error("UserId is required. Cannot get rotated data.");
     }

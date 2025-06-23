@@ -29,7 +29,6 @@ export interface ViewPasswordHistoryDialogParams {
 @Component({
   selector: "app-vault-password-history",
   templateUrl: "password-history.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,

@@ -547,12 +547,6 @@
     "message": "切換折疊",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "產生密碼"
-  },
-  "generatePassphrase": {
-    "message": "Generate passphrase"
-  },
   "checkPassword": {
     "message": "檢查密碼是否已暴露。"
   },
@@ -2158,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "啟用兩步驟登入可能會將您永久鎖定在您的 Bitwarden 帳戶外。如果您無法正常使用兩步驟登入方式（例如，您遺失了裝置），則可以使用復原碼存取您的帳戶。 如果您失去帳戶的存取權限，Bitwarden 也無法幫助您。所以我們建議您記下或列印復原碼，並將其妥善保存。"
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
@@ -4478,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4533,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "金鑰已更新"
-  },
-  "updateEncryptionKey": {
-    "message": "更新加密金鑰"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "我們變更了加密方法以加強安全性。請在下面輸入主密碼來更新您的加密金鑰。"
-  },
   "updateEncryptionKeyWarning": {
     "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "訂閱"
@@ -6824,6 +6812,24 @@
   "generateEmail": {
     "message": "Generate email"
   },
+  "generatePassword": {
+    "message": "產生密碼"
+  },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "值必須介於 $MIN$ 及 $MAX$。",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "使用此密碼"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "使用此使用者名稱"
@@ -7605,9 +7614,9 @@
     "message": "服務帳戶已更新",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "輸入或選擇專案或機密",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "輸入以進行篩選",
@@ -8603,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "裝置已信任"
-  },
-  "sendsNoItemsTitle": {
-    "message": "沒有可用的 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "使用 Send 可以與任何人安全地共用加密資訊。",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "邀請使用者"
@@ -10553,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10610,5 +10636,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

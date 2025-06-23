@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus } from "@bitwarden/key-management";
@@ -21,15 +22,26 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    return await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    const userKey = await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
+    if (userKey == null) {
+      return null;
+    }
+    // Objects received over IPC lose their prototype, so they must be recreated to restore methods and properties.
+    return SymmetricCryptoKey.fromJSON(userKey) as UserKey;
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     return await ipc.keyManagement.biometric.getBiometricsStatusForUser(id);
   }
 
-  async setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void> {
-    return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(userId, value);
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {
+    return await ipc.keyManagement.biometric.setBiometricProtectedUnlockKeyForUser(
+      userId,
+      value.toBase64(),
+    );
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
@@ -38,10 +50,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async setupBiometrics(): Promise<void> {
     return await ipc.keyManagement.biometric.setupBiometrics();
-  }
-
-  async setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void> {
-    return await ipc.keyManagement.biometric.setClientKeyHalf(userId, value);
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {

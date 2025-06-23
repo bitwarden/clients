@@ -26,6 +26,7 @@ import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
+import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 // eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
@@ -44,7 +45,6 @@ import { PremiumBadgeComponent } from "../vault/components/premium-badge.compone
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
 
-import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
 

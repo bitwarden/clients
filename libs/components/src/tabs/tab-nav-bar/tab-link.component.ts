@@ -12,7 +12,6 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
 @Component({
   selector: "bit-tab-link",
   templateUrl: "tab-link.component.html",
-  standalone: true,
   imports: [TabListItemDirective, RouterModule],
 })
 export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestroy {

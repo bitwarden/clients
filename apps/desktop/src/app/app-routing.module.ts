@@ -16,11 +16,8 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   LoginComponent,
   LoginSecondaryContentComponent,
-  LockIcon,
   LoginViaAuthRequestComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -42,6 +39,7 @@ import {
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -222,6 +220,9 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+            data: {
+              overlayPosition: DesktopDefaultOverlayPosition,
+            },
           },
         ],
       },
@@ -242,6 +243,9 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+            data: {
+              overlayPosition: DesktopDefaultOverlayPosition,
+            },
           },
         ],
       },
@@ -276,6 +280,9 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+            data: {
+              overlayPosition: DesktopDefaultOverlayPosition,
+            },
           },
         ],
       },
@@ -283,7 +290,7 @@ const routes: Routes = [
         path: "lock",
         canActivate: [lockGuard()],
         data: {
-          pageIcon: LockIcon,
+          pageIcon: Icons.LockIcon,
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },

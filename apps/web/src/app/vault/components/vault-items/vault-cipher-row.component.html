@@ -86,12 +86,7 @@
     appStopProp
   ></button>
   <bit-menu #corruptedCipherOptions>
-    <button
-      bitMenuItem
-      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
-      (click)="deleteCipher()"
-      type="button"
-    >
+    <button bitMenuItem *ngIf="canDeleteCipher" (click)="deleteCipher()" type="button">
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}
@@ -110,11 +105,11 @@
   ></button>
   <bit-menu #cipherOptions>
     <ng-container *ngIf="isNotDeletedLoginCipher">
-      <button bitMenuItem type="button" (click)="copy('username')">
+      <button bitMenuItem type="button" (click)="copy('username')" *ngIf="cipher.login.username">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyUsername" | i18n }}
       </button>
-      <button bitMenuItem type="button" (click)="copy('password')" *ngIf="cipher.viewPassword">
+      <button bitMenuItem type="button" (click)="copy('password')" *ngIf="cipher.login.password">
         <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
         {{ "copyPassword" | i18n }}
       </button>
@@ -160,17 +155,12 @@
       bitMenuItem
       (click)="restore()"
       type="button"
-      *ngIf="(limitItemDeletion$ | async) ? cipher.isDeleted && canRestoreCipher : cipher.isDeleted"
+      *ngIf="cipher.isDeleted && canRestoreCipher"
     >
       <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
       {{ "restore" | i18n }}
     </button>
-    <button
-      bitMenuItem
-      *ngIf="(limitItemDeletion$ | async) ? canDeleteCipher : canManageCollection"
-      (click)="deleteCipher()"
-      type="button"
-    >
+    <button bitMenuItem *ngIf="canDeleteCipher" (click)="deleteCipher()" type="button">
       <span class="tw-text-danger">
         <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
         {{ (cipher.isDeleted ? "permanentlyDelete" : "delete") | i18n }}

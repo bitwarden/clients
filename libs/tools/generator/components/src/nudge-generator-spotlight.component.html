@@ -3,13 +3,14 @@
     [title]="'generatorNudgeTitle' | i18n"
     (onDismiss)="dismissGeneratorSpotlight(NudgeType.GeneratorNudgeStatus)"
   >
-    <p
-      class="tw-text-main"
-      bitTypography="body2"
-      [attr.aria-label]="'generatorNudgeIconAria' | i18n"
-    >
-      {{ "generatorNudgeBodyOne" | i18n }} <i class="bwi bwi-generate"></i>
-      {{ "generatorNudgeBodyTwo" | i18n }}
+    <p class="tw-text-main tw-mb-0" bitTypography="body2">
+      <span class="tw-sr-only">
+        {{ "generatorNudgeBodyAria" | i18n }}
+      </span>
+      <span aria-hidden="true">
+        {{ "generatorNudgeBodyOne" | i18n }} <i class="bwi bwi-generate"></i>
+        {{ "generatorNudgeBodyTwo" | i18n }}
+      </span>
     </p>
   </bit-spotlight>
 </div>

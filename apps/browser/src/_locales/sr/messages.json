@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функција је недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потребна је миграција кључа за шифровање. Пријавите се преко веб сефа да бисте ажурирали кључ за шифровање."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy енкрипција више није подржана. Молимо контактирајте подршку за повраћај налога."
   },
   "premiumMembership": {
     "message": "Премијум чланство"
@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH кључ"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Нови $TYPE$",
     "placeholders": {
@@ -2153,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Поставите свој ПИН код за откључавање Bitwarden-а. Поставке ПИН-а ће се ресетовати ако се икада потпуно одјавите из апликације."
   },
-  "setYourPinCode1": {
-    "message": "Ваш ПИН ће се користити за откључавање Bitwarden-а уместо ваше главне лозинке. Ваш ПИН ће се ресетовати ако се икада потпуно одјавите са Bitwarden-а."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "ПИН је обавезан."
@@ -2203,6 +2206,9 @@
   },
   "useThisPassword": {
     "message": "Употреби ову лозинку"
+  },
+  "useThisPassphrase": {
+    "message": "Употреби ову приступну фразу"
   },
   "useThisUsername": {
     "message": "Употреби ово корисничко име"
@@ -2512,6 +2518,10 @@
   "change": {
     "message": "Промени"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Промена лозинке - $ITEMNAME$",
     "placeholders": {
@@ -2520,6 +2530,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "atRiskPasswords": {
     "message": "Лозинке под ризиком"
@@ -2554,6 +2567,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Прегледајте и промените једну лозинку за ризик"
@@ -2673,6 +2706,10 @@
   "allSends": {
     "message": "Све „Send“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Достигнут максималан број приступа",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Сакриј текст подразумевано"
@@ -3607,20 +3644,12 @@
   "trustUser": {
     "message": "Повери кориснику"
   },
-  "sendsNoItemsTitle": {
-    "message": "Нема активних Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Употребите Send да безбедно делите шифроване информације са било ким.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Шаљите безбедно осетљиве информације",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Делите датотеке и податке безбедно са било ким, на било којој платформи. Ваше информације ће остати шифроване од почетка-до-краја уз ограничење изложености.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5028,13 +5057,16 @@
     "message": "Биометријско откључавање није доступно из непознатог разлога."
   },
   "unlockVault": {
-    "message": "Unlock your vault in seconds"
+    "message": "Откључајте сеф у секунди"
   },
   "unlockVaultDesc": {
-    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+    "message": "Можете да прилагодите своје поставке за откључавање и истек времена да бисте брзо приступили сефу."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Постављен ПИН деблокирања"
+  },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
   },
   "authenticating": {
     "message": "Аутентификација"
@@ -5359,23 +5391,27 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Брзо креирајте лозинке"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "да вам помогне да задржите своје пријаве сигурно.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Лако креирајте снажне и јединствене лозинке кликом на дугме „Генерирате лозинку“ да вам помогне да чувате своје пријаве на сигурно.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "noPermissionsViewPage": {
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

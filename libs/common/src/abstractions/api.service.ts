@@ -208,7 +208,7 @@ export abstract class ApiService {
   deleteManyCiphersAdmin: (request: CipherBulkDeleteRequest) => Promise<any>;
   putMoveCiphers: (request: CipherBulkMoveRequest) => Promise<any>;
   putShareCipher: (id: string, request: CipherShareRequest) => Promise<CipherResponse>;
-  putShareCiphers: (request: CipherBulkShareRequest) => Promise<any>;
+  putShareCiphers: (request: CipherBulkShareRequest) => Promise<ListResponse<CipherResponse>>;
   putCipherCollections: (
     id: string,
     request: CipherCollectionsRequest,
@@ -228,16 +228,6 @@ export abstract class ApiService {
     request: CipherBulkRestoreRequest,
   ) => Promise<ListResponse<CipherResponse>>;
 
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentAdminLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
   postCipherAttachment: (
     id: string,
     request: AttachmentRequest,

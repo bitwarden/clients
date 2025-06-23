@@ -547,12 +547,6 @@
     "message": "Laajenna tai supista",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Luo salasana"
-  },
-  "generatePassphrase": {
-    "message": "Luo salalause"
-  },
   "checkPassword": {
     "message": "Tarkasta, onko salasana paljastunut."
   },
@@ -2158,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Kaksivaiheisen kirjautumisen käyttöönotto voi lukita sinut ulos Bitwarden-tililtäsi pysyvästi. Palautuskoodi mahdollistaa pääsyn tilillesi myös silloin, kun et voi käyttää normaaleja kaksivaiheisen tunnistautumisen vahvistustapoja (esim. kadotat suojausavaimesi tai se varastetaan). Bitwardenin asiakaspalvelukaan ei voi auttaa sinua, jos menetät pääsyn tillesi. Suosittelemme, että kirjoitat palautuskoodin muistiin tai tulostat sen ja säilytät turvallisessa paikassa (esim. kassakaapissa tai pankin tallelokerossa)."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Do not allow members to create card item types."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Kertakäyttöisellä palautuskoodillasi voit poistaa kaksivaiheisen kirjautumisen käytöstä, mikäli et voi käyttää kaksivaiheista todennustapaasi. Bitwarden suosittelee kirjoittamaan palautuskoodin ylös ja säilyttämään sen turvallisessa paikassa."
@@ -4478,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Salausavaimen päivitystä ei voida jatkaa"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4533,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Kansioidesi salausta ei voitu purkaa salausavaimesi päivityksen aikana. Jatkaaksesi päivitystä kansiosi on poistettava. Holvin kohteita ei poisteta, jos jatkat."
-  },
-  "keyUpdated": {
-    "message": "Avain päivitettiin"
-  },
-  "updateEncryptionKey": {
-    "message": "Päivitä salausavain"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Olemme muuttaneet salausmallia tietoturvan tehostamiseksi. Päivitä salausavaimesi syöttämällä pääsalasanasi alle."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Salausavaimesi päivityksen jälkeen, sinun tulee kirjautua ulos ja sitten takaisin sisään kaikissa Bitwarden-sovelluksissa, jotka ovat käytössäsi (esim. mobiilisovellus ja selainlaajennukset). Uudelleenkirjautumisen (joka lataa uuden salausavaimen) suorittamatta jättäminen saattaa johtaa tietojen vaurioitumiseen. Yritämme kirjata sinut ulos autmaattisesti, mutta tämä voi tapahtua vasta jonkin ajan kuluttua."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "Tilaus"
@@ -6824,6 +6812,24 @@
   "generateEmail": {
     "message": "Luo sähköpostiosoite"
   },
+  "generatePassword": {
+    "message": "Luo salasana"
+  },
+  "generatePassphrase": {
+    "message": "Luo salalause"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
   "spinboxBoundariesHint": {
     "message": "Arvon tulee olla väliltä $MIN$—$MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Käytä tätä salasanaa"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Käytä tätä käyttäjätunnusta"
@@ -7605,9 +7614,9 @@
     "message": "Palvelutili päivitettiin",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Syötä tai valitse projekteja tai salaisuuksia",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Suodata kirjoittamalla",
@@ -8603,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Laitteeseen luotettu"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aktiivisia Sendejä ei ole",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Sendillä voit jakaa salattuja tietoja turvallisesti kenelle tahansa.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Kutsu käyttäjiä"
@@ -10553,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "New business unit"
   },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
@@ -10610,5 +10636,18 @@
   },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }

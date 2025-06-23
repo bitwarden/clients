@@ -36,7 +36,6 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
 @Component({
   selector: "app-two-factor-setup-email",
   templateUrl: "two-factor-setup-email.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,

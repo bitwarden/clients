@@ -99,7 +99,7 @@
     "message": "Позначити програму критичною"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "Позначені критичні програми"
   },
   "application": {
     "message": "Програма"
@@ -141,13 +141,13 @@
     "message": "Ці учасники використовують у програмах слабкі, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionNone": {
-    "message": "These are no members logging into applications with weak, exposed, or reused passwords."
+    "message": "Немає учасників, які використовують у програмах слабкі, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescription": {
     "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "These are no applications with weak, exposed, or reused passwords."
+    "message": "Немає програм, які мають слабкі, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionWithApp": {
     "message": "Ці учасники використовують у $APPNAME$ слабкі, викриті, або повторювані паролі.",
@@ -159,7 +159,7 @@
     }
   },
   "atRiskMembersDescriptionWithAppNone": {
-    "message": "There are no at risk members for $APPNAME$.",
+    "message": "Немає учасників з ризиками для $APPNAME$.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -547,12 +547,6 @@
     "message": "Згорнути/розгорнути",
     "description": "Toggling an expand/collapse state."
   },
-  "generatePassword": {
-    "message": "Генерувати пароль"
-  },
-  "generatePassphrase": {
-    "message": "Генерувати парольну фразу"
-  },
   "checkPassword": {
     "message": "Перевірити чи пароль було викрито."
   },
@@ -922,7 +916,7 @@
     "message": "Оберіть файл."
   },
   "maxFileSize": {
-    "message": "Максимальний розмір файлу 500 Мб."
+    "message": "Максимальний розмір файлу 500 МБ."
   },
   "addedItem": {
     "message": "Запис додано"
@@ -2158,6 +2152,12 @@
   },
   "twoStepLoginRecoveryWarning": {
     "message": "Увімкнення двоетапної перевірки може цілком заблокувати доступ до облікового запису Bitwarden. Код відновлення дає вам змогу отримати доступ до свого облікового запису у випадку, якщо ви не можете скористатися провайдером двоетапної перевірки (наприклад, якщо втрачено пристрій). Служба підтримки Bitwarden не зможе допомогти відновити доступ до вашого облікового запису. Ми радимо вам записати чи надрукувати цей код відновлення і зберігати його в надійному місці."
+  },
+  "restrictedItemTypesPolicy": {
+    "message": "Вилучити тип запису \"Картка\""
+  },
+  "restrictedItemTypesPolicyDesc": {
+    "message": "Не дозволяти учасникам створювати записи типу \"Картка\"."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Одноразовий код відновлення можна використати для вимкнення двоетапної перевірки у випадку, якщо ви втратите доступ до вашого провайдера двоетапної перевірки. Bitwarden рекомендує вам записати код відновлення і зберігати його в надійному місці."
@@ -4478,9 +4478,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Неможливо продовжити оновлення ключа шифрування"
-  },
   "editFieldLabel": {
     "message": "Редагувати $LABEL$",
     "placeholders": {
@@ -4533,23 +4530,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Не вдалося розшифрувати ваші теки під час оновлення ключа шифрування. Щоб продовжити оновлення, необхідно видалити теки. Якщо ви продовжите, записи у сховищі не будуть видалені."
-  },
-  "keyUpdated": {
-    "message": "Ключ оновлено"
-  },
-  "updateEncryptionKey": {
-    "message": "Оновити ключ шифрування"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Ми змінили схему шифрування для кращої безпеки. Введіть головний пароль нижче, щоб оновити свій ключ шифрування."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте. Збій при виході та повторному вході може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Будь-які збережені експорти, обмежені обліковим записом, стануть недійсними."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "subscription": {
     "message": "Передплата"
@@ -6477,10 +6465,10 @@
     "message": "Недійсний код підтвердження"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації."
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Домен Key Connector"
   },
   "leaveOrganization": {
     "message": "Покинути організацію"
@@ -6824,6 +6812,24 @@
   "generateEmail": {
     "message": "Генерувати е-пошту"
   },
+  "generatePassword": {
+    "message": "Генерувати пароль"
+  },
+  "generatePassphrase": {
+    "message": "Генерувати парольну фразу"
+  },
+  "passwordGenerated": {
+    "message": "Пароль згенеровано"
+  },
+  "passphraseGenerated": {
+    "message": "Парольну фразу згенеровано"
+  },
+  "usernameGenerated": {
+    "message": "Ім'я користувача згенеровано"
+  },
+  "emailGenerated": {
+    "message": "Адресу е-пошти згенеровано"
+  },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -6886,6 +6892,9 @@
   },
   "useThisPassword": {
     "message": "Використати цей пароль"
+  },
+  "useThisPassphrase": {
+    "message": "Використати цю парольну фразу"
   },
   "useThisUsername": {
     "message": "Використати це ім'я користувача"
@@ -7605,9 +7614,9 @@
     "message": "Службовий обліковий запис оновлено",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Введіть або виберіть проєкти чи секрети",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Введіть або виберіть проєкти",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Введіть, щоб фільтрувати",
@@ -8603,14 +8612,6 @@
   },
   "deviceTrusted": {
     "message": "Довірений пристрій"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Немає активних відправлень",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Використовуйте відправлення, щоб безпечно надавати доступ іншим до зашифрованої інформації.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Запросити користувачів"
@@ -10553,6 +10554,31 @@
   "newBusinessUnit": {
     "message": "Новий бізнес-підрозділ"
   },
+  "sendsTitleNoItems": {
+    "message": "Безпечно надсилайте конфіденційну інформацію",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Швидко створюйте паролі"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши на",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "щоб зберегти свої записи в безпеці.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши кнопку Генерувати пароль, щоб зберегти свої записи в безпеці.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"
   },
@@ -10609,6 +10635,19 @@
     "message": "Оплата з банківським рахунком доступна тільки для клієнтів у США. Вам необхідно буде підтвердити свій банківський рахунок. Ми здійснимо мікродепозит протягом наступних 1–2 робочих днів. Введіть код дескриптора з цього депозиту на сторінці передплати провайдера, щоб підтвердити банківський рахунок. Неможливість засвідчення банківського рахунку призведе до втрати платежу та припинення вашої передплати."
   },
   "clickPayWithPayPal": {
-    "message": "Please click the Pay with PayPal button to add your payment method."
+    "message": "Натисніть кнопку Сплатити з PayPal, щоб додати спосіб оплати."
+  },
+  "revokeActiveSponsorshipConfirmation": {
+    "message": "Якщо ви вилучите $EMAIL$, спонсорство цього сімейного плану завершиться. Місце у вашій організації стане доступним для учасників чи спонсорства після дати поновлення спонсорованої організації – $DATE$.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "user@example.com"
+      },
+      "date": {
+        "content": "$2",
+        "example": "12/31/2024"
+      }
+    }
   }
 }
