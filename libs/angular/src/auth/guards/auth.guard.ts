@@ -60,26 +60,53 @@ export const authGuard: CanActivateFn = async (
     masterPasswordService.forceSetPasswordReason$(userId),
   );
 
+  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_SetInitialPasswordRefactor,
+  );
+  const isChangePasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+  );
+
+  // User JIT provisioned into a master-password-encryption org
+  if (
+    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    !routerState.url.includes("set-password-jit") &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
+    return router.createUrlTree([route]);
+  }
+
+  // TDE org user has "manage account recovery" permission
   if (
     forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission &&
     !routerState.url.includes("set-password") &&
     !routerState.url.includes("set-initial-password")
   ) {
-    const setInitialPasswordRefactorFlagOn = await configService.getFeatureFlag(
-      FeatureFlag.PM16117_SetInitialPasswordRefactor,
-    );
-
-    const route = setInitialPasswordRefactorFlagOn ? "/set-initial-password" : "/set-password";
-
+    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password";
     return router.createUrlTree([route]);
   }
 
+  // TDE Offboarding
   if (
-    forceSetPasswordReason !== ForceSetPasswordReason.None &&
-    !routerState.url.includes("update-temp-password")
+    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("set-initial-password")
   ) {
-    return router.createUrlTree(["/update-temp-password"]);
+    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/update-temp-password";
+    return router.createUrlTree([route]);
+  }
+
+  // Post- Account Recovery or Weak Password on login
+  if (
+    forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+    (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword &&
+      !routerState.url.includes("update-temp-password") &&
+      !routerState.url.includes("change-password"))
+  ) {
+    const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
+    return router.createUrlTree([route]);
   }
 
   return true;

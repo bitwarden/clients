@@ -7614,9 +7614,9 @@
     "message": "服務帳戶已更新",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "輸入或選擇專案或機密",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "輸入以進行篩選",
@@ -7701,8 +7701,8 @@
     "message": "存取權杖",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "新增存取權杖",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {

@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
+  "typeNote": {
+    "message": "Poznámka"
+  },
   "newItemHeader": {
     "message": "Nové $TYPE$",
     "placeholders": {
@@ -2153,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Nastaviť kód PIN na odomykanie Bitwardenu. Nastavenie PIN sa vynuluje, ak sa úplne odhlásite z aplikácie."
   },
-  "setYourPinCode1": {
-    "message": "Na odomknutie Bitwardenu sa namiesto hlavného hesla použije váš PIN. Váš PIN sa resetuje, ak sa niekedy úplne odhlásite zo Bitwardenu."
+  "setPinCode": {
+    "message": "Tento PIN môžete použiť na odomknutie Bitwardenu. PIN sa resetuje, ak sa úplne odhlásite z aplikácie."
   },
   "pinRequired": {
     "message": "Kód PIN je povinný."
@@ -2515,6 +2518,10 @@
   "change": {
     "message": "Zmeniť"
   },
+  "changePassword": {
+    "message": "Zmeniť heslo",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Zmeniť heslo - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2530,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Rizikové heslo"
   },
   "atRiskPasswords": {
     "message": "Rizikové heslá"
@@ -2557,6 +2567,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Vaše heslo pre túto stránku je rizikové. Organizácia $ORGANIZATION$ vás požiadala o jeho zmenu.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ chce, aby ste toto heslo zmenili, pretože je rizikové. Prejdite do nastavení svojho účtu a zmeňte heslo.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Skontrolujte a zmeňte jedno ohrozené heslo"
@@ -4409,7 +4439,7 @@
     "message": "Nie je čo kopírovať"
   },
   "assignToCollections": {
-    "message": "Prideliť k zbierkam"
+    "message": "Priradiť ku zbierkam"
   },
   "copyEmail": {
     "message": "Skopírovať e-mail"
@@ -4731,7 +4761,7 @@
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "Vybrali ste $TOTAL_COUNT$ položky. Nemôžete aktualizovať $READONLY_COUNT$ položky(-iek), pretože nemáte oprávnenie na úpravu.",
+    "message": "Vybrali ste položky ($TOTAL_COUNT$). Nemôžete aktualizovať $READONLY_COUNT$ položky(-iek), pretože nemáte oprávnenie na úpravu.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5034,6 +5064,9 @@
   },
   "unlockPinSet": {
     "message": "PIN na odomknutie nastavený"
+  },
+  "unlockBiometricSet": {
+    "message": "Odomknutie biometrickými údajmi nastavené"
   },
   "authenticating": {
     "message": "Overuje sa"
@@ -5376,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly nie je vo vašom prehliadači podporovaný alebo nie je povolený. Na používanie Bitwardenu sa vyžaduje WebAssembly.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

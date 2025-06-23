@@ -298,8 +298,11 @@ export class VaultItemsComponent {
 
   protected canAssignCollections(cipher: CipherView) {
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    const editableCollections = this.allCollections.filter((c) => !c.readOnly);
+
     return (
-      (organization?.canEditAllCiphers && this.viewingOrgVault) || cipher.canAssignToCollections
+      (organization?.canEditAllCiphers && this.viewingOrgVault) ||
+      (cipher.canAssignToCollections && editableCollections.length > 0)
     );
   }
 
@@ -338,8 +341,6 @@ export class VaultItemsComponent {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
-
-    this.selection.clear();
 
     // All ciphers are selectable, collections only if they can be edited or deleted
     this.editableItems = items.filter(
