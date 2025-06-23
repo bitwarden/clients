@@ -27,7 +27,7 @@ export class WebIpcService extends IpcService {
                 type: "bitwarden-ipc-message",
                 message: {
                   destination: message.destination,
-                  payload: message.payload,
+                  payload: [...message.payload],
                   topic: message.topic,
                 },
               } satisfies IpcMessage,
@@ -50,9 +50,16 @@ export class WebIpcService extends IpcService {
           return;
         }
 
-        this.communicationBackend?.deliver_message(
+        if (
+          typeof message.message.destination !== "object" ||
+          message.message.destination.Web == undefined
+        ) {
+          return;
+        }
+
+        this.communicationBackend?.receive(
           new IncomingMessage(
-            message.message.payload,
+            new Uint8Array(message.message.payload),
             message.message.destination,
             "BrowserBackground",
             message.message.topic,

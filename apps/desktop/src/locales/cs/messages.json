@@ -691,8 +691,8 @@
   "maxFileSize": {
     "message": "Maximální velikost souboru je 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Vyžaduje se migrace šifrovacího klíče. Pro aktualizaci šifrovacího klíče se přihlaste přes webový trezor."
+  "legacyEncryptionUnsupported": {
+    "message": "Staré šifrování již není podporováno. Kontaktujte podporu pro obnovení Vašeho účtu."
   },
   "editedFolder": {
     "message": "Složka byla uložena"
