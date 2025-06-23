@@ -1,8 +1,10 @@
-<div  *ngIf="{
-  open: sideNavService.open$ | async,
-} as data" class="tw-ps-2 tw-pe-2">
-  <ng-container
-  >
+<div
+  *ngIf="{
+    open: sideNavService.open$ | async,
+  } as data"
+  class="tw-ps-2 tw-pe-2"
+>
+  <ng-container>
     <div
       *ngIf="data.open || icon"
       class="tw-relative tw-rounded-md tw-h-10"
@@ -18,7 +20,11 @@
 
         <!-- Main content of `NavItem` -->
         <ng-template #anchorAndButtonContent>
-          <div [title]="text" class="tw-truncate tw-gap-2 tw-items-center tw-font-bold" [ngClass]="{'tw-text-center': !data.open, 'tw-flex': data.open}">
+          <div
+            [title]="text"
+            class="tw-truncate tw-gap-2 tw-items-center tw-font-bold"
+            [ngClass]="{ 'tw-text-center': !data.open, 'tw-flex': data.open }"
+          >
             <i
               class="!tw-m-0 bwi bwi-fw tw-text-alt2 {{ icon }}"
               [attr.aria-hidden]="data.open"
