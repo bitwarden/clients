@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "newItemHeader": {
     "message": "Новый $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Установить PIN--код разблокировки"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Аутентификация"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
