@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Личная информация"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "typeSecureNote": {
     "message": "Защищенная заметка"
   },
@@ -3812,5 +3815,139 @@
     "message": "Узнайте больше об агенте SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Назначить коллекциям"
+  },
+  "assignToTheseCollections": {
+    "message": "Назначить этим коллекциям"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "noCollectionsAssigned": {
+    "message": "Коллекции не назначены"
+  },
+  "assign": {
+    "message": "Назначить"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Вы выбрали $TOTAL_COUNT$ элемента(-ов). Вы не можете обновить $READONLY_COUNT$ элемента(-ов), поскольку у вас нет прав на редактирование.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Выбрать коллекции для назначения"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ будут навсегда переданы $ORG$. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан $ORG$. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Коллекции успешно назначены"
+  },
+  "nothingSelected": {
+    "message": "Вы ничего не выбрали."
+  },
+  "itemsMovedToOrg": {
+    "message": "Элементы перемещены в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Элемент перемещен в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Выбранные элементы перемещены в $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }
