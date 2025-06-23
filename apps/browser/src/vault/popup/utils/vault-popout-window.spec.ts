@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import {
   openViewVaultItemPopout,
