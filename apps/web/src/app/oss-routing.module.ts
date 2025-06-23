@@ -573,6 +573,10 @@ const routes: Routes = [
       },
       {
         path: "setup-extension",
+        data: {
+          hideCardWrapper: true,
+          hideIcon: true,
+        } satisfies AnonLayoutWrapperData,
         children: [
           {
             path: "",
