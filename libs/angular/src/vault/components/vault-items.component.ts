@@ -8,7 +8,9 @@ import {
   combineLatest,
   filter,
   from,
+  map,
   of,
+  shareReplay,
   switchMap,
   takeUntil,
 } from "rxjs";
@@ -20,6 +22,11 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  isCipherViewRestricted,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
 @Directive()
 export class VaultItemsComponent implements OnInit, OnDestroy {
@@ -34,6 +41,19 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
   deleted = false;
   organization: Organization;
   CipherType = CipherType;
+
+  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types
+      CIPHER_MENU_ITEMS.filter(
+        (itemType) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === itemType.type,
+          ),
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected searchPending = false;
 
@@ -62,6 +82,7 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.subscribeToCiphers();
   }
@@ -143,18 +164,22 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
             this._searchText$,
             this._filter$,
             of(userId),
+            this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId]) => {
+        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
           let allCiphers = indexedCiphers ?? [];
           const _failedCiphers = failedCiphers ?? [];
 
           allCiphers = [..._failedCiphers, ...allCiphers];
 
+          const restrictedTypeFilter = (cipher: CipherView) =>
+            !isCipherViewRestricted(cipher, restricted);
+
           return this.searchService.searchCiphers(
             userId,
             searchText,
-            [filter, this.deletedFilter],
+            [filter, this.deletedFilter, restrictedTypeFilter],
             allCiphers,
           );
         }),
