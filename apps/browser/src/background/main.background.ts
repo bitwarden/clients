@@ -1539,6 +1539,7 @@ export default class MainBackground {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new ExtensionLogoutService
   async logout(logoutReason: LogoutReason, userId?: UserId) {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(

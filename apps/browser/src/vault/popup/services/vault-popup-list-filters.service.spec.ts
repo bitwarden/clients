@@ -20,6 +20,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import {
   CachedFilterState,
@@ -69,6 +73,10 @@ describe("VaultPopupListFiltersService", () => {
 
   const state$ = new BehaviorSubject<boolean>(false);
   const update = jest.fn().mockResolvedValue(undefined);
+
+  const restrictedItemTypesService = {
+    restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+  };
 
   beforeEach(() => {
     _memberOrganizations$ = new BehaviorSubject<Organization[]>([]); // Fresh instance per test
@@ -125,21 +133,46 @@ describe("VaultPopupListFiltersService", () => {
           provide: ViewCacheService,
           useValue: viewCacheService,
         },
+        {
+          provide: RestrictedItemTypesService,
+          useValue: restrictedItemTypesService,
+        },
       ],
     });
 
     service = TestBed.inject(VaultPopupListFiltersService);
   });
 
-  describe("cipherTypes", () => {
-    it("returns all cipher types", () => {
-      expect(service.cipherTypes.map((c) => c.value)).toEqual([
-        CipherType.Login,
-        CipherType.Card,
-        CipherType.Identity,
-        CipherType.SecureNote,
-        CipherType.SshKey,
+  describe("cipherTypes$", () => {
+    it("returns all cipher types when no restrictions", (done) => {
+      restrictedItemTypesService.restricted$.next([]);
+
+      service.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).toEqual([
+          CipherType.Login,
+          CipherType.Card,
+          CipherType.Identity,
+          CipherType.SecureNote,
+          CipherType.SshKey,
+        ]);
+        done();
+      });
+    });
+
+    it("filters out restricted cipher types", (done) => {
+      restrictedItemTypesService.restricted$.next([
+        { cipherType: CipherType.Card, allowViewOrgIds: [] },
       ]);
+
+      service.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).toEqual([
+          CipherType.Login,
+          CipherType.Identity,
+          CipherType.SecureNote,
+          CipherType.SshKey,
+        ]);
+        done();
+      });
     });
   });
 
@@ -452,6 +485,10 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
 
+    beforeEach(() => {
+      restrictedItemTypesService.restricted$.next([]);
+    });
+
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[0]]);
@@ -690,6 +727,9 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
+  const restrictedItemTypesServiceMock = {
+    restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+  } as any;
   const formBuilderInstance = new FormBuilder();
 
   const seededCachedSignal = createMockSignal<CachedFilterState>(cachedState);
@@ -713,6 +753,7 @@ function createSeededVaultPopupListFiltersService(
       stateProviderMock,
       accountServiceMock,
       viewCacheServiceMock,
+      restrictedItemTypesServiceMock,
     );
   });
 
