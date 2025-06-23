@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Component, ContentChild, HostBinding, Input, input } from "@angular/core";
+import { booleanAttribute, Component, ContentChild, HostBinding, input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -19,32 +18,16 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
 export class FormControlComponent {
   readonly label = input<string>(undefined);
 
-  private _inline = false;
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() get inline() {
-    return this._inline;
-  }
-  set inline(value: boolean | "") {
-    this._inline = coerceBooleanProperty(value);
-  }
+  inline = input(false, { transform: booleanAttribute });
 
-  private _disableMargin = false;
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() set disableMargin(value: boolean | "") {
-    this._disableMargin = coerceBooleanProperty(value);
-  }
-  get disableMargin() {
-    return this._disableMargin;
-  }
+  disableMargin = input(false, { transform: booleanAttribute });
 
   @ContentChild(BitFormControlAbstraction) protected formControl: BitFormControlAbstraction;
 
   @HostBinding("class") get classes() {
     return []
-      .concat(this.inline ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
-      .concat(this.disableMargin ? [] : ["tw-mb-4"]);
+      .concat(this.inline() ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
+      .concat(this.disableMargin() ? [] : ["tw-mb-4"]);
   }
 
   constructor(private i18nService: I18nService) {}

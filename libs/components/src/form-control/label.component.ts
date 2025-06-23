@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input, Optional } from "@angular/core";
+import { Component, ElementRef, HostBinding, input, Optional } from "@angular/core";
 
 import { FormControlComponent } from "./form-control.component";
 
@@ -12,6 +12,10 @@ let nextId = 0;
   selector: "bit-label",
   templateUrl: "label.component.html",
   imports: [CommonModule],
+  host: {
+    "[attr.class]": "classList()",
+    "[attr.id]": "id()",
+  },
 })
 export class BitLabel {
   constructor(
@@ -19,20 +23,20 @@ export class BitLabel {
     @Optional() private parentFormControl: FormControlComponent,
   ) {}
 
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding("class") @Input() get classList() {
-    return ["tw-inline-flex", "tw-gap-1", "tw-items-baseline", "tw-flex-row", "tw-min-w-0"];
-  }
+  // TODO signal migration -- does this work with the host binding?
+  readonly classList = input([
+    "tw-inline-flex",
+    "tw-gap-1",
+    "tw-items-baseline",
+    "tw-flex-row",
+    "tw-min-w-0",
+  ]);
 
   @HostBinding("title") get title() {
     return this.elementRef.nativeElement.textContent.trim();
   }
 
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding() @Input() id = `bit-label-${nextId++}`;
+  readonly id = input(`bit-label-${nextId++}`);
 
   get isInsideFormControl() {
     return !!this.parentFormControl;
