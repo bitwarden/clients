@@ -1,4 +1,3 @@
-import { Injectable } from "@angular/core";
 import { combineLatest, map, of, Observable } from "rxjs";
 import { switchMap, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
@@ -10,13 +9,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
 
-@Injectable({ providedIn: "root" })
 export class RestrictedItemTypesService {
   /**
    * Emits an array of RestrictedCipherType objects:
@@ -77,4 +76,26 @@ export class RestrictedItemTypesService {
     private organizationService: OrganizationService,
     private policyService: PolicyService,
   ) {}
+}
+
+/**
+ * Filter that returns whether a cipher is restricted from being viewed by the user
+ * Criteria:
+ * - the cipher's type is restricted by at least one org
+ * UNLESS
+ * - the cipher belongs to an organization and that organization does not restrict that type
+ * OR
+ * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
+ */
+export function isCipherViewRestricted(
+  cipher: CipherView,
+  restrictedTypes: RestrictedCipherType[],
+) {
+  return restrictedTypes.some(
+    (restrictedType) =>
+      restrictedType.cipherType === cipher.type &&
+      (cipher.organizationId
+        ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
+        : restrictedType.allowViewOrgIds.length === 0),
+  );
 }

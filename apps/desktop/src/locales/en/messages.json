@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identity"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSecureNote": {
     "message": "Secure note"
   },
