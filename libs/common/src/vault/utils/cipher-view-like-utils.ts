@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { CipherType } from "../enums";
+import { Cipher } from "../models/domain/cipher";
 import { CardView } from "../models/view/card.view";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
@@ -26,7 +27,7 @@ export type CipherViewLike = CipherView | CipherListView;
  */
 export class CipherViewLikeUtils {
   /** @returns true when the given cipher is an instance of {@link CipherListView}. */
-  static isCipherListView = (cipher: CipherViewLike): cipher is CipherListView => {
+  static isCipherListView = (cipher: CipherViewLike | Cipher): cipher is CipherListView => {
     return typeof cipher.type !== "number";
   };
 
@@ -96,7 +97,7 @@ export class CipherViewLikeUtils {
    * Returns the type of the cipher.
    * For consistency, when the given cipher is a {@link CipherListView} the {@link CipherType} equivalent will be returned.
    */
-  static getType = (cipher: CipherViewLike): CipherType => {
+  static getType = (cipher: CipherViewLike | Cipher): CipherType => {
     if (!this.isCipherListView(cipher)) {
       return cipher.type;
     }
