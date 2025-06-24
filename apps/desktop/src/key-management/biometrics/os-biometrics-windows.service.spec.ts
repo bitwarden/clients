@@ -7,6 +7,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
@@ -15,6 +16,8 @@ import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-manageme
 import { WindowMain } from "../../main/window.main";
 
 import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
+
+import OsDerivedKey = biometrics.OsDerivedKey;
 
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
@@ -39,21 +42,21 @@ describe("OsBiometricsServiceWindows", function () {
   const i18nService = mock<I18nService>();
   const windowMain = mock<WindowMain>();
   const browserWindow = mock<BrowserWindow>();
+  const encryptionService: EncryptService = mock<EncryptService>();
+  const cryptoFunctionService: CryptoFunctionService = mock<CryptoFunctionService>();
+  const biometricStateService: BiometricStateService = mock<BiometricStateService>();
 
   let service: OsBiometricsServiceWindows;
-  let biometricStateService: BiometricStateService;
 
-  const serviceKey = "testService";
-  const storageKey = "testStorageKey";
-  const clientKeyHalfB64 = "testClientKeyHalfB64";
+  const key = new SymmetricCryptoKey(new Uint8Array(64));
+  const userId = "test-user-id" as UserId;
+  const serviceKey = "Bitwarden_biometric";
+  const storageKey = `${userId}_user_biometric`;
 
   beforeEach(() => {
     windowMain.win = browserWindow;
 
     const logService = mock<LogService>();
-    biometricStateService = mock<BiometricStateService>();
-    const encryptionService = mock<EncryptService>();
-    const cryptoFunctionService = mock<CryptoFunctionService>();
     service = new OsBiometricsServiceWindows(
       i18nService,
       windowMain,
@@ -91,24 +94,6 @@ describe("OsBiometricsServiceWindows", function () {
   });
 
   describe("getOrCreateBiometricEncryptionClientKeyHalf", () => {
-    const userId = "test-user-id" as UserId;
-    const key = new SymmetricCryptoKey(new Uint8Array(64));
-    let encryptionService: EncryptService;
-    let cryptoFunctionService: CryptoFunctionService;
-
-    beforeEach(() => {
-      encryptionService = mock<EncryptService>();
-      cryptoFunctionService = mock<CryptoFunctionService>();
-      service = new OsBiometricsServiceWindows(
-        mock<I18nService>(),
-        null,
-        mock<LogService>(),
-        biometricStateService,
-        encryptionService,
-        cryptoFunctionService,
-      );
-    });
-
     it("should return null if getRequirePasswordOnRestart is false", async () => {
       biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(false);
       const result = await service.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
@@ -156,8 +141,8 @@ describe("OsBiometricsServiceWindows", function () {
         encrypted,
         userId,
       );
-      expect(result).toBeNull();
-      expect((service as any).clientKeyHalves.get(userId.toString())).toBeNull();
+      expect(result).toEqual(randomBytes);
+      expect((service as any).clientKeyHalves.get(userId.toString())).toEqual(randomBytes);
     });
   });
 
@@ -187,9 +172,9 @@ describe("OsBiometricsServiceWindows", function () {
     it("should throw error when unsuccessfully authenticated biometrics", async () => {
       biometrics.prompt = jest.fn().mockResolvedValue(false);
 
-      await expect(
-        service.getBiometricKey(serviceKey, storageKey, clientKeyHalfB64),
-      ).rejects.toThrow(new Error("Biometric authentication failed"));
+      await expect(service.getBiometricKey(userId)).rejects.toThrow(
+        new Error("Biometric authentication failed"),
+      );
     });
 
     it.each([null, undefined, ""])(
@@ -197,54 +182,80 @@ describe("OsBiometricsServiceWindows", function () {
       async (password) => {
         passwords.getPassword = jest.fn().mockResolvedValue(password);
 
-        const result = await service.getBiometricKey(serviceKey, storageKey, clientKeyHalfB64);
+        const result = await service.getBiometricKey(userId);
 
         expect(result).toBeNull();
         expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
       },
     );
 
-    it("should return the biometricKey and setBiometricSecret called if password is not encrypted", async () => {
-      const biometricKey = "biometricKey";
-      passwords.getPassword = jest.fn().mockResolvedValue(biometricKey);
-      service["_osKeyHalf"] = "testKeyB64";
-      service["_iv"] = "testIvB64";
+    it.each([[false], [true]])(
+      "should return the biometricKey and setBiometricSecret called if password is not encrypted and cached clientKeyHalves is %s",
+      async (haveClientKeyHalves) => {
+        const clientKeyHalveBytes = new Uint8Array([1, 2, 3]);
+        if (haveClientKeyHalves) {
+          service["clientKeyHalves"].set(userId, clientKeyHalveBytes);
+        }
+        const biometricKey = key.toBase64();
+        passwords.getPassword = jest.fn().mockResolvedValue(biometricKey);
+        biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue({
+          keyB64: "testKeyB64",
+          ivB64: "testIvB64",
+        } satisfies OsDerivedKey);
 
-      const result = await service.getBiometricKey(serviceKey, storageKey, clientKeyHalfB64);
+        const result = await service.getBiometricKey(userId);
 
-      expect(result).toBe(biometricKey);
-      expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
-      expect(biometrics.setBiometricSecret).toHaveBeenCalledWith(
-        service,
-        storageKey,
-        biometricKey,
-        {
+        expect(result.toBase64()).toBe(biometricKey);
+        expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
+        expect(biometrics.setBiometricSecret).toHaveBeenCalledWith(
+          serviceKey,
+          storageKey,
+          biometricKey,
+          {
+            osKeyPartB64: "testKeyB64",
+            clientKeyPartB64: haveClientKeyHalves
+              ? Utils.fromBufferToB64(clientKeyHalveBytes)
+              : undefined,
+          },
+          "testIvB64",
+        );
+      },
+    );
+
+    it.each([[false], [true]])(
+      "should return the biometricKey if password is encrypted and cached clientKeyHalves is %s",
+      async (haveClientKeyHalves) => {
+        const clientKeyHalveBytes = new Uint8Array([1, 2, 3]);
+        if (haveClientKeyHalves) {
+          service["clientKeyHalves"].set(userId, clientKeyHalveBytes);
+        }
+        const biometricKey = key.toBase64();
+        const biometricKeyEncrypted = "2.testId|data|mac";
+        passwords.getPassword = jest.fn().mockResolvedValue(biometricKeyEncrypted);
+        biometrics.getBiometricSecret = jest.fn().mockResolvedValue(biometricKey);
+        biometrics.deriveKeyMaterial = jest.fn().mockResolvedValue({
+          keyB64: "testKeyB64",
+          ivB64: "testIvB64",
+        } satisfies OsDerivedKey);
+
+        const result = await service.getBiometricKey(userId);
+
+        expect(result.toBase64()).toBe(biometricKey);
+        expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
+        expect(biometrics.setBiometricSecret).not.toHaveBeenCalled();
+        expect(biometrics.getBiometricSecret).toHaveBeenCalledWith(serviceKey, storageKey, {
           osKeyPartB64: "testKeyB64",
-          clientKeyPartB64: clientKeyHalfB64,
-        },
-        "testIvB64",
-      );
-    });
-
-    it("should return the biometricKey if password is encrypted", async () => {
-      const biometricKey = "biometricKey";
-      const biometricKeyEncrypted = "2.testId|data|mac";
-      passwords.getPassword = jest.fn().mockResolvedValue(biometricKeyEncrypted);
-      service["_osKeyHalf"] = "testKeyB64";
-      service["_iv"] = "testIvB64";
-      biometrics.getBiometricSecret = jest.fn().mockResolvedValue(biometricKey);
-
-      const result = await service.getBiometricKey(serviceKey, storageKey, clientKeyHalfB64);
-
-      expect(result).toBe(biometricKey);
-      expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
-      expect(biometrics.setBiometricSecret).not.toHaveBeenCalled();
-    });
+          clientKeyPartB64: haveClientKeyHalves
+            ? Utils.fromBufferToB64(clientKeyHalveBytes)
+            : undefined,
+        });
+      },
+    );
   });
 
   describe("deleteBiometricKey", () => {
     it("should delete the biometric key", async () => {
-      await service.deleteBiometricKey(serviceKey, storageKey);
+      await service.deleteBiometricKey(userId);
 
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceKey, storageKey);
     });
@@ -285,7 +296,7 @@ describe("OsBiometricsServiceWindows", function () {
     ])(
       "should derive key material and ivB64 and return it when os key half not saved yet",
       async (clientKeyHalfB64, ivB64) => {
-        service["_iv"] = ivB64;
+        service["setIv"](ivB64);
 
         const derivedKeyMaterial = {
           keyB64: "derivedKeyB64",
@@ -309,7 +320,7 @@ describe("OsBiometricsServiceWindows", function () {
     );
 
     it("should throw an error when deriving key material and returned iv is null", async () => {
-      service["_iv"] = "testIvB64";
+      service["setIv"]("testIvB64");
 
       const derivedKeyMaterial = {
         keyB64: "derivedKeyB64",

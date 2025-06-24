@@ -14,6 +14,7 @@ import { WindowMain } from "../../main/window.main";
 import { OsBiometricService } from "./os-biometrics.service";
 
 const SERVICE = "Bitwarden_biometric";
+
 function getLookupKeyForUser(userId: UserId): string {
   return `${userId}_user_biometric`;
 }
@@ -23,7 +24,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
-  private clientKeyHalves = new Map<UserId, Uint8Array>();
+  private clientKeyHalves = new Map<UserId, Uint8Array | null>();
 
   constructor(
     private i18nService: I18nService,
@@ -47,7 +48,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     const value = await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
     let clientKeyHalfB64: string | null = null;
     if (this.clientKeyHalves.has(userId)) {
-      clientKeyHalfB64 = Utils.fromBufferToB64(this.clientKeyHalves.get(userId));
+      clientKeyHalfB64 = Utils.fromBufferToB64(this.clientKeyHalves.get(userId)!);
     }
 
     if (value == null || value == "") {
@@ -55,7 +56,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     } else if (!EncString.isSerializedEncString(value)) {
       // Update to format encrypted with client key half
       const storageDetails = await this.getStorageDetails({
-        clientKeyHalfB64: clientKeyHalfB64,
+        clientKeyHalfB64: clientKeyHalfB64 ?? undefined,
       });
 
       await biometrics.setBiometricSecret(
@@ -70,7 +71,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
       const encValue = new EncString(value);
       this.setIv(encValue.iv);
       const storageDetails = await this.getStorageDetails({
-        clientKeyHalfB64: clientKeyHalfB64,
+        clientKeyHalfB64: clientKeyHalfB64 ?? undefined,
       });
       return SymmetricCryptoKey.fromString(
         await biometrics.getBiometricSecret(
@@ -86,7 +87,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     const clientKeyHalf = await this.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
 
     const storageDetails = await this.getStorageDetails({
-      clientKeyHalfB64: Utils.fromBufferToB64(clientKeyHalf),
+      clientKeyHalfB64: clientKeyHalf ? Utils.fromBufferToB64(clientKeyHalf) : undefined,
     });
     await biometrics.setBiometricSecret(
       SERVICE,
@@ -166,7 +167,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     }
 
     if (this.clientKeyHalves.has(userId)) {
-      return this.clientKeyHalves.get(userId);
+      return this.clientKeyHalves.get(userId)!;
     }
 
     // Retrieve existing key half if it exists
@@ -178,8 +179,8 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     }
     if (clientKeyHalf == null) {
       // Set a key half if it doesn't exist
-      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
-      const encKey = await this.encryptService.encryptBytes(keyBytes, key);
+      clientKeyHalf = await this.cryptoFunctionService.randomBytes(32);
+      const encKey = await this.encryptService.encryptBytes(clientKeyHalf, key);
       await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
     }
 
