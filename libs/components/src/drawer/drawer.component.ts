@@ -10,7 +10,7 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { DrawerHostDirective } from "./drawer-host.directive";
+import { DrawerService } from "./drawer.service";
 
 /**
  * A drawer is a panel of supplementary content that is adjacent to the page's main content.
@@ -19,13 +19,12 @@ import { DrawerHostDirective } from "./drawer-host.directive";
  */
 @Component({
   selector: "bit-drawer",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, PortalModule],
   templateUrl: "drawer.component.html",
 })
 export class DrawerComponent {
-  private drawerHost = inject(DrawerHostDirective);
+  private drawerHost = inject(DrawerService);
   private portal = viewChild.required(CdkPortal);
 
   /**

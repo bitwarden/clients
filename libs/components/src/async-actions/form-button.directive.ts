@@ -25,7 +25,6 @@ import { BitSubmitDirective } from "./bit-submit.directive";
  */
 @Directive({
   selector: "button[bitFormButton]",
-  standalone: true,
 })
 export class BitFormButtonDirective implements OnDestroy {
   private destroy$ = new Subject<void>();

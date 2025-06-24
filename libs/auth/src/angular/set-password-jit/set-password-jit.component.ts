@@ -30,7 +30,6 @@ import {
 } from "./set-password-jit.service.abstraction";
 
 @Component({
-  standalone: true,
   selector: "auth-set-password-jit",
   templateUrl: "set-password-jit.component.html",
   imports: [CommonModule, InputPasswordComponent, JslibModule],
@@ -98,7 +97,11 @@ export class SetPasswordJitComponent implements OnInit {
     this.submitting = true;
 
     const credentials: SetPasswordCredentials = {
-      ...passwordInputResult,
+      newMasterKey: passwordInputResult.newMasterKey,
+      newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+      newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
+      newPasswordHint: passwordInputResult.newPasswordHint,
+      kdfConfig: passwordInputResult.kdfConfig,
       orgSsoIdentifier: this.orgSsoIdentifier,
       orgId: this.orgId,
       resetPasswordAutoEnroll: this.resetPasswordAutoEnroll,

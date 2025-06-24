@@ -169,6 +169,27 @@ export class IdentityView extends ItemView {
       return undefined;
     }
 
-    return Object.assign(new IdentityView(), obj);
+    const identityView = new IdentityView();
+
+    identityView.title = obj.title ?? null;
+    identityView.firstName = obj.firstName ?? null;
+    identityView.middleName = obj.middleName ?? null;
+    identityView.lastName = obj.lastName ?? null;
+    identityView.address1 = obj.address1 ?? null;
+    identityView.address2 = obj.address2 ?? null;
+    identityView.address3 = obj.address3 ?? null;
+    identityView.city = obj.city ?? null;
+    identityView.state = obj.state ?? null;
+    identityView.postalCode = obj.postalCode ?? null;
+    identityView.country = obj.country ?? null;
+    identityView.company = obj.company ?? null;
+    identityView.email = obj.email ?? null;
+    identityView.phone = obj.phone ?? null;
+    identityView.ssn = obj.ssn ?? null;
+    identityView.username = obj.username ?? null;
+    identityView.passportNumber = obj.passportNumber ?? null;
+    identityView.licenseNumber = obj.licenseNumber ?? null;
+
+    return identityView;
   }
 }

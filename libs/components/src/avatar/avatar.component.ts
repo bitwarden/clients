@@ -16,12 +16,17 @@ const SizeClasses: Record<SizeTypes, string[]> = {
   xsmall: ["tw-h-6", "tw-w-6"],
 };
 
+/**
+  * Avatars display a unique color that helps a user visually recognize their logged in account.
+
+  * A variance in color across the avatar component is important as it is used in Account Switching as a
+  * visual indicator to recognize which of a personal or work account a user is logged into.
+*/
 @Component({
   selector: "bit-avatar",
   template: `@if (src) {
     <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
   }`,
-  standalone: true,
   imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {

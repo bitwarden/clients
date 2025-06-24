@@ -27,7 +27,6 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 @Component({
-  standalone: true,
   selector: "tools-password-health-members",
   templateUrl: "password-health-members.component.html",
   imports: [PipesModule, HeaderModule, SearchModule, FormsModule, SharedModule, TableModule],

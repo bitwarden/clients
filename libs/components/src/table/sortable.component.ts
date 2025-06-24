@@ -17,10 +17,9 @@ import { TableComponent } from "./table.component";
       (click)="setActive()"
     >
       <ng-content></ng-content>
-      <i class="bwi tw-ml-2" [ngClass]="icon"></i>
+      <i class="bwi tw-ms-2" [ngClass]="icon"></i>
     </button>
   `,
-  standalone: true,
   imports: [NgClass],
 })
 export class SortableComponent implements OnInit {

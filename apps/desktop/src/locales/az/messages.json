@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Kimlik"
   },
+  "typeNote": {
+    "message": "Not"
+  },
   "typeSecureNote": {
     "message": "Güvənli qeyd"
   },
@@ -350,12 +353,6 @@
   },
   "other": {
     "message": "Digər"
-  },
-  "generatePassword": {
-    "message": "Parol yarat"
-  },
-  "generatePassphrase": {
-    "message": "Keçid ifadələri yarat"
   },
   "type": {
     "message": "Növ"
@@ -697,8 +694,8 @@
   "maxFileSize": {
     "message": "Maksimal fayl həcmi 500 MB-dır."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Şifrələmə açarının daşınması tələb olunur. Şifrələmə açarınızı güncəlləmək üçün lütfən veb seyfinizə giriş edin."
+  "legacyEncryptionUnsupported": {
+    "message": "Köhnə şifrələmə artıq dəstəklənmir. Hesabınızı geri qaytarmaq üçün lütfən dəstəklə əlaqə saxlayın."
   },
   "editedFolder": {
     "message": "Qovluğa düzəliş edildi"
@@ -2633,6 +2630,24 @@
   "usernameGenerator": {
     "message": "İstifadəçi adı yaradıcı"
   },
+  "generatePassword": {
+    "message": "Parol yarat"
+  },
+  "generatePassphrase": {
+    "message": "Keçid ifadələri yarat"
+  },
+  "passwordGenerated": {
+    "message": "Parol yaradıldı"
+  },
+  "passphraseGenerated": {
+    "message": "Keçid ifadəsi yaradıldı"
+  },
+  "usernameGenerated": {
+    "message": "İstifadəçi adı yaradıldı"
+  },
+  "emailGenerated": {
+    "message": "E-poçt yaradıldı"
+  },
   "spinboxBoundariesHint": {
     "message": "Dəyər, $MIN$-$MAX$ arasında olmalıdır.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2700,15 @@
   },
   "useThisEmail": {
     "message": "Bu e-poçtu istifadə et"
+  },
+  "useThisPassword": {
+    "message": "Bu parolu istifadə et"
+  },
+  "useThisPassphrase": {
+    "message": "Bu keçid ifadəsini istifadə et"
+  },
+  "useThisUsername": {
+    "message": "Bu istifadəçi adını istifadə et"
   },
   "random": {
     "message": "Təsadüfi"
@@ -3050,12 +3074,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Zəif parol məlumat pozuntusunda aşkarlandı və tapıldı. Hesabınızı qorumaq üçün güclü və unikal bir parol istifadə edin. Bu parolu istifadə etmək istədiyinizə əminsiniz?"
-  },
-  "useThisPassword": {
-    "message": "Bu parolu istifadə et"
-  },
-  "useThisUsername": {
-    "message": "Bu istifadəçi adını istifadə et"
   },
   "checkForBreaches": {
     "message": "Bu parol üçün bilinən məlumat pozuntularını yoxlayın"
@@ -3704,7 +3722,7 @@
     "message": "Riskli parolları dəyişdir"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3723,6 +3741,31 @@
   },
   "folderHintText": {
     "message": "Ana qovluğun adından sonra \"/\" əlavə edərək qovluğu ardıcıl yerləşdirin. Nümunə: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send, həssas məlumatlar təhlükəsizdir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "İstənilən platformada faylları və dataları hər kəslə paylaşın. İfşa olunmağı məhdudlaşdıraraq məlumatlarınız ucdan-uca şifrələnmiş qalacaq.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Cəld parol yaradın"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Klikləyərək güclü və unikal parolları asanlıqla yaradın",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "və girişlərinizi güvənli şəkildə saxlayın.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Girişlərinizi güvənli şəkildə saxlamağınıza kömək etməsi üçün Parol yarat düyməsinə klikləyərək güclü və unikal parolları asanlıqla yaradın.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Avto-doldurma ilə vaxta qənaət edin"
@@ -3772,5 +3815,139 @@
     "message": "SSH agenti barədə daha ətraflı",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Kolleksiyalara təyin et"
+  },
+  "assignToTheseCollections": {
+    "message": "Bu kolleksiyalara təyin et"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementi görə biləcək."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
+  },
+  "noCollectionsAssigned": {
+    "message": "Heç bir kolleksiya təyin edilmədi"
+  },
+  "assign": {
+    "message": "Təyin et"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Təyin ediləcək kolleksiyaları seçin"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$, $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 element $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Uğurla təyin edilən kolleksiyalar"
+  },
+  "nothingSelected": {
+    "message": "Heç nə seçməmisiniz."
+  },
+  "itemsMovedToOrg": {
+    "message": "Elementlər bura daşındı: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Element bura daşındı: $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Seçilən elementlər $ORGNAME$ təşkilatına daşınıldı",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

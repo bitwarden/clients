@@ -83,6 +83,7 @@ import {
   ResetPasswordDialogResult,
 } from "./components/reset-password.component";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
+import { OrganizationUserService } from "./services/organization-user/organization-user.service";
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -110,8 +111,10 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
+  private organizationUsersCount = 0;
+
   get occupiedSeatCount(): number {
-    return this.dataSource.activeUserCount;
+    return this.organizationUsersCount;
   }
 
   constructor(
@@ -139,6 +142,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private configService: ConfigService,
+    private organizationUserService: OrganizationUserService,
   ) {
     super(
       apiService,
@@ -218,6 +222,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           );
 
           this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 
@@ -324,15 +329,24 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
-    const orgKey = await this.keyService.getOrgKey(this.organization.id);
-    const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
-    const request = new OrganizationUserConfirmRequest();
-    request.key = key.encryptedString;
-    await this.organizationUserApiService.postOrganizationUserConfirm(
-      this.organization.id,
-      user.id,
-      request,
-    );
+    if (
+      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
+    ) {
+      this.organizationUserService
+        .confirmUser(this.organization, user, publicKey)
+        .pipe(takeUntilDestroyed())
+        .subscribe();
+    } else {
+      const orgKey = await this.keyService.getOrgKey(this.organization.id);
+      const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
+      const request = new OrganizationUserConfirmRequest();
+      request.key = key.encryptedString;
+      await this.organizationUserApiService.postOrganizationUserConfirm(
+        this.organization.id,
+        user.id,
+        request,
+      );
+    }
   }
 
   async revoke(user: OrganizationUserView) {

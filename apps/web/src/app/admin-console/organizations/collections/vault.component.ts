@@ -125,7 +125,11 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
+import {
+  getNestedCollectionTree,
+  getFlatCollectionTree,
+  getNestedCollectionTree_vNext,
+} from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -140,7 +144,6 @@ enum AddAccessStatusType {
 }
 
 @Component({
-  standalone: true,
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
   imports: [
@@ -420,9 +423,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+    const nestedCollections$ = combineLatest([
+      allCollections$,
+      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
+    ]).pipe(
+      map(
+        ([collections, shouldOptimize]) =>
+          (shouldOptimize
+            ? getNestedCollectionTree_vNext(collections)
+            : getNestedCollectionTree(collections)) as TreeNode<CollectionAdminView>[],
+      ),
     );
 
     const collections$ = combineLatest([

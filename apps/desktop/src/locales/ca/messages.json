@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identitat"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "typeSecureNote": {
     "message": "Nota segura"
   },
@@ -247,10 +250,10 @@
     "message": "Remember SSH authorizations"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "Always"
+    "message": "Sempre"
   },
   "sshAgentPromptBehaviorNever": {
-    "message": "Never"
+    "message": "Mai"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
@@ -351,12 +354,6 @@
   "other": {
     "message": "Altres"
   },
-  "generatePassword": {
-    "message": "Genera contrasenya"
-  },
-  "generatePassphrase": {
-    "message": "Genera frase de pas"
-  },
   "type": {
     "message": "Tipus"
   },
@@ -412,13 +409,13 @@
     "message": "Clau d'autenticació (TOTP)"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Clau autenticadora"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Opcions d'emplenament automàtic"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Lloc web (URI)"
   },
   "websiteUriCount": {
     "message": "Website (URI) $COUNT$",
@@ -431,34 +428,34 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Lloc web afegit"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Afig un lloc web"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Suprimeix lloc web"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Propietari"
   },
   "addField": {
-    "message": "Add field"
+    "message": "Afig un camp"
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Edita el camp"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Esteu segur que voleu suprimir definitivament aquest adjunt?"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Tipus de camp"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Etiqueta del camp"
   },
   "add": {
-    "message": "Add"
+    "message": "Afig"
   },
   "textHelpText": {
     "message": "Use text fields for data like security questions"
@@ -501,7 +498,7 @@
     "description": "This describes a field that is 'linked' (related) to another field."
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Casella de selecció"
   },
   "linkedValue": {
     "message": "Valor enllaçat",
@@ -697,8 +694,8 @@
   "maxFileSize": {
     "message": "La mida màxima del fitxer és de 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Cal migrar la clau de xifratge. Inicieu la sessió a la caixa forta web per actualitzar la clau de xifratge."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Carpeta guardada"
@@ -737,7 +734,7 @@
     "message": "Enter the code sent to your email"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Introduïu el codi de la vostra aplicació d'autenticació"
   },
   "pressYourYubiKeyToAuthenticate": {
     "message": "Press your YubiKey to authenticate"
@@ -910,7 +907,7 @@
     "message": "L'autenticació s'ha cancel·lat o ha tardat massa. Torna-ho a provar."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Obrir en una pestanya nova"
   },
   "invalidVerificationCode": {
     "message": "Codi de verificació no vàlid"
@@ -968,7 +965,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifiqueu la vostra identitat"
   },
   "weDontRecognizeThisDevice": {
     "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
@@ -1001,7 +998,7 @@
     "message": "Opcions d'inici de sessió en dues passes"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Seleccioneu un mètode d'inici de sessió en dues passes"
   },
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
@@ -1059,7 +1056,7 @@
     "message": "No"
   },
   "location": {
-    "message": "Location"
+    "message": "Ubicació"
   },
   "overwritePassword": {
     "message": "Sobreescriu la contrasenya"
@@ -1967,7 +1964,7 @@
     }
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Dades de la targeta"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ details",
@@ -2516,7 +2513,7 @@
     "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Nom de l'organització"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -2631,7 +2628,25 @@
     "message": "Genera correu electrònic"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Generador de nom d'usuari"
+  },
+  "generatePassword": {
+    "message": "Genera contrasenya"
+  },
+  "generatePassphrase": {
+    "message": "Genera frase de pas"
+  },
+  "passwordGenerated": {
+    "message": "Contrasenya generada"
+  },
+  "passphraseGenerated": {
+    "message": "Frase de pas generada"
+  },
+  "usernameGenerated": {
+    "message": "Nom d'usuari generat"
+  },
+  "emailGenerated": {
+    "message": "Correu electrònic generat"
   },
   "spinboxBoundariesHint": {
     "message": "El valor ha d'estar entre $MIN$ i $MAX$.",
@@ -2685,6 +2700,15 @@
   },
   "useThisEmail": {
     "message": "Utilitza aquest correu"
+  },
+  "useThisPassword": {
+    "message": "Utilitzeu aquesta contrasenya"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Utilitzeu aquest nom d'usuari"
   },
   "random": {
     "message": "Aleatori"
@@ -2946,7 +2970,7 @@
     "message": "Are you trying to access your account?"
   },
   "accessAttemptBy": {
-    "message": "Access attempt by $EMAIL$",
+    "message": "Intent d'inici de sessió per $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3050,12 +3074,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Contrasenya feble identificada i trobada en una filtració de dades. Utilitzeu una contrasenya única i segura per protegir el vostre compte. Esteu segur que voleu utilitzar aquesta contrasenya?"
-  },
-  "useThisPassword": {
-    "message": "Utilitzeu aquesta contrasenya"
-  },
-  "useThisUsername": {
-    "message": "Utilitzeu aquest nom d'usuari"
   },
   "checkForBreaches": {
     "message": "Comproveu les filtracions de dades conegudes per a aquesta contrasenya"
@@ -3161,7 +3179,7 @@
     "message": "Trust organization"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Confiar"
   },
   "doNotTrust": {
     "message": "Do not trust"
@@ -3614,25 +3632,25 @@
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Detalls de l'element"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Nom d'element"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Credencials d'inici de sessió"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Opcions addicionals"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Historial d'elements"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Última edició"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Puja"
   },
   "authorize": {
     "message": "Autoritza"
@@ -3713,27 +3731,52 @@
     }
   },
   "move": {
-    "message": "Move"
+    "message": "Desplaça"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Carpeta nova"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Nom de la carpeta"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Save time with autofill"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "Inclou un",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "Website",
+    "message": "Lloc web",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -3772,5 +3815,139 @@
     "message": "Learn more about SSH agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Assigna a col·leccions"
+  },
+  "assignToTheseCollections": {
+    "message": "Assigna a aquestes col·leccions"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "noCollectionsAssigned": {
+    "message": "No s'ha assignat cap col·lecció"
+  },
+  "assign": {
+    "message": "Assigna"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Heu seleccionat $TOTAL_COUNT$ elements. No podeu actualitzar-ne $READONLY_COUNT$ dels quals perquè no teniu permisos d'edició.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Seleccioneu les col·leccions per assignar"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "nothingSelected": {
+    "message": "No heu seleccionat res."
+  },
+  "itemsMovedToOrg": {
+    "message": "S'han desplaçat elements a $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

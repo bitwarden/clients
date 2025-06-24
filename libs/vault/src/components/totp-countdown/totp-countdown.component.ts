@@ -12,7 +12,6 @@ import { TypographyModule } from "@bitwarden/components";
 @Component({
   selector: "[bitTotpCountdown]",
   templateUrl: "totp-countdown.component.html",
-  standalone: true,
   imports: [CommonModule, TypographyModule],
 })
 export class BitTotpCountdownComponent implements OnInit {

@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Посвідчення"
   },
+  "typeNote": {
+    "message": "Нотатка"
+  },
   "typeSecureNote": {
     "message": "Захищена нотатка"
   },
@@ -350,12 +353,6 @@
   },
   "other": {
     "message": "Інше"
-  },
-  "generatePassword": {
-    "message": "Генерувати пароль"
-  },
-  "generatePassphrase": {
-    "message": "Генерувати парольну фразу"
   },
   "type": {
     "message": "Тип"
@@ -695,10 +692,10 @@
     "message": "Оберіть файл"
   },
   "maxFileSize": {
-    "message": "Максимальний розмір файлу 500 Мб."
+    "message": "Максимальний розмір файлу 500 МБ."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
+  "legacyEncryptionUnsupported": {
+    "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -2513,13 +2510,13 @@
     "message": "Головний пароль вилучено"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації."
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Назва організації"
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Домен Key Connector"
   },
   "leaveOrganization": {
     "message": "Покинути організацію"
@@ -2633,6 +2630,24 @@
   "usernameGenerator": {
     "message": "Генератор імені користувача"
   },
+  "generatePassword": {
+    "message": "Генерувати пароль"
+  },
+  "generatePassphrase": {
+    "message": "Генерувати парольну фразу"
+  },
+  "passwordGenerated": {
+    "message": "Пароль згенеровано"
+  },
+  "passphraseGenerated": {
+    "message": "Парольну фразу згенеровано"
+  },
+  "usernameGenerated": {
+    "message": "Ім'я користувача згенеровано"
+  },
+  "emailGenerated": {
+    "message": "Адресу е-пошти згенеровано"
+  },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
@@ -2685,6 +2700,15 @@
   },
   "useThisEmail": {
     "message": "Використати цю е-пошту"
+  },
+  "useThisPassword": {
+    "message": "Використати цей пароль"
+  },
+  "useThisPassphrase": {
+    "message": "Використати цю парольну фразу"
+  },
+  "useThisUsername": {
+    "message": "Використати це ім'я користувача"
   },
   "random": {
     "message": "Випадково"
@@ -3050,12 +3074,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
-  },
-  "useThisPassword": {
-    "message": "Використати цей пароль"
-  },
-  "useThisUsername": {
-    "message": "Використати це ім'я користувача"
   },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
@@ -3704,7 +3722,7 @@
     "message": "Змінити ризикований пароль"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3716,13 +3734,38 @@
     "message": "Перемістити"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Нова тека"
   },
   "folderName": {
-    "message": "Folder Name"
+    "message": "Назва теки"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Зробіть теку вкладеною, вказавши після основної теки \"/\". Наприклад: Обговорення/Форуми"
+  },
+  "sendsTitleNoItems": {
+    "message": "Безпечно надсилайте конфіденційну інформацію",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Безпечно діліться файлами й даними з ким завгодно, на будь-якій платформі. Ваша інформація наскрізно зашифрована та має обмежений доступ.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Швидко створюйте паролі"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши на",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "щоб зберегти свої записи в безпеці.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Легко створюйте надійні та унікальні паролі, натиснувши кнопку Генерувати пароль, щоб зберегти свої записи в безпеці.",
+    "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
     "message": "Заощаджуйте час з автозаповненням"
@@ -3772,5 +3815,139 @@
     "message": "Докладніше про SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Призначити до збірок"
+  },
+  "assignToTheseCollections": {
+    "message": "Призначити до цих збірок"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "noCollectionsAssigned": {
+    "message": "Не призначено жодної збірки"
+  },
+  "assign": {
+    "message": "Призначити"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Оберіть збірки для призначення"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до $ORG$. Ви більше не будете власником цього запису.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Збірки успішно призначено"
+  },
+  "nothingSelected": {
+    "message": "Ви нічого не вибрали."
+  },
+  "itemsMovedToOrg": {
+    "message": "Записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Запис переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Вибрані записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

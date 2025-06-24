@@ -32,6 +32,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
   CheckboxModule,
@@ -41,7 +42,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { VaultIcon, WaveIcon } from "../icons";
 
 import { LoginComponentService, PasswordPolicies } from "./login-component.service";
@@ -56,7 +56,6 @@ export enum LoginUiState {
 }
 
 @Component({
-  standalone: true,
   templateUrl: "./login.component.html",
   imports: [
     AsyncActionsModule,
@@ -282,16 +281,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (authResult.requiresEncryptionKeyMigration) {
       /* Legacy accounts used the master key to encrypt data.
-         Migration is required but only performed on Web. */
-      if (this.clientType === ClientType.Web) {
-        await this.router.navigate(["migrate-legacy-encryption"]);
-      } else {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccured"),
-          message: this.i18nService.t("encryptionKeyMigrationRequired"),
-        });
-      }
+         This is now unsupported and requires a downgraded client */
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccured"),
+        message: this.i18nService.t("legacyEncryptionUnsupported"),
+      });
       return;
     }
 

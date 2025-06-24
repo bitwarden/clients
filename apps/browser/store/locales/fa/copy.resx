@@ -172,10 +172,10 @@ Bitwarden فقط کلمات عبور را ایمن نمی‌کند
     <value>در خانه، محل کار، یا در حال حرکت، Bitwarden به سادگی تمامی کلمات عبور، کلیدها، و اطلاعات حساس شما را امن نگاه می‌دارد.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه های مختلف</value>
+    <value>همگام‌سازی و دسترسی به گاوصندوق خود از دستگاه‌های مختلف</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>مدیریت تمام اطلاعات ورود و کلمه های عبورتان از یک گاوصندوق امن</value>
+    <value>مدیریت تمام اطلاعات ورود و کلمات عبورتان از یک گاوصندوق امن</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>پرکردن خودکار معتبر ورودی شما به‌صورت سریع برای هر وب‌سایتی که از آن بازدید می‌کنید</value>
@@ -184,7 +184,7 @@ Bitwarden فقط کلمات عبور را ایمن نمی‌کند
     <value>گاوصندوق شما نیز به راحتی از منوی راست کلیک قابل دسترسی است</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>به صورت خودکار کلمه‌های عبور قوی، تصادفی و امن ایجاد کنید</value>
+    <value>به‌صورت خودکار کلمات عبور قوی، تصادفی و امن ایجاد کنید</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
     <value>اطلاعات شما با استفاده از رمزگذاری AES-256 بیتی ایمن مدیریت می‌شود</value>

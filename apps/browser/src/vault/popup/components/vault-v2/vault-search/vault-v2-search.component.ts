@@ -13,7 +13,6 @@ const SearchTextDebounceInterval = 200;
 
 @Component({
   imports: [CommonModule, SearchModule, JslibModule, FormsModule],
-  standalone: true,
   selector: "app-vault-v2-search",
   templateUrl: "vault-v2-search.component.html",
 })
