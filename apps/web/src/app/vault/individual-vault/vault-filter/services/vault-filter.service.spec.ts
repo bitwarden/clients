@@ -7,7 +7,12 @@ import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, ReplaySubject } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionType,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -285,6 +290,36 @@ describe("vault filter service", () => {
         const c3 = c1.children[0];
         expect(c3.parent.node.id).toEqual("id-1");
       });
+
+      it.only("sorts the collections by default user collection and organization name within default user collections, then by organization name", async () => {
+        const storedOrgs = [
+          createOrganization("id-defaultOrg1", "org1"),
+          createOrganization("id-defaultOrg2", "org2"),
+        ];
+        organizations.next(storedOrgs);
+
+        const storedCollections = [
+          createCollectionView("id-2", "Collection 2", "org test id"),
+          createCollectionView("id-1", "Collection 1", "org test id"),
+          createCollectionView(
+            "id-3",
+            "Default User Collection - Org 2",
+            "id-defaultOrg2",
+            CollectionTypes.DefaultUserCollection,
+          ),
+          createCollectionView(
+            "id-4",
+            "Default User Collection - Org 1",
+            "id-defaultOrg1",
+            CollectionTypes.DefaultUserCollection,
+          ),
+        ];
+        collectionViews.next(storedCollections);
+
+        const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+        expect(result.children.map((c) => c.node.id)).toEqual(["id-4", "id-3", "id-2", "id-1"]);
+      });
     });
   });
 
@@ -312,11 +347,17 @@ describe("vault filter service", () => {
     return folder;
   }
 
-  function createCollectionView(id: string, name: string, orgId: string): CollectionView {
+  function createCollectionView(
+    id: string,
+    name: string,
+    orgId: string,
+    type?: CollectionType,
+  ): CollectionView {
     const collection = new CollectionView();
     collection.id = id;
     collection.name = name;
     collection.organizationId = orgId;
+    collection.type = type || CollectionTypes.SharedCollection;
     return collection;
   }
 });

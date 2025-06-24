@@ -5,7 +5,11 @@ import { firstValueFrom, from, map, mergeMap, Observable, switchMap, take } from
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -99,12 +103,27 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
     const storedCollections = await this.collectionService.getAllDecrypted();
-    let collections: CollectionView[];
-    if (organizationId != null) {
-      collections = storedCollections.filter((c) => c.organizationId === organizationId);
-    } else {
-      collections = storedCollections;
-    }
+    const allOrganizations = await this.buildOrganizations();
+
+    let collections =
+      organizationId == null
+        ? storedCollections
+        : storedCollections.filter((c) => c.organizationId === organizationId);
+
+    collections = collections.sort((a, b) => {
+      const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+      const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+
+      if (aIsDefault !== bIsDefault) {
+        return aIsDefault - bIsDefault;
+      }
+
+      const aOrg = allOrganizations.find((o) => o.id === a.organizationId)?.name ?? "";
+      const bOrg = allOrganizations.find((o) => o.id === b.organizationId)?.name ?? "";
+
+      return aOrg.localeCompare(bOrg);
+    });
+
     const nestedCollections = await this.collectionService.getAllNested(collections);
     return new DynamicTreeNode<CollectionView>({
       fullList: collections,

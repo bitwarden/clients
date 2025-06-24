@@ -16,6 +16,7 @@ import {
 import {
   CollectionAdminView,
   CollectionService,
+  CollectionTypes,
   CollectionView,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -104,8 +105,11 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       }),
     );
 
-  collectionTree$: Observable<TreeNode<CollectionFilter>> = this.filteredCollections$.pipe(
-    map((collections) => this.buildCollectionTree(collections)),
+  collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
+    this.filteredCollections$,
+    this.memberOrganizations$,
+  ]).pipe(
+    map(([collections, organizations]) => this.buildCollectionTree(collections, organizations)),
   );
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
@@ -227,14 +231,29 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       : storedCollections;
   }
 
-  protected buildCollectionTree(collections?: CollectionView[]): TreeNode<CollectionFilter> {
+  protected buildCollectionTree(
+    collections?: CollectionView[],
+    organizations?: Organization[],
+  ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
     if (!collections) {
       return headNode;
     }
     const nodes: TreeNode<CollectionFilter>[] = [];
+
     collections
-      .sort((a, b) => this.i18nService.collator.compare(a.name, b.name))
+      .sort((a, b) => {
+        const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+        const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+
+        if (aIsDefault !== bIsDefault) {
+          return aIsDefault - bIsDefault;
+        }
+
+        const aOrg = organizations?.find((o) => o.id === a.organizationId)?.name ?? "";
+        const bOrg = organizations?.find((o) => o.id === b.organizationId)?.name ?? "";
+        return this.i18nService.collator.compare(aOrg, bOrg);
+      })
       .forEach((c) => {
         const collectionCopy = new CollectionView() as CollectionFilter;
         collectionCopy.id = c.id;
@@ -248,10 +267,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
           c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
         ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
       });
+
     nodes.forEach((n) => {
       n.parent = headNode;
       headNode.children.push(n);
     });
+
     return headNode;
   }
 
