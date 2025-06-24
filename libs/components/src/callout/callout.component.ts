@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnInit, input } from "@angular/core";
+import { Component, OnInit, input, model } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -36,13 +36,8 @@ let nextId = 0;
 })
 export class CalloutComponent implements OnInit {
   readonly type = input<CalloutTypes>("info");
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input() icon: string;
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() title: string;
+  icon = model<string>();
+  title = model<string>();
   readonly useAlertRole = input(false);
   protected titleId = `bit-callout-title-${nextId++}`;
 
@@ -50,9 +45,9 @@ export class CalloutComponent implements OnInit {
 
   ngOnInit() {
     const type = this.type();
-    this.icon ??= defaultIcon[type];
-    if (this.title == null && defaultI18n[type] != null) {
-      this.title = this.i18nService.t(defaultI18n[type]);
+    this.icon.update((icon) => icon === null && defaultIcon[type]);
+    if (this.title() == null && defaultI18n[type] != null) {
+      this.title.set(this.i18nService.t(defaultI18n[type]));
     }
   }
 
