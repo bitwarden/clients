@@ -76,6 +76,7 @@ describe("VaultPopupListFiltersService", () => {
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   };
 
   beforeEach(() => {
@@ -729,6 +730,7 @@ function createSeededVaultPopupListFiltersService(
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const restrictedItemTypesServiceMock = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   } as any;
   const formBuilderInstance = new FormBuilder();
 
