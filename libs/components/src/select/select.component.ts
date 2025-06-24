@@ -13,6 +13,10 @@ import {
   Output,
   EventEmitter,
   input,
+  Signal,
+  computed,
+  model,
+  signal,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -37,31 +41,23 @@ let nextId = 0;
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
+  host: {
+    "[id]": "this.id()",
+  },
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
-  private _items: Option<T>[] = [];
   /** Optional: Options can be provided using an array input or using `bit-option` */
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input()
-  get items(): Option<T>[] {
-    return this._items;
-  }
-  set items(next: Option<T>[]) {
-    this._items = next;
-    this._selectedOption = this.findSelectedOption(next, this.selectedValue);
-  }
+  items = model<Option<T>[]>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
   @Output() closed = new EventEmitter();
 
-  protected selectedValue: T;
-  protected _selectedOption: Option<T>;
-  get selectedOption() {
-    return this._selectedOption;
-  }
+  protected selectedValue = signal<T>(undefined);
+  selectedOption: Signal<Option<T>> = computed(() =>
+    this.findSelectedOption(this.items(), this.selectedValue()),
+  );
   protected searchInputId = `bit-select-search-input-${nextId++}`;
 
   private notifyOnChange?: (value: T) => void;
@@ -81,7 +77,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     if (value == null || value.length == 0) {
       return;
     }
-    this.items = value.toArray();
+    this.items.set(value.toArray());
   }
 
   @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
@@ -91,7 +87,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   get disabledAttr() {
     return this.disabled || null;
   }
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get disabled() {
@@ -104,8 +100,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
-    this.selectedValue = obj;
-    this._selectedOption = this.findSelectedOption(this.items, this.selectedValue);
+    this.selectedValue.set(obj);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -125,11 +120,13 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onChange(option: Option<T> | null) {
+    this.selectedValue.set(option?.value());
+
     if (!this.notifyOnChange) {
       return;
     }
 
-    this.notifyOnChange(option?.value);
+    this.notifyOnChange(option?.value());
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -158,10 +155,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   /**Implemented as part of BitFormFieldControl */
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
+  id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
   // TODO: Skipped for migration because:
@@ -188,7 +182,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
-    return items.find((item) => item.value === value);
+    return items.find((item) => item.value() === value);
   }
 
   /**Emits the closed event. */

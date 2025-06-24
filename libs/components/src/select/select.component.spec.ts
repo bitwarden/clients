@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -37,15 +37,15 @@ describe("Select Component", () => {
 
   describe("initial state", () => {
     it("selected option should update when items input changes", () => {
-      expect(select.selectedOption?.value).toBeUndefined();
+      expect(select.selectedOption()?.value).toBeUndefined();
 
-      select.items = [
-        { label: "Apple", value: "apple" },
-        { label: "Pear", value: "pear" },
-        { label: "Banana", value: "banana" },
-      ];
+      select.items.set([
+        { label: signal("Apple"), value: signal("apple") },
+        { label: signal("Pear"), value: signal("pear") },
+        { label: signal("Banana"), value: signal("banana") },
+      ]);
 
-      expect(select.selectedOption?.value).toBe("apple");
+      expect(select.selectedOption()?.value).toBe("apple");
     });
   });
 });
