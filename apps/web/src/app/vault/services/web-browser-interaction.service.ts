@@ -29,7 +29,6 @@ export class WebBrowserInteractionService {
         map(() => true),
       ),
     ),
-    filter((installed) => installed !== null),
   );
 
   /** Attempts to open the extension, rejects if the extension is not installed or it fails to open.  */
