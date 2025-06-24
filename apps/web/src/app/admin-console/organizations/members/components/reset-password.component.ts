@@ -57,16 +57,18 @@ export enum ResetPasswordDialogResult {
   Ok = "ok",
 }
 
+/**
+ * Used in a dialog for initiating the account recovery process against a
+ * given organization user. An admin will access this form when they want to
+ * reset a user's password and log them out of sessions.
+ *
+ * @deprecated Use the `AccountRecoveryDialogComponent` instead.
+ */
 @Component({
   selector: "app-reset-password",
   templateUrl: "reset-password.component.html",
   standalone: false,
 })
-/**
- * Used in a dialog for initiating the account recovery process against a
- * given organization user. An admin will access this form when they want to
- * reset a user's password and log them out of sessions.
- */
 export class ResetPasswordComponent implements OnInit, OnDestroy {
   formGroup = this.formBuilder.group({
     newPassword: ["", Validators.required],
