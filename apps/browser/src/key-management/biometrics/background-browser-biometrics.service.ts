@@ -1,5 +1,5 @@
 import { combineLatest, timer } from "rxjs";
-import { switchMap, filter } from "rxjs/operators";
+import { filter, concatMap } from "rxjs/operators";
 
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,6 +20,8 @@ import { NativeMessagingBackground } from "../../background/nativeMessaging.back
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
+  BACKGROUND_POLLING_INTERVAL = 30_000;
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private logService: LogService,
@@ -32,18 +34,25 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
     // so that there is no wait when used.
     const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
-    combineLatest([timer(0, 5000), biometricsEnabled])
+
+    // Only try to connect via background timer if the popup is not open.
+    // If it is open, then sending regular IPC messages will already attempt to connect.
+    const backgroundTimer = timer(0, this.BACKGROUND_POLLING_INTERVAL).pipe(
+      concatMap(async () => {
+        return await BrowserApi.isPopupOpen();
+      }),
+      filter((isPopupOpen) => !isPopupOpen),
+    );
+
+    combineLatest([backgroundTimer, biometricsEnabled])
       .pipe(
         filter(([_, enabled]) => enabled),
         filter(([_]) => !this.nativeMessagingBackground().connected),
-        switchMap(async () => {
+        concatMap(async () => {
           try {
             await this.nativeMessagingBackground().connect();
-          } catch (e) {
-            this.logService.warning(
-              "[BackgroundBrowserBiometrics] Failed to connect to native messaging for biometrics",
-              e,
-            );
+          } catch {
+            // Ignore
           }
         }),
       )
