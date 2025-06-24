@@ -1,4 +1,3 @@
-import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
@@ -49,19 +48,16 @@ describe("RestrictedItemTypesService", () => {
     fakeAccount = { id: Utils.newGuid() as UserId } as Account;
     accountService.activeAccount$ = of(fakeAccount);
 
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: PolicyService, useValue: policyService },
-        { provide: OrganizationService, useValue: organizationService },
-        { provide: AccountService, useValue: accountService },
-        { provide: ConfigService, useValue: configService },
-      ],
-    });
-
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([]));
-    service = TestBed.inject(RestrictedItemTypesService);
+
+    service = new RestrictedItemTypesService(
+      configService,
+      accountService,
+      organizationService,
+      policyService,
+    );
   });
 
   it("emits empty array when feature flag is disabled", async () => {
@@ -106,7 +102,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("returns empty allowViewOrgIds when all orgs restrict the same type", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(of([policyOrg1, policyOrg2]));
 
@@ -117,7 +112,6 @@ describe("RestrictedItemTypesService", () => {
   });
 
   it("aggregates multiple types and computes allowViewOrgIds correctly", async () => {
-    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.organizations$.mockReturnValue(of([org1, org2]));
     policyService.policiesByType$.mockReturnValue(
       of([
