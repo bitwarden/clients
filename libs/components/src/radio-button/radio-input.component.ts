@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, HostBinding, Input, Optional, Self } from "@angular/core";
+import { Component, HostBinding, input, Input, Optional, Self } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
@@ -11,12 +11,12 @@ let nextId = 0;
   selector: "input[type=radio][bitRadio]",
   template: "",
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
+  host: {
+    "[id]": "this.id()",
+  },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding("attr.id") @Input() id = `bit-radio-input-${nextId++}`;
+  id = input(`bit-radio-input-${nextId++}`);
 
   @HostBinding("class")
   protected inputClasses = [

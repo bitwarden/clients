@@ -19,15 +19,9 @@ export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;
   disabled = false;
 
-  private _name?: string;
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input() get name() {
-    return this._name ?? this.ngControl?.name?.toString();
-  }
-  set name(value: string) {
-    this._name = value;
-  }
+  readonly name = input(undefined, {
+    transform: (value: string | undefined) => value ?? this.ngControl?.name?.toString(),
+  });
 
   readonly block = input(false);
 
