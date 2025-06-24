@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
-import { Observable, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,6 +25,7 @@ export class ItemFooterComponent implements OnInit {
   @Input() collectionId: string | null = null;
   @Input({ required: true }) action: string = "view";
   @Input() isSubmitting: boolean = false;
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
   @Output() onEdit = new EventEmitter<CipherView>();
   @Output() onClone = new EventEmitter<CipherView>();
   @Output() onDelete = new EventEmitter<CipherView>();
@@ -32,10 +33,8 @@ export class ItemFooterComponent implements OnInit {
   @Output() onCancel = new EventEmitter<CipherView>();
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
-  canDeleteCipher$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
-
-  private passwordReprompted = false;
+  passwordReprompted: boolean = false;
 
   constructor(
     protected cipherService: CipherService,
@@ -49,8 +48,8 @@ export class ItemFooterComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   async clone() {
