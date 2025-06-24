@@ -12,7 +12,7 @@ import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core"
 })
 export class TabListItemDirective implements FocusableOption {
   readonly active = input<boolean>(undefined);
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
   @Input() disabled: boolean;

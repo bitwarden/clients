@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { TemplatePortal, CdkPortalOutlet } from "@angular/cdk/portal";
-import { Component, HostBinding, Input, input } from "@angular/core";
+import { Component, effect, HostBinding, input, signal } from "@angular/core";
 
 @Component({
   selector: "bit-tab-body",
@@ -9,28 +9,24 @@ import { Component, HostBinding, Input, input } from "@angular/core";
   imports: [CdkPortalOutlet],
 })
 export class TabBodyComponent {
-  private _firstRender: boolean;
+  private _firstRender = signal<boolean>(false);
 
   readonly content = input<TemplatePortal>(undefined);
   readonly preserveContent = input(false);
 
   @HostBinding("attr.hidden") get hidden() {
-    return !this.active || null;
+    return !this.active() || null;
   }
 
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @Input()
-  get active() {
-    return this._active;
+  active = input<boolean>();
+
+  constructor() {
+    effect(() => {
+      if (!this._firstRender() && this.active()) {
+        this._firstRender.set(true);
+      }
+    });
   }
-  set active(value: boolean) {
-    this._active = value;
-    if (this._active) {
-      this._firstRender = true;
-    }
-  }
-  private _active: boolean;
 
   /**
    * The tab content to render.
@@ -39,10 +35,10 @@ export class TabBodyComponent {
    * then the content persists after the first time content is rendered.
    */
   get tabContent() {
-    if (this.active) {
+    if (this.active()) {
       return this.content();
     }
-    if (this.preserveContent() && this._firstRender) {
+    if (this.preserveContent() && this._firstRender()) {
       return this.content();
     }
     return null;

@@ -36,7 +36,7 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
   };
 
   readonly route = input<string | any[]>(undefined);
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
   //  is not migrated.
   @Input() disabled = false;
