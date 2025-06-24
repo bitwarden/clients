@@ -48,14 +48,19 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       return Promise.resolve(this.result);
     }
 
-    const versionNode = this.querySelectorDirectChild(headerNode, "version");
+    let versionNode = this.querySelectorDirectChild(headerNode, "version");
     if (versionNode == null) {
-      this.result.success = false;
-      return Promise.resolve(this.result);
+      // Adding a fallback for MacOS Password Depot 17.0 export files
+      // These files do not have a version node, but a dataformat node instead
+      versionNode = this.querySelectorDirectChild(headerNode, "dataformat");
+      if (versionNode == null) {
+        this.result.success = false;
+        return Promise.resolve(this.result);
+      }
     }
 
     const version = versionNode.textContent;
-    if (version !== "17.0.0") {
+    if (!version.startsWith("17")) {
       this.result.errorMessage = "Unsupported export version detected - (only 17.0 is supported)";
       this.result.success = false;
       return Promise.resolve(this.result);
