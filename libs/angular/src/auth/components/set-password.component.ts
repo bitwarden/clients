@@ -292,7 +292,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       await this.keyService.setPrivateKey(keyPair[1].encryptedString, this.activeUserId);
     }
 
-    const localMasterKeyHash = await this.keyService.hashMasterKey(
+    const localMasterKeyHash = await this.masterPasswordService.hashMasterKey(
       this.masterPassword,
       masterKey,
       HashPurpose.LocalAuthorization,

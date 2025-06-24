@@ -6,6 +6,7 @@ import mock from "jest-mock-extended/lib/Mock";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -41,6 +42,7 @@ describe("EmergencyAccessService", () => {
   let logService: MockProxy<LogService>;
   let emergencyAccessService: EmergencyAccessService;
   let configService: ConfigService;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
 
   const mockNewUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("trustedPublicKey")];
@@ -53,6 +55,7 @@ describe("EmergencyAccessService", () => {
     bulkEncryptService = mock<BulkEncryptService>();
     cipherService = mock<CipherService>();
     logService = mock<LogService>();
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
     emergencyAccessService = new EmergencyAccessService(
       emergencyAccessApiService,
@@ -63,6 +66,7 @@ describe("EmergencyAccessService", () => {
       cipherService,
       logService,
       configService,
+      masterPasswordService,
     );
   });
 
@@ -168,10 +172,10 @@ describe("EmergencyAccessService", () => {
 
       const mockMasterKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as MasterKey;
 
-      keyService.makeMasterKey.mockResolvedValueOnce(mockMasterKey);
+      masterPasswordService.makeMasterKey.mockResolvedValueOnce(mockMasterKey);
 
       const mockMasterKeyHash = "mockMasterKeyHash";
-      keyService.hashMasterKey.mockResolvedValueOnce(mockMasterKeyHash);
+      masterPasswordService.hashMasterKey.mockResolvedValueOnce(mockMasterKeyHash);
 
       // must mock [UserKey, EncString] return from keyService.encryptUserKeyWithMasterKey
       // where UserKey is the decrypted grantor user key

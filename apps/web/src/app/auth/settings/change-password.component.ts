@@ -205,7 +205,7 @@ export class ChangePasswordComponent
     );
     const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
 
-    const currentMasterKey = await this.keyService.makeMasterKey(
+    const currentMasterKey = await this.masterPasswordService.makeMasterKey(
       currentMasterPassword,
       email,
       kdfConfig,
@@ -223,19 +223,23 @@ export class ChangePasswordComponent
       return;
     }
 
-    const newMasterKey = await this.keyService.makeMasterKey(newMasterPassword, email, kdfConfig);
+    const newMasterKey = await this.masterPasswordService.makeMasterKey(
+      newMasterPassword,
+      email,
+      kdfConfig,
+    );
     const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
       newMasterKey,
       decryptedUserKey,
     );
 
     const request = new PasswordRequest();
-    request.masterPasswordHash = await this.keyService.hashMasterKey(
+    request.masterPasswordHash = await this.masterPasswordService.hashMasterKey(
       this.currentMasterPassword,
       currentMasterKey,
     );
     request.masterPasswordHint = this.masterPasswordHint;
-    request.newMasterPasswordHash = await this.keyService.hashMasterKey(
+    request.newMasterPasswordHash = await this.masterPasswordService.hashMasterKey(
       newMasterPassword,
       newMasterKey,
     );

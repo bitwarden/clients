@@ -430,10 +430,12 @@ export class ServiceContainer {
 
     this.masterPasswordService = new MasterPasswordService(
       this.stateProvider,
-      this.stateService,
       this.keyGenerationService,
       this.encryptService,
       this.logService,
+      this.accountService,
+      this.kdfConfigService,
+      this.cryptoFunctionService,
     );
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
@@ -725,7 +727,6 @@ export class ServiceContainer {
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
     this.userVerificationService = new UserVerificationService(
-      this.keyService,
       this.accountService,
       this.masterPasswordService,
       this.i18nService,

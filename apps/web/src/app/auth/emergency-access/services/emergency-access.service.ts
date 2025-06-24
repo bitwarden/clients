@@ -8,6 +8,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -62,6 +63,7 @@ export class EmergencyAccessService
     private cipherService: CipherService,
     private logService: LogService,
     private configService: ConfigService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   /**
@@ -294,8 +296,8 @@ export class EmergencyAccessService
         break;
     }
 
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
+    const masterKey = await this.masterPasswordService.makeMasterKey(masterPassword, email, config);
+    const masterKeyHash = await this.masterPasswordService.hashMasterKey(masterPassword, masterKey);
 
     const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
 

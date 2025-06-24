@@ -429,7 +429,7 @@ describe("KeyConnectorService", () => {
       tokenResponse.keyConnectorUrl = keyConnectorUrl;
 
       keyGenerationService.createKey.mockResolvedValue(passwordKey);
-      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+      masterPasswordService.mock.makeMasterKey.mockResolvedValue(mockMasterKey);
       keyService.makeUserKey.mockResolvedValue(mockMakeUserKeyResult);
       keyService.makeKeyPair.mockResolvedValue(mockKeyPair);
       tokenService.getEmail.mockResolvedValue(mockEmail);
@@ -443,7 +443,7 @@ describe("KeyConnectorService", () => {
       );
 
       expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(masterPasswordService.mock.makeMasterKey).toHaveBeenCalledWith(
         passwordKey.keyB64,
         mockEmail,
         expect.any(Object),
@@ -481,7 +481,7 @@ describe("KeyConnectorService", () => {
       }
 
       expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
-      expect(keyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(masterPasswordService.mock.makeMasterKey).toHaveBeenCalledWith(
         passwordKey.keyB64,
         mockEmail,
         expect.any(Object),

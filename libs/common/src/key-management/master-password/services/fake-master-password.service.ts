@@ -3,7 +3,11 @@
 import { mock } from "jest-mock-extended";
 import { ReplaySubject, Observable } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/key-management";
+
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { HashPurpose } from "../../../platform/enums";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
@@ -70,5 +74,18 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     userKey?: EncString,
   ): Promise<UserKey> {
     return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
+  }
+
+  getOrDeriveMasterKey(password: string, userId: UserId): Promise<MasterKey> {
+    return this.mock.getOrDeriveMasterKey(password, userId);
+  }
+  makeMasterKey(password: string, email: string, KdfConfig: KdfConfig): Promise<MasterKey> {
+    return this.mock.makeMasterKey(password, email, KdfConfig);
+  }
+  hashMasterKey(password: string, key: MasterKey, hashPurpose?: HashPurpose): Promise<string> {
+    return this.mock.hashMasterKey(password, key, hashPurpose);
+  }
+  compareKeyHash(masterPassword: string, masterKey: MasterKey, userId: UserId): Promise<boolean> {
+    return this.mock.compareKeyHash(masterPassword, masterKey, userId);
   }
 }

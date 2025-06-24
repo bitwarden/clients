@@ -428,7 +428,10 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, null);
+      request.masterPasswordHash = await this.masterPasswordService.hashMasterKey(
+        currentPassword,
+        await this.masterPasswordService.getOrDeriveMasterKey(currentPassword, userId),
+      );
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;
@@ -583,12 +586,15 @@ export class LoginCommand {
     const kdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
     // Create new key and hash new password
-    const newMasterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.masterPasswordService.makeMasterKey(
       masterPassword,
       this.email.trim().toLowerCase(),
       kdfConfig,
     );
-    const newPasswordHash = await this.keyService.hashMasterKey(masterPassword, newMasterKey);
+    const newPasswordHash = await this.masterPasswordService.hashMasterKey(
+      masterPassword,
+      newMasterKey,
+    );
 
     // Grab user key
     const userKey = await this.keyService.getUserKey();

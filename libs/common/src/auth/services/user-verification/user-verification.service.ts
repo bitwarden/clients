@@ -7,12 +7,7 @@ import { firstValueFrom, map } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  BiometricsService,
-  BiometricsStatus,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+import { BiometricsService, BiometricsStatus, KdfConfigService } from "@bitwarden/key-management";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -46,7 +41,6 @@ import {
  */
 export class UserVerificationService implements UserVerificationServiceAbstraction {
   constructor(
-    private keyService: KeyService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private i18nService: I18nService,
@@ -118,7 +112,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       );
       let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (!masterKey && !alreadyHashed) {
-        masterKey = await this.keyService.makeMasterKey(
+        masterKey = await this.masterPasswordService.makeMasterKey(
           verification.secret,
           email,
           await this.kdfConfigService.getKdfConfig(userId),
@@ -126,7 +120,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
       request.masterPasswordHash = alreadyHashed
         ? verification.secret
-        : await this.keyService.hashMasterKey(verification.secret, masterKey);
+        : await this.masterPasswordService.hashMasterKey(verification.secret, masterKey);
     }
 
     return request;
@@ -197,7 +191,11 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (!masterKey) {
-      masterKey = await this.keyService.makeMasterKey(verification.secret, email, kdfConfig);
+      masterKey = await this.masterPasswordService.makeMasterKey(
+        verification.secret,
+        email,
+        kdfConfig,
+      );
     }
 
     if (!masterKey) {
@@ -207,7 +205,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
     if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
-      const passwordValid = await this.keyService.compareKeyHash(
+      const passwordValid = await this.masterPasswordService.compareKeyHash(
         verification.secret,
         masterKey,
         userId,
@@ -219,7 +217,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     } else {
       // Server-side verification
       const request = new SecretVerificationRequest();
-      const serverKeyHash = await this.keyService.hashMasterKey(
+      const serverKeyHash = await this.masterPasswordService.hashMasterKey(
         verification.secret,
         masterKey,
         HashPurpose.ServerAuthorization,
@@ -234,7 +232,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
     }
 
-    const localKeyHash = await this.keyService.hashMasterKey(
+    const localKeyHash = await this.masterPasswordService.hashMasterKey(
       verification.secret,
       masterKey,
       HashPurpose.LocalAuthorization,

@@ -8,6 +8,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { EmailTokenRequest } from "@bitwarden/common/auth/models/request/email-token.request";
 import { EmailRequest } from "@bitwarden/common/auth/models/request/email.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -43,6 +44,7 @@ export class ChangeEmailComponent implements OnInit {
     private formBuilder: FormBuilder,
     private kdfConfigService: KdfConfigService,
     private toastService: ToastService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -79,9 +81,9 @@ export class ChangeEmailComponent implements OnInit {
       throw new Error("Missing email or password");
     }
 
-    const existingHash = await this.keyService.hashMasterKey(
+    const existingHash = await this.masterPasswordService.hashMasterKey(
       masterPassword,
-      await this.keyService.getOrDeriveMasterKey(masterPassword, this.userId),
+      await this.masterPasswordService.getOrDeriveMasterKey(masterPassword, this.userId),
     );
 
     if (!this.tokenSent) {
@@ -104,8 +106,12 @@ export class ChangeEmailComponent implements OnInit {
       if (kdfConfig == null) {
         throw new Error("Missing kdf config");
       }
-      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
-      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
+      const newMasterKey = await this.masterPasswordService.makeMasterKey(
+        masterPassword,
+        newEmail,
+        kdfConfig,
+      );
+      request.newMasterPasswordHash = await this.masterPasswordService.hashMasterKey(
         masterPassword,
         newMasterKey,
       );

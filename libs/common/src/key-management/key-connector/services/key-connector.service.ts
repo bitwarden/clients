@@ -148,7 +148,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         ? new PBKDF2KdfConfig(kdfIterations)
         : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
 
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.masterPasswordService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,

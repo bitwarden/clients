@@ -12,6 +12,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -36,6 +37,7 @@ describe("OrganizationUserResetPasswordService", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let organizationApiService: MockProxy<OrganizationApiService>;
   let i18nService: MockProxy<I18nService>;
+  let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
 
   beforeAll(() => {
     keyService = mock<KeyService>();
@@ -44,6 +46,7 @@ describe("OrganizationUserResetPasswordService", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     organizationApiService = mock<OrganizationApiService>();
     i18nService = mock<I18nService>();
+    masterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
     sut = new OrganizationUserResetPasswordService(
       keyService,
@@ -52,6 +55,7 @@ describe("OrganizationUserResetPasswordService", () => {
       organizationUserApiService,
       organizationApiService,
       i18nService,
+      masterPasswordService,
     );
   });
 
@@ -147,8 +151,8 @@ describe("OrganizationUserResetPasswordService", () => {
 
       encryptService.rsaDecrypt.mockResolvedValue(mockRandomBytes);
       const mockMasterKey = new SymmetricCryptoKey(mockRandomBytes) as MasterKey;
-      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-      keyService.hashMasterKey.mockResolvedValue("test-master-key-hash");
+      masterPasswordService.makeMasterKey.mockResolvedValue(mockMasterKey);
+      masterPasswordService.hashMasterKey.mockResolvedValue("test-master-key-hash");
 
       const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
       keyService.encryptUserKeyWithMasterKey.mockResolvedValue([

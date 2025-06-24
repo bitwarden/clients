@@ -92,12 +92,15 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     }
 
     // Create new master key
-    const newMasterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.masterPasswordService.makeMasterKey(
       this.masterPassword,
       email.trim().toLowerCase(),
       this.kdfConfig,
     );
-    const newMasterKeyHash = await this.keyService.hashMasterKey(this.masterPassword, newMasterKey);
+    const newMasterKeyHash = await this.masterPasswordService.hashMasterKey(
+      this.masterPassword,
+      newMasterKey,
+    );
 
     let newProtectedUserKey: [UserKey, EncString] = null;
     const userKey = await this.keyService.getUserKey();

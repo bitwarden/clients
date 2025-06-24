@@ -5,6 +5,7 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -48,6 +49,7 @@ export class PasswordRepromptComponent {
     protected dialogRef: DialogRef,
     private toastService: ToastService,
     protected accountService: AccountService,
+    protected masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   submit = async () => {
@@ -63,12 +65,12 @@ export class PasswordRepromptComponent {
       throw new Error("An active user is expected while doing password reprompt.");
     }
 
-    const storedMasterKey = await this.keyService.getOrDeriveMasterKey(
+    const storedMasterKey = await this.masterPasswordService.getOrDeriveMasterKey(
       this.formGroup.value.masterPassword,
       userId,
     );
     if (
-      !(await this.keyService.compareKeyHash(
+      !(await this.masterPasswordService.compareKeyHash(
         this.formGroup.value.masterPassword,
         storedMasterKey,
         userId,

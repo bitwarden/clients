@@ -130,12 +130,12 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
 
     try {
       // Create new key and hash new password
-      const newMasterKey = await this.keyService.makeMasterKey(
+      const newMasterKey = await this.masterPasswordService.makeMasterKey(
         this.masterPassword,
         this.email.trim().toLowerCase(),
         this.kdfConfig,
       );
-      const newPasswordHash = await this.keyService.hashMasterKey(
+      const newPasswordHash = await this.masterPasswordService.hashMasterKey(
         this.masterPassword,
         newMasterKey,
       );

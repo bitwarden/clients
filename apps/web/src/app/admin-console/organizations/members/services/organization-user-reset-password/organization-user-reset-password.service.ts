@@ -11,6 +11,7 @@ import {
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -44,6 +45,7 @@ export class OrganizationUserResetPasswordService
     private organizationUserApiService: OrganizationUserApiService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
   ) {}
 
   /**
@@ -131,12 +133,15 @@ export class OrganizationUserResetPasswordService
         : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
 
     // Create new master key and hash new password
-    const newMasterKey = await this.keyService.makeMasterKey(
+    const newMasterKey = await this.masterPasswordService.makeMasterKey(
       newMasterPassword,
       email.trim().toLowerCase(),
       kdfConfig,
     );
-    const newMasterKeyHash = await this.keyService.hashMasterKey(newMasterPassword, newMasterKey);
+    const newMasterKeyHash = await this.masterPasswordService.hashMasterKey(
+      newMasterPassword,
+      newMasterKey,
+    );
 
     // Create new encrypted user key for the User
     const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(

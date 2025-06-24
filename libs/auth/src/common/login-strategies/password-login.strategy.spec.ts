@@ -117,10 +117,10 @@ describe("PasswordLoginStrategy", () => {
 
     loginStrategyService.makePreloginKey.mockResolvedValue(masterKey);
 
-    keyService.hashMasterKey
+    masterPasswordService.mock.hashMasterKey
       .calledWith(masterPassword, expect.anything(), undefined)
       .mockResolvedValue(hashedPassword);
-    keyService.hashMasterKey
+    masterPasswordService.mock.hashMasterKey
       .calledWith(masterPassword, expect.anything(), HashPurpose.LocalAuthorization)
       .mockResolvedValue(localHashedPassword);
 
