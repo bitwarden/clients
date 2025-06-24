@@ -49,7 +49,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private taskSchedulerService: TaskSchedulerService,
     protected logService: LogService,
     private biometricService: BiometricsService,
-    private lockedCallback: (userId?: string) => Promise<void> = null,
+    private lockedCallback: (userId: UserId) => Promise<void> = null,
     private loggedOutCallback: (
       logoutReason: LogoutReason,
       userId?: string,
@@ -166,7 +166,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     this.messagingService.send("locked", { userId: lockingUserId });
 
     if (this.lockedCallback != null) {
-      await this.lockedCallback(userId);
+      await this.lockedCallback(lockingUserId);
     }
   }
 

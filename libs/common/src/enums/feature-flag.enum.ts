@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  LimitItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission",
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
   OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
 
@@ -38,7 +37,6 @@ export enum FeatureFlag {
 
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
-  UserKeyRotationV2 = "userkey-rotation-v2",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
@@ -76,7 +74,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.LimitItemDeletion]: FALSE,
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
   [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
 
@@ -116,7 +113,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
-  [FeatureFlag.UserKeyRotationV2]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,

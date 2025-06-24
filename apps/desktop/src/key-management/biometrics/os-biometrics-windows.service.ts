@@ -1,85 +1,104 @@
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
+import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
 
 import { OsBiometricService } from "./os-biometrics.service";
+
+const SERVICE = "Bitwarden_biometric";
+function getLookupKeyForUser(userId: UserId): string {
+  return `${userId}_user_biometric`;
+}
 
 export default class OsBiometricsServiceWindows implements OsBiometricService {
   // Use set helper method instead of direct access
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
+  private clientKeyHalves = new Map<UserId, Uint8Array>();
 
   constructor(
     private i18nService: I18nService,
     private windowMain: WindowMain,
     private logService: LogService,
+    private biometricStateService: BiometricStateService,
+    private encryptService: EncryptService,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {}
 
-  async osSupportsBiometric(): Promise<boolean> {
+  async supportsBiometrics(): Promise<boolean> {
     return await biometrics.available();
   }
 
-  async getBiometricKey(
-    service: string,
-    storageKey: string,
-    clientKeyHalfB64: string,
-  ): Promise<string | null> {
+  async getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null> {
     const success = await this.authenticateBiometric();
-
     if (!success) {
       throw new Error("Biometric authentication failed");
     }
 
-    const value = await passwords.getPassword(service, storageKey);
+    const value = await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
+    let clientKeyHalfB64: string | null = null;
+    if (this.clientKeyHalves.has(userId)) {
+      clientKeyHalfB64 = Utils.fromBufferToB64(this.clientKeyHalves.get(userId));
+    }
 
     if (value == null || value == "") {
       return null;
     } else if (!EncString.isSerializedEncString(value)) {
       // Update to format encrypted with client key half
       const storageDetails = await this.getStorageDetails({
-        clientKeyHalfB64,
+        clientKeyHalfB64: clientKeyHalfB64,
       });
 
       await biometrics.setBiometricSecret(
-        service,
-        storageKey,
+        SERVICE,
+        getLookupKeyForUser(userId),
         value,
         storageDetails.key_material,
         storageDetails.ivB64,
       );
-      return value;
+      return SymmetricCryptoKey.fromString(value);
     } else {
       const encValue = new EncString(value);
       this.setIv(encValue.iv);
       const storageDetails = await this.getStorageDetails({
-        clientKeyHalfB64,
+        clientKeyHalfB64: clientKeyHalfB64,
       });
-      return await biometrics.getBiometricSecret(service, storageKey, storageDetails.key_material);
+      return SymmetricCryptoKey.fromString(
+        await biometrics.getBiometricSecret(
+          SERVICE,
+          getLookupKeyForUser(userId),
+          storageDetails.key_material,
+        ),
+      );
     }
   }
 
-  async setBiometricKey(
-    service: string,
-    storageKey: string,
-    value: string,
-    clientKeyPartB64: string | undefined,
-  ): Promise<void> {
-    const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
+  async setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
+    const clientKeyHalf = await this.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
+
+    const storageDetails = await this.getStorageDetails({
+      clientKeyHalfB64: Utils.fromBufferToB64(clientKeyHalf),
+    });
     await biometrics.setBiometricSecret(
-      service,
-      storageKey,
-      value,
+      SERVICE,
+      getLookupKeyForUser(userId),
+      key.toBase64(),
       storageDetails.key_material,
       storageDetails.ivB64,
     );
   }
 
-  async deleteBiometricKey(service: string, key: string): Promise<void> {
-    await passwords.deletePassword(service, key);
+  async deleteBiometricKey(userId: UserId): Promise<void> {
+    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
   }
 
   /**
@@ -127,13 +146,58 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     this._osKeyHalf = null;
   }
 
-  async osBiometricsNeedsSetup() {
+  async needsSetup() {
     return false;
   }
 
-  async osBiometricsCanAutoSetup(): Promise<boolean> {
+  async canAutoSetup(): Promise<boolean> {
     return false;
   }
 
-  async osBiometricsSetup(): Promise<void> {}
+  async runSetup(): Promise<void> {}
+
+  async getOrCreateBiometricEncryptionClientKeyHalf(
+    userId: UserId,
+    key: SymmetricCryptoKey,
+  ): Promise<Uint8Array | null> {
+    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
+    if (!requireClientKeyHalf) {
+      return null;
+    }
+
+    if (this.clientKeyHalves.has(userId)) {
+      return this.clientKeyHalves.get(userId);
+    }
+
+    // Retrieve existing key half if it exists
+    let clientKeyHalf: Uint8Array | null = null;
+    const encryptedClientKeyHalf =
+      await this.biometricStateService.getEncryptedClientKeyHalf(userId);
+    if (encryptedClientKeyHalf != null) {
+      clientKeyHalf = await this.encryptService.decryptBytes(encryptedClientKeyHalf, key);
+    }
+    if (clientKeyHalf == null) {
+      // Set a key half if it doesn't exist
+      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
+      const encKey = await this.encryptService.encryptBytes(keyBytes, key);
+      await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
+    }
+
+    this.clientKeyHalves.set(userId, clientKeyHalf);
+
+    return clientKeyHalf;
+  }
+
+  async getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus> {
+    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
+    if (!requireClientKeyHalf) {
+      return BiometricsStatus.Available;
+    }
+
+    if (this.clientKeyHalves.has(userId)) {
+      return BiometricsStatus.Available;
+    } else {
+      return BiometricsStatus.UnlockNeeded;
+    }
+  }
 }

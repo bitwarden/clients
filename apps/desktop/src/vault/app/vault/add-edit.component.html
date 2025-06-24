@@ -12,7 +12,9 @@
           <div class="box-content-row" *ngIf="!editMode" appBoxRow>
             <label for="type">{{ "type" | i18n }}</label>
             <select id="type" name="Type" [(ngModel)]="cipher.type" (change)="typeChange()">
-              <option *ngFor="let o of typeOptions" [ngValue]="o.value">{{ o.name }}</option>
+              <option *ngFor="let item of menuItems$ | async" [ngValue]="item.type">
+                {{ item.labelKey | i18n }}
+              </option>
             </select>
           </div>
           <div class="box-content-row" appBoxRow>
@@ -788,7 +790,13 @@
       <button
         type="button"
         (click)="share()"
-        *ngIf="editMode && cipher && !cipher.organizationId && !cloneMode"
+        *ngIf="
+          editMode &&
+          cipher &&
+          !cipher.organizationId &&
+          !cloneMode &&
+          writeableCollections.length > 0
+        "
       >
         {{ "move" | i18n }}
       </button>

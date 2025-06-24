@@ -8,7 +8,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
