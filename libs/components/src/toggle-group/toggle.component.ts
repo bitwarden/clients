@@ -41,7 +41,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
   }
 
   get selected() {
-    return this.groupComponent.selected === this.value();
+    return this.groupComponent.selected() === this.value();
   }
 
   get inputClasses() {

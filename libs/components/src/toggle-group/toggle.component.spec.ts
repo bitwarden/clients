@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, model } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
@@ -39,7 +39,7 @@ describe("Button", () => {
     testAppComponent.value = "value";
     fixture.detectChanges();
 
-    mockGroupComponent.selected = "value";
+    mockGroupComponent.selected.set("value");
     fixture.detectChanges();
 
     expect(radioButton.checked).toBe(true);
@@ -49,16 +49,19 @@ describe("Button", () => {
     testAppComponent.value = "value";
     fixture.detectChanges();
 
-    mockGroupComponent.selected = "nonMatchingValue";
+    mockGroupComponent.selected.set("nonMatchingValue");
     fixture.detectChanges();
 
     expect(radioButton.checked).toBe(false);
   });
 });
 
-class MockedButtonGroupComponent implements Partial<ToggleGroupComponent> {
+@Component({
+  selector: "mock-button-group",
+})
+class MockedButtonGroupComponent implements Partial<ToggleGroupComponent<string>> {
   onInputInteraction = jest.fn();
-  selected: unknown = null;
+  selected = model<string>();
 }
 
 @Component({
