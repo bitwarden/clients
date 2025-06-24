@@ -31,11 +31,15 @@ export function inputBorderClasses(error: boolean) {
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  host: {
+    "[attr.class]": "getClassList()",
+    "[id]": "id()",
+    "[attr.type]": "type()",
+    "[attr.spellcheck]": "spellcheck()",
+  },
 })
 export class BitInputDirective implements BitFormFieldControl {
-  // TODO: Skipped for migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding("class") @Input() get classList() {
+  classList() {
     const classes = [
       "tw-block",
       "tw-w-full",
@@ -55,10 +59,7 @@ export class BitInputDirective implements BitFormFieldControl {
     return classes.filter((s) => s != "");
   }
 
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding() @Input() id = `bit-input-${nextId++}`;
+  readonly id = input(`bit-input-${nextId++}`);
 
   @HostBinding("attr.aria-describedby") ariaDescribedBy: string;
 
@@ -66,15 +67,9 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.hasError ? true : undefined;
   }
 
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding("attr.type") @Input() type?: InputTypes;
+  readonly type = input<InputTypes>();
 
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding("attr.spellcheck") @Input() spellcheck?: boolean;
+  readonly spellcheck = input<boolean>();
 
   // TODO: Skipped for migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
@@ -94,7 +89,7 @@ export class BitInputDirective implements BitFormFieldControl {
   readonly showErrorsWhenDisabled = input<boolean>(false);
 
   get labelForId(): string {
-    return this.id;
+    return this.id();
   }
 
   @HostListener("input")

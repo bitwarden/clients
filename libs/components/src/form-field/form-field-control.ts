@@ -1,4 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
+
+import { Signal } from "@angular/core";
+
 // @ts-strict-ignore
 export type InputTypes =
   | "text"
@@ -14,13 +17,13 @@ export type InputTypes =
 
 export abstract class BitFormFieldControl {
   ariaDescribedBy: string;
-  id: string;
+  id: Signal<string>;
   labelForId: string;
   required: boolean;
   hasError: boolean;
   error: [string, any];
-  type?: InputTypes;
-  spellcheck?: boolean;
+  type?: Signal<InputTypes>;
+  spellcheck?: Signal<boolean>;
   readOnly?: boolean;
   focus?: () => void;
 }
