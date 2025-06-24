@@ -15,6 +15,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
@@ -53,6 +54,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
 
   protected readonly Math = Math;
   launchPaymentModalAutomatically = false;
+
+  protected taxInformation: TaxInformation;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -108,6 +111,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   }
 
   protected addAccountCredit = async (): Promise<void> => {
+    if (this.subscriptionStatus === "trialing") {
+      const hasValidBillingAddress = await this.checkBillingAddressForTrialingOrg();
+      if (!hasValidBillingAddress) {
+        return;
+      }
+    }
     const dialogRef = openAddCreditDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
@@ -124,11 +133,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected load = async (): Promise<void> => {
     this.loading = true;
     try {
-      const { accountCredit, paymentSource, subscriptionStatus } =
+      const { accountCredit, paymentSource, subscriptionStatus, taxInformation } =
         await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
       this.accountCredit = accountCredit;
       this.paymentSource = paymentSource;
       this.subscriptionStatus = subscriptionStatus;
+      this.taxInformation = taxInformation;
 
       if (this.organizationId) {
         const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
@@ -246,5 +256,18 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected get updatePaymentSourceButtonText(): string {
     const key = this.paymentSource == null ? "addPaymentMethod" : "changePaymentMethod";
     return this.i18nService.t(key);
+  }
+
+  private async checkBillingAddressForTrialingOrg(): Promise<boolean> {
+    const hasBillingAddress = this.taxInformation != null;
+    if (!hasBillingAddress) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("billingAddressRequiredToAddCredit"),
+      });
+      return false;
+    }
+    return true;
   }
 }

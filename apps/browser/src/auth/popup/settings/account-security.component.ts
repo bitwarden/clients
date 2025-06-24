@@ -537,7 +537,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("unlockBiometricSet"),
+          message: this.i18nService.t("unlockWithBiometricSet"),
         });
       } catch (error) {
         this.form.controls.biometric.setValue(false);
