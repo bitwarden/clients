@@ -242,6 +242,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     const nodes: TreeNode<CollectionFilter>[] = [];
 
     collections
+      // Sort collections so that default user collection is first, then by organization name
       .sort((a, b) => {
         const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
         const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;

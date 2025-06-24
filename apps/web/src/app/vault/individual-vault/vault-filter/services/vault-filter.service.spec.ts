@@ -291,7 +291,7 @@ describe("vault filter service", () => {
         expect(c3.parent.node.id).toEqual("id-1");
       });
 
-      it.only("sorts the collections by default user collection and organization name within default user collections, then by organization name", async () => {
+      it("sorts the collections by default user collection and organization name within default user collections, then by organization name", async () => {
         const storedOrgs = [
           createOrganization("id-defaultOrg1", "org1"),
           createOrganization("id-defaultOrg2", "org2"),
