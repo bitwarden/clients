@@ -7614,9 +7614,9 @@
     "message": "Pakalpojumu konts ir atjaunināts",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Rakstīt vai atlasīt projektus vai noslēpumus",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Ierakstīt vai atlasīt projektus",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Rakstīt, lai atlasītu",
@@ -7701,8 +7701,8 @@
     "message": "Piekļuves pilnvaras",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Jauna piekļuves pilnvara",
+  "createAccessToken": {
+    "message": "Izveidot piekļuves pilnvaru",
     "description": "Button label for creating a new access token."
   },
   "expires": {

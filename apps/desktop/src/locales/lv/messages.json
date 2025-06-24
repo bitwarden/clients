@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identitāte"
   },
+  "typeNote": {
+    "message": "Piezīme"
+  },
   "typeSecureNote": {
     "message": "Droša piezīme"
   },
@@ -3812,5 +3815,139 @@
     "message": "Uzzināt vairāk par SSH aģentu",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Piešķirt krājumiem"
+  },
+  "assignToTheseCollections": {
+    "message": "Piešķirt šiem krājumiem"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Vienumu varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "noCollectionsAssigned": {
+    "message": "Neviens krājums nav piešķirts"
+  },
+  "assign": {
+    "message": "Piešķirt"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Vienumus varēs redzēt tikai apvnienības dalībnieki ar piekļuvi šiem krājumiem."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Ir atlasīti $TOTAL_COUNT$ vienumi. Nevar atjaunināt $READONLY_COUNT$ no vienumiem, jo trūkst labošanas atļaujas.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Atlasīt krājumus, lai piešķirtu"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti atlasītajai apvienībai. Šie vienumi Tev vairs nepiederēs.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ tiks neatgriezeniski nodoti $ORG$. Šie vienumi Tev vairs nepiederēs.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 vienums tiks neatgriezeniski nodots atlasītajai apvienībai. Šis vienums Tev vairs nepiederēs."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 vienums tiks neatgriezeniski nodots $ORG$. Šis vienums Tev vairs nepiederēs.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Krājumi veiksmīgi piešķirti"
+  },
+  "nothingSelected": {
+    "message": "Nekas nav atlasīts."
+  },
+  "itemsMovedToOrg": {
+    "message": "Vienumi pārvietoti uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Vienums pārvietots uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Atlasītie vienumi pārvietoti uz $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }
