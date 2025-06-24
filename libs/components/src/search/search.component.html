@@ -17,7 +17,7 @@
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
     (blur)="onTouch()"
-    [disabled]="disabled"
+    [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
   />
 </div>
