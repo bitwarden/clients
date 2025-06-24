@@ -53,7 +53,8 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
-   *
+   * Optional method that will clear up any deep link state.
+   * - Currently only used on the web change password service.
    */
   clearDeeplinkState?: () => Promise<void>;
 }
