@@ -389,7 +389,7 @@ export class InputPasswordComponent implements OnInit {
 
   /**
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
-   * the masterKeyEncrypedUserKey), `false` otherwise
+   * the masterKeyEncryptedUserKey), `false` otherwise
    */
   private async verifyCurrentPassword(
     currentPassword: string,

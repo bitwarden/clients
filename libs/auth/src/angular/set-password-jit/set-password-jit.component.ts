@@ -81,7 +81,6 @@ export class SetPasswordJitComponent implements OnInit {
         );
         this.orgId = autoEnrollStatus.id;
         this.resetPasswordAutoEnroll = autoEnrollStatus.resetPasswordEnabled;
-        // Does this actually need to confirm for all organizations.
         this.masterPasswordPolicyOptions =
           await this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(autoEnrollStatus.id);
       } catch {

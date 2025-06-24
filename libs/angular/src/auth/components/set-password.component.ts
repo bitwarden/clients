@@ -73,7 +73,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private policyApiService: PolicyApiServiceAbstraction,
-    private activatedRoute: ActivatedRoute,
+    private route: ActivatedRoute,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private syncService: SyncService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
@@ -106,7 +106,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       this.masterPasswordService.forceSetPasswordReason$(this.activeUserId),
     );
 
-    this.activatedRoute.queryParams
+    this.route.queryParams
       .pipe(
         first(),
         switchMap((qParams) => {
@@ -128,8 +128,6 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
           this.resetPasswordAutoEnroll = orgAutoEnrollStatusResponse.resetPasswordEnabled;
         }),
         switchMap((orgAutoEnrollStatusResponse: OrganizationAutoEnrollStatusResponse) =>
-          // Does this actually need to confirm for all organizations.
-
           // Must get org id from response to get master password policy options
           this.policyApiService.getMasterPasswordPolicyOptsForOrgUser(
             orgAutoEnrollStatusResponse.id,

@@ -26,11 +26,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-/**
- * We'd like to consolidate the feature service and the organization-invite.service.ts. There should
- * be a default-organization-invite.service.ts and a web-organization-invite.service which this
- * file could be.
- */
 @Injectable()
 export class AcceptOrganizationInviteService {
   private orgNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
