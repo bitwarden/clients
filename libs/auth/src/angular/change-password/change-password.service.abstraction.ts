@@ -51,4 +51,9 @@ export abstract class ChangePasswordService {
     passwordInputResult: PasswordInputResult,
     userId: UserId,
   ): Promise<void>;
+
+  /**
+   *
+   */
+  clearDeeplinkState?: () => Promise<void>;
 }

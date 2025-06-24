@@ -286,7 +286,6 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
-      OrganizationInviteService,
     ],
   }),
   safeProvider({
@@ -383,6 +382,7 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       UserKeyRotationService,
+      RouterService,
     ],
   }),
 ];

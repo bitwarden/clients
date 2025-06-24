@@ -3,6 +3,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
+import { RouterService } from "@bitwarden/web-vault/app/core";
 import { UserKeyRotationService } from "@bitwarden/web-vault/app/key-management/key-rotation/user-key-rotation.service";
 
 export class WebChangePasswordService
@@ -14,6 +15,7 @@ export class WebChangePasswordService
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private userKeyRotationService: UserKeyRotationService,
+    private routerService: RouterService,
   ) {
     super(keyService, masterPasswordApiService, masterPasswordService);
   }
@@ -30,5 +32,9 @@ export class WebChangePasswordService
       user,
       newPasswordHint,
     );
+  }
+
+  async clearDeeplinkState() {
+    await this.routerService.getAndClearLoginRedirectUrl();
   }
 }
