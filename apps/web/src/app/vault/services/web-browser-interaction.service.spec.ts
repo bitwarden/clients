@@ -10,6 +10,10 @@ describe("WebBrowserInteractionService", () => {
   const postMessage = jest.fn();
   window.postMessage = postMessage;
 
+  const dispatchEvent = (command: string) => {
+    window.dispatchEvent(new MessageEvent("message", { data: { command } }));
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [WebBrowserInteractionService],
@@ -43,23 +47,35 @@ describe("WebBrowserInteractionService", () => {
         done();
       });
 
-      window.dispatchEvent(
-        new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
-      );
+      dispatchEvent(VaultMessages.HasBwInstalled);
     });
 
     it("only calls postMessage once when an extension state is determined", (done) => {
       service.extensionInstalled$.subscribe();
-
-      window.dispatchEvent(
-        new MessageEvent("message", { data: { command: VaultMessages.HasBwInstalled } }),
-      );
-
       service.extensionInstalled$.subscribe(() => {
         expect(postMessage).toHaveBeenCalledTimes(1);
         done();
       });
+
+      dispatchEvent(VaultMessages.HasBwInstalled);
     });
+
+    it("continues to listen for extension state changes after the first response", fakeAsync(() => {
+      const results: boolean[] = [];
+
+      service.extensionInstalled$.subscribe((installed) => {
+        results.push(installed);
+      });
+
+      // initial timeout, should emit false
+      tick(1500);
+      expect(results[0]).toBe(false);
+
+      // then emit `HasBwInstalled`
+      dispatchEvent(VaultMessages.HasBwInstalled);
+      tick();
+      expect(results[1]).toBe(true);
+    }));
   });
 
   describe("openExtension", () => {
@@ -89,9 +105,7 @@ describe("WebBrowserInteractionService", () => {
         fail();
       });
 
-      window.dispatchEvent(
-        new MessageEvent("message", { data: { command: VaultMessages.PopupOpened } }),
-      );
+      dispatchEvent(VaultMessages.PopupOpened);
 
       await openExtensionPromise;
     });
