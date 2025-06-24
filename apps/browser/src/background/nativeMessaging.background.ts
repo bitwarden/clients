@@ -107,7 +107,7 @@ export class NativeMessagingBackground {
   async connect() {
     if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
       this.logService.warning(
-        "[BackgroundBrowserBiometrics] Native messaging permission is missing for biometrics",
+        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
       );
       return;
     }
