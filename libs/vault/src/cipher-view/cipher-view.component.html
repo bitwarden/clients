@@ -59,10 +59,7 @@
   </app-view-identity-sections>
 
   <!-- SshKEY SECTIONS -->
-  <!-- Force teardown on cipher change to ensure key visibility state is reset -->
-  <ng-container *ngFor="let key of [cipher.id]">
-    <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
-  </ng-container>
+  <app-sshkey-view *ngIf="hasSshKey" [sshKey]="cipher.sshKey"></app-sshkey-view>
 
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher.notes">
