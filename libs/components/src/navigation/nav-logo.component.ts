@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
+import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { RouterLinkActive, RouterLink } from "@angular/router";
 
@@ -13,7 +13,7 @@ import { SideNavService } from "./side-nav.service";
 @Component({
   selector: "bit-nav-logo",
   templateUrl: "./nav-logo.component.html",
-  imports: [RouterLinkActive, RouterLink, BitIconComponent],
+  imports: [CommonModule, RouterLinkActive, RouterLink, BitIconComponent],
 })
 export class NavLogoComponent {
   /** Icon that is displayed when the side nav is closed */
