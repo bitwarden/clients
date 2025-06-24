@@ -50,16 +50,6 @@ describe("WebBrowserInteractionService", () => {
       dispatchEvent(VaultMessages.HasBwInstalled);
     });
 
-    it("only calls postMessage once when an extension state is determined", (done) => {
-      service.extensionInstalled$.subscribe();
-      service.extensionInstalled$.subscribe(() => {
-        expect(postMessage).toHaveBeenCalledTimes(1);
-        done();
-      });
-
-      dispatchEvent(VaultMessages.HasBwInstalled);
-    });
-
     it("continues to listen for extension state changes after the first response", fakeAsync(() => {
       const results: boolean[] = [];
 

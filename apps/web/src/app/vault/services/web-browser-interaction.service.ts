@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { concatWith, filter, fromEvent, map, Observable, race, take, timer } from "rxjs";
+import { concatWith, filter, fromEvent, map, Observable, race, take, tap, timer } from "rxjs";
 
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -62,9 +62,14 @@ export class WebBrowserInteractionService {
         map(() => true),
       ),
       timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
-    ).pipe(take(1));
-
-    window.postMessage({ command: VaultMessages.checkBwInstalled });
+    ).pipe(
+      tap({
+        subscribe: () => {
+          window.postMessage({ command: VaultMessages.checkBwInstalled });
+        },
+      }),
+      take(1),
+    );
 
     return checkForExtension$;
   }
