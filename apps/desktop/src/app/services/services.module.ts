@@ -36,7 +36,6 @@ import {
   PinServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -142,15 +141,6 @@ import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
-import {
-  MasterPasswordPolicyServiceAbstraction
-} from "@bitwarden/common/admin-console/abstractions/policy/master-password-policy.service.abstraction";
-import {
-  DefaultMasterPasswordPolicyService
-} from "@bitwarden/common/admin-console/services/policy/default-master-password-policy.service";
-import {
-  PolicyApiServiceAbstraction
-} from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 
@@ -391,11 +381,6 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteService,
     useValue: DefaultOrganizationInviteService,
     deps: [],
-  }),
-  safeProvider({
-    provide: MasterPasswordPolicyServiceAbstraction,
-    useClass: DefaultMasterPasswordPolicyService,
-    deps: [PolicyApiServiceAbstraction],
   }),
   safeProvider({
     provide: SetPasswordJitService,

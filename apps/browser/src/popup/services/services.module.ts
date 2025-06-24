@@ -191,15 +191,6 @@ import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-a
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
-import {
-  MasterPasswordPolicyServiceAbstraction
-} from "@bitwarden/common/admin-console/abstractions/policy/master-password-policy.service.abstraction";
-import {
-  DefaultMasterPasswordPolicyService
-} from "@bitwarden/common/admin-console/services/policy/default-master-password-policy.service";
-import {
-  PolicyApiServiceAbstraction
-} from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 
 const OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
@@ -562,11 +553,6 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteService,
     useClass: DefaultOrganizationInviteService,
     deps: [],
-  }),
-  safeProvider({
-    provide: MasterPasswordPolicyServiceAbstraction,
-    useClass: DefaultMasterPasswordPolicyService,
-    deps: [PolicyApiServiceAbstraction],
   }),
   safeProvider({
     provide: LockComponentService,

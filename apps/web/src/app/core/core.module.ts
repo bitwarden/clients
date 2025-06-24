@@ -41,17 +41,11 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  MasterPasswordPolicyServiceAbstraction
-} from "@bitwarden/common/admin-console/abstractions/policy/master-password-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
   PolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import {
-  DefaultMasterPasswordPolicyService
-} from "@bitwarden/common/admin-console/services/policy/default-master-password-policy.service";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -255,11 +249,6 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteService,
     useClass: WebOrganizationInviteService,
     deps: [GlobalStateProvider],
-  }),
-  safeProvider({
-    provide: MasterPasswordPolicyServiceAbstraction,
-    useClass: DefaultMasterPasswordPolicyService,
-    deps: [PolicyApiServiceAbstraction],
   }),
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,

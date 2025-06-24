@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { MasterPasswordPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/master-password-policy.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,7 +14,12 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { AnonLayoutWrapperDataService, DialogService, ToastService, Icons } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  DialogService,
+  ToastService,
+  Icons,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -58,7 +62,6 @@ export class ChangePasswordComponent implements OnInit {
     private changePasswordService: ChangePasswordService,
     private i18nService: I18nService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private masterPasswordPolicyOptionsService: MasterPasswordPolicyServiceAbstraction,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private organizationInviteService: OrganizationInviteService,
     private messagingService: MessagingService,
@@ -83,40 +86,13 @@ export class ChangePasswordComponent implements OnInit {
       throw new Error("userId not found");
     }
 
-    // this.masterPasswordPolicyOptions = await firstValueFrom(
-    //   this.policyService.postAuthenticatedMasterPasswordPolicyOptions$(this.userId)
-    // ) ?? undefined;
+    this.masterPasswordPolicyOptions = await firstValueFrom(
+      this.policyService.masterPasswordPolicyOptions$(this.userId),
+    );
 
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
-
-    // New Master Password Policy Options service
-    // const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-
-    // switch (this.forceSetPasswordReason) {
-    //   case ForceSetPasswordReason.WeakMasterPassword:
-    //     if (orgInvite) {
-    //       if (!orgInvite.token) {
-    //         this.logService.error("No org token found when trying to retrieve policies.");
-    //         return;
-    //       }
-    //       // Jared I think you wanted this to fetch the token inside the function call but we have
-    //       // it here and it could make sense to just pass it in? but it does go against the whole
-    //       // self-sufficient notion of this service.
-    //       this.masterPasswordPolicyOptions =
-    //         await this.masterPasswordPolicyOptionsService.getForInvitedMember(orgInvite.token);
-    //     } else {
-    //       this.masterPasswordPolicyOptions =
-    //         await this.masterPasswordPolicyOptionsService.getByUserId(this.userId);
-    //     }
-    //     break;
-    //   case ForceSetPasswordReason.AdminForcePasswordReset:
-    //   default:
-    //     this.masterPasswordPolicyOptions =
-    //       await this.masterPasswordPolicyOptionsService.getByUserId(this.userId);
-    //     break;
-    // }
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset) {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
@@ -145,6 +121,8 @@ export class ChangePasswordComponent implements OnInit {
     });
 
     if (confirmed) {
+      await this.organizationInviteService.clearOrganizationInvitation();
+
       this.messagingService.send("logout");
     }
   }

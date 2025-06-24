@@ -17,7 +17,6 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -335,40 +334,32 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Determine where to send the user next
     // The AuthGuard will handle routing to update-temp-password based on state
 
-    if (
-      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
-    ) {
-      const forceSetPasswordReason: ForceSetPasswordReason = await firstValueFrom(
-        this.masterPasswordService.forceSetPasswordReason$(authResult.userId),
-      );
+    // TODO: PM-18269 - evaluate if we can combine this with the
+    // password evaluation done in the password login strategy.
+    // If there's an existing org invite, use it to get the org's password policies
+    // so we can evaluate the MP against the org policies
+    if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
+      const orgPolicies: PasswordPolicies | null =
+        await this.loginComponentService.getOrgPoliciesFromOrgInvite();
 
-      // TODO: PM-22663 use the new service to handle routing.
-      if (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) {
-        await this.router.navigate(["change-password"]);
-        return;
-      }
-    } else {
-      // TODO: PM-18269 - evaluate if we can combine this with the
-      // password evaluation done in the password login strategy.
-      // If there's an existing org invite, use it to get the org's password policies
-      // so we can evaluate the MP against the org policies
-      if (this.loginComponentService.getOrgPoliciesFromOrgInvite) {
-        const orgPolicies: PasswordPolicies | null =
-          await this.loginComponentService.getOrgPoliciesFromOrgInvite();
+      if (orgPolicies) {
+        // Since we have retrieved the policies, we can go ahead and set them into state for future use
+        // e.g., the update-password page currently only references state for policy data and
+        // doesn't fallback to pulling them from the server like it should if they are null.
+        await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
 
-        if (orgPolicies) {
-          // Since we have retrieved the policies, we can go ahead and set them into state for future use
-          // e.g., the update-password page currently only references state for policy data and
-          // doesn't fallback to pulling them from the server like it should if they are null.
-          await this.setPoliciesIntoState(authResult.userId, orgPolicies.policies);
-
-          const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
-            orgPolicies.enforcedPasswordPolicyOptions,
+        const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
+          orgPolicies.enforcedPasswordPolicyOptions,
+        );
+        if (isPasswordChangeRequired) {
+          const changePasswordFeatureFlagOn = await this.configService.getFeatureFlag(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
           );
-          if (isPasswordChangeRequired) {
-            await this.router.navigate(["update-password"]);
-            return;
-          }
+
+          await this.router.navigate(
+            changePasswordFeatureFlagOn ? ["change-password"] : ["update-password"],
+          );
+          return;
         }
       }
     }

@@ -16,11 +16,8 @@ export abstract class PolicyApiServiceAbstraction {
     organizationUserId: string,
   ) => Promise<Policy[] | undefined>;
 
-  /**
-   * This takes an organization id to get org policies for. The user is inferred by the
-   */
   abstract getMasterPasswordPolicyOptsForOrgUser: (
-    organizationId: string,
+    orgId: string,
   ) => Promise<MasterPasswordPolicyOptions | null>;
   abstract putPolicy: (
     organizationId: string,
