@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { concatWith, filter, fromEvent, map, Observable, race, take, timer } from "rxjs";
 
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
@@ -16,7 +17,10 @@ const MESSAGE_RESPONSE_TIMEOUT_MS = 1500;
 export class WebBrowserInteractionService {
   destroyRef = inject(DestroyRef);
 
-  private messages$ = fromEvent<MessageEvent>(window, "message");
+  private messages$ = fromEvent<MessageEvent>(window, "message").pipe(
+    takeUntilDestroyed(this.destroyRef),
+  );
+
   /** Emits the installation status of the extension. */
   extensionInstalled$ = this.checkForExtension().pipe(
     concatWith(
