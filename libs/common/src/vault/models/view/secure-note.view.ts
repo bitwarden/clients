@@ -37,6 +37,9 @@ export class SecureNoteView extends ItemView {
       return undefined;
     }
 
-    return Object.assign(new SecureNoteView(), obj);
+    const secureNoteView = new SecureNoteView();
+    secureNoteView.type = obj.type ?? null;
+
+    return secureNoteView;
   }
 }

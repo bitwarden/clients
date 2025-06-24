@@ -217,6 +217,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.organizationId = model.organizationId;
     cipher.type = model.type;
     cipher.collectionIds = model.collectionIds;
+    cipher.creationDate = model.creationDate;
     cipher.revisionDate = model.revisionDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
@@ -448,12 +449,12 @@ export class CipherService implements CipherServiceAbstraction {
           if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
             return await this.bulkEncryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           } else {
             return await this.encryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           }
         }),
@@ -852,7 +853,7 @@ export class CipherService implements CipherServiceAbstraction {
     const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);
     try {
       const response = await this.apiService.putShareCiphers(request);
-      const responseMap = new Map(response.map((c) => [c.id, c]));
+      const responseMap = new Map(response.data.map((r) => [r.id, r]));
 
       encCiphers.forEach((cipher) => {
         const matchingCipher = responseMap.get(cipher.id);

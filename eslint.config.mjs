@@ -279,6 +279,37 @@ export default tseslint.config(
       ]),
     },
   },
+  // Browser background and content scripts are not allowed to import from the popup directory
+  {
+    files: ["apps/browser/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "@angular",
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+
+        "**/popup/*",
+      ]),
+    },
+  },
+  // This removes the previous rule forbidding imports from the popup directory
+  {
+    files: ["apps/browser/src/**/popup/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports([
+        "bitwarden_license/**",
+        "@bitwarden/bit-common/*",
+        "@bitwarden/bit-web/*",
+      ]),
+    },
+  },
+  {
+    files: ["libs/nx-plugin/**/*.ts", "libs/nx-plugin/**/*.js"],
+    rules: {
+      "no-console": "off",
+    },
+  },
   /// Bandaids for keeping existing circular dependencies from getting worse and new ones from being created
   /// Will be removed after Nx is implemented and existing circular dependencies are removed.
   {
@@ -604,6 +635,7 @@ export default tseslint.config(
       "libs/components/tailwind.config.js",
 
       "scripts/*.js",
+      "jest.preset.js",
     ],
   },
 );

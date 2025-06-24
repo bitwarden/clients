@@ -1,3 +1,4 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService } from "@bitwarden/key-management";
 
@@ -6,10 +7,10 @@ import { BiometricsService } from "@bitwarden/key-management";
  * specifically for the main process.
  */
 export abstract class DesktopBiometricsService extends BiometricsService {
-  abstract setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void>;
+  abstract setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void>;
   abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
-
   abstract setupBiometrics(): Promise<void>;
-
-  abstract setClientKeyHalfForUser(userId: UserId, value: string | null): Promise<void>;
 }

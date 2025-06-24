@@ -10,6 +10,7 @@ import { Subject, firstValueFrom } from "rxjs";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
@@ -94,6 +95,11 @@ export class Main {
       appDataPath = path.join(process.env.PORTABLE_EXECUTABLE_DIR, "bitwarden-appdata");
     } else if (process.platform === "linux" && process.env.SNAP_USER_DATA != null) {
       appDataPath = path.join(process.env.SNAP_USER_DATA, "appdata");
+    }
+
+    // Workaround for bug described here: https://github.com/electron/electron/issues/46538
+    if (process.platform === "linux") {
+      app.commandLine.appendSwitch("gtk-version", "3");
     }
 
     app.on("ready", () => {
@@ -182,14 +188,19 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-
+    const encryptService = new EncryptServiceImplementation(
+      this.mainCryptoFunctionService,
+      this.logService,
+      true,
+    );
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
       this.logService,
-      this.messagingService,
       process.platform,
       biometricStateService,
+      encryptService,
+      this.mainCryptoFunctionService,
     );
 
     this.windowMain = new WindowMain(
