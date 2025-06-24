@@ -6,12 +6,11 @@ import {
   AfterViewInit,
   Directive,
   ElementRef,
-  HostBinding,
   HostListener,
-  Input,
   OnDestroy,
   ViewContainerRef,
   input,
+  model,
 } from "@angular/core";
 import { Observable, Subscription, filter, mergeWith } from "rxjs";
 
@@ -21,13 +20,12 @@ import { PopoverComponent } from "./popover.component";
 @Directive({
   selector: "[bitPopoverTriggerFor]",
   exportAs: "popoverTrigger",
+  host: {
+    "[attr.aria-expanded]": "this.popoverOpen()",
+  },
 })
 export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input()
-  @HostBinding("attr.aria-expanded")
-  popoverOpen = false;
+  popoverOpen = model(false);
 
   readonly popover = input<PopoverComponent>(undefined, { alias: "bitPopoverTriggerFor" });
 
@@ -73,7 +71,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
 
   @HostListener("click")
   togglePopover() {
-    if (this.popoverOpen) {
+    if (this.popoverOpen()) {
       this.closePopover();
     } else {
       this.openPopover();
@@ -81,7 +79,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private openPopover() {
-    this.popoverOpen = true;
+    this.popoverOpen.set(true);
     this.overlayRef = this.overlay.create(this.defaultPopoverConfig);
 
     const templatePortal = new TemplatePortal(this.popover().templateRef, this.viewContainerRef);
@@ -104,11 +102,11 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   private destroyPopover() {
-    if (this.overlayRef == null || !this.popoverOpen) {
+    if (this.overlayRef == null || !this.popoverOpen()) {
       return;
     }
 
-    this.popoverOpen = false;
+    this.popoverOpen.set(false);
     this.disposeAll();
   }
 
@@ -118,7 +116,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (this.popoverOpen) {
+    if (this.popoverOpen()) {
       this.openPopover();
     }
   }
