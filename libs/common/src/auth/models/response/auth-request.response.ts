@@ -34,7 +34,7 @@ export class AuthRequestResponse extends BaseResponse {
     this.creationDate = this.getResponseProperty("CreationDate");
     this.requestApproved = this.getResponseProperty("RequestApproved");
     this.responseDate = this.getResponseProperty("ResponseDate");
-    this.deviceId = this.getResponseProperty("DeviceId");
+    this.deviceId = this.getResponseProperty("RequestDeviceId");
 
     const requestDate = new Date(this.creationDate);
     const requestDateUTC = Date.UTC(
