@@ -7,7 +7,6 @@ import {
   ElementRef,
   HostBinding,
   HostListener,
-  Input,
   OnDestroy,
   ViewContainerRef,
   input,
@@ -17,18 +16,19 @@ import { filter, mergeWith } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
-@Directive({ selector: "[bitMenuTriggerFor]", exportAs: "menuTrigger", standalone: true })
+@Directive({
+  selector: "[bitMenuTriggerFor]",
+  exportAs: "menuTrigger",
+  standalone: true,
+  host: { "[attr.role]": "this.role()" },
+})
 export class MenuTriggerForDirective implements OnDestroy {
   @HostBinding("attr.aria-expanded") isOpen = false;
   @HostBinding("attr.aria-haspopup") get hasPopup(): "menu" | "dialog" {
     return this.menu()?.ariaRole() || "menu";
   }
-  // TODO: Skipped for migration because:
-  //  This input is used in combination with `@HostBinding` and migrating would
-  //  break.
-  @HostBinding("attr.role")
-  @Input()
-  role = "button";
+
+  readonly role = input("button");
 
   readonly menu = input<MenuComponent>(undefined, { alias: "bitMenuTriggerFor" });
 
