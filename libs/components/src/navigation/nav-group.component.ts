@@ -5,12 +5,12 @@ import {
   Component,
   ContentChildren,
   EventEmitter,
-  Input,
   Optional,
   Output,
   QueryList,
   SkipSelf,
   input,
+  model,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -38,7 +38,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   protected get parentHideActiveStyles(): boolean {
-    return this.hideActiveStyles() || (this.open && this.sideNavService.open);
+    return this.hideActiveStyles() || (this.open() && this.sideNavService.open);
   }
 
   /**
@@ -49,10 +49,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   /**
    * Is `true` if the expanded content is visible
    */
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input()
-  open = false;
+  open = model(false);
 
   /**
    * Automatically hide the nav group if there are no child buttons
@@ -70,16 +67,16 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
   }
 
   setOpen(isOpen: boolean) {
-    this.open = isOpen;
-    this.openChange.emit(this.open);
+    this.open.set(isOpen);
+    this.openChange.emit(this.open());
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    this.open && this.parentNavGroup?.setOpen(this.open);
+    this.open() && this.parentNavGroup?.setOpen(this.open());
   }
 
   protected toggle(event?: MouseEvent) {
     event?.stopPropagation();
-    this.setOpen(!this.open);
+    this.setOpen(!this.open());
   }
 
   /**
@@ -90,7 +87,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
       return;
     }
     [...this.nestedNavComponents].forEach((navGroupOrItem) => {
-      navGroupOrItem.treeDepth += 1;
+      navGroupOrItem.treeDepth.update((depth) => depth + 1);
     });
   }
 
@@ -99,7 +96,7 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
       if (!this.route()) {
         this.sideNavService.setOpen();
       }
-      this.open = true;
+      this.open.set(true);
     } else {
       this.toggle();
     }

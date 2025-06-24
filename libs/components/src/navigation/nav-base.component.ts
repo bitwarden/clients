@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Input, Output, input } from "@angular/core";
+import { Directive, EventEmitter, Output, input, model } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -21,10 +21,7 @@ export abstract class NavBaseComponent {
   /**
    * Optional icon, e.g. `"bwi-collection-shared"`
    */
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input() icon: string;
+  readonly icon = input<string>();
 
   /**
    * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
@@ -66,9 +63,7 @@ export abstract class NavBaseComponent {
   /**
    * Depth level when nested inside of a `'tree'` variant
    */
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() treeDepth = 0;
+  treeDepth = model(0);
 
   /**
    * If `true`, do not change styles when nav item is active.

@@ -2,7 +2,7 @@
 @if (!hideIfEmpty() || nestedNavComponents.length > 0) {
   <bit-nav-item
     [text]="text()"
-    [icon]="icon"
+    [icon]="icon()"
     [route]="route()"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
@@ -17,14 +17,14 @@
         type="button"
         class="tw-ms-auto"
         [bitIconButton]="
-          open ? 'bwi-angle-up' : variant() === 'tree' ? 'bwi-angle-right' : 'bwi-angle-down'
+          open() ? 'bwi-angle-up' : variant() === 'tree' ? 'bwi-angle-right' : 'bwi-angle-down'
         "
         [buttonType]="'light'"
         (click)="toggle($event)"
         size="small"
         [title]="'toggleCollapse' | i18n"
         aria-haspopup="true"
-        [attr.aria-expanded]="open.toString()"
+        [attr.aria-expanded]="open().toString()"
         [attr.aria-controls]="contentId"
         [attr.aria-label]="['toggleCollapse' | i18n, text()].join(' ')"
       ></button>
@@ -44,7 +44,7 @@
   </bit-nav-item>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
   @if (sideNavService.open$ | async) {
-    @if (open) {
+    @if (open()) {
       <div
         [attr.id]="contentId"
         [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
