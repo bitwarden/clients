@@ -13,7 +13,7 @@
   [multiple]="true"
   [closeOnSelect]="false"
   (close)="onDropdownClosed()"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   [clearSearchOnAdd]="true"
   [labelForId]="labelForId"
   [keyDownFn]="keyDown"
@@ -28,7 +28,7 @@
       bitBadge
       variant="primary"
       class="tw-me-1 disabled:tw-border-0 tw-flex tw-gap-1.5 tw-items-center"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       (click)="clear(item)"
     >
       @if (item.icon != null) {
