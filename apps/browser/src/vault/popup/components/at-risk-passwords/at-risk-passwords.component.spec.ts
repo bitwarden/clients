@@ -259,6 +259,19 @@ describe("AtRiskPasswordsComponent", () => {
           type: SecurityTaskType.UpdateAtRiskCredential,
         } as SecurityTask,
       ]);
+      mockCiphers$.next([
+        {
+          id: "cipher",
+          organizationId: "org",
+          name: "Item 1",
+        } as CipherView,
+        {
+          id: "cipher2",
+          organizationId: "org2",
+          name: "Item 2",
+        } as CipherView,
+      ]);
+
       const description = await firstValueFrom(component["pageDescription$"]);
       expect(description).toBe("atRiskPasswordsDescMultiOrgPlural");
     });
