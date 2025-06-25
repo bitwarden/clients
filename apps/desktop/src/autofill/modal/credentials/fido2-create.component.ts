@@ -22,7 +22,9 @@ import {
   SectionHeaderComponent,
   BitIconButtonComponent,
   SimpleDialogOptions,
+  SimpleDialogType,
 } from "@bitwarden/components";
+import type { SimpleDialogType } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
@@ -38,21 +40,21 @@ const DIALOG_MESSAGES: Record<string, SimpleDialogOptions> = {
   unexpectedErrorShort: {
     title: { key: "unexpectedErrorShort" },
     content: { key: "closeThisBitwardenWindow" },
-    type: "danger",
+    type: SimpleDialogType.Danger,
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   unableToSavePasskey: {
     title: { key: "unableToSavePasskey" },
     content: { key: "closeThisBitwardenWindow" },
-    type: "danger",
+    type: SimpleDialogType.Danger,
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   overwritePasskey: {
     title: { key: "overwritePasskey" },
     content: { key: "alreadyContainsPasskey" },
-    type: "warning",
+    type: SimpleDialogType.Warning,
   },
 };
 
@@ -117,8 +119,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
     try {
       if (!this.session) {
-        await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
-        return;
+        throw new Error("Missing session");
       }
 
       this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
@@ -133,8 +134,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   async confirmPasskey(): Promise<void> {
     try {
       if (!this.session) {
-        await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
-        return;
+        throw new Error("Missing session");
       }
 
       this.session.notifyConfirmCreateCredential(true);
@@ -165,16 +165,13 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    const [equivalentDomains, allCiphers] = await Promise.all([
-      firstValueFrom(this.domainSettingsService.getUrlEquivalentDomains(rpid)),
-      this.cipherService.getAllDecrypted(activeUserId),
-    ]);
-
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpid),
+    );
     const userHandle = Fido2Utils.bufferToString(
       new Uint8Array(lastRegistrationRequest.userHandle),
     );
-
-    return allCiphers.filter(
+    return (await this.cipherService.getAllDecrypted(activeUserId)).filter(
       (cipher) =>
         cipher.login?.matchesUri(rpid, equivalentDomains) &&
         Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&

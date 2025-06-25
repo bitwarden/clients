@@ -214,7 +214,7 @@ describe("Fido2CreateComponent", () => {
       await component.confirmPasskey();
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "unexpectedErrorShort" },
+        title: { key: "unableToSavePasskey" },
         content: { key: "closeThisBitwardenWindow" },
         type: "danger",
         acceptButtonText: { key: "closeBitwarden" },
