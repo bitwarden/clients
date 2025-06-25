@@ -17,9 +17,7 @@ import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-u
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-// FIXME (PM-22628): Popup imports are forbidden in background
-// eslint-disable-next-line no-restricted-imports
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
