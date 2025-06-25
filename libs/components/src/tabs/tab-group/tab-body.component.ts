@@ -11,14 +11,14 @@ import { Component, effect, HostBinding, input, signal } from "@angular/core";
 export class TabBodyComponent {
   private _firstRender = signal<boolean>(false);
 
-  readonly content = input<TemplatePortal>(undefined);
+  readonly content = input<TemplatePortal>();
   readonly preserveContent = input(false);
 
   @HostBinding("attr.hidden") get hidden() {
     return !this.active() || null;
   }
 
-  active = input<boolean>();
+  readonly active = input<boolean>();
 
   constructor() {
     effect(() => {

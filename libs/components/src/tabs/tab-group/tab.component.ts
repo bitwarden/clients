@@ -32,7 +32,7 @@ export class TabComponent implements OnInit {
    *
    * @remarks See note 4 of https://www.w3.org/WAI/ARIA/apg/patterns/tabpanel/
    */
-  readonly contentTabIndex = input<number | undefined>(undefined);
+  readonly contentTabIndex = input<number | undefined>();
 
   @ViewChild(TemplateRef, { static: true }) implicitContent: TemplateRef<unknown>;
   @ContentChild(TabLabelDirective) templateLabel: TabLabelDirective;
