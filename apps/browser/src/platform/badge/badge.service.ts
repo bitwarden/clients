@@ -1,4 +1,14 @@
-import { defer, filter, map, mergeMap, pairwise, Subscription, switchMap } from "rxjs";
+import {
+  defer,
+  distinctUntilChanged,
+  filter,
+  map,
+  mergeMap,
+  pairwise,
+  startWith,
+  Subscription,
+  switchMap,
+} from "rxjs";
 
 import {
   BADGE_MEMORY,
@@ -49,6 +59,8 @@ export class BadgeService {
     return initialSetup$
       .pipe(
         switchMap(() => this.states.state$),
+        startWith({}),
+        distinctUntilChanged(),
         map((states) => new Set(states ? Object.values(states) : [])),
         pairwise(),
         map(([previous, current]) => {
