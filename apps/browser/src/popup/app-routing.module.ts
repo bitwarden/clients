@@ -718,7 +718,7 @@ export class NoRouteReuseStrategy implements RouteReuseStrategy {
     RouterModule.forRoot(routes, {
       useHash: true,
       onSameUrlNavigation: "reload",
-      enableTracing: true,
+      /*enableTracing: true,*/
     }),
   ],
   exports: [RouterModule],
