@@ -423,7 +423,7 @@ describe("VaultPopupListFiltersService", () => {
           organizationId: "org2",
           type: "DefaultUserCollection",
         },
-      ] as CollectionView[];
+      ] as unknown as CollectionView[];
 
       const allCollections = [...defaultCollections, ...testCollections];
 
