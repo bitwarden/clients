@@ -437,6 +437,8 @@ export default class MainBackground {
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
 
+  private restrictedItemTypesService: RestrictedItemTypesService;
+
   constructor() {
     // Services
     const lockedCallback = async (userId: UserId) => {
@@ -1307,6 +1309,13 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
     this.mainContextMenuHandler = new MainContextMenuHandler(
       this.stateService,
       this.autofillSettingsService,
@@ -1314,6 +1323,7 @@ export default class MainBackground {
       this.logService,
       this.billingAccountProfileStateService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
