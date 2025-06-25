@@ -84,14 +84,9 @@ export class UriOptionComponent implements ControlValueAccessor {
     { label: this.i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
   ];
 
-  protected advancedOptionHintMap: Partial<Record<UriMatchStrategySetting, string>> = {
-    [UriMatchStrategy.StartsWith]: "startsWithUriMatchWarningHint",
-    [UriMatchStrategy.RegularExpression]: "regExUriMatchWarningHint",
-  };
-
-  protected advancedOptionContentMap: Partial<Record<UriMatchStrategySetting, string>> = {
-    [UriMatchStrategy.StartsWith]: "uriMatchWarningDialogStartsWithContent",
-    [UriMatchStrategy.RegularExpression]: "uriMatchWarningDialogRegExContent",
+  protected advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>> = {
+    [UriMatchStrategy.StartsWith]: "startsWithAdvancedOptionWarning",
+    [UriMatchStrategy.RegularExpression]: "regExAdvancedOptionWarning",
   };
 
   /**
@@ -199,7 +194,7 @@ export class UriOptionComponent implements ControlValueAccessor {
       return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionContentMap[current],
+      contentKey: this.advancedOptionWarningMap[current],
       onContinue: () => {
         this.uriForm.controls.matchDetection.setValue(current);
       },
@@ -251,7 +246,7 @@ export class UriOptionComponent implements ControlValueAccessor {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.advancedOptionHintMap[strategy]);
+      hints.push(this.advancedOptionWarningMap[strategy]);
     }
     return hints;
   }
