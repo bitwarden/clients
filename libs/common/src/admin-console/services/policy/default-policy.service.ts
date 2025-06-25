@@ -241,17 +241,20 @@ export class DefaultPolicyService implements PolicyService {
       target = new MasterPasswordPolicyOptions();
     }
 
+    // Take the max of the complexity or the required length of the password.
+    // For boolean properties, take the target's value if the source is undefined,
+    // otherwise take true in other scenarios.
     if (source) {
       target.minComplexity = Math.max(
         target.minComplexity,
         source.minComplexity ?? target.minComplexity,
       );
       target.minLength = Math.max(target.minLength, source.minLength ?? target.minLength);
-      target.requireUpper = target.requireUpper || source.requireUpper;
-      target.requireLower = target.requireLower || source.requireLower;
-      target.requireNumbers = target.requireNumbers || source.requireNumbers;
-      target.requireSpecial = target.requireSpecial || source.requireSpecial;
-      target.enforceOnLogin = target.enforceOnLogin || source.enforceOnLogin;
+      target.requireUpper = Boolean(target.requireUpper || source.requireUpper);
+      target.requireLower = Boolean(target.requireLower || source.requireLower);
+      target.requireNumbers = Boolean(target.requireNumbers || source.requireNumbers);
+      target.requireSpecial = Boolean(target.requireSpecial || source.requireSpecial);
+      target.enforceOnLogin = Boolean(target.enforceOnLogin || source.enforceOnLogin);
     }
   }
 }
