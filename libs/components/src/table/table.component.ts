@@ -29,7 +29,7 @@ export class TableBodyDirective {
   imports: [CommonModule],
 })
 export class TableComponent implements OnDestroy, AfterContentChecked {
-  readonly dataSource = input<TableDataSource<any>>(undefined);
+  readonly dataSource = input<TableDataSource<any>>();
   readonly layout = input<"auto" | "fixed">("auto");
 
   @ContentChild(TableBodyDirective) templateVariable: TableBodyDirective;

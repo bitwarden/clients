@@ -26,9 +26,9 @@ export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  readonly bitSortable = input<string>(undefined);
+  readonly bitSortable = input<string>();
 
-  default = input(false, {
+  readonly default = input(false, {
     transform: (value: SortDirection | boolean | "") => {
       if (value === "desc" || value === "asc") {
         return value as SortDirection;
@@ -49,7 +49,7 @@ export class SortableComponent implements OnInit {
    *  return direction === 'asc' ? result : -result;
    * }
    */
-  readonly fn = input<SortFn>(undefined);
+  readonly fn = input<SortFn>();
 
   constructor(private table: TableComponent) {}
 

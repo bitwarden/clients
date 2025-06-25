@@ -67,7 +67,7 @@ export class TableScrollComponent
   readonly rowSize = input.required<number>();
 
   /** Optional trackBy function. */
-  readonly trackBy = input<TrackByFunction<any> | undefined>(undefined);
+  readonly trackBy = input<TrackByFunction<any> | undefined>();
 
   @ContentChild(BitRowDef) protected rowDef: BitRowDef;
 
