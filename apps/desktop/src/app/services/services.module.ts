@@ -379,7 +379,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OrganizationInviteService,
-    useValue: DefaultOrganizationInviteService,
+    useClass: DefaultOrganizationInviteService,
     deps: [],
   }),
   safeProvider({
