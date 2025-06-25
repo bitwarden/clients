@@ -258,7 +258,7 @@ export class SendProgram extends BaseProgram {
         writeLn("  You cannot update a File-type Send's file. Just delete and remake it");
         writeLn("", true);
       })
-      .action(async (encodedJson: string, options: OptionValues) => {
+      .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
         const getCmd = new SendGetCommand(
           this.serviceContainer.sendService,
@@ -274,7 +274,16 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
         );
-        const response = await cmd.run(encodedJson, options);
+
+        // subcommands inherit flags from their parent; they cannot override them
+        const { email = undefined, password = undefined } = args.parent.opts();
+        const mergedOptions = {
+          ...options,
+          email,
+          password,
+        };
+
+        const response = await cmd.run(encodedJson, mergedOptions);
         this.processResponse(response);
       });
   }

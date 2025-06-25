@@ -51,6 +51,7 @@ export class SendResponse implements BaseResponse {
     view.deletionDate = send.deletionDate;
     view.expirationDate = send.expirationDate;
     view.password = send.password;
+    view.emails = send.emails ?? [];
     view.disabled = send.disabled;
     view.hideEmail = send.hideEmail;
     return view;

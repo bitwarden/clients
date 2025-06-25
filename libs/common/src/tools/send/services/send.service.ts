@@ -74,7 +74,10 @@ export class SendService implements InternalSendServiceAbstraction {
       model.key = key.material;
       model.cryptoKey = key.derivedKey;
     }
-    if (password != null) {
+    if (model.emails) {
+      send.emails = model.emails.join(",");
+      send.password = null;
+    } else if (password != null) {
       // Note: Despite being called key, the passwordKey is not used for encryption.
       // It is used as a static proof that the client knows the password, and has the encryption key.
       const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
