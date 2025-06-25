@@ -11,6 +11,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -30,6 +31,10 @@ import {
   MY_VAULT_ID,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
+
+const configService = {
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
+};
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -137,6 +142,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     });
@@ -803,6 +812,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 

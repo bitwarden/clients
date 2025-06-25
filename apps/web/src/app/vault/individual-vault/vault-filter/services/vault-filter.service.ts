@@ -25,6 +25,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -105,11 +107,24 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       }),
     );
 
+  // collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
+  //   this.filteredCollections$,
+  //   this.memberOrganizations$,
+  //   this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
+  // ]).pipe(
+  //   map(([collections, organizations, defaultVaultEnabled]) =>
+  //     this.buildCollectionTree(collections, organizations, defaultVaultEnabled),
+  //   ),
+  // );
+
   collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
     this.filteredCollections$,
     this.memberOrganizations$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
   ]).pipe(
-    map(([collections, organizations]) => this.buildCollectionTree(collections, organizations)),
+    map(([collections, organizations, defaultVaultEnabled]) =>
+      this.buildCollectionTree(collections, organizations, defaultVaultEnabled),
+    ),
   );
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
@@ -127,6 +142,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
+    protected configService?: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -234,6 +250,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected buildCollectionTree(
     collections?: CollectionView[],
     organizations?: Organization[],
+    defaultVaultEnabled?: boolean,
   ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
     if (!collections) {
@@ -241,33 +258,34 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     }
     const nodes: TreeNode<CollectionFilter>[] = [];
 
-    collections
-      // Sort collections so that default user collection is first, then by organization name
-      .sort((a, b) => {
-        const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-        const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+    if (defaultVaultEnabled) {
+      collections = collections
+        // Sort collections so that default user collection is first, then by organization name
+        .sort((a, b) => {
+          const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+          const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
 
-        if (aIsDefault !== bIsDefault) {
-          return aIsDefault - bIsDefault;
-        }
+          if (aIsDefault !== bIsDefault) {
+            return aIsDefault - bIsDefault;
+          }
 
-        const aOrg = organizations?.find((o) => o.id === a.organizationId)?.name ?? "";
-        const bOrg = organizations?.find((o) => o.id === b.organizationId)?.name ?? "";
-        return this.i18nService.collator.compare(aOrg, bOrg);
-      })
-      .forEach((c) => {
-        const collectionCopy = new CollectionView() as CollectionFilter;
-        collectionCopy.id = c.id;
-        collectionCopy.organizationId = c.organizationId;
-        collectionCopy.icon = "bwi-collection-shared";
-        if (c instanceof CollectionAdminView) {
-          collectionCopy.groups = c.groups;
-          collectionCopy.assigned = c.assigned;
-        }
-        const parts =
-          c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
-      });
+          const aOrg = organizations?.find((o) => o.id === a.organizationId)?.name ?? "";
+          const bOrg = organizations?.find((o) => o.id === b.organizationId)?.name ?? "";
+          return this.i18nService.collator.compare(aOrg, bOrg);
+        });
+    }
+    collections.forEach((c) => {
+      const collectionCopy = new CollectionView() as CollectionFilter;
+      collectionCopy.id = c.id;
+      collectionCopy.organizationId = c.organizationId;
+      collectionCopy.icon = "bwi-collection-shared";
+      if (c instanceof CollectionAdminView) {
+        collectionCopy.groups = c.groups;
+        collectionCopy.assigned = c.assigned;
+      }
+      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
+    });
 
     nodes.forEach((n) => {
       n.parent = headNode;

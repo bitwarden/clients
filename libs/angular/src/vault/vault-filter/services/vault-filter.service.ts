@@ -16,6 +16,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -45,6 +47,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected policyService: PolicyService,
     protected stateProvider: StateProvider,
     protected accountService: AccountService,
+    protected configService: ConfigService,
   ) {}
 
   async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
@@ -104,25 +107,31 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
     const storedCollections = await this.collectionService.getAllDecrypted();
     const allOrganizations = await this.buildOrganizations();
+    const defaultVaultEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM19467_CreateDefaultLocation,
+    );
 
     let collections =
       organizationId == null
         ? storedCollections
         : storedCollections.filter((c) => c.organizationId === organizationId);
 
-    collections = collections.sort((a, b) => {
-      const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-      const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+    if (defaultVaultEnabled) {
+      // Sort collections so that default user collection is first, then by organization name
+      collections = collections.sort((a, b) => {
+        const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+        const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
 
-      if (aIsDefault !== bIsDefault) {
-        return aIsDefault - bIsDefault;
-      }
+        if (aIsDefault !== bIsDefault) {
+          return aIsDefault - bIsDefault;
+        }
 
-      const aOrg = allOrganizations.find((o) => o.id === a.organizationId)?.name ?? "";
-      const bOrg = allOrganizations.find((o) => o.id === b.organizationId)?.name ?? "";
+        const aOrg = allOrganizations.find((o) => o.id === a.organizationId)?.name ?? "";
+        const bOrg = allOrganizations.find((o) => o.id === b.organizationId)?.name ?? "";
 
-      return aOrg.localeCompare(bOrg);
-    });
+        return aOrg.localeCompare(bOrg);
+      });
+    }
 
     const nestedCollections = await this.collectionService.getAllNested(collections);
     return new DynamicTreeNode<CollectionView>({

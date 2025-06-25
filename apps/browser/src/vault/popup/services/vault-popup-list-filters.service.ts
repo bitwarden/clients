@@ -29,6 +29,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -186,6 +188,7 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -445,14 +448,18 @@ export class VaultPopupListFiltersService {
           ),
           this.collectionService.decryptedCollections$,
           this.organizationService.memberOrganizations$(userId),
+          this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
         ]),
       ),
-      map(([filters, allCollections, orgs]) => {
+      map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
         const orgFilterId = filters.organization?.id ?? null;
         const filtered = orgFilterId
           ? allCollections.filter((c) => c.organizationId === orgFilterId)
           : allCollections;
 
+        if (!defaultVaultEnabled) {
+          return filtered;
+        }
         // Sort collections so that default user collection is first, then by organization name
         return filtered.sort((a, b) => {
           const aDef = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;

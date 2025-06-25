@@ -5,7 +5,7 @@ import {
 import { FakeSingleUserState } from "@bitwarden/common/../spec/fake-state";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, ReplaySubject } from "rxjs";
+import { firstValueFrom, of, ReplaySubject } from "rxjs";
 
 import {
   CollectionService,
@@ -17,6 +17,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -44,6 +45,7 @@ describe("vault filter service", () => {
   let personalOwnershipPolicy: ReplaySubject<boolean>;
   let singleOrgPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
+  let configService: MockProxy<ConfigService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -59,6 +61,7 @@ describe("vault filter service", () => {
     stateProvider = new FakeStateProvider(accountService);
     i18nService.collator = new Intl.Collator("en-US");
     collectionService = mock<CollectionService>();
+    configService = mock<ConfigService>();
 
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
@@ -67,6 +70,7 @@ describe("vault filter service", () => {
     personalOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
 
+    configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.memberOrganizations$.mockReturnValue(organizations);
     folderService.folderViews$.mockReturnValue(folderViews);
     collectionService.decryptedCollections$ = collectionViews;
@@ -87,8 +91,10 @@ describe("vault filter service", () => {
       stateProvider,
       collectionService,
       accountService,
+      configService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
+    organizations.next([]);
   });
 
   describe("collapsed filter nodes", () => {
