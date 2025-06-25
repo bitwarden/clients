@@ -99,6 +99,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
 
     try {
+      // TODO: PM-23047 will look to consolidate this into the change password endpoint.
       await this.masterPasswordApiService.putUpdateTempPassword(request);
     } catch {
       throw new Error("Could not change password");
