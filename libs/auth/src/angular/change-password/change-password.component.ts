@@ -124,7 +124,7 @@ export class ChangePasswordComponent implements OnInit {
       await this.organizationInviteService.clearOrganizationInvitation();
 
       if (this.changePasswordService.clearDeeplinkState) {
-        await this.changePasswordService?.clearDeeplinkState();
+        await this.changePasswordService.clearDeeplinkState();
       }
 
       this.messagingService.send("logout");
@@ -191,7 +191,7 @@ export class ChangePasswordComponent implements OnInit {
   /**
    * Shows the logout button in the case of admin force reset password or weak password upon login.
    */
-  protected shouldShowLogoutText(): { key: string } | undefined {
+  protected secondaryButtonText(): { key: string } | undefined {
     return this.forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
       this.forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword
       ? { key: "logOut" }
