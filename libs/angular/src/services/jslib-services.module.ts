@@ -14,8 +14,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AnonLayoutWrapperDataService,
-  DefaultAnonLayoutWrapperDataService,
   DefaultLoginApprovalComponentService,
   DefaultLoginComponentService,
   DefaultLoginDecryptionOptionsService,
@@ -296,10 +294,15 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
-import { ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  DefaultAnonLayoutWrapperDataService,
+  ToastService,
+} from "@bitwarden/components";
 import {
   GeneratorHistoryService,
   LocalGeneratorHistoryService,
@@ -679,6 +682,11 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: RestrictedItemTypesService,
+    useClass: RestrictedItemTypesService,
+    deps: [ConfigService, AccountService, OrganizationServiceAbstraction, PolicyServiceAbstraction],
+  }),
+  safeProvider({
     provide: PasswordStrengthServiceAbstraction,
     useClass: PasswordStrengthService,
     deps: [],
@@ -883,6 +891,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       ApiServiceAbstraction,
+      RestrictedItemTypesService,
     ],
   }),
   safeProvider({
@@ -898,6 +907,7 @@ const safeProviders: SafeProvider[] = [
       CollectionService,
       KdfConfigService,
       AccountServiceAbstraction,
+      RestrictedItemTypesService,
     ],
   }),
   safeProvider({

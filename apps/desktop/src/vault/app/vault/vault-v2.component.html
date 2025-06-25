@@ -20,6 +20,7 @@
       (onDelete)="deleteCipher()"
       (onCancel)="cancelCipher($event)"
       [isSubmitting]="isSubmitting"
+      [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
     ></app-vault-item-footer>
     <div class="content">
       <div class="inner-content">
