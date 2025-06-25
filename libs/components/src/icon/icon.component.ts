@@ -15,7 +15,7 @@ import { Icon, isIcon } from "./icon";
 export class BitIconComponent {
   innerHtml: SafeHtml | null = null;
 
-  icon = input<Icon>();
+  readonly icon = input<Icon>();
 
   readonly ariaLabel = input<string | undefined>(undefined);
 

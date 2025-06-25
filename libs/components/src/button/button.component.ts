@@ -107,9 +107,9 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   readonly buttonType = input<ButtonType>("secondary");
 
-  size = input<ButtonSize>("default");
+  readonly size = input<ButtonSize>("default");
 
-  block = input(false, { transform: booleanAttribute });
+  readonly block = input(false, { transform: booleanAttribute });
 
   loading = model<boolean>(false);
 

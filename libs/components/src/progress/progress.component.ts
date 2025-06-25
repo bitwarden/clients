@@ -30,7 +30,7 @@ export class ProgressComponent {
   readonly bgColor = input<BackgroundType>("primary");
   readonly showText = input(true);
   readonly size = input<ProgressSizeType>("default");
-  readonly text = input<string>(undefined);
+  readonly text = input<string>();
 
   get displayText() {
     return this.showText() && this.size() !== "small";

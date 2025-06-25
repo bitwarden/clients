@@ -57,7 +57,7 @@ export class CopyClickDirective {
    *  <app-component [appCopyClick]="value to copy" showToast="info"/></app-component>
    * ```
    */
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set showToast(value: ToastVariant | "") {
     // When the `showToast` is set without a value, an empty string will be passed

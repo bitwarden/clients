@@ -48,7 +48,7 @@ export class DisclosureComponent {
   /**
    * Optionally init the disclosure in its opened state
    */
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @Input({ transform: booleanAttribute }) set open(isOpen: boolean) {
     this._open = isOpen;

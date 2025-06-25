@@ -30,7 +30,7 @@ export class MenuComponent implements AfterContentInit {
 
   readonly ariaRole = input<"menu" | "dialog">("menu");
 
-  readonly ariaLabel = input<string>(undefined);
+  readonly ariaLabel = input<string>();
 
   ngAfterContentInit() {
     if (this.ariaRole() === "menu") {

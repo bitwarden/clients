@@ -34,7 +34,7 @@ const margins: Record<TypographyType, string[]> = {
 export class TypographyDirective {
   readonly bitTypography = input<TypographyType>(undefined);
 
-  noMargin = input(false, { transform: booleanAttribute });
+  readonly noMargin = input(false, { transform: booleanAttribute });
 
   @HostBinding("class") get classList() {
     return styles[this.bitTypography()].concat(

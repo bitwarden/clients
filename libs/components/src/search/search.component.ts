@@ -44,8 +44,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
   disabled = model<boolean>();
-  readonly placeholder = input<string>(undefined);
-  readonly autocomplete = input<string>(undefined);
+  readonly placeholder = input<string>();
+  readonly autocomplete = input<string>();
 
   getFocusTarget() {
     return this.input?.nativeElement;

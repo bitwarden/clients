@@ -16,11 +16,11 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
   imports: [NgClass, TypographyDirective, I18nPipe],
 })
 export class FormControlComponent {
-  readonly label = input<string>(undefined);
+  readonly label = input<string>();
 
-  inline = input(false, { transform: booleanAttribute });
+  readonly inline = input(false, { transform: booleanAttribute });
 
-  disableMargin = input(false, { transform: booleanAttribute });
+  readonly disableMargin = input(false, { transform: booleanAttribute });
 
   @ContentChild(BitFormControlAbstraction) protected formControl: BitFormControlAbstraction;
 

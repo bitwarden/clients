@@ -29,7 +29,7 @@ export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
 
   readonly popover = input<PopoverComponent>(undefined, { alias: "bitPopoverTriggerFor" });
 
-  readonly position = input<string>(undefined);
+  readonly position = input<string>();
 
   private overlayRef: OverlayRef;
   private closedEventsSub: Subscription;

@@ -31,10 +31,10 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 })
 export class AvatarComponent implements OnChanges {
   readonly border = input(false);
-  readonly color = input<string>(undefined);
-  readonly id = input<string>(undefined);
-  readonly text = input<string>(undefined);
-  readonly title = input<string>(undefined);
+  readonly color = input<string>();
+  readonly id = input<string>();
+  readonly text = input<string>();
+  readonly title = input<string>();
   readonly size = input<SizeTypes>("default");
 
   private svgCharCount = 2;

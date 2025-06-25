@@ -29,8 +29,8 @@ import { BitSubmitDirective } from "./bit-submit.directive";
 export class BitFormButtonDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
 
-  readonly type = input<string>(undefined);
-  readonly disabled = input<boolean>(undefined);
+  readonly type = input<string>();
+  readonly disabled = input<boolean>();
 
   constructor(
     buttonComponent: ButtonLikeAbstraction,

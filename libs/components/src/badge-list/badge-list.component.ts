@@ -21,7 +21,7 @@ export class BadgeListComponent implements OnChanges {
   readonly items = input<string[]>([]);
   readonly truncate = input(true);
 
-  maxItems = input(undefined, { transform: transformMaxItems });
+  readonly maxItems = input(undefined, { transform: transformMaxItems });
 
   ngOnChanges() {
     const maxItems = this.maxItems();

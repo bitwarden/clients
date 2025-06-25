@@ -11,12 +11,12 @@ export abstract class NavBaseComponent {
   /**
    * Text to display in main content
    */
-  readonly text = input<string>(undefined);
+  readonly text = input<string>();
 
   /**
    * `aria-label` for main content
    */
-  readonly ariaLabel = input<string>(undefined);
+  readonly ariaLabel = input<string>();
 
   /**
    * Optional icon, e.g. `"bwi-collection-shared"`
@@ -34,14 +34,14 @@ export abstract class NavBaseComponent {
    *
    * See: {@link https://github.com/angular/angular/issues/24482}
    */
-  readonly route = input<RouterLink["routerLink"]>(undefined);
+  readonly route = input<RouterLink["routerLink"]>();
 
   /**
    * Passed to internal `routerLink`
    *
    * See {@link RouterLink.relativeTo}
    */
-  readonly relativeTo = input<RouterLink["relativeTo"]>(undefined);
+  readonly relativeTo = input<RouterLink["relativeTo"]>();
 
   /**
    * Passed to internal `routerLink`
