@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import {
   AfterContentChecked,
-  computed,
+  booleanAttribute,
   Directive,
   ElementRef,
   input,
@@ -29,9 +29,7 @@ import { FocusableElement } from "../shared/focusable-element";
   selector: "[appAutofocus], [bitAutofocus]",
 })
 export class AutofocusDirective implements AfterContentChecked {
-  appAutofocus = input<boolean | string>();
-
-  private autofocus = computed(() => this.appAutofocus() === "" || this.appAutofocus() === true);
+  readonly appAutofocus = input(undefined, { transform: booleanAttribute });
 
   // Track if we have already focused the element.
   private focused = false;
@@ -52,7 +50,7 @@ export class AutofocusDirective implements AfterContentChecked {
    */
   ngAfterContentChecked() {
     // We only want to focus the element on initial render and it's not a mobile browser
-    if (this.focused || !this.autofocus() || Utils.isMobileBrowser) {
+    if (this.focused || !this.appAutofocus() || Utils.isMobileBrowser) {
       return;
     }
 
