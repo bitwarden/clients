@@ -27,7 +27,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { VaultPopupScrollPositionService } from "../../../services/vault-popup-scroll-position.service";
 

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -87,13 +85,23 @@ export class EmergencyAccessService
   }
 
   /**
-   * Returns policies that apply to the grantor.
+   * Returns policies that apply to the grantor if the grantor is the owner of an org, otherwise returns null.
    * Intended for grantee.
    * @param id emergency access id
+   *
+   * @remarks
+   * The ONLY time the API call will return an array of policies is when the Grantor is the OWNER
+   * of an organization. In all other scenarios the server returns null. Even if the Grantor
+   * is the member of an org that has enforced MP policies, the server will still return null
+   * because in the Emergency Access Takeover process, the Grantor gets removed from the org upon
+   * takeover, and therefore the MP policies are irrelevant.
+   *
+   * The only scenario where a Grantor does NOT get removed from the org is when that Grantor is the
+   * OWNER of the org. In that case the server returns Grantor policies and we enforce them on the client.
    */
   async getGrantorPolicies(id: string): Promise<Policy[]> {
     const response = await this.emergencyAccessApiService.getEmergencyGrantorPolicies(id);
-    let policies: Policy[];
+    let policies: Policy[] = [];
     if (response.data != null && response.data.length > 0) {
       policies = response.data.map((policyResponse) => new Policy(new PolicyData(policyResponse)));
     }
@@ -299,6 +307,10 @@ export class EmergencyAccessService
 
     const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
 
+    if (encKey == null || !encKey[1].encryptedString) {
+      throw new Error("masterKeyEncryptedUserKey not found");
+    }
+
     const request = new EmergencyAccessPasswordRequest();
     request.newMasterPasswordHash = masterKeyHash;
     request.key = encKey[1].encryptedString;
@@ -405,6 +417,15 @@ export class EmergencyAccessService
   }
 
   private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
-    return (await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey)).encryptedString;
+    const publicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
+      publicKey,
+    );
+
+    if (publicKeyEncryptedUserKey == null || !publicKeyEncryptedUserKey.encryptedString) {
+      throw new Error("publicKeyEncryptedUserKey not found");
+    }
+
+    return publicKeyEncryptedUserKey.encryptedString;
   }
 }

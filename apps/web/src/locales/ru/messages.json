@@ -7614,9 +7614,9 @@
     "message": "Сервисный аккаунт изменен",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Введите или выберите проекты или секреты",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Введите или выберите проекты",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Введите для фильтрации",
@@ -7701,8 +7701,8 @@
     "message": "Токены доступа",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Новый токен доступа",
+  "createAccessToken": {
+    "message": "Создать токен доступа",
     "description": "Button label for creating a new access token."
   },
   "expires": {

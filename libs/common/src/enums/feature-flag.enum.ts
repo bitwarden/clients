@@ -13,8 +13,10 @@ export enum FeatureFlag {
   /* Admin Console Team */
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
   OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
+  CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
+  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
 
@@ -76,6 +78,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
   [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
+  [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -101,6 +104,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
 
