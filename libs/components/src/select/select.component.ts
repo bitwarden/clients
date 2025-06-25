@@ -42,14 +42,14 @@ let nextId = 0;
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
   host: {
-    "[id]": "this.id()",
+    "[id]": "id()",
   },
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
-  items = model<Option<T>[]>();
+  items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
   @Output() closed = new EventEmitter();
@@ -162,7 +162,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   /**Implemented as part of BitFormFieldControl */
-  id = input(`bit-multi-select-${nextId++}`);
+  readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
   // TODO: Skipped for migration because:
@@ -188,8 +188,8 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     return [key, this.ngControl?.errors[key]];
   }
 
-  private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
-    return items.find((item) => item.value === value);
+  private findSelectedOption(items: Option<T>[] | undefined, value: T): Option<T> | undefined {
+    return items?.find((item) => item.value === value);
   }
 
   /**Emits the closed event. */

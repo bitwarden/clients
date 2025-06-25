@@ -9,11 +9,11 @@ import { MappedOptionComponent } from "./option";
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
 export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
-  icon = input<string>();
+  readonly icon = input<string>();
 
-  value = input.required<T>();
+  readonly value = input.required<T>();
 
-  label = input.required<string>();
+  readonly label = input.required<string>();
 
-  disabled = input(undefined, { transform: booleanAttribute });
+  readonly disabled = input(undefined, { transform: booleanAttribute });
 }
