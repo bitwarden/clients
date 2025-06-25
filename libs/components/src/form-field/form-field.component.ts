@@ -12,7 +12,7 @@ import {
   ViewChild,
   signal,
   input,
-  model,
+  Input,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -42,7 +42,10 @@ export class BitFormFieldComponent implements AfterContentChecked {
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
   /** If `true`, remove the bottom border for `readonly` inputs */
-  disableReadOnlyBorder = model(false);
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input({ transform: booleanAttribute })
+  disableReadOnlyBorder = false;
 
   protected prefixHasChildren = signal(false);
   protected suffixHasChildren = signal(false);

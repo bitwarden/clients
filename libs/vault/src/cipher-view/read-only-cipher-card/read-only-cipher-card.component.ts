@@ -19,7 +19,7 @@ export class ReadOnlyCipherCardComponent implements AfterViewInit {
       // Delay model update until next change detection cycle
       setTimeout(() => {
         if (this.formFields) {
-          this.formFields.last.disableReadOnlyBorder.set(true);
+          this.formFields.last.disableReadOnlyBorder = true;
         }
       });
     }

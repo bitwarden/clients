@@ -1,11 +1,11 @@
 <ng-select
-  [items]="baseItems"
+  [items]="baseItems()"
   [(ngModel)]="selectedItems"
   (ngModelChange)="onChange($event)"
   (blur)="onBlur()"
   bindLabel="listName"
   groupBy="parentGrouping"
-  [placeholder]="placeholder"
+  [placeholder]="placeholder()"
   [loading]="loading()"
   [loadingText]="loadingText"
   notFoundText="{{ 'multiSelectNotFound' | i18n }}"

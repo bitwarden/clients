@@ -16,7 +16,7 @@
       <div
         [ngStyle]="{
           'padding-left': data.open
-            ? (variant() === 'tree' ? 2.5 : 1) + treeDepth * 1.5 + 'rem'
+            ? (variant() === 'tree' ? 2.5 : 1) + treeDepth() * 1.5 + 'rem'
             : '0',
         }"
         class="tw-relative tw-flex"
