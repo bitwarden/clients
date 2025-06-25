@@ -144,10 +144,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           Object.values(BuiltIn),
         );
 
-        let sdkService: BitwardenClient = undefined;
-        if (featureFlag == true) {
-          sdkService = system.sdk;
-        }
+   const sdkService = featureFlag ? system.sdk : undefined;
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
