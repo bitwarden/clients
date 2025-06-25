@@ -375,6 +375,8 @@ import {
   WINDOW,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
 
 /**
  * Provider definitions used in the ngModule.
@@ -1398,6 +1400,11 @@ const safeProviders: SafeProvider[] = [
     provide: KdfConfigService,
     useClass: DefaultKdfConfigService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: OrganizationInviteService,
+    useClass: DefaultOrganizationInviteService,
+    deps: [],
   }),
   safeProvider({
     provide: SetPasswordJitService,
