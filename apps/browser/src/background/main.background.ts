@@ -1045,13 +1045,6 @@ export default class MainBackground {
       this.sdkService,
     );
 
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
-    );
-
     this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
