@@ -64,11 +64,11 @@ describe("PasswordInputToggle", () => {
     });
 
     it("input is type password", () => {
-      expect(input.type).toBe("password");
+      expect(input.type!()).toBe("password");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck!()).toBe(undefined);
     });
   });
 
@@ -82,11 +82,11 @@ describe("PasswordInputToggle", () => {
     });
 
     it("input is type text", () => {
-      expect(input.type).toBe("text");
+      expect(input.type!()).toBe("text");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(false);
+      expect(input.spellcheck!()).toBe(false);
     });
   });
 
@@ -101,11 +101,11 @@ describe("PasswordInputToggle", () => {
     });
 
     it("input is type password", () => {
-      expect(input.type).toBe("password");
+      expect(input.type!()).toBe("password");
     });
 
     it("spellcheck is disabled", () => {
-      expect(input.spellcheck).toBe(undefined);
+      expect(input.spellcheck!()).toBe(undefined);
     });
   });
 });

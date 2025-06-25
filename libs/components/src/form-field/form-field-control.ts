@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 
-import { Signal } from "@angular/core";
+import { ModelSignal, Signal } from "@angular/core";
 
 // @ts-strict-ignore
 export type InputTypes =
@@ -22,8 +22,8 @@ export abstract class BitFormFieldControl {
   required: boolean;
   hasError: boolean;
   error: [string, any];
-  type?: Signal<InputTypes>;
-  spellcheck?: Signal<boolean>;
+  type?: ModelSignal<InputTypes>;
+  spellcheck?: ModelSignal<boolean | undefined>;
   readOnly?: boolean;
   focus?: () => void;
 }

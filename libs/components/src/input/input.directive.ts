@@ -10,6 +10,7 @@ import {
   Optional,
   Self,
   input,
+  model,
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
@@ -67,9 +68,9 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.hasError ? true : undefined;
   }
 
-  readonly type = input<InputTypes>();
+  type = model<InputTypes>();
 
-  readonly spellcheck = input<boolean>();
+  spellcheck = model<boolean>();
 
   // TODO: Skipped for migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
