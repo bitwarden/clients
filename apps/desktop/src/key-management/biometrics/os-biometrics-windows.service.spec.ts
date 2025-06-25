@@ -73,20 +73,13 @@ describe("OsBiometricsServiceWindows", function () {
 
   describe("getBiometricsFirstUnlockStatusForUser", () => {
     const userId = "test-user-id" as UserId;
-    it("should return Available when requirePasswordOnRestart is false", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(false);
-      const result = await service.getBiometricsFirstUnlockStatusForUser(userId);
-      expect(result).toBe(BiometricsStatus.Available);
-    });
-    it("should return Available when requirePasswordOnRestart is true and client key half is set", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(true);
+    it("should return Available when client key half is set", async () => {
       (service as any).clientKeyHalves = new Map<string, Uint8Array>();
       (service as any).clientKeyHalves.set(userId, new Uint8Array([1, 2, 3, 4]));
       const result = await service.getBiometricsFirstUnlockStatusForUser(userId);
       expect(result).toBe(BiometricsStatus.Available);
     });
-    it("should return UnlockNeeded when requirePasswordOnRestart is true and client key half is not set", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(true);
+    it("should return UnlockNeeded when client key half is not set", async () => {
       (service as any).clientKeyHalves = new Map<string, Uint8Array>();
       const result = await service.getBiometricsFirstUnlockStatusForUser(userId);
       expect(result).toBe(BiometricsStatus.UnlockNeeded);
@@ -94,14 +87,7 @@ describe("OsBiometricsServiceWindows", function () {
   });
 
   describe("getOrCreateBiometricEncryptionClientKeyHalf", () => {
-    it("should return null if getRequirePasswordOnRestart is false", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(false);
-      const result = await service.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
-      expect(result).toBeNull();
-    });
-
     it("should return cached key half if already present", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(true);
       const cachedKeyHalf = new Uint8Array([10, 20, 30]);
       (service as any).clientKeyHalves.set(userId.toString(), cachedKeyHalf);
       const result = await service.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
@@ -109,7 +95,6 @@ describe("OsBiometricsServiceWindows", function () {
     });
 
     it("should decrypt and return existing encrypted client key half", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(true);
       biometricStateService.getEncryptedClientKeyHalf = jest
         .fn()
         .mockResolvedValue(new Uint8Array([1, 2, 3]));
@@ -125,7 +110,6 @@ describe("OsBiometricsServiceWindows", function () {
     });
 
     it("should generate, encrypt, store, and cache a new key half if none exists", async () => {
-      biometricStateService.getRequirePasswordOnStart = jest.fn().mockResolvedValue(true);
       biometricStateService.getEncryptedClientKeyHalf = jest.fn().mockResolvedValue(null);
       const randomBytes = new Uint8Array([7, 8, 9]);
       cryptoFunctionService.randomBytes = jest.fn().mockResolvedValue(randomBytes);

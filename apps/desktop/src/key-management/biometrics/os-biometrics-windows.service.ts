@@ -24,7 +24,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
   private _osKeyHalf: string | null = null;
-  private clientKeyHalves = new Map<UserId, Uint8Array | null>();
+  private clientKeyHalves = new Map<UserId, Uint8Array>();
 
   constructor(
     private i18nService: I18nService,
@@ -87,7 +87,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
     const clientKeyHalf = await this.getOrCreateBiometricEncryptionClientKeyHalf(userId, key);
 
     const storageDetails = await this.getStorageDetails({
-      clientKeyHalfB64: clientKeyHalf ? Utils.fromBufferToB64(clientKeyHalf) : undefined,
+      clientKeyHalfB64: Utils.fromBufferToB64(clientKeyHalf),
     });
     await biometrics.setBiometricSecret(
       SERVICE,
@@ -160,12 +160,7 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   async getOrCreateBiometricEncryptionClientKeyHalf(
     userId: UserId,
     key: SymmetricCryptoKey,
-  ): Promise<Uint8Array | null> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    if (!requireClientKeyHalf) {
-      return null;
-    }
-
+  ): Promise<Uint8Array> {
     if (this.clientKeyHalves.has(userId)) {
       return this.clientKeyHalves.get(userId)!;
     }
@@ -190,11 +185,6 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   }
 
   async getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus> {
-    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    if (!requireClientKeyHalf) {
-      return BiometricsStatus.Available;
-    }
-
     if (this.clientKeyHalves.has(userId)) {
       return BiometricsStatus.Available;
     } else {
