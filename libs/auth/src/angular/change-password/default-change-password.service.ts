@@ -28,6 +28,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
   private async preparePasswordChange(
     passwordInputResult: PasswordInputResult,
     userId: UserId | null,
+    request: PasswordRequest | UpdateTempPasswordRequest,
   ): Promise<[UserKey, EncString]> {
     if (!userId) {
       throw new Error("userId not found");
@@ -51,22 +52,32 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       throw new Error("Could not decrypt user key");
     }
 
-    return await this.keyService.encryptUserKeyWithMasterKey(
+    const newKeyValue = await this.keyService.encryptUserKeyWithMasterKey(
       passwordInputResult.newMasterKey,
       decryptedUserKey,
     );
+
+    if (request instanceof PasswordRequest) {
+      request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
+      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+      request.masterPasswordHint = passwordInputResult.newPasswordHint;
+    } else if (request instanceof UpdateTempPasswordRequest) {
+      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
+      request.masterPasswordHint = passwordInputResult.newPasswordHint;
+    }
+
+    return newKeyValue;
   }
 
   async changePassword(passwordInputResult: PasswordInputResult, userId: UserId | null) {
+    const request = new PasswordRequest();
+
     const newMasterKeyEncryptedUserKey = await this.preparePasswordChange(
       passwordInputResult,
       userId,
+      request,
     );
 
-    const request = new PasswordRequest();
-    request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
-    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-    request.masterPasswordHint = passwordInputResult.newPasswordHint;
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
 
     try {
@@ -77,14 +88,14 @@ export class DefaultChangePasswordService implements ChangePasswordService {
   }
 
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
+    const request = new UpdateTempPasswordRequest();
+
     const newMasterKeyEncryptedUserKey = await this.preparePasswordChange(
       passwordInputResult,
       userId,
+      request,
     );
 
-    const request = new UpdateTempPasswordRequest();
-    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-    request.masterPasswordHint = passwordInputResult.newPasswordHint;
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
 
     try {
