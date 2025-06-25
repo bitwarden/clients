@@ -41,7 +41,7 @@ export class ToastComponent {
   readonly message = input.required<string | string[]>();
 
   /** An optional title to display over the message. */
-  title = input<string>();
+  readonly title = input<string>();
 
   /**
    * The percent width of the progress bar, from 0-100
