@@ -18,7 +18,7 @@ let nextId = 0;
 export class BitErrorComponent {
   @HostBinding() id = `bit-error-${nextId++}`;
 
-  readonly error = input<[string, any]>(undefined);
+  readonly error = input<[string, any]>();
 
   constructor(private i18nService: I18nService) {}
 
