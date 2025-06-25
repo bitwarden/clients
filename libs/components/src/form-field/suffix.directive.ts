@@ -15,7 +15,7 @@ export class BitSuffixDirective implements OnInit {
 
   ngOnInit() {
     if (this.iconButtonComponent) {
-      this.iconButtonComponent.size = "small";
+      this.iconButtonComponent.size.set("small");
     }
   }
 }

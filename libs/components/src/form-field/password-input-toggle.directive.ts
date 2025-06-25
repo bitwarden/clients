@@ -60,11 +60,11 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
     if (this.formField.input?.type) {
       this.toggled.set(this.formField.input.type() !== "password");
     }
-    this.button.icon = this.icon;
+    this.button.icon.set(this.icon);
   }
 
   private update() {
-    this.button.icon = this.icon;
+    this.button.icon.set(this.icon);
     if (this.formField.input?.type != null) {
       this.formField.input.type.set(this.toggled() ? "text" : "password");
       this.formField?.input?.spellcheck?.set(this.toggled() ? false : undefined);
