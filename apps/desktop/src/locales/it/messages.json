@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identità"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "typeSecureNote": {
     "message": "Nota sicura"
   },
@@ -3812,5 +3815,139 @@
     "message": "Scopri di più sull'agente SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Assegna a una raccolta"
+  },
+  "assignToTheseCollections": {
+    "message": "Assegna a queste raccolte"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere l'elemento."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere gli elementi."
+  },
+  "noCollectionsAssigned": {
+    "message": "Nessuna raccolta assegnata"
+  },
+  "assign": {
+    "message": "Assegna"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Solo i membri dell'organizzazione con accesso a queste raccolte saranno in grado di vedere gli elementi."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Hai selezionato $TOTAL_COUNT$ elementi. Di questi, $READONLY_COUNT$ non possono essere aggiornati perché non hai l'autorizzazione per la modifica.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Seleziona le raccolte da assegnare"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ elementi saranno trasferiti definitivamente all'organizzazione selezionata e non saranno più di tua proprietà.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ elementi saranno trasferiti definitivamente a $ORG$ e non saranno più di tua proprietà.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "Un elemento sarà trasferito definitivamente all'organizzazione selezionata e non sarà più di tua proprietà."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "Un elemento sarà trasferito definitivamente a $ORG$ e non sarà più di tua proprietà.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Raccolte assegnate correttamente"
+  },
+  "nothingSelected": {
+    "message": "La selezione è vuota."
+  },
+  "itemsMovedToOrg": {
+    "message": "Elementi spostati in $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Elemento spostato in $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Elementi selezionati spostati in $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

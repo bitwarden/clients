@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeNote": {
+    "message": "Not"
+  },
   "newItemHeader": {
     "message": "Yeni $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Bu sayfayı görüntüleme izniniz yok. Farklı bir hesapla giriş yapmayı deneyin."
+  },
+  "wasmNotSupported": {
+    "message": "Tarayıcınızda WebAssembly desteklenmiyor veya etkinleştirilmemişt. Bitwarden uygulamasını kullanmak için WebAssembly gereklidir.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

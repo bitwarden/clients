@@ -39,10 +39,7 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import {
-  isCipherViewRestricted,
-  RestrictedItemTypesService,
-} from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ChipSelectOption } from "@bitwarden/components";
 
@@ -230,7 +227,7 @@ export class VaultPopupListFiltersService {
             }
 
             // Check if cipher type is restricted (with organization exemptions)
-            if (isCipherViewRestricted(cipher, restrictions)) {
+            if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
               return false;
             }
 
@@ -296,30 +293,30 @@ export class VaultPopupListFiltersService {
       switchMap((userId) =>
         combineLatest([
           this.organizationService.memberOrganizations$(userId),
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ]),
       ),
-      map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [
+      map(([orgs, organizationDataOwnership]): [Organization[], boolean] => [
         orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
-        personalOwnershipApplies,
+        organizationDataOwnership,
       ]),
-      map(([orgs, personalOwnershipApplies]) => {
+      map(([orgs, organizationDataOwnership]) => {
         // When there are no organizations return an empty array,
         // resulting in the org filter being hidden
         if (!orgs.length) {
           return [];
         }
 
-        // When there is only one organization and personal ownership policy applies,
+        // When there is only one organization and organization data ownership policy applies,
         // return an empty array, resulting in the org filter being hidden
-        if (orgs.length === 1 && personalOwnershipApplies) {
+        if (orgs.length === 1 && organizationDataOwnership) {
           return [];
         }
 
         const myVaultOrg: ChipSelectOption<Organization>[] = [];
 
-        // Only add "My vault" if personal ownership policy does not apply
-        if (!personalOwnershipApplies) {
+        // Only add "My vault" if organization data ownership policy does not apply
+        if (!organizationDataOwnership) {
           myVaultOrg.push({
             value: { id: MY_VAULT_ID } as Organization,
             label: this.i18nService.t("myVault"),

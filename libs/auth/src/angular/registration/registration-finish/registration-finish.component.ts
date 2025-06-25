@@ -39,7 +39,7 @@ import { RegistrationFinishService } from "./registration-finish.service";
 export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   loading = true;
   submitting = false;
   email: string;
