@@ -16,7 +16,7 @@ let nextId = 0;
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  id = input(`bit-radio-input-${nextId++}`);
+  readonly id = input(`bit-radio-input-${nextId++}`);
 
   @HostBinding("class")
   protected inputClasses = [
@@ -77,7 +77,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {}
 
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()
@@ -89,7 +89,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   }
   private _disabled: boolean;
 
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   get required() {

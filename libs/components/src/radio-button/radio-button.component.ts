@@ -21,7 +21,7 @@ export class RadioButtonComponent {
     return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
   }
 
-  readonly value = input<unknown>(undefined);
+  readonly value = input<unknown>();
   readonly disabled = input(false);
 
   constructor(private groupComponent: RadioGroupComponent) {}
