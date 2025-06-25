@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, input } from "@angular/core";
+import { Component, EventEmitter, Input, Output, input } from "@angular/core";
 
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
@@ -41,7 +41,10 @@ export class ToastComponent {
   readonly message = input.required<string | string[]>();
 
   /** An optional title to display over the message. */
-  title = input<string>();
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
+  @Input() title?: string;
 
   /**
    * The percent width of the progress bar, from 0-100
