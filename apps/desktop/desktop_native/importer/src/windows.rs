@@ -1,3 +1,5 @@
+use std::sync::Mutex;
+
 use aes_gcm::aead::Aead;
 use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce};
 use anyhow::{anyhow, Result};
@@ -53,9 +55,17 @@ pub fn get_crypto_service(
     Ok(Box::new(WindowsCryptoService::new(local_state)))
 }
 
+pub fn configure_windows_crypto_service(admin_exe_path: &String, service_exe_path: &String) {
+    *ADMIN_EXE_PATH.lock().unwrap() = Some(admin_exe_path.clone());
+    *SERVICE_EXE_PATH.lock().unwrap() = Some(service_exe_path.clone());
+}
+
 //
 // Private
 //
+
+static ADMIN_EXE_PATH: Mutex<Option<String>> = Mutex::new(None);
+static SERVICE_EXE_PATH: Mutex<Option<String>> = Mutex::new(None);
 
 //
 // CryptoService
@@ -167,10 +177,9 @@ impl WindowsCryptoService {
             ));
         }
 
-        // TODO: Pass in the paths to the admin and service executables
         let key_base64 = abe::decrypt_with_admin_and_service(
-            "C:\\devel\\bw-chrome\\rusty\\target\\debug\\admin.exe",
-            "C:\\devel\\bw-chrome\\rusty\\target\\debug\\service.exe",
+            &get_admin_exe_path()?,
+            &get_service_exe_path()?,
             &self.app_bound_encrypted_key.as_ref().unwrap(),
         )
         .await?;
@@ -298,4 +307,20 @@ fn unprotect_data_win(data: &[u8]) -> Result<Vec<u8>> {
     }
 
     Ok(output_slice.to_vec())
+}
+
+fn get_admin_exe_path() -> Result<String> {
+    ADMIN_EXE_PATH
+        .lock()
+        .unwrap()
+        .clone()
+        .ok_or_else(|| anyhow!("admin.exe path is not set"))
+}
+
+fn get_service_exe_path() -> Result<String> {
+    SERVICE_EXE_PATH
+        .lock()
+        .unwrap()
+        .clone()
+        .ok_or_else(|| anyhow!("service.exe path is not set"))
 }
