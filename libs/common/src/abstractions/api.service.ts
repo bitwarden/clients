@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
@@ -19,7 +21,6 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
@@ -206,7 +207,7 @@ export abstract class ApiService {
   deleteManyCiphersAdmin: (request: CipherBulkDeleteRequest) => Promise<any>;
   putMoveCiphers: (request: CipherBulkMoveRequest) => Promise<any>;
   putShareCipher: (id: string, request: CipherShareRequest) => Promise<CipherResponse>;
-  putShareCiphers: (request: CipherBulkShareRequest) => Promise<any>;
+  putShareCiphers: (request: CipherBulkShareRequest) => Promise<ListResponse<CipherResponse>>;
   putCipherCollections: (
     id: string,
     request: CipherCollectionsRequest,
@@ -226,16 +227,6 @@ export abstract class ApiService {
     request: CipherBulkRestoreRequest,
   ) => Promise<ListResponse<CipherResponse>>;
 
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  postCipherAttachmentAdminLegacy: (id: string, data: FormData) => Promise<CipherResponse>;
   postCipherAttachment: (
     id: string,
     request: AttachmentRequest,
@@ -268,11 +259,6 @@ export abstract class ApiService {
     organizationId: string,
     request: CollectionRequest,
   ) => Promise<CollectionDetailsResponse>;
-  putCollectionUsers: (
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ) => Promise<any>;
   putCollection: (
     organizationId: string,
     id: string,
@@ -280,11 +266,6 @@ export abstract class ApiService {
   ) => Promise<CollectionDetailsResponse>;
   deleteCollection: (organizationId: string, id: string) => Promise<any>;
   deleteManyCollections: (organizationId: string, collectionIds: string[]) => Promise<any>;
-  deleteCollectionUser: (
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ) => Promise<any>;
 
   getGroupUsers: (organizationId: string, id: string) => Promise<string[]>;
   deleteGroupUser: (organizationId: string, id: string, organizationUserId: string) => Promise<any>;

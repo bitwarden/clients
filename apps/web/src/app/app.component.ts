@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
+import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -34,7 +34,7 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
-  PersonalOwnershipPolicy,
+  OrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
@@ -49,6 +49,7 @@ const IdleTimeout = 60000 * 10; // 10 minutes
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnDestroy, OnInit {
   private lastActivity: Date = null;
@@ -59,7 +60,6 @@ export class AppComponent implements OnDestroy, OnInit {
   loading = false;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private cipherService: CipherService,
@@ -85,15 +85,16 @@ export class AppComponent implements OnDestroy, OnInit {
     private accountService: AccountService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private deviceTrustToastService: DeviceTrustToastService,
+    private readonly destoryRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   ngOnInit() {
-    this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
-      this.document.documentElement.lang = locale;
-    });
-
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
@@ -242,7 +243,7 @@ export class AppComponent implements OnDestroy, OnInit {
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
-      new PersonalOwnershipPolicy(),
+      new OrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
     ]);
@@ -281,7 +282,7 @@ export class AppComponent implements OnDestroy, OnInit {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(),
+      this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),

@@ -1,5 +1,4 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { autofill } from "desktop_native/napi";
 import {
   Subject,
   distinctUntilChanged,
@@ -33,6 +32,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { autofill } from "@bitwarden/desktop-napi";
 
 import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
 import {

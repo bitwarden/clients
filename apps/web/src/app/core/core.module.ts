@@ -32,8 +32,8 @@ import {
   SetPasswordJitService,
   SsoComponentService,
   LoginDecryptionOptionsService,
-  TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
+  ChangePasswordService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -110,11 +110,11 @@ import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarde
 import { flagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import {
+  WebChangePasswordService,
   WebSetPasswordJitService,
   WebRegistrationFinishService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
-  WebTwoFactorAuthComponentService,
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
 } from "../auth";
@@ -123,6 +123,7 @@ import { AcceptOrganizationInviteService } from "../auth/organization-invite/acc
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
+import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
@@ -266,12 +267,6 @@ const safeProviders: SafeProvider[] = [
     useClass: WebLockComponentService,
     deps: [],
   }),
-  // TODO: PM-18182 - Refactor component services into lazy loaded modules
-  safeProvider({
-    provide: TwoFactorAuthComponentService,
-    useClass: WebTwoFactorAuthComponentService,
-    deps: [],
-  }),
   safeProvider({
     provide: SetPasswordJitService,
     useClass: WebSetPasswordJitService,
@@ -372,6 +367,16 @@ const safeProviders: SafeProvider[] = [
     provide: SshImportPromptService,
     useClass: DefaultSshImportPromptService,
     deps: [DialogService, ToastService, PlatformUtilsService, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: ChangePasswordService,
+    useClass: WebChangePasswordService,
+    deps: [
+      KeyServiceAbstraction,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      UserKeyRotationService,
+    ],
   }),
 ];
 

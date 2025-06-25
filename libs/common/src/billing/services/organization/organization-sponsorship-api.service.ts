@@ -16,7 +16,10 @@ export class OrganizationSponsorshipApiService
   ): Promise<ListResponse<OrganizationSponsorshipInvitesResponse>> {
     const r = await this.apiService.send(
       "GET",
-      "/organization/sponsorship/" + sponsoredOrgId + "/sponsored",
+      "/organization/sponsorship/" +
+        (this.platformUtilsService.isSelfHost() ? "self-hosted/" : "") +
+        sponsoredOrgId +
+        "/sponsored",
       null,
       true,
       true,
@@ -44,11 +47,30 @@ export class OrganizationSponsorshipApiService
   ): Promise<void> {
     const basePath = "/organization/sponsorship/";
     const hostPath = this.platformUtilsService.isSelfHost() ? "self-hosted/" : "";
-    const queryParam = `?isAdminInitiated=${isAdminInitiated}`;
 
     return await this.apiService.send(
       "DELETE",
-      basePath + hostPath + sponsoringOrganizationId + queryParam,
+      basePath + hostPath + sponsoringOrganizationId,
+      null,
+      true,
+      false,
+    );
+  }
+
+  async deleteAdminInitiatedRevokeSponsorship(
+    sponsoringOrganizationId: string,
+    sponsoredFriendlyName: string,
+  ): Promise<void> {
+    const basePath = "/organization/sponsorship/";
+    const hostPath = this.platformUtilsService.isSelfHost() ? "self-hosted/" : "";
+    return await this.apiService.send(
+      "DELETE",
+      basePath +
+        hostPath +
+        sponsoringOrganizationId +
+        "/" +
+        encodeURIComponent(sponsoredFriendlyName) +
+        "/revoke",
       null,
       true,
       false,

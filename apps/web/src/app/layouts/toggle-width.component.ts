@@ -12,7 +12,6 @@ import { NavigationModule } from "@bitwarden/components";
     *ngIf="isDev"
     (click)="toggleWidth()"
   ></bit-nav-item>`,
-  standalone: true,
   imports: [CommonModule, NavigationModule],
 })
 export class ToggleWidthComponent {

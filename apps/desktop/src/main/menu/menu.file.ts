@@ -99,7 +99,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeSecureNote"),
+        label: this.localize("typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
@@ -114,8 +114,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get addNewFolder(): MenuItemConstructorOptions {
     return {
-      id: "addNewFolder",
-      label: this.localize("addNewFolder"),
+      id: "newFolder",
+      label: this.localize("newFolder"),
       click: () => this.sendMessage("newFolder"),
       enabled: !this._isLocked,
     };

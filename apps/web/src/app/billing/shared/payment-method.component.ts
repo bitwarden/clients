@@ -35,6 +35,7 @@ import {
 
 @Component({
   templateUrl: "payment-method.component.html",
+  standalone: false,
 })
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;
@@ -142,6 +143,8 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
     }
+    // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+    // eslint-disable-next-line no-constant-binary-expression
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
     this.loading = false;
     // If the flag `launchPaymentModalAutomatically` is set to true,

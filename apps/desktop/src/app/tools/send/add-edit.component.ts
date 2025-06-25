@@ -22,7 +22,6 @@ import { CalloutModule, DialogService, ToastService } from "@bitwarden/component
 @Component({
   selector: "app-send-add-edit",
   templateUrl: "add-edit.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, ReactiveFormsModule, CalloutModule],
 })
 export class AddEditComponent extends BaseAddEditComponent {

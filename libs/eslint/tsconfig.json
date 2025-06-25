@@ -1,5 +1,5 @@
 {
-  "extends": "../shared/tsconfig",
-  "compilerOptions": {},
-  "exclude": ["node_modules", "dist"]
+  "extends": "../../tsconfig.base",
+  "exclude": ["node_modules", "dist"],
+  "files": ["empty.ts"]
 }

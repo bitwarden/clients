@@ -51,7 +51,6 @@ import { ReplacePipe } from "./replace.pipe";
 
 @Component({
   templateUrl: "manage-clients.component.html",
-  standalone: true,
   imports: [
     AvatarModule,
     TableModule,

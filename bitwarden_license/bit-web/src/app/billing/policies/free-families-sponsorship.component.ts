@@ -14,7 +14,8 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicy {
 }
 
 @Component({
-  selector: "policy-personal-ownership",
+  selector: "policy-free-families-sponsorship",
   templateUrl: "free-families-sponsorship.component.html",
+  standalone: false,
 })
 export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyComponent {}

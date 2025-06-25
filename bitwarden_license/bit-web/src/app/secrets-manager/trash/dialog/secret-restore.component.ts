@@ -15,6 +15,7 @@ export interface SecretRestoreOperation {
 
 @Component({
   templateUrl: "./secret-restore.component.html",
+  standalone: false,
 })
 export class SecretRestoreDialogComponent {
   constructor(

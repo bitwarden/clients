@@ -33,7 +33,6 @@ import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./s
 import { VaultOnboardingService, VaultOnboardingTasks } from "./services/vault-onboarding.service";
 
 @Component({
-  standalone: true,
   imports: [OnboardingModule, CommonModule, JslibModule, LinkModule],
   providers: [
     {
@@ -167,7 +166,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
         takeUntil(this.destroy$),
       )

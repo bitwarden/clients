@@ -23,7 +23,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -35,12 +34,9 @@ import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 
-import { AccountDeprovisioningBannerService } from "./services/account-deprovisioning-banner.service";
-
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,
@@ -65,7 +61,6 @@ export class OrganizationLayoutComponent implements OnInit {
   organizationIsUnmanaged$: Observable<boolean>;
   enterpriseOrganization$: Observable<boolean>;
 
-  showAccountDeprovisioningBanner$: Observable<boolean>;
   protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
   protected canShowPoliciesTab$: Observable<boolean>;
@@ -77,7 +72,6 @@ export class OrganizationLayoutComponent implements OnInit {
     private configService: ConfigService,
     private policyService: PolicyService,
     private providerService: ProviderService,
-    protected bannerService: AccountDeprovisioningBannerService,
     private accountService: AccountService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
@@ -99,20 +93,6 @@ export class OrganizationLayoutComponent implements OnInit {
     );
     this.showSponsoredFamiliesDropdown$ =
       this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
-
-    this.showAccountDeprovisioningBanner$ = combineLatest([
-      this.bannerService.showBanner$,
-      this.configService.getFeatureFlag$(FeatureFlag.AccountDeprovisioningBanner),
-      this.organization$,
-    ]).pipe(
-      map(
-        ([dismissedOrgs, featureFlagEnabled, organization]) =>
-          organization.productTierType === ProductTierType.Enterprise &&
-          organization.isAdmin &&
-          !dismissedOrgs?.includes(organization.id) &&
-          featureFlagEnabled,
-      ),
-    );
 
     this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));
 

@@ -28,6 +28,8 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { closeFido2Popout, openFido2Popout } from "../../../vault/popup/utils/vault-popout-window";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";

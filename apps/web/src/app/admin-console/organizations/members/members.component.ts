@@ -46,10 +46,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -64,6 +67,10 @@ import { GroupApiService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
+import {
+  AccountRecoveryDialogComponent,
+  AccountRecoveryDialogResultType,
+} from "./components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
@@ -81,6 +88,7 @@ import {
   ResetPasswordDialogResult,
 } from "./components/reset-password.component";
 import { DeleteManagedMemberWarningService } from "./services/delete-managed-member/delete-managed-member-warning.service";
+import { OrganizationUserService } from "./services/organization-user/organization-user.service";
 
 class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView> {
   protected statusType = OrganizationUserStatusType;
@@ -88,6 +96,7 @@ class MembersTableDataSource extends PeopleTableDataSource<OrganizationUserView>
 
 @Component({
   templateUrl: "members.component.html",
+  standalone: false,
 })
 export class MembersComponent extends BaseMembersComponent<OrganizationUserView> {
   userType = OrganizationUserType;
@@ -101,13 +110,16 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
+  protected showUserManagementControls$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 69;
   protected rowHeightClass = `tw-h-[69px]`;
 
+  private organizationUsersCount = 0;
+
   get occupiedSeatCount(): number {
-    return this.dataSource.activeUserCount;
+    return this.organizationUsersCount;
   }
 
   constructor(
@@ -134,6 +146,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     private collectionService: CollectionService,
     private billingApiService: BillingApiServiceAbstraction,
     protected deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
+    private configService: ConfigService,
+    private organizationUserService: OrganizationUserService,
   ) {
     super(
       apiService,
@@ -213,6 +227,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           );
 
           this.orgIsOnSecretsManagerStandalone = billingMetadata.isOnSecretsManagerStandalone;
+          this.organizationUsersCount = billingMetadata.organizationOccupiedSeats;
 
           await this.load();
 
@@ -228,6 +243,17 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
         takeUntilDestroyed(),
       )
       .subscribe();
+
+    // Setup feature flag-dependent observables
+    const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+      map(
+        (separateCustomRolePermissionsEnabled) =>
+          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+      ),
+    );
   }
 
   async getUsers(): Promise<OrganizationUserView[]> {
@@ -308,15 +334,24 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async confirmUser(user: OrganizationUserView, publicKey: Uint8Array): Promise<void> {
-    const orgKey = await this.keyService.getOrgKey(this.organization.id);
-    const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
-    const request = new OrganizationUserConfirmRequest();
-    request.key = key.encryptedString;
-    await this.organizationUserApiService.postOrganizationUserConfirm(
-      this.organization.id,
-      user.id,
-      request,
-    );
+    if (
+      await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
+    ) {
+      this.organizationUserService
+        .confirmUser(this.organization, user, publicKey)
+        .pipe(takeUntilDestroyed())
+        .subscribe();
+    } else {
+      const orgKey = await this.keyService.getOrgKey(this.organization.id);
+      const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
+      const request = new OrganizationUserConfirmRequest();
+      request.key = key.encryptedString;
+      await this.organizationUserApiService.postOrganizationUserConfirm(
+        this.organization.id,
+        user.id,
+        request,
+      );
+    }
   }
 
   async revoke(user: OrganizationUserView) {
@@ -719,11 +754,44 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async resetPassword(user: OrganizationUserView) {
+    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
+
+    if (changePasswordRefactorFlag) {
+      if (!user || !user.email || !user.id) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("orgUserDetailsNotFound"),
+        });
+        this.logService.error("Org user details not found when attempting account recovery");
+
+        return;
+      }
+
+      const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user.email,
+          organizationId: this.organization.id as OrganizationId,
+          organizationUserId: user.id,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AccountRecoveryDialogResultType.Ok) {
+        await this.load();
+      }
+
+      return;
+    }
+
     const dialogRef = ResetPasswordComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         email: user != null ? user.email : null,
-        organizationId: this.organization.id,
+        organizationId: this.organization.id as OrganizationId,
         id: user != null ? user.id : null,
       },
     });

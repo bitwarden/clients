@@ -19,6 +19,7 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
+import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
 import { VersionService } from "../platform/version.service";
@@ -43,6 +44,7 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private configService: ConfigService,
     private bulkEncryptService: BulkEncryptService,
+    private taskService: TaskService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -75,6 +77,7 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
       void this.ipcService.init();
+      this.taskService.listenForTaskNotifications();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);

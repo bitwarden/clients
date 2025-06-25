@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Új elem, megnyitás új ablakban",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Szerkesztés mentés előtt",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ mentésre került a Bitwardenben.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "mentésre került a Bitwardenbe.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ frissítésre került a Bitwardenben.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "frissítésre került a Bitwardenben.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "$ITEMTYPE$, $ITEMNAME$ választás",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Mentés új bejelentkezésként",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Bejelentkezés frissítése",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Feloldás a bejelentkezés mentéséhez",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Bejelentkezés mentése",
@@ -1355,8 +1365,8 @@
   "featureUnavailable": {
     "message": "A funkció nem érhető el."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Titkosítási kulcs migráció szükséges. Jelentkezzünk be a webes széfen keresztül a titkosítási kulcs frissítéséhez."
+  "legacyEncryptionUnsupported": {
+    "message": "A régi titkosítás már nem támogatott. Lépjünk kapcsolatba a támogatással a fiók helyreállításához."
   },
   "premiumMembership": {
     "message": "Prémium tagság"
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autofill suggestions"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Az automatikus kitöltési javaslatok könnyű megtalálása"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Kapcsoljuk ki a böngésző automatikus kitöltési beállításait, így azok nem ütköznek a Bitwardennel."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "$BROWSER$ automatikus kitöltés kikapcsolása",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Automat kitöltés bekapcsolása"
   },
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
@@ -1894,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeNote": {
+    "message": "Jegyzet"
+  },
   "newItemHeader": {
     "message": "Új $TYPE$",
     "placeholders": {
@@ -2125,8 +2156,8 @@
   "setYourPinCode": {
     "message": "A pinkód beállítása a Bitwarden feloldásához. A pinkód beállítás alaphelyzetbe kerül, ha teljesen kijelentkezünk az alkalmazásból."
   },
-  "setYourPinCode1": {
-    "message": "A Bitwarden feloldásához a PIN kódot használjuk a mesterjelszó helyett. A PIN kód alaphelyzetbe kerül, ha teljesen kijelentkezünk a Bitwardenből."
+  "setPinCode": {
+    "message": "Ezt a PIN kódot használhatjuk a Bitwarden feloldásához. A PIN kód alaphelyzetbe kerül, ha valaha is teljesen kijelentkezünk az alkalmazásból."
   },
   "pinRequired": {
     "message": "A pinkód szükséges."
@@ -2176,6 +2207,9 @@
   "useThisPassword": {
     "message": "Jelszó használata"
   },
+  "useThisPassphrase": {
+    "message": "Jelmondat használata"
+  },
   "useThisUsername": {
     "message": "Felhasználónév használata"
   },
@@ -2198,15 +2232,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Időkifutási művelet"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Új testreszabási opciók"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Szabjuk testre tárhely élményét gyors másolási műveletekkel, kompakt móddal és még sok mással!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Az összes megjelenési beállítás megtekintése"
   },
   "lock": {
     "message": "Lezárás",
@@ -2493,6 +2518,10 @@
   "change": {
     "message": "Módosítás"
   },
+  "changePassword": {
+    "message": "Jelszó módosítása",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Jelszó módosítás - $ITEMNAME$",
     "placeholders": {
@@ -2501,6 +2530,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Veszélyes jelszó"
   },
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
@@ -2535,6 +2567,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "A webhely jelszava veszélyben van. $ORGANIZATION$ kérte a megváltoztatását.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ azt akarja, hogy változtassuk meg ezt a jelszót, mert veszélyben van. A jelszó módosításához navigáljunk fiók beállításokhoz.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Tekintsük át és módosítsuk az egyik veszélyeztetett jelszót."
@@ -2654,6 +2706,10 @@
   "allSends": {
     "message": "Összes Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "A maximális hozzáférések száma elérésre került.",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Szöveg elrejtése alapértelmezetten"
@@ -2995,14 +3051,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Nincs egyedi azonosító."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával."
+  },
+  "organizationName": {
+    "message": "Szervezet neve"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector tartomány"
   },
   "leaveOrganization": {
     "message": "Szervezet elhagyása"
@@ -3588,12 +3644,12 @@
   "trustUser": {
     "message": "Megbízható felhasználó"
   },
-  "sendsNoItemsTitle": {
-    "message": "Nincsenek natív Send elemek.",
+  "sendsTitleNoItems": {
+    "message": "Érzékeny információt küldése biztonságosan",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "A Send használatával biztonságosan megoszthatjuk a titkosított információkat bárkivel.",
+  "sendsBodyNoItems": {
+    "message": "Fájlok vagy adatok megosztása biztonságosan bárkivel, bármilyen platformon. Az információk titkosítva maradnak a végpontokon, korlátozva a kitettséget.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4533,6 +4589,12 @@
   "downloadFromBitwardenNow": {
     "message": "Letöltés most a bitwarden.com webhelyről"
   },
+  "getItOnGooglePlay": {
+    "message": "Beszerzés a Google Playen"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Letöltés az App Store-ból"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Biztosan véglegesen törlésre kerüljön ez a melléklet?"
   },
@@ -4994,6 +5056,18 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "A biometrikus feloldás jelenleg ismeretlen okból nem érhető el."
   },
+  "unlockVault": {
+    "message": "A széf feloldása másodpercek alatt"
+  },
+  "unlockVaultDesc": {
+    "message": "Testreszabhatjuk a feloldási és időtúllépési beállításokat a széf gyorsabb elérése érdekében."
+  },
+  "unlockPinSet": {
+    "message": "PIN beállítás feloldása"
+  },
+  "unlockBiometricSet": {
+    "message": "Biometriai beállítások feloldása"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5243,6 +5317,9 @@
   "secureDevicesBody": {
     "message": "Mentsünk el a korlátlan jelszót korlátlan számú eszközön a Bitwarden mobil, böngésző és asztali alkalmazásokkal."
   },
+  "nudgeBadgeAria": {
+    "message": "1 értesítés"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Létező jelszavak importálása"
   },
@@ -5255,8 +5332,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Üdvözlet a széfben!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Az aktuális oldal elemeinek automatikus kitöltése\nKedvenc elemek a könnyű hozzáférés érdekében\nValami más keresése a széfben"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Az aktuális oldal elemeinek automatikus kitöltése"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Kedvenc elemek a könnyű hozzáférés érdekében"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Valami más keresése a széfben"
   },
   "newLoginNudgeTitle": {
     "message": "Idő megtakarítás automatikus kitöltéssel"
@@ -5306,5 +5389,29 @@
     "message": "További információ az SSH ügynökről",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Jelszavak gyors létrehozása"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Könnyen létrehozhatunk erős és egyedi jelszavakat a gombra kattintva.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "a bejelentkezések biztonságának megőrzéséhez.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Könnyedén hozhatunk létre erős és egyedi jelszavakat a Jelszó generálása gombra kattintva, amely segít megőrizni a bejelentkezések biztonságát.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
+  },
+  "wasmNotSupported": {
+    "message": "A WebAssembly nem támogatott a böngészőben vagy nincs engedélyezve. A WebAssembly szükséges a Bitwarden alkalmazás használatához.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

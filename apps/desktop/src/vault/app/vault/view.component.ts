@@ -3,11 +3,13 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
@@ -17,7 +19,6 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -42,9 +43,11 @@ const BroadcasterSubscriptionId = "ViewComponent";
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
+  standalone: false,
 })
 export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
 
   constructor(
     cipherService: CipherService,
@@ -104,8 +107,6 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     );
   }
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
-
   ngOnInit() {
     super.ngOnInit();
 
@@ -119,6 +120,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         }
       });
     });
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   ngOnDestroy() {
@@ -126,12 +128,19 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
-  async ngOnChanges() {
+  async ngOnChanges(changes: SimpleChanges) {
     if (this.cipher?.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [this.cipherId as CipherId],
       });
       return;
+    }
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
+
+    if (changes["cipherId"]) {
+      if (changes["cipherId"].currentValue !== changes["cipherId"].previousValue) {
+        this.showPrivateKey = false;
+      }
     }
   }
 

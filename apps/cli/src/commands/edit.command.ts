@@ -24,6 +24,7 @@ import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class EditCommand {
   constructor(
@@ -34,6 +35,7 @@ export class EditCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(
@@ -95,6 +97,13 @@ export class EditCommand {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
     cipherView = CipherExport.toView(req, cipherView);
+
+    const isCipherRestricted =
+      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+    if (isCipherRestricted) {
+      return Response.error("Editing this item type is restricted by organizational policy.");
+    }
+
     const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       const updatedCipher = await this.cipherService.updateWithServer(encCipher);
@@ -195,7 +204,7 @@ export class EditCommand {
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
       const request = new CollectionRequest();
-      request.name = (await this.encryptService.encrypt(req.name, orgKey)).encryptedString;
+      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
       request.externalId = req.externalId;
       request.groups = groups;
       request.users = users;

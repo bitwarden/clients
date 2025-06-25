@@ -14,10 +14,9 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
+import { deepLinkGuard } from "../../auth/guards/deep-link/deep-link.guard";
 
 import { VaultModule } from "./collections/vault.module";
-import { isEnterpriseOrgGuard } from "./guards/is-enterprise-org.guard";
 import { organizationPermissionsGuard } from "./guards/org-permissions.guard";
 import { organizationRedirectGuard } from "./guards/org-redirect.guard";
 import { AdminConsoleIntegrationsComponent } from "./integrations/integrations.component";
@@ -42,10 +41,7 @@ const routes: Routes = [
       },
       {
         path: "integrations",
-        canActivate: [
-          isEnterpriseOrgGuard(false),
-          organizationPermissionsGuard(canAccessIntegrations),
-        ],
+        canActivate: [organizationPermissionsGuard(canAccessIntegrations)],
         component: AdminConsoleIntegrationsComponent,
         data: {
           titleId: "integrations",

@@ -3,7 +3,6 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { filter, map, switchMap } from "rxjs/operators";
 
-import { BitwardenLogo } from "@bitwarden/auth/angular";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -13,15 +12,17 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ProviderKey } from "@bitwarden/common/types/key";
+import { Icons } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
 @Component({
   templateUrl: "./setup-business-unit.component.html",
+  standalone: false,
 })
 export class SetupBusinessUnitComponent extends BaseAcceptComponent {
-  protected bitwardenLogo = BitwardenLogo;
+  protected bitwardenLogo = Icons.BitwardenLogo;
 
   failedMessage = "emergencyInviteAcceptFailed";
   failedShortMessage = "emergencyInviteAcceptFailedShort";

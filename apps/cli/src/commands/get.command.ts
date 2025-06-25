@@ -27,7 +27,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -48,6 +48,7 @@ import { SendResponse } from "../tools/send/models/send.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 import { DownloadCommand } from "./download.command";
 
@@ -66,6 +67,7 @@ export class GetCommand extends DownloadCommand {
     private eventCollectionService: EventCollectionService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {
     super(encryptService, apiService);
   }
@@ -110,16 +112,16 @@ export class GetCommand extends DownloadCommand {
     }
   }
 
-  private async getCipherView(id: string): Promise<CipherView | CipherView[]> {
+  private async getCipherView(id: string, userId: UserId): Promise<CipherView | CipherView[]> {
     let decCipher: CipherView = null;
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (Utils.isGuid(id)) {
-      const cipher = await this.cipherService.get(id, activeUserId);
+      const cipher = await this.cipherService.get(id, userId);
       if (cipher != null) {
-        decCipher = await this.cipherService.decrypt(cipher, activeUserId);
+        decCipher = await this.cipherService.decrypt(cipher, userId);
       }
     } else if (id.trim() !== "") {
-      let ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      let ciphers = await this.cipherService.getAllDecrypted(userId);
       ciphers = this.searchService.searchCiphersBasic(ciphers, id);
       if (ciphers.length > 1) {
         return ciphers;
@@ -133,19 +135,44 @@ export class GetCommand extends DownloadCommand {
   }
 
   private async getCipher(id: string, filter?: (c: CipherView) => boolean) {
-    let decCipher = await this.getCipherView(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    let decCipher = await this.getCipherView(id, activeUserId);
     if (decCipher == null) {
       return Response.notFound();
     }
+
     if (Array.isArray(decCipher)) {
+      // Apply restricted ciphers filter
+      decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(decCipher);
+
+      if (decCipher.length === 0) {
+        return Response.error("Access to this item type is restricted by organizational policy.");
+      }
+
       if (filter != null) {
         decCipher = decCipher.filter(filter);
-        if (decCipher.length === 1) {
-          decCipher = decCipher[0];
-        }
       }
-      if (Array.isArray(decCipher)) {
+
+      if (decCipher.length === 0) {
+        return Response.notFound();
+      }
+
+      if (decCipher.length === 1) {
+        decCipher = decCipher[0];
+      } else {
         return Response.multipleResults(decCipher.map((c) => c.id));
+      }
+    } else {
+      const isCipherRestricted =
+        await this.cliRestrictedItemTypesService.isCipherRestricted(decCipher);
+      if (isCipherRestricted) {
+        return Response.error("Access to this item type is restricted by organizational policy.");
+      }
+
+      // Apply filter if provided to single cipher
+      if (filter != null && !filter(decCipher)) {
+        return Response.notFound();
       }
     }
 
@@ -317,7 +344,8 @@ export class GetCommand extends DownloadCommand {
       return cipherResponse;
     }
 
-    const cipher = await this.getCipherView(itemId);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipher = await this.getCipherView(itemId, activeUserId);
     if (
       cipher == null ||
       Array.isArray(cipher) ||
@@ -345,12 +373,10 @@ export class GetCommand extends DownloadCommand {
       return Response.multipleResults(attachments.map((a) => a.id));
     }
 
-    const account = await firstValueFrom(this.accountService.activeAccount$);
     const canAccessPremium = await firstValueFrom(
-      this.accountProfileService.hasPremiumFromAnySource$(account.id),
+      this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
     );
     if (!canAccessPremium) {
-      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const originalCipher = await this.cipherService.get(cipher.id, activeUserId);
       if (originalCipher == null || originalCipher.organizationId == null) {
         return Response.error("Premium status is required to use this feature.");
@@ -374,11 +400,20 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
-    const key =
-      attachments[0].key != null
-        ? attachments[0].key
-        : await this.keyService.getOrgKey(cipher.organizationId);
-    return await this.saveAttachmentToFile(url, key, attachments[0].fileName, options.output);
+    const decryptBufferFn = (resp: globalThis.Response) =>
+      this.cipherService.getDecryptedAttachmentBuffer(
+        cipher.id as CipherId,
+        attachments[0],
+        resp,
+        activeUserId,
+      );
+
+    return await this.saveAttachmentToFile(
+      url,
+      attachments[0].fileName,
+      decryptBufferFn,
+      options.output,
+    );
   }
 
   private async getFolder(id: string) {
@@ -453,10 +488,9 @@ export class GetCommand extends DownloadCommand {
 
       const response = await this.apiService.getCollectionAccessDetails(options.organizationId, id);
       const decCollection = new CollectionView(response);
-      decCollection.name = await this.encryptService.decryptToUtf8(
+      decCollection.name = await this.encryptService.decryptString(
         new EncString(response.name),
         orgKey,
-        `orgkey-${options.organizationId}`,
       );
       const groups =
         response.groups == null

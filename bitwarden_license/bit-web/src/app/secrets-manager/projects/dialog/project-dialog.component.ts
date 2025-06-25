@@ -27,6 +27,7 @@ export interface ProjectOperation {
 
 @Component({
   templateUrl: "./project-dialog.component.html",
+  standalone: false,
 })
 export class ProjectDialogComponent implements OnInit {
   protected formGroup = new FormGroup({

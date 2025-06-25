@@ -6,7 +6,6 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 
 @Directive({
   selector: "[bitDialogIcon]",
-  standalone: true,
 })
 export class IconDirective {}
 
@@ -14,7 +13,6 @@ export class IconDirective {}
   selector: "bit-simple-dialog",
   templateUrl: "./simple-dialog.component.html",
   animations: [fadeIn],
-  standalone: true,
   imports: [DialogTitleContainerDirective, TypographyDirective],
 })
 export class SimpleDialogComponent {

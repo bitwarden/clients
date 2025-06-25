@@ -18,6 +18,8 @@ import * as JSZip from "jszip";
 import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
 import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -43,13 +45,13 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
   CardComponent,
-  ContainerComponent,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -105,7 +107,6 @@ const safeProviders: SafeProvider[] = [
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -119,7 +120,6 @@ const safeProviders: SafeProvider[] = [
     ImportLastPassComponent,
     RadioButtonModule,
     CardComponent,
-    ContainerComponent,
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
@@ -161,6 +161,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
+
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
@@ -221,6 +224,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
     protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -332,7 +336,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
       this.organizations$,

@@ -3,8 +3,14 @@
 import { MockProxy, any, mock } from "jest-mock-extended";
 import { BehaviorSubject, from, of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
@@ -411,16 +417,12 @@ describe("VaultTimeoutService", () => {
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user1");
     });
 
-    it("should call locked callback if no user passed into lock", async () => {
+    it("should call locked callback with the locking user if no userID is passed in.", async () => {
       setupLock();
 
       await vaultTimeoutService.lock();
 
-      // Currently these pass `undefined` (or what they were given) as the userId back
-      // but we could change this to give the user that was locked (active) to these methods
-      // so they don't have to get it their own way, but that is a behavioral change that needs
-      // to be tested.
-      expect(lockedCallback).toHaveBeenCalledWith(undefined);
+      expect(lockedCallback).toHaveBeenCalledWith("user1");
     });
 
     it("should call state event runner with user passed into lock", async () => {

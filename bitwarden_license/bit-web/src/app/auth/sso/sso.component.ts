@@ -51,6 +51,7 @@ const defaultSigningAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha2
 @Component({
   selector: "app-org-manage-sso",
   templateUrl: "sso.component.html",
+  standalone: false,
 })
 export class SsoComponent implements OnInit, OnDestroy {
   readonly ssoType = SsoType;

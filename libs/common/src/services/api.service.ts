@@ -2,12 +2,16 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionRequest,
   CollectionResponse,
 } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
@@ -24,7 +28,6 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
@@ -528,8 +531,9 @@ export class ApiService implements ApiServiceAbstraction {
     return new CipherResponse(r);
   }
 
-  putShareCiphers(request: CipherBulkShareRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/share", request, true, false);
+  async putShareCiphers(request: CipherBulkShareRequest): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/share", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
   async putCipherCollections(
@@ -632,24 +636,6 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<AttachmentUploadDataResponse> {
     const r = await this.send("POST", "/ciphers/" + id + "/attachment/v2", request, true, true);
     return new AttachmentUploadDataResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment", data, true, true);
-    return new CipherResponse(r);
-  }
-
-  /**
-   * @deprecated Mar 25 2021: This method has been deprecated in favor of direct uploads.
-   * This method still exists for backward compatibility with old server versions.
-   */
-  async postCipherAttachmentAdminLegacy(id: string, data: FormData): Promise<CipherResponse> {
-    const r = await this.send("POST", "/ciphers/" + id + "/attachment-admin", data, true, true);
-    return new CipherResponse(r);
   }
 
   deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
@@ -787,20 +773,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new CollectionAccessDetailsResponse(r);
   }
 
-  async putCollectionUsers(
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ): Promise<any> {
-    await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/collections/" + id + "/users",
-      request,
-      true,
-      false,
-    );
-  }
-
   deleteCollection(organizationId: string, id: string): Promise<any> {
     return this.send(
       "DELETE",
@@ -816,20 +788,6 @@ export class ApiService implements ApiServiceAbstraction {
       "DELETE",
       "/organizations/" + organizationId + "/collections",
       new CollectionBulkDeleteRequest(collectionIds),
-      true,
-      false,
-    );
-  }
-
-  deleteCollectionUser(
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ): Promise<any> {
-    return this.send(
-      "DELETE",
-      "/organizations/" + organizationId + "/collections/" + id + "/user/" + organizationUserId,
-      null,
       true,
       false,
     );

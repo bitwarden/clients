@@ -20,7 +20,6 @@ import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-f
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",
-  standalone: true,
   imports: [A11yModule, CdkConnectedOverlay, CdkOverlayOrigin, CommonModule, JslibModule],
   animations: [
     trigger("transformPanel", [

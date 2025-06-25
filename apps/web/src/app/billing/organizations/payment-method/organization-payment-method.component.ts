@@ -15,6 +15,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
+import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
@@ -37,6 +38,7 @@ import { FreeTrial } from "../../types/free-trial";
 
 @Component({
   templateUrl: "./organization-payment-method.component.html",
+  standalone: false,
 })
 export class OrganizationPaymentMethodComponent implements OnDestroy {
   organizationId: string;
@@ -52,6 +54,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
 
   protected readonly Math = Math;
   launchPaymentModalAutomatically = false;
+
+  protected taxInformation: TaxInformation;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -86,6 +90,9 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     // incase the above state is undefined or null we use redundantState
     const redundantState: any = location.getState();
+    const queryParam = this.activatedRoute.snapshot.queryParamMap.get(
+      "launchPaymentModalAutomatically",
+    );
     if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
       this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
     } else if (
@@ -93,6 +100,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
       Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
     ) {
       this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
+    } else if (queryParam === "true") {
+      this.launchPaymentModalAutomatically = true;
     } else {
       this.launchPaymentModalAutomatically = false;
     }
@@ -102,6 +111,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   }
 
   protected addAccountCredit = async (): Promise<void> => {
+    if (this.subscriptionStatus === "trialing") {
+      const hasValidBillingAddress = await this.checkBillingAddressForTrialingOrg();
+      if (!hasValidBillingAddress) {
+        return;
+      }
+    }
     const dialogRef = openAddCreditDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
@@ -118,11 +133,12 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected load = async (): Promise<void> => {
     this.loading = true;
     try {
-      const { accountCredit, paymentSource, subscriptionStatus } =
+      const { accountCredit, paymentSource, subscriptionStatus, taxInformation } =
         await this.billingApiService.getOrganizationPaymentMethod(this.organizationId);
       this.accountCredit = accountCredit;
       this.paymentSource = paymentSource;
       this.subscriptionStatus = subscriptionStatus;
+      this.taxInformation = taxInformation;
 
       if (this.organizationId) {
         const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
@@ -147,6 +163,8 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
           paymentSource,
         );
       }
+      // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+      // eslint-disable-next-line no-constant-binary-expression
       this.isUnpaid = this.subscriptionStatus === "unpaid" ?? false;
       // If the flag `launchPaymentModalAutomatically` is set to true,
       // we schedule a timeout (delay of 800ms) to automatically launch the payment modal.
@@ -238,5 +256,18 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
   protected get updatePaymentSourceButtonText(): string {
     const key = this.paymentSource == null ? "addPaymentMethod" : "changePaymentMethod";
     return this.i18nService.t(key);
+  }
+
+  private async checkBillingAddressForTrialingOrg(): Promise<boolean> {
+    const hasBillingAddress = this.taxInformation != null;
+    if (!hasBillingAddress) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("billingAddressRequiredToAddCredit"),
+      });
+      return false;
+    }
+    return true;
   }
 }

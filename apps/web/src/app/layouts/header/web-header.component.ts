@@ -17,6 +17,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 @Component({
   selector: "app-header",
   templateUrl: "./web-header.component.html",
+  standalone: false,
 })
 export class WebHeaderComponent {
   /**

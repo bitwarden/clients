@@ -9,6 +9,7 @@ import { AcceptOrganizationInviteService } from "./organization-invite/accept-or
 @Component({
   selector: "app-update-password",
   templateUrl: "update-password.component.html",
+  standalone: false,
 })
 export class UpdatePasswordComponent extends BaseUpdatePasswordComponent {
   private routerService = inject(RouterService);

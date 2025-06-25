@@ -16,7 +16,6 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
@@ -36,6 +35,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -63,7 +64,6 @@ interface QueryParams {
  * This component handles the SSO flow.
  */
 @Component({
-  standalone: true,
   templateUrl: "sso.component.html",
   imports: [
     AsyncActionsModule,
@@ -106,7 +106,6 @@ export class SsoComponent implements OnInit {
     private route: ActivatedRoute,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private validationService: ValidationService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     private apiService: ApiService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -119,6 +118,7 @@ export class SsoComponent implements OnInit {
     private toastService: ToastService,
     private ssoComponentService: SsoComponentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private configService: ConfigService,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -534,7 +534,12 @@ export class SsoComponent implements OnInit {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string) {
-    await this.router.navigate(["set-password-jit"], {
+    const isSetInitialPasswordRefactorFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
+    const route = isSetInitialPasswordRefactorFlagOn ? "set-initial-password" : "set-password-jit";
+
+    await this.router.navigate([route], {
       queryParams: {
         identifier: orgIdentifier,
       },
@@ -597,24 +602,13 @@ export class SsoComponent implements OnInit {
       this.loggingIn = true;
       try {
         // Check if email matches any claimed domains
-        if (await this.configService.getFeatureFlag(FeatureFlag.VerifiedSsoDomainEndpoint)) {
-          const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
-            await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
+        const response: ListResponse<VerifiedOrganizationDomainSsoDetailsResponse> =
+          await this.orgDomainApiService.getVerifiedOrgDomainsByEmail(this.email);
 
-          if (response.data.length > 0) {
-            this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
-            await this.submit();
-            return;
-          }
-        } else {
-          const response: OrganizationDomainSsoDetailsResponse =
-            await this.orgDomainApiService.getClaimedOrgDomainByEmail(this.email);
-
-          if (response?.ssoAvailable && response?.verifiedDate) {
-            this.identifierFormControl.setValue(response.organizationIdentifier);
-            await this.submit();
-            return;
-          }
+        if (response.data.length > 0) {
+          this.identifierFormControl.setValue(response.data[0].organizationIdentifier);
+          await this.submit();
+          return;
         }
       } catch (error) {
         this.handleGetClaimedDomainByEmailError(error);

@@ -50,7 +50,7 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
@@ -74,11 +74,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
-    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {

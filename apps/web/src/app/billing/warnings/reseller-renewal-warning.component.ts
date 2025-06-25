@@ -27,7 +27,6 @@ import {
       </bit-banner>
     }
   `,
-  standalone: true,
   imports: [AsyncPipe, BannerComponent],
 })
 export class ResellerRenewalWarningComponent implements OnInit {

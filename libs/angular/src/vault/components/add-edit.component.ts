@@ -4,6 +4,8 @@ import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { concatMap, firstValueFrom, map, Observable, Subject, switchMap, takeUntil } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -23,12 +25,14 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherService,
+  EncryptionContext,
+} from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -40,6 +44,8 @@ import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { generate_ssh_key } from "@bitwarden/sdk-internal";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { PasswordRepromptService, SshImportPromptService } from "@bitwarden/vault";
 
 @Directive()
@@ -78,7 +84,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   showCardNumber = false;
   showCardCode = false;
   cipherType = CipherType;
-  typeOptions: any[];
   cardBrandOptions: any[];
   cardExpMonthOptions: any[];
   identityTitleOptions: any[];
@@ -98,7 +103,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   protected destroy$ = new Subject<void>();
   protected writeableCollections: CollectionView[];
-  private personalOwnershipPolicyAppliesToActiveUser: boolean;
+  private organizationDataOwnershipAppliesToUser: boolean;
   private previousCipherId: string;
 
   get fido2CredentialCreationDateValue(): string {
@@ -133,13 +138,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected sdkService: SdkService,
     private sshImportPromptService: SshImportPromptService,
   ) {
-    this.typeOptions = [
-      { name: i18nService.t("typeLogin"), value: CipherType.Login },
-      { name: i18nService.t("typeCard"), value: CipherType.Card },
-      { name: i18nService.t("typeIdentity"), value: CipherType.Identity },
-      { name: i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
-    ];
-
     this.cardBrandOptions = [
       { name: "-- " + i18nService.t("select") + " --", value: null },
       { name: "Visa", value: "Visa" },
@@ -197,10 +195,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
       .pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
         concatMap(async (policyAppliesToActiveUser) => {
-          this.personalOwnershipPolicyAppliesToActiveUser = policyAppliesToActiveUser;
+          this.organizationDataOwnershipAppliesToUser = policyAppliesToActiveUser;
           await this.init();
         }),
         takeUntil(this.destroy$),
@@ -209,8 +207,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.writeableCollections = await this.loadCollections();
     this.canUseReprompt = await this.passwordRepromptService.enabled();
-
-    this.typeOptions.push({ name: this.i18nService.t("typeSshKey"), value: CipherType.SshKey });
   }
 
   ngOnDestroy() {
@@ -222,7 +218,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (this.ownershipOptions.length) {
       this.ownershipOptions = [];
     }
-    if (this.personalOwnershipPolicyAppliesToActiveUser) {
+    if (this.organizationDataOwnershipAppliesToUser) {
       this.allowPersonal = false;
     } else {
       const myEmail = await firstValueFrom(
@@ -342,7 +338,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
       this.cipher,
-      [this.collectionId as CollectionId],
       this.isAdminConsoleAction,
     );
 
@@ -736,17 +731,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return this.cipherService.encrypt(this.cipher, userId);
   }
 
-  protected saveCipher(cipher: Cipher) {
+  protected saveCipher(data: EncryptionContext) {
     let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
-    if (!cipher.collectionIds) {
+    if (!data.cipher.collectionIds) {
       orgAdmin = this.organization?.canEditUnassignedCiphers;
     }
 
     return this.cipher.id == null
-      ? this.cipherService.createWithServer(cipher, orgAdmin)
-      : this.cipherService.updateWithServer(cipher, orgAdmin);
+      ? this.cipherService.createWithServer(data, orgAdmin)
+      : this.cipherService.updateWithServer(data, orgAdmin);
   }
 
   protected deleteCipher(userId: UserId) {

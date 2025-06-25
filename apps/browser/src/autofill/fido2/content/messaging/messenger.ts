@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Message, MessageType } from "./message";
+import { Message, MessageTypes } from "./message";
 
 const SENDER = "bitwarden-webauthn";
 
@@ -80,7 +80,7 @@ export class Messenger {
       const abortListener = () =>
         localPort.postMessage({
           metadata: { SENDER },
-          type: MessageType.AbortRequest,
+          type: MessageTypes.AbortRequest,
         });
       abortSignal?.addEventListener("abort", abortListener);
 
@@ -92,7 +92,7 @@ export class Messenger {
 
       abortSignal?.removeEventListener("abort", abortListener);
 
-      if (response.type === MessageType.ErrorResponse) {
+      if (response.type === MessageTypes.ErrorResponse) {
         const error = new Error();
         Object.assign(error, JSON.parse(response.error));
         throw error;
@@ -119,7 +119,7 @@ export class Messenger {
 
       const abortController = new AbortController();
       port.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
-        if (event.data.type === MessageType.AbortRequest) {
+        if (event.data.type === MessageTypes.AbortRequest) {
           abortController.abort();
         }
       };
@@ -133,7 +133,7 @@ export class Messenger {
       } catch (error) {
         port.postMessage({
           SENDER,
-          type: MessageType.ErrorResponse,
+          type: MessageTypes.ErrorResponse,
           error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
         });
       } finally {
@@ -157,7 +157,7 @@ export class Messenger {
   }
 
   private async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
+    await this.request({ type: MessageTypes.DisconnectRequest });
   }
 
   private generateUniqueId() {

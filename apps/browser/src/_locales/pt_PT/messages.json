@@ -1071,6 +1071,10 @@
     },
     "description": "Aria label for the view button in notification bar confirmation message"
   },
+  "notificationNewItemAria": {
+    "message": "Novo item, abre numa nova janela",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
   "notificationEditTooltip": {
     "message": "Editar antes de guardar",
     "description": "Tooltip and Aria label for edit button on cipher item"
@@ -1088,23 +1092,25 @@
       }
     }
   },
-  "loginSaveConfirmation": {
-    "message": "$ITEMNAME$ guardado no Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginSaveConfirmation": {
+    "message": "guardado no Bitwarden.",
     "description": "Shown to user after item is saved."
   },
-  "loginUpdatedConfirmation": {
-    "message": "$ITEMNAME$ atualizado no Bitwarden.",
-    "placeholders": {
-      "itemName": {
-        "content": "$1"
-      }
-    },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "atualizado no Bitwarden.",
     "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Selecionar $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
   },
   "saveAsNewLoginAction": {
     "message": "Guardar como nova credencial",
@@ -1113,6 +1119,10 @@
   "updateLoginAction": {
     "message": "Atualizar credencial",
     "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Desbloqueie para guardar esta credencial",
+    "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
     "message": "Guardar credencial",
@@ -1355,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Funcionalidade indisponível"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "É necessária a migração da chave de encriptação. Inicie sessão através do cofre Web para atualizar a sua chave de encriptação."
+  "legacyEncryptionUnsupported": {
+    "message": "A encriptação herdada já não é suportada. Por favor, contacte o suporte para recuperar a sua conta."
   },
   "premiumMembership": {
     "message": "Subscrição Premium"
@@ -1588,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Sugestões de preenchimento automático"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Encontre facilmente sugestões de preenchimento automático"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Desative as definições de preenchimento automático do seu navegador, para que não entrem em conflito com o Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Desative o preenchimento automático do $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Desativar o preenchimento automático"
   },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático nos campos do formulário"
@@ -1894,6 +1922,9 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "newItemHeader": {
     "message": "Novo(a) $TYPE$",
     "placeholders": {
@@ -2125,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Defina o seu código PIN para desbloquear o Bitwarden. As suas definições de PIN serão redefinidas se alguma vez terminar sessão por completo da aplicação."
   },
-  "setYourPinCode1": {
-    "message": "O seu PIN será utilizado para desbloquear o Bitwarden em vez da sua palavra-passe mestra. O seu PIN será reposto se alguma vez terminar totalmente a sessão no Bitwarden."
+  "setPinCode": {
+    "message": "Pode utilizar este PIN para desbloquear o Bitwarden. O seu PIN será reposto se alguma vez terminar sessão completamente da aplicação."
   },
   "pinRequired": {
     "message": "É necessário o código PIN."
@@ -2176,6 +2207,9 @@
   "useThisPassword": {
     "message": "Utilizar esta palavra-passe"
   },
+  "useThisPassphrase": {
+    "message": "Utilizar esta frase de acesso"
+  },
   "useThisUsername": {
     "message": "Utilizar este nome de utilizador"
   },
@@ -2198,15 +2232,6 @@
   },
   "vaultTimeoutAction1": {
     "message": "Ação de tempo limite"
-  },
-  "newCustomizationOptionsCalloutTitle": {
-    "message": "Novas opções de personalização"
-  },
-  "newCustomizationOptionsCalloutContent": {
-    "message": "Personalize a sua experiência no cofre com ações de cópia rápida, modo compacto e muito mais!"
-  },
-  "newCustomizationOptionsCalloutLink": {
-    "message": "Ver todas as definições de Aspeto"
   },
   "lock": {
     "message": "Bloquear",
@@ -2493,6 +2518,10 @@
   "change": {
     "message": "Alterar"
   },
+  "changePassword": {
+    "message": "Alterar palavra-passe",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Alterar palavra-passe - $ITEMNAME$",
     "placeholders": {
@@ -2501,6 +2530,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Palavra-passe em risco"
   },
   "atRiskPasswords": {
     "message": "Palavras-passe em risco"
@@ -2535,6 +2567,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "A sua palavra-passe deste site está em risco. A $ORGANIZATION$ pediu-lhe que a alterasse.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "A $ORGANIZATION$ pretende que altere esta palavra-passe porque está em risco. Navegue até às definições da sua conta para alterar a palavra-passe.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Rever e alterar uma palavra-passe em risco"
@@ -2654,6 +2706,10 @@
   "allSends": {
     "message": "Todos os Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Número máximo de acessos atingido",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Ocultar texto por predefinição"
@@ -2995,14 +3051,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Não foi encontrado um identificador único."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "A $ORGANIZATION$ está a utilizar o SSO com um servidor de chaves auto-hospedado. Já não é necessária uma palavra-passe mestra para iniciar sessão para os membros desta organização.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "Já não é necessária uma palavra-passe mestra para os membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização."
+  },
+  "organizationName": {
+    "message": "Nome da organização"
+  },
+  "keyConnectorDomain": {
+    "message": "Domínio do Key Connector"
   },
   "leaveOrganization": {
     "message": "Sair da organização"
@@ -3588,12 +3644,12 @@
   "trustUser": {
     "message": "Confiar no utilizador"
   },
-  "sendsNoItemsTitle": {
-    "message": "Sem Sends ativos",
+  "sendsTitleNoItems": {
+    "message": "Envie informações sensíveis com segurança",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Utilize o Send para partilhar de forma segura informações encriptadas com qualquer pessoa.",
+  "sendsBodyNoItems": {
+    "message": "Partilhe ficheiros e dados de forma segura com qualquer pessoa, em qualquer plataforma. As suas informações permanecerão encriptadas ponto a ponto, limitando a exposição.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -4533,6 +4589,12 @@
   "downloadFromBitwardenNow": {
     "message": "Descarregue já a partir de bitwarden.com"
   },
+  "getItOnGooglePlay": {
+    "message": "Obtenha-a na Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Descarregue na App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Tem a certeza de que pretende eliminar permanentemente este anexo?"
   },
@@ -4800,7 +4862,7 @@
     "message": "Selecione as coleções a atribuir"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
+    "message": "1 item será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
@@ -4812,7 +4874,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
+    "message": "1 item será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4993,6 +5055,18 @@
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "O desbloqueio biométrico está atualmente indisponível por um motivo desconhecido."
+  },
+  "unlockVault": {
+    "message": "Desbloqueie o seu cofre em segundos"
+  },
+  "unlockVaultDesc": {
+    "message": "Pode personalizar as suas definições de desbloqueio e de tempo limite para aceder mais rapidamente ao seu cofre."
+  },
+  "unlockPinSet": {
+    "message": "Definição do PIN de desbloqueio"
+  },
+  "unlockBiometricSet": {
+    "message": "Desbloquear conjunto de biometria"
   },
   "authenticating": {
     "message": "A autenticar"
@@ -5243,6 +5317,9 @@
   "secureDevicesBody": {
     "message": "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as apps Bitwarden para telemóvel, navegador e computador."
   },
+  "nudgeBadgeAria": {
+    "message": "1 notificação"
+  },
   "emptyVaultNudgeTitle": {
     "message": "Importar palavras-passe existentes"
   },
@@ -5255,8 +5332,14 @@
   "hasItemsVaultNudgeTitle": {
     "message": "Bem-vindo ao seu cofre!"
   },
-  "hasItemsVaultNudgeBody": {
-    "message": "Preenchimento automático de itens para a página atual\nItens favoritos para um acesso fácil\nProcurar outra coisa no seu cofre"
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Preenchimento automático de itens para a página atual"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Adicione itens aos favoritos para fácil acesso"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Procure outras coisas no seu cofre"
   },
   "newLoginNudgeTitle": {
     "message": "Poupe tempo com o preenchimento automático"
@@ -5306,5 +5389,29 @@
     "message": "Saiba mais sobre o agente SSH",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Criar rapidamente palavras-passe"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Crie facilmente palavras-passe fortes e únicas clicando em",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "para o ajudar a manter as suas credenciais seguras.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Crie facilmente palavras-passe fortes e únicas clicando no botão Gerar palavra-passe para o ajudar a manter as suas credenciais seguras.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "Não tem permissões para ver esta página. Tente iniciar sessão com uma conta diferente."
+  },
+  "wasmNotSupported": {
+    "message": "O WebAssembly não é suportado no seu navegador ou não está ativado. O WebAssembly é necessário para utilizar a app Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

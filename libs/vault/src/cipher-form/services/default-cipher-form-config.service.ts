@@ -3,6 +3,8 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -42,7 +44,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
   ): Promise<CipherFormConfig> {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const [organizations, collections, allowPersonalOwnership, folders, cipher] =
+    const [organizations, collections, organizationDataOwnershipDisabled, folders, cipher] =
       await firstValueFrom(
         combineLatest([
           this.organizations$(activeUserId),
@@ -53,7 +55,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
               ),
             ),
           ),
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.folderService.folders$(activeUserId).pipe(
             switchMap((f) =>
               this.folderService.folderViews$(activeUserId).pipe(
@@ -69,7 +71,7 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: false,
-      allowPersonalOwnership,
+      organizationDataOwnershipDisabled,
       originalCipher: cipher,
       collections,
       organizations,
@@ -89,10 +91,10 @@ export class DefaultCipherFormConfigService implements CipherFormConfigService {
       );
   }
 
-  private allowPersonalOwnership$ = this.accountService.activeAccount$.pipe(
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) =>
-      this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
     ),
     map((p) => !p),
   );
