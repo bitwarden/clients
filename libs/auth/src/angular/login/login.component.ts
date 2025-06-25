@@ -378,7 +378,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * TODO: This is duplicate checking that we want to only do in the password login strategy.
    *       Once we no longer need the policies state being set to reference later in change password
    *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
-   *       PM-23003 for details.
+   *       PM-23001 for details.
    */
   private async isPasswordChangeRequiredByOrgPolicy(
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
