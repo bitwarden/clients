@@ -93,6 +93,7 @@ describe("Attachment", () => {
         sizeName: "1.1 KB",
         fileName: "fileName",
         key: expect.any(SymmetricCryptoKey),
+        encryptedKey: attachment.key,
       });
     });
 
