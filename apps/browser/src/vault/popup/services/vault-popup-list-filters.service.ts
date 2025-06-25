@@ -448,7 +448,7 @@ export class VaultPopupListFiltersService {
           ),
           this.collectionService.decryptedCollections$,
           this.organizationService.memberOrganizations$(userId),
-          this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
+          this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),
       ),
       map(([filters, allCollections, orgs, defaultVaultEnabled]) => {

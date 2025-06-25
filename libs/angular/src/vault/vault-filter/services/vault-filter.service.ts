@@ -108,7 +108,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     const storedCollections = await this.collectionService.getAllDecrypted();
     const allOrganizations = await this.buildOrganizations();
     const defaultVaultEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19467_CreateDefaultLocation,
+      FeatureFlag.CreateDefaultLocation,
     );
 
     let collections =

@@ -34,7 +34,7 @@ import {
 
 const configService = {
   getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
-};
+} as unknown as ConfigService;
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;

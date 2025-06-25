@@ -12,7 +12,9 @@ import {
   map,
   Observable,
   shareReplay,
+  Subject,
   switchMap,
+  takeUntil,
 } from "rxjs";
 
 import {
@@ -108,6 +110,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
   orgIsOnSecretsManagerStandalone = false;
+  private destroy$ = new Subject<void>();
 
   protected canUseSecretsManager$: Observable<boolean>;
   protected showUserManagementControls$: Observable<boolean>;
@@ -339,7 +342,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     ) {
       this.organizationUserService
         .confirmUser(this.organization, user, publicKey)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntil(this.destroy$))
         .subscribe();
     } else {
       const orgKey = await this.keyService.getOrgKey(this.organization.id);

@@ -107,20 +107,10 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       }),
     );
 
-  // collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
-  //   this.filteredCollections$,
-  //   this.memberOrganizations$,
-  //   this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
-  // ]).pipe(
-  //   map(([collections, organizations, defaultVaultEnabled]) =>
-  //     this.buildCollectionTree(collections, organizations, defaultVaultEnabled),
-  //   ),
-  // );
-
   collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
     this.filteredCollections$,
     this.memberOrganizations$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM19467_CreateDefaultLocation),
+    this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
   ]).pipe(
     map(([collections, organizations, defaultVaultEnabled]) =>
       this.buildCollectionTree(collections, organizations, defaultVaultEnabled),
@@ -274,6 +264,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
           return this.i18nService.collator.compare(aOrg, bOrg);
         });
     }
+
     collections.forEach((c) => {
       const collectionCopy = new CollectionView() as CollectionFilter;
       collectionCopy.id = c.id;

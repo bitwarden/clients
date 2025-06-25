@@ -437,8 +437,6 @@ export default class MainBackground {
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
 
-  private restrictedItemTypesService: RestrictedItemTypesService;
-
   constructor() {
     // Services
     const lockedCallback = async (userId: UserId) => {
@@ -914,6 +912,7 @@ export default class MainBackground {
       this.policyService,
       this.stateProvider,
       this.accountService,
+      this.configService,
     );
 
     this.vaultSettingsService = new VaultSettingsService(this.stateProvider);
@@ -1307,13 +1306,6 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.stateProvider,
-    );
-
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(
