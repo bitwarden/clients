@@ -52,7 +52,7 @@ export type InitiationPath =
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
-  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   initializing = true;
 
   /** Password Manager or Secrets Manager */

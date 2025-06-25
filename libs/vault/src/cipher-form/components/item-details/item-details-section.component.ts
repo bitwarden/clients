@@ -92,8 +92,8 @@ export class ItemDetailsSectionComponent implements OnInit {
     return this.config.mode === "partial-edit";
   }
 
-  get allowPersonalOwnership() {
-    return this.config.allowPersonalOwnership;
+  get organizationDataOwnershipDisabled() {
+    return this.config.organizationDataOwnershipDisabled;
   }
 
   get collections(): CollectionView[] {
@@ -105,14 +105,17 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   /**
-   * Show the personal ownership option in the Owner dropdown when:
-   * - Personal ownership is allowed
+   * Show the organization data ownership option in the Owner dropdown when:
+   * - organization data ownership is disabled
    * - The `organizationId` control is disabled. This avoids the scenario
    * where a the dropdown is empty because the user personally owns the cipher
    * but cannot edit the ownership.
    */
-  get showPersonalOwnerOption() {
-    return this.allowPersonalOwnership || !this.itemDetailsForm.controls.organizationId.enabled;
+  get showOrganizationDataOwnershipOption() {
+    return (
+      this.organizationDataOwnershipDisabled ||
+      !this.itemDetailsForm.controls.organizationId.enabled
+    );
   }
 
   constructor(
@@ -161,7 +164,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     }
 
     // If personal ownership is allowed and there is at least one organization, allow ownership change.
-    if (this.allowPersonalOwnership) {
+    if (this.organizationDataOwnershipDisabled) {
       return this.organizations.length > 0;
     }
 
@@ -180,7 +183,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.allowPersonalOwnership ? null : this.organizations[0].id;
+    return this.organizationDataOwnershipDisabled ? null : this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -188,7 +191,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       Utils.getSortFunction(this.i18nService, "name"),
     );
 
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
+    if (!this.organizationDataOwnershipDisabled && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
 
@@ -244,7 +247,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         );
       }
 
-      if (!this.allowPersonalOwnership && prefillCipher.organizationId == null) {
+      if (!this.organizationDataOwnershipDisabled && prefillCipher.organizationId == null) {
         this.itemDetailsForm.controls.organizationId.setValue(this.defaultOwner);
       }
     }
