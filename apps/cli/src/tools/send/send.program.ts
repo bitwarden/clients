@@ -223,17 +223,6 @@ export class SendProgram extends BaseProgram {
       .option("--file <path>", "file to Send. Can also be specified in parent's JSON.")
       .option("--text <text>", "text to Send. Can also be specified in parent's JSON.")
       .option("--hidden", "text hidden flag. Valid only with the --text option.")
-      .addOption(
-        new Option(
-          "--password <password>",
-          "optional password to access this Send. Can also be specified in JSON.",
-        ).conflicts("emails"),
-      )
-      .option(
-        "--email <email>",
-        "optional emails to access this Send. Can also be specified in JSON.",
-        parseEmail,
-      )
       .on("--help", () => {
         writeLn("");
         writeLn("Note:");
@@ -241,13 +230,13 @@ export class SendProgram extends BaseProgram {
         writeLn("", true);
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
-        // Work-around to support `--fullObject` option for `send create --fullObject`
-        // Calling `option('--fullObject', ...)` above won't work due to Commander doesn't like same option
-        // to be defined on both parent-command and sub-command
-        const { fullObject = false } = args.parent.opts();
+        // subcommands inherit flags from their parent; they cannot override them
+        const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
+          email,
+          password,
         };
 
         const response = await this.runCreate(encodedJson, mergedOptions);
