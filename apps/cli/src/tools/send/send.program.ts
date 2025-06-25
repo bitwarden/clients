@@ -10,8 +10,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 
 import { BaseProgram } from "../../base-program";
-import { GetCommand } from "../../commands/get.command";
 import { Response } from "../../models/response";
+import { TemplateResponse } from "../../models/response/template.response";
 import { CliUtils } from "../../utils";
 
 import {
@@ -150,24 +150,29 @@ export class SendProgram extends BaseProgram {
     return new Command("template")
       .argument("<object>", "Valid objects are: send.text, send.file")
       .description("Get json templates for send objects")
-      .action(async (object) => {
-        const cmd = new GetCommand(
-          this.serviceContainer.cipherService,
-          this.serviceContainer.folderService,
-          this.serviceContainer.collectionService,
-          this.serviceContainer.totpService,
-          this.serviceContainer.auditService,
-          this.serviceContainer.keyService,
-          this.serviceContainer.encryptService,
-          this.serviceContainer.searchService,
-          this.serviceContainer.apiService,
-          this.serviceContainer.organizationService,
-          this.serviceContainer.eventCollectionService,
-          this.serviceContainer.billingAccountProfileStateService,
-          this.serviceContainer.accountService,
-          this.serviceContainer.cliRestrictedItemTypesService,
-        );
-        const response = await cmd.run("template", object, null);
+      .action((object) => {
+        let template: SendResponse | undefined;
+        let response: Response;
+
+        switch (object) {
+          case "send.text":
+          case "text":
+            template = SendResponse.template(SendType.Text);
+            break;
+          case "send.file":
+          case "file":
+            template = SendResponse.template(SendType.File);
+            break;
+          default:
+            response = Response.badRequest("Unknown template object.");
+        }
+
+        if (template) {
+          response = Response.success(new TemplateResponse(template));
+        }
+
+        response ??= Response.badRequest("An error occurred while retrieving the template.");
+
         this.processResponse(response);
       });
   }
