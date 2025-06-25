@@ -2,13 +2,13 @@
 // @ts-strict-ignore
 import { Component, booleanAttribute, input } from "@angular/core";
 
-import { Option } from "./option";
+import { MappedOptionComponent } from "./option";
 
 @Component({
   selector: "bit-option",
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
-export class OptionComponent<T = unknown> implements Option<T> {
+export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
   icon = input<string>();
 
   value = input.required<T>();

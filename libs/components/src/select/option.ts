@@ -1,8 +1,10 @@
-import { Signal } from "@angular/core";
+import { MappedDataToSignal } from "../shared/data-to-signal-type";
 
 export interface Option<T> {
-  icon?: Signal<string>;
-  value: Signal<T | null>;
-  label?: Signal<string>;
-  disabled?: Signal<boolean>;
+  icon?: string;
+  value: T | null;
+  label?: string;
+  disabled?: boolean;
 }
+
+export type MappedOptionComponent<T> = MappedDataToSignal<Option<T>>;

@@ -77,7 +77,14 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     if (value == null || value.length == 0) {
       return;
     }
-    this.items.set(value.toArray());
+    this.items.set(
+      value.toArray().map((c) => ({
+        icon: c.icon(),
+        value: c.value(),
+        label: c.label(),
+        disabled: c.disabled(),
+      })),
+    );
   }
 
   @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
@@ -120,13 +127,13 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onChange(option: Option<T> | null) {
-    this.selectedValue.set(option?.value());
+    this.selectedValue.set(option?.value);
 
     if (!this.notifyOnChange) {
       return;
     }
 
-    this.notifyOnChange(option?.value());
+    this.notifyOnChange(option?.value);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -182,7 +189,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   }
 
   private findSelectedOption(items: Option<T>[], value: T): Option<T> | undefined {
-    return items.find((item) => item.value() === value);
+    return items.find((item) => item.value === value);
   }
 
   /**Emits the closed event. */

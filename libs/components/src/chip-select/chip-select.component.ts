@@ -118,12 +118,12 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** The label to show in the chip button */
   protected get label(): string {
-    return this.selectedOption?.label() || this.placeholderText();
+    return this.selectedOption?.label || this.placeholderText();
   }
 
   /** The icon to show in the chip button */
   protected get icon(): string {
-    return this.selectedOption?.icon() || this.placeholderIcon();
+    return this.selectedOption?.icon || this.placeholderIcon();
   }
 
   /**
@@ -172,7 +172,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
    */
   private findOption(tree: ChipSelectOption<T>, value: T): ChipSelectOption<T> | null {
     let result = null;
-    if (tree.value !== null && compareValues(tree.value(), value)) {
+    if (tree.value !== null && compareValues(tree.value, value)) {
       return tree;
     }
 
@@ -266,7 +266,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
       return;
     }
 
-    this.notifyOnChange(option?.value() ?? null);
+    this.notifyOnChange(option?.value ?? null);
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */

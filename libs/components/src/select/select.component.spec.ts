@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -40,9 +40,9 @@ describe("Select Component", () => {
       expect(select.selectedOption()?.value).toBeUndefined();
 
       select.items.set([
-        { label: signal("Apple"), value: signal("apple") },
-        { label: signal("Pear"), value: signal("pear") },
-        { label: signal("Banana"), value: signal("banana") },
+        { label: "Apple", value: "apple" },
+        { label: "Pear", value: "pear" },
+        { label: "Banana", value: "banana" },
       ]);
 
       expect(select.selectedOption()?.value).toBe("apple");
