@@ -54,11 +54,11 @@ describe("DefaultSetPasswordJitService", () => {
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
 
     sut = new DefaultSetPasswordJitService(
-      masterPasswordApiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
       organizationUserApiService,
