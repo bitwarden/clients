@@ -9,9 +9,7 @@ import { DialogService } from "@bitwarden/components";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openTwoFactorAuthEmailPopout } from "../../auth/popup/utils/auth-popout-window";
-// FIXME (PM-22628): Popup imports are forbidden in background
-// eslint-disable-next-line no-restricted-imports
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 
 // TODO: popup state persistence should eventually remove the need for this service
 export class ExtensionTwoFactorAuthEmailComponentService

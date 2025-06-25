@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH atslēga"
   },
+  "typeNote": {
+    "message": "Piezīme"
+  },
   "newItemHeader": {
     "message": "Jauns/a $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Atslēgšanas PIN iestatīts"
   },
+  "unlockBiometricSet": {
+    "message": "Atslēgt biometrijas kopu"
+  },
   "authenticating": {
     "message": "Autentificē"
   },
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly šajā pārlūkā netiek atbalstīts vai nav iespējots. WebAssebly ir nepieciešams, lai izmantotu Bitwarden lietotni.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
