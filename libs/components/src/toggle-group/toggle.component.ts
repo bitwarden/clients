@@ -24,7 +24,7 @@ let nextId = 0;
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
   id = nextId++;
 
-  readonly value = input<TValue>(undefined);
+  readonly value = input<TValue>();
   @ViewChild("labelContent") labelContent: ElementRef<HTMLSpanElement>;
   @ViewChild("bitBadgeContainer") bitBadgeContainer: ElementRef<HTMLSpanElement>;
 
