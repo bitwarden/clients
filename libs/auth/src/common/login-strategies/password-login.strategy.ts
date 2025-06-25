@@ -183,7 +183,14 @@ export class PasswordLoginStrategy extends LoginStrategy {
         this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
       );
 
-      if (!masterPasswordPolicyOptions?.enforceOnLogin) {
+      // We deliberately do not check enforceOnLogin as existing users who are logging
+      // in after getting an org invite should always be forced to set a password that
+      // meets the org's policy. Org Invite -> Registration also works this way for
+      // new BW users as well.
+      if (
+        !credentials.masterPasswordPoliciesFromOrgInvite &&
+        !masterPasswordPolicyOptions?.enforceOnLogin
+      ) {
         return;
       }
     } else {
@@ -209,8 +216,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
       });
       return;
     }
-
-    // Also set master password policy options here
 
     // Authentication was successful, save the force update password options with the state service
     // if there isn't already a reason set (this would only be AdminForcePasswordReset as that can be set server side
