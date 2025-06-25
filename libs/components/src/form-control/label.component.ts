@@ -13,8 +13,8 @@ let nextId = 0;
   templateUrl: "label.component.html",
   imports: [CommonModule],
   host: {
-    "[attr.class]": "classList()",
-    "[attr.id]": "id()",
+    "[class]": "classList",
+    "[id]": "id()",
   },
 })
 export class BitLabel {
@@ -23,14 +23,13 @@ export class BitLabel {
     @Optional() private parentFormControl: FormControlComponent,
   ) {}
 
-  // TODO signal migration -- does this work with the host binding?
-  readonly classList = input([
+  readonly classList = [
     "tw-inline-flex",
     "tw-gap-1",
     "tw-items-baseline",
     "tw-flex-row",
     "tw-min-w-0",
-  ]);
+  ];
 
   @HostBinding("title") get title() {
     return this.elementRef.nativeElement.textContent.trim();
