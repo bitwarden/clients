@@ -1,15 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  TemplateRef,
-  ViewChild,
-  input,
-} from "@angular/core";
+import { Component, EventEmitter, Output, TemplateRef, ViewChild, input } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
 @Component({
@@ -17,17 +9,9 @@ import { QueryParamsHandling } from "@angular/router";
   templateUrl: "./breadcrumb.component.html",
 })
 export class BreadcrumbComponent {
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input()
-  icon?: string;
+  readonly icon = input<string>();
 
-  // TODO: Skipped for migration because:
-  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
-  //  and migrating would break narrowing currently.
-  @Input()
-  route?: string | any[] = undefined;
+  readonly route = input<string | any[]>(undefined);
 
   readonly queryParams = input<Record<string, string>>({});
 
