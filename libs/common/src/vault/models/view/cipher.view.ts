@@ -268,6 +268,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
+    cipherView.key = EncString.fromJSON(obj.key);
 
     switch (obj.type) {
       case CipherType.Card:
