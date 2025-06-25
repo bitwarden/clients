@@ -23,11 +23,12 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { DefaultSetInitialPasswordService } from "./default-set-initial-password.service.implementation";
@@ -91,6 +92,10 @@ describe("DefaultSetInitialPasswordService", () => {
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let masterKeyEncryptedUserKey: [UserKey, EncString];
+
+    let existingUserPublicKey: UserPublicKey;
+    let existingUserPrivateKey: UserPrivateKey;
+
     let keyPair: [string, EncString];
     let keysRequest: KeysRequest;
     let organizationKeys: OrganizationKeysResponse;
@@ -98,6 +103,8 @@ describe("DefaultSetInitialPasswordService", () => {
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
     let setPasswordRequest: SetPasswordRequest;
+
+    let enrollmentRequest: OrganizationUserResetPasswordEnrollmentRequest;
 
     beforeEach(() => {
       // Mock function parameters
@@ -118,6 +125,10 @@ describe("DefaultSetInitialPasswordService", () => {
       userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted"); // TODO-rr-bw
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
+
+      existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey") as UserPublicKey;
+      existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
+
       keyPair = ["publicKey", new EncString("privateKey")];
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
       organizationKeys = {
@@ -138,17 +149,23 @@ describe("DefaultSetInitialPasswordService", () => {
         credentials.kdfConfig.kdfType,
         credentials.kdfConfig.iterations,
       );
+
+      enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
+      enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
+      enrollmentRequest.resetPasswordKey = userKeyEncString.encryptedString;
     });
 
     interface MockConfig {
       userType: SetInitialPasswordUserType;
       userHasUserKey: boolean;
+      userHasLocalKeyPair: boolean;
       resetPasswordAutoEnroll: boolean;
     }
 
     const defaultMockConfig: MockConfig = {
       userType: SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER,
       userHasUserKey: true,
+      userHasLocalKeyPair: false,
       resetPasswordAutoEnroll: false,
     };
 
@@ -164,9 +181,17 @@ describe("DefaultSetInitialPasswordService", () => {
 
       // Mock keyPair values
       if (config.userType === SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER) {
-        keyService.userPrivateKey$.mockReturnValue(of(null));
-        keyService.userPublicKey$.mockReturnValue(of(null));
-        keyService.makeKeyPair.mockResolvedValue(keyPair);
+        if (config.userHasLocalKeyPair) {
+          keyService.userPrivateKey$.mockReturnValue(of(existingUserPrivateKey));
+          keyService.userPublicKey$.mockReturnValue(of(existingUserPublicKey));
+          encryptService.wrapDecapsulationKey.mockResolvedValue(
+            new EncString("existingUserPrivateKey"),
+          ); // TODO-rr-bw
+        } else {
+          keyService.userPrivateKey$.mockReturnValue(of(null));
+          keyService.userPublicKey$.mockReturnValue(of(null));
+          keyService.makeKeyPair.mockResolvedValue(keyPair);
+        }
       }
 
       // Mock handleResetPasswordAutoEnroll() values
@@ -221,6 +246,28 @@ describe("DefaultSetInitialPasswordService", () => {
     describe("given SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER", () => {
       beforeEach(() => {
         userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+      });
+
+      describe("given the user has an existing local key pair", () => {
+        it("should NOT create a brand new key pair for the user", async () => {
+          // Arrange
+          setPasswordRequest.keys = {
+            encryptedPrivateKey: new EncString("existingUserPrivateKey").encryptedString, // TODO-rr-bw
+            publicKey: Utils.fromBufferToB64(existingUserPublicKey), // TODO-rr-bw
+          };
+
+          setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
+
+          // Act
+          await sut.setInitialPassword(credentials, userType, userId);
+
+          // Assert
+          expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+          expect(keyService.userPrivateKey$).toHaveBeenCalledWith(userId);
+          expect(keyService.userPublicKey$).toHaveBeenCalledWith(userId);
+          expect(encryptService.wrapDecapsulationKey).toHaveBeenCalled(); // TODO-rr-bw
+          expect(keyService.makeKeyPair).not.toHaveBeenCalled();
+        });
       });
 
       describe("given the user has a userKey", () => {
@@ -322,10 +369,6 @@ describe("DefaultSetInitialPasswordService", () => {
             credentials.resetPasswordAutoEnroll = true;
 
             setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
-
-            const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
-            enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
-            enrollmentRequest.resetPasswordKey = userKeyEncString.encryptedString;
 
             // Act
             await sut.setInitialPassword(credentials, userType, userId);
@@ -473,10 +516,6 @@ describe("DefaultSetInitialPasswordService", () => {
             credentials.resetPasswordAutoEnroll = true;
 
             setupMocks({ ...defaultMockConfig, userType, resetPasswordAutoEnroll: true });
-
-            const enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest(); // TODO-rr-bw
-            enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash; // TODO-rr-bw
-            enrollmentRequest.resetPasswordKey = userKeyEncString.encryptedString; // TODO-rr-bw
 
             // Act
             await sut.setInitialPassword(credentials, userType, userId);
