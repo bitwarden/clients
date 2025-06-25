@@ -189,17 +189,20 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("youHaveBeenLoggedIn"),
-      });
-
-      await this.loginSuccessHandlerService.run(authenticationResult.userId);
-
       const endUserActivationFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM19315EndUserActivationMvp,
       );
+
+      if (!endUserActivationFlagEnabled) {
+        // Only show the toast when the end user activation feature flag is _not_ enabled
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("youHaveBeenLoggedIn"),
+        });
+      }
+
+      await this.loginSuccessHandlerService.run(authenticationResult.userId);
 
       if (endUserActivationFlagEnabled) {
         await this.router.navigate(["/setup-extension"]);
