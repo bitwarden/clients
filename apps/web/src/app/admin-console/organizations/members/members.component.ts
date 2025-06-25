@@ -52,6 +52,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -66,6 +67,10 @@ import { GroupApiService } from "../core";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 import { openEntityEventsDialog } from "../manage/entity-events.component";
 
+import {
+  AccountRecoveryDialogComponent,
+  AccountRecoveryDialogResultType,
+} from "./components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
@@ -749,11 +754,44 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   }
 
   async resetPassword(user: OrganizationUserView) {
+    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
+
+    if (changePasswordRefactorFlag) {
+      if (!user || !user.email || !user.id) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("orgUserDetailsNotFound"),
+        });
+        this.logService.error("Org user details not found when attempting account recovery");
+
+        return;
+      }
+
+      const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
+        data: {
+          name: this.userNamePipe.transform(user),
+          email: user.email,
+          organizationId: this.organization.id as OrganizationId,
+          organizationUserId: user.id,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === AccountRecoveryDialogResultType.Ok) {
+        await this.load();
+      }
+
+      return;
+    }
+
     const dialogRef = ResetPasswordComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         email: user != null ? user.email : null,
-        organizationId: this.organization.id,
+        organizationId: this.organization.id as OrganizationId,
         id: user != null ? user.id : null,
       },
     });
