@@ -11,6 +11,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
 import { SetupExtensionComponent } from "./setup-extension.component";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DeviceType } from "@bitwarden/common/enums";
 
 describe("SetupExtensionComponent", () => {
   let fixture: ComponentFixture<SetupExtensionComponent>;
@@ -30,6 +32,7 @@ describe("SetupExtensionComponent", () => {
         { provide: ConfigService, useValue: { getFeatureFlag } },
         { provide: Router, useValue: { navigate } },
         { provide: WebBrowserInteractionService, useValue: { extensionInstalled$ } },
+        { provide: PlatformUtilsService, useValue: { getDevice: () => DeviceType.UnknownBrowser } },
       ],
     }).compileComponents();
 
@@ -42,6 +45,10 @@ describe("SetupExtensionComponent", () => {
     const spinner = fixture.debugElement.query(By.css("i"));
 
     expect(spinner.nativeElement.title).toBe("loading");
+  });
+
+  it("sets webStoreUrl", () => {
+    expect(component["webStoreUrl"]).toBe("https://bitwarden.com/download/#downloads-web-browser");
   });
 
   describe("initialization", () => {

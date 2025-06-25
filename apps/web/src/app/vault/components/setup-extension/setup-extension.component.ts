@@ -9,11 +9,15 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ButtonComponent } from "@bitwarden/components";
 
 const SetupExtensionState = {
   Loading: "loading",
+  NeedsExtension: "needs-extension",
 } as const;
 
 type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
@@ -21,13 +25,14 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
-  imports: [NgIf, JslibModule],
+  imports: [NgIf, JslibModule, ButtonComponent],
 })
 export class SetupExtensionComponent implements OnInit {
   private webBrowserExtensionInteractionService = inject(WebBrowserInteractionService);
   private configService = inject(ConfigService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private platformUtilsService = inject(PlatformUtilsService);
 
   protected SetupExtensionState = SetupExtensionState;
   /**
@@ -35,8 +40,13 @@ export class SetupExtensionComponent implements OnInit {
    */
   protected state: SetupExtensionState = SetupExtensionState.Loading;
 
+  /** Download Url for the extension based on the browser */
+  protected webStoreUrl: string = "";
+
   async ngOnInit() {
     await this.conditionallyRedirectUser();
+
+    this.webStoreUrl = getWebStoreUrl(this.platformUtilsService.getDevice());
 
     this.webBrowserExtensionInteractionService.extensionInstalled$
       .pipe(takeUntilDestroyed(this.destroyRef), startWith(null), pairwise())
@@ -52,6 +62,7 @@ export class SetupExtensionComponent implements OnInit {
 
         // Extension is not installed
         if (currentState === false) {
+          this.state = SetupExtensionState.NeedsExtension;
         }
       });
   }

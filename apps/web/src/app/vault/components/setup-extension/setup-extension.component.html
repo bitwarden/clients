@@ -4,3 +4,26 @@
   aria-hidden="true"
   [appA11yTitle]="'loading' | i18n"
 ></i>
+
+<section
+  *ngIf="state === SetupExtensionState.NeedsExtension"
+  class="tw-text-center tw-mt-4"
+>
+  <h1 bitTypography="h2">{{"setupExtensionPageTitle" | i18n}}</h1>
+  <h2 bitTypography="body1">{{ "setupExtensionPageDescription" | i18n}}</h2>
+  <div class="tw-mb-6">
+    <!-- Placeholder - will be removed in following tickets -->
+    <img class="tw-max-w-3xl" alt="" src="/images/setup-extension/setup-extension-placeholder.png" />
+  </div>
+  <div>
+    <a
+      bitButton
+      buttonType="primary"
+      [href]="webStoreUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{"getTheExtension" | i18n}}
+    </a>
+  </div>
+</section>
