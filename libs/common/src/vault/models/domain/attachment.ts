@@ -56,6 +56,7 @@ export class Attachment extends Domain {
 
     if (this.key != null) {
       view.key = await this.decryptAttachmentKey(orgId, encKey);
+      view.encryptedKey = this.key; // Keep the encrypted key for the view
     }
 
     return view;
