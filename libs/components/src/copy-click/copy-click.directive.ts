@@ -42,7 +42,7 @@ export class CopyClickDirective {
    * When set, the toast displayed will show `<valueLabel> copied`
    * instead of the default messaging.
    */
-  readonly valueLabel = input<string>(undefined);
+  readonly valueLabel = input<string>();
 
   /**
    * When set without a value, a success toast will be shown when the value is copied
