@@ -33,7 +33,7 @@ export function inputBorderClasses(error: boolean) {
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
   host: {
-    "[attr.class]": "getClassList()",
+    "[class]": "classList()",
     "[id]": "id()",
     "[attr.type]": "type()",
     "[attr.spellcheck]": "spellcheck()",
