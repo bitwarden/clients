@@ -15,7 +15,6 @@ import {
   inject,
   signal,
   input,
-  model,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -76,7 +75,9 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   }
 
   /** Disables the entire chip */
-  disabled = model(false);
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input({ transform: booleanAttribute }) disabled = false;
 
   /** Chip will stretch to full width of its container */
   readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
@@ -257,7 +258,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
+    this.disabled = isDisabled;
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
