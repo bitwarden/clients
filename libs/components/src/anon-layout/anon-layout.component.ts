@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 import { RouterModule } from "@angular/router";
@@ -27,7 +29,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() subtitle: string;
   @Input() icon: Icon;
-  @Input() showReadonlyHostname?: boolean;
+  @Input() showReadonlyHostname: boolean;
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
   @Input() hideIcon: boolean = false;
