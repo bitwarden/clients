@@ -13,6 +13,7 @@ import {
   Self,
   input,
   model,
+  booleanAttribute,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -55,7 +56,9 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   readonly removeSelectedItems = input(false);
   placeholder = model<string>();
   readonly loading = input(false);
-  disabled = model<boolean>();
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input({ transform: booleanAttribute }) disabled?: boolean;
 
   // Internal tracking of selected items
   protected selectedItems: SelectItemView[];
@@ -154,7 +157,7 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
+    this.disabled = isDisabled;
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -195,7 +198,7 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()
