@@ -7,13 +7,15 @@ import { pairwise, startWith } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
+import { ButtonComponent, DialogRef, DialogService, LinkModule } from "@bitwarden/components";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ButtonComponent } from "@bitwarden/components";
+
+import { AddExtensionLaterDialogComponent } from "./add-extension-later-dialog.component";
 
 const SetupExtensionState = {
   Loading: "loading",
@@ -25,7 +27,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
-  imports: [NgIf, JslibModule, ButtonComponent],
+  imports: [NgIf, JslibModule, ButtonComponent, LinkModule],
 })
 export class SetupExtensionComponent implements OnInit {
   private webBrowserExtensionInteractionService = inject(WebBrowserInteractionService);
@@ -33,15 +35,18 @@ export class SetupExtensionComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private platformUtilsService = inject(PlatformUtilsService);
+  private dialogService = inject(DialogService);
 
   protected SetupExtensionState = SetupExtensionState;
-  /**
-   * The current state of the setup extension component.
-   */
+
+  /** The current state of the setup extension component. */
   protected state: SetupExtensionState = SetupExtensionState.Loading;
 
   /** Download Url for the extension based on the browser */
   protected webStoreUrl: string = "";
+
+  /** Reference to the add it later dialog */
+  protected dialogRef: DialogRef | null = null;
 
   async ngOnInit() {
     await this.conditionallyRedirectUser();
@@ -58,6 +63,7 @@ export class SetupExtensionComponent implements OnInit {
 
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
+          this.dialogRef?.close();
         }
 
         // Extension is not installed
@@ -77,5 +83,9 @@ export class SetupExtensionComponent implements OnInit {
     if (!isFeatureEnabled || isMobile) {
       await this.router.navigate(["/vault"]);
     }
+  }
+
+  addItLater() {
+    this.dialogRef = this.dialogService.open(AddExtensionLaterDialogComponent);
   }
 }
