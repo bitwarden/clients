@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Input, Output, EventEmitter, Component, OnInit, ViewChild } from "@angular/core";
-import { Observable, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -33,7 +33,6 @@ export class ItemFooterComponent implements OnInit {
   @Output() onCancel = new EventEmitter<CipherView>();
   @ViewChild("submitBtn", { static: false }) submitBtn: ButtonComponent | null = null;
 
-  canDeleteCipher$: Observable<boolean> = new Observable();
   activeUserId: UserId | null = null;
   passwordReprompted: boolean = false;
 
@@ -49,7 +48,6 @@ export class ItemFooterComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(this.cipher);
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
