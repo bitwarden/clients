@@ -1,7 +1,7 @@
 import { NgIf } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { pairwise, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -11,7 +11,14 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { getWebStoreUrl } from "@bitwarden/common/vault/utils/get-web-store-url";
-import { ButtonComponent, DialogRef, DialogService, LinkModule } from "@bitwarden/components";
+import {
+  ButtonComponent,
+  DialogRef,
+  DialogService,
+  IconModule,
+  LinkModule,
+} from "@bitwarden/components";
+import { VaultIcons } from "@bitwarden/vault";
 
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
@@ -20,6 +27,7 @@ import { AddExtensionLaterDialogComponent } from "./add-extension-later-dialog.c
 const SetupExtensionState = {
   Loading: "loading",
   NeedsExtension: "needs-extension",
+  Success: "success",
 } as const;
 
 type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
@@ -27,7 +35,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
-  imports: [NgIf, JslibModule, ButtonComponent, LinkModule],
+  imports: [NgIf, JslibModule, ButtonComponent, LinkModule, IconModule, RouterModule],
 })
 export class SetupExtensionComponent implements OnInit {
   private webBrowserExtensionInteractionService = inject(WebBrowserInteractionService);
@@ -38,6 +46,7 @@ export class SetupExtensionComponent implements OnInit {
   private dialogService = inject(DialogService);
 
   protected SetupExtensionState = SetupExtensionState;
+  protected PartyIcon = VaultIcons.Party;
 
   /** The current state of the setup extension component. */
   protected state: SetupExtensionState = SetupExtensionState.Loading;
@@ -64,6 +73,7 @@ export class SetupExtensionComponent implements OnInit {
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
           this.dialogRef?.close();
+          this.state = SetupExtensionState.Success;
         }
 
         // Extension is not installed
@@ -85,7 +95,13 @@ export class SetupExtensionComponent implements OnInit {
     }
   }
 
+  /** Opens the add extension later dialog */
   addItLater() {
     this.dialogRef = this.dialogService.open(AddExtensionLaterDialogComponent);
+  }
+
+  /** Opens the browser extension */
+  openExtension() {
+    void this.webBrowserExtensionInteractionService.openExtension();
   }
 }
