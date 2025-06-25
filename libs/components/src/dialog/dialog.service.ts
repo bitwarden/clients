@@ -160,7 +160,7 @@ export class DialogService {
      * but we get the base CDK DialogRef instance *from* `Dialog.open`.
      *
      * To break the circle, we define CDKDialogRef as a wrapper for the CDKDialogRefBase.
- provide the base instance later, almost like "deferred inheritance".
+     * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
     const ref = new CdkDialogRef<R, C>();
     const injector = this.createInjector({
