@@ -22,7 +22,7 @@ import {
   SectionHeaderComponent,
   BitIconButtonComponent,
   SimpleDialogOptions,
-  SimpleDialogType,
+  SimpleDialogTypes,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -39,21 +39,21 @@ const DIALOG_MESSAGES: Record<string, SimpleDialogOptions> = {
   unexpectedErrorShort: {
     title: { key: "unexpectedErrorShort" },
     content: { key: "closeThisBitwardenWindow" },
-    type: SimpleDialogType.Danger,
+    type: SimpleDialogTypes.Danger,
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   unableToSavePasskey: {
     title: { key: "unableToSavePasskey" },
     content: { key: "closeThisBitwardenWindow" },
-    type: SimpleDialogType.Danger,
+    type: SimpleDialogTypes.Danger,
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   overwritePasskey: {
     title: { key: "overwritePasskey" },
     content: { key: "alreadyContainsPasskey" },
-    type: SimpleDialogType.Warning,
+    type: SimpleDialogTypes.Warning,
   },
 };
 
