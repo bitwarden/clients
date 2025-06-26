@@ -153,22 +153,23 @@ describe("OsBiometricsServiceWindows", function () {
       biometrics.prompt = jest.fn().mockResolvedValue(true);
     });
 
-    it("should throw error when unsuccessfully authenticated biometrics", async () => {
+    it("should return null when unsuccessfully authenticated biometrics", async () => {
       biometrics.prompt = jest.fn().mockResolvedValue(false);
 
-      await expect(service.getBiometricKey(userId)).rejects.toThrow(
-        new Error("Biometric authentication failed"),
-      );
+      const result = await service.getBiometricKey(userId);
+
+      expect(result).toBeNull();
     });
 
     it.each([null, undefined, ""])(
-      "should return null if no password is found '%s'",
+      "should throw error when no biometric key is found '%s'",
       async (password) => {
         passwords.getPassword = jest.fn().mockResolvedValue(password);
 
-        const result = await service.getBiometricKey(userId);
+        await expect(service.getBiometricKey(userId)).rejects.toThrow(
+          "Biometric key not found for user",
+        );
 
-        expect(result).toBeNull();
         expect(passwords.getPassword).toHaveBeenCalledWith(serviceKey, storageKey);
       },
     );

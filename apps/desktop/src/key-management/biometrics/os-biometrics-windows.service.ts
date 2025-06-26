@@ -42,18 +42,20 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   async getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null> {
     const success = await this.authenticateBiometric();
     if (!success) {
-      throw new Error("Biometric authentication failed");
+      return null;
     }
 
     const value = await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
+    if (value == null || value == "") {
+      throw new Error("Biometric key not found for user");
+    }
+
     let clientKeyHalfB64: string | null = null;
     if (this.clientKeyHalves.has(userId)) {
       clientKeyHalfB64 = Utils.fromBufferToB64(this.clientKeyHalves.get(userId)!);
     }
 
-    if (value == null || value == "") {
-      return null;
-    } else if (!EncString.isSerializedEncString(value)) {
+    if (!EncString.isSerializedEncString(value)) {
       // Update to format encrypted with client key half
       const storageDetails = await this.getStorageDetails({
         clientKeyHalfB64: clientKeyHalfB64 ?? undefined,
