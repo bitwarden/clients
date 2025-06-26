@@ -22,8 +22,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { TrialFlowService } from "../../../../billing/services/trial-flow.service";
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
@@ -175,7 +175,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
             this.policyService
-              .policiesByType$(PolicyType.PersonalOwnership, userId)
+              .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),
           ),
         ),
@@ -268,7 +268,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
     );
@@ -303,7 +303,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           .map((r) => r.cipherType);
         const toExclude = [...excludeTypes, ...restrictedByAll];
         return this.allTypeFilters.filter(
-          (f) => typeof f.type !== "string" && !toExclude.includes(f.type),
+          (f) => typeof f.type === "string" || !toExclude.includes(f.type),
         );
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),

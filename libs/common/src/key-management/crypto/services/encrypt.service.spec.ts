@@ -11,10 +11,12 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { makeStaticByteArray } from "../../../../spec";
 import { DefaultFeatureFlagValue, FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ServerConfig } from "../../../platform/abstractions/config/server-config";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 
@@ -343,6 +345,24 @@ describe("EncryptService", () => {
       );
     });
 
+    it("calls PureCrypto when useSDKForDecryption is true", async () => {
+      (encryptService as any).useSDKForDecryption = true;
+      const decryptedBytes = makeStaticByteArray(10, 200);
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        configurable: true,
+      });
+      jest.spyOn(PureCrypto, "symmetric_decrypt_array_buffer").mockReturnValue(decryptedBytes);
+
+      const actual = await encryptService.decryptToBytes(encBuffer, key);
+
+      expect(PureCrypto.symmetric_decrypt_array_buffer).toHaveBeenCalledWith(
+        encBuffer.buffer,
+        key.toEncoded(),
+      );
+      expect(actual).toEqualBuffer(decryptedBytes);
+    });
+
     it("decrypts data with provided key for Aes256CbcHmac", async () => {
       const decryptedBytes = makeStaticByteArray(10, 200);
 
@@ -447,6 +467,25 @@ describe("EncryptService", () => {
     it("throws if no key is provided", () => {
       return expect(encryptService.decryptToUtf8(null, null)).rejects.toThrow(
         "No key provided for decryption.",
+      );
+    });
+
+    it("calls PureCrypto when useSDKForDecryption is true", async () => {
+      (encryptService as any).useSDKForDecryption = true;
+      const key = new SymmetricCryptoKey(makeStaticByteArray(64, 0));
+      const encString = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "data", "iv", "mac");
+      Object.defineProperty(SdkLoadService, "Ready", {
+        value: Promise.resolve(),
+        configurable: true,
+      });
+      jest.spyOn(PureCrypto, "symmetric_decrypt").mockReturnValue("data");
+
+      const actual = await encryptService.decryptToUtf8(encString, key);
+
+      expect(actual).toEqual("data");
+      expect(PureCrypto.symmetric_decrypt).toHaveBeenCalledWith(
+        encString.encryptedString,
+        key.toEncoded(),
       );
     });
 

@@ -44,8 +44,12 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 import { SecurityTask } from "@bitwarden/common/vault/tasks/models/security-task";
 
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
 import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
@@ -1052,7 +1056,7 @@ export default class NotificationBackground {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
     );

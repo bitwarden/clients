@@ -11,8 +11,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { RestrictedItemTypesService } from "@bitwarden/vault";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";

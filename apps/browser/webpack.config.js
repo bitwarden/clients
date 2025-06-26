@@ -8,6 +8,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
 const manifest = require("./webpack/manifest");
+const AngularCheckPlugin = require("./webpack/angular-check");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -404,7 +405,7 @@ if (manifestVersion == 2) {
       cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins],
+    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist
