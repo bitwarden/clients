@@ -34,10 +34,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  CipherViewLike,
-  CipherViewLikeUtils,
-} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -306,7 +303,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async viewCipher(c: CipherViewLike) {
-    const cipher = await this.getFullCipherView(c);
+    const cipher = await this.cipherService.getFullCipherView(c);
     if (!(await this.canNavigateAway("view", cipher))) {
       return;
     } else if (!(await this.passwordReprompt(cipher))) {
@@ -319,7 +316,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async viewCipherMenu(c: CipherViewLike) {
-    const cipher = await this.getFullCipherView(c);
+    const cipher = await this.cipherService.getFullCipherView(c);
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
@@ -848,14 +845,5 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
-  }
-
-  private async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
-    if (!CipherViewLikeUtils.isCipherListView(c)) {
-      return Promise.resolve(c);
-    }
-
-    const _cipher = await this.cipherService.get(c.id, this.activeUserId);
-    return this.cipherService.decrypt(_cipher, this.activeUserId);
   }
 }

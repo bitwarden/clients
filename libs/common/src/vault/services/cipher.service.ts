@@ -1943,4 +1943,17 @@ export class CipherService implements CipherServiceAbstraction {
 
     return decryptedViews.sort(this.getLocaleSortingFunction());
   }
+
+  /** Fetches the full `CipherView` when a `CipherListView` is passed. */
+  async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
+    if (CipherViewLikeUtils.isCipherListView(c)) {
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      const cipher = await this.get(c.id!, activeUserId);
+      return this.decrypt(cipher, activeUserId);
+    }
+
+    return Promise.resolve(c);
+  }
 }

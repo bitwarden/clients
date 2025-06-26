@@ -254,4 +254,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     response: Response,
     userId: UserId,
   ): Promise<Uint8Array | null>;
+
+  /**
+   * Decrypts the full `CipherView` for a given `CipherViewLike`.
+   * When a `CipherView` instance is passed, it returns it as is.
+   */
+  abstract getFullCipherView(c: CipherViewLike): Promise<CipherView>;
 }

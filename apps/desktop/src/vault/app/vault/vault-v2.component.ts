@@ -37,10 +37,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  CipherViewLike,
-  CipherViewLikeUtils,
-} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -394,7 +391,7 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   async viewCipher(c: CipherViewLike) {
-    const cipher = await this.getFullCipherView(c);
+    const cipher = await this.cipherService.getFullCipherView(c);
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
@@ -453,7 +450,7 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   async viewCipherMenu(c: CipherViewLike) {
-    const cipher = await this.getFullCipherView(c);
+    const cipher = await this.cipherService.getFullCipherView(c);
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
@@ -903,14 +900,5 @@ export class VaultV2Component<C extends CipherViewLike>
       this.cipherRepromptId = cipher.id;
     }
     return repromptResult;
-  }
-
-  private async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
-    if (!CipherViewLikeUtils.isCipherListView(c)) {
-      return Promise.resolve(c);
-    }
-
-    const _cipher = await this.cipherService.get(c.id!, this.activeUserId!);
-    return this.cipherService.decrypt(_cipher, this.activeUserId!);
   }
 }

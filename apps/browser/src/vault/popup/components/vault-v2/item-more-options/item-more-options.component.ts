@@ -14,7 +14,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   CipherViewLike,
@@ -136,12 +135,12 @@ export class ItemMoreOptionsComponent {
   }
 
   async doAutofill() {
-    const cipher = await this.getFullCipherView(this.cipher);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
     await this.vaultPopupAutofillService.doAutofill(cipher);
   }
 
   async doAutofillAndSave() {
-    const cipher = await this.getFullCipherView(this.cipher);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
     await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false);
   }
 
@@ -159,7 +158,7 @@ export class ItemMoreOptionsComponent {
    * Toggles the favorite status of the cipher and updates it on the server.
    */
   async toggleFavorite() {
-    const cipher = await this.getFullCipherView(this.cipher);
+    const cipher = await this.cipherService.getFullCipherView(this.cipher);
 
     cipher.favorite = !cipher.favorite;
     const activeUserId = await firstValueFrom(
@@ -220,18 +219,5 @@ export class ItemMoreOptionsComponent {
     await this.router.navigate(["/assign-collections"], {
       queryParams: { cipherId: this.cipher.id },
     });
-  }
-
-  /** Fetches the full `CipherView` when a `CipherListView` is passed. */
-  private async getFullCipherView(c: CipherViewLike): Promise<CipherView> {
-    if (CipherViewLikeUtils.isCipherListView(c)) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      const cipher = await this.cipherService.get(c.id!, activeUserId);
-      return this.cipherService.decrypt(cipher, activeUserId);
-    }
-
-    return Promise.resolve(c);
   }
 }
