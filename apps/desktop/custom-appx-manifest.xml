@@ -13,10 +13,10 @@ xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
 IgnorableNamespaces="uap rescap com uap10 build"
 xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
-    <Identity Name="8bitSolutionsLLC.bitwardendesktop"
-        ProcessorArchitecture="x64"
-        Publisher='CN=com.bitwarden.localdevelopment'
-        Version="2025.6.0.0" />
+    <Identity Name="${applicationId}"
+    ProcessorArchitecture="${arch}"
+    Publisher='${publisher}'
+    Version="${version}" />
     <Properties>
         <DisplayName>Bitwarden</DisplayName>
         <PublisherDisplayName>Bitwarden Inc</PublisherDisplayName>

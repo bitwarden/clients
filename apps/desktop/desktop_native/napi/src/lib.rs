@@ -810,11 +810,212 @@ pub mod crypto {
 
 #[napi]
 pub mod passkey_authenticator {
+    use napi::threadsafe_function::{
+        ErrorStrategy::CalleeHandled, ThreadsafeFunction,
+    };
+    use serde_json;
+
+    // Re-export the platform-specific types
+    pub use crate::passkey_authenticator_internal::PasskeyRequestEvent;
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    pub struct SyncedCredential {
+        pub credential_id: String, // base64url encoded
+        pub rp_id: String,
+        pub user_name: String,
+        pub user_id: String, // base64url encoded
+    }
+
+    impl From<windows_plugin_authenticator::SyncedCredential> for SyncedCredential {
+        fn from(cred: windows_plugin_authenticator::SyncedCredential) -> Self {
+            use base64::Engine;
+            Self {
+                credential_id: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(&cred.credential_id),
+                rp_id: cred.rp_id,
+                user_name: cred.user_name,
+                user_id: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(&cred.user_id),
+            }
+        }
+    }
+
+    impl From<SyncedCredential> for windows_plugin_authenticator::SyncedCredential {
+        fn from(cred: SyncedCredential) -> Self {
+            use base64::Engine;
+            Self {
+                credential_id: base64::engine::general_purpose::URL_SAFE_NO_PAD
+                    .decode(&cred.credential_id)
+                    .unwrap_or_default(),
+                rp_id: cred.rp_id,
+                user_name: cred.user_name,
+                user_id: base64::engine::general_purpose::URL_SAFE_NO_PAD
+                    .decode(&cred.user_id)
+                    .unwrap_or_default(),
+            }
+        }
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionRequest {
+        pub rp_id: String,
+        pub transaction_id: String,
+        pub client_data_hash: Vec<u8>,
+        pub allowed_credentials: Vec<Vec<u8>>,
+        pub user_verification: bool,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+
+    pub struct PasskeyRegistrationRequest {
+        pub rp_id: String,
+        pub transaction_id: String,
+        pub user_id: Vec<u8>,
+        pub user_name: String,
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: bool,
+        pub supported_algorithms: Vec<i32>,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeySyncRequest {
+        pub rp_id: String,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+
+    pub struct PasskeyAssertionResponse {
+        pub credential_id: Vec<u8>,
+        pub authenticator_data: Vec<u8>,
+        pub signature: Vec<u8>,
+        pub user_handle: Vec<u8>,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+
+    pub struct PasskeyRegistrationResponse {
+        pub credential_id: Vec<u8>,
+        pub attestation_object: Vec<u8>,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+
+    pub struct PasskeySyncResponse {
+        pub credentials: Vec<SyncedCredential>,
+    }
+
+    #[napi(object)]
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+
+    pub struct PasskeyErrorResponse {
+        pub message: String,
+    }
+
+
     #[napi]
     pub fn register() -> napi::Result<()> {
         crate::passkey_authenticator_internal::register().map_err(|e| {
             napi::Error::from_reason(format!("Passkey registration failed - Error: {e} - {e:?}"))
         })
+    }
+
+    #[napi]
+    pub async fn on_request(
+        #[napi(ts_arg_type = "(error: null | Error, event: PasskeyRequestEvent) => Promise<string>")]
+        callback: ThreadsafeFunction<PasskeyRequestEvent, CalleeHandled>,
+    ) -> napi::Result<String> {
+        crate::passkey_authenticator_internal::on_request(callback).await
+    }
+
+    #[napi]
+    pub fn sync_credentials_to_windows(credentials: Vec<SyncedCredential>) -> napi::Result<()> {
+        const PLUGIN_CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+        
+        log::info!("[NAPI] sync_credentials_to_windows called with {} credentials", credentials.len());
+        
+        // Log each credential being synced (with truncated IDs for security)
+        for (i, cred) in credentials.iter().enumerate() {
+            let truncated_cred_id = if cred.credential_id.len() > 16 {
+                format!("{}...", &cred.credential_id[..16])
+            } else {
+                cred.credential_id.clone()
+            };
+            let truncated_user_id = if cred.user_id.len() > 16 {
+                format!("{}...", &cred.user_id[..16])
+            } else {
+                cred.user_id.clone()
+            };
+            log::info!("[NAPI] Credential {}: RP={}, User={}, CredID={}, UserID={}", 
+                i + 1, cred.rp_id, cred.user_name, truncated_cred_id, truncated_user_id);
+        }
+        
+        // Convert NAPI types to internal types using From trait
+        let internal_credentials: Vec<windows_plugin_authenticator::SyncedCredential> = credentials
+            .into_iter()
+            .map(|cred| cred.into())
+            .collect();
+
+        log::info!("[NAPI] Calling Windows Plugin Authenticator sync with CLSID: {}", PLUGIN_CLSID);
+        let result = windows_plugin_authenticator::sync_credentials_to_windows(internal_credentials, PLUGIN_CLSID);
+        
+        match &result {
+            Ok(()) => log::info!("[NAPI] sync_credentials_to_windows completed successfully"),
+            Err(e) => log::error!("[NAPI] sync_credentials_to_windows failed: {}", e),
+        }
+        
+        result.map_err(|e| napi::Error::from_reason(format!("Sync credentials failed: {}", e)))
+    }
+
+    #[napi]
+    pub fn get_credentials_from_windows() -> napi::Result<Vec<SyncedCredential>> {
+        const PLUGIN_CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+        
+        log::info!("[NAPI] get_credentials_from_windows called with CLSID: {}", PLUGIN_CLSID);
+        
+        let result = windows_plugin_authenticator::get_credentials_from_windows(PLUGIN_CLSID);
+        
+        let internal_credentials = match &result {
+            Ok(creds) => {
+                log::info!("[NAPI] Retrieved {} credentials from Windows", creds.len());
+                result.map_err(|e| napi::Error::from_reason(format!("Get credentials failed: {}", e)))?
+            }
+            Err(e) => {
+                log::error!("[NAPI] get_credentials_from_windows failed: {}", e);
+                return Err(napi::Error::from_reason(format!("Get credentials failed: {}", e)));
+            }
+        };
+
+        // Convert internal types to NAPI types using From trait
+        let napi_credentials: Vec<SyncedCredential> = internal_credentials
+            .into_iter()
+            .enumerate()
+            .map(|(i, cred)| {
+                let result_cred: SyncedCredential = cred.into();
+                let truncated_cred_id = if result_cred.credential_id.len() > 16 {
+                    format!("{}...", &result_cred.credential_id[..16])
+                } else {
+                    result_cred.credential_id.clone()
+                };
+                log::info!("[NAPI] Retrieved credential {}: RP={}, User={}, CredID={}", 
+                    i + 1, result_cred.rp_id, result_cred.user_name, truncated_cred_id);
+                result_cred
+            })
+            .collect();
+
+        log::info!("[NAPI] get_credentials_from_windows completed successfully, returning {} credentials", napi_credentials.len());
+        Ok(napi_credentials)
     }
 }
 

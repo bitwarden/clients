@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/desktop",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.6.0",
+  "version": "2025.6.4",
   "keywords": [
     "bitwarden",
     "password",
@@ -67,6 +67,7 @@
     "upload:mas": "xcrun altool --upload-app --type osx --file \"$(find ./dist/mas-universal/Bitwarden*.pkg)\" --apiKey $APP_STORE_CONNECT_AUTH_KEY --apiIssuer $APP_STORE_CONNECT_TEAM_ISSUER",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:watch:all": "jest --watchAll"
+    "test:watch:all": "jest --watchAll",
+    "local:win": "cd desktop_native/napi && npm run build && cd ../.. && npm run build:dev && npm run pack:win"
   }
 }

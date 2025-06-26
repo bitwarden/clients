@@ -61,10 +61,7 @@ export class DesktopAutofillService implements OnDestroy {
       .pipe(
         distinctUntilChanged(),
         switchMap((enabled) => {
-          if (!enabled) {
-            return EMPTY;
-          }
-
+        
           return this.accountService.activeAccount$.pipe(
             map((account) => account?.id),
             filter((userId): userId is UserId => userId != null),
@@ -80,47 +77,40 @@ export class DesktopAutofillService implements OnDestroy {
       .subscribe();
 
     this.listenIpc();
+ 
   }
 
   /** Give metadata about all available credentials in the users vault */
   async sync(cipherViews: CipherView[]) {
-    const status = await this.status();
-    if (status.type === "error") {
-      return this.logService.error("Error getting autofill status", status.error);
-    }
+    this.logService.info("Syncing autofill credentials: ", cipherViews.length);
+    // const status = await this.status();
+    // if (status.type === "error") {
+    //   return this.logService.error("Error getting autofill status", status.error);
+    // }
 
-    if (!status.value.state.enabled) {
-      // Autofill is disabled
-      return;
-    }
+    // if (!status.value.state.enabled) {
+    //   // Autofill is disabled
+    //   return;
+    // }
 
     let fido2Credentials: NativeAutofillFido2Credential[];
     let passwordCredentials: NativeAutofillPasswordCredential[];
 
-    if (status.value.support.password) {
-      passwordCredentials = cipherViews
-        .filter(
-          (cipher) =>
-            cipher.type === CipherType.Login &&
-            cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some((uri) => uri.match !== UriMatchStrategy.Never) &&
-            cipher.login.uris.some((uri) => !Utils.isNullOrWhitespace(uri.uri)) &&
-            !Utils.isNullOrWhitespace(cipher.login.username),
-        )
-        .map((cipher) => ({
-          type: "password",
-          cipherId: cipher.id,
-          uri: cipher.login.uris.find((uri) => uri.match !== UriMatchStrategy.Never).uri,
-          username: cipher.login.username,
-        }));
-    }
-
-    if (status.value.support.fido2) {
-      fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
+    fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
         type: "fido2",
         ...credential,
       }));
-    }
+    
+
+    this.logService.info("Found FIDO2 credentials", fido2Credentials.length);
+
+    console.log("ipc.autofill",ipc.autofill);
+    console.log("ipc.autofill.syncpasskeys", ipc.autofill.syncPasskeys);
+    const res = await ipc.autofill.syncPasskeys({
+      credentials: [...fido2Credentials],
+    });
+    this.logService.warning("syncPasskeys result", res);
+
 
     const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
       namespace: "autofill",
