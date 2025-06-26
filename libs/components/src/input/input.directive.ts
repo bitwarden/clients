@@ -72,7 +72,7 @@ export class BitInputDirective implements BitFormFieldControl {
 
   spellcheck = model<boolean>();
 
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding()
   @Input()

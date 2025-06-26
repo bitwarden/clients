@@ -17,7 +17,7 @@ export class BitIconComponent {
 
   readonly icon = input<Icon>();
 
-  readonly ariaLabel = input<string | undefined>(undefined);
+  readonly ariaLabel = input<string>();
 
   constructor(private domSanitizer: DomSanitizer) {
     effect(() => {

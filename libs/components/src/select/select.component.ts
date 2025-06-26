@@ -78,11 +78,11 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
       return;
     }
     this.items.set(
-      value.toArray().map((c) => ({
-        icon: c.icon(),
-        value: c.value(),
-        label: c.label(),
-        disabled: c.disabled(),
+      value.toArray().map((option) => ({
+        icon: option.icon(),
+        value: option.value(),
+        label: option.label(),
+        disabled: option.disabled(),
       })),
     );
   }
@@ -165,7 +165,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
-  // TODO: Skipped for migration because:
+  // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()

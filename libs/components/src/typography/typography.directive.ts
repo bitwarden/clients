@@ -32,7 +32,7 @@ const margins: Record<TypographyType, string[]> = {
   selector: "[bitTypography]",
 })
 export class TypographyDirective {
-  readonly bitTypography = input<TypographyType>(undefined);
+  readonly bitTypography = input<TypographyType>();
 
   readonly noMargin = input(false, { transform: booleanAttribute });
 

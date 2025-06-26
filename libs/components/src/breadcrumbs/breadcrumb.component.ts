@@ -11,11 +11,11 @@ import { QueryParamsHandling } from "@angular/router";
 export class BreadcrumbComponent {
   readonly icon = input<string>();
 
-  readonly route = input<string | any[]>(undefined);
+  readonly route = input<string | any[]>();
 
   readonly queryParams = input<Record<string, string>>({});
 
-  readonly queryParamsHandling = input<QueryParamsHandling>(undefined);
+  readonly queryParamsHandling = input<QueryParamsHandling>();
 
   @Output()
   click = new EventEmitter();
