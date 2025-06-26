@@ -22,7 +22,6 @@ import { SmLandingApiService } from "./sm-landing-api.service";
 
 @Component({
   selector: "app-request-sm-access",
-  standalone: true,
   templateUrl: "request-sm-access.component.html",
   imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, OssModule],
 })

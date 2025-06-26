@@ -166,7 +166,7 @@ export class VaultCipherRowComponent implements OnInit {
       this.showAttachments ||
       this.showClone ||
       this.canEditCipher ||
-      this.cipher.isDeleted
+      (this.cipher.isDeleted && this.canRestoreCipher)
     );
   }
 

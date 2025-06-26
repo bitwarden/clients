@@ -30,6 +30,7 @@ import { ListResponse } from "../models/response/list.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class ListCommand {
   constructor(
@@ -43,6 +44,7 @@ export class ListCommand {
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
     private keyService: KeyService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -135,6 +137,8 @@ export class ListCommand {
     if (options.search != null && options.search.trim() !== "") {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
+
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
 
     await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 

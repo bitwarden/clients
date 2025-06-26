@@ -45,6 +45,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
@@ -161,6 +162,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
 
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
+
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
 
@@ -220,6 +224,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
     protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -331,7 +336,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
       ),
       this.organizations$,
