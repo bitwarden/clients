@@ -74,7 +74,9 @@ export class SendService implements InternalSendServiceAbstraction {
       model.key = key.material;
       model.cryptoKey = key.derivedKey;
     }
-    if (model.emails) {
+
+    const hasEmails = (model.emails?.length ?? 0) > 0;
+    if (hasEmails) {
       send.emails = model.emails.join(",");
       send.password = null;
     } else if (password != null) {
