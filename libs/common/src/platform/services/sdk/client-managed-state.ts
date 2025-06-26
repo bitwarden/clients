@@ -13,6 +13,7 @@ export async function initializeState(
   stateProvider: StateProvider,
 ): Promise<void> {
   await stateClient.initialize_state(
+    { db_name: `db-${userId}` },
     new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
   );
 }
