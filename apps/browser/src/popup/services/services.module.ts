@@ -22,7 +22,6 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  AnonLayoutWrapperDataService,
   LoginComponentService,
   TwoFactorAuthComponentService,
   TwoFactorAuthEmailComponentService,
@@ -121,7 +120,12 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  CompactModeService,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
@@ -138,7 +142,6 @@ import {
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
@@ -181,6 +184,7 @@ import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-u
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";

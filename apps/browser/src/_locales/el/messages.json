@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Κλειδί SSH"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Νέα $TYPE$",
     "placeholders": {
@@ -5062,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Ταυτοποίηση"
   },
@@ -5249,16 +5255,16 @@
     "message": "Enter password"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "Το κλειδί SSH δεν είναι έγκυρο"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "Ο τύπος κλειδιού SSH δεν υποστηρίζεται"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Επιτυχής εισαγωγή κλειδιού SSH"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Δεν μπορείτε να αφαιρέσετε συλλογές που έχουν μόνο δικαιώματα Προβολής: $COLLECTIONS$",
@@ -5312,10 +5318,10 @@
     "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
   },
   "nudgeBadgeAria": {
-    "message": "1 notification"
+    "message": "1 ειδοποίηση"
   },
   "emptyVaultNudgeTitle": {
-    "message": "Import existing passwords"
+    "message": "Εισαγωγή υπαρχόντων κωδικών πρόσβασης"
   },
   "emptyVaultNudgeBody": {
     "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
