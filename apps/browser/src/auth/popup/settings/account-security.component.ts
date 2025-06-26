@@ -533,11 +533,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         await this.biometricStateService.setBiometricUnlockEnabled(successful);
         if (!successful) {
           await this.biometricStateService.setFingerprintValidated(false);
+          return;
         }
         this.toastService.showToast({
           variant: "success",
           title: null,
-          message: this.i18nService.t("unlockBiometricSet"),
+          message: this.i18nService.t("unlockWithBiometricSet"),
         });
       } catch (error) {
         this.form.controls.biometric.setValue(false);
@@ -597,6 +598,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.i18nService.t("errorEnableBiometricTitle"),
             this.i18nService.t("errorEnableBiometricDesc"),
           );
+          setupResult = false;
+          return;
         }
         setupResult = true;
       } catch (e) {

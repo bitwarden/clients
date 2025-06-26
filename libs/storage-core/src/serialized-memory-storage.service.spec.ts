@@ -1,12 +1,12 @@
-import { MemoryStorageService } from "./memory-storage.service";
+import { SerializedMemoryStorageService } from "./serialized-memory-storage.service";
 
-describe("MemoryStorageService", () => {
-  let sut: MemoryStorageService;
+describe("SerializedMemoryStorageService", () => {
+  let sut: SerializedMemoryStorageService;
   const key = "key";
   const value = { test: "value" };
 
   beforeEach(() => {
-    sut = new MemoryStorageService();
+    sut = new SerializedMemoryStorageService();
   });
 
   afterEach(() => {
