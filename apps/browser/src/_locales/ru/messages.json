@@ -1365,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функция недоступна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Требуется миграция ключа шифрования. Чтобы обновить ключ шифрования, войдите через веб-хранилище."
+  "legacyEncryptionUnsupported": {
+    "message": "Устаревшее шифрование больше не поддерживается. Для восстановления аккаунта обратитесь в службу поддержки."
   },
   "premiumMembership": {
     "message": "Премиум"
@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "newItemHeader": {
     "message": "Новый $TYPE$",
     "placeholders": {
@@ -2153,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Установите PIN-код для разблокировки Bitwarden. Настройки PIN-кода будут сброшены, если вы когда-либо полностью выйдете из приложения."
   },
-  "setYourPinCode1": {
-    "message": "Ваш PIN-код будет использоваться для разблокировки Bitwarden вместо мастер-пароля. PIN-код будет сброшен, если вы выйдете из Bitwarden."
+  "setPinCode": {
+    "message": "Вы можете использовать этот PIN-код для разблокировки Bitwarden. PIN-код будет сброшен, если вы когда-либо полностью выйдете из приложения."
   },
   "pinRequired": {
     "message": "Необходим PIN-код."
@@ -2515,6 +2518,10 @@
   "change": {
     "message": "Изменить"
   },
+  "changePassword": {
+    "message": "Изменить пароль",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Изменить пароль - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2530,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Пароль, подверженный риску"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
@@ -2557,6 +2567,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Ваш пароль для этого сайта подвержен риску. Организация $ORGANIZATION$ попросила вас изменить его.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "Организация $ORGANIZATION$ просит вас изменить этот пароль, поскольку он подвержен риску. Перейдите в настройки аккаунта для изменения пароля.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Проверить и изменить один пароль, подверженный риску"
@@ -3613,14 +3643,6 @@
   },
   "trustUser": {
     "message": "Доверенный пользователь"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Нет активных Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Используйте Send для безопасного обмена зашифрованной информацией с кем угодно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Безопасная отправка конфиденциальной информации",
@@ -5043,6 +5065,9 @@
   "unlockPinSet": {
     "message": "Установить PIN--код разблокировки"
   },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
+  },
   "authenticating": {
     "message": "Аутентификация"
   },
@@ -5384,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

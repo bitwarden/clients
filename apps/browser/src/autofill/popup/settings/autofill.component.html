@@ -65,7 +65,10 @@
             {{ "showInlineMenuIdentitiesLabel" | i18n }}
           </bit-label>
         </bit-form-control>
-        <bit-form-control *ngIf="enableInlineMenu" class="tw-ml-5">
+        <bit-form-control
+          *ngIf="enableInlineMenu && !(restrictedCardType$ | async)"
+          class="tw-ml-5"
+        >
           <input
             bitCheckbox
             id="show-inline-menu-cards"
@@ -114,7 +117,7 @@
             </a>
           </bit-hint>
         </bit-form-control>
-        <bit-form-control>
+        <bit-form-control *ngIf="!(restrictedCardType$ | async)">
           <input
             bitCheckbox
             id="showCardsSuggestions"
