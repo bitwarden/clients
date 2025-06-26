@@ -14,8 +14,10 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -74,30 +76,28 @@ describe("DesktopSetInitialPasswordService", () => {
     expect(sut).not.toBeFalsy();
   });
 
-  describe("setInitialPassword()", () => {
-    let userId: UserId;
-    let userType: SetInitialPasswordUserType;
+  describe("setInitialPassword(...)", () => {
+    // Mock function parameters
     let credentials: SetInitialPasswordCredentials;
+    let userType: SetInitialPasswordUserType;
+    let userId: UserId;
+
+    // Mock other function data
     let userKey: UserKey;
     let userKeyEncString: EncString;
-    let protectedUserKey: [UserKey, EncString];
-    let keyPair: [string, EncString];
+    let masterKeyEncryptedUserKey: [UserKey, EncString];
 
+    let keyPair: [string, EncString];
+    let keysRequest: KeysRequest;
+
+    let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
+    let setPasswordRequest: SetPasswordRequest;
 
     beforeEach(() => {
-      userId = "userId" as UserId;
-      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-      userKeyEncString = new EncString("userKeyEncrypted");
-      protectedUserKey = [userKey, userKeyEncString];
-      keyPair = ["publicKey", new EncString("privateKey")];
-
-      userDecryptionOptionsSubject = new BehaviorSubject(null);
-      userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
-
+      // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -106,40 +106,72 @@ describe("DesktopSetInitialPasswordService", () => {
         orgId: "orgId",
         resetPasswordAutoEnroll: false,
       };
+      userId = "userId" as UserId;
+      userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+
+      // Mock other function data
+      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKeyEncString = new EncString("masterKeyEncryptedUserKey");
+      masterKeyEncryptedUserKey = [userKey, userKeyEncString];
+
+      keyPair = ["publicKey", new EncString("privateKey")];
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+
+      userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
+      userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
+      userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
+
+      setPasswordRequest = new SetPasswordRequest(
+        credentials.newServerMasterKeyHash,
+        masterKeyEncryptedUserKey[1].encryptedString,
+        credentials.newPasswordHint,
+        credentials.orgSsoIdentifier,
+        keysRequest,
+        credentials.kdfConfig.kdfType,
+        credentials.kdfConfig.iterations,
+      );
     });
 
-    function setupSetPasswordMocks() {
+    function setupMocks() {
+      // Mock makeMasterKeyEncryptedUserKey() values
+      keyService.userKey$.mockReturnValue(of(userKey));
+      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
+
+      // Mock keyPair values
       keyService.userPrivateKey$.mockReturnValue(of(null));
       keyService.userPublicKey$.mockReturnValue(of(null));
-
-      keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(protectedUserKey);
-
       keyService.makeKeyPair.mockResolvedValue(keyPair);
-
-      masterPasswordApiService.setPassword.mockResolvedValue(undefined);
-      masterPasswordService.setForceSetPasswordReason.mockResolvedValue(undefined);
-
-      userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: true }));
-      userDecryptionOptionsService.setUserDecryptionOptions.mockResolvedValue(undefined);
-      kdfConfigService.setKdfConfig.mockResolvedValue(undefined);
-      keyService.setUserKey.mockResolvedValue(undefined);
-
-      keyService.setPrivateKey.mockResolvedValue(undefined);
-
-      masterPasswordService.setMasterKeyHash.mockResolvedValue(undefined);
     }
 
-    it("should send a 'redrawMenu' message", async () => {
-      // Arrange
-      setupSetPasswordMocks();
+    describe("given the initial password was successfully set", () => {
+      it("should send a 'redrawMenu' message", async () => {
+        // Arrange
+        setupMocks();
 
-      // Act
-      await sut.setInitialPassword(credentials, userType, userId);
+        // Act
+        await sut.setInitialPassword(credentials, userType, userId);
 
-      // Assert
-      expect(messagingService.send).toHaveBeenCalledTimes(1);
-      expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+        // Assert
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(messagingService.send).toHaveBeenCalledTimes(1);
+        expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
+      });
+    });
+
+    describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
+      it("should NOT send a 'redrawMenu' message", async () => {
+        // Arrange
+        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
+        setupMocks();
+
+        // Act
+        const testFn = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(testFn).rejects.toThrow();
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
     });
   });
 });
