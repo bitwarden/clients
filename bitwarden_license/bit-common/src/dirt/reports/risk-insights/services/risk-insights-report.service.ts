@@ -1,10 +1,22 @@
 // FIXME: Update this file to be type safe
 // @ts-strict-ignore
-import { concatMap, first, from, map, Observable, zip } from "rxjs";
+import {
+  BehaviorSubject,
+  concatMap,
+  first,
+  firstValueFrom,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  zip,
+} from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,6 +36,8 @@ import {
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
+import { RiskInsightsApiService } from "./risk-insights-api.service";
+import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 
 export class RiskInsightsReportService {
   constructor(
@@ -31,7 +45,20 @@ export class RiskInsightsReportService {
     private auditService: AuditService,
     private cipherService: CipherService,
     private memberCipherDetailsApiService: MemberCipherDetailsApiService,
+    private riskInsightsApiService: RiskInsightsApiService,
+    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
   ) {}
+
+  private riskInsightsReportSubject = new BehaviorSubject<ApplicationHealthReportDetail[]>([]);
+  riskInsightsReport$ = this.riskInsightsReportSubject.asObservable();
+
+  private riskInsightsSummarySubject = new BehaviorSubject<ApplicationHealthReportSummary>({
+    totalMemberCount: 0,
+    totalAtRiskMemberCount: 0,
+    totalApplicationCount: 0,
+    totalAtRiskApplicationCount: 0,
+  });
+  riskInsightsSummary$ = this.riskInsightsSummarySubject.asObservable();
 
   /**
    * Report data from raw cipher health data.
@@ -179,6 +206,65 @@ export class RiskInsightsReportService {
         }) as ApplicationHealthReportDetailWithCriticalFlagAndCipher,
     );
     return dataWithCiphers;
+  }
+
+  getRiskInsightsReport(organizationId: string): void {
+    this.riskInsightsApiService
+      .getRiskInsightsReport(organizationId as OrganizationId)
+      .pipe(
+        switchMap((response) => {
+          if (!response) {
+            // Return an empty report and summary if response is falsy
+            return of<[ApplicationHealthReportDetail[], ApplicationHealthReportSummary]>([
+              [],
+              {
+                totalMemberCount: 0,
+                totalAtRiskMemberCount: 0,
+                totalApplicationCount: 0,
+                totalAtRiskApplicationCount: 0,
+              },
+            ]);
+          }
+          return from(
+            this.riskInsightsEncryptionService.decryptRiskInsightsReport(
+              organizationId as OrganizationId,
+              response,
+            ),
+          );
+        }),
+      )
+      .subscribe({
+        next: ([report, summary]) => {
+          this.riskInsightsReportSubject.next(report);
+          this.riskInsightsSummarySubject.next(summary);
+        },
+      });
+  }
+
+  async saveRiskInsightsReport(
+    organizationId: string,
+    report: ApplicationHealthReportDetail[],
+    summary: ApplicationHealthReportSummary,
+  ): Promise<void> {
+    const encryptedReport = await this.riskInsightsEncryptionService
+      .encryptRiskInsightsReport(
+        organizationId as OrganizationId,
+        report,
+        summary,
+      );
+
+    const saveRequest = {
+      data: encryptedReport,
+    };
+
+    const response = await firstValueFrom(
+      this.riskInsightsApiService.saveRiskInsightsReport(saveRequest),
+    );
+
+    if (response && response.id) {
+      this.riskInsightsReportSubject.next(report);
+      this.riskInsightsSummarySubject.next(summary);
+    }
   }
 
   /**
