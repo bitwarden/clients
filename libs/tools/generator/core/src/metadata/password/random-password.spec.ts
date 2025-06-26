@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
-import { SdkPasswordRandomizer } from "../../engine";
+import { PasswordRandomizer, SdkPasswordRandomizer } from "../../engine";
 import { DynamicPasswordPolicyConstraints } from "../../policies";
 import { GeneratorDependencyProvider } from "../../providers";
 import { PasswordGenerationOptions } from "../../types";
@@ -19,6 +19,14 @@ describe("password - characters generator metadata", () => {
   describe("engine.create", () => {
     it("returns an email randomizer", () => {
       expect(password.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
+    });
+  });
+
+  describe("engine.create", () => {
+    const nonSdkDependencyProvider = dependencyProvider;
+    nonSdkDependencyProvider.sdk = undefined;
+    it("returns an email randomizer", () => {
+      expect(password.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(PasswordRandomizer);
     });
   });
 
