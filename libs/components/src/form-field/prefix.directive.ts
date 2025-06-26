@@ -5,7 +5,7 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 @Directive({
   selector: "[bitPrefix]",
   host: {
-    "[class]": "classList()",
+    "[class]": "classList",
   },
 })
 export class BitPrefixDirective implements OnInit {
