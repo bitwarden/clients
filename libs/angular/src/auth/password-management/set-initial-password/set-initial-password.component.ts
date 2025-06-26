@@ -146,6 +146,22 @@ export class SetInitialPasswordComponent implements OnInit {
   protected async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
 
+    if (!passwordInputResult.newMasterKey) {
+      throw new Error("newMasterKey not found. Could not set initial password.");
+    }
+    if (!passwordInputResult.newServerMasterKeyHash) {
+      throw new Error("newServerMasterKeyHash not found. Could not set initial password.");
+    }
+    if (!passwordInputResult.newLocalMasterKeyHash) {
+      throw new Error("newLocalMasterKeyHash not found. Could not set initial password.");
+    }
+    // newPasswordHint can have an empty string as a valid value, so we specifically check for null or undefined
+    if (passwordInputResult.newPasswordHint == null) {
+      throw new Error("newPasswordHint not found. Could not set initial password.");
+    }
+    if (!passwordInputResult.kdfConfig) {
+      throw new Error("kdfConfig not found. Could not set initial password.");
+    }
     if (!this.userId) {
       throw new Error("userId not found. Could not set initial password.");
     }
@@ -158,6 +174,7 @@ export class SetInitialPasswordComponent implements OnInit {
     if (!this.orgId) {
       throw new Error("orgId not found. Could not set initial password.");
     }
+    // resetPasswordAutoEnroll can have `false` as a valid value, so we specifically check for null or undefined
     if (this.resetPasswordAutoEnroll == null) {
       throw new Error("resetPasswordAutoEnroll not found. Could not set initial password.");
     }
