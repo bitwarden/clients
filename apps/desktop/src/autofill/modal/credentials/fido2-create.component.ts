@@ -24,7 +24,6 @@ import {
   SimpleDialogOptions,
   SimpleDialogType,
 } from "@bitwarden/components";
-import type { SimpleDialogType } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
