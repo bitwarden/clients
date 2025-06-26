@@ -125,6 +125,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     try {
       // Check if we can return the credential without user interaction
+      await this.accountService.setShowHeader(false);
       if (assumeUserPresence && cipherIds.length === 1 && !masterPasswordRepromptRequired) {
         this.logService.debug(
           "shortcut - Assuming user presence and returning cipherId",
@@ -151,6 +152,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
     }
   }
 
@@ -249,6 +251,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode?
       await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
     }
   }
 
@@ -266,6 +269,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
     await this.centerOffscreenPopup();
+    await this.accountService.setShowHeader(false);
     await this.router.navigate([
       route,
       {
@@ -335,6 +339,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     this.availableCipherIdsSubject.next(existingCipherIds);
 
     await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
+    await this.accountService.setShowHeader(true);
   }
 
   async ensureUnlockedVault(): Promise<void> {

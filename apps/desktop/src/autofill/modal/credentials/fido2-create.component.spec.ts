@@ -123,29 +123,27 @@ describe("Fido2CreateComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(false);
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
     });
 
-    it("should throw error when no active session found", async () => {
+    it("should show error dialog when no active session found", async () => {
       mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(null);
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "Cannot read properties of null (reading 'getRpId')",
-      );
+      await component.ngOnInit();
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "unableToSavePasskey" },
+        content: { key: "closeThisBitwardenWindow" },
+        type: "danger",
+        acceptButtonText: { key: "closeBitwarden" },
+        cancelButtonText: null,
+      });
     });
   });
 
-  describe("ngOnDestroy", () => {
-    it("should restore header visibility", async () => {
-      await component.ngOnDestroy();
-
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
-    });
-  });
-
-  describe("addPasskeyToCipher", () => {
+  describe("addCredentialToCipher", () => {
     beforeEach(() => {
       component.session = mockSession;
     });
@@ -153,7 +151,7 @@ describe("Fido2CreateComponent", () => {
     it("should add passkey to cipher", async () => {
       const cipher = createMockCiphers()[0];
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true, cipher);
     });
@@ -163,7 +161,7 @@ describe("Fido2CreateComponent", () => {
       cipher.reprompt = CipherRepromptType.Password;
       mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
@@ -175,7 +173,7 @@ describe("Fido2CreateComponent", () => {
       });
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "overwritePasskey" },
@@ -192,7 +190,7 @@ describe("Fido2CreateComponent", () => {
       });
       mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.addPasskeyToCipher(cipher);
+      await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
@@ -207,17 +205,16 @@ describe("Fido2CreateComponent", () => {
       await component.confirmPasskey();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
     });
 
     it("should call openSimpleDialog when session is null", async () => {
       component.session = null;
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
       await component.confirmPasskey();
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "unexpectedErrorShort" },
+        title: { key: "unableToSavePasskey" },
         content: { key: "closeThisBitwardenWindow" },
         type: "danger",
         acceptButtonText: { key: "closeBitwarden" },
@@ -232,8 +229,6 @@ describe("Fido2CreateComponent", () => {
 
       await component.closeModal();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });

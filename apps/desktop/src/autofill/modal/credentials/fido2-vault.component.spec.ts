@@ -110,7 +110,6 @@ describe("Fido2VaultComponent", () => {
 
       await component.ngOnInit();
 
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(false);
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
       expect(component.cipherIds$).toBe(mockSession.availableCipherIds$);
@@ -139,15 +138,6 @@ describe("Fido2VaultComponent", () => {
     });
   });
 
-  describe("ngOnDestroy", () => {
-    it("should restore header visibility and clean up", async () => {
-      await component.ngOnInit();
-      await component.ngOnDestroy();
-
-      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
-    });
-  });
-
   describe("chooseCipher", () => {
     const cipher = mockCiphers[0];
 
@@ -162,7 +152,6 @@ describe("Fido2VaultComponent", () => {
 
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher.id, true);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
     });
 
     it("should prompt for password when cipher requires reprompt", async () => {
@@ -193,7 +182,6 @@ describe("Fido2VaultComponent", () => {
       await component.closeModal();
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });

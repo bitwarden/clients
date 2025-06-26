@@ -7,7 +7,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -22,6 +21,7 @@ import {
   TableModule,
   SectionHeaderComponent,
   BitIconButtonComponent,
+  SimpleDialogOptions,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -33,6 +33,28 @@ import {
 } from "../../services/desktop-fido2-user-interface.service";
 
 import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
+
+const DIALOG_MESSAGES = {
+  unexpectedErrorShort: {
+    title: { key: "unexpectedErrorShort" },
+    content: { key: "closeThisBitwardenWindow" },
+    type: "danger",
+    acceptButtonText: { key: "closeBitwarden" },
+    cancelButtonText: null as null,
+  },
+  unableToSavePasskey: {
+    title: { key: "unableToSavePasskey" },
+    content: { key: "closeThisBitwardenWindow" },
+    type: "danger",
+    acceptButtonText: { key: "closeBitwarden" },
+    cancelButtonText: null as null,
+  },
+  overwritePasskey: {
+    title: { key: "overwritePasskey" },
+    content: { key: "alreadyContainsPasskey" },
+    type: "warning",
+  },
+} as const satisfies Record<string, SimpleDialogOptions>;
 
 @Component({
   standalone: true,
@@ -67,106 +89,114 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     private readonly desktopAutofillService: DesktopAutofillService,
     private readonly dialogService: DialogService,
     private readonly domainSettingsService: DomainSettingsService,
-    private readonly logService: LogService,
     private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
-  async ngOnInit() {
-    await this.accountService.setShowHeader(false);
+  async ngOnInit(): Promise<void> {
     this.session = this.fido2UserInterfaceService.getCurrentSession();
+    if (!this.session) {
+      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      return;
+    }
+
+    try {
+      const displayedCiphers = await this.getDisplayedCiphers();
+      this.ciphersSubject.next(displayedCiphers);
+    } catch {
+      await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
+    }
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    await this.closeModal();
+  }
+
+  async addCredentialToCipher(cipher: CipherView): Promise<void> {
+    const isConfirmed = await this.validateCipherAccess(cipher);
+
+    try {
+      if (!this.session) {
+        throw new Error("Missing session");
+      }
+
+      this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
+    } catch {
+      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      return;
+    }
+
+    await this.closeModal();
+  }
+
+  async confirmPasskey(): Promise<void> {
+    try {
+      if (!this.session) {
+        throw new Error("Missing session");
+      }
+
+      this.session.notifyConfirmCreateCredential(true);
+    } catch {
+      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+    }
+
+    await this.closeModal();
+  }
+
+  async closeModal(): Promise<void> {
+    await this.router.navigate(["/"]);
+
+    if (this.session) {
+      this.session.notifyConfirmCreateCredential(false);
+      this.session.confirmChosenCipher(null);
+    }
+  }
+
+  private async getDisplayedCiphers(): Promise<CipherView[]> {
     const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
-    const rpid = await this.session.getRpId();
-    const equivalentDomains = await firstValueFrom(
-      this.domainSettingsService.getUrlEquivalentDomains(rpid),
-    );
+    const rpid = await this.session?.getRpId();
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
-    this.cipherService
-      .getAllDecrypted(activeUserId)
-      .then((ciphers) => {
-        const relevantCiphers = ciphers.filter((cipher) => {
-          const userHandle = Fido2Utils.bufferToString(
-            new Uint8Array(lastRegistrationRequest.userHandle),
-          );
+    if (!lastRegistrationRequest || !rpid || !activeUserId) {
+      return [];
+    }
 
-          return (
-            cipher.login.matchesUri(rpid, equivalentDomains) &&
-            Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
-            !cipher.deletedDate
-          );
-        });
-        this.ciphersSubject.next(relevantCiphers);
-      })
-      .catch((error) => this.logService.error(error));
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpid),
+    );
+    const userHandle = Fido2Utils.bufferToString(
+      new Uint8Array(lastRegistrationRequest.userHandle),
+    );
+    return (await this.cipherService.getAllDecrypted(activeUserId)).filter(
+      (cipher) =>
+        cipher.login?.matchesUri(rpid, equivalentDomains) &&
+        Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
+        !cipher.deletedDate,
+    );
   }
 
-  async ngOnDestroy() {
-    await this.accountService.setShowHeader(true);
-  }
-
-  async addPasskeyToCipher(cipher: CipherView) {
-    let isConfirmed = true;
-
+  private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
     if (cipher.login.hasFido2Credentials) {
-      isConfirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "overwritePasskey" },
-        content: { key: "alreadyContainsPasskey" },
-        type: "warning",
-      });
+      const overwriteConfirmed = await this.dialogService.openSimpleDialog(
+        DIALOG_MESSAGES.overwritePasskey,
+      );
+
+      if (!overwriteConfirmed) {
+        return false;
+      }
     }
 
     if (cipher.reprompt) {
-      isConfirmed = await this.passwordRepromptService.showPasswordPrompt();
+      return this.passwordRepromptService.showPasswordPrompt();
     }
 
-    this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
+    return true;
   }
 
-  async confirmPasskey() {
-    try {
-      // Retrieve the current UI session to control the flow
-      if (!this.session) {
-        const confirmed = await this.dialogService.openSimpleDialog({
-          title: { key: "unexpectedErrorShort" },
-          content: { key: "closeThisBitwardenWindow" },
-          type: "danger",
-          acceptButtonText: { key: "closeBitwarden" },
-          cancelButtonText: null,
-        });
-        if (confirmed) {
-          await this.closeModal();
-        }
-      } else {
-        this.session.notifyConfirmCreateCredential(true);
-      }
-
-      // Not sure this clean up should happen here or in session.
-      // The session currently toggles modal on and send us here
-      // But if this route is somehow opened outside of session we want to make sure we clean up?
-      await this.router.navigate(["/"]);
-      await this.desktopSettingsService.setModalMode(false);
-    } catch {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "unableToSavePasskey" },
-        content: { key: "closeThisBitwardenWindow" },
-        type: "danger",
-        acceptButtonText: { key: "closeBitwarden" },
-        cancelButtonText: null,
-      });
-
-      if (confirmed) {
-        await this.closeModal();
-      }
-    }
-  }
-
-  async closeModal() {
-    await this.router.navigate(["/"]);
-    await this.desktopSettingsService.setModalMode(false);
-    this.session.notifyConfirmCreateCredential(false);
-    this.session.confirmChosenCipher(null);
+  private async showErrorDialog(config: SimpleDialogOptions): Promise<void> {
+    await this.dialogService.openSimpleDialog(config);
+    await this.closeModal();
   }
 }
