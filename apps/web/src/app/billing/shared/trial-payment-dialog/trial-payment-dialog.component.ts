@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit, signal, ViewChild } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -8,16 +9,28 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
+import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { PlanService } from "../../services/plan.service";
 import { PaymentComponent } from "../payment/payment.component";
 import { PlanCard } from "../plan-card/plan-card.component";
+import { PricingSummaryData } from "../pricing-summary/pricing-summary.component";
+
+import { PricingSummaryService } from "./../../services/pricing-summary.service";
 
 type TrialPaymentDialogParams = {
   organizationId: string;
@@ -47,10 +60,11 @@ export class TrialPaymentDialogComponent implements OnInit {
   organization: Organization;
   organizationId: string;
   sub: OrganizationSubscriptionResponse;
-  selectedInterval: PlanInterval;
+  selectedInterval: PlanInterval = PlanInterval.Annually;
   secretsManagerTotal: number;
 
   planCards = signal<PlanCard[]>([]);
+  plans: ListResponse<PlanResponse>;
 
   loading = signal(true);
   protected initialPaymentMethod: PaymentMethodType;
@@ -58,6 +72,7 @@ export class TrialPaymentDialogComponent implements OnInit {
   protected totalOpened = false;
   protected estimatedTax: number = 0;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;
+  pricingSummaryData: PricingSummaryData;
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: TrialPaymentDialogParams,
@@ -67,6 +82,10 @@ export class TrialPaymentDialogComponent implements OnInit {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private accountService: AccountService,
     private planService: PlanService,
+    private pricingSummaryService: PricingSummaryService,
+    private apiService: ApiService,
+    private taxService: TaxServiceAbstraction,
+    private toastService: ToastService,
   ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
@@ -105,10 +124,27 @@ export class TrialPaymentDialogComponent implements OnInit {
         .reverse();
 
       this.planCards.set(planCards);
-    }
 
-    const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
-    this.taxInformation = TaxInformation.from(taxInfo);
+      if (!this.selectedInterval) {
+        this.selectedInterval = planCards.find((card) => card.isSelected)?.isAnnual
+          ? PlanInterval.Annually
+          : PlanInterval.Monthly;
+      }
+
+      const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
+      this.taxInformation = TaxInformation.from(taxInfo);
+
+      this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+        this.currentPlan,
+        this.sub,
+        this.organization,
+        this.selectedInterval,
+        this.estimatedTax,
+        this.isSecretsManagerTrial(),
+      );
+
+      this.plans = await this.apiService.getPlans();
+    }
   }
 
   static open = (
@@ -134,6 +170,40 @@ export class TrialPaymentDialogComponent implements OnInit {
         }
       });
     });
+
+    this.selectPlan();
+
+    this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+      this.currentPlan,
+      this.sub,
+      this.organization,
+      this.selectedInterval,
+      this.estimatedTax,
+      this.isSecretsManagerTrial(),
+    );
+  }
+
+  protected selectPlan() {
+    if (
+      this.selectedInterval === PlanInterval.Monthly &&
+      this.currentPlan.productTier == ProductTierType.Families
+    ) {
+      return;
+    }
+
+    const filteredPlans = this.plans.data.filter(
+      (plan) =>
+        plan.productTier === this.currentPlan.productTier &&
+        plan.isAnnual === (this.selectedInterval === PlanInterval.Annually),
+    );
+    if (filteredPlans.length > 0) {
+      this.currentPlan = filteredPlans[0];
+    }
+    try {
+      this.refreshSalesTax();
+    } catch {
+      this.estimatedTax = 0;
+    }
   }
 
   protected get showTaxIdField(): boolean {
@@ -148,19 +218,76 @@ export class TrialPaymentDialogComponent implements OnInit {
     }
   }
 
+  private refreshSalesTax(): void {
+    if (
+      this.taxInformation === undefined ||
+      !this.taxInformation.country ||
+      !this.taxInformation.postalCode
+    ) {
+      return;
+    }
+
+    const request: PreviewOrganizationInvoiceRequest = {
+      organizationId: this.organizationId,
+      passwordManager: {
+        additionalStorage: 0,
+        plan: this.currentPlan?.type,
+        seats: this.sub.seats,
+      },
+      taxInformation: {
+        postalCode: this.taxInformation.postalCode,
+        country: this.taxInformation.country,
+        taxId: this.taxInformation.taxId,
+      },
+    };
+
+    if (this.organization.useSecretsManager) {
+      request.secretsManager = {
+        seats: this.sub.smSeats,
+        additionalMachineAccounts:
+          this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
+      };
+    }
+
+    this.taxService
+      .previewOrganizationInvoice(request)
+      .then((invoice) => {
+        this.estimatedTax = invoice.taxAmount;
+        // Recalculate pricing summary data with the new estimated tax
+        this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+          this.currentPlan,
+          this.sub,
+          this.organization,
+          this.selectedInterval,
+          this.estimatedTax,
+          this.isSecretsManagerTrial(),
+        );
+      })
+      .catch((error) => {
+        const translatedMessage = this.i18nService.t(error.message);
+        this.toastService.showToast({
+          title: "",
+          variant: "error",
+          message:
+            !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
+        });
+      });
+  }
+
   taxInformationChanged(event: TaxInformation) {
     this.taxInformation = event;
     this.toggleBankAccount();
+    this.refreshSalesTax();
   }
 
   toggleBankAccount = () => {
-    if (this.taxInformation.country === "US") {
-      this.paymentComponent.showBankAccount = !!this.organizationId;
-    } else {
-      this.paymentComponent.showBankAccount = false;
-      if (this.paymentComponent.selected === PaymentMethodType.BankAccount) {
-        this.paymentComponent.select(PaymentMethodType.Card);
-      }
+    this.paymentComponent.showBankAccount = this.taxInformation.country === "US";
+
+    if (
+      !this.paymentComponent.showBankAccount &&
+      this.paymentComponent.selected === PaymentMethodType.BankAccount
+    ) {
+      this.paymentComponent.select(PaymentMethodType.Card);
     }
   };
 
@@ -169,124 +296,6 @@ export class TrialPaymentDialogComponent implements OnInit {
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
       ) ?? false
-    );
-  }
-
-  get additionalServiceAccount(): number {
-    if (!this.currentPlan || !this.currentPlan.SecretsManager) {
-      return 0;
-    }
-    const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
-    const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
-    return additionalServiceAccounts <= 0 ? Math.abs(additionalServiceAccounts) : 0;
-  }
-
-  passwordManagerSeatTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalSeatsOption || this.isSecretsManagerTrial()) {
-      return 0;
-    }
-
-    const result = plan.PasswordManager.seatPrice * Math.abs(this.sub?.seats || 0);
-    return result;
-  }
-
-  secretsManagerSeatTotal(plan: PlanResponse, seats: number): number {
-    if (!plan.SecretsManager.hasAdditionalSeatsOption) {
-      return 0;
-    }
-
-    return plan.SecretsManager.seatPrice * Math.abs(seats || 0);
-  }
-
-  additionalStorageTotal(plan: PlanResponse): number {
-    if (!plan.PasswordManager.hasAdditionalStorageOption) {
-      return 0;
-    }
-
-    return (
-      plan.PasswordManager.additionalStoragePricePerGb *
-      // TODO: Eslint upgrade. Please resolve this  since the null check does nothing
-      // eslint-disable-next-line no-constant-binary-expression
-      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
-    );
-  }
-
-  additionalStoragePriceMonthly(selectedPlan: PlanResponse) {
-    return selectedPlan.PasswordManager.additionalStoragePricePerGb;
-  }
-
-  additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (
-      !plan.SecretsManager.hasAdditionalServiceAccountOption ||
-      this.additionalServiceAccount == 0
-    ) {
-      return 0;
-    }
-
-    return plan.SecretsManager.additionalPricePerServiceAccount * this.additionalServiceAccount;
-  }
-
-  get passwordManagerSubtotal() {
-    if (!this.currentPlan || !this.currentPlan.PasswordManager) {
-      return 0;
-    }
-
-    let subTotal = this.currentPlan.PasswordManager.basePrice;
-    if (this.currentPlan.PasswordManager.hasAdditionalSeatsOption) {
-      subTotal += this.passwordManagerSeatTotal(this.currentPlan);
-    }
-    if (this.currentPlan.PasswordManager.hasPremiumAccessOption) {
-      subTotal += this.currentPlan.PasswordManager.premiumAccessOptionPrice;
-    }
-    return subTotal;
-  }
-
-  secretsManagerSubtotal() {
-    const plan = this.currentPlan;
-    if (!plan || !plan.SecretsManager) {
-      return this.secretsManagerTotal || 0;
-    }
-
-    if (this.secretsManagerTotal) {
-      return this.secretsManagerTotal;
-    }
-
-    this.secretsManagerTotal =
-      plan.SecretsManager.basePrice +
-      this.secretsManagerSeatTotal(plan, this.sub?.smSeats) +
-      this.additionalServiceAccountTotal(plan);
-    return this.secretsManagerTotal;
-  }
-
-  get passwordManagerSeats() {
-    if (!this.currentPlan) {
-      return 0;
-    }
-
-    if (this.currentPlan.productTier === ProductTierType.Families) {
-      return this.currentPlan.PasswordManager.baseSeats;
-    }
-    return this.sub?.seats;
-  }
-
-  get total() {
-    if (!this.organization || !this.currentPlan) {
-      return 0;
-    }
-
-    if (this.organization.useSecretsManager) {
-      return (
-        this.passwordManagerSubtotal +
-        this.additionalStorageTotal(this.currentPlan) +
-        this.secretsManagerSubtotal() +
-        this.estimatedTax
-      );
-    }
-    return (
-      this.passwordManagerSubtotal +
-      this.additionalStorageTotal(this.currentPlan) +
-      this.estimatedTax
     );
   }
 

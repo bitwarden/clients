@@ -99,6 +99,10 @@
         />
       </ng-container>
       <!-- Pricing Breakdown -->
+      <app-pricing-summary
+        *ngIf="pricingSummaryData"
+        [summaryData]="pricingSummaryData"
+      ></app-pricing-summary>
     </ng-container>
   </div>
   <!-- Dialog Footer -->
