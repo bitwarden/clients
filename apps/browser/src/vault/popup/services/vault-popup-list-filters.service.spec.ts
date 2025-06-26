@@ -37,7 +37,7 @@ describe("VaultPopupListFiltersService", () => {
   const memberOrganizations$ = (userId: UserId) => _memberOrganizations$;
   const organizations$ = new BehaviorSubject<Organization[]>([]);
   let folderViews$ = new BehaviorSubject([]);
-  const cipherViews$ = new BehaviorSubject({});
+  const cipherListViews$ = new BehaviorSubject({});
   let decryptedCollections$ = new BehaviorSubject<CollectionView[]>([]);
   const policyAppliesToUser$ = new BehaviorSubject<boolean>(false);
   let viewCacheService: {
@@ -55,7 +55,7 @@ describe("VaultPopupListFiltersService", () => {
   } as unknown as FolderService;
 
   const cipherService = {
-    cipherViews$: () => cipherViews$,
+    cipherListViews$: () => cipherListViews$,
   } as unknown as CipherService;
 
   const organizationService = {
@@ -471,7 +471,7 @@ describe("VaultPopupListFiltersService", () => {
         { id: "2345", name: "Folder 2" },
       ]);
 
-      cipherViews$.next({
+      cipherListViews$.next({
         "1": { folderId: "1234", organizationId: "1234" },
         "2": { folderId: "2345", organizationId: "56789" },
       });
@@ -712,7 +712,7 @@ function createSeededVaultPopupListFiltersService(
   } as any;
 
   const cipherServiceMock = {
-    cipherViews$: () => new BehaviorSubject({}),
+    cipherListViews$: () => new BehaviorSubject({}),
   } as any;
 
   const i18nServiceMock = {
