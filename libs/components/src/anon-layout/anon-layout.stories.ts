@@ -55,194 +55,120 @@ export default {
       ],
     }),
   ],
+  argTypes: {
+    title: { control: "text" },
+    subtitle: { control: "text" },
+
+    icon: { control: false, table: { disable: true } },
+
+    showReadonlyHostname: { control: "boolean" },
+    maxWidth: {
+      control: "select",
+      options: ["md", "lg", "xl", "2xl", "3xl"],
+    },
+
+    hideCardWrapper: { control: "boolean" },
+    hideIcon: { control: "boolean" },
+    hideLogo: { control: "boolean" },
+    hideFooter: { control: "boolean" },
+
+    contentLength: {
+      control: "radio",
+      options: ["normal", "long", "thin"],
+    },
+
+    showSecondary: { control: "boolean" },
+  },
   args: {
     title: "The Page Title",
     subtitle: "The subtitle (optional)",
-    showReadonlyHostname: true,
     icon: LockIcon,
-    hideLogo: false,
+    showReadonlyHostname: true,
+    maxWidth: "md",
     hideCardWrapper: false,
+    hideIcon: false,
+    hideLogo: false,
+    hideFooter: false,
+    contentLength: "normal",
+    showSecondary: false,
   },
 } as Meta;
 
 type Story = StoryObj<AnonLayoutComponent>;
 
-export const WithPrimaryContent: Story = {
+export const Playground: Story = {
   render: (args) => ({
     props: args,
-    template:
-      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const WithSecondaryContent: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>'s) and styling is just a sample and can be replaced with any content/styling.
-      // Notice that slot="secondary" is requred to project any secondary content.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-
-        <div slot="secondary" class="tw-text-center">
-          <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)</div>
-          <button bitButton>Perform Action</button>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const WithLongContent: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>'s) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout title="Page Title lorem ipsum dolor consectetur sit amet expedita quod est" subtitle="Subtitle here Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, quod est?" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam? Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
-        </div>
-
-        <div slot="secondary" class="tw-text-center">
-          <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)</div>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias laborum nostrum natus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias laborum nostrum natus. Expedita, quod est?          </p>
-          <button bitButton>Perform Action</button>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const WithThinPrimaryContent: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>'s) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" >
-        <div class="tw-text-center">Lorem ipsum</div>
-
-        <div slot="secondary" class="tw-text-center">
-          <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)</div>
-          <button bitButton>Perform Action</button>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const WithCustomIcon: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [icon]="icon" [showReadonlyHostname]="showReadonlyHostname">
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const HideCardWrapper: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      hideCardWrapper: true,
-    },
     template: `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" [hideCardWrapper]="hideCardWrapper">
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-        <div slot="secondary" class="tw-text-center">
-          <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)</div>
-          <button bitButton>Perform Action</button>
+   <auth-anon-layout
+        [title]="title"
+        [subtitle]="subtitle"
+        [icon]="icon"
+        [showReadonlyHostname]="showReadonlyHostname"
+        [maxWidth]="maxWidth"
+        [hideCardWrapper]="hideCardWrapper"
+        [hideIcon]="hideIcon"
+        [hideLogo]="hideLogo"
+        [hideFooter]="hideFooter"
+      >
+        <!-- primary content -->
+        <ng-container [ngSwitch]="contentLength">
+          <div *ngSwitchCase="'thin'" class="tw-text-center">Thin content</div>
+          <div *ngSwitchCase="'long'">
+            <div class="tw-font-bold">Long Content</div>
+            <div>
+           <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam? Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
+            </div>
+          </div>
+          <div *ngSwitchDefault>
+            <div class="tw-font-bold">Normal Content</div>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat veniam nemo. </div>
+          </div>
+        </ng-container>
+
+        <!-- secondary content, if toggled on -->
+        <div *ngIf="showSecondary" slot="secondary" class="tw-text-center">
+           <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)
+          </div>
         </div>
       </auth-anon-layout>
     `,
   }),
 };
 
-export const HideIcon: Story = {
+export const WithDefaultIcon: Story = {
   render: (args) => ({
     props: args,
-    template:
-      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideIcon]="true" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const HideLogo: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="true" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const HideFooter: Story = {
-  render: (args) => ({
-    props: args,
-    template:
-      // Projected content (the <div>) and styling is just a sample and can be replaced with any content/styling.
-      `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideFooter]="true" [hideLogo]="hideLogo" >
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
-        </div>
-      </auth-anon-layout>
-    `,
-  }),
-};
-
-export const WithTitleAreaMaxWidth: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      title: "This is a very long long title to demonstrate titleAreaMaxWidth set to 'md'",
-      subtitle:
-        "This is a very long subtitle that demonstrates how the max width container handles longer text content with the titleAreaMaxWidth input set to 'md'. Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita, quod est?",
-    },
     template: `
-      <auth-anon-layout [title]="title" [subtitle]="subtitle" [showReadonlyHostname]="showReadonlyHostname" [hideLogo]="hideLogo" [titleAreaMaxWidth]="'md'">
-        <div>
-          <div class="tw-font-bold">Primary Projected Content Area (customizable)</div>
-          <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam?</div>
+   <auth-anon-layout
+        [title]="title"
+        [subtitle]="subtitle"
+        [showReadonlyHostname]="showReadonlyHostname"
+        [maxWidth]="maxWidth"
+        [hideCardWrapper]="hideCardWrapper"
+        [hideIcon]="hideIcon"
+        [hideLogo]="hideLogo"
+        [hideFooter]="hideFooter"
+      >
+        <!-- primary content -->
+        <ng-container [ngSwitch]="contentLength">
+          <div *ngSwitchCase="'thin'" class="tw-text-center">Thin content</div>
+          <div *ngSwitchCase="'long'">
+            <div class="tw-font-bold">Long Content</div>
+            <div>
+           <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat recusandae esse ratione eius minima veniam nemo, quas beatae! Impedit molestiae alias sapiente explicabo. Sapiente corporis ipsa numquam? Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit. Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
+            </div>
+          </div>
+          <div *ngSwitchDefault>
+            <div class="tw-font-bold">Normal Content</div>
+            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus illum vero, placeat veniam nemo. </div>
+          </div>
+        </ng-container>
+
+        <!-- secondary content, if toggled on -->
+        <div *ngIf="showSecondary" slot="secondary" class="tw-text-center">
+           <div class="tw-font-bold tw-mb-2">Secondary Projected Content (optional)
+          </div>
         </div>
       </auth-anon-layout>
     `,
