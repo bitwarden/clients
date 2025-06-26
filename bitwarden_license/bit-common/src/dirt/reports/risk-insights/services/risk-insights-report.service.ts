@@ -246,12 +246,11 @@ export class RiskInsightsReportService {
     report: ApplicationHealthReportDetail[],
     summary: ApplicationHealthReportSummary,
   ): Promise<void> {
-    const encryptedReport = await this.riskInsightsEncryptionService
-      .encryptRiskInsightsReport(
-        organizationId as OrganizationId,
-        report,
-        summary,
-      );
+    const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
+      organizationId as OrganizationId,
+      report,
+      summary,
+    );
 
     const saveRequest = {
       data: encryptedReport,
