@@ -9,6 +9,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { mockCiphers } from "./ciphers.mock";
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
 import { mockMemberCipherDetails } from "./member-cipher-details-api.service.spec";
+import { RiskInsightsApiService } from "./risk-insights-api.service";
+import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 describe("RiskInsightsReportService", () => {
@@ -32,11 +34,20 @@ describe("RiskInsightsReportService", () => {
 
     memberCipherDetailsService.getMemberCipherDetails.mockResolvedValue(mockMemberCipherDetails);
 
+    const riskInsightsApiService = mock<RiskInsightsApiService>();
+
+    const riskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
+      encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
+      decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
+    });
+    
     service = new RiskInsightsReportService(
       pwdStrengthService,
       auditService,
       cipherService,
       memberCipherDetailsService,
+      riskInsightsApiService,
+      riskInsightsEncryptionService,
     );
   });
 
