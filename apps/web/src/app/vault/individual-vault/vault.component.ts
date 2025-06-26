@@ -359,19 +359,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
-    const _ciphers = this.configService
-      .getFeatureFlag$(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-      .pipe(
-        switchMap((useSdk) => {
-          if (useSdk) {
-            return this.cipherService
-              .cipherListViews$(activeUserId)
-              .pipe(filter((c) => c !== null));
-          }
-
-          return this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null));
-        }),
-      ) as Observable<C[]>;
+    const _ciphers = this.cipherService
+      .cipherListViews$(activeUserId)
+      .pipe(filter((c) => c !== null));
 
     /**
      * This observable filters the ciphers based on the active user ID and the restricted item types.
