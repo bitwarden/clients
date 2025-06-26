@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { FocusableOption } from "@angular/cdk/a11y";
-import { AfterViewInit, Component, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  Input,
+  OnDestroy,
+  ViewChild,
+  input,
+} from "@angular/core";
 import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -27,7 +35,10 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit, OnDestr
     fragment: "ignored",
   };
 
-  @Input() route: string | any[];
+  readonly route = input<string | any[]>();
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input() disabled = false;
 
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {

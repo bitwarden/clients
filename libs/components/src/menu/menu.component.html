@@ -2,10 +2,10 @@
   <div
     (click)="closed.emit()"
     class="tw-flex tw-shrink-0 tw-flex-col tw-rounded-lg tw-border tw-border-solid tw-border-secondary-500 tw-bg-background tw-bg-clip-padding tw-py-1 tw-overflow-y-auto"
-    [attr.role]="ariaRole"
-    [attr.aria-label]="ariaLabel"
+    [attr.role]="ariaRole()"
+    [attr.aria-label]="ariaLabel()"
     cdkTrapFocus
-    [cdkTrapFocusAutoCapture]="ariaRole === 'dialog'"
+    [cdkTrapFocusAutoCapture]="ariaRole() === 'dialog'"
   >
     <ng-content></ng-content>
   </div>

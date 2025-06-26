@@ -30,6 +30,7 @@ const template = /*html*/ `
 @Component({
   selector: "app-example",
   template,
+  imports: [FormControlModule, CheckboxModule, FormsModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({
@@ -55,7 +56,6 @@ export default {
   title: "Component Library/Form/Checkbox",
   decorators: [
     moduleMetadata({
-      declarations: [ExampleComponent],
       imports: [
         FormsModule,
         ReactiveFormsModule,
@@ -63,6 +63,7 @@ export default {
         CheckboxModule,
         TableModule,
         BadgeModule,
+        ExampleComponent,
       ],
       providers: [
         {
