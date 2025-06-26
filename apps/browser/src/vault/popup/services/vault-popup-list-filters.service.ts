@@ -36,7 +36,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -110,7 +109,7 @@ export class VaultPopupListFiltersService {
   /**
    * Static list of ciphers views used in synchronous context
    */
-  private cipherViews: CipherView[] = [];
+  private cipherViews: PopupCipherViewLike[] = [];
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -364,7 +363,7 @@ export class VaultPopupListFiltersService {
   folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
     switchMap((userId) => {
       // Observable of cipher views
-      const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
+      const cipherViews$ = this.cipherService.cipherListViews$(userId).pipe(
         map((ciphers) => {
           this.cipherViews = ciphers ? Object.values(ciphers) : [];
           return this.cipherViews;
@@ -382,30 +381,36 @@ export class VaultPopupListFiltersService {
         this.folderService.folderViews$(userId),
         cipherViews$,
       ]).pipe(
-        map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
-          if (folders.length === 1 && folders[0].id === null) {
-            // Do not display folder selections when only the "no folder" option is available.
-            return [filters as PopupListFilter, [], cipherViews];
-          }
+        map(
+          ([filters, folders, cipherViews]): [
+            PopupListFilter,
+            FolderView[],
+            PopupCipherViewLike[],
+          ] => {
+            if (folders.length === 1 && folders[0].id === null) {
+              // Do not display folder selections when only the "no folder" option is available.
+              return [filters as PopupListFilter, [], cipherViews];
+            }
 
-          // Sort folders by alphabetic name
-          folders.sort(Utils.getSortFunction(this.i18nService, "name"));
-          let arrangedFolders = folders;
+            // Sort folders by alphabetic name
+            folders.sort(Utils.getSortFunction(this.i18nService, "name"));
+            let arrangedFolders = folders;
 
-          const noFolder = folders.find((f) => f.id === null);
+            const noFolder = folders.find((f) => f.id === null);
 
-          if (noFolder) {
-            // Update `name` of the "no folder" option to "Items with no folder"
-            const updatedNoFolder = {
-              ...noFolder,
-              name: this.i18nService.t("itemsWithNoFolder"),
-            };
+            if (noFolder) {
+              // Update `name` of the "no folder" option to "Items with no folder"
+              const updatedNoFolder = {
+                ...noFolder,
+                name: this.i18nService.t("itemsWithNoFolder"),
+              };
 
-            // Move the "no folder" option to the end of the list
-            arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
-          }
-          return [filters as PopupListFilter, arrangedFolders, cipherViews];
-        }),
+              // Move the "no folder" option to the end of the list
+              arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
+            }
+            return [filters as PopupListFilter, arrangedFolders, cipherViews];
+          },
+        ),
         map(([filters, folders, cipherViews]) => {
           const organizationId = filters.organization?.id ?? null;
 

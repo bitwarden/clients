@@ -682,7 +682,10 @@ function createSeededVaultPopupListFiltersService(
   collections: CollectionView[],
   folderViews: FolderView[],
   cachedState: CachedFilterState = {},
-): { service: VaultPopupListFiltersService; cachedSignal: WritableSignal<CachedFilterState> } {
+): {
+  service: VaultPopupListFiltersService;
+  cachedSignal: WritableSignal<CachedFilterState>;
+} {
   const seededMemberOrganizations$ = new BehaviorSubject<Organization[]>(organizations);
   const seededCollections$ = new BehaviorSubject<CollectionView[]>(collections);
   const seededFolderViews$ = new BehaviorSubject<FolderView[]>(folderViews);
