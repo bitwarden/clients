@@ -23,7 +23,7 @@ describe("password - characters generator metadata", () => {
   });
 
   describe("engine.create", () => {
-    const nonSdkDependencyProvider = dependencyProvider;
+    const nonSdkDependencyProvider = mock<GeneratorDependencyProvider>();
     nonSdkDependencyProvider.sdk = undefined;
     it("returns an email randomizer", () => {
       expect(password.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(PasswordRandomizer);
