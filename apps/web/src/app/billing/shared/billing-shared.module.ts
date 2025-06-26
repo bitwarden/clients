@@ -12,10 +12,13 @@ import { BillingHistoryComponent } from "./billing-history.component";
 import { OffboardingSurveyComponent } from "./offboarding-survey.component";
 import { PaymentComponent } from "./payment/payment.component";
 import { PaymentMethodComponent } from "./payment-method.component";
+import { PlanCardComponent } from "./plan-card/plan-card.component";
+import { PricingSummaryComponent } from "./pricing-summary/pricing-summary.component";
 import { IndividualSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/individual-self-hosting-license-uploader.component";
 import { OrganizationSelfHostingLicenseUploaderComponent } from "./self-hosting-license-uploader/organization-self-hosting-license-uploader.component";
 import { SecretsManagerSubscribeComponent } from "./sm-subscribe.component";
 import { TaxInfoComponent } from "./tax-info.component";
+import { TrialPaymentDialogComponent } from "./trial-payment-dialog/trial-payment-dialog.component";
 import { UpdateLicenseDialogComponent } from "./update-license-dialog.component";
 import { UpdateLicenseComponent } from "./update-license.component";
 import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-account.component";
@@ -41,6 +44,9 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     AdjustStorageDialogComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
+    TrialPaymentDialogComponent,
+    PlanCardComponent,
+    PricingSummaryComponent,
   ],
   exports: [
     SharedModule,
