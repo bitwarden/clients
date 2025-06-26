@@ -11,6 +11,12 @@ describe("Password Depot 17 MacOS Xml Importer", () => {
     );
   });
 
+  it("should not create a folder/collection if the group fingerprint is null", async () => {
+    const importer = new PasswordDepot17XmlImporter();
+    const result = await importer.parse(MacOS_PasswordDepotXmlFile);
+    expect(result.folders.length).toBe(0);
+  });
+
   it("should parse custom fields from a MacOS exported file", async () => {
     const importer = new PasswordDepot17XmlImporter();
     const result = await importer.parse(MacOS_PasswordDepotXmlFile);

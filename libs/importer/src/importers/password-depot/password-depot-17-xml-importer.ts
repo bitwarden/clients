@@ -106,11 +106,16 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       if (groupName !== "") {
         groupName += "/";
       }
-      const nameEl = node.attributes.getNamedItem("name");
-      groupName += nameEl == null ? "-" : nameEl.textContent;
-      const folder = new FolderView();
-      folder.name = groupName;
-      this.result.folders.push(folder);
+
+      // Check if the group has a fingerprint attribute (GUID of a folder)
+      const groupFingerprint = node.attributes.getNamedItem("fingerprint");
+      if (groupFingerprint?.textContent != "" && groupFingerprint.textContent != "null") {
+        const nameEl = node.attributes.getNamedItem("name");
+        groupName += nameEl == null ? "-" : nameEl.textContent;
+        const folder = new FolderView();
+        folder.name = groupName;
+        this.result.folders.push(folder);
+      }
     }
 
     this.querySelectorAllDirectChild(node, "item").forEach((entry) => {
