@@ -90,7 +90,7 @@ export default {
     hideLogo: false,
     hideFooter: false,
     contentLength: "normal",
-    showSecondary: false,
+    showSecondary: true,
   },
 } as Meta;
 
