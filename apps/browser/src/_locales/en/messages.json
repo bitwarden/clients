@@ -4250,7 +4250,7 @@
   },
    "regExAdvancedOptionWarning": {
     "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
-    "description": "Content for dialog which warns a user when selecting regular expression matching strategy as a cipher match strategy"
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
    "startsWithAdvancedOptionWarning": {
     "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
