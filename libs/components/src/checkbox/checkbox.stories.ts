@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BadgeModule } from "../badge";
 import { FormControlModule } from "../form-control";
+import { FormFieldModule } from "../form-field";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -30,6 +31,7 @@ const template = /*html*/ `
 @Component({
   selector: "app-example",
   template,
+  imports: [CheckboxModule, FormFieldModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({
@@ -55,8 +57,8 @@ export default {
   title: "Component Library/Form/Checkbox",
   decorators: [
     moduleMetadata({
-      declarations: [ExampleComponent],
       imports: [
+        ExampleComponent,
         FormsModule,
         ReactiveFormsModule,
         FormControlModule,
