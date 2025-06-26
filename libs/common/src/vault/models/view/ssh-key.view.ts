@@ -55,10 +55,12 @@ export class SshKeyView extends ItemView {
       return undefined;
     }
 
-    const keyFingerprint = obj.fingerprint;
+    const sshKeyView = new SshKeyView();
 
-    return Object.assign(new SshKeyView(), obj, {
-      keyFingerprint,
-    });
+    sshKeyView.privateKey = obj.privateKey ?? null;
+    sshKeyView.publicKey = obj.publicKey ?? null;
+    sshKeyView.keyFingerprint = obj.fingerprint ?? null;
+
+    return sshKeyView;
   }
 }
