@@ -98,7 +98,7 @@ export class LoginUri extends Domain {
   toSdkLoginUri(): SdkLoginUri {
     return {
       uri: this.uri.toJSON(),
-      uriChecksum: this.uriChecksum.toJSON(),
+      uriChecksum: this.uriChecksum?.toJSON(),
       match: this.match,
     };
   }
