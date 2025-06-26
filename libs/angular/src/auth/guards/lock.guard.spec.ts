@@ -43,7 +43,6 @@ describe("lockGuard", () => {
     vaultTimeoutSettingsService.canLock.mockResolvedValue(setupParams.canLock);
 
     const keyService: MockProxy<KeyService> = mock<KeyService>();
-    keyService.isLegacyUser.mockResolvedValue(setupParams.isLegacyUser);
     keyService.everHadUserKey$.mockReturnValue(of(setupParams.everHadUserKey));
 
     const platformUtilService: MockProxy<PlatformUtilsService> = mock<PlatformUtilsService>();
