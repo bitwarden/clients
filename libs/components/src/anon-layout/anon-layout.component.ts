@@ -33,6 +33,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() hideLogo: boolean = false;
   @Input() hideFooter: boolean = false;
   @Input() hideIcon: boolean = false;
+  @Input() hideCardWrapper: boolean = false;
 
   /**
    * Max width of the title area content
