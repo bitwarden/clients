@@ -54,11 +54,11 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*)]:after:tw-inset-1",
     "[&:not(bit-form-control_*)]:tw-me-[.125rem]",
 
-    "disabled:tw-cursor-auto",
-    "disabled:tw-border",
-    "disabled:hover:tw-border",
-    "disabled:tw-bg-secondary-100",
-    "disabled:hover:tw-bg-secondary-100",
+    "disabled:before:tw-cursor-auto",
+    "disabled:before:tw-border",
+    "disabled:before:hover:tw-border",
+    "disabled:before:tw-bg-secondary-100",
+    "disabled:hover:before:tw-bg-secondary-100",
 
     "checked:before:tw-bg-primary-600",
     "checked:before:tw-border-primary-600",
