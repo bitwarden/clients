@@ -3,18 +3,23 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
-import { CipherFormConfig } from "../../abstractions/cipher-form-config.service";
+import {
+  CipherFormConfig,
+  OptionalInitialValues,
+} from "../../abstractions/cipher-form-config.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { ItemDetailsSectionComponent } from "./item-details-section.component";
@@ -48,6 +53,8 @@ describe("ItemDetailsSectionComponent", () => {
   let fixture: ComponentFixture<ItemDetailsSectionComponent>;
   let cipherFormProvider: MockProxy<CipherFormContainer>;
   let i18nService: MockProxy<I18nService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockPolicyService: MockProxy<PolicyService>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn(() => null);
@@ -66,12 +73,19 @@ describe("ItemDetailsSectionComponent", () => {
       compare: (a: string, b: string) => a.localeCompare(b),
     } as Intl.Collator;
 
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockPolicyService = mock<PolicyService>();
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: PolicyService, useValue: mockPolicyService },
       ],
     }).compileComponents();
 
@@ -369,7 +383,7 @@ describe("ItemDetailsSectionComponent", () => {
       expect(collectionSelect).toBeNull();
     });
 
-    it("should enable/show collection control when an organization is selected", async () => {
+    it("should enable/show collection control when an organization is selected", fakeAsync(() => {
       component.config.organizationDataOwnershipDisabled = true;
       component.config.organizations = [{ id: "org1" } as Organization];
       component.config.collections = [
@@ -378,12 +392,12 @@ describe("ItemDetailsSectionComponent", () => {
       ];
 
       fixture.detectChanges();
-      await fixture.whenStable();
+      tick();
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      tick();
       fixture.detectChanges();
-      await fixture.whenStable();
 
       const collectionSelect = fixture.nativeElement.querySelector(
         "bit-multi-select[formcontrolname='collectionIds']",
@@ -391,7 +405,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component.itemDetailsForm.controls.collectionIds.enabled).toBe(true);
       expect(collectionSelect).not.toBeNull();
-    });
+    }));
 
     it("should set collectionIds to originalCipher collections on first load", async () => {
       component.config.mode = "clone";
@@ -488,6 +502,9 @@ describe("ItemDetailsSectionComponent", () => {
 
       component.itemDetailsForm.controls.organizationId.setValue("org1");
 
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(component["collectionOptions"].map((c) => c.id)).toEqual(["col1", "col2", "col3"]);
     });
   });
@@ -546,6 +563,33 @@ describe("ItemDetailsSectionComponent", () => {
       const { label } = select.componentInstance.items[0];
 
       expect(label).toBe("org1");
+    });
+  });
+  describe("defaultCollectionIds", () => {
+    it("returns collectionIds if provided", async () => {
+      component.config.initialValues = { collectionIds: ["c1" as any] } as OptionalInitialValues;
+      const result = await (component as any).defaultCollectionIds();
+      expect(result).toEqual(["c1"]);
+    });
+
+    it("returns default user collection id with no collectionIds are provided and there's a policy match", async () => {
+      const defaultCol = createMockCollection("def1", "Default", "orgA");
+      component.config.collections = [defaultCol];
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as any]));
+      const ids = await (component as any).defaultCollectionIds("orgA" as Organization["id"]);
+      expect(ids).toEqual(["def1"]);
+    });
+
+    it("returns empty array with collectionIds and no matching default collection", async () => {
+      component.config.collections = [createMockCollection("c1", "Col1", "orgB")];
+      component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as any]));
+      const ids = await (component as any).defaultCollectionIds("orgA" as Organization["id"]);
+      expect(ids).toEqual([undefined]);
     });
   });
 });

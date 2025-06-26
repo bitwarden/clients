@@ -12,7 +12,9 @@ import {
   map,
   Observable,
   shareReplay,
+  Subject,
   switchMap,
+  takeUntil,
 } from "rxjs";
 
 import {
@@ -117,6 +119,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeightClass = `tw-h-[69px]`;
 
   private organizationUsersCount = 0;
+
+  private destroy$ = new Subject<void>();
 
   get occupiedSeatCount(): number {
     return this.organizationUsersCount;
@@ -339,7 +343,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     ) {
       this.organizationUserService
         .confirmUser(this.organization, user, publicKey)
-        .pipe(takeUntilDestroyed())
+        .pipe(takeUntil(this.destroy$))
         .subscribe();
     } else {
       const orgKey = await this.keyService.getOrgKey(this.organization.id);
