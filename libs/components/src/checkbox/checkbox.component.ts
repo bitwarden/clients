@@ -20,11 +20,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-cursor-pointer",
     "tw-inline-block",
     "tw-align-sub",
-    "tw-me-[.125rem]",
-    "!tw-p-1", // Extra padding added to increase click area size
-
-    // NOTE: This selector excludes checkboxes that live inside <table> element
-    "[&:not(table_*)]:tw-bottom-1", // Positioning added to align checkbox vertically. Extra click area padding pushes the checkbox down 4px.
+    "tw-me-1.5",
     "tw-flex-none", // Flexbox fix for bit-form-control
 
     "before:tw-content-['']",
@@ -40,7 +36,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "after:tw-content-['']",
     "after:tw-block",
     "after:tw-absolute",
-    "after:tw-inset-1",
+    "after:tw-inset-0",
     "after:tw-h-[1.12rem]",
     "after:tw-w-[1.12rem]",
 
@@ -51,6 +47,12 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-2",
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-offset-2",
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-primary-600",
+
+    // Only apply extra padding to increase click area if checkbox is not inside of a label/bit-form-control
+    // We are assuming the checkbox has no label in this instance
+    "[&:not(bit-form-control_*)]:!tw-p-1",
+    "[&:not(bit-form-control_*)]:after:tw-inset-1",
+    "[&:not(bit-form-control_*)]:tw-me-[.125rem]",
 
     "disabled:tw-cursor-auto",
     "disabled:tw-border",
