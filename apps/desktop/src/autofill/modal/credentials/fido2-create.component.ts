@@ -22,7 +22,6 @@ import {
   SectionHeaderComponent,
   BitIconButtonComponent,
   SimpleDialogOptions,
-  SimpleDialogTypes,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -35,27 +34,27 @@ import {
 
 import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
 
-const DIALOG_MESSAGES: Record<string, SimpleDialogOptions> = {
+const DIALOG_MESSAGES = {
   unexpectedErrorShort: {
     title: { key: "unexpectedErrorShort" },
     content: { key: "closeThisBitwardenWindow" },
-    type: SimpleDialogTypes.Danger,
+    type: "danger",
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   unableToSavePasskey: {
     title: { key: "unableToSavePasskey" },
     content: { key: "closeThisBitwardenWindow" },
-    type: SimpleDialogTypes.Danger,
+    type: "danger",
     acceptButtonText: { key: "closeBitwarden" },
     cancelButtonText: null,
   },
   overwritePasskey: {
     title: { key: "overwritePasskey" },
     content: { key: "alreadyContainsPasskey" },
-    type: SimpleDialogTypes.Warning,
+    type: "warning",
   },
-};
+} as const satisfies Record<string, SimpleDialogOptions>;
 
 @Component({
   standalone: true,

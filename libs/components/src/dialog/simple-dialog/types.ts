@@ -58,12 +58,4 @@ export type SimpleDialogOptions = {
   acceptAction?: () => Promise<void>;
 };
 
-export const SimpleDialogTypes = {
-  Primary: "primary",
-  Success: "success",
-  Info: "info",
-  Warning: "warning",
-  Danger: "danger",
-} as const;
-
-export type SimpleDialogType = (typeof SimpleDialogTypes)[keyof typeof SimpleDialogTypes];
+export type SimpleDialogType = "primary" | "success" | "info" | "warning" | "danger";
