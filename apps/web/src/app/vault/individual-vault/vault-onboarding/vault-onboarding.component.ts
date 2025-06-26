@@ -166,7 +166,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(
         getUserId,
         switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ),
         takeUntil(this.destroy$),
       )
