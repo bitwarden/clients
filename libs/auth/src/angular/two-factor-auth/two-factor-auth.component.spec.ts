@@ -121,7 +121,6 @@ describe("TwoFactorAuthComponent", () => {
 
     mockTwoFactorAuthCompCacheService = mock<TwoFactorAuthComponentCacheService>();
     mockTwoFactorAuthCompCacheService.getCachedData.mockReturnValue(null);
-    mockTwoFactorAuthCompCacheService.init.mockResolvedValue();
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
