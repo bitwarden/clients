@@ -139,8 +139,6 @@ export class InputPasswordComponent implements OnInit {
   @Input() secondaryButtonText?: Translation;
   protected secondaryButtonTextStr: string = "";
 
-  @Input() showChangePasswordWarning: boolean = true;
-
   protected InputPasswordFlow = InputPasswordFlow;
   private kdfConfig: KdfConfig | null = null;
   private minHintLength = 0;
