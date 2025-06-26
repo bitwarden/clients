@@ -3,18 +3,22 @@
     <ng-container header>
       <tr>
         <th bitCell class="tw-w-24 tw-whitespace-nowrap" colspan="2">
-          <input
-            class="tw-mr-2"
-            type="checkbox"
-            bitCheckbox
-            id="checkAll"
-            [disabled]="disabled || isEmpty"
-            (change)="$event ? toggleAll() : null"
-            [checked]="selection.hasValue() && isAllSelected"
-          />
-          <label class="tw-mb-0 !tw-font-bold !tw-text-muted" for="checkAll">{{
-            "all" | i18n
-          }}</label>
+          <bit-form-control disableMargin>
+            <input
+              class="tw-mr-2"
+              type="checkbox"
+              bitCheckbox
+              id="checkAll"
+              [disabled]="disabled || isEmpty"
+              (change)="$event ? toggleAll() : null"
+              [checked]="selection.hasValue() && isAllSelected"
+            />
+            <bit-label
+              class="tw-mb-0 tw-text-base tw-leading-none !tw-font-bold !tw-text-muted"
+              for="checkAll"
+              >{{ "all" | i18n }}</bit-label
+            >
+          </bit-form-control>
         </th>
         <!-- Organization vault -->
         <th
