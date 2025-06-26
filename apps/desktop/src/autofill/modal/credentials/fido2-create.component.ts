@@ -40,14 +40,14 @@ const DIALOG_MESSAGES = {
     content: { key: "closeThisBitwardenWindow" },
     type: "danger",
     acceptButtonText: { key: "closeBitwarden" },
-    cancelButtonText: null,
+    cancelButtonText: null as null,
   },
   unableToSavePasskey: {
     title: { key: "unableToSavePasskey" },
     content: { key: "closeThisBitwardenWindow" },
     type: "danger",
     acceptButtonText: { key: "closeBitwarden" },
-    cancelButtonText: null,
+    cancelButtonText: null as null,
   },
   overwritePasskey: {
     title: { key: "overwritePasskey" },
