@@ -286,21 +286,48 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
   // Parses a custom field and adds it to the cipher
   private parseCustomField(customField: Element): FieldView | null {
-    const keyEl = this.querySelectorDirectChild(customField, "name");
-    const key = keyEl != null ? keyEl.textContent : null;
+    let key: string | null = null;
+    let value: string | null = null;
+    let sourceFieldType: PasswordDepotCustomFieldType = PasswordDepotCustomFieldType.Memo;
+    let visible: string | null = null;
+    // A custom field is represented by a <field> element
+    // On exports from the Windows clients: It contains a <name>, <value>, and optionally a <type> and <visible> element
+    // On exports from the MacOs clients the key-values are defined as xml attributes instead of child nodes
+    if (customField.hasAttributes()) {
+      key = customField.getAttribute("name");
+      if (key == null) {
+        return null;
+      }
 
-    if (key == null) {
-      return null;
+      value = customField.getAttribute("value");
+
+      const typeAttr = customField.getAttribute("type");
+      sourceFieldType =
+        typeAttr != null
+          ? (typeAttr as PasswordDepotCustomFieldType)
+          : PasswordDepotCustomFieldType.Memo;
+
+      visible = customField.getAttribute("visible");
+    } else {
+      const keyEl = this.querySelectorDirectChild(customField, "name");
+      key = keyEl != null ? keyEl.textContent : null;
+
+      if (key == null) {
+        return null;
+      }
+
+      const valueEl = this.querySelectorDirectChild(customField, "value");
+      value = valueEl != null ? valueEl.textContent : null;
+
+      const typeEl = this.querySelectorDirectChild(customField, "type");
+      sourceFieldType =
+        typeEl != null
+          ? (typeEl.textContent as PasswordDepotCustomFieldType)
+          : PasswordDepotCustomFieldType.Memo;
+
+      const visibleEl = this.querySelectorDirectChild(customField, "visible");
+      visible = visibleEl != null ? visibleEl.textContent : null;
     }
-
-    const valueEl = this.querySelectorDirectChild(customField, "value");
-    let value = valueEl != null ? valueEl.textContent : null;
-
-    const typeEl = this.querySelectorDirectChild(customField, "type");
-    const sourceFieldType =
-      typeEl != null
-        ? (typeEl.textContent as PasswordDepotCustomFieldType)
-        : PasswordDepotCustomFieldType.Memo;
 
     if (sourceFieldType === PasswordDepotCustomFieldType.Date) {
       if (!isNaN(value as unknown as number)) {
@@ -319,9 +346,6 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     if (sourceFieldType === PasswordDepotCustomFieldType.Boolean) {
       return { name: key, value: value, type: FieldType.Boolean, linkedId: null } as FieldView;
     }
-
-    const visibleEl = this.querySelectorDirectChild(customField, "visible");
-    const visible = visibleEl != null ? visibleEl.textContent : null;
 
     if (visible == "0") {
       return { name: key, value: value, type: FieldType.Hidden, linkedId: null } as FieldView;

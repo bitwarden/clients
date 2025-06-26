@@ -14,3 +14,5 @@ export { InformationTestData } from "./information.xml";
 export { CertificateTestData } from "./certificate.xml";
 export { EncryptedFileTestData } from "./encrypted-file.xml";
 export { DocumentTestData } from "./document.xml";
+export { MacOS_WrongVersion } from "./macos-wrong-version.xml";
+export { MacOS_PasswordDepotXmlFile } from "./macos-customfields.xml";
