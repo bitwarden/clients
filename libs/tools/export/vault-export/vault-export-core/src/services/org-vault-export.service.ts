@@ -24,6 +24,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
@@ -52,6 +53,7 @@ export class OrganizationVaultExportService
     private collectionService: CollectionService,
     kdfConfigService: KdfConfigService,
     private accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(pinService, encryptService, cryptoFunctionService, kdfConfigService);
   }
@@ -133,6 +135,8 @@ export class OrganizationVaultExportService
     const decCiphers: CipherView[] = [];
     const promises = [];
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     promises.push(
       this.apiService.getOrganizationExport(organizationId).then((exportData) => {
         const exportPromises: any = [];
@@ -156,7 +160,11 @@ export class OrganizationVaultExportService
                 const cipher = new Cipher(new CipherData(c));
                 exportPromises.push(
                   this.cipherService.decrypt(cipher, activeUserId).then((decCipher) => {
-                    decCiphers.push(decCipher);
+                    if (
+                      !this.restrictedItemTypesService.isCipherRestricted(decCipher, restrictions)
+                    ) {
+                      decCiphers.push(decCipher);
+                    }
                   }),
                 );
               });
@@ -176,7 +184,7 @@ export class OrganizationVaultExportService
 
   private async getOrganizationEncryptedExport(organizationId: string): Promise<string> {
     const collections: Collection[] = [];
-    const ciphers: Cipher[] = [];
+    let ciphers: Cipher[] = [];
     const promises = [];
 
     promises.push(
@@ -190,15 +198,17 @@ export class OrganizationVaultExportService
       }),
     );
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     promises.push(
       this.apiService.getCiphersOrganization(organizationId).then((c) => {
         if (c != null && c.data != null && c.data.length > 0) {
-          c.data
+          ciphers = c.data
             .filter((item) => item.deletedDate === null)
-            .forEach((item) => {
-              const cipher = new Cipher(new CipherData(item));
-              ciphers.push(cipher);
-            });
+            .map((item) => new Cipher(new CipherData(item)))
+            .filter(
+              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
+            );
         }
       }),
     );
@@ -231,11 +241,14 @@ export class OrganizationVaultExportService
     );
     await Promise.all(promises);
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     decCiphers = allDecCiphers.filter(
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)),
+        decCollections.some((dC) => f.collectionIds.some((cId) => dC.id === cId)) &&
+        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
     if (format === "csv") {
@@ -267,11 +280,14 @@ export class OrganizationVaultExportService
 
     await Promise.all(promises);
 
+    const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
+
     encCiphers = allCiphers.filter(
       (f) =>
         f.deletedDate == null &&
         f.organizationId == organizationId &&
-        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)),
+        encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
+        !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
     );
 
     return this.BuildEncryptedExport(organizationId, encCollections, encCiphers);
