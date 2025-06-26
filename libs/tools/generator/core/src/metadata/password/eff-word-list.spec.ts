@@ -23,7 +23,7 @@ describe("password - eff words generator metadata", () => {
   });
 
   describe("engine.create", () => {
-    const nonSdkDependencyProvider = dependencyProvider;
+    var nonSdkDependencyProvider = dependencyProvider;
     nonSdkDependencyProvider.sdk = undefined;
     it("returns an email randomizer", () => {
       expect(effPassphrase.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(

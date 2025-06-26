@@ -17,7 +17,7 @@ const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - characters generator metadata", () => {
   describe("engine.create", () => {
-    it("returns an email randomizer", () => {
+    it("returns a sdk email randomizer", () => {
       expect(password.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
     });
   });
