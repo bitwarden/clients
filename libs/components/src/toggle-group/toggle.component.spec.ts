@@ -1,75 +1,60 @@
-import { Component, model } from "@angular/core";
+import { Component, DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ToggleGroupComponent } from "./toggle-group.component";
 import { ToggleGroupModule } from "./toggle-group.module";
 
-// TODO signals migration broke these
-describe.skip("Button", () => {
-  let mockGroupComponent: MockedButtonGroupComponent;
-  let fixture: ComponentFixture<TestApp>;
-  let testAppComponent: TestApp;
-  let radioButton: HTMLInputElement;
+describe("Toggle", () => {
+  let fixture: ComponentFixture<TestComponent>;
+  let toggleGroup: ToggleGroupComponent;
+  let toggleButtons: DebugElement[];
 
   beforeEach(async () => {
-    mockGroupComponent = new MockedButtonGroupComponent();
-
     TestBed.configureTestingModule({
-      imports: [TestApp],
-      providers: [{ provide: ToggleGroupComponent, useValue: mockGroupComponent }],
+      imports: [TestComponent],
     });
 
     await TestBed.compileComponents();
-    fixture = TestBed.createComponent(TestApp);
-    testAppComponent = fixture.debugElement.componentInstance;
-    radioButton = fixture.debugElement.query(By.css("input[type=radio]")).nativeElement;
+    fixture = TestBed.createComponent(TestComponent);
+    fixture.detectChanges();
+    toggleGroup = fixture.debugElement.query(By.directive(ToggleGroupComponent)).componentInstance;
+    toggleButtons = fixture.debugElement.queryAll(By.css("input[type=radio]"));
   });
 
   it("should emit value when clicking on radio button", () => {
-    testAppComponent.value = "value";
+    const spyFn = jest.spyOn(toggleGroup, "onInputInteraction");
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    radioButton.click();
-    fixture.detectChanges();
-
-    expect(mockGroupComponent.onInputInteraction).toHaveBeenCalledWith("value");
+    expect(spyFn).toHaveBeenCalledWith(1);
   });
 
-  it("should check radio button when selected matches value", () => {
-    testAppComponent.value = "value";
+  it("should select toggle button only when selected matches value", () => {
     fixture.detectChanges();
 
-    mockGroupComponent.selected.set("value");
+    expect(toggleButtons[0].nativeElement.checked).toBe(true);
+    expect(toggleButtons[1].nativeElement.checked).toBe(false);
+
+    toggleButtons[1].triggerEventHandler("change");
     fixture.detectChanges();
 
-    expect(radioButton.checked).toBe(true);
-  });
-
-  it("should not check radio button when selected does not match value", () => {
-    testAppComponent.value = "value";
-    fixture.detectChanges();
-
-    mockGroupComponent.selected.set("nonMatchingValue");
-    fixture.detectChanges();
-
-    expect(radioButton.checked).toBe(false);
+    expect(toggleButtons[0].nativeElement.checked).toBe(false);
+    expect(toggleButtons[1].nativeElement.checked).toBe(true);
   });
 });
 
 @Component({
-  selector: "mock-button-group",
-})
-class MockedButtonGroupComponent implements Partial<ToggleGroupComponent<string>> {
-  onInputInteraction = jest.fn();
-  selected = model<string>();
-}
-
-@Component({
-  selector: "test-app",
-  template: ` <bit-toggle [value]="value">Element</bit-toggle>`,
+  selector: "test-component",
+  template: `
+    <bit-toggle-group [(selected)]="selected">
+      <bit-toggle [value]="0">Zero</bit-toggle>
+      <bit-toggle [value]="1">One</bit-toggle>
+    </bit-toggle-group>
+  `,
   imports: [ToggleGroupModule],
 })
-class TestApp {
-  value?: string;
+class TestComponent {
+  selected = 0;
 }
