@@ -19,6 +19,7 @@ import {
   DialogService,
   ToastService,
   Icons,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -41,7 +42,7 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
-  imports: [InputPasswordComponent, I18nPipe],
+  imports: [InputPasswordComponent, I18nPipe, CalloutComponent],
 })
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;
