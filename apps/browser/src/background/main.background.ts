@@ -6,8 +6,10 @@ import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
+  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
+  DefaultAuthRequestApiService,
   DefaultLockService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -375,6 +377,7 @@ export default class MainBackground {
   devicesService: DevicesServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestServiceAbstraction;
+  authRequestApiService: AuthRequestApiServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
   pinService: PinServiceAbstraction;
@@ -412,7 +415,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
-  restrictedItemTypesService: RestrictedItemTypesService;
+  private restrictedItemTypesService: RestrictedItemTypesService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -436,8 +439,6 @@ export default class MainBackground {
   private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
-
-  private restrictedItemTypesService: RestrictedItemTypesService;
 
   constructor() {
     // Services
@@ -815,14 +816,16 @@ export default class MainBackground {
       this.appIdService,
     );
 
+    this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
+
     this.authRequestService = new AuthRequestService(
       this.appIdService,
-      this.accountService,
       this.masterPasswordService,
       this.keyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
+      this.authRequestApiService,
     );
 
     this.authService = new AuthService(
@@ -1047,13 +1050,6 @@ export default class MainBackground {
       this.sdkService,
     );
 
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
-    );
-
     this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
       this.cipherService,
@@ -1096,6 +1092,7 @@ export default class MainBackground {
           this.configService,
           new WebPushNotificationsApiService(this.apiService, this.appIdService),
           registration,
+          this.stateProvider,
         );
       } else {
         this.webPushConnectionService = new UnsupportedWebPushConnectionService();
@@ -1354,7 +1351,7 @@ export default class MainBackground {
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.logService);
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
