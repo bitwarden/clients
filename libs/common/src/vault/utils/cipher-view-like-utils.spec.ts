@@ -112,7 +112,7 @@ describe("CipherViewLikeUtils", () => {
 
   describe("isDeleted", () => {
     it("returns true when the cipher is deleted", () => {
-      const cipherListView = { deletedDate: "2024-02-02" } as CipherListView;
+      const cipherListView = { deletedDate: "2024-02-02", type: "identity" } as CipherListView;
       const cipherView = createCipherView();
       cipherView.deletedDate = new Date();
 
@@ -121,7 +121,7 @@ describe("CipherViewLikeUtils", () => {
     });
 
     it("returns false when the cipher is not deleted", () => {
-      const cipherListView = { deletedDate: undefined } as CipherListView;
+      const cipherListView = { deletedDate: undefined, type: "identity" } as CipherListView;
       const cipherView = createCipherView();
 
       expect(CipherViewLikeUtils.isDeleted(cipherListView)).toBe(false);
@@ -166,6 +166,7 @@ describe("CipherViewLikeUtils", () => {
           organizationId: undefined,
           edit: false,
           viewPassword: false,
+          type: { login: {} },
         } as CipherListView;
       });
 
@@ -249,6 +250,7 @@ describe("CipherViewLikeUtils", () => {
       it("returns the subtitle of the cipher", () => {
         const cipherListView = {
           subtitle: "Test Subtitle",
+          type: "identity",
         } as CipherListView;
 
         expect(CipherViewLikeUtils.subtitle(cipherListView)).toBe("Test Subtitle");
@@ -275,13 +277,13 @@ describe("CipherViewLikeUtils", () => {
 
     describe("CipherListView", () => {
       it("returns true when there are attachments", () => {
-        const cipherListView = { attachments: 1 } as CipherListView;
+        const cipherListView = { attachments: 1, type: "secureNote" } as CipherListView;
 
         expect(CipherViewLikeUtils.hasAttachments(cipherListView)).toBe(true);
       });
 
       it("returns false when there are no attachments", () => {
-        const cipherListView = { attachments: 0 } as CipherListView;
+        const cipherListView = { attachments: 0, type: "secureNote" } as CipherListView;
 
         expect(CipherViewLikeUtils.hasAttachments(cipherListView)).toBe(false);
       });

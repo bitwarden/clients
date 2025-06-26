@@ -28,7 +28,7 @@ export type CipherViewLike = CipherView | CipherListView;
 export class CipherViewLikeUtils {
   /** @returns true when the given cipher is an instance of {@link CipherListView}. */
   static isCipherListView = (cipher: CipherViewLike | Cipher): cipher is CipherListView => {
-    return typeof cipher.type !== "number";
+    return typeof cipher.type === "object" || typeof cipher.type === "string";
   };
 
   /** @returns The login object from the input cipher. If the cipher is not of type Login, returns null. */
