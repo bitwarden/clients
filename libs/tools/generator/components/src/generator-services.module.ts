@@ -135,7 +135,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
         const featureFlagObs$ = from(
           system.configService.getFeatureFlag(FeatureFlag.UseSdkPasswordGenerators),
         );
-        let featureFlag: boolean = undefined;
+        let featureFlag: boolean;
         featureFlagObs$.pipe(take(1)).subscribe((ff) => (featureFlag = ff));
         const metadata = new providers.GeneratorMetadataProvider(
           userStateDeps,
