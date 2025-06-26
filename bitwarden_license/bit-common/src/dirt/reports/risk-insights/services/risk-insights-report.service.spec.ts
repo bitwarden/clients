@@ -40,7 +40,7 @@ describe("RiskInsightsReportService", () => {
       encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
       decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
     });
-    
+
     service = new RiskInsightsReportService(
       pwdStrengthService,
       auditService,
