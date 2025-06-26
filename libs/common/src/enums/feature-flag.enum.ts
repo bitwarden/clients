@@ -19,6 +19,7 @@ export enum FeatureFlag {
   PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
+  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -45,7 +46,6 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
-  ItemShare = "item-share",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
 
   /* Vault */
@@ -91,7 +91,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
-  [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
   /* Vault */
@@ -107,6 +106,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
+  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

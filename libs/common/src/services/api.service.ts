@@ -1813,6 +1813,11 @@ export class ApiService implements ApiServiceAbstraction {
     if (authed) {
       const authHeader = await this.getActiveBearerToken();
       headers.set("Authorization", "Bearer " + authHeader);
+    } else {
+      // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
+      // since it won't be able to get it from the access token.
+      const appId = await this.appIdService.getAppId();
+      headers.set("Device-Identifier", appId);
     }
 
     if (body != null) {

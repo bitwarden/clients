@@ -562,11 +562,10 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string | undefined) {
-    const SetInitialPasswordRefactorFlagOn = await this.configService.getFeatureFlag(
+    const isSetInitialPasswordRefactorFlagOn = await this.configService.getFeatureFlag(
       FeatureFlag.PM16117_SetInitialPasswordRefactor,
     );
-
-    const route = SetInitialPasswordRefactorFlagOn ? "set-initial-password" : "set-password";
+    const route = isSetInitialPasswordRefactorFlagOn ? "set-initial-password" : "set-password";
 
     await this.router.navigate([route], {
       queryParams: {
