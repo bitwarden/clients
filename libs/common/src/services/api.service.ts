@@ -28,7 +28,6 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
-import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
   OrganizationConnectionResponse,
@@ -774,20 +773,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new CollectionAccessDetailsResponse(r);
   }
 
-  async putCollectionUsers(
-    organizationId: string,
-    id: string,
-    request: SelectionReadOnlyRequest[],
-  ): Promise<any> {
-    await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/collections/" + id + "/users",
-      request,
-      true,
-      false,
-    );
-  }
-
   deleteCollection(organizationId: string, id: string): Promise<any> {
     return this.send(
       "DELETE",
@@ -803,20 +788,6 @@ export class ApiService implements ApiServiceAbstraction {
       "DELETE",
       "/organizations/" + organizationId + "/collections",
       new CollectionBulkDeleteRequest(collectionIds),
-      true,
-      false,
-    );
-  }
-
-  deleteCollectionUser(
-    organizationId: string,
-    id: string,
-    organizationUserId: string,
-  ): Promise<any> {
-    return this.send(
-      "DELETE",
-      "/organizations/" + organizationId + "/collections/" + id + "/user/" + organizationUserId,
-      null,
       true,
       false,
     );
@@ -1842,6 +1813,11 @@ export class ApiService implements ApiServiceAbstraction {
     if (authed) {
       const authHeader = await this.getActiveBearerToken();
       headers.set("Authorization", "Bearer " + authHeader);
+    } else {
+      // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
+      // since it won't be able to get it from the access token.
+      const appId = await this.appIdService.getAppId();
+      headers.set("Device-Identifier", appId);
     }
 
     if (body != null) {

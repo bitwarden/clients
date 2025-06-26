@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH 密钥"
   },
+  "typeNote": {
+    "message": "笔记"
+  },
   "newItemHeader": {
     "message": "新增 $TYPE$",
     "placeholders": {
@@ -4896,7 +4899,7 @@
     "message": "成功分配了集合"
   },
   "nothingSelected": {
-    "message": "您尚未选择任何内容。"
+    "message": "您没有选择任何内容。"
   },
   "itemsMovedToOrg": {
     "message": "项目已移动到 $ORGNAME$",
@@ -5061,6 +5064,9 @@
   },
   "unlockPinSet": {
     "message": "解锁 PIN 设置"
+  },
+  "unlockBiometricSet": {
+    "message": "Unlock biometrics set"
   },
   "authenticating": {
     "message": "正在验证"
@@ -5403,5 +5409,9 @@
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
+  },
+  "wasmNotSupported": {
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

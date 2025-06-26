@@ -116,7 +116,7 @@ describe("DefaultChangePasswordService", () => {
 
       // Assert
       await expect(testFn).rejects.toThrow(
-        "currentMasterKey or currentServerMasterKeyHash not found",
+        "invalid PasswordInputResult credentials, could not change password",
       );
     });
 
@@ -130,7 +130,7 @@ describe("DefaultChangePasswordService", () => {
 
       // Assert
       await expect(testFn).rejects.toThrow(
-        "currentMasterKey or currentServerMasterKeyHash not found",
+        "invalid PasswordInputResult credentials, could not change password",
       );
     });
 
