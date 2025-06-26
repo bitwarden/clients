@@ -67,12 +67,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     ),
     this.activeUserId$.pipe(
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     ),
   ]).pipe(
-    switchMap(([orgs, singleOrgPolicy, personalOwnershipPolicy]) =>
-      this.buildOrganizationTree(orgs, singleOrgPolicy, personalOwnershipPolicy),
+    switchMap(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
+      this.buildOrganizationTree(orgs, singleOrgPolicy, organizationDataOwnershipPolicy),
     ),
   );
 
@@ -166,10 +166,10 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected async buildOrganizationTree(
     orgs: Organization[],
     singleOrgPolicy: boolean,
-    personalOwnershipPolicy: boolean,
+    organizationDataOwnershipPolicy: boolean,
   ): Promise<TreeNode<OrganizationFilter>> {
     const headNode = this.getOrganizationFilterHead();
-    if (!personalOwnershipPolicy) {
+    if (!organizationDataOwnershipPolicy) {
       const myVaultNode = this.getOrganizationFilterMyVault();
       headNode.children.push(myVaultNode);
     }
