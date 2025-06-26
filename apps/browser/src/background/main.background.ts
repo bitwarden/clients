@@ -1346,7 +1346,7 @@ export default class MainBackground {
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.logService);
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
