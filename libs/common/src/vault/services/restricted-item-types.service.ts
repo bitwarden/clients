@@ -11,10 +11,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { Cipher } from "../models/domain/cipher";
+
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
+
+type CipherLike = Cipher | CipherView;
 
 export class RestrictedItemTypesService {
   /**
@@ -76,26 +80,47 @@ export class RestrictedItemTypesService {
     private organizationService: OrganizationService,
     private policyService: PolicyService,
   ) {}
-}
 
-/**
- * Filter that returns whether a cipher is restricted from being viewed by the user
- * Criteria:
- * - the cipher's type is restricted by at least one org
- * UNLESS
- * - the cipher belongs to an organization and that organization does not restrict that type
- * OR
- * - the cipher belongs to the user's personal vault and at least one other organization does not restrict that type
- */
-export function isCipherViewRestricted(
-  cipher: CipherView,
-  restrictedTypes: RestrictedCipherType[],
-) {
-  return restrictedTypes.some(
-    (restrictedType) =>
-      restrictedType.cipherType === cipher.type &&
-      (cipher.organizationId
-        ? !restrictedType.allowViewOrgIds.includes(cipher.organizationId)
-        : restrictedType.allowViewOrgIds.length === 0),
-  );
+  /**
+   * Determines if a cipher is restricted from being viewed by the user.
+   *
+   * @param cipher - The cipher to check
+   * @param restrictedTypes - Array of restricted cipher types (from restricted$ observable)
+   * @returns true if the cipher is restricted, false otherwise
+   *
+   * Restriction logic:
+   * - If cipher type is not restricted by any org → allowed
+   * - If cipher belongs to an org that allows this type → allowed
+   * - If cipher is personal vault and any org allows this type → allowed
+   * - Otherwise → restricted
+   */
+  isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
+    const restriction = restrictedTypes.find((r) => r.cipherType === cipher.type);
+
+    // If cipher type is not restricted by any organization, allow it
+    if (!restriction) {
+      return false;
+    }
+
+    // If cipher belongs to an organization
+    if (cipher.organizationId) {
+      // Check if this organization allows viewing this cipher type
+      return !restriction.allowViewOrgIds.includes(cipher.organizationId);
+    }
+
+    // For personal vault ciphers: restricted only if NO organizations allow this type
+    return restriction.allowViewOrgIds.length === 0;
+  }
+
+  /**
+   * Convenience method that combines getting restrictions and checking a cipher.
+   *
+   * @param cipher - The cipher to check
+   * @returns Observable<boolean> indicating if the cipher is restricted
+   */
+  isCipherRestricted$(cipher: CipherLike): Observable<boolean> {
+    return this.restricted$.pipe(
+      map((restrictedTypes) => this.isCipherRestricted(cipher, restrictedTypes)),
+    );
+  }
 }

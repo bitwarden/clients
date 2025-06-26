@@ -206,6 +206,7 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
@@ -414,6 +415,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
+  private restrictedItemTypesService: RestrictedItemTypesService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -1058,6 +1060,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.accountService,
       this.apiService,
+      this.restrictedItemTypesService,
     );
 
     this.organizationVaultExportService = new OrganizationVaultExportService(
@@ -1070,6 +1073,7 @@ export default class MainBackground {
       this.collectionService,
       this.kdfConfigService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
@@ -1088,6 +1092,7 @@ export default class MainBackground {
           this.configService,
           new WebPushNotificationsApiService(this.apiService, this.appIdService),
           registration,
+          this.stateProvider,
         );
       } else {
         this.webPushConnectionService = new UnsupportedWebPushConnectionService();
@@ -1301,6 +1306,13 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
     this.mainContextMenuHandler = new MainContextMenuHandler(
       this.stateService,
       this.autofillSettingsService,
@@ -1308,6 +1320,7 @@ export default class MainBackground {
       this.logService,
       this.billingAccountProfileStateService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(

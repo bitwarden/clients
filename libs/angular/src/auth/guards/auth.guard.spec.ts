@@ -13,8 +13,10 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -25,12 +27,14 @@ describe("AuthGuard", () => {
     authStatus: AuthenticationStatus,
     forceSetPasswordReason: ForceSetPasswordReason,
     keyConnectorServiceRequiresAccountConversion: boolean = false,
+    featureFlag: FeatureFlag | null = null,
   ) => {
     const authService: MockProxy<AuthService> = mock<AuthService>();
     authService.getAuthStatus.mockResolvedValue(authStatus);
     const messagingService: MockProxy<MessagingService> = mock<MessagingService>();
     const keyConnectorService: MockProxy<KeyConnectorService> = mock<KeyConnectorService>();
     keyConnectorService.convertAccountRequired$ = of(keyConnectorServiceRequiresAccountConversion);
+    const configService: MockProxy<ConfigService> = mock<ConfigService>();
     const accountService: MockProxy<AccountService> = mock<AccountService>();
     const activeAccountSubject = new BehaviorSubject<Account | null>(null);
     accountService.activeAccount$ = activeAccountSubject;
@@ -44,6 +48,12 @@ describe("AuthGuard", () => {
         { id: "test-id" as UserId },
       ),
     );
+
+    if (featureFlag) {
+      configService.getFeatureFlag.mockResolvedValue(true);
+    } else {
+      configService.getFeatureFlag.mockResolvedValue(false);
+    }
 
     const forceSetPasswordReasonSubject = new BehaviorSubject<ForceSetPasswordReason>(
       forceSetPasswordReason,
@@ -59,7 +69,10 @@ describe("AuthGuard", () => {
           { path: "guarded-route", component: EmptyComponent, canActivate: [authGuard] },
           { path: "lock", component: EmptyComponent },
           { path: "set-password", component: EmptyComponent },
+          { path: "set-password-jit", component: EmptyComponent },
+          { path: "set-initial-password", component: EmptyComponent },
           { path: "update-temp-password", component: EmptyComponent },
+          { path: "change-password", component: EmptyComponent },
           { path: "remove-password", component: EmptyComponent },
         ]),
       ],
@@ -69,6 +82,7 @@ describe("AuthGuard", () => {
         { provide: KeyConnectorService, useValue: keyConnectorService },
         { provide: AccountService, useValue: accountService },
         { provide: MasterPasswordServiceAbstraction, useValue: masterPasswordService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -110,70 +124,152 @@ describe("AuthGuard", () => {
     expect(router.url).toBe("/remove-password");
   });
 
-  it("should redirect to set-password when user is TDE user without password and has password reset permission", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
-    );
+  describe("given user is Unlocked", () => {
+    describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
+      const tests = [
+        ForceSetPasswordReason.SsoNewJitProvisionedUser,
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        ForceSetPasswordReason.TdeOffboarding,
+      ];
 
-    await router.navigate(["guarded-route"]);
-    expect(router.url).toContain("/set-password");
-  });
+      describe("given user attempts to navigate to an auth guarded route", () => {
+        tests.forEach((reason) => {
+          it(`should redirect to /set-initial-password when the user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(
+              AuthenticationStatus.Unlocked,
+              reason,
+              false,
+              FeatureFlag.PM16117_SetInitialPasswordRefactor,
+            );
 
-  it("should redirect to update-temp-password when user has force set password reason", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.AdminForcePasswordReset,
-    );
+            await router.navigate(["guarded-route"]);
+            expect(router.url).toContain("/set-initial-password");
+          });
+        });
+      });
 
-    await router.navigate(["guarded-route"]);
-    expect(router.url).toContain("/update-temp-password");
-  });
+      describe("given user attempts to navigate to /set-initial-password", () => {
+        tests.forEach((reason) => {
+          it(`should allow navigation to continue to /set-initial-password when the user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(
+              AuthenticationStatus.Unlocked,
+              reason,
+              false,
+              FeatureFlag.PM16117_SetInitialPasswordRefactor,
+            );
 
-  it("should redirect to update-temp-password when user has weak password", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.WeakMasterPassword,
-    );
+            await router.navigate(["/set-initial-password"]);
+            expect(router.url).toContain("/set-initial-password");
+          });
+        });
+      });
+    });
 
-    await router.navigate(["guarded-route"]);
-    expect(router.url).toContain("/update-temp-password");
-  });
+    describe("given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
+      const tests = [
+        {
+          reason: ForceSetPasswordReason.SsoNewJitProvisionedUser,
+          url: "/set-password-jit",
+        },
+        {
+          reason: ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+          url: "/set-password",
+        },
+        {
+          reason: ForceSetPasswordReason.TdeOffboarding,
+          url: "/update-temp-password",
+        },
+      ];
 
-  it("should allow navigation to set-password when the user is unlocked, is a TDE user without password, and has password reset permission", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
-    );
+      describe("given user attempts to navigate to an auth guarded route", () => {
+        tests.forEach(({ reason, url }) => {
+          it(`should redirect to ${url} when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(AuthenticationStatus.Unlocked, reason);
 
-    await router.navigate(["/set-password"]);
-    expect(router.url).toContain("/set-password");
-  });
+            await router.navigate(["/guarded-route"]);
+            expect(router.url).toContain(url);
+          });
+        });
+      });
 
-  it("should allow navigation to update-temp-password when the user is unlocked and has admin force password reset permission", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.AdminForcePasswordReset,
-    );
+      describe("given user attempts to navigate to the set- or update- password route itself", () => {
+        tests.forEach(({ reason, url }) => {
+          it(`should allow navigation to continue to ${url} when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(AuthenticationStatus.Unlocked, reason);
 
-    await router.navigate(["/update-temp-password"]);
-    expect(router.url).toContain("/update-temp-password");
-  });
+            await router.navigate([url]);
+            expect(router.url).toContain(url);
+          });
+        });
+      });
+    });
 
-  it("should allow navigation to update-temp-password when the user is unlocked and has weak password", async () => {
-    const { router } = setup(
-      AuthenticationStatus.Unlocked,
-      ForceSetPasswordReason.WeakMasterPassword,
-    );
+    describe("given the PM16117_ChangeExistingPasswordRefactor feature flag is ON", () => {
+      const tests = [
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        ForceSetPasswordReason.WeakMasterPassword,
+      ];
 
-    await router.navigate(["/update-temp-password"]);
-    expect(router.url).toContain("/update-temp-password");
-  });
+      describe("given user attempts to navigate to an auth guarded route", () => {
+        tests.forEach((reason) => {
+          it(`should redirect to /change-password when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(
+              AuthenticationStatus.Unlocked,
+              reason,
+              false,
+              FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            );
 
-  it("should allow navigation to remove-password when the user is unlocked and has 'none' password reset permission", async () => {
-    const { router } = setup(AuthenticationStatus.Unlocked, ForceSetPasswordReason.None);
+            await router.navigate(["guarded-route"]);
+            expect(router.url).toContain("/change-password");
+          });
+        });
+      });
 
-    await router.navigate(["/remove-password"]);
-    expect(router.url).toContain("/remove-password");
+      describe("given user attempts to navigate to /change-password", () => {
+        tests.forEach((reason) => {
+          it(`should allow navigation to /change-password when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(
+              AuthenticationStatus.Unlocked,
+              ForceSetPasswordReason.AdminForcePasswordReset,
+              false,
+              FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            );
+
+            await router.navigate(["/change-password"]);
+            expect(router.url).toContain("/change-password");
+          });
+        });
+      });
+    });
+
+    describe("given the PM16117_ChangeExistingPasswordRefactor feature flag is OFF", () => {
+      const tests = [
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        ForceSetPasswordReason.WeakMasterPassword,
+      ];
+
+      describe("given user attempts to navigate to an auth guarded route", () => {
+        tests.forEach((reason) => {
+          it(`should redirect to /update-temp-password when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(AuthenticationStatus.Unlocked, reason);
+
+            await router.navigate(["guarded-route"]);
+            expect(router.url).toContain("/update-temp-password");
+          });
+        });
+      });
+
+      describe("given user attempts to navigate to /update-temp-password", () => {
+        tests.forEach((reason) => {
+          it(`should allow navigation to continue to /update-temp-password when user has ForceSetPasswordReason.${ForceSetPasswordReason[reason]}`, async () => {
+            const { router } = setup(AuthenticationStatus.Unlocked, reason);
+
+            await router.navigate(["/update-temp-password"]);
+            expect(router.url).toContain("/update-temp-password");
+          });
+        });
+      });
+    });
   });
 });

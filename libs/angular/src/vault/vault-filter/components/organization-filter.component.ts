@@ -15,7 +15,7 @@ export class OrganizationFilterComponent {
   @Input() collapsedFilterNodes: Set<string>;
   @Input() organizations: Organization[];
   @Input() activeFilter: VaultFilter;
-  @Input() activePersonalOwnershipPolicy: boolean;
+  @Input() activeOrganizationDataOwnership: boolean;
   @Input() activeSingleOrganizationPolicy: boolean;
 
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
@@ -26,12 +26,12 @@ export class OrganizationFilterComponent {
     let displayMode: DisplayMode = "organizationMember";
     if (this.organizations == null || this.organizations.length < 1) {
       displayMode = "noOrganizations";
-    } else if (this.activePersonalOwnershipPolicy && !this.activeSingleOrganizationPolicy) {
-      displayMode = "personalOwnershipPolicy";
-    } else if (!this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
+    } else if (this.activeOrganizationDataOwnership && !this.activeSingleOrganizationPolicy) {
+      displayMode = "organizationDataOwnershipPolicy";
+    } else if (!this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
       displayMode = "singleOrganizationPolicy";
-    } else if (this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
-      displayMode = "singleOrganizationAndPersonalOwnershipPolicies";
+    } else if (this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
+      displayMode = "singleOrganizationAndOrganizatonDataOwnershipPolicies";
     }
 
     return displayMode;
