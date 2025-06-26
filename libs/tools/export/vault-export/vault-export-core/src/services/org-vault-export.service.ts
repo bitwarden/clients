@@ -243,7 +243,7 @@ export class OrganizationVaultExportService
           ),
         ),
     );
-      
+
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
 
     decCiphers = allDecCiphers.filter(
