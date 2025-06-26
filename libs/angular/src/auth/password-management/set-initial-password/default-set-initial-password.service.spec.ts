@@ -24,7 +24,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -95,10 +95,13 @@ describe("DefaultSetInitialPasswordService", () => {
 
     let existingUserPublicKey: UserPublicKey;
     let existingUserPrivateKey: UserPrivateKey;
+    let userKeyEncryptedPrivateKey: EncString;
 
     let keyPair: [string, EncString];
     let keysRequest: KeysRequest;
+
     let organizationKeys: OrganizationKeysResponse;
+    let orgPublicKeyEncryptedUserKey: EncString;
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
@@ -109,7 +112,7 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey, // TODO-rr-bw: verify masterKey mock is correct
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -122,19 +125,22 @@ describe("DefaultSetInitialPasswordService", () => {
       userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       // Mock other function data
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
-      userKeyEncString = new EncString("userKeyEncrypted"); // TODO-rr-bw
-      masterKeyEncryptedUserKey = [userKey, userKeyEncString];
+      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey; // TODO-rr-bw: verify userKey mock is correct
+      userKeyEncString = new EncString("masterKeyEncryptedUserKey"); // TODO-rr-bw: verify EncString mock is correct
+      masterKeyEncryptedUserKey = [userKey, userKeyEncString]; // TODO-rr-bw: the above line (userKeyEncString) is used here
 
       existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey") as UserPublicKey;
       existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
+      userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey"); // TODO-rr-bw: verify EncString mock is correct
 
-      keyPair = ["publicKey", new EncString("privateKey")];
+      keyPair = ["publicKey", new EncString("privateKey")]; // TODO-rr-bw: verify keyPair mock is correct
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+
       organizationKeys = {
         privateKey: "orgPrivateKey",
         publicKey: "orgPublicKey",
       } as OrganizationKeysResponse;
+      orgPublicKeyEncryptedUserKey = new EncString("orgPublicKeyEncryptedUserKey");
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true }); // TODO-rr-bw
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
@@ -152,7 +158,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
       enrollmentRequest = new OrganizationUserResetPasswordEnrollmentRequest();
       enrollmentRequest.masterPasswordHash = credentials.newServerMasterKeyHash;
-      enrollmentRequest.resetPasswordKey = userKeyEncString.encryptedString;
+      enrollmentRequest.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
     });
 
     interface MockConfig {
@@ -184,9 +190,7 @@ describe("DefaultSetInitialPasswordService", () => {
         if (config.userHasLocalKeyPair) {
           keyService.userPrivateKey$.mockReturnValue(of(existingUserPrivateKey));
           keyService.userPublicKey$.mockReturnValue(of(existingUserPublicKey));
-          encryptService.wrapDecapsulationKey.mockResolvedValue(
-            new EncString("existingUserPrivateKey"),
-          ); // TODO-rr-bw
+          encryptService.wrapDecapsulationKey.mockResolvedValue(userKeyEncryptedPrivateKey); // TODO-rr-bw: verify mock is correct
         } else {
           keyService.userPrivateKey$.mockReturnValue(of(null));
           keyService.userPublicKey$.mockReturnValue(of(null));
@@ -197,7 +201,7 @@ describe("DefaultSetInitialPasswordService", () => {
       // Mock handleResetPasswordAutoEnroll() values
       if (config.resetPasswordAutoEnroll) {
         organizationApiService.getKeys.mockResolvedValue(organizationKeys);
-        encryptService.encapsulateKeyUnsigned.mockResolvedValue(userKeyEncString);
+        encryptService.encapsulateKeyUnsigned.mockResolvedValue(orgPublicKeyEncryptedUserKey);
         keyService.userKey$.mockReturnValue(of(userKey));
       }
     }
@@ -252,8 +256,8 @@ describe("DefaultSetInitialPasswordService", () => {
         it("should NOT create a brand new key pair for the user", async () => {
           // Arrange
           setPasswordRequest.keys = {
-            encryptedPrivateKey: new EncString("existingUserPrivateKey").encryptedString, // TODO-rr-bw
-            publicKey: Utils.fromBufferToB64(existingUserPublicKey), // TODO-rr-bw
+            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString, // TODO-rr-bw: verify mock is correct
+            publicKey: Utils.fromBufferToB64(existingUserPublicKey), // TODO-rr-bw: verify mock is correct
           };
 
           setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
@@ -265,7 +269,10 @@ describe("DefaultSetInitialPasswordService", () => {
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
           expect(keyService.userPrivateKey$).toHaveBeenCalledWith(userId);
           expect(keyService.userPublicKey$).toHaveBeenCalledWith(userId);
-          expect(encryptService.wrapDecapsulationKey).toHaveBeenCalled(); // TODO-rr-bw
+          expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(
+            existingUserPrivateKey,
+            masterKeyEncryptedUserKey[0],
+          ); // TODO-rr-bw: verify mock is correct
           expect(keyService.makeKeyPair).not.toHaveBeenCalled();
         });
       });
@@ -296,8 +303,34 @@ describe("DefaultSetInitialPasswordService", () => {
         });
       });
 
-      it("should throw if an encrypted private key is not found", () => {
-        // TODO-rr-bw
+      it("should throw if a key pair is not found", async () => {
+        // Arrange
+        keyPair = null;
+
+        setupMocks();
+
+        // Act
+        const testFn = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(testFn).rejects.toThrow("keyPair not found. Could not set password.");
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
+      });
+
+      it("should throw if an encrypted private key is not found", async () => {
+        // Arrange
+        keyPair[1].encryptedString = "" as EncryptedString;
+
+        setupMocks();
+
+        // Act
+        const testFn = sut.setInitialPassword(credentials, userType, userId);
+
+        // Assert
+        await expect(testFn).rejects.toThrow(
+          "encrypted private key not found. Could not set password.",
+        );
+        expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
       });
 
       describe("given the initial password has been successfully set", () => {
@@ -379,6 +412,57 @@ describe("DefaultSetInitialPasswordService", () => {
               organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
             ).toHaveBeenCalledWith(credentials.orgId, userId, enrollmentRequest);
           });
+
+          it("should throw if organization keys are not found", async () => {
+            // Arrange
+            credentials.resetPasswordAutoEnroll = true;
+            organizationKeys = null;
+
+            setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
+
+            // Act
+            const testFn = sut.setInitialPassword(credentials, userType, userId);
+
+            // Assert
+            await expect(testFn).rejects.toThrow(
+              "Organization keys response is null. Could not handle reset password auto enroll.",
+            );
+            expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+            expect(
+              organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+            ).not.toHaveBeenCalled();
+          });
+
+          ["orgPublicKeyEncryptedUserKey", "orgPublicKeyEncryptedUserKey.encryptedString"].forEach(
+            (property) => {
+              it("should throw if orgPublicKeyEncryptedUserKey is not found", async () => {
+                // Arrange
+                credentials.resetPasswordAutoEnroll = true;
+
+                if (property === "orgPublicKeyEncryptedUserKey") {
+                  orgPublicKeyEncryptedUserKey = null;
+                } else {
+                  orgPublicKeyEncryptedUserKey.encryptedString = "" as EncryptedString;
+                }
+
+                setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
+
+                // Act
+                const testFn = sut.setInitialPassword(credentials, userType, userId);
+
+                // Assert
+                await expect(testFn).rejects.toThrow(
+                  "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
+                );
+                expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+                  setPasswordRequest,
+                );
+                expect(
+                  organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
+                ).not.toHaveBeenCalled();
+              });
+            },
+          );
         });
 
         describe("given resetPasswordAutoEnroll is false", () => {

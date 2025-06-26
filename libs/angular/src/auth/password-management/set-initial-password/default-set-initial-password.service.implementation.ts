@@ -211,7 +211,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const organizationKeys = await this.organizationApiService.getKeys(orgId);
 
     if (organizationKeys == null) {
-      throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
+      throw new Error(
+        "Organization keys response is null. Could not handle reset password auto enroll.",
+      );
     }
 
     const orgPublicKey = Utils.fromB64ToArray(organizationKeys.publicKey);
