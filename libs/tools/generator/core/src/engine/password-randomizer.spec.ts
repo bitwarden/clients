@@ -30,7 +30,7 @@ describe("PasswordRandomizer", () => {
 
   describe("randomAscii", () => {
     it("returns the empty string when no character sets are specified", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 1,
@@ -41,7 +41,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates an uppercase ascii password", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -54,7 +54,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates an uppercase ascii password without ambiguous characters", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -67,7 +67,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a lowercase ascii password", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -80,7 +80,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a lowercase ascii password without ambiguous characters", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -93,7 +93,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a numeric ascii password", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -106,7 +106,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a numeric password without ambiguous characters", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -119,7 +119,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a special character password", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -132,7 +132,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("generates a special character password without ambiguous characters", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -148,7 +148,7 @@ describe("PasswordRandomizer", () => {
       [2, "AA"],
       [3, "AAA"],
     ])("includes %p uppercase characters", async (uppercase, expected) => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -163,7 +163,7 @@ describe("PasswordRandomizer", () => {
       [2, "aa"],
       [3, "aaa"],
     ])("includes %p lowercase characters", async (lowercase, expected) => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -178,7 +178,7 @@ describe("PasswordRandomizer", () => {
       [2, "00"],
       [3, "000"],
     ])("includes %p digits", async (digits, expected) => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -193,7 +193,7 @@ describe("PasswordRandomizer", () => {
       [2, "!!"],
       [3, "!!!"],
     ])("includes %p special characters", async (special, expected) => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomAscii({
         all: 0,
@@ -212,7 +212,7 @@ describe("PasswordRandomizer", () => {
     ])(
       "mixes character sets for the remaining characters (=%p)",
       async (setting: Partial<RandomAsciiRequest>, set: CharacterSet) => {
-        const password = new PasswordRandomizer(randomizer);
+        const password = new PasswordRandomizer(randomizer, Date.now);
 
         await password.randomAscii({
           ...setting,
@@ -225,7 +225,7 @@ describe("PasswordRandomizer", () => {
     );
 
     it("shuffles the password characters", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       // Typically `shuffle` randomizes the order of the array it's been
       // given. In the password generator, the array is generated from the
@@ -247,7 +247,7 @@ describe("PasswordRandomizer", () => {
 
   describe("randomEffLongWords", () => {
     it("generates the empty string when no words are passed", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomEffLongWords({
         numberOfWords: 0,
@@ -263,7 +263,7 @@ describe("PasswordRandomizer", () => {
       [1, "foo"],
       [2, "foofoo"],
     ])("generates a %i-length word list", async (words, expected) => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomEffLongWords({
         numberOfWords: words,
@@ -280,7 +280,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("capitalizes the word list", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
       randomizer.pickWord.mockResolvedValueOnce("Foo");
 
       const result = await password.randomEffLongWords({
@@ -298,7 +298,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("includes a random number on a random word", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
       randomizer.pickWord.mockResolvedValueOnce("foo");
       randomizer.pickWord.mockResolvedValueOnce("foo1");
 
@@ -324,7 +324,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("includes a separator", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.randomEffLongWords({
         numberOfWords: 2,
@@ -339,7 +339,7 @@ describe("PasswordRandomizer", () => {
 
   describe("generate", () => {
     it("processes password generation options", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.generate(
         { algorithm: Algorithm.password },
@@ -352,7 +352,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("processes passphrase generation options", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = await password.generate(
         { algorithm: Algorithm.passphrase },
@@ -365,7 +365,7 @@ describe("PasswordRandomizer", () => {
     });
 
     it("throws when it cannot recognize the options type", async () => {
-      const password = new PasswordRandomizer(randomizer);
+      const password = new PasswordRandomizer(randomizer, Date.now);
 
       const result = password.generate({ algorithm: Algorithm.username }, {});
 
