@@ -10,15 +10,13 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
-import { Cipher } from "../models/domain/cipher";
-import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+import { CipherLike } from "../types/cipher-like";
+import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type RestrictedCipherType = {
   cipherType: CipherType;
   allowViewOrgIds: string[];
 };
-
-type CipherLike = Cipher | CipherViewLike;
 
 export class RestrictedItemTypesService {
   /**

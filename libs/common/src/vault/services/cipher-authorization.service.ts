@@ -8,13 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { CollectionId } from "@bitwarden/common/types/guid";
 
 import { getUserId } from "../../auth/services/account.service";
-import { Cipher } from "../models/domain/cipher";
-import { CipherViewLike } from "../utils/cipher-view-like-utils";
-
-/**
- * Represents either a cipher or a cipher view.
- */
-type CipherLike = Cipher | CipherViewLike;
+import { CipherLike } from "../types/cipher-like";
 
 /**
  * Service for managing user cipher authorization.
