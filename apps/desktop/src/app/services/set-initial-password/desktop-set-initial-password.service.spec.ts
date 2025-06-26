@@ -165,10 +165,10 @@ describe("DesktopSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const testFn = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        await expect(testFn).rejects.toThrow();
+        await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
         expect(messagingService.send).not.toHaveBeenCalled();
       });

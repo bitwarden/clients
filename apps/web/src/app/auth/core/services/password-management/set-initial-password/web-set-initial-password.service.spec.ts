@@ -182,10 +182,10 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const testFn = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        await expect(testFn).rejects.toThrow();
+        await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
         expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       });
@@ -196,10 +196,10 @@ describe("WebSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const testFn = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        await expect(testFn).rejects.toThrow();
+        await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
         expect(acceptOrganizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
       });

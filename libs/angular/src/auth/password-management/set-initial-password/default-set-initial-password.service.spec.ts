@@ -225,24 +225,24 @@ describe("DefaultSetInitialPasswordService", () => {
           };
 
           // Act
-          const testFn = sut.setInitialPassword(invalidCredentials, userType, userId);
+          const promise = sut.setInitialPassword(invalidCredentials, userType, userId);
 
           // Assert
-          await expect(testFn).rejects.toThrow(`${key} not found. Could not set password.`);
+          await expect(promise).rejects.toThrow(`${key} not found. Could not set password.`);
         });
       });
 
       ["userId", "userType"].forEach((param) => {
         it(`should throw if ${param} was not passed in`, async () => {
           // Arrange & Act
-          const testFn = sut.setInitialPassword(
+          const promise = sut.setInitialPassword(
             credentials,
             param === "userType" ? null : userType,
             param === "userId" ? null : userId,
           );
 
           // Assert
-          await expect(testFn).rejects.toThrow(`${param} not found. Could not set password.`);
+          await expect(promise).rejects.toThrow(`${param} not found. Could not set password.`);
         });
       });
     });
@@ -310,10 +310,10 @@ describe("DefaultSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const testFn = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        await expect(testFn).rejects.toThrow("keyPair not found. Could not set password.");
+        await expect(promise).rejects.toThrow("keyPair not found. Could not set password.");
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
       });
 
@@ -324,10 +324,10 @@ describe("DefaultSetInitialPasswordService", () => {
         setupMocks();
 
         // Act
-        const testFn = sut.setInitialPassword(credentials, userType, userId);
+        const promise = sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        await expect(testFn).rejects.toThrow(
+        await expect(promise).rejects.toThrow(
           "encrypted private key not found. Could not set password.",
         );
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
@@ -421,10 +421,10 @@ describe("DefaultSetInitialPasswordService", () => {
             setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
 
             // Act
-            const testFn = sut.setInitialPassword(credentials, userType, userId);
+            const promise = sut.setInitialPassword(credentials, userType, userId);
 
             // Assert
-            await expect(testFn).rejects.toThrow(
+            await expect(promise).rejects.toThrow(
               "Organization keys response is null. Could not handle reset password auto enroll.",
             );
             expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
@@ -448,10 +448,10 @@ describe("DefaultSetInitialPasswordService", () => {
                 setupMocks({ ...defaultMockConfig, resetPasswordAutoEnroll: true });
 
                 // Act
-                const testFn = sut.setInitialPassword(credentials, userType, userId);
+                const promise = sut.setInitialPassword(credentials, userType, userId);
 
                 // Assert
-                await expect(testFn).rejects.toThrow(
+                await expect(promise).rejects.toThrow(
                   "orgPublicKeyEncryptedUserKey not found. Could not handle reset password auto enroll.",
                 );
                 expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
