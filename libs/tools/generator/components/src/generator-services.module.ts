@@ -37,7 +37,6 @@ import {
   DefaultCredentialGeneratorService,
 } from "@bitwarden/generator-core";
 import { KeyService } from "@bitwarden/key-management";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 export const RANDOMIZER = new SafeInjectionToken<Randomizer>("Randomizer");
 const GENERATOR_SERVICE_PROVIDER = new SafeInjectionToken<providers.CredentialGeneratorProviders>(
@@ -144,7 +143,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           Object.values(BuiltIn),
         );
 
-   const sdkService = featureFlag ? system.sdk : undefined;
+        const sdkService = featureFlag ? system.sdk : undefined;
         const profile = new providers.GeneratorProfileProvider(userStateDeps, system.policy);
 
         const generator: providers.GeneratorDependencyProvider = {
