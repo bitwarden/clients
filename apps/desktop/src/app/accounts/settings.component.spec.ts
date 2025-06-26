@@ -264,38 +264,46 @@ describe("SettingsComponent", () => {
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(true);
     });
 
-    it("require password or pin on app start not visible when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = false;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+    describe("windows desktop", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
 
-      await component.ngOnInit();
-      fixture.detectChanges();
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsComponent);
+        component = fixture.componentInstance;
+      });
 
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).toBeNull();
-    });
+      it("require password or pin on app start not visible when RemoveUnlockWithPin policy is disabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = false;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
 
-    it("require password on app start not visible when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
-      const policy = new Policy();
-      policy.type = PolicyType.RemoveUnlockWithPin;
-      policy.enabled = true;
-      policyService.policiesByType$.mockReturnValue(of([policy]));
-      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-      pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+        await component.ngOnInit();
+        fixture.detectChanges();
 
-      await component.ngOnInit();
-      fixture.detectChanges();
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
+      });
 
-      const requirePasswordOnStartLabelElement = fixture.debugElement.query(
-        By.css("label[for='requirePasswordOnStart']"),
-      );
-      expect(requirePasswordOnStartLabelElement).toBeNull();
+      it("require password on app start not visible when RemoveUnlockWithPin policy is enabled and pin set and windows desktop", async () => {
+        const policy = new Policy();
+        policy.type = PolicyType.RemoveUnlockWithPin;
+        policy.enabled = true;
+        policyService.policiesByType$.mockReturnValue(of([policy]));
+        pinServiceAbstraction.isPinSet.mockResolvedValue(true);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        const requirePasswordOnStartLabelElement = fixture.debugElement.query(
+          By.css("label[for='requirePasswordOnStart']"),
+        );
+        expect(requirePasswordOnStartLabelElement).toBeNull();
+      });
     });
   });
 

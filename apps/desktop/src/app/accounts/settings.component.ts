@@ -75,6 +75,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
+  isMac: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -165,31 +166,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private validationService: ValidationService,
   ) {
-    const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
+    this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
+    this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
     // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
     this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
 
-    const trayKey = isMac ? "enableMenuBar" : "enableTray";
+    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
     this.enableTrayText = this.i18nService.t(trayKey);
     this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
 
-    const minToTrayKey = isMac ? "enableMinToMenuBar" : "enableMinToTray";
+    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
     this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
     this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
 
-    const closeToTrayKey = isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
+    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
     this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
     this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
 
-    const startToTrayKey = isMac ? "startToMenuBar" : "startToTray";
+    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
 
     // DuckDuckGo browser is only for macos initially
-    this.showDuckDuckGoIntegrationOption = isMac;
+    this.showDuckDuckGoIntegrationOption = this.isMac;
 
     const localeOptions: any[] = [];
     this.i18nService.supportedTranslationLocales.forEach((locale) => {
@@ -234,15 +237,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.vaultTimeoutOptions = await this.generateVaultTimeoutOptions();
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
 
     if (activeAccount == null || activeAccount.id == null) {
       return;
     }
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
-
-    this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
     this.currentUserEmail = activeAccount.email;
     this.currentUserId = activeAccount.id;
