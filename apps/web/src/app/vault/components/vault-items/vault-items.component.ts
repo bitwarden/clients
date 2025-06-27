@@ -2,10 +2,18 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionView,
+  Unassigned,
+  CollectionAdminView,
+  CollectionTypes,
+} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
@@ -34,6 +42,10 @@ type ItemPermission = CollectionPermission | "NoAccess";
 })
 export class VaultItemsComponent {
   protected RowHeight = RowHeight;
+
+  private createDefaultCollection = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+  );
 
   @Input() disabled: boolean;
   @Input() showOwner: boolean;
@@ -83,7 +95,10 @@ export class VaultItemsComponent {
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
 
-  constructor(protected cipherAuthorizationService: CipherAuthorizationService) {
+  constructor(
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    private configService: ConfigService,
+  ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -201,8 +216,12 @@ export class VaultItemsComponent {
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
-    if (collection.id === Unassigned) {
+    // Only allow allow deletion if collection editing is enabled, not deleting "Unassigned",
+    // and not the default user collection
+    if (
+      collection.id === Unassigned ||
+      (this.createDefaultCollection() && collection.type == CollectionTypes.DefaultUserCollection)
+    ) {
       return false;
     }
 
@@ -212,8 +231,12 @@ export class VaultItemsComponent {
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
-    if (collection.id === Unassigned) {
+    // Only allow allow deletion if collection editing is enabled, not deleting "Unassigned",
+    // and not the default user collection
+    if (
+      collection.id === Unassigned ||
+      (this.createDefaultCollection() && collection.type == CollectionTypes.DefaultUserCollection)
+    ) {
       return false;
     }
 

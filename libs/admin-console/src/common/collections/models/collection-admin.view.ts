@@ -1,7 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
+import { CollectionTypes } from "./collection";
 import { CollectionAccessSelectionView } from "./collection-access-selection.view";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 import { CollectionView } from "./collection.view";
@@ -16,12 +15,12 @@ export class CollectionAdminView extends CollectionView {
    * Flag indicating the collection has no active user or group assigned to it with CanManage permissions
    * In this case, the collection can be managed by admins/owners or custom users with appropriate permissions
    */
-  unmanaged: boolean;
+  unmanaged: boolean = false;
 
   /**
    * Flag indicating the user has been explicitly assigned to this Collection
    */
-  assigned: boolean;
+  assigned: boolean = false;
 
   constructor(response?: CollectionAccessDetailsResponse) {
     super(response);
@@ -64,7 +63,8 @@ export class CollectionAdminView extends CollectionView {
    */
   canEditUserAccess(org: Organization): boolean {
     return (
-      (org.permissions.manageUsers && org.allowAdminAccessToAllCollectionItems) || this.canEdit(org)
+      (org.permissions.manageUsers && org.allowAdminAccessToAllCollectionItems) ||
+      (this.canEdit(org) && this.type != CollectionTypes.DefaultUserCollection)
     );
   }
 
@@ -74,7 +74,7 @@ export class CollectionAdminView extends CollectionView {
   canEditGroupAccess(org: Organization): boolean {
     return (
       (org.permissions.manageGroups && org.allowAdminAccessToAllCollectionItems) ||
-      this.canEdit(org)
+      (this.canEdit(org) && this.type != CollectionTypes.DefaultUserCollection)
     );
   }
 
@@ -85,8 +85,10 @@ export class CollectionAdminView extends CollectionView {
     if (this.isUnassignedCollection) {
       return false;
     }
+    const isAdmin = org?.isAdmin ?? false;
+    const permissions = org?.permissions.editAnyCollection ?? false;
 
-    return this.manage || org?.isAdmin || org?.permissions.editAnyCollection;
+    return this.manage || isAdmin || permissions;
   }
 
   /**

@@ -57,16 +57,17 @@
   </p>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
-  <button
-    *ngIf="canEditCollection || canDeleteCollection || canViewCollectionInfo"
-    [disabled]="disabled"
-    [bitMenuTriggerFor]="collectionOptions"
-    size="small"
-    bitIconButton="bwi-ellipsis-v"
-    type="button"
-    appA11yTitle="{{ 'options' | i18n }}"
-    appStopProp
-  ></button>
+  @if (showMenu) {
+    <button
+      [disabled]="disabled"
+      [bitMenuTriggerFor]="collectionOptions"
+      size="small"
+      bitIconButton="bwi-ellipsis-v"
+      type="button"
+      appA11yTitle="{{ 'options' | i18n }}"
+      appStopProp
+    ></button>
+  }
   <bit-menu #collectionOptions>
     <ng-container *ngIf="canEditCollection">
       <button type="button" bitMenuItem (click)="edit(false)">

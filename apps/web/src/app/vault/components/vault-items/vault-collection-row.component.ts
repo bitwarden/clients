@@ -1,9 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
-import { CollectionAdminView, Unassigned, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -24,6 +32,10 @@ export class VaultCollectionRowComponent {
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
 
+  private createDefaultLocation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+  );
+
   @Input() disabled: boolean;
   @Input() collection: CollectionView;
   @Input() showOwner: boolean;
@@ -41,7 +53,10 @@ export class VaultCollectionRowComponent {
   @Input() checked: boolean;
   @Output() checkedToggled = new EventEmitter<void>();
 
-  constructor(private i18nService: I18nService) {}
+  constructor(
+    private i18nService: I18nService,
+    private configService: ConfigService,
+  ) {}
 
   get collectionGroups() {
     if (!(this.collection instanceof CollectionAdminView)) {
@@ -106,10 +121,24 @@ export class VaultCollectionRowComponent {
   }
 
   protected get showCheckbox() {
-    if (this.collection?.id === Unassigned) {
-      return false; // Never show checkbox for Unassigned
+    if (this.collection?.id === Unassigned || this.defaultCollection) {
+      return false; // Never show checkbox for Unassigned or the default user collection
     }
 
     return this.canEditCollection || this.canDeleteCollection;
+  }
+
+  protected get showMenu() {
+    if (this.defaultCollection) {
+      return false;
+    }
+
+    return this.canEditCollection || this.canDeleteCollection || this.canViewCollectionInfo;
+  }
+
+  private get defaultCollection() {
+    return (
+      this.createDefaultLocation() && this.collection.type == CollectionTypes.DefaultUserCollection
+    );
   }
 }
