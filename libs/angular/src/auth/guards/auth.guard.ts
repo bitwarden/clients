@@ -67,16 +67,6 @@ export const authGuard: CanActivateFn = async (
     FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
   );
 
-  // User JIT provisioned into a master-password-encryption org
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-password-jit") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
-    return router.createUrlTree([route]);
-  }
-
   // TDE org user has "manage account recovery" permission
   if (
     forceSetPasswordReason ===
