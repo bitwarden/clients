@@ -4,22 +4,22 @@ import * as lunr from "lunr";
 import { Observable, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
-import { UriMatchStrategy } from "../models/domain/domain-service";
-import { I18nService } from "../platform/abstractions/i18n.service";
-import { LogService } from "../platform/abstractions/log.service";
+import { UriMatchStrategy } from "../../models/domain/domain-service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { LogService } from "../../platform/abstractions/log.service";
 import {
   SingleUserState,
   StateProvider,
   UserKeyDefinition,
   VAULT_SEARCH_MEMORY,
-} from "../platform/state";
-import { SendView } from "../tools/send/models/view/send.view";
-import { IndexedEntityId, UserId } from "../types/guid";
-import { FieldType } from "../vault/enums";
-import { CipherType } from "../vault/enums/cipher-type";
-import { CipherView } from "../vault/models/view/cipher.view";
-import { CipherViewLike, CipherViewLikeUtils } from "../vault/utils/cipher-view-like-utils";
+} from "../../platform/state";
+import { SendView } from "../../tools/send/models/view/send.view";
+import { IndexedEntityId, UserId } from "../../types/guid";
+import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
+import { FieldType } from "../enums";
+import { CipherType } from "../enums/cipher-type";
+import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export type SerializedLunrIndex = {
   version: string;

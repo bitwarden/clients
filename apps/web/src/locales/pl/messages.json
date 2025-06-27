@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Włączenie logowania dwustopniowego można trwale zablokować konto Bitwarden. Kod odzyskiwania pozwala na dostęp do konta w przypadku, gdy nie będziesz mógł skorzystać ze standardowego dostawcy logowania dwustopniowego (np. w przypadku utraty urządzenia). Pomoc techniczna Bitwarden nie będzie w stanie Ci pomóc, jeśli stracisz dostęp do swojego konta. Zalecamy zapisanie lub wydrukowanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
   },
-  "restrictedItemTypesPolicy": {
-    "message": "Usuń typ elementu karty"
+  "restrictedItemTypePolicy": {
+    "message": "Usuń elementy typu karty"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Nie zezwalaj członkom na tworzenie typów elementów karty."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Nie zezwalaj członkom na tworzenie elementów typu karty. Istniejące karty zostaną automatycznie usunięte."
+  },
+  "restrictCardTypeImport": {
+    "message": "Nie można importować elementów typu karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Polityka ustawiona przez 1 lub więcej organizacji uniemożliwia importowanie kart do sejfów."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorazowy kod odzyskiwania może być użyty do wyłączenia dwuetapowego logowania w przypadku utraty dostępu do dostawcy logowania dwuetapowego. Bitwarden zaleca zapisanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Wyłącz"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Nie znaleziono szczegółów użytkownika."
   },
   "revokeAccess": {
     "message": "Unieważnij dostęp"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Dostęp awaryjny został odrzucony"
   },
+  "grantorDetailsNotFound": {
+    "message": "Nie znaleziono szczegółów dotacji"
+  },
   "passwordResetFor": {
     "message": "Zresetowałeś hasło użytkownika $USER$. Możesz zalogować się za pomocą nowego hasła.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Wymuś własność danych organizacji"
   },
   "personalOwnership": {
     "message": "Własność osobista"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Kontynuowanie spowoduje wylogowanie użytkownika $NAME$ z obecnej sesji i będzie musiał zalogować się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ten użytkownik"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
   },
   "resetPasswordSuccess": {
@@ -7615,7 +7642,7 @@
     "description": "Notifies that a service account has been updated"
   },
   "typeOrSelectProjects": {
-    "message": "Type or select projects",
+    "message": "Wpisz lub wybierz projekty",
     "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
@@ -7702,7 +7729,7 @@
     "description": "Title for the section displaying access tokens."
   },
   "createAccessToken": {
-    "message": "Create access token",
+    "message": "Utwórz token dostępu",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Aby dodać środki, wymagany jest adres rozliczeniowy.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

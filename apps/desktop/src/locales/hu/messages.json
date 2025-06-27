@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Korlátozott fiók"
   },
+  "restrictCardTypeImport": {
+    "message": "A kártya elem típusokat nem lehet importálni."
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Egy vagy több szervezet által beállított szabályzat megakadályozza a kártyák importálását a széfekbe."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
   },

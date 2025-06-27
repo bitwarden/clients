@@ -108,7 +108,7 @@ export class DesktopSettingsService {
 
   private readonly closeToTrayState = this.stateProvider.getGlobal(CLOSE_TO_TRAY_KEY);
   /**
-   * Tha applications setting for whether or not to close the application into the system tray.
+   * The applications setting for whether or not to close the application into the system tray.
    */
   closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
