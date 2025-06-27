@@ -12,7 +12,6 @@ import {
   map,
   Observable,
   shareReplay,
-  Subject,
   switchMap,
 } from "rxjs";
 
@@ -118,8 +117,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   protected rowHeightClass = `tw-h-[69px]`;
 
   private organizationUsersCount = 0;
-
-  private destroy$ = new Subject<void>();
 
   get occupiedSeatCount(): number {
     return this.organizationUsersCount;
