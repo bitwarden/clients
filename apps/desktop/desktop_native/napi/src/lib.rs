@@ -875,3 +875,48 @@ pub mod logging {
         fn flush(&self) {}
     }
 }
+
+#[napi]
+pub mod secure_memory {
+    use desktop_core::secure_memory::SecureMemoryStore;
+    use napi::bindgen_prelude::Buffer;
+
+    #[napi]
+    pub struct SecureMemoryStoreWrapper(Box<dyn SecureMemoryStore>);
+
+    #[napi]
+    impl SecureMemoryStoreWrapper {
+        #[napi(constructor)]
+        pub fn new() -> Self {
+            let memory_store = desktop_core::secure_memory::create_secure_memory_store();
+            SecureMemoryStoreWrapper(memory_store)
+        }
+
+        #[napi]
+        pub fn set(&mut self, key: String, value: &[u8]) {
+            self.0.put(key, value);
+        }
+        #[napi]
+        pub fn get(&self, key: String) -> Option<Buffer> {
+            self.0.get(&key).map(Buffer::from)
+        }
+        #[napi]
+        pub fn has(&self, key: String) -> bool {
+            self.0.has(&key)
+        }
+        #[napi]
+        pub fn remove(&mut self, key: String) {
+            self.0.remove(&key);
+        }
+        #[napi]
+        pub fn clear(&mut self) {
+            self.0.clear();
+        }
+    }
+
+    impl Default for SecureMemoryStoreWrapper {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+}

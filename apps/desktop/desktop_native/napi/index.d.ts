@@ -198,3 +198,13 @@ export declare namespace logging {
   }
   export function initNapiLog(jsLogFn: (err: Error | null, arg0: LogLevel, arg1: string) => any): void
 }
+export declare namespace secure_memory {
+  export class SecureMemoryStoreWrapper {
+    constructor()
+    set(key: string, value: Uint8Array): void
+    get(key: string): Buffer | null
+    has(key: string): boolean
+    remove(key: string): void
+    clear(): void
+  }
+}
