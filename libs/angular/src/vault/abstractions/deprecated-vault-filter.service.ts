@@ -24,5 +24,5 @@ export abstract class DeprecatedVaultFilterService {
     userId: UserId,
   ): Promise<void>;
   abstract checkForSingleOrganizationPolicy(): Promise<boolean>;
-  abstract checkForPersonalOwnershipPolicy(): Promise<boolean>;
+  abstract checkForOrganizationDataOwnershipPolicy(): Promise<boolean>;
 }

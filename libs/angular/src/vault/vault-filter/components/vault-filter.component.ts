@@ -37,7 +37,7 @@ export class VaultFilterComponent implements OnInit {
   isLoaded = false;
   collapsedFilterNodes: Set<string>;
   organizations: Organization[];
-  activePersonalOwnershipPolicy: boolean;
+  activeOrganizationDataOwnershipPolicy: boolean;
   activeSingleOrganizationPolicy: boolean;
   collections: DynamicTreeNode<CollectionView>;
   folders$: Observable<DynamicTreeNode<FolderView>>;
@@ -58,8 +58,8 @@ export class VaultFilterComponent implements OnInit {
     );
     this.organizations = await this.vaultFilterService.buildOrganizations();
     if (this.organizations != null && this.organizations.length > 0) {
-      this.activePersonalOwnershipPolicy =
-        await this.vaultFilterService.checkForPersonalOwnershipPolicy();
+      this.activeOrganizationDataOwnershipPolicy =
+        await this.vaultFilterService.checkForOrganizationDataOwnershipPolicy();
       this.activeSingleOrganizationPolicy =
         await this.vaultFilterService.checkForSingleOrganizationPolicy();
     }
@@ -102,8 +102,8 @@ export class VaultFilterComponent implements OnInit {
 
   async reloadOrganizations() {
     this.organizations = await this.vaultFilterService.buildOrganizations();
-    this.activePersonalOwnershipPolicy =
-      await this.vaultFilterService.checkForPersonalOwnershipPolicy();
+    this.activeOrganizationDataOwnershipPolicy =
+      await this.vaultFilterService.checkForOrganizationDataOwnershipPolicy();
     this.activeSingleOrganizationPolicy =
       await this.vaultFilterService.checkForSingleOrganizationPolicy();
   }
