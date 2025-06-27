@@ -12,7 +12,6 @@ import {
   map,
   Observable,
   shareReplay,
-  Subject,
   switchMap,
 } from "rxjs";
 
@@ -109,7 +108,6 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
   orgIsOnSecretsManagerStandalone = false;
-  private destroy$ = new Subject<void>();
 
   protected canUseSecretsManager$: Observable<boolean>;
   protected showUserManagementControls$: Observable<boolean>;
