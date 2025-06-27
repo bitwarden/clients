@@ -1705,6 +1705,13 @@ export default class MainBackground {
    * @default ExtensionPageUrls.Index
    */
   async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
+    const isValidUrl = Object.values(ExtensionPageUrls).includes(url);
+
+    // If a non-defined URL is provided, return early.
+    if (!isValidUrl) {
+      return;
+    }
+
     const browserAction = BrowserApi.getBrowserAction();
 
     try {
