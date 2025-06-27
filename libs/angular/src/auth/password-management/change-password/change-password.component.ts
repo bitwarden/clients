@@ -1,6 +1,13 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import {
+  InputPasswordComponent,
+  InputPasswordFlow,
+  PasswordInputResult,
+} from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,8 +19,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   AnonLayoutWrapperDataService,
   DialogService,
@@ -22,12 +27,6 @@ import {
   CalloutComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import {
-  InputPasswordComponent,
-  InputPasswordFlow,
-} from "../input-password/input-password.component";
-import { PasswordInputResult } from "../input-password/password-input-result";
 
 import { ChangePasswordService } from "./change-password.service.abstraction";
 
@@ -106,7 +105,7 @@ export class ChangePasswordComponent implements OnInit {
         pageIcon: Icons.LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "updateMasterPasswordSubtitle" },
-        maxWidth: "lg",
+        // maxWidth: "lg", // TODO: depends on https://github.com/bitwarden/clients/pull/15362
       });
     }
 
