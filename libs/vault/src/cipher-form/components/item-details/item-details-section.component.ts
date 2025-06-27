@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { concatMap, firstValueFrom, map } from "rxjs";
+import { concatMap, distinctUntilChanged, from, map, of, startWith, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -214,60 +214,57 @@ export class ItemDetailsSectionComponent implements OnInit {
         collectionIds: [],
         favorite: false,
       });
-
-      const collectionIds = await this.defaultCollectionIds(orgId);
-      await this.updateCollectionOptions(collectionIds);
+      this.itemDetailsForm.controls.organizationId.valueChanges
+        .pipe(
+          startWith(this.itemDetailsForm.controls.organizationId.value),
+          takeUntilDestroyed(this.destroyRef),
+          distinctUntilChanged(),
+          switchMap((orgId) => this.defaultCollectionIds$(orgId)),
+          concatMap((ids) => from(this.updateCollectionOptions(ids))),
+        )
+        .subscribe();
     }
 
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
-
-    this.itemDetailsForm.controls.organizationId.valueChanges
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => {
-          const collectionIds = await this.defaultCollectionIds(
-            this.itemDetailsForm.controls.organizationId.value,
-          );
-          await this.updateCollectionOptions(collectionIds);
-        }),
-      )
-      .subscribe();
   }
 
-  private async defaultCollectionIds(orgId?: OrganizationId): Promise<CollectionId[]> {
-    // filter out null values
-    let collectionIds = this.initialValues?.collectionIds?.filter((c) => !!c);
-    if (collectionIds?.length) {
-      return collectionIds;
+  private defaultCollectionIds$(orgId?: OrganizationId) {
+    const initial = this.initialValues?.collectionIds?.filter(Boolean);
+    if (initial?.length) {
+      return of(initial as CollectionId[]);
     }
-    const isDefaultLocationEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+
+    return this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation).pipe(
+      switchMap((enabled) => {
+        if (!enabled) {
+          return of(undefined as CollectionId[] | undefined);
+        }
+        return this.accountService.activeAccount$.pipe(
+          getUserId,
+          switchMap((userId) =>
+            this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+          ),
+          map((policies) => policies.map((p) => p.organizationId)),
+          map((orgIdsWithPolicy) => {
+            const matchingOrgId = orgIdsWithPolicy.includes(orgId) ? orgId : orgIdsWithPolicy[0];
+            if (!matchingOrgId) {
+              return;
+            }
+            const defaultUserCollection = this.collections.find(
+              (c) =>
+                c.organizationId === matchingOrgId &&
+                c.type === CollectionTypes.DefaultUserCollection,
+            );
+            if (!defaultUserCollection) {
+              return;
+            }
+            return [defaultUserCollection.id as CollectionId];
+          }),
+        );
+      }),
     );
-    // set default collection if no collections are provided and data ownership policy is enabled by at least one org
-    if (isDefaultLocationEnabled) {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const orgIdsWithDataPolicy = (
-        await firstValueFrom(
-          this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
-        )
-      ).map((p) => p.organizationId);
-      // if we're filtering by org that has a data policy, get the default collection for that org
-      // otherwise, get the first org with a data policy
-      const matchingOrgId = orgIdsWithDataPolicy.includes(orgId) ? orgId : orgIdsWithDataPolicy[0];
-      if (matchingOrgId) {
-        collectionIds = [
-          this.collections.find(
-            (collection) =>
-              collection.organizationId === matchingOrgId &&
-              collection.type === CollectionTypes.DefaultUserCollection,
-          )?.id as CollectionId,
-        ];
-      }
-      return collectionIds;
-    }
-    return undefined;
   }
 
   private async initFromExistingCipher(prefillCipher: CipherView) {
