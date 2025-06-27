@@ -37,6 +37,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -121,9 +122,11 @@ const BroadcasterSubscriptionId = "VaultComponent";
     },
   ],
 })
-export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
+export class VaultV2Component<C extends CipherViewLike>
+  implements OnInit, OnDestroy, CopyClickListener
+{
   @ViewChild(VaultItemsV2Component, { static: true })
-  vaultItemsComponent: VaultItemsV2Component | null = null;
+  vaultItemsComponent: VaultItemsV2Component<C> | null = null;
   @ViewChild(VaultFilterComponent, { static: true })
   vaultFilterComponent: VaultFilterComponent | null = null;
   @ViewChild("folderAddEdit", { read: ViewContainerRef, static: true })
@@ -387,7 +390,8 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     this.messagingService.send("minimizeOnCopy");
   }
 
-  async viewCipher(cipher: CipherView) {
+  async viewCipher(c: CipherViewLike) {
+    const cipher = await this.cipherService.getFullCipherView(c);
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }
@@ -445,7 +449,8 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     }
   }
 
-  viewCipherMenu(cipher: CipherView) {
+  async viewCipherMenu(c: CipherViewLike) {
+    const cipher = await this.cipherService.getFullCipherView(c);
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),
