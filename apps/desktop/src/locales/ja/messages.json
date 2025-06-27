@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "アカウント制限"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「ファイルパスワード」と「ファイルパスワードの確認」が一致しません。"
   },
