@@ -11,8 +11,10 @@ import {
   DefaultOrganizationUserApiService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/change-password.service.abstraction";
-import { DefaultChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/default-change-password.service";
+import {
+  ChangePasswordService,
+  DefaultChangePasswordService,
+} from "@bitwarden/angular/auth/password-management/change-password";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {

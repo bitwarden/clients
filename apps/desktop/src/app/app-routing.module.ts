@@ -14,7 +14,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password/change-password.component";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {

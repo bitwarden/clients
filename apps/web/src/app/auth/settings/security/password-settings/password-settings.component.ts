@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password/change-password.component";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { InputPasswordFlow } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
