@@ -100,10 +100,10 @@ export const authGuard: CanActivateFn = async (
 
   // Post- Account Recovery or Weak Password on login
   if (
-    forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
-    (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword &&
-      !routerState.url.includes("update-temp-password") &&
-      !routerState.url.includes("change-password"))
+    (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("change-password")
   ) {
     const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
     return router.createUrlTree([route]);
