@@ -9,11 +9,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { IconModule } from "@bitwarden/components";
+import { IconModule, PasswordManagerLogo } from "@bitwarden/components";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
 
-import { PasswordManagerLogo } from "./password-manager-logo";
 import { WebLayoutModule } from "./web-layout.module";
 
 @Component({

@@ -10,7 +10,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { IconModule, Icon } from "../icon";
-import { BitwardenLogo, BitwardenShield } from "../icon/icons";
+import { BitwardenLogo } from "../icon/icons";
+import { BitwardenShield } from "../icon/logos";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 

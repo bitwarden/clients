@@ -13,7 +13,7 @@
   --color-background: 255 255 255;
   --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
-  --color-background-alt3: 26 65 172;
+  --color-background-alt3: 22 55 146;
   --color-background-alt4: 2 15 102;
 
   --color-primary-100: 219 229 246;
@@ -116,6 +116,9 @@
   --color-marketing-logo: 255 255 255;
 
   --tw-ring-offset-color: #1f242e;
+
+  --color-icon-button-hover: rgb(170 195 239 / 0.1);
+  --color-icon-button-hover-contrast: rgb(26 39 78 / 0.15);
 }
 
 /**
