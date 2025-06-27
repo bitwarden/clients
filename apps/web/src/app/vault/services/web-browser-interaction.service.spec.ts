@@ -61,6 +61,7 @@ describe("WebBrowserInteractionService", () => {
       tick(1500);
       expect(results[0]).toBe(false);
 
+      tick(2500);
       // then emit `HasBwInstalled`
       dispatchEvent(VaultMessages.HasBwInstalled);
       tick();
