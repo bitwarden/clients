@@ -52,6 +52,10 @@ export class ResetPasswordPolicyComponent extends BasePolicyComponent implements
       throw new Error("No user found.");
     }
 
+    if (!this.policyResponse) {
+      throw new Error("Policies not found");
+    }
+
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
