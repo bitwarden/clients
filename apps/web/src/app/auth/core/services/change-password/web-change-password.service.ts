@@ -1,4 +1,5 @@
-import { ChangePasswordService, DefaultChangePasswordService } from "@bitwarden/auth/angular";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/change-password.service.abstraction";
+import { DefaultChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/default-change-password.service";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";

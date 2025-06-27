@@ -11,6 +11,8 @@ import {
   DefaultOrganizationUserApiService,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/change-password.service.abstraction";
+import { DefaultChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/default-change-password.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -29,8 +31,6 @@ import {
   TwoFactorAuthComponentService,
   TwoFactorAuthEmailComponentService,
   TwoFactorAuthWebAuthnComponentService,
-  ChangePasswordService,
-  DefaultChangePasswordService,
 } from "@bitwarden/auth/angular";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports

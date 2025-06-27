@@ -10,6 +10,7 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password/change-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -33,7 +34,6 @@ import {
   SsoComponentService,
   LoginDecryptionOptionsService,
   TwoFactorAuthDuoComponentService,
-  ChangePasswordService,
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
