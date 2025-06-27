@@ -1,3 +1,13 @@
+/*
+    -- Note --
+    
+    As of June 2025, settings should only be added here if they are owned
+    by the platform team. Other settings should be added to the relevant service
+    owned by the team that owns the setting.
+
+    More info: https://bitwarden.atlassian.net/browse/PM-23126
+*/
+
 import { Observable, map } from "rxjs";
 
 import {
