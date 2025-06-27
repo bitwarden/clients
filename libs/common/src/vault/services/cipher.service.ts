@@ -210,6 +210,15 @@ export class CipherService implements CipherServiceAbstraction {
       this.adjustPasswordHistoryLength(model);
     }
 
+    const sdkEncryptionEnabled =
+      (await this.configService.getFeatureFlag(FeatureFlag.PM22136_SdkCipherEncryption)) &&
+      keyForCipherEncryption == null && // SDK encryption does not currently support custom keys (e.g. key rotation)
+      keyForCipherKeyDecryption == null; // Or has explicit methods for re-encrypting ciphers with different keys (e.g. move to org)
+
+    if (sdkEncryptionEnabled) {
+      return await this.cipherEncryptionService.encrypt(model, userId);
+    }
+
     const cipher = new Cipher();
     cipher.id = model.id;
     cipher.folderId = model.folderId;
