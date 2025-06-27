@@ -12,7 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -28,10 +28,9 @@ const NestingDelimiter = "/";
 
 @Injectable()
 export class VaultFilterService implements DeprecatedVaultFilterServiceAbstraction {
-  private collapsedGroupingsState: ActiveUserState<string[]> =
-    this.stateProvider.getActive(COLLAPSED_GROUPINGS);
-  private readonly collapsedGroupings$: Observable<Set<string>> =
-    this.collapsedGroupingsState.state$.pipe(map((c) => new Set(c)));
+  private collapsedGroupingsState(userId: UserId): SingleUserState<string[]> {
+    return this.stateProvider.getUser(userId, COLLAPSED_GROUPINGS);
+  }
 
   constructor(
     protected organizationService: OrganizationService,
@@ -43,12 +42,17 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected accountService: AccountService,
   ) {}
 
-  async storeCollapsedFilterNodes(collapsedFilterNodes: Set<string>): Promise<void> {
-    await this.collapsedGroupingsState.update(() => Array.from(collapsedFilterNodes));
+  async storeCollapsedFilterNodes(
+    collapsedFilterNodes: Set<string>,
+    userId: UserId,
+  ): Promise<void> {
+    await this.collapsedGroupingsState(userId).update(() => Array.from(collapsedFilterNodes));
   }
 
-  async buildCollapsedFilterNodes(): Promise<Set<string>> {
-    return await firstValueFrom(this.collapsedGroupings$);
+  async buildCollapsedFilterNodes(userId: UserId): Promise<Set<string>> {
+    return await firstValueFrom(
+      this.collapsedGroupingsState(userId).state$.pipe(map((c) => new Set(c))),
+    );
   }
 
   async buildOrganizations(): Promise<Organization[]> {
