@@ -1,10 +1,10 @@
 import {
-  AbstractControl,
+  // AbstractControl,
   FormBuilder,
   FormsModule,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
+  // ValidationErrors,
+  // ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
@@ -15,6 +15,7 @@ import { ButtonModule } from "../button";
 import { CheckboxModule } from "../checkbox";
 import { FormControlModule } from "../form-control";
 import { FormFieldModule } from "../form-field";
+import { trimValidator, forbiddenCharacters } from "../form-field/bit-validators";
 import { InputModule } from "../input/input.module";
 import { MultiSelectModule } from "../multi-select";
 import { RadioButtonModule } from "../radio-button";
@@ -49,8 +50,12 @@ export default {
               checkboxRequired: "Option is required",
               inputRequired: "Input is required.",
               inputEmail: "Input is not an email-address.",
+              inputForbiddenCharacters: (char) => `Input value must not contain "${char}"`,
               inputMinValue: (min) => `Input value must be at least ${min}.`,
               inputMaxValue: (max) => `Input value must not exceed ${max}.`,
+              inputMinLength: (min) => `Input value must be at least ${min} characters.`,
+              inputMaxLength: (max) => `Input value must not exceed ${max} characters.`,
+              inputTrimValidator: `The input value must not contain only whitespace`,
               multiSelectPlaceholder: "-- Type to Filter --",
               multiSelectLoading: "Retrieving options...",
               multiSelectNotFound: "No items found",
@@ -72,7 +77,7 @@ export default {
 const fb = new FormBuilder();
 const exampleFormObj = fb.group({
   name: ["", [Validators.required]],
-  email: ["", [Validators.required, Validators.email, forbiddenNameValidator(/bit/i)]],
+  email: ["", [Validators.required, Validators.email, forbiddenCharacters(["#"])]],
   country: [undefined as string | undefined, [Validators.required]],
   groups: [],
   terms: [false, [Validators.requiredTrue]],
@@ -81,14 +86,212 @@ const exampleFormObj = fb.group({
 });
 
 // Custom error message, `message` is shown as the error message
-function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const forbidden = nameRe.test(control.value);
-    return forbidden ? { forbiddenName: { message: "forbiddenName" } } : null;
-  };
-}
+// function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+//   return (control: AbstractControl): ValidationErrors | null => {
+//     const forbidden = nameRe.test(control.value);
+//     return forbidden ? { forbiddenName: { message: "forbiddenName" } } : null;
+//   };
+// }
 
 type Story = StoryObj;
+
+const requiredNameForm = fb.group({
+  name: ["", [Validators.required]],
+});
+
+export const RequiredField: Story = {
+  render: (args) => ({
+    props: {
+      formObj: requiredNameForm,
+      submit: () => requiredNameForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Name</bit-label>
+          <input bitInput formControlName="name" />
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const emailForm = fb.group({
+  email: ["", [Validators.required, Validators.email]],
+});
+
+export const InvalidEmail: Story = {
+  render: (args) => ({
+    props: {
+      formObj: emailForm,
+      submit: () => emailForm.markAllAsTouched(),
+      ...args,
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Email</bit-label>
+          <input bitInput type="email" formControlName="email" />
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const minLengthForm = fb.group({
+  name: ["Hello", [Validators.minLength(8)]],
+});
+
+export const MinStringLength: Story = {
+  render: (args) => ({
+    props: {
+      formObj: minLengthForm,
+      submit: () => minLengthForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Name</bit-label>
+          <input bitInput formControlName="name" />
+          <bit-hint>Value must be at least 8 characters. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const maxLengthForm = fb.group({
+  name: ["Hello there", [Validators.maxLength(8)]],
+});
+
+export const MaxStringLength: Story = {
+  render: (args) => ({
+    props: {
+      formObj: maxLengthForm,
+      submit: () => maxLengthForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Name</bit-label>
+          <input bitInput formControlName="name" />
+          <bit-hint>Value must be less then 8 characters. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const minNumberForm = fb.group({
+  age: [9, [Validators.min(10)]],
+});
+
+export const MinNumberValue: Story = {
+  render: (args) => ({
+    props: {
+      formObj: minNumberForm,
+      submit: () => minNumberForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Age</bit-label>
+          <input
+            bitInput
+            type="number"
+            formControlName="age"
+          />
+          <bit-hint>Value must be greater than 10. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const maxNumberForm = fb.group({
+  age: [11, [Validators.max(10)]],
+});
+
+export const MaxNumberValue: Story = {
+  render: (args) => ({
+    props: {
+      formObj: maxNumberForm,
+      submit: () => maxNumberForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Age</bit-label>
+          <input
+            bitInput
+            type="number"
+            formControlName="age"
+          />
+          <bit-hint>Value must be less than than 10. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const forbiddenCharsForm = fb.group({
+  email: ["example!@#bitwarden.com", forbiddenCharacters(["#", "!"])],
+});
+
+export const ForbiddenCharacters: Story = {
+  render: (args) => ({
+    props: {
+      formObj: forbiddenCharsForm,
+      submit: () => forbiddenCharsForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Email</bit-label>
+          <input
+            bitInput
+            type="email"
+            formControlName="email"
+          />
+          <bit-hint>Value must not contain '#' or '!'. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
+
+const whiteSpaceOnlyForm = fb.group({
+  name: ["    ", trimValidator],
+});
+
+export const NoWhiteSpaceOnly: Story = {
+  render: (args) => ({
+    props: {
+      formObj: whiteSpaceOnlyForm,
+      submit: () => whiteSpaceOnlyForm.markAllAsTouched(),
+    },
+    template: /*html*/ `
+      <form [formGroup]="formObj" (ngSubmit)="submit()">
+        <bit-form-field>
+          <bit-label>Name</bit-label>
+          <input
+            bitInput
+            formControlName="name"
+          />
+          <bit-hint>This input contains only white space. Submit to see error</bit-hint>
+        </bit-form-field>
+        <button type="submit" bitButton buttonType="primary">Submit</button>
+      </form>
+    `,
+  }),
+};
 
 export const FullExample: Story = {
   render: (args) => ({
