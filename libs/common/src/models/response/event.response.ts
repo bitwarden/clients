@@ -23,6 +23,7 @@ export class EventResponse extends BaseResponse {
   domainName: string;
   secretId: string;
   serviceAccountId: string;
+  secretIds: string | null;
 
   constructor(response: any) {
     super(response);
@@ -46,5 +47,6 @@ export class EventResponse extends BaseResponse {
     this.domainName = this.getResponseProperty("DomainName");
     this.secretId = this.getResponseProperty("SecretId");
     this.serviceAccountId = this.getResponseProperty("ServiceAccountId");
+    this.secretIds = this.getResponseProperty("SecretIds");
   }
 }

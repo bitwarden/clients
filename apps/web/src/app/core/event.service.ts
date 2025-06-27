@@ -467,8 +467,31 @@ export class EventService {
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecret", this.formatSecretId(ev));
-        humanReadableMsg = this.i18nService.t("accessedSecret", this.getShortId(ev.secretId));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secrets_Retrieved_Bulk:
+        msg = this.i18nService.t("accessedSecretWithIds", this.formatSecretIds(ev));
+        humanReadableMsg = this.i18nService.t(
+          "accessedSecretWithIds",
+          this.getShortId(ev.secretId),
+        );
+        break;
+      case EventType.Secrets_Deleted_Bulk:
+        msg = this.i18nService.t("deletedSecretWithIds", this.formatSecretIds(ev));
+        humanReadableMsg = this.i18nService.t("deletedSecretWithIds", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Created:
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Deleted:
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Edited:
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
         break;
       default:
         break;
@@ -630,6 +653,31 @@ export class EventService {
     const a = this.makeAnchor(shortId);
     a.setAttribute("href", "#/sm/" + ev.organizationId + "/secrets?search=" + shortId);
     return a.outerHTML;
+  }
+
+  formatSecretIds(ev: EventResponse): string {
+    if (!ev.secretIds || ev.secretIds.trim() === "") {
+      return "";
+    }
+
+    const ids = ev.secretIds
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => id);
+
+    return ids
+      .map((secretId) => {
+        const shortId = this.getShortId(secretId);
+
+        if (ev.type == EventType.Secret_Deleted || ev.type == EventType.Secrets_Deleted_Bulk) {
+          return shortId;
+        }
+
+        const a = this.makeAnchor(shortId);
+        a.setAttribute("href", `#/sm/${ev.organizationId}/secrets?search=${shortId}`);
+        return a.outerHTML;
+      })
+      .join(", ");
   }
 
   private makeAnchor(shortId: string) {
