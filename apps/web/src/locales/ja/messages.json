@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "2段階認証を有効にすると Bitwarden アカウントから永久に閉め出されてしまうことがあります。リカバリーコードがあれば、通常の2段階認証プロバイダを使えなくなったとき (デバイスの紛失等) でもアカウントにアクセスできます。アカウントにアクセスできなくなっても Bitwarden はサポート出来ないため、リカバリーコードを書き出すか印刷し安全な場所で保管しておくことを推奨します。"
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Do not allow members to create card item types."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
     "message": "2段階認証プロバイダーへのアクセスを失った場合は、使い捨てのリカバリーコードを使用して2段階認証をオフにできます。 Bitwarden では、リカバリーコードを書き留めて安全な場所に保管することをお勧めしています。"
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "無効化"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "アクセスを取り消す"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "緊急アクセスが拒否されました"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "$USER$のパスワードをリセットしました。新しいパスワードでログインできます。",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "個別の保管庫を削除"
@@ -5763,11 +5778,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "このユーザー\n"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "組織ポリシーの要件を満たすためにマスターパスワードが必要です:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "パスワードをリセットしました"
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

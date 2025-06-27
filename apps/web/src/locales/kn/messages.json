@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "ಎರಡು-ಹಂತದ ಲಾಗಿನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸುವುದರಿಂದ ನಿಮ್ಮ ಬಿಟ್‌ವಾರ್ಡನ್ ಖಾತೆಯಿಂದ ನಿಮ್ಮನ್ನು ಶಾಶ್ವತವಾಗಿ ಲಾಕ್ ಮಾಡಬಹುದು. ನಿಮ್ಮ ಸಾಮಾನ್ಯ ಎರಡು-ಹಂತದ ಲಾಗಿನ್ ಪೂರೈಕೆದಾರರನ್ನು ನೀವು ಇನ್ನು ಮುಂದೆ ಬಳಸಲಾಗದಿದ್ದಲ್ಲಿ ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಪ್ರವೇಶಿಸಲು ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್ ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ (ಉದಾ. ನಿಮ್ಮ ಸಾಧನವನ್ನು ನೀವು ಕಳೆದುಕೊಳ್ಳುತ್ತೀರಿ). ನಿಮ್ಮ ಖಾತೆಗೆ ನೀವು ಪ್ರವೇಶವನ್ನು ಕಳೆದುಕೊಂಡರೆ ಬಿಟ್‌ವಾರ್ಡನ್ ಬೆಂಬಲವು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮರುಪಡೆಯುವಿಕೆ ಕೋಡ್ ಅನ್ನು ಬರೆಯಲು ಅಥವಾ ಮುದ್ರಿಸಲು ಮತ್ತು ಅದನ್ನು ಸುರಕ್ಷಿತ ಸ್ಥಳದಲ್ಲಿ ಇರಿಸಲು ನಾವು ಶಿಫಾರಸು ಮಾಡುತ್ತೇವೆ."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Do not allow members to create card item types."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "ನಿಷ್‌ಕ್ರಿಯೆಗೊಳಿಸಿ"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revoke access"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "ತುರ್ತು ಪ್ರವೇಶವನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "$USER$ ಗೆ ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ. ನೀವು ಈಗ ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಿ ಲಾಗಿನ್ ಮಾಡಬಹುದು.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "ವೈಯಕ್ತಿಕ ಮಾಲೀಕತ್ವ"
@@ -5763,11 +5778,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ಈ ಬಳಕೆದಾರ"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸಂಸ್ಥೆಯ ನೀತಿಗಳಿಗೆ ಈ ಕೆಳಗಿನ ಅವಶ್ಯಕತೆಗಳನ್ನು ಪೂರೈಸಲು ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್ ಅಗತ್ಯವಿದೆ:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "ಪಾಸ್ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಯಶಸ್ಸು!"
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

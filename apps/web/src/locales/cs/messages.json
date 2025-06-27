@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Nastavením dvoufázového přihlášení můžete sami sobě znemožnit přihlášení k Vašemu účtu. Obnovovací kód umožňuje přístup do Vašeho účtu i v případě, pokud již nemůžete použít svůj normální způsob dvoufázového přihlášení (např. ztráta zařízení). Pokud ztratíte přístup ke svému účtu, nebude Vám schopna pomoci ani zákaznická podpora Bitwardenu. Doporučujeme si proto kód pro obnovení zapsat nebo vytisknout a uložit jej na bezpečném místě."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Odebrat typ položky karty"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Nedovolí členům vytvářet typy položek karet."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Nepovolovat členům vytvářet typy položek karty. Existující karty budou automaticky odebrány."
+  },
+  "restrictCardTypeImport": {
+    "message": "Nelze importovat typy položek karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Zásady nastavené 1 nebo více organizací Vám brání v importu karet do Vašeho trezoru."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorázový kód pro obnovení lze použít k vypnutí dvoufázového přihlašování v případě, že ztratíte přístup ke svému poskytovateli dvoufázového přihlašování. Bitwarden doporučuje, abyste si kód pro obnovení zapsali a uložili na bezpečném místě."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Vypnout"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Podrobnosti o členovi nebyly nalezeny"
   },
   "revokeAccess": {
     "message": "Zrušit přístup"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Nouzový přístup byl odmítnut"
   },
+  "grantorDetailsNotFound": {
+    "message": "Údaje o zadavateli nebyly nalezeny"
+  },
   "passwordResetFor": {
     "message": "Pro $USER$ bylo obnoveno heslo. Nyní se můžete přihlásit pomocí nového hesla.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Vynutit vlastnictví dat organizace"
   },
   "personalOwnership": {
     "message": "Odebrat osobní trezor"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Pokračováním odhlásíte $NAME$ z aktuální relace, což znamená, že se bude muset znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "tento uživatel"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
   "resetPasswordSuccess": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Pro přidání kreditu je vyžadována fakturační adresa.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
