@@ -54,6 +54,9 @@ page looks nice when the extension is popped out.
     `false`.
 - `loadingText`
   - Custom text to be applied to the loading element for screenreaders only. Defaults to "Loading".
+- `disablePadding`
+  - When `true`, disables the padding of the scrollable region inside of `main`. You will need to
+    add your own padding to the element you place inside of this area.
 
 Basic usage example:
 
@@ -168,6 +171,22 @@ Examples of using just the `popup-page` component, without and with a footer.
 When the browser extension is popped out, the "popout" button should not be passed to the header.
 
 <Canvas of={stories.PoppedOut} />
+
+## With Virtual Scroll
+
+If you are using a virtual scrolling container inside of the popup page, you'll want to apply the
+`bitScrollLayout` directive to the `cdk-virtual-scroll-viewport` element. This tells the virtual
+scroll viewport to use the popup page's scroll layout div as the scrolling container.
+
+See the code in the example below.
+
+<Canvas of={stories.WithVirtualScrollChild} />
+
+### Known Virtual Scroll Issues
+
+See [Virtual Scrolling](?path=/docs/documentation-virtual-scrolling--docs#known-footgun) for more
+information about how to structure virtual scrolling containers with layout components and avoid a
+known issue with template construction.
 
 # Other stories
 
