@@ -453,6 +453,7 @@ export class VaultPopupListFiltersService {
       ),
       map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
         const orgFilterId = filters.organization?.id ?? null;
+        // When the organization filter is selected, filter out collections that do not belong to the selected organization
         const filtered = orgFilterId
           ? allCollections.filter((c) => c.organizationId === orgFilterId)
           : allCollections;
