@@ -26,6 +26,7 @@ export class IconComponent {
    * The cipher to display the icon for.
    */
   cipher = input.required<CipherView>();
+  isItemView = input<boolean>(false);
 
   imageLoaded = signal(false);
 

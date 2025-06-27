@@ -3,16 +3,24 @@
     <img
       [src]="data.image"
       *ngIf="data.imageEnabled && data.image"
-      class="tw-size-6 tw-rounded-md"
+      class="tw-rounded-md"
       alt=""
       decoding="async"
       loading="lazy"
-      [ngClass]="{ 'tw-invisible tw-absolute': !imageLoaded() }"
+      [ngClass]="{
+        'tw-invisible tw-absolute': !imageLoaded(),
+        'tw-size-9': isItemView(),
+        'tw-size-6': !isItemView(),
+      }"
       (load)="imageLoaded.set(true)"
       (error)="imageLoaded.set(false)"
     />
     <i
-      class="tw-w-6 tw-text-muted bwi bwi-lg {{ data.icon }}"
+      class="tw-text-muted bwi {{ data.icon }}"
+      [ngClass]="{
+        'tw-size-9 tw-flex tw-items-center tw-justify-center bwi-2x': isItemView(),
+        'tw-size-6 bwi-lg': !isItemView(),
+      }"
       *ngIf="!data.imageEnabled || !data.image || !imageLoaded()"
     ></i>
   </ng-container>
