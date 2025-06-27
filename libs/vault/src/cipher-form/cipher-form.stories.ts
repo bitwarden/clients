@@ -244,7 +244,7 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
-            getFeatureFlag$: () => Promise.resolve(false),
+            getFeatureFlag$: () => new BehaviorSubject(false),
           },
         },
         {
