@@ -15,9 +15,9 @@ use tokio_util::sync::CancellationToken;
 
 use crate::ssh_agent::peercred_unix_listener_stream::PeercredUnixListenerStream;
 
-use super::{BitwardenDesktopAgent, SshAgentUIRequest};
+use super::{BitwardenDesktopAgent, BitwardenSshKey, SshAgentUIRequest};
 
-impl BitwardenDesktopAgent {
+impl BitwardenDesktopAgent<BitwardenSshKey> {
     pub async fn start_server(
         auth_request_tx: tokio::sync::mpsc::Sender<SshAgentUIRequest>,
         auth_response_rx: Arc<Mutex<tokio::sync::broadcast::Receiver<(u32, bool)>>>,
