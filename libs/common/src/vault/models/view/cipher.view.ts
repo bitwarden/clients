@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
+import { SdkRecordMapper } from "@bitwarden/common/platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "@bitwarden/common/platform/state";
+import { CipherView as SdkCipherView, Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
@@ -8,7 +10,9 @@ import { InitializerKey } from "../../../platform/services/cryptography/initiali
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { ENCRYPTED_CIPHERS } from "../../services/key-state/ciphers.state";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
+import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
 import { Cipher } from "../domain/cipher";
 
@@ -20,6 +24,21 @@ import { LoginView } from "./login.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
+
+// TODO: This should probably be moved to a better place
+export class CipherRecordMapper implements SdkRecordMapper<CipherData, SdkCipher> {
+  userKeyDefinition(): UserKeyDefinition<Record<string, CipherData>> {
+    return ENCRYPTED_CIPHERS;
+  }
+
+  toSdk(value: CipherData): SdkCipher {
+    return new Cipher(value).toSdkCipher();
+  }
+
+  fromSdk(value: SdkCipher): CipherData {
+    throw new Error("Cipher.fromSdk is not implemented yet");
+  }
+}
 
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
