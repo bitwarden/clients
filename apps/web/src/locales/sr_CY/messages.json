@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Омогућавање пријаве у два корака може вас трајно закључати са вашег Bitwarden-а налога. Код за опоравак омогућава вам приступ вашем налогу у случају да више не можете да користите свог уобичајеног добављача услуге пријављивања у два корака (нпр. ако изгубите уређај). Подршка Bitwarden-а неће вам моћи помоћи ако изгубите приступ свом налогу. Препоручујемо да запишете или одштампате код за опоравак и сачувате га на сигурном месту."
   },
-  "restrictedItemTypesPolicy": {
-    "message": "Уклоните тип ставке картице"
+  "restrictedItemTypePolicy": {
+    "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Не дозволите члановима да креирају тип ставке картице."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Не могу увозити врсте картица"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика која је поставила 1 или више организација спречава вас да се увозе картице у сефу."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Ваш јединствени кôд за опоравак може се користити за искључивање у два корака у случају да изгубите приступ свом двоструком провајдеру пријаве. Bitwarden препоручује да запишете кôд за опоравак и држите га на сигурном месту."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Онемогући"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Опозови Приступ"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Одбијен хитни приступ"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Ресетовање лозинке за $USER$. Сада се можете пријавити помоћу нове лозинке.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Лично власништво"
@@ -5763,11 +5778,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "овај корисник"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "Једна или више смерница организације захтевају главну лозинку да би испуњавали следеће захтеве:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "Успешно ресетовање лозинке!"
@@ -7615,7 +7642,7 @@
     "description": "Notifies that a service account has been updated"
   },
   "typeOrSelectProjects": {
-    "message": "Type or select projects",
+    "message": "Унети или одабрати пројекте",
     "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
@@ -7702,7 +7729,7 @@
     "description": "Title for the section displaying access tokens."
   },
   "createAccessToken": {
-    "message": "Create access token",
+    "message": "Креирати приступни токен",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

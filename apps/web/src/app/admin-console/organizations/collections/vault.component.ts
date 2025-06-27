@@ -35,7 +35,6 @@ import {
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -55,6 +54,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -125,11 +125,7 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import {
-  getNestedCollectionTree,
-  getFlatCollectionTree,
-  getNestedCollectionTree_vNext,
-} from "./utils";
+import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -423,16 +419,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       }),
     );
 
-    const nestedCollections$ = combineLatest([
-      allCollections$,
-      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
-    ]).pipe(
-      map(
-        ([collections, shouldOptimize]) =>
-          (shouldOptimize
-            ? getNestedCollectionTree_vNext(collections)
-            : getNestedCollectionTree(collections)) as TreeNode<CollectionAdminView>[],
-      ),
+    const nestedCollections$ = allCollections$.pipe(
+      map((collections) => getNestedCollectionTree(collections)),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const collections$ = combineLatest([

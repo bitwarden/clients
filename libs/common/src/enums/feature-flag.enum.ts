@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
-  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
@@ -77,7 +76,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
-  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
