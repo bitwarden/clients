@@ -25,10 +25,8 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
-  CardComponent,
   FormFieldModule,
   ItemModule,
-  SectionComponent,
   SelectModule,
   ToastService,
   TypographyModule,
@@ -43,7 +41,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
 @Component({
   selector: "tools-send-form",
   templateUrl: "./send-form.component.html",
-  standalone: true,
   providers: [
     {
       provide: SendFormContainer,
@@ -52,8 +49,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   ],
   imports: [
     AsyncActionsModule,
-    CardComponent,
-    SectionComponent,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -120,11 +115,11 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   ngAfterViewInit(): void {
     if (this.submitBtn) {
       this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
-        this.submitBtn.loading = loading;
+        this.submitBtn.loading.set(loading);
       });
 
       this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled = disabled;
+        this.submitBtn.disabled.set(disabled);
       });
     }
   }

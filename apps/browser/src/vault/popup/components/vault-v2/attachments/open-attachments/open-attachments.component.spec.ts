@@ -16,7 +16,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../../platform/browser/browser-popup-utils";
 import { FilePopoutUtilsService } from "../../../../../../tools/popup/services/file-popout-utils.service";
 
 import { OpenAttachmentsComponent } from "./open-attachments.component";
@@ -81,6 +81,7 @@ describe("OpenAttachmentsComponent", () => {
           useValue: {
             get: getCipher,
             getKeyForCipherKeyDecryption: () => Promise.resolve(null),
+            decrypt: jest.fn().mockResolvedValue(cipherView),
           },
         },
         {

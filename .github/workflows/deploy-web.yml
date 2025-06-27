@@ -242,7 +242,7 @@ jobs:
         run: |
           # If run-id was used, get the commit from the download-latest-artifacts-run-id step
           if [ "${{ inputs.build-web-run-id }}" ]; then
-            echo "commit=${{ steps.download-latest-artifacts-run-id.outputs.artifact_build_commit }}" >> $GITHUB_OUTPUT
+            echo "commit=${{ steps.download-latest-artifacts-run-id.outputs.artifact-build-commit }}" >> $GITHUB_OUTPUT
 
           elif [ "${{ steps.download-latest-artifacts.outcome }}" == "failure" ]; then
             # If the download-latest-artifacts step failed, query the GH API to get the commit SHA of the artifact that was just built with trigger-build-web.
@@ -251,7 +251,7 @@ jobs:
 
           else
             # Set the commit to the output of step download-latest-artifacts.
-            echo "commit=${{ steps.download-latest-artifacts.outputs.artifact_build_commit }}" >> $GITHUB_OUTPUT
+            echo "commit=${{ steps.download-latest-artifacts.outputs.artifact-build-commit }}" >> $GITHUB_OUTPUT
           fi
 
   notify-start:

@@ -8,7 +8,7 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
  *
  * **Warning**: This requires WASM support and will fail if the environment does not support it.
  */
-export class DefaultSdkLoadService implements SdkLoadService {
+export class DefaultSdkLoadService extends SdkLoadService {
   async load(): Promise<void> {
     (sdk as any).init(bitwardenModule);
   }

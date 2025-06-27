@@ -1,16 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { BitValidators, ToastService } from "@bitwarden/components";
+import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
 import { ServiceAccountService } from "../service-account.service";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum OperationType {
   Add,
   Edit,
@@ -25,6 +26,7 @@ export interface ServiceAccountOperation {
 
 @Component({
   templateUrl: "./service-account-dialog.component.html",
+  standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(
@@ -44,8 +46,8 @@ export class ServiceAccountDialogComponent implements OnInit {
     @Inject(DIALOG_DATA) private data: ServiceAccountOperation,
     private serviceAccountService: ServiceAccountService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -85,8 +87,17 @@ export class ServiceAccountDialogComponent implements OnInit {
     let serviceAccountMessage: string;
 
     if (this.data.operation == OperationType.Add) {
-      await this.serviceAccountService.create(this.data.organizationId, serviceAccountView);
+      const newServiceAccount = await this.serviceAccountService.create(
+        this.data.organizationId,
+        serviceAccountView,
+      );
       serviceAccountMessage = this.i18nService.t("machineAccountCreated");
+      await this.router.navigate([
+        "sm",
+        this.data.organizationId,
+        "machine-accounts",
+        newServiceAccount.id,
+      ]);
     } else {
       await this.serviceAccountService.update(
         this.data.serviceAccountId,

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import { Component, Input, OnChanges } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
@@ -16,11 +16,18 @@ const SizeClasses: Record<SizeTypes, string[]> = {
   xsmall: ["tw-h-6", "tw-w-6"],
 };
 
+/**
+  * Avatars display a unique color that helps a user visually recognize their logged in account.
+
+  * A variance in color across the avatar component is important as it is used in Account Switching as a
+  * visual indicator to recognize which of a personal or work account a user is logged into.
+*/
 @Component({
   selector: "bit-avatar",
-  template: `<img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />`,
-  standalone: true,
-  imports: [NgIf, NgClass],
+  template: `@if (src) {
+    <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+  }`,
+  imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;
@@ -121,7 +128,7 @@ export class AvatarComponent implements OnChanges {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      '"DM Sans","Helvetica Neue",Helvetica,Arial,' +
+      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
         'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
     // Warning do not use innerHTML here, characters are user provided

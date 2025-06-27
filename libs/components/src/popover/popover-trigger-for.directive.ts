@@ -19,7 +19,6 @@ import { PopoverComponent } from "./popover.component";
 
 @Directive({
   selector: "[bitPopoverTriggerFor]",
-  standalone: true,
   exportAs: "popoverTrigger",
 })
 export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {

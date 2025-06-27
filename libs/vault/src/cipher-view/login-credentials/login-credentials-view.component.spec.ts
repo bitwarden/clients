@@ -8,6 +8,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,13 +17,13 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { CopyClickDirective, BitFormFieldComponent, ToastService } from "@bitwarden/components";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { ColorPasswordComponent } from "@bitwarden/components/src/color-password/color-password.component";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { BitPasswordInputToggleDirective } from "@bitwarden/components/src/form-field/password-input-toggle.directive";
+import {
+  BitFormFieldComponent,
+  BitPasswordInputToggleDirective,
+  ColorPasswordComponent,
+  CopyClickDirective,
+  ToastService,
+} from "@bitwarden/components";
 
 import { LoginCredentialsViewComponent } from "./login-credentials-view.component";
 
@@ -74,6 +75,7 @@ describe("LoginCredentialsViewComponent", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 
@@ -166,7 +168,7 @@ describe("LoginCredentialsViewComponent", () => {
 
         const passwordColor = passwordField.query(By.directive(ColorPasswordComponent));
 
-        expect(passwordColor.componentInstance.password).toBe(cipher.login.password);
+        expect(passwordColor.componentInstance.password()).toBe(cipher.login.password);
       });
 
       it("records event", () => {

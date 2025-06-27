@@ -10,9 +10,6 @@ import { Classifier } from "./classifier";
  *    when you are performing your own encryption and decryption.
  *  `classified` uses the `ClassifiedFormat` type as its format.
  *  `secret-state` uses `Array<ClassifiedFormat>` with a length of 1.
- *  @remarks - CAUTION! If your on-disk data is not in a correct format,
- *   the storage system treats the data as corrupt and returns your initial
- *   value.
  */
 export type ObjectStorageFormat = "plain" | "classified" | "secret-state";
 
@@ -27,19 +24,54 @@ export type ObjectStorageFormat = "plain" | "classified" | "secret-state";
 //        options. Also allow swap between "classifier" and "classification"; the
 //        latter is a list of properties/arguments to the specific classifier in-use.
 export type ObjectKey<State, Secret = State, Disclosed = Record<string, never>> = {
+  /** Type of data stored by this key; Object keys always use "object" targets.
+   *  "object" - a singleton value.
+   *  "list" - multiple values identified by their list index.
+   *  "record" - multiple values identified by a uuid.
+   */
   target: "object";
+
+  /** Identifies the stored state */
   key: string;
+
+  /** Defines the storage location and parameters for this state */
   state: StateDefinition;
+
+  /** Defines the visibility and encryption treatment for the stored state.
+   *  Disclosed data is written as plain-text. Secret data is protected with
+   *  the user key.
+   */
   classifier: Classifier<State, Disclosed, Secret>;
+
+  /** Specifies the format of data written to storage.
+   *  @remarks - CAUTION! If your on-disk data is not in a correct format,
+   *   the storage system treats the data as corrupt and returns your initial
+   *   value.
+   */
   format: ObjectStorageFormat;
+
+  /** customizes the behavior of the storage location */
   options: UserKeyDefinitionOptions<State>;
+
+  /** When this is defined, empty data is replaced with a copy of the initial data.
+   *  This causes the state to always be defined from the perspective of the
+   *  subject's consumer.
+   */
   initial?: State;
+
+  /** For encrypted outputs, determines how much padding is applied to
+   *  encoded inputs. When this isn't specified, each frame is 32 bytes
+   *  long.
+   */
+  frame?: number;
 };
 
+/** Performs a type inference that identifies object keys. */
 export function isObjectKey(key: any): key is ObjectKey<unknown> {
   return key.target === "object" && "format" in key && "classifier" in key;
 }
 
+/** Converts an object key to a plaform-compatible `UserKeyDefinition`. */
 export function toUserKeyDefinition<State, Secret, Disclosed>(
   key: ObjectKey<State, Secret, Disclosed>,
 ) {

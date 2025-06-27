@@ -1,25 +1,22 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DOCUMENT } from "@angular/common";
-import { Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
-import * as jq from "jquery";
-import { Subject, filter, firstValueFrom, map, takeUntil, timeout } from "rxjs";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
+import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
+import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -27,11 +24,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { PolicyListService } from "./admin-console/core/policy-list.service";
@@ -39,12 +34,13 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
-  PersonalOwnershipPolicy,
+  OrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
+  RemoveUnlockWithPinPolicy,
 } from "./admin-console/organizations/policies";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -53,6 +49,7 @@ const IdleTimeout = 60000 * 10; // 10 minutes
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html",
+  standalone: false,
 })
 export class AppComponent implements OnDestroy, OnInit {
   private lastActivity: Date = null;
@@ -63,11 +60,8 @@ export class AppComponent implements OnDestroy, OnInit {
   loading = false;
 
   constructor(
-    @Inject(DOCUMENT) private document: Document,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
-    private syncService: SyncService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private cipherService: CipherService,
     private authService: AuthService,
     private router: Router,
@@ -82,25 +76,25 @@ export class AppComponent implements OnDestroy, OnInit {
     private notificationsService: NotificationsService,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    private policyService: InternalPolicyService,
     protected policyListService: PolicyListService,
-    private keyConnectorService: KeyConnectorService,
     protected configService: ConfigService,
     private dialogService: DialogService,
     private biometricStateService: BiometricStateService,
     private stateEventRunnerService: StateEventRunnerService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
-    private apiService: ApiService,
-    private appIdService: AppIdService,
     private processReloadService: ProcessReloadServiceAbstraction,
-  ) {}
+    private deviceTrustToastService: DeviceTrustToastService,
+    private readonly destoryRef: DestroyRef,
+    private readonly documentLangSetter: DocumentLangSetter,
+  ) {
+    this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
+
+    const langSubscription = this.documentLangSetter.start();
+    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+  }
 
   ngOnInit() {
-    this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
-      this.document.documentElement.lang = locale;
-    });
-
     this.ngZone.runOutsideAngular(() => {
       window.onmousemove = () => this.recordActivity();
       window.onmousedown = () => this.recordActivity();
@@ -172,8 +166,6 @@ export class AppComponent implements OnDestroy, OnInit {
               type: "success",
             });
             if (premiumConfirmed) {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               await this.router.navigate(["settings/subscription/premium"]);
             }
             break;
@@ -243,23 +235,15 @@ export class AppComponent implements OnDestroy, OnInit {
       });
     });
 
-    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        const modals = Array.from(document.querySelectorAll(".modal"));
-        for (const modal of modals) {
-          (jq(modal) as any).modal("hide");
-        }
-      }
-    });
-
     this.policyListService.addPolicies([
       new TwoFactorAuthenticationPolicy(),
       new MasterPasswordPolicy(),
+      new RemoveUnlockWithPinPolicy(),
       new ResetPasswordPolicy(),
       new PasswordGeneratorPolicy(),
       new SingleOrgPolicy(),
       new RequireSsoPolicy(),
-      new PersonalOwnershipPolicy(),
+      new OrganizationDataOwnershipPolicy(),
       new DisableSendPolicy(),
       new SendOptionsPolicy(),
     ]);
@@ -298,7 +282,7 @@ export class AppComponent implements OnDestroy, OnInit {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(),
+      this.keyService.clearKeys(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),
@@ -307,7 +291,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.searchService.clearIndex();
+    await this.searchService.clearIndex(userId);
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
       await this.accountService.clean(userId);
@@ -357,12 +341,8 @@ export class AppComponent implements OnDestroy, OnInit {
 
   private idleStateChanged() {
     if (this.isIdle) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.disconnectFromInactivity();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.notificationsService.reconnectFromActivity();
     }
   }

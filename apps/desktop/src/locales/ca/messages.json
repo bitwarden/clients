@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Identitat"
   },
+  "typeNote": {
+    "message": "Nota"
+  },
   "typeSecureNote": {
     "message": "Nota segura"
   },
@@ -223,19 +226,37 @@
     "message": "Introduïu la contrasenya"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Desbloquegeu la vostra caixa forta per aprovar la sol·licitud de clau SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "SSH key request timed out."
+    "message": "La sol·licitud de clau SSH s'ha esgotat."
   },
   "enableSshAgent": {
     "message": "Habilita agent SSH"
   },
   "enableSshAgentDesc": {
-    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+    "message": "Habiliteu l'agent SSH per signar sol·licituds SSH directament des de la caixa forta de Bitwarden."
   },
   "enableSshAgentHelp": {
-    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+    "message": "L'agent SSH és un servei dirigit als desenvolupadors que us permet signar sol·licituds SSH directament des de la caixa forta de Bitwarden."
+  },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Sempre"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Mai"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
   },
   "premiumRequired": {
     "message": "Premium requerit"
@@ -253,7 +274,7 @@
     "message": "Error de desxifrat"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "Bitwarden could not decrypt the vault item(s) listed below."
+    "message": "Bitwarden no ha pogut desxifrar els elements de la caixa forta que s'indiquen a continuació."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "Contacteu amb el servei d'atenció al client",
@@ -333,12 +354,6 @@
   "other": {
     "message": "Altres"
   },
-  "generatePassword": {
-    "message": "Genera contrasenya"
-  },
-  "generatePassphrase": {
-    "message": "Genera frase de pas"
-  },
   "type": {
     "message": "Tipus"
   },
@@ -393,6 +408,70 @@
   "authenticatorKeyTotp": {
     "message": "Clau d'autenticació (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Clau autenticadora"
+  },
+  "autofillOptions": {
+    "message": "Opcions d'emplenament automàtic"
+  },
+  "websiteUri": {
+    "message": "Lloc web (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Website (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Lloc web afegit"
+  },
+  "addWebsite": {
+    "message": "Afig un lloc web"
+  },
+  "deleteWebsite": {
+    "message": "Suprimeix lloc web"
+  },
+  "owner": {
+    "message": "Propietari"
+  },
+  "addField": {
+    "message": "Afig un camp"
+  },
+  "editField": {
+    "message": "Edita el camp"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Esteu segur que voleu suprimir definitivament aquest adjunt?"
+  },
+  "fieldType": {
+    "message": "Tipus de camp"
+  },
+  "fieldLabel": {
+    "message": "Etiqueta del camp"
+  },
+  "add": {
+    "message": "Afig"
+  },
+  "textHelpText": {
+    "message": "Use text fields for data like security questions"
+  },
+  "hiddenHelpText": {
+    "message": "Use hidden fields for sensitive data like a password"
+  },
+  "checkBoxHelpText": {
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
   "folder": {
     "message": "Carpeta"
   },
@@ -417,6 +496,9 @@
   "cfTypeLinked": {
     "message": "Enllaçat",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Casella de selecció"
   },
   "linkedValue": {
     "message": "Valor enllaçat",
@@ -543,10 +625,6 @@
     "message": "Inclou caràcters especials",
     "description": "Full description for the password generator special characters checkbox"
   },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Nombre de paraules"
   },
@@ -579,7 +657,7 @@
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "Els requisits de la política empresarial s'han aplicat a les opcions del generador.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
@@ -616,8 +694,8 @@
   "maxFileSize": {
     "message": "La mida màxima del fitxer és de 500 MB."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Cal migrar la clau de xifratge. Inicieu la sessió a la caixa forta web per actualitzar la clau de xifratge."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
     "message": "Carpeta guardada"
@@ -651,6 +729,15 @@
   },
   "logInToBitwarden": {
     "message": "Inicia sessió a Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Enter the code sent to your email"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Introduïu el codi de la vostra aplicació d'autenticació"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
   },
   "logInWithPasskey": {
     "message": "Inicieu sessió amb la clau de pas"
@@ -704,6 +791,15 @@
   "masterPassHintLabel": {
     "message": "Pista de la contrasenya mestra"
   },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
   "joinOrganization": {
     "message": "Uniu-vos a l'organització"
   },
@@ -733,12 +829,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduïu l'adreça de correu electrònic del compte i se us enviarà la pista de contrasenya"
-  },
-  "passwordHint": {
-    "message": "Pista per a la contrasenya"
-  },
-  "enterEmailToGetHint": {
-    "message": "Introduïu l'adreça electrònica del vostre compte per rebre la contrasenya mestra."
   },
   "getMasterPasswordHint": {
     "message": "Obteniu la pista de contrasenya mestra"
@@ -778,7 +868,7 @@
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "S'ha creat el vostre compte nou!"
   },
   "youHaveBeenLoggedIn": {
     "message": "Heu iniciat sessió!"
@@ -816,23 +906,14 @@
   "webauthnCancelOrTimeout": {
     "message": "L'autenticació s'ha cancel·lat o ha tardat massa. Torna-ho a provar."
   },
+  "openInNewTab": {
+    "message": "Obrir en una pestanya nova"
+  },
   "invalidVerificationCode": {
     "message": "Codi de verificació no vàlid"
   },
   "continue": {
     "message": "Continua"
-  },
-  "enterVerificationCodeApp": {
-    "message": "Introduïu el codi de verificació de 6 dígits de l'aplicació autenticadora."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Introduïu el codi de verificació de 6 dígits que s'ha enviat per correu electrònic a $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Correu electrònic de verificació enviat a $EMAIL$.",
@@ -843,17 +924,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Recorda'm"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Envia el codi de verificació altra vegada"
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Utilitzeu un altre mètode d'inici de sessió en dues passes"
-  },
-  "insertYubiKey": {
-    "message": "Introduïu la vostra YubiKey al port USB de l'ordinador i, a continuació, premeu el seu botó."
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertU2f": {
     "message": "Introduïu la vostra clau de seguretat al port USB de l'ordinador. Si té un botó, premeu-lo."
@@ -885,11 +964,11 @@
     "message": "Verifiqueu amb Duo Security per a la vostra organització mitjançant l'aplicació Duo Mobile, SMS, trucada telefònica o clau de seguretat U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
-  "verifyIdentity": {
+  "verifyYourIdentity": {
     "message": "Verifiqueu la vostra identitat"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "No reconeixem aquest dispositiu. Introduïu el codi que us hem enviat al correu electrònic per verificar la identitat."
   },
   "continueLoggingIn": {
     "message": "Continua l'inici de sessió"
@@ -918,11 +997,11 @@
   "twoStepOptions": {
     "message": "Opcions d'inici de sessió en dues passes"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Seleccioneu un mètode d'inici de sessió en dues passes"
+  },
   "selfHostedEnvironment": {
     "message": "Entorn d'allotjament propi"
-  },
-  "selfHostedEnvironmentFooter": {
-    "message": "Especifiqueu l'URL base de la vostra instal·lació Bitwarden allotjada en un entorn propi."
   },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
@@ -936,9 +1015,6 @@
   "customEnvironment": {
     "message": "Entorn personalitzat"
   },
-  "customEnvironmentFooter": {
-    "message": "Per a usuaris avançats. Podeu especificar l'URL base de cada servei independentment."
-  },
   "baseUrl": {
     "message": "URL del servidor"
   },
@@ -946,7 +1022,7 @@
     "message": "Temps d'espera d'autenticació"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "La sessió d'autenticació s'ha esgotat. Reinicieu el procés d'inici de sessió."
   },
   "selfHostBaseUrl": {
     "message": "URL del servidor autoallotjat",
@@ -979,6 +1055,9 @@
   "no": {
     "message": "No"
   },
+  "location": {
+    "message": "Ubicació"
+  },
   "overwritePassword": {
     "message": "Sobreescriu la contrasenya"
   },
@@ -992,7 +1071,7 @@
     "message": "Desconnectat"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Heu tancat la sessió del compte."
   },
   "loginExpired": {
     "message": "La vostra sessió ha caducat."
@@ -1004,7 +1083,7 @@
     "message": "Enllaç caducat"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Reinicieu el registre o proveu d'iniciar sessió."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "És possible que ja tingueu un compte"
@@ -1020,9 +1099,6 @@
   },
   "addNewItem": {
     "message": "Element nou"
-  },
-  "addNewFolder": {
-    "message": "Carpeta nova"
   },
   "view": {
     "message": "Mostra"
@@ -1388,9 +1464,6 @@
   "premiumPurchase": {
     "message": "Compra Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Podeu comprar la vostra subscripció a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -1643,42 +1716,17 @@
   "accountRestricted": {
     "message": "Compte restringit"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
   },
-  "hCaptchaUrl": {
-    "message": "Url hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "loadAccessibilityCookie": {
-    "message": "Carrega la galeta d'accessibilitat"
-  },
-  "registerAccessibilityUser": {
-    "message": "Registreu-vos com a usuari d'accessibilitat a",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
-  },
-  "copyPasteLink": {
-    "message": "Copieu i enganxeu l'enllaç enviat al vostre correu electrònic a continuació"
-  },
-  "enterhCaptchaUrl": {
-    "message": "Introduïu l'URL per carregar la galeta d'accessibilitat per a hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "hCaptchaUrlRequired": {
-    "message": "Es requereix l'URL hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
-  },
-  "invalidUrl": {
-    "message": "URL no vàlida"
-  },
   "done": {
     "message": "Fet"
-  },
-  "accessibilityCookieSaved": {
-    "message": "S'ha guardat la galeta d'accessibilitat!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "No s'ha guardat la galeta d'accessibilitat"
   },
   "warning": {
     "message": "ADVERTIMENT",
@@ -1752,7 +1800,7 @@
     "message": "Configuració addicional de Windows Hello"
   },
   "unlockWithPolkit": {
-    "message": "Unlock with system authentication"
+    "message": "Desbloqueja amb l'autenticació del sistema"
   },
   "windowsHelloConsentMessage": {
     "message": "Verifica per Bitwarden."
@@ -1777,6 +1825,9 @@
   },
   "requirePasswordOnStart": {
     "message": "Requereix contrasenya o PIN a l'inici de l'aplicació"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
   },
   "recommendedForSecurity": {
     "message": "Recomanat per seguretat."
@@ -1917,6 +1968,58 @@
         "example": "5"
       }
     }
+  },
+  "cardDetails": {
+    "message": "Dades de la targeta"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Learn more about authenticators"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Free organizations cannot use attachments"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "verificationRequired": {
     "message": "Es requereix verificació",
@@ -2075,6 +2178,9 @@
   "personalOwnershipSubmitError": {
     "message": "A causa d'una política empresarial, no podeu guardar elements a la vostra caixa forta personal. Canvieu l'opció Propietat en organització i trieu entre les col·leccions disponibles."
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "El vostre suggeriment de contrasenya no pot ser el mateix que la vostra contrasenya."
   },
@@ -2083,6 +2189,15 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Una política d'organització ha desactivat la importació d'elements a la vostra caixa forta personal."
+  },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
   },
   "allSends": {
     "message": "Tots els Send",
@@ -2247,6 +2362,12 @@
   "webAuthnAuthenticate": {
     "message": "Autenticar WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "Amagueu la meua adreça de correu electrònic als destinataris."
   },
@@ -2394,14 +2515,14 @@
   "removedMasterPassword": {
     "message": "S'ha suprimit la contrasenya mestra."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ està utilitzant SSO amb un servidor autoallotjat de claus. Ja no es requereix una contrasenya mestra d'inici de sessió per als membres d'aquesta organització.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Nom de l'organització"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Abandona l'organització"
@@ -2463,6 +2584,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "S'està exportant la caixa forta de l’organització"
   },
@@ -2502,6 +2632,27 @@
   },
   "generateEmail": {
     "message": "Genera correu electrònic"
+  },
+  "usernameGenerator": {
+    "message": "Generador de nom d'usuari"
+  },
+  "generatePassword": {
+    "message": "Genera contrasenya"
+  },
+  "generatePassphrase": {
+    "message": "Genera frase de pas"
+  },
+  "passwordGenerated": {
+    "message": "Contrasenya generada"
+  },
+  "passphraseGenerated": {
+    "message": "Frase de pas generada"
+  },
+  "usernameGenerated": {
+    "message": "Nom d'usuari generat"
+  },
+  "emailGenerated": {
+    "message": "Correu electrònic generat"
   },
   "spinboxBoundariesHint": {
     "message": "El valor ha d'estar entre $MIN$ i $MAX$.",
@@ -2552,6 +2703,18 @@
   },
   "catchallEmailDesc": {
     "message": "Utilitzeu la safata d'entrada global configurada del vostre domini."
+  },
+  "useThisEmail": {
+    "message": "Utilitza aquest correu"
+  },
+  "useThisPassword": {
+    "message": "Utilitzeu aquesta contrasenya"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Utilitzeu aquest nom d'usuari"
   },
   "random": {
     "message": "Aleatori"
@@ -2629,6 +2792,30 @@
   "forwaderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2718,14 +2905,8 @@
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
   },
-  "loggingInAs": {
-    "message": "Has iniciat sessió com"
-  },
   "rememberEmail": {
     "message": "Recorda el correu electronic"
-  },
-  "notYou": {
-    "message": "No sou vosaltres?"
   },
   "newAroundHere": {
     "message": "Nou per ací?"
@@ -2745,14 +2926,23 @@
   "loginInitiated": {
     "message": "S'ha iniciat la sessió"
   },
+  "logInRequestSent": {
+    "message": "Sol·licitud enviada"
+  },
   "notificationSentDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu."
   },
   "aNotificationWasSentToYourDevice": {
     "message": "S'ha enviat una notificació al vostre dispositiu"
   },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Assegureu-vos que la vostra caixa forta estiga desbloquejada i que la frase d'empremta digital coincidisca en l'altre dispositiu"
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "aplicació web"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
   },
   "needAnotherOptionV1": {
     "message": "Necessiteu una altra opció?"
@@ -2764,7 +2954,7 @@
     "message": "Frase d'empremta digital"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "You will be notified once the request is approved"
+    "message": "Se us notificarà un vegada s'haja aprovat la sol·licitud"
   },
   "needAnotherOption": {
     "message": "L'inici de sessió amb el dispositiu ha d'estar activat a la configuració de l'aplicació Bitwarden. Necessiteu una altra opció?"
@@ -2782,10 +2972,10 @@
     "message": "Commuta el recompte de caràcters",
     "description": "'Character count' describes a feature that displays a number next to each character of the password."
   },
-  "areYouTryingtoLogin": {
-    "message": "Esteu intentant iniciar sessió?"
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
   },
-  "logInAttemptBy": {
+  "accessAttemptBy": {
     "message": "Intent d'inici de sessió per $EMAIL$",
     "placeholders": {
       "email": {
@@ -2803,11 +2993,11 @@
   "time": {
     "message": "Hora"
   },
-  "confirmLogIn": {
-    "message": "Confirma l'inici de sessió"
+  "confirmAccess": {
+    "message": "Confirmeu l'accés"
   },
-  "denyLogIn": {
-    "message": "Denega l'inici de sessió"
+  "denyAccess": {
+    "message": "Denega l'accés"
   },
   "logInConfirmedForEmailOnDevice": {
     "message": "S'ha confirmat l'inici de sessió per a $EMAIL$ a $DEVICE$",
@@ -2843,8 +3033,8 @@
   "thisRequestIsNoLongerValid": {
     "message": "Aquesta sol·licitud ja no és vàlida."
   },
-  "confirmLoginAtemptForMail": {
-    "message": "Confirmeu l'intent d'inici de sessió per a $EMAIL$",
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2854,6 +3044,9 @@
   },
   "logInRequested": {
     "message": "S'ha sol·licitat inici de sessió"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
   },
   "creatingAccountOn": {
     "message": "Creant compte en"
@@ -2865,7 +3058,7 @@
     "message": "Seguiu l'enllaç del correu electrònic enviat a"
   },
   "andContinueCreatingYourAccount": {
-    "message": "and continue creating your account."
+    "message": "i continua creant el compte."
   },
   "noEmail": {
     "message": "Sense correu electrònic?"
@@ -2874,7 +3067,7 @@
     "message": "Torna arrere"
   },
   "toEditYourEmailAddress": {
-    "message": "to edit your email address."
+    "message": "per editar l'adreça de correu electrònic."
   },
   "exposedMasterPassword": {
     "message": "Contrasenya mestra exposada"
@@ -2887,12 +3080,6 @@
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Contrasenya feble identificada i trobada en una filtració de dades. Utilitzeu una contrasenya única i segura per protegir el vostre compte. Esteu segur que voleu utilitzar aquesta contrasenya?"
-  },
-  "useThisPassword": {
-    "message": "Utilitzeu aquesta contrasenya"
-  },
-  "useThisUsername": {
-    "message": "Use this username"
   },
   "checkForBreaches": {
     "message": "Comproveu les filtracions de dades conegudes per a aquesta contrasenya"
@@ -2954,9 +3141,6 @@
   "requestAdminApproval": {
     "message": "Sol·liciteu l'aprovació de l'administrador"
   },
-  "approveWithMasterPassword": {
-    "message": "Aprova amb contrasenya mestra"
-  },
   "region": {
     "message": "Regió"
   },
@@ -2982,9 +3166,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "La vostra sol·licitud s'ha enviat a l'administrador."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Se us notificarà una vegada aprovat."
-  },
   "troubleLoggingIn": {
     "message": "Teniu problemes per iniciar la sessió?"
   },
@@ -2999,6 +3180,30 @@
   },
   "deviceTrusted": {
     "message": "Dispositiu de confiança"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Confiar"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
   },
   "inputRequired": {
     "message": "L'entrada és obligatòria."
@@ -3101,7 +3306,7 @@
     "message": "Submenú"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Canvia a la navegació lateral"
   },
   "skipToContent": {
     "message": "Vés al contingut"
@@ -3159,13 +3364,19 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
-  },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
+    "message": "S'ha produït un error en connectar amb el servei Duo. Utilitzeu un mètode d'inici de sessió en dos passos diferent o poseu-vos en contacte amb Duo per obtenir ajuda."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
   },
   "launchDuo": {
     "message": "Inicia Duo al navegador"
@@ -3346,7 +3557,7 @@
     "message": "S'ha produït un error en assignar la carpeta de destinació."
   },
   "viewItemsIn": {
-    "message": "View items in $NAME$",
+    "message": "Mostra elements en $NAME$",
     "description": "Button to view the contents of a folder or collection",
     "placeholders": {
       "name": {
@@ -3356,7 +3567,7 @@
     }
   },
   "backTo": {
-    "message": "Back to $NAME$",
+    "message": "Torna a $NAME$",
     "description": "Navigate back to a previous folder or collection",
     "placeholders": {
       "name": {
@@ -3370,7 +3581,7 @@
     "description": "Button text to navigate back"
   },
   "removeItem": {
-    "message": "Remove $NAME$",
+    "message": "Suprimeix $NAME$",
     "description": "Remove a selected option, such as a folder or collection",
     "placeholders": {
       "name": {
@@ -3390,6 +3601,17 @@
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
@@ -3415,6 +3637,27 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "itemDetails": {
+    "message": "Detalls de l'element"
+  },
+  "itemName": {
+    "message": "Nom d'element"
+  },
+  "loginCredentials": {
+    "message": "Credencials d'inici de sessió"
+  },
+  "additionalOptions": {
+    "message": "Opcions addicionals"
+  },
+  "itemHistory": {
+    "message": "Historial d'elements"
+  },
+  "lastEdited": {
+    "message": "Última edició"
+  },
+  "upload": {
+    "message": "Puja"
+  },
   "authorize": {
     "message": "Autoritza"
   },
@@ -3424,14 +3667,29 @@
   "sshkeyApprovalTitle": {
     "message": "Confirm SSH key usage"
   },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
   "sshkeyApprovalMessageInfix": {
     "message": "is requesting access to"
   },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
   "unknownApplication": {
     "message": "Una aplicació"
-  },
-  "sshKeyPasswordUnsupported": {
-    "message": "Importing password protected SSH keys is not yet supported"
   },
   "invalidSshKey": {
     "message": "The SSH key is invalid"
@@ -3442,61 +3700,260 @@
   "importSshKeyFromClipboard": {
     "message": "Import key from clipboard"
   },
-  "sshKeyPasted": {
+  "sshKeyImported": {
     "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "File saved to device. Manage from your device downloads."
   },
-  "importantNotice": {
-    "message": "Noticia important"
+  "allowScreenshots": {
+    "message": "Permet capturar la pantalla"
   },
-  "setupTwoStepLogin": {
-    "message": "Configura inici de sessió en dos passos"
+  "allowScreenshotsDesc": {
+    "message": "Permet que l'aplicació d'escriptori Bitwarden siga capturada fent captures de pantalla i es visualitze en sessions d'escriptori remot. Si ho desactivem, impedirà l'accés a algunes pantalles externes."
   },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
   },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Recorda-m'ho més tard"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, jo no"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Activa l'inici de sessió en dos passos"
-  },
-  "changeAcctEmail": {
-    "message": "Change account email"
-  },
-  "organizationUpgradeRequired": {
-    "message": "Organization upgrade required"
-  },
-  "upgradeOrganization": {
-    "message": "Actualitza l'organització"
-  },
-  "upgradeOrganizationDesc": {
-    "message": "Aquesta característica no està disponible per a organitzacions gratuïtes. Canvieu a un pla de pagament per desbloquejar més característiques."
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Cal actualitzar l'extensió"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
     "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "move": {
+    "message": "Desplaça"
+  },
+  "newFolder": {
+    "message": "Carpeta nova"
+  },
+  "folderName": {
+    "message": "Nom de la carpeta"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Inclou un",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Lloc web",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Assigna a col·leccions"
+  },
+  "assignToTheseCollections": {
+    "message": "Assigna a aquestes col·leccions"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "noCollectionsAssigned": {
+    "message": "No s'ha assignat cap col·lecció"
+  },
+  "assign": {
+    "message": "Assigna"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Heu seleccionat $TOTAL_COUNT$ elements. No podeu actualitzar-ne $READONLY_COUNT$ dels quals perquè no teniu permisos d'edició.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Seleccioneu les col·leccions per assignar"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "nothingSelected": {
+    "message": "No heu seleccionat res."
+  },
+  "itemsMovedToOrg": {
+    "message": "S'han desplaçat elements a $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

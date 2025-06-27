@@ -19,8 +19,6 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle",
   templateUrl: "./toggle.component.html",
-  preserveWhitespaces: false,
-  standalone: true,
   imports: [NgClass],
 })
 export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewInit {
@@ -73,8 +71,8 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
       "hover:tw-bg-primary-100",
 
       "group-first-of-type/toggle:tw-border-l",
-      "group-first-of-type/toggle:tw-rounded-l-full",
-      "group-last-of-type/toggle:tw-rounded-r-full",
+      "group-first-of-type/toggle:tw-rounded-s-full",
+      "group-last-of-type/toggle:tw-rounded-e-full",
 
       "peer-focus-visible/toggle-input:tw-outline-none",
       "peer-focus-visible/toggle-input:tw-ring",

@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 
 import { RotateableKeySet } from "@bitwarden/auth/common";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
@@ -25,8 +25,14 @@ export class RotateableKeySetService {
 
     const userKey = await this.keyService.getUserKey();
     const rawPublicKey = Utils.fromB64ToArray(publicKey);
-    const encryptedUserKey = await this.encryptService.rsaEncrypt(userKey.key, rawPublicKey);
-    const encryptedPublicKey = await this.encryptService.encrypt(rawPublicKey, userKey);
+    const encryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
+      rawPublicKey,
+    );
+    const encryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
+      rawPublicKey,
+      userKey,
+    );
     return new RotateableKeySet(encryptedUserKey, encryptedPublicKey, encryptedPrivateKey);
   }
 
@@ -52,12 +58,21 @@ export class RotateableKeySetService {
       throw new Error("failed to rotate key set: newUserKey is required");
     }
 
-    const publicKey = await this.encryptService.decryptToBytes(
+    const publicKey = await this.encryptService.unwrapEncapsulationKey(
       keySet.encryptedPublicKey,
       oldUserKey,
     );
-    const newEncryptedPublicKey = await this.encryptService.encrypt(publicKey, newUserKey);
-    const newEncryptedUserKey = await this.encryptService.rsaEncrypt(newUserKey.key, publicKey);
+    if (publicKey == null) {
+      throw new Error("failed to rotate key set: could not decrypt public key");
+    }
+    const newEncryptedPublicKey = await this.encryptService.wrapEncapsulationKey(
+      publicKey,
+      newUserKey,
+    );
+    const newEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      newUserKey,
+      publicKey,
+    );
 
     const newRotateableKeySet = new RotateableKeySet<ExternalKey>(
       newEncryptedUserKey,

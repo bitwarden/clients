@@ -36,6 +36,7 @@ export class OrganizationResponse extends BaseResponse {
   maxAutoscaleSmServiceAccounts?: number;
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
+  limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   useRiskInsights: boolean;
 
@@ -75,6 +76,7 @@ export class OrganizationResponse extends BaseResponse {
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
     this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    this.limitItemDeletion = this.getResponseProperty("LimitItemDeletion");
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );

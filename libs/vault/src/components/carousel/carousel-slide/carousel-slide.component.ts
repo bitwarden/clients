@@ -1,15 +1,25 @@
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { TemplatePortal } from "@angular/cdk/portal";
-import { Component, Input, OnInit, TemplateRef, ViewChild, ViewContainerRef } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import {
+  booleanAttribute,
+  Component,
+  Input,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+} from "@angular/core";
 
 @Component({
   selector: "vault-carousel-slide",
   templateUrl: "./carousel-slide.component.html",
-  standalone: true,
+  imports: [CommonModule],
 })
 export class VaultCarouselSlideComponent implements OnInit {
   /** `aria-label` that is assigned to the carousel toggle. */
   @Input({ required: true }) label!: string;
+  @Input({ transform: booleanAttribute }) disablePadding = false;
 
   /**
    * Should be set to true when the slide has no focusable elements.

@@ -23,6 +23,6 @@ pub fn focus_security_prompt() {
 pub(crate) fn set_focus(window: HWND) {
     unsafe {
         let _ = SetForegroundWindow(window);
-        let _ = SetFocus(window);
+        let _ = SetFocus(Some(window));
     }
 }

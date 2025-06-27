@@ -1,14 +1,16 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { UserId } from "../../types/guid";
 import { Account, AccountInfo, AccountService } from "../abstractions/account.service";
@@ -102,7 +104,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
 
       keyService.getUserKey.mockResolvedValue({ key: "key" } as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
 
@@ -124,7 +126,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       const encryptedKey = { encryptedString: "encryptedString" };
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
-      encryptService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
+      encryptService.encapsulateKeyUnsigned.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId", "userId", { key: "key" } as any);
 

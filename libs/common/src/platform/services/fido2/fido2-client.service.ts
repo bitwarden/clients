@@ -251,7 +251,8 @@ export class Fido2ClientService<ParentWindowReference>
       clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
       publicKey: Fido2Utils.bufferToString(makeCredentialResult.publicKey),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
-      transports: params.rp.id === "google.com" ? ["internal", "usb"] : ["internal"],
+      transports:
+        params.rp.id === "google.com" ? ["internal", "usb", "hybrid"] : ["internal", "hybrid"],
       extensions: { credProps },
     };
   }
@@ -482,11 +483,15 @@ function mapToMakeCredentialParams({
       type: credential.type,
     })) ?? [];
 
+  /**
+   * Quirk: Accounts for the fact that some RP's mistakenly submits 'requireResidentKey' as a string
+   */
   const requireResidentKey =
     params.authenticatorSelection?.residentKey === "required" ||
     params.authenticatorSelection?.residentKey === "preferred" ||
     (params.authenticatorSelection?.residentKey === undefined &&
-      params.authenticatorSelection?.requireResidentKey === true);
+      (params.authenticatorSelection?.requireResidentKey === true ||
+        (params.authenticatorSelection?.requireResidentKey as unknown as string) === "true"));
 
   const requireUserVerification =
     params.authenticatorSelection?.userVerification === "required" ||

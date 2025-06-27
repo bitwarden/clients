@@ -3,11 +3,13 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
@@ -17,8 +19,9 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -40,9 +43,11 @@ const BroadcasterSubscriptionId = "ViewComponent";
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
+  standalone: false,
 })
 export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
+  @Input() masterPasswordAlreadyPrompted: boolean = false;
 
   constructor(
     cipherService: CipherService,
@@ -70,6 +75,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     accountService: AccountService,
     toastService: ToastService,
     cipherAuthorizationService: CipherAuthorizationService,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -97,8 +103,10 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       billingAccountProfileStateService,
       toastService,
       cipherAuthorizationService,
+      configService,
     );
   }
+
   ngOnInit() {
     super.ngOnInit();
 
@@ -112,6 +120,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         }
       });
     });
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
   }
 
   ngOnDestroy() {
@@ -119,14 +128,19 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
-  async ngOnChanges() {
-    await super.load();
-
-    if (this.cipher.decryptionFailure) {
+  async ngOnChanges(changes: SimpleChanges) {
+    if (this.cipher?.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
         cipherIds: [this.cipherId as CipherId],
       });
       return;
+    }
+    this.passwordReprompted = this.masterPasswordAlreadyPrompted;
+
+    if (changes["cipherId"]) {
+      if (changes["cipherId"].currentValue !== changes["cipherId"].previousValue) {
+        this.showPrivateKey = false;
+      }
     }
   }
 
@@ -158,11 +172,5 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     if (!this.canAccessPremium) {
       this.messagingService.send("premiumRequired");
     }
-  }
-
-  upgradeOrganization() {
-    this.messagingService.send("upgradeOrganization", {
-      organizationId: this.cipher.organizationId,
-    });
   }
 }

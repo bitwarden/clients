@@ -28,7 +28,7 @@ impl BitwardenDesktopAgent {
             show_ui_request_tx: auth_request_tx,
             get_ui_response_rx: auth_response_rx,
             request_id: Arc::new(AtomicU32::new(0)),
-            needs_unlock: Arc::new(AtomicBool::new(false)),
+            needs_unlock: Arc::new(AtomicBool::new(true)),
             is_running: Arc::new(AtomicBool::new(false)),
         };
         let cloned_agent_state = agent.clone();
@@ -47,11 +47,21 @@ impl BitwardenDesktopAgent {
                             return;
                         }
                     };
-                    ssh_agent_directory
-                        .join(".bitwarden-ssh-agent.sock")
-                        .to_str()
-                        .expect("Path should be valid")
-                        .to_owned()
+
+                    let is_flatpak = std::env::var("container") == Ok("flatpak".to_string());
+                    if !is_flatpak {
+                        ssh_agent_directory
+                            .join(".bitwarden-ssh-agent.sock")
+                            .to_str()
+                            .expect("Path should be valid")
+                            .to_owned()
+                    } else {
+                        ssh_agent_directory
+                            .join(".var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock")
+                            .to_str()
+                            .expect("Path should be valid")
+                            .to_owned()
+                    }
                 }
             };
 

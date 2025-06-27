@@ -1,3 +1,4 @@
+<vault-new-item-nudge *ngIf="!loading" [configType]="config.cipherType"> </vault-new-item-nudge>
 <form [id]="formId" [formGroup]="cipherForm" [bitSubmit]="submit">
   <!-- TODO: Should we show a loading spinner here? Or emit a ready event for the container to handle loading state -->
   <ng-container *ngIf="!loading">
@@ -28,7 +29,9 @@
       [originalCipherView]="originalCipherView"
     ></vault-sshkey-section>
 
-    <vault-additional-options-section></vault-additional-options-section>
+    <vault-additional-options-section
+      [disableSectionMargin]="config.mode !== 'edit'"
+    ></vault-additional-options-section>
 
     <!-- Attachments are only available for existing ciphers -->
     <ng-container *ngIf="config.mode == 'edit'">

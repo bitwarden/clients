@@ -2,8 +2,12 @@
 // @ts-strict-ignore
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { NotificationBarIframeInitData } from "../../../notification/abstractions/notification-bar";
-import { sendExtensionMessage, setElementStyles } from "../../../utils";
+import {
+  NotificationBarIframeInitData,
+  NotificationType,
+  NotificationTypes,
+} from "../../../notification/abstractions/notification-bar";
+import { matchAllowedColorSchemes, sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   NotificationsExtensionMessage,
   OverlayNotificationsContentService as OverlayNotificationsContentServiceInterface,
@@ -15,8 +19,8 @@ export class OverlayNotificationsContentService
 {
   private notificationBarElement: HTMLElement | null = null;
   private notificationBarIframeElement: HTMLIFrameElement | null = null;
-  private currentNotificationBarType: string | null = null;
-  private removeTabFromNotificationQueueTypes = new Set(["add", "change"]);
+  private currentNotificationBarType: NotificationType | null = null;
+  private notificationRefreshFlag: boolean = false;
   private notificationBarElementStyles: Partial<CSSStyleDeclaration> = {
     height: "82px",
     width: "430px",
@@ -54,6 +58,10 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
+    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+      this.setNotificationRefreshBarHeight();
+    });
   }
 
   /**
@@ -74,18 +82,19 @@ export class OverlayNotificationsContentService
       return;
     }
 
-    const { type, typeData } = message.data;
+    const { type, typeData, params } = message.data;
+
     if (this.currentNotificationBarType && type !== this.currentNotificationBarType) {
       this.closeNotificationBar();
     }
     const initData = {
-      type,
+      type: type as NotificationType,
       isVaultLocked: typeData.isVaultLocked,
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       importType: typeData.importType,
-      applyRedesign: true,
       launchTimestamp: typeData.launchTimestamp,
+      params,
     };
 
     if (globalThis.document.readyState === "loading") {
@@ -103,13 +112,15 @@ export class OverlayNotificationsContentService
    * @param message - The message containing the data for closing the notification bar.
    */
   private handleCloseNotificationBarMessage(message: NotificationsExtensionMessage) {
+    const closedByUser =
+      typeof message.data?.closedByUser === "boolean" ? message.data.closedByUser : true;
     if (message.data?.fadeOutNotification) {
       setElementStyles(this.notificationBarIframeElement, { opacity: "0" }, true);
-      globalThis.setTimeout(() => this.closeNotificationBar(true), 150);
+      globalThis.setTimeout(() => this.closeNotificationBar(closedByUser), 150);
       return;
     }
 
-    this.closeNotificationBar(true);
+    this.closeNotificationBar(closedByUser);
   }
 
   /**
@@ -132,9 +143,13 @@ export class OverlayNotificationsContentService
    * @private
    */
   private handleSaveCipherAttemptCompletedMessage(message: NotificationsExtensionMessage) {
+    // destructure error out of data
+    const { error, ...otherData } = message?.data || {};
+
     this.sendMessageToNotificationBarIframe({
       command: "saveCipherAttemptCompleted",
-      error: message.data?.error,
+      data: Object.keys(otherData).length ? otherData : undefined,
+      error,
     });
   }
 
@@ -160,13 +175,18 @@ export class OverlayNotificationsContentService
    * @param initData - The initialization data for the notification bar.
    */
   private createNotificationBarIframeElement(initData: NotificationBarIframeInitData) {
+    const content = (document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement)
+      ?.content;
+    const allowedColorScheme = matchAllowedColorSchemes(content);
     const isNotificationFresh =
       initData.launchTimestamp && Date.now() - initData.launchTimestamp < 250;
 
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframeElement = globalThis.document.createElement("iframe");
     this.notificationBarIframeElement.id = "bit-notification-bar-iframe";
-    this.notificationBarIframeElement.src = chrome.runtime.getURL("notification/bar.html");
+    this.notificationBarIframeElement.src = chrome.runtime.getURL(
+      `notification/bar.html?colorScheme=${encodeURIComponent(allowedColorScheme)}`,
+    );
     setElementStyles(
       this.notificationBarIframeElement,
       {
@@ -192,7 +212,13 @@ export class OverlayNotificationsContentService
       { transform: "translateX(0)", opacity: "1" },
       true,
     );
-    setElementStyles(this.notificationBarElement, { boxShadow: "2px 4px 6px 0px #0000001A" }, true);
+    if (!this.notificationRefreshFlag) {
+      setElementStyles(
+        this.notificationBarElement,
+        { boxShadow: "2px 4px 6px 0px #0000001A" },
+        true,
+      );
+    }
     this.notificationBarIframeElement.removeEventListener(
       EVENTS.LOAD,
       this.handleNotificationBarIframeOnLoad,
@@ -206,8 +232,30 @@ export class OverlayNotificationsContentService
     if (this.notificationBarIframeElement) {
       this.notificationBarElement = globalThis.document.createElement("div");
       this.notificationBarElement.id = "bit-notification-bar";
+
       setElementStyles(this.notificationBarElement, this.notificationBarElementStyles, true);
+      this.setNotificationRefreshBarHeight();
+
       this.notificationBarElement.appendChild(this.notificationBarIframeElement);
+    }
+  }
+
+  /**
+   * Sets the height of the notification bar based on the value of `notificationRefreshFlag`.
+   * If the flag is `true`, the bar is expanded to 400px and aligned right.
+   * If the flag is `false`, `null`, or `undefined`, it defaults to height of 82px.
+   * Skips if the notification bar element has not yet been created.
+   *
+   */
+  private setNotificationRefreshBarHeight() {
+    const isNotificationV3 = !!this.notificationRefreshFlag;
+
+    if (!this.notificationBarElement) {
+      return;
+    }
+
+    if (isNotificationV3) {
+      setElementStyles(this.notificationBarElement, { height: "400px", right: "0" }, true);
     }
   }
 
@@ -253,10 +301,13 @@ export class OverlayNotificationsContentService
     this.notificationBarElement.remove();
     this.notificationBarElement = null;
 
-    if (
-      closedByUserAction &&
-      this.removeTabFromNotificationQueueTypes.has(this.currentNotificationBarType)
-    ) {
+    const removableNotificationTypes = new Set([
+      NotificationTypes.Add,
+      NotificationTypes.Change,
+      NotificationTypes.AtRiskPassword,
+    ] as NotificationType[]);
+
+    if (closedByUserAction && removableNotificationTypes.has(this.currentNotificationBarType)) {
       void sendExtensionMessage("bgRemoveTabFromNotificationQueue");
     }
 

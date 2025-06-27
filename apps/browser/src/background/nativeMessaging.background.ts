@@ -1,19 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { KeyService, BiometricStateService, BiometricsCommands } from "@bitwarden/key-management";
+import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -57,32 +55,32 @@ type ReceiveMessageOuter = {
   messageId?: number;
 
   // Should only have one of these.
-  message?: EncString;
+  message?: ReceiveMessage | EncString;
   sharedSecret?: string;
 };
 
 type Callback = {
-  resolver: any;
-  rejecter: any;
+  resolver: (value?: unknown) => void;
+  rejecter: (reason?: any) => void;
+};
+
+type SecureChannel = {
+  privateKey: Uint8Array;
+  publicKey: Uint8Array;
+  sharedSecret?: SymmetricCryptoKey;
+  setupResolve: (value?: unknown) => void;
 };
 
 export class NativeMessagingBackground {
   connected = false;
-  private connecting: boolean;
-  private port: browser.runtime.Port | chrome.runtime.Port;
+  private connecting: boolean = false;
+  private port?: browser.runtime.Port | chrome.runtime.Port;
+  private appId?: string;
 
-  private privateKey: Uint8Array = null;
-  private publicKey: Uint8Array = null;
-  private secureSetupResolve: any = null;
-  private sharedSecret: SymmetricCryptoKey;
-  private appId: string;
-  private validatingFingerprint: boolean;
+  private secureChannel?: SecureChannel;
 
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
-
-  isConnectedToOutdatedDesktopClient = true;
-
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -108,18 +106,26 @@ export class NativeMessagingBackground {
 
   async connect() {
     this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
-    this.appId = await this.appIdService.getAppId();
+    const appId = await this.appIdService.getAppId();
+    this.appId = appId;
     await this.biometricStateService.setFingerprintValidated(false);
 
     return new Promise<void>((resolve, reject) => {
-      this.port = BrowserApi.connectNative("com.8bit.bitwarden");
+      const port = BrowserApi.connectNative("com.8bit.bitwarden");
+      this.port = port;
 
       this.connecting = true;
 
       const connectedCallback = () => {
-        this.logService.info(
-          "[Native Messaging IPC] Connection to Bitwarden Desktop app established!",
-        );
+        if (!this.platformUtilsService.isSafari()) {
+          this.logService.info(
+            "[Native Messaging IPC] Connection to Bitwarden Desktop app established!",
+          );
+        } else {
+          this.logService.info(
+            "[Native Messaging IPC] Connection to Safari swift module established!",
+          );
+        }
         this.connected = true;
         this.connecting = false;
         resolve();
@@ -131,7 +137,8 @@ export class NativeMessagingBackground {
         connectedCallback();
       }
 
-      this.port.onMessage.addListener(async (message: ReceiveMessageOuter) => {
+      port.onMessage.addListener(async (messageRaw: unknown) => {
+        const message = messageRaw as ReceiveMessageOuter;
         switch (message.command) {
           case "connected":
             connectedCallback();
@@ -142,7 +149,7 @@ export class NativeMessagingBackground {
               reject(new Error("startDesktop"));
             }
             this.connected = false;
-            this.port.disconnect();
+            port.disconnect();
             // reject all
             for (const callback of this.callbacks.values()) {
               callback.rejecter("disconnected");
@@ -151,48 +158,54 @@ export class NativeMessagingBackground {
             break;
           case "setupEncryption": {
             // Ignore since it belongs to another device
-            if (message.appId !== this.appId) {
+            if (message.appId !== appId) {
+              return;
+            }
+
+            if (message.sharedSecret == null) {
+              this.logService.info(
+                "[Native Messaging IPC] Unable to create secureChannel channel, no shared secret",
+              );
+              return;
+            }
+            if (this.secureChannel == null) {
+              this.logService.info(
+                "[Native Messaging IPC] Unable to create secureChannel channel, no secureChannel communication setup",
+              );
               return;
             }
 
             const encrypted = Utils.fromB64ToArray(message.sharedSecret);
             const decrypted = await this.cryptoFunctionService.rsaDecrypt(
               encrypted,
-              this.privateKey,
+              this.secureChannel.privateKey,
               HashAlgorithmForEncryption,
             );
 
-            this.sharedSecret = new SymmetricCryptoKey(decrypted);
+            this.secureChannel.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.logService.info("[Native Messaging IPC] Secure channel established");
 
-            if ("messageId" in message) {
-              this.logService.info("[Native Messaging IPC] Non-legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = false;
-            } else {
-              this.logService.info("[Native Messaging IPC] Legacy desktop client");
-              this.isConnectedToOutdatedDesktopClient = true;
-            }
-
-            this.secureSetupResolve();
+            this.secureChannel.setupResolve();
             break;
           }
           case "invalidateEncryption":
             // Ignore since it belongs to another device
-            if (message.appId !== this.appId) {
+            if (message.appId !== appId) {
               return;
             }
             this.logService.warning(
               "[Native Messaging IPC] Secure channel encountered an error; disconnecting and wiping keys...",
             );
 
-            this.sharedSecret = null;
-            this.privateKey = null;
+            this.secureChannel = undefined;
             this.connected = false;
 
-            if (this.callbacks.has(message.messageId)) {
-              this.callbacks.get(message.messageId).rejecter({
-                message: "invalidateEncryption",
-              });
+            if (message.messageId != null) {
+              if (this.callbacks.has(message.messageId)) {
+                this.callbacks.get(message.messageId)?.rejecter({
+                  message: "invalidateEncryption",
+                });
+              }
             }
             return;
           case "verifyFingerprint": {
@@ -217,21 +230,25 @@ export class NativeMessagingBackground {
             break;
           }
           case "wrongUserId":
-            if (this.callbacks.has(message.messageId)) {
-              this.callbacks.get(message.messageId).rejecter({
-                message: "wrongUserId",
-              });
+            if (message.messageId != null) {
+              if (this.callbacks.has(message.messageId)) {
+                this.callbacks.get(message.messageId)?.rejecter({
+                  message: "wrongUserId",
+                });
+              }
             }
             return;
           default:
             // Ignore since it belongs to another device
-            if (!this.platformUtilsService.isSafari() && message.appId !== this.appId) {
+            if (!this.platformUtilsService.isSafari() && message.appId !== appId) {
               return;
             }
 
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.onMessage(message.message);
+            if (message.message != null) {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              this.onMessage(message.message);
+            }
         }
       });
 
@@ -240,16 +257,15 @@ export class NativeMessagingBackground {
         if (BrowserApi.isWebExtensionsApi) {
           error = p.error.message;
         } else {
-          error = chrome.runtime.lastError.message;
+          error = chrome.runtime.lastError?.message;
         }
 
-        this.sharedSecret = null;
-        this.privateKey = null;
+        this.secureChannel = undefined;
         this.connected = false;
 
         this.logService.error("NativeMessaging port disconnected because of error: " + error);
 
-        const reason = error != null ? "desktopIntegrationDisabled" : null;
+        const reason = error != null ? "desktopIntegrationDisabled" : undefined;
         reject(new Error(reason));
       });
     });
@@ -257,29 +273,6 @@ export class NativeMessagingBackground {
 
   async callCommand(message: Message): Promise<any> {
     const messageId = this.messageId++;
-
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      // TODO remove after 2025.3
-      // wait until there is no other callbacks, or timeout
-      const call = await firstValueFrom(
-        race(
-          from([false]).pipe(delay(5000)),
-          timer(0, 100).pipe(
-            filter(() => this.callbacks.size === 0),
-            map(() => true),
-          ),
-        ),
-      );
-      if (!call) {
-        this.logService.info(
-          `[Native Messaging IPC] Message of type ${message.command} did not get a response before timing out`,
-        );
-        return;
-      }
-    }
 
     const callback = new Promise((resolver, rejecter) => {
       this.callbacks.set(messageId, { resolver, rejecter });
@@ -293,13 +286,13 @@ export class NativeMessagingBackground {
       );
       const callback = this.callbacks.get(messageId);
       this.callbacks.delete(messageId);
-      callback.rejecter("errorConnecting");
+      callback?.rejecter("errorConnecting");
     }
 
     setTimeout(() => {
       if (this.callbacks.has(messageId)) {
         this.logService.info("[Native Messaging IPC] Message timed out and received no response");
-        this.callbacks.get(messageId).rejecter({
+        this.callbacks.get(messageId)!.rejecter({
           message: "timeout",
         });
         this.callbacks.delete(messageId);
@@ -320,16 +313,19 @@ export class NativeMessagingBackground {
     if (this.platformUtilsService.isSafari()) {
       this.postMessage(message as any);
     } else {
-      this.postMessage({ appId: this.appId, message: await this.encryptMessage(message) });
+      this.postMessage({ appId: this.appId!, message: await this.encryptMessage(message) });
     }
   }
 
   async encryptMessage(message: Message) {
-    if (this.sharedSecret == null) {
+    if (this.secureChannel?.sharedSecret == null) {
       await this.secureCommunication();
     }
 
-    return await this.encryptService.encrypt(JSON.stringify(message), this.sharedSecret);
+    return await this.encryptService.encryptString(
+      JSON.stringify(message),
+      this.secureChannel!.sharedSecret!,
+    );
   }
 
   private postMessage(message: OuterMessage, messageId?: number) {
@@ -346,7 +342,7 @@ export class NativeMessagingBackground {
           mac: message.message.mac,
         };
       }
-      this.port.postMessage(msg);
+      this.port!.postMessage(msg);
       // FIXME: Remove when updating file. Eslint update
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
@@ -354,26 +350,29 @@ export class NativeMessagingBackground {
         "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",
       );
 
-      this.sharedSecret = null;
-      this.privateKey = null;
+      this.secureChannel = undefined;
       this.connected = false;
 
-      if (this.callbacks.has(messageId)) {
-        this.callbacks.get(messageId).rejecter("invalidateEncryption");
+      if (messageId != null && this.callbacks.has(messageId)) {
+        this.callbacks.get(messageId)!.rejecter("invalidateEncryption");
       }
     }
   }
 
   private async onMessage(rawMessage: ReceiveMessage | EncString) {
-    let message = rawMessage as ReceiveMessage;
+    let message: ReceiveMessage;
     if (!this.platformUtilsService.isSafari()) {
+      if (this.secureChannel?.sharedSecret == null) {
+        return;
+      }
       message = JSON.parse(
-        await this.encryptService.decryptToUtf8(
+        await this.encryptService.decryptString(
           rawMessage as EncString,
-          this.sharedSecret,
-          "ipc-desktop-ipc-channel-key",
+          this.secureChannel.sharedSecret,
         ),
       );
+    } else {
+      message = rawMessage as ReceiveMessage;
     }
 
     if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
@@ -383,22 +382,10 @@ export class NativeMessagingBackground {
 
     const messageId = message.messageId;
 
-    if (
-      message.command == BiometricsCommands.Unlock ||
-      message.command == BiometricsCommands.IsAvailable
-    ) {
-      this.logService.info(
-        `[Native Messaging IPC] Received legacy message of type ${message.command}`,
-      );
-      const messageId = this.callbacks.keys().next().value;
-      const resolver = this.callbacks.get(messageId);
-      this.callbacks.delete(messageId);
-      resolver.resolver(message);
-      return;
-    }
-
     if (this.callbacks.has(messageId)) {
-      this.callbacks.get(messageId).resolver(message);
+      const callback = this.callbacks!.get(messageId)!;
+      this.callbacks.delete(messageId);
+      callback.resolver(message);
     } else {
       this.logService.info("[Native Messaging IPC] Received message without a callback", message);
     }
@@ -406,8 +393,6 @@ export class NativeMessagingBackground {
 
   private async secureCommunication() {
     const [publicKey, privateKey] = await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
-    this.publicKey = publicKey;
-    this.privateKey = privateKey;
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -419,7 +404,13 @@ export class NativeMessagingBackground {
       messageId: this.messageId++,
     });
 
-    return new Promise((resolve, reject) => (this.secureSetupResolve = resolve));
+    return new Promise((resolve) => {
+      this.secureChannel = {
+        publicKey,
+        privateKey,
+        setupResolve: resolve,
+      };
+    });
   }
 
   private async sendUnencrypted(message: Message) {
@@ -429,11 +420,17 @@ export class NativeMessagingBackground {
 
     message.timestamp = Date.now();
 
-    this.postMessage({ appId: this.appId, message: message });
+    this.postMessage({ appId: this.appId!, message: message });
   }
 
   private async showFingerprintDialog() {
-    const fingerprint = await this.keyService.getFingerprint(this.appId, this.publicKey);
+    if (this.secureChannel?.publicKey == null) {
+      return;
+    }
+    const fingerprint = await this.keyService.getFingerprint(
+      this.appId!,
+      this.secureChannel.publicKey,
+    );
 
     this.messagingService.send("showNativeMessagingFingerprintDialog", {
       fingerprint: fingerprint,

@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -32,18 +33,16 @@ export class MainBiometricsIPCListener {
           case BiometricAction.GetStatusForUser:
             return await this.biometricService.getBiometricsStatusForUser(message.userId as UserId);
           case BiometricAction.SetKeyForUser:
+            if (message.key == null) {
+              return;
+            }
             return await this.biometricService.setBiometricProtectedUnlockKeyForUser(
               message.userId as UserId,
-              message.key,
+              SymmetricCryptoKey.fromString(message.key),
             );
           case BiometricAction.RemoveKeyForUser:
             return await this.biometricService.deleteBiometricUnlockKeyForUser(
               message.userId as UserId,
-            );
-          case BiometricAction.SetClientKeyHalf:
-            return await this.biometricService.setClientKeyHalfForUser(
-              message.userId as UserId,
-              message.key,
             );
           case BiometricAction.Setup:
             return await this.biometricService.setupBiometrics();

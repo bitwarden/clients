@@ -51,15 +51,15 @@ describe("DesktopLoginApprovalComponentService", () => {
   it("calls ipc.auth.loginRequest with correct parameters when window is not visible", async () => {
     const title = "Log in requested";
     const email = "test@bitwarden.com";
-    const message = `Confirm login attempt for ${email}`;
+    const message = `Confirm access attempt for ${email}`;
     const closeText = "Close";
 
     const loginApprovalComponent = { email } as LoginApprovalComponent;
     i18nService.t.mockImplementation((key: string) => {
       switch (key) {
-        case "logInRequested":
+        case "accountAccessRequested":
           return title;
-        case "confirmLoginAtemptForMail":
+        case "confirmAccessAttempt":
           return message;
         case "close":
           return closeText;

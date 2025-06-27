@@ -1,17 +1,18 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { autofill } from "desktop_native/napi";
 import {
-  EMPTY,
   Subject,
   distinctUntilChanged,
+  filter,
   firstValueFrom,
   map,
   mergeMap,
   switchMap,
   takeUntil,
+  EMPTY,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -24,12 +25,14 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { parseCredentialId } from "@bitwarden/common/platform/services/fido2/credential-id-utils";
 import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
-import { guidToRawFormat } from "@bitwarden/common/platform/services/fido2/guid-utils";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { autofill } from "@bitwarden/desktop-napi";
 
 import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
 import {
@@ -37,6 +40,8 @@ import {
   NativeAutofillPasswordCredential,
   NativeAutofillSyncCommand,
 } from "../../platform/main/autofill/sync.command";
+
+import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -46,7 +51,7 @@ export class DesktopAutofillService implements OnDestroy {
     private logService: LogService,
     private cipherService: CipherService,
     private configService: ConfigService,
-    private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<void>,
+    private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<NativeWindowObject>,
     private accountService: AccountService,
   ) {}
 
@@ -60,7 +65,11 @@ export class DesktopAutofillService implements OnDestroy {
             return EMPTY;
           }
 
-          return this.cipherService.cipherViews$;
+          return this.accountService.activeAccount$.pipe(
+            map((account) => account?.id),
+            filter((userId): userId is UserId => userId != null),
+            switchMap((userId) => this.cipherService.cipherViews$(userId)),
+          );
         }),
         // TODO: This will unset all the autofill credentials on the OS
         // when the account locks. We should instead explicilty clear the credentials
@@ -148,7 +157,11 @@ export class DesktopAutofillService implements OnDestroy {
 
       const controller = new AbortController();
       void this.fido2AuthenticatorService
-        .makeCredential(this.convertRegistrationRequest(request), null, controller)
+        .makeCredential(
+          this.convertRegistrationRequest(request),
+          { windowXy: request.windowXy },
+          controller,
+        )
         .then((response) => {
           callback(null, this.convertRegistrationResponse(request, response));
         })
@@ -158,42 +171,75 @@ export class DesktopAutofillService implements OnDestroy {
         });
     });
 
+    ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
+      async (clientId, sequenceNumber, request, callback) => {
+        this.logService.warning(
+          "listenPasskeyAssertion without user interface",
+          clientId,
+          sequenceNumber,
+          request,
+        );
+
+        // For some reason the credentialId is passed as an empty array in the request, so we need to
+        // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
+        if (request.recordIdentifier && request.credentialId.length === 0) {
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getOptionalUserId),
+          );
+          if (!activeUserId) {
+            this.logService.error("listenPasskeyAssertion error", "Active user not found");
+            callback(new Error("Active user not found"), null);
+            return;
+          }
+
+          const cipher = await this.cipherService.get(request.recordIdentifier, activeUserId);
+          if (!cipher) {
+            this.logService.error("listenPasskeyAssertion error", "Cipher not found");
+            callback(new Error("Cipher not found"), null);
+            return;
+          }
+
+          const decrypted = await this.cipherService.decrypt(cipher, activeUserId);
+
+          const fido2Credential = decrypted.login.fido2Credentials?.[0];
+          if (!fido2Credential) {
+            this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
+            callback(new Error("Fido2Credential not found"), null);
+            return;
+          }
+
+          request.credentialId = Array.from(
+            parseCredentialId(decrypted.login.fido2Credentials?.[0].credentialId),
+          );
+        }
+
+        const controller = new AbortController();
+        void this.fido2AuthenticatorService
+          .getAssertion(
+            this.convertAssertionRequest(request),
+            { windowXy: request.windowXy },
+            controller,
+          )
+          .then((response) => {
+            callback(null, this.convertAssertionResponse(request, response));
+          })
+          .catch((error) => {
+            this.logService.error("listenPasskeyAssertion error", error);
+            callback(error, null);
+          });
+      },
+    );
+
     ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
       this.logService.warning("listenPasskeyAssertion", clientId, sequenceNumber, request);
 
-      // TODO: For some reason the credentialId is passed as an empty array in the request, so we need to
-      // get it from the cipher. For that we use the recordIdentifier, which is the cipherId.
-      if (request.recordIdentifier && request.credentialId.length === 0) {
-        const cipher = await this.cipherService.get(request.recordIdentifier);
-        if (!cipher) {
-          this.logService.error("listenPasskeyAssertion error", "Cipher not found");
-          callback(new Error("Cipher not found"), null);
-          return;
-        }
-
-        const activeUserId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-        );
-
-        const decrypted = await cipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-        );
-
-        const fido2Credential = decrypted.login.fido2Credentials?.[0];
-        if (!fido2Credential) {
-          this.logService.error("listenPasskeyAssertion error", "Fido2Credential not found");
-          callback(new Error("Fido2Credential not found"), null);
-          return;
-        }
-
-        request.credentialId = Array.from(
-          guidToRawFormat(decrypted.login.fido2Credentials?.[0].credentialId),
-        );
-      }
-
       const controller = new AbortController();
       void this.fido2AuthenticatorService
-        .getAssertion(this.convertAssertionRequest(request), null, controller)
+        .getAssertion(
+          this.convertAssertionRequest(request),
+          { windowXy: request.windowXy },
+          controller,
+        )
         .then((response) => {
           callback(null, this.convertAssertionResponse(request, response));
         })
@@ -245,27 +291,48 @@ export class DesktopAutofillService implements OnDestroy {
     };
   }
 
+  /**
+   *
+   * @param request
+   * @param assumeUserPresence For WithoutUserInterface requests, we assume the user is present
+   * @returns
+   */
   private convertAssertionRequest(
-    request: autofill.PasskeyAssertionRequest,
+    request:
+      | autofill.PasskeyAssertionRequest
+      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
   ): Fido2AuthenticatorGetAssertionParams {
+    let allowedCredentials;
+    if ("credentialId" in request) {
+      allowedCredentials = [
+        {
+          id: new Uint8Array(request.credentialId),
+          type: "public-key" as const,
+        },
+      ];
+    } else {
+      allowedCredentials = request.allowedCredentials.map((credentialId) => ({
+        id: new Uint8Array(credentialId),
+        type: "public-key" as const,
+      }));
+    }
+
     return {
       rpId: request.rpId,
       hash: new Uint8Array(request.clientDataHash),
-      allowCredentialDescriptorList: [
-        {
-          id: new Uint8Array(request.credentialId),
-          type: "public-key",
-        },
-      ],
+      allowCredentialDescriptorList: allowedCredentials,
       extensions: {},
       requireUserVerification:
         request.userVerification === "required" || request.userVerification === "preferred",
       fallbackSupported: false,
+      assumeUserPresence: true, // For desktop assertions, it's safe to assume UP has been checked by OS dialogues
     };
   }
 
   private convertAssertionResponse(
-    request: autofill.PasskeyAssertionRequest,
+    request:
+      | autofill.PasskeyAssertionRequest
+      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
     return {

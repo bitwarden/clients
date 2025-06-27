@@ -22,7 +22,7 @@ export { KasperskyTxtImporter } from "./kaspersky-txt-importer";
 export { KeePass2XmlImporter } from "./keepass2-xml-importer";
 export { KeePassXCsvImporter } from "./keepassx-csv-importer";
 export { KeeperCsvImporter, KeeperJsonImporter } from "./keeper";
-export { LastPassCsvImporter } from "./lastpass-csv-importer";
+export { LastPassCsvImporter } from "./lastpass";
 export { LogMeOnceCsvImporter } from "./logmeonce-csv-importer";
 export { MeldiumCsvImporter } from "./meldium-csv-importer";
 export { MSecureCsvImporter } from "./msecure-csv-importer";

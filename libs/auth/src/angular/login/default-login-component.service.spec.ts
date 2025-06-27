@@ -3,7 +3,7 @@ import { of } from "rxjs";
 
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   EnvironmentService,
   Environment,
@@ -14,7 +14,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { DefaultLoginComponentService } from "./default-login-component.service";
 
-jest.mock("@bitwarden/common/platform/abstractions/crypto-function.service");
+jest.mock("@bitwarden/common/key-management/crypto/abstractions/crypto-function.service");
 jest.mock("@bitwarden/common/platform/abstractions/environment.service");
 jest.mock("@bitwarden/common/platform/abstractions/platform-utils.service");
 jest.mock("@bitwarden/common/auth/abstractions/sso-login.service.abstraction");
@@ -56,13 +56,6 @@ describe("DefaultLoginComponentService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("getOrgPolicies", () => {
-    it("returns null", async () => {
-      const result = await service.getOrgPolicies();
-      expect(result).toBeNull();
-    });
-  });
-
   describe("isLoginWithPasskeySupported", () => {
     it("returns true when clientType is Web", () => {
       service["clientType"] = ClientType.Web;
@@ -75,50 +68,21 @@ describe("DefaultLoginComponentService", () => {
     });
   });
 
-  describe("launchSsoBrowserWindow", () => {
-    const email = "test@bitwarden.com";
-    let state = "testState";
-    const codeVerifier = "testCodeVerifier";
-    const codeChallenge = "testCodeChallenge";
-    const baseUrl = "https://webvault.bitwarden.com/#/sso";
-
-    beforeEach(() => {
-      state = "testState";
+  describe("redirectToSsoLogin", () => {
+    it("sets the pre-SSO state", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
       jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLogin(email);
+      expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
     });
-
-    it.each([
-      {
-        clientType: ClientType.Browser,
-        clientId: "browser",
-        expectedRedirectUri: "https://webvault.bitwarden.com/sso-connector.html",
-      },
-      {
-        clientType: ClientType.Desktop,
-        clientId: "desktop",
-        expectedRedirectUri: "bitwarden://sso-callback",
-      },
-    ])(
-      "launches SSO browser window with correct URL for $clientId client",
-      async ({ clientType, clientId, expectedRedirectUri }) => {
-        service["clientType"] = clientType;
-
-        await service.launchSsoBrowserWindow(email, clientId as "browser" | "desktop");
-
-        if (clientType === ClientType.Browser) {
-          state += ":clientId=browser";
-        }
-
-        const expectedUrl = `${baseUrl}?clientId=${clientId}&redirectUri=${encodeURIComponent(expectedRedirectUri)}&state=${state}&codeChallenge=${codeChallenge}&email=${encodeURIComponent(email)}`;
-
-        expect(ssoLoginService.setSsoEmail).toHaveBeenCalledWith(email);
-        expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
-        expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
-        expect(platformUtilsService.launchUri).toHaveBeenCalledWith(expectedUrl);
-      },
-    );
   });
 });

@@ -14,6 +14,7 @@ import {
   BannerModule,
   ButtonModule,
   I18nMockService,
+  Icons,
   IconButtonModule,
   ItemModule,
   NoItemsModule,
@@ -35,7 +36,6 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
       <ng-content></ng-content>
     </div>
   `,
-  standalone: true,
 })
 class ExtensionContainerComponent {}
 
@@ -70,7 +70,6 @@ class ExtensionContainerComponent {}
       </bit-item-group>
     </bit-section>
   `,
-  standalone: true,
   imports: [CommonModule, ItemModule, BadgeModule, IconButtonModule, SectionComponent],
 })
 class VaultComponent {
@@ -80,12 +79,11 @@ class VaultComponent {
 @Component({
   selector: "mock-add-button",
   template: `
-    <button bitButton buttonType="primary" type="button">
-      <i class="bwi bwi-plus-f" aria-hidden="true"></i>
+    <button bitButton size="small" buttonType="primary" type="button">
+      <i class="bwi bwi-plus" aria-hidden="true"></i>
       Add
     </button>
   `,
-  standalone: true,
   imports: [ButtonModule],
 })
 class MockAddButtonComponent {}
@@ -101,7 +99,6 @@ class MockAddButtonComponent {}
       aria-label="Pop out"
     ></button>
   `,
-  standalone: true,
   imports: [IconButtonModule],
 })
 class MockPopoutButtonComponent {}
@@ -113,7 +110,6 @@ class MockPopoutButtonComponent {}
       <bit-avatar text="Ash Ketchum" size="small"></bit-avatar>
     </button>
   `,
-  standalone: true,
   imports: [AvatarModule],
 })
 class MockCurrentAccountComponent {}
@@ -121,7 +117,6 @@ class MockCurrentAccountComponent {}
 @Component({
   selector: "mock-search",
   template: ` <bit-search placeholder="Search"> </bit-search> `,
-  standalone: true,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
@@ -133,7 +128,6 @@ class MockSearchComponent {}
       This is an important note about these ciphers
     </bit-banner>
   `,
-  standalone: true,
   imports: [BannerModule],
 })
 class MockBannerComponent {}
@@ -153,7 +147,6 @@ class MockBannerComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -179,12 +172,10 @@ class MockVaultPageComponent {}
       <vault-placeholder></vault-placeholder>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
     MockAddButtonComponent,
-    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
   ],
@@ -205,7 +196,6 @@ class MockVaultPagePoppedComponent {}
       <div class="tw-text-main">Generator content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -230,7 +220,6 @@ class MockGeneratorPageComponent {}
       <div class="tw-text-main">Send content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -255,7 +244,6 @@ class MockSendPageComponent {}
       <div class="tw-text-main">Settings content here</div>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
@@ -283,15 +271,12 @@ class MockSettingsPageComponent {}
       </popup-footer>
     </popup-page>
   `,
-  standalone: true,
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
     PopupFooterComponent,
     ButtonModule,
-    MockAddButtonComponent,
     MockPopoutButtonComponent,
-    MockCurrentAccountComponent,
     VaultComponent,
     IconButtonModule,
   ],
@@ -302,10 +287,6 @@ export default {
   title: "Browser/Popup Layout",
   component: PopupPageComponent,
   parameters: {
-    chromatic: {
-      // Disable tests while we troubleshoot their flaky-ness
-      disableSnapshot: true,
-    },
     design: {
       type: "figma",
       url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-38889&t=k6OTDDPZOTtypRqo-11",
@@ -344,6 +325,7 @@ export default {
               generator: "Generator",
               send: "Send",
               settings: "Settings",
+              labelWithNotification: (label: string) => `${label}: New Notification`,
             });
           },
         },
@@ -402,17 +384,64 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-export const PopupTabNavigation: Story = {
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
+
+const navButtons = (showBerry = false) => [
+  {
+    label: "vault",
+    page: "/tabs/vault",
+    icon: Icons.VaultInactive,
+    iconActive: Icons.VaultActive,
+  },
+  {
+    label: "generator",
+    page: "/tabs/generator",
+    icon: Icons.GeneratorInactive,
+    iconActive: Icons.GeneratorActive,
+  },
+  {
+    label: "send",
+    page: "/tabs/send",
+    icon: Icons.SendInactive,
+    iconActive: Icons.SendActive,
+  },
+  {
+    label: "settings",
+    page: "/tabs/settings",
+    icon: Icons.SettingsInactive,
+    iconActive: Icons.SettingsActive,
+    showBerry: showBerry,
+  },
+];
+
+export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
   render: (args) => ({
     props: args,
-    template: /* HTML */ `
+    template: /*html*/ `
       <extension-container>
-        <popup-tab-navigation>
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
         </popup-tab-navigation>
-      </extension-container>
-    `,
+      </extension-container>`,
   }),
+  args: {
+    navButtons: navButtons(),
+  },
+};
+
+export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <router-outlet></router-outlet>
+        </popup-tab-navigation>
+      </extension-container>`,
+  }),
+  args: {
+    navButtons: navButtons(true),
+  },
 };
 
 export const PopupPage: Story = {

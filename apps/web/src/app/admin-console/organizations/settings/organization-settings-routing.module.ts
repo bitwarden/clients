@@ -1,8 +1,10 @@
-import { NgModule } from "@angular/core";
+import { NgModule, inject } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -41,7 +43,14 @@ const routes: Routes = [
       {
         path: "policies",
         component: PoliciesComponent,
-        canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canActivate: [
+          organizationPermissionsGuard((o: Organization) => {
+            const organizationBillingService = inject(OrganizationBillingServiceAbstraction);
+            return organizationBillingService
+              .isBreadcrumbingPoliciesEnabled$(o)
+              .pipe(map((isBreadcrumbingEnabled) => o.canManagePolicies || isBreadcrumbingEnabled));
+          }),
+        ],
         data: {
           titleId: "policies",
         },
@@ -52,7 +61,9 @@ const routes: Routes = [
           {
             path: "import",
             loadComponent: () =>
-              import("./org-import.component").then((mod) => mod.OrgImportComponent),
+              import("../../../tools/import/org-import.component").then(
+                (mod) => mod.OrgImportComponent,
+              ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
             data: {
               titleId: "importData",
@@ -61,7 +72,7 @@ const routes: Routes = [
           {
             path: "export",
             loadComponent: () =>
-              import("../tools/vault-export/org-vault-export.component").then(
+              import("../../../tools/vault-export/org-vault-export.component").then(
                 (mod) => mod.OrganizationVaultExportComponent,
               ),
             canActivate: [organizationPermissionsGuard((org) => org.canAccessExport)],

@@ -1,3 +1,5 @@
+import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
+
 import { NotificationType } from "../../enums";
 
 import { BaseResponse } from "./base.response";
@@ -12,7 +14,16 @@ export class NotificationResponse extends BaseResponse {
     this.contextId = this.getResponseProperty("ContextId");
     this.type = this.getResponseProperty("Type");
 
-    const payload = this.getResponseProperty("Payload");
+    let payload = this.getResponseProperty("Payload");
+
+    if (typeof payload === "string") {
+      try {
+        payload = JSON.parse(payload);
+      } catch {
+        // guess it was a string
+      }
+    }
+
     switch (this.type) {
       case NotificationType.SyncCipherCreate:
       case NotificationType.SyncCipherDelete:
@@ -47,6 +58,10 @@ export class NotificationResponse extends BaseResponse {
         break;
       case NotificationType.SyncOrganizationCollectionSettingChanged:
         this.payload = new OrganizationCollectionSettingChangedPushNotification(payload);
+        break;
+      case NotificationType.Notification:
+      case NotificationType.NotificationStatus:
+        this.payload = new EndUserNotificationResponse(payload);
         break;
       default:
         break;

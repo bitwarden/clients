@@ -21,16 +21,14 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { InlineMenuFieldQualificationService } from "../../../../../browser/src/autofill/services/inline-menu-field-qualification.service";
 import {
   AutoFillOptions,
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 
@@ -69,6 +67,7 @@ describe("VaultPopupAutofillService", () => {
       .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
+    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -354,7 +353,7 @@ describe("VaultPopupAutofillService", () => {
       });
 
       it("should add a URI to the cipher and save with the server", async () => {
-        const mockEncryptedCipher = {} as Cipher;
+        const mockEncryptedCipher = { cipher: {} as Cipher, encryptedFor: mockUserId };
         mockCipherService.encrypt.mockResolvedValue(mockEncryptedCipher);
         const result = await service.doAutofillAndSave(mockCipher);
         expect(result).toBe(true);

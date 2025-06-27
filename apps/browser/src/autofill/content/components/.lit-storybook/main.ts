@@ -8,7 +8,7 @@ const getAbsolutePath = (value: string): string =>
   dirname(require.resolve(join(value, "package.json")));
 
 const config: StorybookConfig = {
-  stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)"],
+  stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)", "../lit-stories/**/*.mdx"],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@storybook/addon-essentials"),
@@ -57,6 +57,10 @@ const config: StorybookConfig = {
             loader: require.resolve("ts-loader"),
           },
         ],
+      });
+      config.module.rules.push({
+        test: /\.scss$/,
+        use: [require.resolve("css-loader"), require.resolve("sass-loader")],
       });
     }
     return config;

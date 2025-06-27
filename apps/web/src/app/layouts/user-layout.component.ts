@@ -19,7 +19,6 @@ import { WebLayoutModule } from "./web-layout.module";
 @Component({
   selector: "app-user-layout",
   templateUrl: "user-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,
@@ -31,7 +30,6 @@ import { WebLayoutModule } from "./web-layout.module";
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
-  isFreeFamilyFlagEnabled: boolean;
   protected hasFamilySponsorshipAvailable$: Observable<boolean>;
   protected showSponsoredFamilies$: Observable<boolean>;
   protected showSubscription$: Observable<boolean>;

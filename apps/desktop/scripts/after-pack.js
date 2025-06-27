@@ -42,7 +42,7 @@ async function run(context) {
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
         id = is_mas_dev
-          ? "E7C9978F6FBCE0553429185C405E61F5380BE8EB"
+          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
         id = "Developer ID Application: 8bit Solutions LLC";
@@ -89,7 +89,7 @@ async function run(context) {
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
       // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const entitlementsName = "entitlements.mac.plist";
+      const entitlementsName = "entitlements.mac.inherit.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
@@ -172,10 +172,8 @@ async function addElectronFuses(context) {
 
     // Currently, asar integrity is only implemented for macOS and Windows
     // https://www.electronjs.org/docs/latest/tutorial/asar-integrity
-    // On macOS, it works by default, but on Windows it requires the
-    // asarIntegrity feature of electron-builder v25, currently in alpha
-    // https://github.com/electron-userland/electron-builder/releases/tag/v25.0.0-alpha.10
-    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: platform === "darwin",
+    [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]:
+      platform == "darwin" || platform == "win32",
 
     [FuseV1Options.OnlyLoadAppFromAsar]: true,
 

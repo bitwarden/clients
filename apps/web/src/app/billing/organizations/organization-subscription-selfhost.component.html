@@ -2,7 +2,7 @@
 
 <bit-container>
   <ng-container *ngIf="!firstLoaded && loading">
-    <i class="bwi bwi-spinner bwi-spin text-muted" title="{{ 'loading' | i18n }}"></i>
+    <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
   </ng-container>
 
@@ -66,7 +66,7 @@
     </a>
     <form [formGroup]="form">
       <bit-radio-group formControlName="updateMethod" [block]="true">
-        <h2 class="mt-5">
+        <h2 class="tw-mt-5">
           {{ "licenseAndBillingManagement" | i18n }}
         </h2>
         <bit-radio-button

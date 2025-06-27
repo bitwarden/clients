@@ -53,10 +53,14 @@ describe("ORGANIZATIONS state", () => {
         accessSecretsManager: false,
         limitCollectionCreation: false,
         limitCollectionDeletion: false,
+        limitItemDeletion: false,
         allowAdminAccessToAllCollectionItems: false,
         familySponsorshipLastSyncDate: new Date(),
         userIsManagedByOrganization: false,
         useRiskInsights: false,
+        useOrganizationDomains: false,
+        useAdminSponsoredFamilies: false,
+        isAdminInitiated: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));

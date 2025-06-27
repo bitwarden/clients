@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { combineLatest, filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -22,12 +22,14 @@ import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, IconModule } from "@bitwarden/components";
 
+import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { AdminConsoleLogo } from "../../icons/admin-console-logo";
@@ -35,7 +37,6 @@ import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,
@@ -50,7 +51,6 @@ export class OrganizationLayoutComponent implements OnInit {
   protected readonly logo = AdminConsoleLogo;
 
   protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
-  protected domainVerificationNavigationTextKey: string;
 
   protected integrationPageEnabled$: Observable<boolean>;
 
@@ -61,6 +61,10 @@ export class OrganizationLayoutComponent implements OnInit {
   organizationIsUnmanaged$: Observable<boolean>;
   enterpriseOrganization$: Observable<boolean>;
 
+  protected isBreadcrumbEventLogsEnabled$: Observable<boolean>;
+  protected showSponsoredFamiliesDropdown$: Observable<boolean>;
+  protected canShowPoliciesTab$: Observable<boolean>;
+
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
@@ -69,17 +73,26 @@ export class OrganizationLayoutComponent implements OnInit {
     private policyService: PolicyService,
     private providerService: ProviderService,
     private accountService: AccountService,
+    private freeFamiliesPolicyService: FreeFamiliesPolicyService,
+    private organizationBillingService: OrganizationBillingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
+    this.isBreadcrumbEventLogsEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM12276_BreadcrumbEventLogs,
+    );
     document.body.classList.remove("layout_frontend");
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.organization$ = this.route.params.pipe(
       map((p) => p.organizationId),
-      switchMap((id) => this.organizationService.organizations$(userId).pipe(getById(id))),
+      withLatestFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      switchMap(([orgId, userId]) =>
+        this.organizationService.organizations$(userId).pipe(getById(orgId)),
+      ),
       filter((org) => org != null),
     );
+    this.showSponsoredFamiliesDropdown$ =
+      this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
 
     this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));
 
@@ -92,7 +105,10 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.hideNewOrgButton$ = this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg);
+    this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    );
 
     const provider$ = this.organization$.pipe(
       switchMap((organization) => this.providerService.get$(organization.providerId)),
@@ -107,16 +123,19 @@ export class OrganizationLayoutComponent implements OnInit {
       ),
     );
 
-    this.integrationPageEnabled$ = combineLatest(
-      this.organization$,
-      this.configService.getFeatureFlag$(FeatureFlag.PM14505AdminConsoleIntegrationPage),
-    ).pipe(map(([org, featureFlagEnabled]) => featureFlagEnabled && org.canAccessIntegrations));
+    this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
 
-    this.domainVerificationNavigationTextKey = (await this.configService.getFeatureFlag(
-      FeatureFlag.AccountDeprovisioning,
-    ))
-      ? "claimedDomains"
-      : "domainVerification";
+    this.canShowPoliciesTab$ = this.organization$.pipe(
+      switchMap((organization) =>
+        this.organizationBillingService
+          .isBreadcrumbingPoliciesEnabled$(organization)
+          .pipe(
+            map(
+              (isBreadcrumbingEnabled) => isBreadcrumbingEnabled || organization.canManagePolicies,
+            ),
+          ),
+      ),
+    );
   }
 
   canShowVaultTab(organization: Organization): boolean {

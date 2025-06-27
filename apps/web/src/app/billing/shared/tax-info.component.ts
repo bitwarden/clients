@@ -15,13 +15,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 
 import { SharedModule } from "../../shared";
 
+/**
+ * @deprecated Use `ManageTaxInformationComponent` instead.
+ */
 @Component({
   selector: "app-tax-info",
   templateUrl: "tax-info.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TaxInfoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
@@ -88,7 +89,7 @@ export class TaxInfoComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     // Provider setup
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.route.queryParams.subscribe((params) => {
       this.providerId = params.providerId;
     });

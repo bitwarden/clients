@@ -4,10 +4,8 @@ import { action } from "@storybook/addon-actions";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
 import { FormFieldModule } from "../form-field";
@@ -32,11 +30,11 @@ const template = `
       <button type="button" bitSuffix bitIconButton="bwi-refresh" bitFormButton [bitAction]="refresh"></button>
     </bit-form-field>
 
-    <button class="tw-mr-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
-    <button class="tw-mr-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
-    <button class="tw-mr-2" type="button" buttonType="secondary" bitIconButton="bwi-star" bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-me-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
+    <button class="tw-me-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitIconButton="bwi-star" bitFormButton [bitAction]="delete">Delete</button>
   </form>`;
 
 @Component({

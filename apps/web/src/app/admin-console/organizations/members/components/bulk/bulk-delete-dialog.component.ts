@@ -1,12 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+
+import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
@@ -17,6 +18,7 @@ type BulkDeleteDialogParams = {
 
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
+  standalone: false,
 })
 export class BulkDeleteDialogComponent {
   organizationId: string;
@@ -31,12 +33,15 @@ export class BulkDeleteDialogComponent {
     @Inject(DIALOG_DATA) protected dialogParams: BulkDeleteDialogParams,
     protected i18nService: I18nService,
     private organizationUserApiService: OrganizationUserApiService,
+    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
   ) {
     this.organizationId = dialogParams.organizationId;
     this.users = dialogParams.users;
   }
 
   async submit() {
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId);
+
     try {
       this.loading = true;
       this.error = null;

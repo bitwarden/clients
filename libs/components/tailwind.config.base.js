@@ -11,7 +11,7 @@ module.exports = {
   content: [
     "./src/**/*.{html,ts}",
     "../../libs/components/src/**/*.{html,ts}",
-    "../../libs/key-management/src/**/*.{html,ts}",
+    "../../libs/key-management-ui/src/**/*.{html,ts}",
     "../../libs/auth/src/**/*.{html,ts}",
   ],
   safelist: [],
@@ -141,6 +141,9 @@ module.exports = {
         ...theme("width"),
         "90vw": "90vw",
       }),
+      fontSize: {
+        "3xl": ["1.75rem", "2rem"],
+      },
     },
   },
   plugins: [

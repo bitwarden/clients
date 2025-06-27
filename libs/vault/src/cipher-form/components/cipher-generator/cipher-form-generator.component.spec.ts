@@ -9,7 +9,6 @@ import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 @Component({
   selector: "tools-password-generator",
   template: `<ng-content></ng-content>`,
-  standalone: true,
 })
 class MockPasswordGeneratorComponent {
   @Output() onGenerated = new EventEmitter();
@@ -18,7 +17,6 @@ class MockPasswordGeneratorComponent {
 @Component({
   selector: "tools-username-generator",
   template: `<ng-content></ng-content>`,
-  standalone: true,
 })
 class MockUsernameGeneratorComponent {
   @Output() onGenerated = new EventEmitter();
@@ -32,6 +30,8 @@ describe("CipherFormGeneratorComponent", () => {
     await TestBed.configureTestingModule({
       imports: [CipherFormGeneratorComponent],
       providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
+      errorOnUnknownProperties: false,
     })
       .overrideComponent(CipherFormGeneratorComponent, {
         remove: { imports: [GeneratorModule] },

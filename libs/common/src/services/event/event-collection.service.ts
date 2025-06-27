@@ -6,6 +6,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { EventCollectionService as EventCollectionServiceAbstraction } from "../../abstractions/event/event-collection.service";
 import { EventUploadService } from "../../abstractions/event/event-upload.service";
@@ -46,7 +47,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
 
-    if (!(await this.shouldUpdate(null, eventType, ciphers))) {
+    if (!(await this.shouldUpdate(userId, null, eventType, ciphers))) {
       return;
     }
 
@@ -91,7 +92,7 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const eventStore = this.stateProvider.getUser(userId, EVENT_COLLECTION);
 
-    if (!(await this.shouldUpdate(organizationId, eventType, undefined, cipherId))) {
+    if (!(await this.shouldUpdate(userId, organizationId, eventType, undefined, cipherId))) {
       return;
     }
 
@@ -113,18 +114,18 @@ export class EventCollectionService implements EventCollectionServiceAbstraction
   }
 
   /** Verifies if the event collection should be updated for the provided information
+   *  @param userId the active user's id
    *  @param cipherId the cipher for the event
    *  @param organizationId the organization for the event
    */
   private async shouldUpdate(
+    userId: UserId,
     organizationId: string = null,
     eventType: EventType = null,
     ciphers: CipherView[] = [],
     cipherId?: string,
   ): Promise<boolean> {
-    const cipher$ = from(this.cipherService.get(cipherId));
-
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const cipher$ = from(this.cipherService.get(cipherId, userId));
 
     const orgIds$ = this.organizationService
       .organizations$(userId)

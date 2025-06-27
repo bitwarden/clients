@@ -6,7 +6,7 @@ import { Params } from "@angular/router";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { OrganizationSponsorshipResponse } from "@bitwarden/common/admin-console/models/response/organization-sponsorship.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { ToastService } from "@bitwarden/components";
+import { Icons, ToastService } from "@bitwarden/components";
 
 import { BaseAcceptComponent } from "../../../common/base.accept.component";
 
@@ -18,8 +18,10 @@ import { BaseAcceptComponent } from "../../../common/base.accept.component";
 @Component({
   selector: "app-accept-family-sponsorship",
   templateUrl: "accept-family-sponsorship.component.html",
+  standalone: false,
 })
 export class AcceptFamilySponsorshipComponent extends BaseAcceptComponent {
+  protected logo = Icons.BitwardenLogo;
   failedShortMessage = "inviteAcceptFailedShort";
   failedMessage = "inviteAcceptFailed";
 

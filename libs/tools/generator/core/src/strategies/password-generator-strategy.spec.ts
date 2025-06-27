@@ -8,7 +8,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { DefaultPasswordGenerationOptions, Policies } from "../data";
+import { DefaultPasswordGenerationOptions } from "../data";
 import { PasswordRandomizer } from "../engine";
 import { PasswordGeneratorOptionsEvaluator } from "../policies";
 
@@ -20,7 +20,7 @@ const SomeUser = "some user" as UserId;
 describe("Password generation strategy", () => {
   describe("toEvaluator()", () => {
     it("should map to a password policy evaluator", async () => {
-      const strategy = new PasswordGeneratorStrategy(null, null);
+      const strategy = new PasswordGeneratorStrategy(null!, null!);
       const policy = mock<Policy>({
         type: PolicyType.PasswordGenerator,
         data: {
@@ -52,13 +52,22 @@ describe("Password generation strategy", () => {
     it.each([[[]], [null], [undefined]])(
       "should map `%p` to a disabled password policy evaluator",
       async (policies) => {
-        const strategy = new PasswordGeneratorStrategy(null, null);
+        const strategy = new PasswordGeneratorStrategy(null!, null!);
 
-        const evaluator$ = of(policies).pipe(strategy.toEvaluator());
+        // this case tests when the type system is subverted
+        const evaluator$ = of(policies!).pipe(strategy.toEvaluator());
         const evaluator = await firstValueFrom(evaluator$);
 
         expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
-        expect(evaluator.policy).toMatchObject(Policies.Password.disabledValue);
+        expect(evaluator.policy).toMatchObject({
+          minLength: 0,
+          useUppercase: false,
+          useLowercase: false,
+          useNumbers: false,
+          numberCount: 0,
+          useSpecial: false,
+          specialCount: 0,
+        });
       },
     );
   });
@@ -66,7 +75,7 @@ describe("Password generation strategy", () => {
   describe("durableState", () => {
     it("should use password settings key", () => {
       const provider = mock<StateProvider>();
-      const strategy = new PasswordGeneratorStrategy(null, provider);
+      const strategy = new PasswordGeneratorStrategy(null!, provider);
 
       strategy.durableState(SomeUser);
 
@@ -76,7 +85,7 @@ describe("Password generation strategy", () => {
 
   describe("defaults$", () => {
     it("should return the default subaddress options", async () => {
-      const strategy = new PasswordGeneratorStrategy(null, null);
+      const strategy = new PasswordGeneratorStrategy(null!, null!);
 
       const result = await firstValueFrom(strategy.defaults$(SomeUser));
 
@@ -86,7 +95,7 @@ describe("Password generation strategy", () => {
 
   describe("policy", () => {
     it("should use password generator policy", () => {
-      const strategy = new PasswordGeneratorStrategy(null, null);
+      const strategy = new PasswordGeneratorStrategy(null!, null!);
 
       expect(strategy.policy).toBe(PolicyType.PasswordGenerator);
     });
@@ -103,7 +112,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should map options", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 20,
@@ -130,7 +139,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should disable uppercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 3,
@@ -157,7 +166,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should disable lowercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 3,
@@ -184,7 +193,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should disable digits", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 3,
@@ -211,7 +220,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should disable special", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 3,
@@ -238,7 +247,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should override length with minimums", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 20,
@@ -265,7 +274,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default uppercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 2,
@@ -291,7 +300,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default lowercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -317,7 +326,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default number", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -343,7 +352,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default special", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -369,7 +378,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default minUppercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -395,7 +404,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default minLowercase", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -421,7 +430,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default minNumber", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,
@@ -447,7 +456,7 @@ describe("Password generation strategy", () => {
     });
 
     it("should default minSpecial", async () => {
-      const strategy = new PasswordGeneratorStrategy(randomizer, null);
+      const strategy = new PasswordGeneratorStrategy(randomizer, null!);
 
       const result = await strategy.generate({
         length: 0,

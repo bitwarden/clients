@@ -10,13 +10,12 @@ let nextId = 0;
 @Component({
   selector: "bit-radio-button",
   templateUrl: "radio-button.component.html",
-  standalone: true,
   imports: [FormControlModule, RadioInputComponent],
 })
 export class RadioButtonComponent {
   @HostBinding("attr.id") @Input() id = `bit-radio-button-${nextId++}`;
   @HostBinding("class") get classList() {
-    return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1"];
+    return [this.block ? "tw-block" : "tw-inline-block", "tw-mb-1", "[&_bit-hint]:tw-mt-0"];
   }
 
   @Input() value: unknown;

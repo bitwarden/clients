@@ -1,38 +1,31 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
+import { Component } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import {
-  IconButtonModule,
-  SectionComponent,
-  SectionHeaderComponent,
-  TypographyModule,
-} from "@bitwarden/components";
+import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
-    SectionComponent,
     TypographyModule,
     VaultListItemsContainerComponent,
     JslibModule,
-    SectionHeaderComponent,
     IconButtonModule,
   ],
   selector: "app-autofill-vault-list-items",
   templateUrl: "autofill-vault-list-items.component.html",
 })
-export class AutofillVaultListItemsComponent implements OnInit {
+export class AutofillVaultListItemsComponent {
   /**
    * The list of ciphers that can be used to autofill the current page.
    * @protected
@@ -46,7 +39,13 @@ export class AutofillVaultListItemsComponent implements OnInit {
    */
   protected showRefresh: boolean = BrowserPopupUtils.inSidebar(window);
 
-  clickItemsToAutofillVaultView = false;
+  /** Flag indicating whether the login item should automatically autofill when clicked  */
+  protected clickItemsToAutofillVaultView$: Observable<boolean> =
+    this.vaultSettingsService.clickItemsToAutofillVaultView$;
+
+  protected groupByType = toSignal(
+    this.vaultPopupItemsService.hasFilterApplied$.pipe(map((hasFilter) => !hasFilter)),
+  );
 
   /**
    * Observable that determines whether the empty autofill tip should be shown.
@@ -77,12 +76,6 @@ export class AutofillVaultListItemsComponent implements OnInit {
     private vaultSettingsService: VaultSettingsService,
   ) {
     // TODO: Migrate logic to show Autofill policy toast PM-8144
-  }
-
-  async ngOnInit() {
-    this.clickItemsToAutofillVaultView = await firstValueFrom(
-      this.vaultSettingsService.clickItemsToAutofillVaultView$,
-    );
   }
 
   /**

@@ -1,4 +1,3 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -15,6 +14,7 @@ import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
@@ -29,7 +29,6 @@ import {
 
 @Component({
   templateUrl: "./set-account-verify-devices-dialog.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

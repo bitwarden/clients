@@ -21,8 +21,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
@@ -38,10 +36,10 @@ interface RequestSponsorshipForm {
 @Component({
   selector: "app-sponsored-families",
   templateUrl: "sponsored-families.component.html",
+  standalone: false,
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   loading = false;
-  isFreeFamilyFlagEnabled: boolean;
 
   availableSponsorshipOrgs$: Observable<Organization[]>;
   activeSponsorshipOrgs$: Observable<Organization[]>;
@@ -64,7 +62,6 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private accountService: AccountService,
     private toastService: ToastService,
-    private configService: ConfigService,
     private policyService: PolicyService,
     private freeFamiliesPolicyService: FreeFamiliesPolicyService,
     private router: Router,
@@ -87,37 +84,27 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.isFreeFamilyFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.DisableFreeFamiliesSponsorship,
-    );
-
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    if (this.isFreeFamilyFlagEnabled) {
-      await this.preventAccessToFreeFamiliesPage();
+    await this.preventAccessToFreeFamiliesPage();
 
-      this.availableSponsorshipOrgs$ = combineLatest([
-        this.organizationService.organizations$(userId),
-        this.policyService.getAll$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
-      ]).pipe(
-        map(([organizations, policies]) =>
-          organizations
-            .filter((org) => org.familySponsorshipAvailable)
-            .map((org) => ({
-              organization: org,
-              isPolicyEnabled: policies.some(
-                (policy) => policy.organizationId === org.id && policy.enabled,
-              ),
-            }))
-            .filter(({ isPolicyEnabled }) => !isPolicyEnabled)
-            .map(({ organization }) => organization),
-        ),
-      );
-    } else {
-      this.availableSponsorshipOrgs$ = this.organizationService
-        .organizations$(userId)
-        .pipe(map((orgs) => orgs.filter((o) => o.familySponsorshipAvailable)));
-    }
+    this.availableSponsorshipOrgs$ = combineLatest([
+      this.organizationService.organizations$(userId),
+      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+    ]).pipe(
+      map(([organizations, policies]) =>
+        organizations
+          .filter((org) => org.familySponsorshipAvailable)
+          .map((org) => ({
+            organization: org,
+            isPolicyEnabled: policies.some(
+              (policy) => policy.organizationId === org.id && policy.enabled,
+            ),
+          }))
+          .filter(({ isPolicyEnabled }) => !isPolicyEnabled)
+          .map(({ organization }) => organization),
+      ),
+    );
 
     this.availableSponsorshipOrgs$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (orgs.length === 1) {
@@ -126,13 +113,15 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
         });
       }
     });
-
     this.anyOrgsAvailable$ = this.availableSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 
     this.activeSponsorshipOrgs$ = this.organizationService
       .organizations$(userId)
-      .pipe(map((orgs) => orgs.filter((o) => o.familySponsorshipFriendlyName !== null)));
-
+      .pipe(
+        map((orgs) =>
+          orgs.filter((o) => o.familySponsorshipFriendlyName !== null && !o.isAdminInitiated),
+        ),
+      );
     this.anyActiveSponsorships$ = this.activeSponsorshipOrgs$.pipe(map((orgs) => orgs.length > 0));
 
     this.loading = false;

@@ -49,7 +49,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "sass-loader",
+      "resolve-url-loader",
+      {
+        loader: "sass-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -59,7 +65,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "postcss-loader",
+      "resolve-url-loader",
+      {
+        loader: "postcss-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -69,6 +81,7 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: NODE_ENV !== "production",
         },
       },
     ],
@@ -94,22 +107,22 @@ const plugins = [
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn.html",
     filename: "webauthn-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-mobile.html",
     filename: "webauthn-mobile-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-fallback.html",
     filename: "webauthn-fallback-connector.html",
-    chunks: ["connectors/webauthn-fallback"],
+    chunks: ["connectors/webauthn-fallback", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/sso.html",
     filename: "sso-connector.html",
-    chunks: ["connectors/sso"],
+    chunks: ["connectors/sso", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/redirect.html",
@@ -117,19 +130,9 @@ const plugins = [
     chunks: ["connectors/redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha.html",
-    filename: "captcha-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha-mobile.html",
-    filename: "captcha-mobile-connector.html",
-    chunks: ["connectors/captcha"],
-  }),
-  new HtmlWebpackPlugin({
     template: "./src/connectors/duo-redirect.html",
     filename: "duo-redirect-connector.html",
-    chunks: ["connectors/duo-redirect"],
+    chunks: ["connectors/duo-redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/404.html",
@@ -252,11 +255,11 @@ const devServer =
                   'self'
                   https://assets.braintreegateway.com
                   https://*.paypal.com
-                  'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
-                  'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
-                  'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
-                  'sha256-jvLh2uL2/Pq/gpvNJMaEL4C+TNhBeGadLIUyPcVRZvY='
-                  'sha256-VZTcMoTEw3nbAHejvqlyyRm1Mdx+DVNgyKANjpWw0qg='
+                  ${"'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='" /* date input polyfill */}
+                  ${"'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='" /* date input polyfill */}
+                  ${"'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='" /* ng-select */}
+                  ${"'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='" /* cdk-virtual-scroll */}
+                  ${"'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='" /* cdk-visually-hidden */}
                 ;img-src
                   'self'
                   data:
@@ -331,11 +334,24 @@ const webpackConfig = {
     "connectors/webauthn": "./src/connectors/webauthn.ts",
     "connectors/webauthn-fallback": "./src/connectors/webauthn-fallback.ts",
     "connectors/sso": "./src/connectors/sso.ts",
-    "connectors/captcha": "./src/connectors/captcha.ts",
     "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
     "connectors/redirect": "./src/connectors/redirect.ts",
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
     theme_head: "./src/theme.ts",
+  },
+  cache:
+    NODE_ENV === "production"
+      ? false
+      : {
+          type: "filesystem",
+          allowCollectingMemory: true,
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
   optimization: {
     splitChunks: {
@@ -349,6 +365,7 @@ const webpackConfig = {
         },
       },
     },
+    minimize: NODE_ENV === "production",
     minimizer: [
       new TerserPlugin({
         terserOptions: {

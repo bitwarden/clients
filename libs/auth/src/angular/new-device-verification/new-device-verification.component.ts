@@ -5,28 +5,26 @@ import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   AsyncActionsModule,
   ButtonModule,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
-  ToastService,
 } from "@bitwarden/components";
 
-import { LoginEmailServiceAbstraction } from "../../common/abstractions/login-email.service";
 import { LoginStrategyServiceAbstraction } from "../../common/abstractions/login-strategy.service";
-import { PasswordLoginStrategy } from "../../common/login-strategies/password-login.strategy";
 
 /**
  * Component for verifying a new device via a one-time password (OTP).
  */
 @Component({
-  standalone: true,
   selector: "app-new-device-verification",
   templateUrl: "./new-device-verification.component.html",
   imports: [
@@ -58,14 +56,11 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
-    private passwordLoginStrategy: PasswordLoginStrategy,
     private apiService: ApiService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private logService: LogService,
-    private toastService: ToastService,
     private i18nService: I18nService,
-    private syncService: SyncService,
-    private loginEmailService: LoginEmailServiceAbstraction,
+    private loginSuccessHandlerService: LoginSuccessHandlerService,
   ) {}
 
   async ngOnInit() {
@@ -142,22 +137,25 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (authResult.forcePasswordReset) {
-        await this.router.navigate(["/update-temp-password"]);
-        return;
-      }
-
-      this.loginEmailService.clearValues();
-
-      await this.syncService.fullSync(true);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.loginSuccessHandlerService.run(authResult.userId);
 
       // If verification succeeds, navigate to vault
       await this.router.navigate(["/vault"]);
     } catch (e) {
       this.logService.error(e);
-      const errorMessage =
-        (e as any)?.response?.error_description ?? this.i18nService.t("errorOccurred");
+      let errorMessage =
+        ((e as any)?.response?.error_description as string) ?? this.i18nService.t("errorOccurred");
+
+      if (errorMessage.includes("Invalid New Device OTP")) {
+        errorMessage = this.i18nService.t("invalidVerificationCode");
+      }
+
       codeControl.setErrors({ serverError: { message: errorMessage } });
+      // For enter key press scenarios, we have to manually mark the control as touched
+      // to get the error message to display
+      codeControl.markAsTouched();
     }
   };
 }

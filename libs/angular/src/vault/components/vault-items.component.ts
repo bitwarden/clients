@@ -2,35 +2,64 @@
 // @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  Subject,
+  combineLatest,
+  filter,
+  from,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 
 @Directive()
 export class VaultItemsComponent implements OnInit, OnDestroy {
   @Input() activeCipherId: string = null;
   @Output() onCipherClicked = new EventEmitter<CipherView>();
   @Output() onCipherRightClicked = new EventEmitter<CipherView>();
-  @Output() onAddCipher = new EventEmitter();
+  @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
   @Output() onAddCipherOptions = new EventEmitter();
 
   loaded = false;
   ciphers: CipherView[] = [];
-  searchPlaceholder: string = null;
-  filter: (cipher: CipherView) => boolean = null;
   deleted = false;
   organization: Organization;
-  accessEvents = false;
+  CipherType = CipherType;
+
+  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
+    map((restrictedItemTypes) =>
+      // Filter out restricted item types
+      CIPHER_MENU_ITEMS.filter(
+        (itemType) =>
+          !restrictedItemTypes.some(
+            (restrictedType) => restrictedType.cipherType === itemType.type,
+          ),
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected searchPending = false;
 
+  /** Construct filters as an observable so it can be appended to the cipher stream. */
+  private _filter$ = new BehaviorSubject<(cipher: CipherView) => boolean | null>(null);
   private destroy$ = new Subject<void>();
-  private searchTimeout: any = null;
   private isSearchable: boolean = false;
   private _searchText$ = new BehaviorSubject<string>("");
+
   get searchText() {
     return this._searchText$.value;
   }
@@ -38,20 +67,29 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this._searchText$.next(value);
   }
 
+  get filter() {
+    return this._filter$.value;
+  }
+
+  set filter(value: (cipher: CipherView) => boolean | null) {
+    this._filter$.next(value);
+  }
+
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
+    protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    this.cipherService.cipherViews$.pipe(takeUntilDestroyed()).subscribe((ciphers) => {
-      void this.doSearch(ciphers);
-      this.loaded = true;
-    });
+    this.subscribeToCiphers();
   }
 
-  ngOnInit(): void {
-    this._searchText$
+  async ngOnInit() {
+    combineLatest([getUserId(this.accountService.activeAccount$), this._searchText$])
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        switchMap(([userId, searchText]) =>
+          from(this.searchService.isSearchable(userId, searchText)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {
@@ -81,23 +119,6 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   async applyFilter(filter: (cipher: CipherView) => boolean = null) {
     this.filter = filter;
-    await this.search(null);
-  }
-
-  async search(timeout: number = null, indexedCiphers?: CipherView[]) {
-    this.searchPending = false;
-    if (this.searchTimeout != null) {
-      clearTimeout(this.searchTimeout);
-    }
-    if (timeout == null) {
-      await this.doSearch(indexedCiphers);
-      return;
-    }
-    this.searchPending = true;
-    this.searchTimeout = setTimeout(async () => {
-      await this.doSearch(indexedCiphers);
-      this.searchPending = false;
-    }, timeout);
   }
 
   selectCipher(cipher: CipherView) {
@@ -108,8 +129,8 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
     this.onCipherRightClicked.emit(cipher);
   }
 
-  addCipher() {
-    this.onAddCipher.emit();
+  addCipher(type?: CipherType) {
+    this.onAddCipher.emit(type);
   }
 
   addCipherOptions() {
@@ -122,18 +143,48 @@ export class VaultItemsComponent implements OnInit, OnDestroy {
 
   protected deletedFilter: (cipher: CipherView) => boolean = (c) => c.isDeleted === this.deleted;
 
-  protected async doSearch(indexedCiphers?: CipherView[]) {
-    indexedCiphers = indexedCiphers ?? (await firstValueFrom(this.cipherService.cipherViews$));
+  /**
+   * Creates stream of dependencies that results in the list of ciphers to display
+   * within the vault list.
+   *
+   * Note: This previously used promises but race conditions with how the ciphers were
+   * stored in electron. Using observables is more reliable as fresh values will always
+   * cascade through the components.
+   */
+  private subscribeToCiphers() {
+    getUserId(this.accountService.activeAccount$)
+      .pipe(
+        switchMap((userId) =>
+          combineLatest([
+            this.cipherService.cipherViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+            this.cipherService.failedToDecryptCiphers$(userId),
+            this._searchText$,
+            this._filter$,
+            of(userId),
+            this.restrictedItemTypesService.restricted$,
+          ]),
+        ),
+        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+          let allCiphers = indexedCiphers ?? [];
+          const _failedCiphers = failedCiphers ?? [];
 
-    const failedCiphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$);
-    if (failedCiphers != null && failedCiphers.length > 0) {
-      indexedCiphers = [...failedCiphers, ...indexedCiphers];
-    }
+          allCiphers = [..._failedCiphers, ...allCiphers];
 
-    this.ciphers = await this.searchService.searchCiphers(
-      this.searchText,
-      [this.filter, this.deletedFilter],
-      indexedCiphers,
-    );
+          const restrictedTypeFilter = (cipher: CipherView) =>
+            !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
+
+          return this.searchService.searchCiphers(
+            userId,
+            searchText,
+            [filter, this.deletedFilter, restrictedTypeFilter],
+            allCiphers,
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((ciphers) => {
+        this.ciphers = ciphers;
+        this.loaded = true;
+      });
   }
 }

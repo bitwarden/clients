@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 
 import { VaultProfileService } from "./vault-profile.service";
 
@@ -13,6 +14,12 @@ describe("VaultProfileService", () => {
     creationDate: hardcodedDateString,
     twoFactorEnabled: true,
     id: "new-user-id",
+    organizations: [
+      {
+        ssoBound: true,
+        type: OrganizationUserType.Admin,
+      },
+    ],
   });
 
   beforeEach(() => {
@@ -58,36 +65,6 @@ describe("VaultProfileService", () => {
       const date = await service.getProfileCreationDate(userId);
 
       expect(date.toISOString()).toBe("2024-02-24T12:00:00.000Z");
-      expect(getProfile).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("getProfileTwoFactorEnabled", () => {
-    it("calls `getProfile` when stored 2FA property is not stored", async () => {
-      expect(service["profile2FAEnabled"]).toBeNull();
-
-      const twoFactorEnabled = await service.getProfileTwoFactorEnabled(userId);
-
-      expect(twoFactorEnabled).toBe(true);
-      expect(getProfile).toHaveBeenCalled();
-    });
-
-    it("calls `getProfile` when stored profile id does not match", async () => {
-      service["profile2FAEnabled"] = false;
-      service["userId"] = "old-user-id";
-
-      const twoFactorEnabled = await service.getProfileTwoFactorEnabled(userId);
-
-      expect(twoFactorEnabled).toBe(true);
-      expect(getProfile).toHaveBeenCalled();
-    });
-
-    it("does not call `getProfile` when 2FA property is already stored", async () => {
-      service["profile2FAEnabled"] = false;
-
-      const twoFactorEnabled = await service.getProfileTwoFactorEnabled(userId);
-
-      expect(twoFactorEnabled).toBe(false);
       expect(getProfile).not.toHaveBeenCalled();
     });
   });

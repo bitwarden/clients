@@ -1,4 +1,3 @@
-import { sshagent as ssh } from "desktop_native/napi";
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
@@ -64,13 +63,6 @@ const sshAgent = {
   clearKeys: async () => {
     return await ipcRenderer.invoke("sshagent.clearkeys");
   },
-  importKey: async (key: string, password: string): Promise<ssh.SshKeyImportResult> => {
-    const res = await ipcRenderer.invoke("sshagent.importkey", {
-      privateKey: key,
-      password: password,
-    });
-    return res;
-  },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke("sshagent.isloaded");
   },
@@ -127,8 +119,8 @@ const ephemeralStore = {
 };
 
 const localhostCallbackService = {
-  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  openSsoPrompt: (codeChallenge: string, state: string, email: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email });
   },
 };
 

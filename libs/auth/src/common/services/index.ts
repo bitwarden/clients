@@ -6,3 +6,5 @@ export * from "./auth-request/auth-request.service";
 export * from "./auth-request/auth-request-api.service";
 export * from "./accounts/lock.service";
 export * from "./login-success-handler/default-login-success-handler.service";
+export * from "./sso-redirect/sso-url.service";
+export * from "./logout/default-logout.service";

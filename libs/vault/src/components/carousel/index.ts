@@ -1,1 +1,1 @@
-export { VaultCarouselComponent } from "./carousel.component";
+export { VaultCarouselModule } from "./carousel.module";

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
+
 import {
   Component,
   ContentChildren,
@@ -35,19 +35,30 @@ let nextId = 0;
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
-  standalone: true,
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, NgIf],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
 })
 export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
+  private _items: Option<T>[] = [];
   /** Optional: Options can be provided using an array input or using `bit-option` */
-  @Input() items: Option<T>[] = [];
+  @Input()
+  get items(): Option<T>[] {
+    return this._items;
+  }
+  set items(next: Option<T>[]) {
+    this._items = next;
+    this._selectedOption = this.findSelectedOption(next, this.selectedValue);
+  }
+
   @Input() placeholder = this.i18nService.t("selectPlaceholder");
   @Output() closed = new EventEmitter();
 
   protected selectedValue: T;
-  protected selectedOption: Option<T>;
+  protected _selectedOption: Option<T>;
+  get selectedOption() {
+    return this._selectedOption;
+  }
   protected searchInputId = `bit-select-search-input-${nextId++}`;
 
   private notifyOnChange?: (value: T) => void;
@@ -68,7 +79,6 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
       return;
     }
     this.items = value.toArray();
-    this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
   }
 
   @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
@@ -90,7 +100,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   /**Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
     this.selectedValue = obj;
-    this.selectedOption = this.findSelectedOption(this.items, this.selectedValue);
+    this._selectedOption = this.findSelectedOption(this.items, this.selectedValue);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */

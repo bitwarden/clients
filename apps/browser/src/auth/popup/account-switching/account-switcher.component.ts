@@ -4,13 +4,15 @@ import { Router } from "@angular/router";
 import { Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LockService } from "@bitwarden/auth/common";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutService,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AvatarModule,
@@ -19,6 +21,7 @@ import {
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { enableAccountSwitching } from "../../../platform/flags";
@@ -31,7 +34,6 @@ import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
 @Component({
-  standalone: true,
   templateUrl: "account-switcher.component.html",
   imports: [
     CommonModule,
@@ -46,6 +48,7 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
     AccountComponent,
     SectionComponent,
     SectionHeaderComponent,
+    TypographyModule,
   ],
 })
 export class AccountSwitcherComponent implements OnInit, OnDestroy {
@@ -66,6 +69,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private authService: AuthService,
     private lockService: LockService,
+    private logoutService: LogoutService,
   ) {}
 
   get accountLimit() {
@@ -137,12 +141,9 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     });
 
     if (confirmed) {
-      const result = await this.accountSwitcherService.logoutAccount(userId);
-      // unlocked logout responses need to be navigated out of the account switcher.
-      // other responses will be handled by background and app.component
-      if (result?.status === AuthenticationStatus.Unlocked) {
-        this.location.back();
-      }
+      await this.logoutService.logout(userId);
+      // navigate to root so redirect guard can properly route next active user or null user to correct page
+      await this.router.navigate(["/"]);
     }
     this.loading = false;
   }

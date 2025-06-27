@@ -7,7 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -24,6 +24,7 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
 @Component({
   selector: "organization-self-hosting-license-uploader",
   templateUrl: "./self-hosting-license-uploader.component.html",
+  standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
   /**
@@ -51,7 +52,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
 
     const orgKey = await this.keyService.makeOrgKey<OrgKey>();
     const key = orgKey[0].encryptedString;
-    const collection = await this.encryptService.encrypt(
+    const collection = await this.encryptService.encryptString(
       this.i18nService.t("defaultCollection"),
       orgKey[1],
     );

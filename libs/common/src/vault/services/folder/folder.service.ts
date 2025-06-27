@@ -2,12 +2,13 @@
 // @ts-strict-ignore
 import { Observable, Subject, firstValueFrom, map, shareReplay, switchMap, merge } from "rxjs";
 
-import { EncryptService } from ".././../../platform/abstractions/encrypt.service";
-import { Utils } from ".././../../platform/misc/utils";
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../../key-management/src/abstractions/key.service";
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
@@ -85,7 +86,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
   async encrypt(model: FolderView, key: SymmetricCryptoKey): Promise<Folder> {
     const folder = new Folder();
     folder.id = model.id;
-    folder.name = await this.encryptService.encrypt(model.name, key);
+    folder.name = await this.encryptService.encryptString(model.name, key);
     return folder;
   }
 
@@ -191,7 +192,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     });
 
     // Items in a deleted folder are re-assigned to "No Folder"
-    const ciphers = await this.cipherService.getAll();
+    const ciphers = await this.cipherService.getAll(userId);
     if (ciphers != null) {
       const updates: Cipher[] = [];
       for (const cId in ciphers) {

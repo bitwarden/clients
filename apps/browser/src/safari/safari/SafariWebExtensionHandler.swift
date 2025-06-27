@@ -152,7 +152,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -164,12 +164,20 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 break
             }
 
-            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [.privateKeyUsage, .userPresence], nil) else {
+            var flags: SecAccessControlCreateFlags = [.privateKeyUsage];
+            // https://developer.apple.com/documentation/security/secaccesscontrolcreateflags/biometryany
+            if #available(macOS 10.13.4, *) {
+                flags.insert(.biometryAny)
+            } else {
+                flags.insert(.touchIDAny)
+            }
+
+            guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, flags, nil) else {
                 let messageId = message?["messageId"] as? Int
                 response.userInfo = [
                     SFExtensionMessageKey: [
                         "message": [
-                            "command": "biometricUnlock",
+                            "command": "unlockWithBiometricsForUser",
                             "response": false,
                             "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                             "messageId": messageId,
@@ -201,7 +209,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
                         response.userInfo = [ SFExtensionMessageKey: [
                             "message": [
-                                "command": "biometricUnlock",
+                                "command": "unlockWithBiometricsForUser",
                                 "response": true,
                                 "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                 "userKeyB64": result!.replacingOccurrences(of: "\"", with: ""),
@@ -212,7 +220,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         response.userInfo = [
                             SFExtensionMessageKey: [
                                 "message": [
-                                    "command": "biometricUnlock",
+                                    "command": "unlockWithBiometricsForUser",
                                     "response": true,
                                     "timestamp": Int64(NSDate().timeIntervalSince1970 * 1000),
                                     "messageId": messageId,

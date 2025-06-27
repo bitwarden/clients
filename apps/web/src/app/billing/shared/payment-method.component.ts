@@ -35,8 +35,8 @@ import {
 
 @Component({
   templateUrl: "payment-method.component.html",
+  standalone: false,
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class PaymentMethodComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;
@@ -143,6 +143,8 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
     }
+    // TODO: Eslint upgrade. Please resolve this since the ?? does nothing
+    // eslint-disable-next-line no-constant-binary-expression
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
     this.loading = false;
     // If the flag `launchPaymentModalAutomatically` is set to true,
@@ -238,9 +240,8 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
       case PaymentMethodType.Card:
         return ["bwi-credit-card"];
       case PaymentMethodType.BankAccount:
-        return ["bwi-bank"];
       case PaymentMethodType.Check:
-        return ["bwi-money"];
+        return ["bwi-billing"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:

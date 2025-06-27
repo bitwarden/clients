@@ -103,7 +103,7 @@ export class DefaultUserAsymmetricKeysRegenerationService
     }
 
     // The private isn't decryptable, check to see if we can decrypt something with the userKey.
-    const userKeyCanDecrypt = await this.userKeyCanDecrypt(userKey);
+    const userKeyCanDecrypt = await this.userKeyCanDecrypt(userKey, userId);
     if (userKeyCanDecrypt) {
       this.logService.info(
         "[UserAsymmetricKeyRegeneration] User Asymmetric Key decryption failure detected, attempting regeneration.",
@@ -119,6 +119,9 @@ export class DefaultUserAsymmetricKeysRegenerationService
 
   private async regenerateUserAsymmetricKeys(userId: UserId): Promise<void> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("User key not found");
+    }
     const makeKeyPairResponse = await firstValueFrom(
       this.sdkService.client$.pipe(
         map((sdk) => {
@@ -155,21 +158,30 @@ export class DefaultUserAsymmetricKeysRegenerationService
     );
   }
 
-  private async userKeyCanDecrypt(userKey: UserKey): Promise<boolean> {
-    const ciphers = await this.cipherService.getAll();
+  private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {
+    const ciphers = await this.cipherService.getAll(userId);
     const cipher = ciphers.find((cipher) => cipher.organizationId == null);
 
-    if (cipher != null) {
-      try {
-        await cipher.decrypt(userKey);
-        return true;
-      } catch (error) {
+    if (!cipher) {
+      return false;
+    }
+
+    try {
+      const cipherView = await cipher.decrypt(userKey);
+
+      if (cipherView.decryptionFailure) {
         this.logService.error(
-          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: Cipher decryption failed",
         );
         return false;
       }
+
+      return true;
+    } catch (error) {
+      this.logService.error(
+        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: " + error,
+      );
+      return false;
     }
-    return false;
   }
 }

@@ -5,7 +5,6 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 export type OrgIconSize = "default" | "small" | "large";
 
 @Directive({
-  standalone: true,
   selector: "[appOrgIcon]",
 })
 export class OrgIconDirective {

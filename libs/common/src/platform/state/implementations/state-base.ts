@@ -1,12 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import {
-  Observable,
-  ReplaySubject,
   defer,
   filter,
   firstValueFrom,
   merge,
+  Observable,
+  ReplaySubject,
   share,
   switchMap,
   tap,
@@ -22,7 +22,7 @@ import {
   ObservableStorageService,
 } from "../../abstractions/storage.service";
 import { DebugOptions } from "../key-definition";
-import { StateUpdateOptions, populateOptionsWithDefault } from "../state-update-options";
+import { populateOptionsWithDefault, StateUpdateOptions } from "../state-update-options";
 
 import { getStoredValue } from "./util";
 
@@ -36,7 +36,7 @@ type KeyDefinitionRequirements<T> = {
 export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> {
   private updatePromise: Promise<T>;
 
-  readonly state$: Observable<T>;
+  readonly state$: Observable<T | null>;
 
   constructor(
     protected readonly key: StorageKey,
@@ -86,9 +86,9 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
   }
 
   async update<TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options: StateUpdateOptions<T, TCombine> = {},
-  ): Promise<T> {
+  ): Promise<T | null> {
     options = populateOptionsWithDefault(options);
     if (this.updatePromise != null) {
       await this.updatePromise;
@@ -96,17 +96,16 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
 
     try {
       this.updatePromise = this.internalUpdate(configureState, options);
-      const newState = await this.updatePromise;
-      return newState;
+      return await this.updatePromise;
     } finally {
       this.updatePromise = null;
     }
   }
 
   private async internalUpdate<TCombine>(
-    configureState: (state: T, dependency: TCombine) => T,
+    configureState: (state: T | null, dependency: TCombine) => T | null,
     options: StateUpdateOptions<T, TCombine>,
-  ): Promise<T> {
+  ): Promise<T | null> {
     const currentState = await this.getStateForUpdate();
     const combinedDependencies =
       options.combineLatestWith != null
@@ -122,7 +121,7 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     return newState;
   }
 
-  protected async doStorageSave(newState: T, oldState: T) {
+  protected async doStorageSave(newState: T | null, oldState: T) {
     if (this.keyDefinition.debug.enableUpdateLogging) {
       this.logService.info(
         `Updating '${this.key}' from ${oldState == null ? "null" : "non-null"} to ${newState == null ? "null" : "non-null"}`,

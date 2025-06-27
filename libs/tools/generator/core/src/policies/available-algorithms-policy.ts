@@ -1,11 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
-import { CredentialAlgorithm, EmailAlgorithms, PasswordAlgorithms, UsernameAlgorithms } from "..";
+import { AlgorithmsByType, CredentialAlgorithm, Type } from "../metadata";
 
 /** Reduces policies to a set of available algorithms
  *  @param policies the policies to reduce
@@ -16,14 +14,17 @@ export function availableAlgorithms(policies: Policy[]): CredentialAlgorithm[] {
     .filter((policy) => policy.type === PolicyType.PasswordGenerator && policy.enabled)
     .reduce(
       (type, policy) => (type === "password" ? type : (policy.data.overridePasswordType ?? type)),
-      null as CredentialAlgorithm,
+      null as CredentialAlgorithm | null,
     );
 
-  const policy: CredentialAlgorithm[] = [...EmailAlgorithms, ...UsernameAlgorithms];
+  const policy: CredentialAlgorithm[] = [
+    ...AlgorithmsByType[Type.email],
+    ...AlgorithmsByType[Type.username],
+  ];
   if (overridePassword) {
     policy.push(overridePassword);
   } else {
-    policy.push(...PasswordAlgorithms);
+    policy.push(...AlgorithmsByType[Type.password]);
   }
 
   return policy;

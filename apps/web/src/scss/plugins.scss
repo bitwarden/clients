@@ -12,7 +12,7 @@
 }
 
 #web-authn-frame {
-  height: 315px;
+  height: 40px;
   @include themify($themes) {
     background: themed("imgLoading") 0 0 no-repeat;
   }
@@ -21,18 +21,6 @@
     border: none;
     height: 100%;
     width: 100%;
-  }
-}
-
-#hcaptcha_iframe {
-  border: none;
-  transition: height 0.25s linear;
-  width: 100%;
-}
-
-.list-group-2fa {
-  .logo-2fa {
-    min-width: 120px;
   }
 }
 
@@ -63,14 +51,6 @@
   @include themify($themes) {
     content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
     max-width: 120px;
-  }
-}
-
-.recovery-code-img {
-  @include themify($themes) {
-    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
   }
 }
 

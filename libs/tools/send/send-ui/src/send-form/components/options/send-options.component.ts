@@ -12,6 +12,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { pin } from "@bitwarden/common/tools/rx";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
@@ -27,7 +28,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 
 import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
@@ -35,7 +36,6 @@ import { SendFormContainer } from "../../send-form-container";
 @Component({
   selector: "tools-send-options",
   templateUrl: "./send-options.component.html",
-  standalone: true,
   imports: [
     AsyncActionsModule,
     ButtonModule,
@@ -98,7 +98,7 @@ export class SendOptionsComponent implements OnInit {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) => this.policyService.getAll$(PolicyType.SendOptions, userId)),
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
         map((policies) => policies?.some((p) => p.data.disableHideEmail)),
         takeUntilDestroyed(),
       )
@@ -121,9 +121,12 @@ export class SendOptionsComponent implements OnInit {
   }
 
   generatePassword = async () => {
-    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send" });
+    const on$ = new BehaviorSubject<GenerateRequest>({ source: "send", type: Type.password });
+    const account$ = this.accountService.activeAccount$.pipe(
+      pin({ name: () => "send-options.component", distinct: (p, c) => p.id === c.id }),
+    );
     const generatedCredential = await firstValueFrom(
-      this.generatorService.generate$(Generators.password, { on$ }),
+      this.generatorService.generate$({ on$, account$ }),
     );
 
     this.sendOptionsForm.patchValue({

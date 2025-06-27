@@ -66,6 +66,7 @@ export class OssServeConfigurator {
       this.serviceContainer.eventCollectionService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.listCommand = new ListCommand(
       this.serviceContainer.cipherService,
@@ -77,6 +78,7 @@ export class OssServeConfigurator {
       this.serviceContainer.apiService,
       this.serviceContainer.eventCollectionService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.createCommand = new CreateCommand(
       this.serviceContainer.cipherService,
@@ -88,6 +90,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.organizationService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.editCommand = new EditCommand(
       this.serviceContainer.cipherService,
@@ -97,6 +100,7 @@ export class OssServeConfigurator {
       this.serviceContainer.apiService,
       this.serviceContainer.folderApiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.generateCommand = new GenerateCommand(
       this.serviceContainer.passwordGenerationService,
@@ -117,6 +121,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.accountService,
+      this.serviceContainer.cliRestrictedItemTypesService,
     );
     this.confirmCommand = new ConfirmCommand(
       this.serviceContainer.apiService,
@@ -124,7 +129,11 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
     );
-    this.restoreCommand = new RestoreCommand(this.serviceContainer.cipherService);
+    this.restoreCommand = new RestoreCommand(
+      this.serviceContainer.cipherService,
+      this.serviceContainer.accountService,
+      this.serviceContainer.cipherAuthorizationService,
+    );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
@@ -139,9 +148,9 @@ export class OssServeConfigurator {
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
-      this.serviceContainer.syncService,
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
+      this.serviceContainer.i18nService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(

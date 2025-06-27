@@ -10,19 +10,14 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherFormConfig, CipherFormConfigService, CipherFormMode } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import {
-  CipherFormConfig,
-  CipherFormConfigService,
-  CipherFormMode,
-} from "../../../../../../../libs/vault/src/cipher-form/abstractions/cipher-form-config.service";
 import { RoutedVaultFilterService } from "../../individual-vault/vault-filter/services/routed-vault-filter.service";
 
 /** Admin Console implementation of the `CipherFormConfigService`. */
@@ -36,9 +31,13 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
   private apiService: ApiService = inject(ApiService);
   private accountService: AccountService = inject(AccountService);
 
-  private allowPersonalOwnership$ = this.policyService
-    .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
-    .pipe(map((p) => !p));
+  private organizationDataOwnershipDisabled$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) =>
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+    ),
+    map((p) => !p),
+  );
 
   private organizationId$ = this.routedVaultFilterService.filter$.pipe(
     map((filter) => filter.organizationId),
@@ -70,11 +69,11 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     cipherId?: CipherId,
     cipherType?: CipherType,
   ): Promise<CipherFormConfig> {
-    const [organization, allowPersonalOwnership, allOrganizations, allCollections] =
+    const [organization, organizationDataOwnershipDisabled, allOrganizations, allCollections] =
       await firstValueFrom(
         combineLatest([
           this.organization$,
-          this.allowPersonalOwnership$,
+          this.organizationDataOwnershipDisabled$,
           this.allOrganizations$,
           this.allCollections$,
         ]),
@@ -85,13 +84,14 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     const organizations = mode === "clone" ? allOrganizations : [organization];
     // Only allow the user to assign to their personal vault when cloning and
     // the policies are enabled for it.
-    const allowPersonalOwnershipOnlyForClone = mode === "clone" ? allowPersonalOwnership : false;
+    const disableOrganizationDataOwnershipOnlyForClone =
+      mode === "clone" ? organizationDataOwnershipDisabled : false;
     const cipher = await this.getCipher(cipherId, organization);
     return {
       mode,
       cipherType: cipher?.type ?? cipherType ?? CipherType.Login,
       admin: organization.canEditAllCiphers ?? false,
-      allowPersonalOwnership: allowPersonalOwnershipOnlyForClone,
+      organizationDataOwnershipDisabled: disableOrganizationDataOwnershipOnlyForClone,
       originalCipher: cipher,
       collections: allCollections,
       organizations,
@@ -101,12 +101,12 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
     };
   }
 
-  private async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
+  async getCipher(id: CipherId | null, organization: Organization): Promise<Cipher | null> {
     if (id == null) {
       return null;
     }
 
-    const localCipher = await this.cipherService.get(id);
+    const localCipher = await this.cipherService.get(id, organization.userId as UserId);
 
     // Fetch from the API because we don't need the permissions in local state OR the cipher was not found (e.g. unassigned)
     if (organization.canEditAllCiphers || localCipher == null) {

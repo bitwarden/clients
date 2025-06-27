@@ -28,13 +28,13 @@
       </p>
       <app-user-verification formControlName="secret"> </app-user-verification>
     </div>
-    <div bitDialogFooter>
+    <ng-container bitDialogFooter>
       <button type="submit" bitButton bitFormButton buttonType="danger" [disabled]="!loaded">
         {{ "deleteOrganization" | i18n }}
       </button>
       <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

@@ -2,6 +2,9 @@
   "appName": {
     "message": "Битуорден (Bitwarden)"
   },
+  "appLogoLabel": {
+    "message": "Лого на Битуорден"
+  },
   "extName": {
     "message": "Bitwarden — управител на пароли",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
@@ -79,6 +82,15 @@
   },
   "masterPassHint": {
     "message": "Подсказване за главната парола (по избор)"
+  },
+  "passwordStrengthScore": {
+    "message": "Оценка на сложността на паролата: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Присъединяване към организацията"
@@ -176,6 +188,10 @@
   "copyNotes": {
     "message": "Копиране на бележките"
   },
+  "copy": {
+    "message": "Копиране",
+    "description": "Copy to clipboard"
+  },
   "fill": {
     "message": "Попълване",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
@@ -249,12 +265,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "passwordHint": {
-    "message": "Подсказка за паролата"
-  },
-  "enterEmailToGetHint": {
-    "message": "Въведете адреса на имейла си, за да получите подсказка за главната си парола."
   },
   "getMasterPasswordHint": {
     "message": "Подсказка за главната парола"
@@ -372,6 +382,15 @@
   "editFolder": {
     "message": "Редактиране на папка"
   },
+  "editFolderWithName": {
+    "message": "Редактиране на папка: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "newFolder": {
     "message": "Нова папка"
   },
@@ -466,22 +485,6 @@
   "length": {
     "message": "Дължина"
   },
-  "uppercase": {
-    "message": "Главни букви (A-Z)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Малки букви (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Числа (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Специални знаци (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
-  },
   "include": {
     "message": "Включване",
     "description": "Card header for password generator include block"
@@ -513,10 +516,6 @@
   "specialCharactersDescription": {
     "message": "Включване на специални знаци",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Брой думи"
@@ -656,8 +655,8 @@
   "browserNotSupportClipboard": {
     "message": "Браузърът не поддържа копиране в буфера, затова копирайте на ръка."
   },
-  "verifyIdentity": {
-    "message": "Потвърждаване на самоличността"
+  "verifyYourIdentity": {
+    "message": "Потвърдете самоличността си"
   },
   "weDontRecognizeThisDevice": {
     "message": "Това устройство е непознато. Въведете кода изпратен на е-пощата Ви, за да потвърдите самоличността си."
@@ -872,6 +871,24 @@
   "logInToBitwarden": {
     "message": "Впишете се в Битуорден"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Въведете кода изпратен на е-пощата Ви"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Въведете кода от Вашето приложение за удостоверяване"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Натиснете бутона на своя YubiKey за удостоверяване"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Вашият акаунт изисква вписване чрез двустепенно удостоверяване с Duo. Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Следвайте стъпките по-долу, за да завършите вписването си чрез устройството за удостоверяване."
+  },
   "restartRegistration": {
     "message": "Рестартиране на регистрацията"
   },
@@ -892,6 +909,9 @@
   },
   "no": {
     "message": "Не"
+  },
+  "location": {
+    "message": "Местоположение"
   },
   "unexpectedError": {
     "message": "Възникна неочаквана грешка."
@@ -1025,6 +1045,9 @@
   "clickToAutofillOnVault": {
     "message": "Щракнете върху елементите в трезора за автоматично попълване"
   },
+  "clickToAutofill": {
+    "message": "Щракнете върху елементите в предложениета за автоматично попълване"
+  },
   "clearClipboard": {
     "message": "Изчистване на буфера",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
@@ -1038,6 +1061,117 @@
   },
   "notificationAddSave": {
     "message": "Да, нека се запише сега"
+  },
+  "notificationViewAria": {
+    "message": "Преглед на $ITEMNAME$, отваря се в нов прозорец",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "Нов елемент, отваря се в нов прозорец",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Редактиране преди запазване",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Ново известие"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Ново известие",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "запазено в Битуорден.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "обновено в Битуорден.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Избиране на $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Запазване като нов елемент за вписване",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Обновяване на данните за вписване",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Отключете, за да запазите тези данни за вписване",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Запазване на данните за вписване",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Обновяване на текущите данни за вписване",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Данните за вписване са запазени",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Данните за вписване са обновени",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Чудесна работа! Направихте правилните стъпки за Вашата защита и тази на $ORGANIZATION$.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Благодарим Ви, че подобрихте защитата на $ORGANIZATION$. Имате още $TASK_COUNT$ пароли за обновяване.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Промяна на следващата парола",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Грешка при запазването",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "О, не! Запазването не беше успешно. Опитайте да въведете данните ръчно.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
     "message": "Питане за обновяване на съществуващ запис"
@@ -1101,10 +1235,6 @@
   "light": {
     "message": "Светъл",
     "description": "Light color"
-  },
-  "solarizedDark": {
-    "message": "Преекспонирано тъмен",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportFrom": {
     "message": "Изнасяне от"
@@ -1235,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Функцията е недостъпна"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Необходима е промяна на шифриращия ключ. Впишете се в трезора си по уеб, за да обновите своя шифриращ ключ."
+  "legacyEncryptionUnsupported": {
+    "message": "Остарелият метод на шифроване вече не се поддържа. Моля, свържете се с поддръжката, за да възстановите акаунта си."
   },
   "premiumMembership": {
     "message": "Платен абонамент"
@@ -1279,9 +1409,6 @@
   },
   "premiumPurchase": {
     "message": "Покупка на платен абонамент"
-  },
-  "premiumPurchaseAlert": {
-    "message": "Може да платите абонамента си през сайта bitwarden.com. Искате ли да го посетите сега?"
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
@@ -1331,23 +1458,11 @@
   "premiumRequiredDesc": {
     "message": "За да се възползвате от тази възможност, трябва да ползвате платен абонамент."
   },
-  "enterVerificationCodeApp": {
-    "message": "Въведете шестцифрения код за потвърждение от приложението за удостоверяване."
-  },
   "authenticationTimeout": {
     "message": "Време на давност за удостоверяването"
   },
   "authenticationSessionTimedOut": {
     "message": "Сесията за удостоверяване е изтекла. Моля, започнете отначало процеса по вписване."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Въведете шестцифрения код за потвърждение, който е бил изпратен на $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "Писмото за потвърждение е изпратено на $EMAIL$.",
@@ -1358,29 +1473,30 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Запомняне"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Не ме питайте отново на това устройство за 30 дни"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Повторно изпращане на писмото за потвърждение"
+  "selectAnotherMethod": {
+    "message": "Изберете друг метод",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Използвайте друг начин на двустепенно удостоверяване"
-  },
-  "insertYubiKey": {
-    "message": "Поставете устройството на YubiKey в USB порт на компютъра и натиснете бутона на устройството."
+  "useYourRecoveryCode": {
+    "message": "Използване на код за възстановяване"
   },
   "insertU2f": {
     "message": "Поставете устройството за удостоверяване в USB порт на компютъра. Ако на устройството има бутон, натиснете го."
   },
-  "webAuthnNewTab": {
-    "message": "Продължаване на двустепенното удостоверяване чрез WebAuthn в новия раздел."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Отваряне на нов раздел"
+  "openInNewTab": {
+    "message": "Отваряне в нов раздел"
   },
   "webAuthnAuthenticate": {
     "message": "Идентификация WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Прочитане на ключа за сигурност"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Изчакване на действие с ключ за сигурност…"
   },
   "loginUnavailable": {
     "message": "Записът липсва"
@@ -1393,6 +1509,9 @@
   },
   "twoStepOptions": {
     "message": "Настройки на двустепенното удостоверяване"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "Изберете начин за двустепенно удостоверяване"
   },
   "recoveryCodeDesc": {
     "message": "Ако сте загубили достъп до двустепенното удостоверяване, може да използвате код за възстановяване, за да изключите двустепенното удостоверяване в абонамента си."
@@ -1436,9 +1555,6 @@
   "selfHostedEnvironment": {
     "message": "Собствена среда"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Укажете базовия адрес за собствената ви инсталирана среда на Bitwarden."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Посочете базовия адрес на Вашата собствена инсталация на Битуорден. Пример: https://bitwarden.company.com"
   },
@@ -1450,9 +1566,6 @@
   },
   "customEnvironment": {
     "message": "Специална среда"
-  },
-  "customEnvironmentFooter": {
-    "message": "За специални случаи. Може да укажете основните адреси на всяка ползвана услуга поотделно."
   },
   "baseUrl": {
     "message": "Адрес на сървъра"
@@ -1485,6 +1598,24 @@
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Предложения за авт. попълване"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Намирайте лесно предложения за авт. попълване"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Изключете настройките за автоматично попълване на браузъра си, за да не си пречат с Битуорден."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Изключете автоматичното попълване на $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Изключване на автоматичното попълване"
   },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
@@ -1590,6 +1721,9 @@
   },
   "dragToSort": {
     "message": "Подредба чрез влачене"
+  },
+  "dragToReorder": {
+    "message": "Плъзнете за пренареждане"
   },
   "cfTypeText": {
     "message": "Текст"
@@ -1787,6 +1921,9 @@
   },
   "typeSshKey": {
     "message": "SSH ключ"
+  },
+  "typeNote": {
+    "message": "Бележка"
   },
   "newItemHeader": {
     "message": "Ново $TYPE$",
@@ -2019,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Задайте ПИН за отключване на Bitwarden. Настройките за ПИН се изчистват при всяко пълно излизане от програмата."
   },
-  "setYourPinCode1": {
-    "message": "Вашият ПИН ще бъде ползван за отключване на Битуорден, вместо главната парола. Той ще бъде нулиран, ако някога се отпишете напълно от Битуорден."
+  "setPinCode": {
+    "message": "Може да използвате този ПИН за отключване на Битуорден. Вашият ПИН ще се нулира ако в някакъв момент се отпишете напълно от приложението."
   },
   "pinRequired": {
     "message": "Необходим е ПИН."
@@ -2064,8 +2201,14 @@
   "usernameGenerator": {
     "message": "Генератор на потребителски имена"
   },
+  "useThisEmail": {
+    "message": "Използване на тази е-поща"
+  },
   "useThisPassword": {
     "message": "Използване на тази парола"
+  },
+  "useThisPassphrase": {
+    "message": "Използване на тази парола-фраза"
   },
   "useThisUsername": {
     "message": "Използване на това потребителско име"
@@ -2080,6 +2223,9 @@
   "useGeneratorHelpTextPartTwo": {
     "message": "за да създадете сигурна и уникална парола",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Персонализиране на трезора"
   },
   "vaultTimeoutAction": {
     "message": "Действие при изтичане на времето"
@@ -2233,6 +2379,9 @@
   "privacyPolicy": {
     "message": "Политика за поверителност"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Новата парола не може да бъде същата като текущата."
+  },
   "hintEqualsPassword": {
     "message": "Подсказването за паролата не може да съвпада с нея."
   },
@@ -2338,12 +2487,21 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика на организацията забранява да внасяте елементи в личния си трезор."
   },
+  "restrictCardTypeImport": {
+    "message": "Картовите елементи не могат да бъдат внесени"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, зададена от 1 или повече организации, не позволява да внасяте карти в трезорите си."
+  },
   "domainsTitle": {
     "message": "Домейни",
     "description": "A category title describing the concept of web domains"
   },
   "blockedDomains": {
     "message": "Блокирани домейни"
+  },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Научете повече за блокираните домейни"
   },
   "excludedDomains": {
     "message": "Изключени домейни"
@@ -2362,6 +2520,136 @@
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Променете това в настройките"
+  },
+  "change": {
+    "message": "Промяна"
+  },
+  "changePassword": {
+    "message": "Промяна на паролата",
+    "description": "Change password button for browser at risk notification on login."
+  },
+  "changeButtonTitle": {
+    "message": "Промяна на паролата – $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPassword": {
+    "message": "Парола в риск"
+  },
+  "atRiskPasswords": {
+    "message": "Пароли в риск"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ изисква да промените една парола, тъй като е в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Вашата организация изисква да промените $COUNT$ пароли, тъй като са в риск.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskChangePrompt": {
+    "message": "Вашата парола за този уеб сайт е в риск. $ORGANIZATION$ изисква от Вас да я смените.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ иска от Вас да смените тази парола, защото е в риск. Отидете в настройките на акаунта си, за да смените паролата си.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Преглед и промяна на една парола в риск"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Преглед и промяна на $COUNT$ пароли в риск",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "По-бърза промяна на паролите в риск"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Променете настройките си, така че да можете бързо да попълвате автоматично паролите си, както и да генерирате нови"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Преглед на елементите за вписване в риск"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Преглед на паролите в риск"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Паролите в организацията Ви са в риск, защото са слаби, преизползвани и/или разкрити.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Илюстрация на списък с елементи за вписване, които са в риск."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Генерирайте бързо сложна и уникална парола от менюто за автоматично попълване на Битуорден, на уеб сайта, който е в риск.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Илюстрация на автоматичното попълване на Битуорден, показващо генерирана парола."
+  },
+  "updateInBitwarden": {
+    "message": "Обновяване в Битуорден"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "След това Битуорден ще попита дали искате да обновите паролата в управителя на пароли.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Илюстрация на известието на Битуорден, чрез което пита потребителя дали да се обновят данните за вписване."
+  },
+  "turnOnAutofill": {
+    "message": "Включване на автоматичното попълване"
+  },
+  "turnedOnAutofill": {
+    "message": "Автоматичното попълване беше включено"
+  },
+  "dismiss": {
+    "message": "Отхвърляне"
   },
   "websiteItemLabel": {
     "message": "Уеб сайт $number$ (адрес)",
@@ -2424,6 +2712,10 @@
   "allSends": {
     "message": "Всички изпращания",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Достигнат е максималният брой достъпвания",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Скриване на текста по подразбиране"
@@ -2765,14 +3057,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Няма намерен уникален идентификатор."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ използва еднократно удостоверяване със собствен сървър за ключове. Членовете на тази организация вече нямат нужда от главна парола за вписване.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си."
+  },
+  "organizationName": {
+    "message": "Име на организацията"
+  },
+  "keyConnectorDomain": {
+    "message": "Домейн на конектора за ключове"
   },
   "leaveOrganization": {
     "message": "Напускане на организацията"
@@ -2800,6 +3092,15 @@
   },
   "exportingIndividualVaultDescription": {
     "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Ще бъдат изнесени само записите и прикачените файлове от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2967,6 +3268,30 @@
       }
     }
   },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ отказа заявката Ви. Свържете се с доставчика на услугата за съдействие.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ отказа заявката Ви: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
   "forwarderNoAccountId": {
     "message": "Не може да бъде получен идентификатор на маскиран чрез е-поща акаунт от $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
@@ -3048,15 +3373,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Настройките баха променени"
-  },
-  "environmentEditedClick": {
-    "message": "Щракнете тук"
-  },
-  "environmentEditedReset": {
-    "message": "за да върнете предварително зададените настройки"
-  },
   "serverVersion": {
     "message": "Версия на сървъра"
   },
@@ -3087,12 +3403,6 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
-  "loggingInAs": {
-    "message": "Вписване като"
-  },
-  "notYou": {
-    "message": "Това не сте Вие?"
-  },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
   },
@@ -3101,9 +3411,6 @@
   },
   "loginWithDevice": {
     "message": "Вписване с устройство"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Вписването с устройство трябва да е включено в настройките на приложението на Битуорден. Друга настройка ли търсите?"
   },
   "fingerprintPhraseHeader": {
     "message": "Уникална фраза"
@@ -3117,17 +3424,20 @@
   "viewAllLogInOptions": {
     "message": "Вижте всички възможности за вписване"
   },
-  "viewAllLoginOptionsV1": {
-    "message": "Вижте всички възможности за вписване"
-  },
   "notificationSentDevice": {
     "message": "Към устройството Ви е изпратено известие."
   },
+  "notificationSentDevicePart1": {
+    "message": "Отключете Битоурден на устройството си или в"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "приложението по уеб"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Уверете се, че уникалната фраза съвпада с тази по-долу, преди да одобрите."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Към устройството Ви е изпратено известие"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Уверете се, че регистрацията Ви е отключена и че уникалната фраза съвпада с другото устройство"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "Ще получите уведомление когато заявката бъде одобрена"
@@ -3138,8 +3448,11 @@
   "loginInitiated": {
     "message": "Вписването е стартирано"
   },
+  "logInRequestSent": {
+    "message": "Заявката е изпратена"
+  },
   "exposedMasterPassword": {
-    "message": "Разобличена главна парола"
+    "message": "Разкрита главна парола"
   },
   "exposedMasterPasswordDesc": {
     "message": "Паролата е намерена в пробив на данни. Използвайте уникална парола, за да защитите вашия акаунт. Наистина ли искате да използвате слаба парола?"
@@ -3252,9 +3565,6 @@
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
   },
-  "approveWithMasterPassword": {
-    "message": "Одобряване с главната парола"
-  },
   "ssoIdentifierRequired": {
     "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
   },
@@ -3301,9 +3611,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Вашата заявка беше изпратена до администратора Ви."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Ще получите известие, когато тя бъде одобрена."
-  },
   "troubleLoggingIn": {
     "message": "Имате проблем с вписването?"
   },
@@ -3319,12 +3626,36 @@
   "deviceTrusted": {
     "message": "Устройството е доверено"
   },
-  "sendsNoItemsTitle": {
-    "message": "Няма активни Изпращания",
+  "trustOrganization": {
+    "message": "Даване на доверие на организацията"
+  },
+  "trust": {
+    "message": "Даване на доверие"
+  },
+  "doNotTrust": {
+    "message": "Да не се дава доверие"
+  },
+  "organizationNotTrusted": {
+    "message": "Организацията не е доверена"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, потвърдете само, ако сте дали на този потребител достъп за спешни случаи и ако отпечатъкът му съвпада с това, което се вижда в акаунта му"
+  },
+  "orgTrustWarning": {
+    "message": "С оглед на сигурността на акаунта Ви, продължете само, ако сте член на тази организация, ако възстановяването на акаунта Ви е включено и ако отпечатъкът показан по-долу съвпада с този на организацията."
+  },
+  "orgTrustWarning1": {
+    "message": "Тази организация има политика от плана за големи организации, която ще Ви включи в схемата за възстановяване на акаунти. Това включване ще позволи на администраторите да променят паролата Ви. Продължете само, ако разпознавате тази организация и уникалната фраза показана по-долу съвпада с отпечатъка на организацията."
+  },
+  "trustUser": {
+    "message": "Даване на доверие на потребителя"
+  },
+  "sendsTitleNoItems": {
+    "message": "Изпращайте чувствителна информация сигурно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Използвайте Изпращане, за да споделите безопасно шифрована информация с някого.",
+  "sendsBodyNoItems": {
+    "message": "Споделяйте сигурно файлове и данни с всекиго, през всяка система. Информацията Ви ще бъде защитена с шифроване от край до край, а видимостта ѝ ще бъде ограничена.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3633,14 +3964,8 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Стартирайте DUO и следвайте инструкциите, за да завършите вписването."
-  },
   "duoRequiredForAccount": {
     "message": "Вашата регистрация изисква двустепенно удостоверяване чрез Duo."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Отворете разширението в изскачащ прозорец, за да завършите вписването."
   },
   "popoutExtension": {
     "message": "Отваряне на разширението в нов прозорец"
@@ -3873,6 +4198,9 @@
   "activeAccount": {
     "message": "Активиране на регистрацията"
   },
+  "bitwardenAccount": {
+    "message": "Акаунт в Битуорден"
+  },
   "availableAccounts": {
     "message": "Налични регистрации"
   },
@@ -4061,6 +4389,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Преглед на елемента – $ITEMNAME$ – $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Авт. попълване – $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4068,6 +4410,34 @@
       "itemname": {
         "content": "$1",
         "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Авт. попълване – $ITEMNAME$ – $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Копиране на $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
       }
     }
   },
@@ -4146,15 +4516,6 @@
   "itemName": {
     "message": "Име на елемента"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
     "message": "Организацията е деактивирана"
   },
@@ -4212,6 +4573,33 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadBitwarden": {
+    "message": "Сваляне на Битуорден"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Сваляне на Битуорден на всички устройства"
+  },
+  "getTheMobileApp": {
+    "message": "Свалете мобилното приложение"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Разполагайте с паролите си дори когато сте в движение, с мобилното приложение на Битуорден."
+  },
+  "getTheDesktopApp": {
+    "message": "Свалете настолното приложение"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Използвайте трезора си без браузър. Можете да настроите отключване с биометрични данни, за да ускорите отключването както в настолното приложение, така и в добавката за браузъра."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Свалете от bitwarden.com сега"
+  },
+  "getItOnGooglePlay": {
+    "message": "Вземете го от Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Свалете от App Store"
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Наистина ли искате да изтриете завинаги този прикачен файл?"
@@ -4456,6 +4844,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Преместване на адреса на уеб сайта. Използвайте стрелките, за да преместите елемента нагоре или надолу."
+  },
   "reorderFieldUp": {
     "message": "Преместено нагоре: $LABEL$. Позиция $INDEX$ от $LENGTH$",
     "placeholders": {
@@ -4515,15 +4906,6 @@
   },
   "nothingSelected": {
     "message": "Не сте избрали нищо."
-  },
-  "movedItemsToOrg": {
-    "message": "Избраните записи бяха преместени в $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
   },
   "itemsMovedToOrg": {
     "message": "Елементите са преместени в $ORGNAME$",
@@ -4680,6 +5062,18 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Отключването с биометрични данни не е налично по неизвестна причина."
   },
+  "unlockVault": {
+    "message": "Отключвайте трезора си за секунди"
+  },
+  "unlockVaultDesc": {
+    "message": "Можете да персонализирате настройките си за отключване и време на активност, за да получавате достъп до трезора си по-бързо."
+  },
+  "unlockPinSet": {
+    "message": "Зададен е ПИН код за отключване"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Отключване с биометричен набор"
+  },
   "authenticating": {
     "message": "Удостоверяване"
   },
@@ -4691,8 +5085,8 @@
     "message": "Паролата е прегенерирана",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Запазване на данните за вписване в Битуорден?",
+  "saveToBitwarden": {
+    "message": "Запазване в Битуорден",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -4842,42 +5236,6 @@
   "beta": {
     "message": "Бета"
   },
-  "importantNotice": {
-    "message": "Важно съобщение"
-  },
-  "setupTwoStepLogin": {
-    "message": "Настройте двустепенно удостоверяване"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп."
-  },
-  "remindMeLater": {
-    "message": "Напомнете ми по-късно"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Имате ли сигурен достъп до е-пощата си – $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Не, нямам"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Да, имам достъп до е-пощата си"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Включване на двустепенното удостоверяване"
-  },
-  "changeAcctEmail": {
-    "message": "Промяна на е-пощата"
-  },
   "extensionWidth": {
     "message": "Ширина на разширението"
   },
@@ -4887,10 +5245,179 @@
   "extraWide": {
     "message": "Много широко"
   },
+  "sshKeyWrongPassword": {
+    "message": "Въведената парола е неправилна."
+  },
+  "importSshKey": {
+    "message": "Внасяне"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Потвърждаване на паролата"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Въведете паролата за SSH-ключа."
+  },
+  "enterSshKeyPassword": {
+    "message": "Въведете паролата"
+  },
+  "invalidSshKey": {
+    "message": "SSH ключът е неправилен"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Типът на SSH ключа не се поддържа"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Внасяне на ключ от буфера за обмен"
+  },
+  "sshKeyImported": {
+    "message": "SSH ключът е внесен успешно"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Не можете да премахвате колекции с права „Само за преглед“: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Моля, обновете самостоятелното приложение"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
     "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
+  },
+  "changeAtRiskPassword": {
+    "message": "Промяна на парола в риск"
+  },
+  "settingsVaultOptions": {
+    "message": "Настройки на трезора"
+  },
+  "emptyVaultDescription": {
+    "message": "Трезорът може да пази не само паролите Ви. Съхранявайте защитени данни за вход, идентификационни данни, карти и бележки."
+  },
+  "introCarouselLabel": {
+    "message": "Добре дошли в Битуорден"
+  },
+  "securityPrioritized": {
+    "message": "Защитата е от първостепенна важност"
+  },
+  "securityPrioritizedBody": {
+    "message": "Съхранявайте данни за вписване, карти и самоличности в своя защитен трезор. Битуорден използва шифроване от край до край за да пази това, което е важно за Вас."
+  },
+  "quickLogin": {
+    "message": "Бързо и лесно вписване"
+  },
+  "quickLoginBody": {
+    "message": "Настройте отключването чрез биометрични данни и автоматичното попълване, за да се вписвате в регистрациите си без да натискате и един клавиш."
+  },
+  "secureUser": {
+    "message": "Подобрете данните си за вписване"
+  },
+  "secureUserBody": {
+    "message": "Използвайте генератора, за да създавате и запазвате сложни, уникални пароли за всичките си регистрации."
+  },
+  "secureDevices": {
+    "message": "Вашите данни – когато и където Ви потрябват"
+  },
+  "secureDevicesBody": {
+    "message": "Съхранявайте неограничен брой пароли на множество устройства – с приложенията на Битуорден за мобилни телефони, браузър и компютър."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 известие"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Внасяне на съществуващи пароли"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Използвайте функцията за внасяне, за да прехвърлите лесно данните си за вписване в Битуорден, без да ги добавяте ръчно."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Внасяне сега"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Добре дошли в трезора си!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Попълвайте автоматично елементи в текущата страница"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Добавете любими елементи за бърз достъп"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Потърсете нещо друго в трезора си"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Спестете време с автоматично попълване"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Добавете",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "уеб сайт",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": ", за да може тези данни за вписване да се появяват като предложение за автоматично попълване.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Безпроблемни плащания"
+  },
+  "newCardNudgeBody": {
+    "message": "С възможността за запазване на карти, можете лесно да ги попълвате автоматично във формулярите – сигурно и точно."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Опростено създаване на акаунти"
+  },
+  "newIdentityNudgeBody": {
+    "message": "С възможността за запазване на самоличности, можете лесно да попълвате автоматично дълги формуляри за регистрация или връзка с уеб сайт."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Пазете тайните си на сигурно място"
+  },
+  "newNoteNudgeBody": {
+    "message": "С възможността за запазване на бележки, можете да съхранявате тайна информация, като например банкови и застрахователни данни."
+  },
+  "newSshNudgeTitle": {
+    "message": "Улеснен достъп за разработчици чрез SSH"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Съхранявайте ключове и използвайте връзка чрез SSH агента, за бързо и шифровано удостоверяване.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Научете повече относно SSH-агента",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Създавайте пароли бързо"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Създавайте лесно сложни и уникални пароли като щракнете върху",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "за да защитите данните си за вписване.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Създавайте лесно сложни и уникални пароли като щракнете върху бутона за генериране на парола, за да защитите данните си за вписване.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не е включено или не се поддържа от Вашия браузър. За ползването на приложението на Битуорден е необходимо WebAssembly да работи.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

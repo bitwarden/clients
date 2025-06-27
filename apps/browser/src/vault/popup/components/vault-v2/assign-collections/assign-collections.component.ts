@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, combineLatest, first, map, switchMap } from "rxjs";
+import { Observable, combineLatest, filter, first, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -28,7 +28,6 @@ import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 
 @Component({
-  standalone: true,
   selector: "app-assign-collections",
   templateUrl: "./assign-collections.component.html",
   imports: [
@@ -58,16 +57,15 @@ export class AssignCollections {
     private accountService: AccountService,
     route: ActivatedRoute,
   ) {
-    const cipher$: Observable<CipherView> = route.queryParams.pipe(
-      switchMap(({ cipherId }) => this.cipherService.get(cipherId)),
-      switchMap((cipherDomain) =>
-        this.accountService.activeAccount$.pipe(
-          map((account) => account?.id),
-          switchMap((userId) =>
-            this.cipherService
-              .getKeyForCipherKeyDecryption(cipherDomain, userId)
-              .then(cipherDomain.decrypt.bind(cipherDomain)),
-          ),
+    const cipher$: Observable<CipherView> = this.accountService.activeAccount$.pipe(
+      map((account) => account?.id),
+      filter((userId) => userId != null),
+      switchMap((userId) =>
+        route.queryParams.pipe(
+          switchMap(async ({ cipherId }) => {
+            const cipherDomain = await this.cipherService.get(cipherId, userId);
+            return await this.cipherService.decrypt(cipherDomain, userId);
+          }),
         ),
       ),
     );
@@ -75,7 +73,7 @@ export class AssignCollections {
     combineLatest([cipher$, this.collectionService.decryptedCollections$])
       .pipe(takeUntilDestroyed(), first())
       .subscribe(([cipherView, collections]) => {
-        let availableCollections = collections.filter((c) => !c.readOnly);
+        let availableCollections = collections;
         const organizationId = (cipherView?.organizationId as OrganizationId) ?? null;
 
         // If the cipher is already a part of an organization,

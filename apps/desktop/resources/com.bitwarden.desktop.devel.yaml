@@ -22,6 +22,7 @@ finish-args:
   - --talk-name=org.freedesktop.ScreenSaver
   - --system-talk-name=org.freedesktop.login1
   - --filesystem=xdg-download
+  - --device=all
 modules:
   - name: bitwarden-desktop
     buildsystem: simple

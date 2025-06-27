@@ -54,6 +54,7 @@ type InactiveAccount = ActiveAccount & {
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
   ],
+  standalone: false,
 })
 export class AccountSwitcherComponent implements OnInit {
   activeAccount$: Observable<ActiveAccount | null>;
@@ -110,7 +111,9 @@ export class AccountSwitcherComponent implements OnInit {
           name: active.name,
           email: active.email,
           avatarColor: await firstValueFrom(this.avatarService.avatarColor$),
-          server: (await this.environmentService.getEnvironment())?.getHostname(),
+          server: (
+            await firstValueFrom(this.environmentService.getEnvironment$(active.id))
+          )?.getHostname(),
         };
       }),
     );
@@ -221,7 +224,9 @@ export class AccountSwitcherComponent implements OnInit {
         email: baseAccounts[userId].email,
         authenticationStatus: await this.authService.getAuthStatus(userId),
         avatarColor: await firstValueFrom(this.avatarService.getUserAvatarColor$(userId as UserId)),
-        server: (await this.environmentService.getEnvironment(userId))?.getHostname(),
+        server: (
+          await firstValueFrom(this.environmentService.getEnvironment$(userId as UserId))
+        )?.getHostname(),
       };
     }
 

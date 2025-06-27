@@ -9,11 +9,14 @@ import {
   from,
   switchMap,
   takeUntil,
+  combineLatest,
 } from "rxjs";
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -79,19 +82,27 @@ export class SendComponent implements OnInit, OnDestroy {
     protected sendApiService: SendApiService,
     protected dialogService: DialogService,
     protected toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
-    this.policyService
-      .policyAppliesToActiveUser$(PolicyType.DisableSend)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((policyAppliesToActiveUser) => {
-        this.disableSend = policyAppliesToActiveUser;
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((policyAppliesToUser) => {
+        this.disableSend = policyAppliesToUser;
       });
 
-    this._searchText$
+    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
       .pipe(
-        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        switchMap(([searchText, userId]) =>
+          from(this.searchService.isSearchable(userId, searchText)),
+        ),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

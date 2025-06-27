@@ -21,14 +21,15 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { Response } from "../models/response";
 import { ListResponse } from "../models/response/list.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class ListCommand {
   constructor(
@@ -41,6 +42,7 @@ export class ListCommand {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -65,11 +67,14 @@ export class ListCommand {
 
   private async listCiphers(options: Options) {
     let ciphers: CipherView[];
+
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     options.trash = options.trash || false;
     if (options.url != null && options.url.trim() !== "") {
-      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url);
+      ciphers = await this.cipherService.getAllDecryptedForUrl(options.url, activeUserId);
     } else {
-      ciphers = await this.cipherService.getAllDecrypted();
+      ciphers = await this.cipherService.getAllDecrypted(activeUserId);
     }
 
     if (
@@ -131,6 +136,8 @@ export class ListCommand {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
 
+    ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
+
     await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
 
     const res = new ListResponse(ciphers.map((o) => new CipherResponse(o)));
@@ -138,9 +145,8 @@ export class ListCommand {
   }
 
   private async listFolders(options: Options) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
 
     if (options.search != null && options.search.trim() !== "") {

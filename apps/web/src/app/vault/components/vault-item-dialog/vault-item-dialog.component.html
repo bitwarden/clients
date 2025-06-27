@@ -39,7 +39,7 @@
     <button *ngIf="showRestore" [bitAction]="restore" bitButton buttonType="primary" type="button">
       {{ "restore" | i18n }}
     </button>
-    <ng-container *ngIf="showCipherView && !showRestore">
+    <ng-container *ngIf="showEdit">
       <button
         bitButton
         [bitAction]="switchToEdit"
@@ -60,14 +60,11 @@
     >
       {{ "save" | i18n }}
     </button>
-    <button
-      bitButton
-      type="button"
-      buttonType="secondary"
-      (click)="cancel()"
-      *ngIf="!showCipherView && !showRestore"
-    >
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()" *ngIf="showCancel">
       {{ "cancel" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="cancel()" *ngIf="showClose">
+      {{ "close" | i18n }}
     </button>
     <div class="tw-ml-auto" *ngIf="showDelete">
       <button
@@ -76,7 +73,7 @@
         buttonType="danger"
         [appA11yTitle]="'delete' | i18n"
         [bitAction]="delete"
-        [disabled]="!(canDeleteCipher$ | async)"
+        [disabled]="!canDelete"
         data-testid="delete-cipher-btn"
       ></button>
     </div>

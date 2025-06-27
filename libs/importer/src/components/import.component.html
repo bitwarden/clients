@@ -1,6 +1,13 @@
 <bit-callout type="info" *ngIf="importBlockedByPolicy">
   {{ "personalOwnershipPolicyInEffectImports" | i18n }}
 </bit-callout>
+<bit-callout
+  [title]="'restrictCardTypeImport' | i18n"
+  type="info"
+  *ngIf="isCardTypeRestricted$ | async"
+>
+  {{ "restrictCardTypeImportDesc" | i18n }}
+</bit-callout>
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
@@ -42,7 +49,7 @@
               *ngFor="let c of collections$ | async"
               [value]="c"
               [label]="c.name"
-              icon="bwi-collection"
+              icon="bwi-collection-shared"
             />
           </ng-container>
         </bit-select>
@@ -94,6 +101,8 @@
           <p bitTypography="body1">
             {{ "seeDetailedInstructions" | i18n }}
             <a
+              bitLink
+              linkType="primary"
               target="_blank"
               rel="noreferrer"
               href="https://bitwarden.com/help/import-from-lastpass/"
@@ -163,19 +172,32 @@
     </ng-container>
     -->
         <ng-container
-          *ngIf="format === 'chromecsv' || format === 'operacsv' || format === 'vivaldicsv'"
+          *ngIf="
+            format === 'chromecsv' ||
+            format === 'operacsv' ||
+            format === 'vivaldicsv' ||
+            format === 'edgecsv'
+          "
         >
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
           </span>
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-chrome/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-chrome/"
+          >
             https://bitwarden.com/help/import-from-chrome/</a
           >
         </ng-container>
         <ng-container *ngIf="format === 'firefoxcsv'">
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-firefox/"
@@ -185,7 +207,13 @@
         </ng-container>
         <ng-container *ngIf="format === 'safaricsv'">
           See detailed instructions on our help site at
-          <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/import-from-safari/">
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-safari/"
+          >
             https://bitwarden.com/help/import-from-safari/</a
           >.
         </ng-container>
@@ -199,6 +227,8 @@
         >
           See detailed instructions on our help site at
           <a
+            bitLink
+            linkType="primary"
             target="_blank"
             rel="noreferrer"
             href="https://bitwarden.com/help/import-from-1password/"
@@ -289,7 +319,12 @@
         </ng-container>
         <ng-container *ngIf="format === 'gnomejson'">
           Make sure you have python-keyring and python-gnomekeyring installed. Save the
-          <a target="_blank" rel="noreferrer" href="https://bit.ly/2GpOMTg"
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/spookylukey/gnome-keyring-import-export"
             >GNOME Keyring Import/Export</a
           >
           python script to your desktop as <code>pw_helper.py</code>. Open terminal and run

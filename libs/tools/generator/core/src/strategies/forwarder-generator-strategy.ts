@@ -4,7 +4,7 @@ import { filter, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserKeyEncryptor } from "@bitwarden/common/tools/cryptography/user-key-encryptor";

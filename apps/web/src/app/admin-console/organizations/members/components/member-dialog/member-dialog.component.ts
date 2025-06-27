@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
@@ -37,7 +36,13 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogConfig,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import {
   GroupApiService,
@@ -53,11 +58,14 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
+import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
 import { inputEmailLimitValidator } from "./validators/input-email-limit.validator";
 import { orgSeatLimitReachedValidator } from "./validators/org-seat-limit-reached.validator";
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogTab {
   Role = 0,
   Groups = 1,
@@ -86,6 +94,8 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
 
 export type MemberDialogParams = EditMemberDialogParams | AddMemberDialogParams;
 
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum MemberDialogResult {
   Saved = "saved",
   Canceled = "canceled",
@@ -96,6 +106,7 @@ export enum MemberDialogResult {
 
 @Component({
   templateUrl: "member-dialog.component.html",
+  standalone: false,
 })
 export class MemberDialogComponent implements OnDestroy {
   loading = true;
@@ -119,6 +130,7 @@ export class MemberDialogComponent implements OnDestroy {
     emails: [""],
     type: OrganizationUserType.User,
     externalId: this.formBuilder.control({ value: "", disabled: true }),
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -145,15 +157,19 @@ export class MemberDialogComponent implements OnDestroy {
     manageResetPassword: false,
   });
 
-  protected accountDeprovisioningEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
-    FeatureFlag.AccountDeprovisioning,
-  );
+  get isExternalIdVisible(): boolean {
+    return !!this.formGroup.get("externalId")?.value;
+  }
 
-  private destroy$ = new Subject<void>();
+  get isSsoExternalIdVisible(): boolean {
+    return !!this.formGroup.get("ssoExternalId")?.value;
+  }
 
   get customUserTypeSelected(): boolean {
     return this.formGroup.value.type === OrganizationUserType.Custom;
   }
+
+  private destroy$ = new Subject<void>();
 
   isEditDialogParams(
     params: EditMemberDialogParams | AddMemberDialogParams,
@@ -176,6 +192,7 @@ export class MemberDialogComponent implements OnDestroy {
     organizationService: OrganizationService,
     private toastService: ToastService,
     private configService: ConfigService,
+    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -395,6 +412,7 @@ export class MemberDialogComponent implements OnDestroy {
     this.formGroup.patchValue({
       type: userDetails.type,
       externalId: userDetails.externalId,
+      ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
       groups: groupAccessSelections,
@@ -435,7 +453,13 @@ export class MemberDialogComponent implements OnDestroy {
     return Object.assign(p, partialPermissions);
   }
 
-  handleDependentPermissions() {
+  async handleDependentPermissions() {
+    const separateCustomRolePermissions = await this.configService.getFeatureFlag(
+      FeatureFlag.SeparateCustomRolePermissions,
+    );
+    if (separateCustomRolePermissions) {
+      return;
+    }
     // Manage Password Reset (Account Recovery) must have Manage Users enabled
     if (
       this.permissionsGroup.value.manageResetPassword &&
@@ -639,6 +663,25 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
+    const showWarningDialog = combineLatest([
+      this.organization$,
+      this.deleteManagedMemberWarningService.warningAcknowledged(this.params.organizationId),
+    ]).pipe(
+      map(
+        ([organization, acknowledged]) =>
+          organization.canManageUsers &&
+          organization.productTierType === ProductTierType.Enterprise &&
+          !acknowledged,
+      ),
+    );
+
+    if (await firstValueFrom(showWarningDialog)) {
+      const acknowledged = await this.deleteManagedMemberWarningService.showWarning();
+      if (!acknowledged) {
+        return;
+      }
+    }
+
     const confirmed = await this.dialogService.openSimpleDialog({
       title: {
         key: "deleteOrganizationUser",
@@ -667,6 +710,9 @@ export class MemberDialogComponent implements OnDestroy {
       title: null,
       message: this.i18nService.t("organizationUserDeleted", this.params.name),
     });
+
+    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.params.organizationId);
+
     this.close(MemberDialogResult.Deleted);
   };
 

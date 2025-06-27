@@ -1,8 +1,9 @@
 import { mock } from "jest-mock-extended";
 
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { DefaultKeyService } from "../../../../key-management/src/key.service";
+import { DefaultKeyService } from "@bitwarden/key-management";
+
 import { CsprngArray } from "../../types/csprng";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";

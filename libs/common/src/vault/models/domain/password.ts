@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { PasswordHistory } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -25,11 +27,10 @@ export class Password extends Domain {
   }
 
   decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<PasswordHistoryView> {
-    return this.decryptObj(
+    return this.decryptObj<Password, PasswordHistoryView>(
+      this,
       new PasswordHistoryView(this),
-      {
-        password: null,
-      },
+      ["password"],
       orgId,
       encKey,
       "DomainType: PasswordHistory",
@@ -57,5 +58,17 @@ export class Password extends Domain {
       password,
       lastUsedDate,
     });
+  }
+
+  /**
+   * Maps Password to SDK format.
+   *
+   * @returns {PasswordHistory} The SDK password history object.
+   */
+  toSdkPasswordHistory(): PasswordHistory {
+    return {
+      password: this.password.toJSON(),
+      lastUsedDate: this.lastUsedDate.toISOString(),
+    };
   }
 }

@@ -32,23 +32,30 @@
       </bit-form-control>
 
       <bit-form-control>
-        <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
-        <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
-      </bit-form-control>
-
-      <bit-form-control>
         <input bitCheckbox formControlName="enableBadgeCounter" type="checkbox" />
         <bit-label>{{ "showNumberOfAutofillSuggestions" | i18n }}</bit-label>
-      </bit-form-control>
-
-      <bit-form-control>
-        <input bitCheckbox formControlName="enableFavicon" type="checkbox" />
-        <bit-label>{{ "enableFavicon" | i18n }}</bit-label>
       </bit-form-control>
 
       <bit-form-control disableMargin>
         <input bitCheckbox formControlName="enableAnimations" type="checkbox" />
         <bit-label>{{ "showAnimations" | i18n }}</bit-label>
+      </bit-form-control>
+    </bit-card>
+    <h2 bitTypography="h6" class="tw-font-bold tw-mt-4">{{ "vaultCustomization" | i18n }}</h2>
+    <bit-card>
+      <bit-form-control>
+        <input bitCheckbox formControlName="enableFavicon" type="checkbox" />
+        <bit-label>{{ "enableFavicon" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
+        <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control disableMargin>
+        <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
+        <bit-label>
+          {{ "clickToAutofill" | i18n }}
+        </bit-label>
       </bit-form-control>
     </bit-card>
   </form>

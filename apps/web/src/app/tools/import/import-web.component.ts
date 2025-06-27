@@ -1,14 +1,13 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { ImportComponent } from "@bitwarden/importer/ui";
+import { ImportComponent } from "@bitwarden/importer-ui";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "import-web.component.html",
-  standalone: true,
   imports: [SharedModule, ImportComponent, HeaderModule],
 })
 export class ImportWebComponent {

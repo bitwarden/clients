@@ -9,12 +9,15 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
@@ -38,7 +41,8 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import { BrowserApi } from "../../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
@@ -60,7 +64,7 @@ import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-a
 class QueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
-    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.type = toCipherType(params.type);
     this.clone = params.clone === "true";
     this.folderId = params.folderId;
     this.organizationId = params.organizationId;
@@ -68,6 +72,7 @@ class QueryParams {
     this.uri = params.uri;
     this.username = params.username;
     this.name = params.name;
+    this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
   }
 
   /**
@@ -114,6 +119,12 @@ class QueryParams {
    * Optional name to pre-fill for the cipher.
    */
   name?: string;
+
+  /**
+   * Optional flag to pre-fill the name and URI from the current tab.
+   * NOTE: This will override the `uri` and `name` query parameters if set to true.
+   */
+  prefillNameAndURIFromTab?: true;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -121,7 +132,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
-  standalone: true,
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
@@ -180,6 +190,7 @@ export class AddEditV2Component implements OnInit {
     private toastService: ToastService,
     private dialogService: DialogService,
     protected cipherAuthorizationService: CipherAuthorizationService,
+    private accountService: AccountService,
   ) {
     this.subscribeToParams();
   }
@@ -209,7 +220,7 @@ export class AddEditV2Component implements OnInit {
   /**
    * Handle back button
    */
-  async handleBackButton() {
+  handleBackButton = async () => {
     if (this.inFido2PopoutWindow) {
       this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(this.fido2PopoutSessionData.sessionId);
@@ -222,7 +233,7 @@ export class AddEditV2Component implements OnInit {
     }
 
     await this.popupRouterCacheService.back();
-  }
+  };
 
   async onCipherSaved(cipher: CipherView) {
     if (BrowserPopupUtils.inPopout(window)) {
@@ -254,6 +265,8 @@ export class AddEditV2Component implements OnInit {
         replaceUrl: true,
         queryParams: { cipherId: cipher.id },
       });
+      // Clear popup history so after closing/reopening, Back won’t return to the add-edit form
+      await this.popupRouterCacheService.setHistory([]);
     }
   }
 
@@ -278,12 +291,17 @@ export class AddEditV2Component implements OnInit {
           if (config.mode === "edit" && !config.originalCipher.edit) {
             config.mode = "partial-edit";
           }
+          config.initialValues = await this.setInitialValuesFromParams(params);
 
-          config.initialValues = this.setInitialValuesFromParams(params);
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
 
           // The browser notification bar and overlay use addEditCipherInfo$ to pass modified cipher details to the form
           // Attempt to fetch them here and overwrite the initialValues if present
-          const cachedCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
+          const cachedCipherInfo = await firstValueFrom(
+            this.cipherService.addEditCipherInfo$(activeUserId),
+          );
 
           if (cachedCipherInfo != null) {
             // Cached cipher info has priority over queryParams
@@ -292,7 +310,7 @@ export class AddEditV2Component implements OnInit {
               ...mapAddEditCipherInfoToInitialValues(cachedCipherInfo),
             };
             // Be sure to clear the "cached" cipher info, so it doesn't get used again
-            await this.cipherService.setAddEditCipherInfo(null);
+            await this.cipherService.setAddEditCipherInfo(null, activeUserId);
           }
 
           if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
@@ -317,7 +335,7 @@ export class AddEditV2Component implements OnInit {
       });
   }
 
-  setInitialValuesFromParams(params: QueryParams) {
+  async setInitialValuesFromParams(params: QueryParams) {
     const initialValues = {} as OptionalInitialValues;
     if (params.folderId) {
       initialValues.folderId = params.folderId;
@@ -337,6 +355,14 @@ export class AddEditV2Component implements OnInit {
     if (params.name) {
       initialValues.name = params.name;
     }
+
+    if (params.prefillNameAndURIFromTab) {
+      const tab = await BrowserApi.getTabFromCurrentWindow();
+
+      initialValues.loginUri = tab.url;
+      initialValues.name = Utils.getHostname(tab.url);
+    }
+
     return initialValues;
   }
 
@@ -371,7 +397,8 @@ export class AddEditV2Component implements OnInit {
     }
 
     try {
-      await this.deleteCipher();
+      const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);
       return false;
@@ -388,10 +415,10 @@ export class AddEditV2Component implements OnInit {
     return true;
   };
 
-  protected deleteCipher() {
+  protected deleteCipher(userId: UserId) {
     return this.config.originalCipher.deletedDate
-      ? this.cipherService.deleteWithServer(this.config.originalCipher.id)
-      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id);
+      ? this.cipherService.deleteWithServer(this.config.originalCipher.id, userId)
+      : this.cipherService.softDeleteWithServer(this.config.originalCipher.id, userId);
   }
 }
 
@@ -430,6 +457,32 @@ const mapAddEditCipherInfoToInitialValues = (
     initialValues.name = cipher.name;
   }
 
+  if (cipher.type === CipherType.Card) {
+    const card = cipher.card;
+
+    if (card != null) {
+      if (card.cardholderName != null) {
+        initialValues.cardholderName = card.cardholderName;
+      }
+
+      if (card.number != null) {
+        initialValues.number = card.number;
+      }
+
+      if (card.expMonth != null) {
+        initialValues.expMonth = card.expMonth;
+      }
+
+      if (card.expYear != null) {
+        initialValues.expYear = card.expYear;
+      }
+
+      if (card.code != null) {
+        initialValues.code = card.code;
+      }
+    }
+  }
+
   if (cipher.type === CipherType.Login) {
     const login = cipher.login;
 
@@ -450,6 +503,80 @@ const mapAddEditCipherInfoToInitialValues = (
 
   if (cipher.type === CipherType.Identity && cipher.identity?.username != null) {
     initialValues.username = cipher.identity.username;
+  }
+
+  if (cipher.type == CipherType.Identity) {
+    const identity = cipher.identity;
+
+    if (identity != null) {
+      if (identity.title != null) {
+        initialValues.title = identity.title;
+      }
+
+      if (identity.firstName != null) {
+        initialValues.firstName = identity.firstName;
+      }
+
+      if (identity.middleName != null) {
+        initialValues.middleName = identity.middleName;
+      }
+
+      if (identity.lastName != null) {
+        initialValues.lastName = identity.lastName;
+      }
+
+      if (identity.company != null) {
+        initialValues.company = identity.company;
+      }
+
+      if (identity.ssn != null) {
+        initialValues.ssn = identity.ssn;
+      }
+
+      if (identity.passportNumber != null) {
+        initialValues.passportNumber = identity.passportNumber;
+      }
+
+      if (identity.licenseNumber != null) {
+        initialValues.licenseNumber = identity.licenseNumber;
+      }
+
+      if (identity.email != null) {
+        initialValues.email = identity.email;
+      }
+
+      if (identity.phone != null) {
+        initialValues.phone = identity.phone;
+      }
+
+      if (identity.address1 != null) {
+        initialValues.address1 = identity.address1;
+      }
+
+      if (identity.address2 != null) {
+        initialValues.address2 = identity.address2;
+      }
+
+      if (identity.address3 != null) {
+        initialValues.address3 = identity.address3;
+      }
+
+      if (identity.city != null) {
+        initialValues.city = identity.city;
+      }
+
+      if (identity.state != null) {
+        initialValues.state = identity.state;
+      }
+
+      if (identity.postalCode != null) {
+        initialValues.postalCode = identity.postalCode;
+      }
+
+      if (identity.country != null) {
+        initialValues.country = identity.country;
+      }
+    }
   }
 
   return initialValues;

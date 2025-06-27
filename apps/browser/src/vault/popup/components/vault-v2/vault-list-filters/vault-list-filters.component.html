@@ -20,7 +20,7 @@
         *ngIf="collections.length"
         fullWidth
         formControlName="collection"
-        placeholderIcon="bwi-collection"
+        placeholderIcon="bwi-collection-shared"
         [placeholderText]="'collection' | i18n"
         [options]="collections"
       >
@@ -42,7 +42,7 @@
       fullWidth
       placeholderIcon="bwi-list"
       [placeholderText]="'type' | i18n"
-      [options]="cipherTypes"
+      [options]="cipherTypes$ | async"
     >
     </bit-chip-select>
   </form>

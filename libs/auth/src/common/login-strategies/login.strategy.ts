@@ -1,9 +1,7 @@
 import { BehaviorSubject, filter, firstValueFrom, timeout, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -15,16 +13,19 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/webauthn-login-token.request";
-import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ClientType } from "@bitwarden/common/enums";
-import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -53,7 +54,6 @@ import { CacheData } from "../services/login-strategies/login-strategy.state";
 type IdentityResponse =
   | IdentityTokenResponse
   | IdentityTwoFactorResponse
-  | IdentityCaptchaResponse
   | IdentityDeviceVerificationResponse;
 
 export abstract class LoginStrategyData {
@@ -63,7 +63,6 @@ export abstract class LoginStrategyData {
     | SsoTokenRequest
     | WebAuthnLoginTokenRequest
     | undefined;
-  captchaBypassToken?: string;
 
   /** User's entered email obtained pre-login. */
   abstract userEnteredEmail?: string;
@@ -91,6 +90,7 @@ export abstract class LoginStrategy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected KdfConfigService: KdfConfigService,
+    protected environmentService: EnvironmentService,
   ) {}
 
   abstract exportCache(): CacheData;
@@ -104,10 +104,7 @@ export abstract class LoginStrategy {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult>;
 
-  async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string | null = null,
-  ): Promise<AuthResult> {
+  async logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult> {
     const data = this.cache.value;
     if (!data.tokenRequest) {
       throw new Error("Token request is undefined");
@@ -129,8 +126,6 @@ export abstract class LoginStrategy {
 
     if (response instanceof IdentityTwoFactorResponse) {
       return [await this.processTwoFactorResponse(response), response];
-    } else if (response instanceof IdentityCaptchaResponse) {
-      return [await this.processCaptchaResponse(response), response];
     } else if (response instanceof IdentityTokenResponse) {
       return [await this.processTokenResponse(response), response];
     } else if (response instanceof IdentityDeviceVerificationResponse) {
@@ -194,6 +189,10 @@ export abstract class LoginStrategy {
       emailVerified: accountInformation.email_verified ?? false,
     });
 
+    // User env must be seeded from currently set env before switching to the account
+    // to avoid any incorrect emissions of the global default env.
+    await this.environmentService.seedUserEnvironment(userId);
+
     await this.accountService.switchAccount(userId);
 
     await this.stateService.addAccount(
@@ -254,25 +253,19 @@ export abstract class LoginStrategy {
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {
     const result = new AuthResult();
 
-    // Old encryption keys must be migrated, but is currently only available on web.
-    // Other clients shouldn't continue the login process.
+    // Encryption key migration of legacy users (with no userkey) is not supported anymore
     if (this.encryptionKeyMigrationRequired(response)) {
       result.requiresEncryptionKeyMigration = true;
-      if (this.platformUtilsService.getClientType() !== ClientType.Web) {
-        return result;
-      }
+      return result;
     }
+
+    // Must come before setting keys, user key needs email to update additional keys.
+    const userId = await this.saveAccountInformation(response);
+    result.userId = userId;
 
     result.resetMasterPassword = response.resetMasterPassword;
 
-    // Convert boolean to enum
-    if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-    }
-
-    // Must come before setting keys, user key needs email to update additional keys
-    const userId = await this.saveAccountInformation(response);
-    result.userId = userId;
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
@@ -292,13 +285,39 @@ export abstract class LoginStrategy {
 
   // The keys comes from different sources depending on the login strategy
   protected abstract setMasterKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setUserKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
+
   protected abstract setPrivateKey(response: IdentityTokenResponse, userId: UserId): Promise<void>;
 
   // Old accounts used master key for encryption. We are forcing migrations but only need to
   // check on password logins
   protected encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
     return false;
+  }
+
+  /**
+   * Checks if adminForcePasswordReset is true and sets the ForceSetPasswordReason.AdminForcePasswordReset flag in the master password service.
+   * @param adminForcePasswordReset - The admin force password reset flag
+   * @param userId - The user ID
+   * @returns a promise that resolves to a boolean indicating whether the admin force password reset flag was set
+   */
+  async processForceSetPasswordReason(
+    adminForcePasswordReset: boolean,
+    userId: UserId,
+  ): Promise<boolean> {
+    if (!adminForcePasswordReset) {
+      return false;
+    }
+
+    // set the flag in the master password service so we know when we reach the auth guard
+    // that we need to guide them properly to admin password reset.
+    await this.masterPasswordService.setForceSetPasswordReason(
+      ForceSetPasswordReason.AdminForcePasswordReset,
+      userId,
+    );
+
+    return true;
   }
 
   protected async createKeyPairForOldAccount(userId: UserId) {
@@ -331,7 +350,6 @@ export abstract class LoginStrategy {
     result.twoFactorProviders = response.twoFactorProviders2;
 
     await this.twoFactorService.setProviders(response);
-    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     result.ssoEmail2FaSessionToken = response.ssoEmail2faSessionToken;
 
     result.email = response.email ?? "";
@@ -346,12 +364,6 @@ export abstract class LoginStrategy {
     if (email) {
       await this.tokenService.clearTwoFactorToken(email);
     }
-  }
-
-  private async processCaptchaResponse(response: IdentityCaptchaResponse): Promise<AuthResult> {
-    const result = new AuthResult();
-    result.captchaSiteKey = response.siteKey;
-    return result;
   }
 
   /**
@@ -376,7 +388,7 @@ export abstract class LoginStrategy {
 
   /**
    * Handles the response from the server when a device verification is required.
-   * It sets the requiresDeviceVerification flag to true and caches the captcha token if it came back.
+   * It sets the requiresDeviceVerification flag to true.
    *
    * @param {IdentityDeviceVerificationResponse} response - The response from the server indicating that device verification is required.
    * @returns {Promise<AuthResult>} - A promise that resolves to an AuthResult object
@@ -386,9 +398,6 @@ export abstract class LoginStrategy {
   ): Promise<AuthResult> {
     const result = new AuthResult();
     result.requiresDeviceVerification = true;
-
-    // Extend cached data with captcha bypass token if it came back.
-    this.cache.next({ ...this.cache.value, captchaBypassToken: response.captchaToken ?? null });
     return result;
   }
 }

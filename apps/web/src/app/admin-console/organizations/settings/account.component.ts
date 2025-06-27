@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -39,13 +39,9 @@ import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./
 @Component({
   selector: "app-org-account",
   templateUrl: "account.component.html",
+  standalone: false,
 })
 export class AccountComponent implements OnInit, OnDestroy {
-  @ViewChild("apiKeyTemplate", { read: ViewContainerRef, static: true })
-  apiKeyModalRef: ViewContainerRef;
-  @ViewChild("rotateApiKeyTemplate", { read: ViewContainerRef, static: true })
-  rotateApiKeyModalRef: ViewContainerRef;
-
   selfHosted = false;
   canEditSubscription = true;
   loading = true;
@@ -71,6 +67,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   protected collectionManagementFormGroup = this.formBuilder.group({
     limitCollectionCreation: this.formBuilder.control({ value: false, disabled: false }),
     limitCollectionDeletion: this.formBuilder.control({ value: false, disabled: false }),
+    limitItemDeletion: this.formBuilder.control({ value: false, disabled: false }),
     allowAdminAccessToAllCollectionItems: this.formBuilder.control({
       value: false,
       disabled: false,
@@ -143,9 +140,11 @@ export class AccountComponent implements OnInit, OnDestroy {
           orgName: this.org.name,
           billingEmail: this.org.billingEmail,
         });
+
         this.collectionManagementFormGroup.patchValue({
           limitCollectionCreation: this.org.limitCollectionCreation,
           limitCollectionDeletion: this.org.limitCollectionDeletion,
+          limitItemDeletion: this.org.limitItemDeletion,
           allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
         });
 
@@ -202,6 +201,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.collectionManagementFormGroup.value.limitCollectionDeletion;
     request.allowAdminAccessToAllCollectionItems =
       this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
+    request.limitItemDeletion = this.collectionManagementFormGroup.value.limitItemDeletion;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 

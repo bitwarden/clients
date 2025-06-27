@@ -6,7 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import AutofillInit from "../content/autofill-init";
 import {
   AutofillOverlayElement,
-  InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -459,15 +459,20 @@ describe("AutofillOverlayContentService", () => {
           const passwordFieldElement = document.getElementById(
             "password-field",
           ) as ElementWithOpId<FormFieldElement>;
-          autofillFieldData.type = "password";
+
+          const passwordFieldData = createAutofillFieldMock({
+            opid: "password-field",
+            form: "validFormId",
+            elementNumber: 2,
+            type: "password",
+          });
 
           await autofillOverlayContentService.setupOverlayListeners(
             passwordFieldElement,
-            autofillFieldData,
+            passwordFieldData,
             pageDetailsMock,
           );
           passwordFieldElement.dispatchEvent(new Event("input"));
-
           expect(autofillOverlayContentService["userFilledFields"].password).toEqual(
             passwordFieldElement,
           );
@@ -1378,7 +1383,7 @@ describe("AutofillOverlayContentService", () => {
           );
           expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
           expect(inputAccountFieldData.inlineMenuFillType).toEqual(
-            InlineMenuFillType.AccountCreationUsername,
+            InlineMenuFillTypes.AccountCreationUsername,
           );
         });
 
@@ -1415,7 +1420,7 @@ describe("AutofillOverlayContentService", () => {
           await flushPromises();
 
           expect(currentPasswordFieldData.inlineMenuFillType).toEqual(
-            InlineMenuFillType.CurrentPasswordUpdate,
+            InlineMenuFillTypes.CurrentPasswordUpdate,
           );
         });
       });

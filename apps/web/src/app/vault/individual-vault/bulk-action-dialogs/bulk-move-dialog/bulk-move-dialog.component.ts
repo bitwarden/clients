@@ -1,26 +1,35 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DialogConfig, DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import {
+  DialogConfig,
+  DialogRef,
+  DIALOG_DATA,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 export interface BulkMoveDialogParams {
   cipherIds?: string[];
 }
 
-export enum BulkMoveDialogResult {
-  Moved = "moved",
-  Canceled = "canceled",
-}
+export const BulkMoveDialogResult = {
+  Moved: "moved",
+  Canceled: "canceled",
+} as const;
+
+type BulkMoveDialogResult = UnionOfValues<typeof BulkMoveDialogResult>;
 
 /**
  * Strongly typed helper to open a BulkMoveDialog
@@ -39,6 +48,7 @@ export const openBulkMoveDialog = (
 
 @Component({
   templateUrl: "bulk-move-dialog.component.html",
+  standalone: false,
 })
 export class BulkMoveDialogComponent implements OnInit {
   cipherIds: string[] = [];
@@ -47,8 +57,6 @@ export class BulkMoveDialogComponent implements OnInit {
     folderId: ["", [Validators.nullValidator]],
   });
   folders$: Observable<FolderView[]>;
-
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
 
   constructor(
     @Inject(DIALOG_DATA) params: BulkMoveDialogParams,
@@ -65,7 +73,7 @@ export class BulkMoveDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.folders$ = this.folderService.folderViews$(activeUserId);
     this.formGroup.patchValue({
       folderId: (await firstValueFrom(this.folders$))[0].id,
@@ -81,7 +89,12 @@ export class BulkMoveDialogComponent implements OnInit {
       return;
     }
 
-    await this.cipherService.moveManyWithServer(this.cipherIds, this.formGroup.value.folderId);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.moveManyWithServer(
+      this.cipherIds,
+      this.formGroup.value.folderId,
+      activeUserId,
+    );
     this.toastService.showToast({
       variant: "success",
       title: null,

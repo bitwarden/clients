@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { hasModifierKey } from "@angular/cdk/keycodes";
-import { NgIf } from "@angular/common";
 import {
   Component,
   Input,
@@ -38,8 +37,7 @@ let nextId = 0;
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
-  standalone: true,
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, NgIf, I18nPipe],
+  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, I18nPipe],
 })
 /**
  * This component has been implemented to only support Multi-select list events

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html } from "lit";
+import { html, nothing } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -7,34 +7,72 @@ import {
   NotificationType,
   NotificationTypes,
 } from "../../../notification/abstractions/notification-bar";
-import { spacing, themes } from "../constants/styles";
-import { ActionRow } from "../rows/action-row";
-import { ButtonRow } from "../rows/button-row";
+import { OrgView, FolderView, I18n, CollectionView } from "../common-types";
+import { spacing } from "../constants/styles";
+
+import { NotificationButtonRow } from "./button-row";
+
+export type NotificationFooterProps = {
+  collections?: CollectionView[];
+  folders?: FolderView[];
+  i18n: I18n;
+  isLoading?: boolean;
+  notificationType?: NotificationType;
+  organizations?: OrgView[];
+  personalVaultIsAllowed: boolean;
+  theme: Theme;
+  handleSaveAction: (e: Event) => void;
+};
 
 export function NotificationFooter({
+  collections,
+  folders,
+  i18n,
+  isLoading,
   notificationType,
+  organizations,
+  personalVaultIsAllowed,
   theme,
-}: {
-  notificationType?: NotificationType;
-  theme: Theme;
-}) {
+  handleSaveAction,
+}: NotificationFooterProps) {
   const isChangeNotification = notificationType === NotificationTypes.Change;
-  // @TODO localize
-  const saveNewItemText = "Save as new login";
+  const isUnlockNotification = notificationType === NotificationTypes.Unlock;
+
+  let primaryButtonText = i18n.saveAction;
+
+  if (isUnlockNotification) {
+    primaryButtonText = i18n.notificationUnlock;
+  }
 
   return html`
-    <div class=${notificationFooterStyles({ theme })}>
-      ${isChangeNotification
-        ? ActionRow({ itemText: saveNewItemText, handleAction: () => {}, theme })
-        : ButtonRow({ theme })}
+    <div class=${notificationFooterStyles({ isChangeNotification })}>
+      ${!isChangeNotification
+        ? NotificationButtonRow({
+            collections,
+            folders,
+            organizations,
+            i18n,
+            primaryButton: {
+              handlePrimaryButtonClick: handleSaveAction,
+              isLoading,
+              text: primaryButtonText,
+            },
+            personalVaultIsAllowed,
+            theme,
+          })
+        : nothing}
     </div>
   `;
 }
 
-const notificationFooterStyles = ({ theme }: { theme: Theme }) => css`
+const notificationFooterStyles = ({
+  isChangeNotification,
+}: {
+  isChangeNotification: boolean;
+}) => css`
   display: flex;
-  background-color: ${themes[theme].background.alt};
-  padding: 0 ${spacing[3]} ${spacing[3]} ${spacing[3]};
+  padding: ${spacing[2]} ${spacing[4]} ${isChangeNotification ? spacing[1] : spacing[4]}
+    ${spacing[4]};
 
   :last-child {
     border-radius: 0 0 ${spacing["4"]} ${spacing["4"]};

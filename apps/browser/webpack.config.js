@@ -8,6 +8,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 const configurator = require("./config/config");
 const manifest = require("./webpack/manifest");
+const AngularCheckPlugin = require("./webpack/angular-check");
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -49,7 +50,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "postcss-loader",
+      "resolve-url-loader",
+      {
+        loader: "postcss-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -59,7 +66,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "sass-loader",
+      "resolve-url-loader",
+      {
+        loader: "sass-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -69,6 +82,8 @@ const moduleRules = [
         loader: "babel-loader",
         options: {
           configFile: "../../babel.config.json",
+          cacheDirectory: ENV === "development",
+          compact: ENV !== "development",
         },
       },
     ],
@@ -123,16 +138,6 @@ const plugins = [
     filename: "overlay/menu.html",
     chunks: ["overlay/menu"],
   }),
-  new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
-    filename: "overlay/button.html",
-    chunks: ["overlay/button"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
-    filename: "overlay/list.html",
-    chunks: ["overlay/list"],
-  }),
   new CopyWebpackPlugin({
     patterns: [
       {
@@ -185,15 +190,13 @@ const mainConfig = {
       "./src/autofill/content/bootstrap-autofill-overlay-menu.ts",
     "content/bootstrap-autofill-overlay-notifications":
       "./src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
-    "content/bootstrap-legacy-autofill-overlay":
-      "./src/autofill/deprecated/content/bootstrap-legacy-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/auto-submit-login": "./src/autofill/content/auto-submit-login.ts",
-    "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
     "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
     "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
+    "content/ipc-content-script": "./src/platform/ipc/content/ipc-content-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/menu-button":
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
@@ -201,12 +204,23 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
-    "overlay/button":
-      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
-    "overlay/list":
-      "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
-    "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
+    "encrypt-worker": "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
+    "content/send-popup-open-message": "./src/vault/content/send-popup-open-message.ts",
+  },
+  cache:
+    ENV !== "development"
+      ? false
+      : {
+          type: "filesystem",
+          name: "main-cache",
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack-browser-main"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
   optimization: {
     minimize: ENV !== "development",
@@ -266,6 +280,7 @@ const mainConfig = {
       fs: false,
       path: require.resolve("path-browserify"),
     },
+    cache: true,
   },
   output: {
     filename: "[name].js",
@@ -310,26 +325,26 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
-  mainConfig.entry["content/fido2-page-script-append-mv2"] =
-    "./src/autofill/fido2/content/fido2-page-script-append.mv2.ts";
   mainConfig.entry["content/fido2-page-script-delay-append-mv2"] =
     "./src/autofill/fido2/content/fido2-page-script-delay-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {
-  // Manifest v3 needs an extra helper for utilities in the content script.
-  // The javascript output of this should be added to manifest.v3.json
-  mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
-  mainConfig.entry["offscreen-document/offscreen-document"] =
-    "./src/platform/offscreen-document/offscreen-document.ts";
+  // Firefox does not use the offscreen API
+  if (browser !== "firefox") {
+    mainConfig.entry["offscreen-document/offscreen-document"] =
+      "./src/platform/offscreen-document/offscreen-document.ts";
 
-  mainConfig.plugins.push(
-    new HtmlWebpackPlugin({
-      template: "./src/platform/offscreen-document/index.html",
-      filename: "offscreen-document/index.html",
-      chunks: ["offscreen-document/offscreen-document"],
-    }),
-  );
+    mainConfig.plugins.push(
+      new HtmlWebpackPlugin({
+        template: "./src/platform/offscreen-document/index.html",
+        filename: "offscreen-document/index.html",
+        chunks: ["offscreen-document/offscreen-document"],
+      }),
+    );
+  }
+
+  const target = browser === "firefox" ? "web" : "webworker";
 
   /**
    * @type {import("webpack").Configuration}
@@ -339,7 +354,7 @@ if (manifestVersion == 2) {
     mode: ENV,
     devtool: false,
     entry: "./src/platform/background.ts",
-    target: "webworker",
+    target: target,
     output: {
       filename: "background.js",
       path: path.resolve(__dirname, "build"),
@@ -358,6 +373,23 @@ if (manifestVersion == 2) {
       ],
       noParse: /argon2(-simd)?\.wasm$/,
     },
+    cache:
+      ENV !== "development"
+        ? false
+        : {
+            type: "filesystem",
+            name: "background-cache",
+            cacheDirectory: path.resolve(
+              __dirname,
+              "../../node_modules/.cache/webpack-browser-background",
+            ),
+            buildDependencies: {
+              config: [__filename],
+            },
+          },
+    snapshot: {
+      unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
+    },
     experiments: {
       asyncWebAssembly: true,
     },
@@ -370,9 +402,10 @@ if (manifestVersion == 2) {
         fs: false,
         path: require.resolve("path-browserify"),
       },
+      cache: true,
     },
     dependencies: ["main"],
-    plugins: [...requiredPlugins],
+    plugins: [...requiredPlugins /*new AngularCheckPlugin()*/], // TODO (PM-22630): Re-enable this plugin when angular is removed from the background script.
   };
 
   // Safari's desktop build process requires a background.html and vendor.js file to exist

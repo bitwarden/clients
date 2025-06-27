@@ -1,5 +1,4 @@
-import { NgIf } from "@angular/common";
-import { Component, ContentChild, Directive } from "@angular/core";
+import { booleanAttribute, Component, ContentChild, Directive, input } from "@angular/core";
 
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
@@ -7,7 +6,6 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 
 @Directive({
   selector: "[bitDialogIcon]",
-  standalone: true,
 })
 export class IconDirective {}
 
@@ -15,11 +13,15 @@ export class IconDirective {}
   selector: "bit-simple-dialog",
   templateUrl: "./simple-dialog.component.html",
   animations: [fadeIn],
-  standalone: true,
-  imports: [NgIf, DialogTitleContainerDirective, TypographyDirective],
+  imports: [DialogTitleContainerDirective, TypographyDirective],
 })
 export class SimpleDialogComponent {
   @ContentChild(IconDirective) icon!: IconDirective;
+
+  /**
+   * Optional flag to hide the dialog's center icon. Defaults to false.
+   */
+  hideIcon = input(false, { transform: booleanAttribute });
 
   get hasIcon() {
     return this.icon != null;

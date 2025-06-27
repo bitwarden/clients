@@ -1,7 +1,11 @@
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-browser-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Browser
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
@@ -37,20 +41,17 @@ defaults:
   run:
     shell: bash
 
-jobs:
-  check-run:
-    name: Check PR run
-    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+permissions: {}
 
+jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
-    needs:
-      - check-run
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -73,6 +74,14 @@ jobs:
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check secrets
+        id: check-secrets
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        run: |
+          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
 
 
   locales-test:
@@ -205,14 +214,10 @@ jobs:
             npm_command: "dist:firefox:mv3"
             archive_name: "dist-firefox.zip"
             artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
-          - name: "opera"
-            npm_command: "dist:opera"
-            archive_name: "dist-opera.zip"
-            artifact_name: "dist-opera"
           - name: "opera-mv3"
             npm_command: "dist:opera:mv3"
             archive_name: "dist-opera.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-opera-MV3"
+            artifact_name: "dist-opera-MV3"
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -281,6 +286,7 @@ jobs:
     needs:
       - setup
       - locales-test
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     env:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -437,7 +443,7 @@ jobs:
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

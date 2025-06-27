@@ -1,9 +1,12 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component } from "@angular/core";
-import { Toast as BaseToastrComponent } from "ngx-toastr";
+import { Toast as BaseToastrComponent, ToastPackage, ToastrService } from "ngx-toastr";
 
 import { ToastComponent } from "./toast.component";
 
+/**
+ * Toasts are ephemeral notifications. They most often communicate the result of a user action. Due to their ephemeral nature, long messages and critical alerts should not utilize toasts.
+ */
 @Component({
   template: `
     <bit-toast
@@ -23,8 +26,10 @@ import { ToastComponent } from "./toast.component";
       transition("active => removed", animate("{{ easeTime }}ms {{ easing }}")),
     ]),
   ],
-  preserveWhitespaces: false,
-  standalone: true,
   imports: [ToastComponent],
 })
-export class BitwardenToastrComponent extends BaseToastrComponent {}
+export class BitwardenToastrComponent extends BaseToastrComponent {
+  constructor(toastrService: ToastrService, toastPackage: ToastPackage) {
+    super(toastrService, toastPackage);
+  }
+}

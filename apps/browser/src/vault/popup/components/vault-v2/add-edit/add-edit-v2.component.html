@@ -2,7 +2,7 @@
   <popup-header
     slot="header"
     [pageTitle]="headerText"
-    [backAction]="handleBackButton.bind(this)"
+    [backAction]="handleBackButton"
     showBackButton
   >
     <app-pop-out slot="end" />
@@ -25,6 +25,10 @@
   <popup-footer slot="footer">
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
+    </button>
+
+    <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
+      {{ "cancel" | i18n }}
     </button>
 
     <button

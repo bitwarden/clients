@@ -2,19 +2,22 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "Bitwarden-logo"
+  },
   "extName": {
     "message": "Bitwarden passordbehandler",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Hjemme, på jobben eller på farten sikrer Bitwarden enkelt alle dine passord, passnøkler og sensitiv informasjon",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Logg på eller opprett en ny konto for å få tilgang til ditt sikre hvelv."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Invitasjon akseptert"
   },
   "createAccount": {
     "message": "Opprett en konto"
@@ -26,7 +29,7 @@
     "message": "Logg inn med passnøkkel"
   },
   "useSingleSignOn": {
-    "message": "Use single sign-on"
+    "message": "Bruk singulær pålogging"
   },
   "welcomeBack": {
     "message": "Velkommen tilbake"
@@ -35,7 +38,7 @@
     "message": "Velg et sterkt passord"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Fullfør opprettelsen av kontoen din ved å bestemme et passord"
   },
   "enterpriseSingleSignOn": {
     "message": "Bedriftsinnlogging (SSO)"
@@ -56,10 +59,10 @@
     "message": "Hovedpassord"
   },
   "masterPassDesc": {
-    "message": "Superpassordet er passordet du bruker for å få tilgang til hvelvet ditt. Det er veldig viktig at du aldri glemmer ditt superpassord. Det er ingen måter å få tilbake passordet på dersom du noensinne skulle klare å glemme det."
+    "message": "Hovedpassordet er passordet du bruker for å få tilgang til hvelvet ditt. Det er veldig viktig at du aldri glemmer hovedpassordet ditt. Det er ingen måter å få tilbake passordet på dersom du skulle klare å glemme det."
   },
   "masterPassHintDesc": {
-    "message": "Et hint for superpassordet kan hjelpe deg med å huske på passordet dersom du skulle glemme det."
+    "message": "Et hint for hovedpassordet kan hjelpe deg med å huske passordet dersom du skulle glemme det."
   },
   "masterPassHintText": {
     "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
@@ -79,6 +82,15 @@
   },
   "masterPassHint": {
     "message": "Et hint for hovedpassordet (valgfritt)"
+  },
+  "passwordStrengthScore": {
+    "message": "Passordstyrke-score: $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
   },
   "joinOrganization": {
     "message": "Bli med i organisasjonen"
@@ -120,7 +132,7 @@
     "message": "Kopier passordet"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase"
+    "message": "Kopier passordfrase"
   },
   "copyNote": {
     "message": "Kopier notatet"
@@ -141,7 +153,7 @@
     "message": "Kopiér navn"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Kopiér firma"
   },
   "copySSN": {
     "message": "Kopiér fødselsnummer"
@@ -175,6 +187,10 @@
   },
   "copyNotes": {
     "message": "Kopiér notater"
+  },
+  "copy": {
+    "message": "Kopier",
+    "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Fyll",
@@ -248,16 +264,10 @@
     "message": "Be om passordhint"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
-    "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "passwordHint": {
-    "message": "Passordhint"
-  },
-  "enterEmailToGetHint": {
-    "message": "Skriv inn e-postadressen din for å motta hintet til hovedpassordet."
+    "message": "Skriv inn e-postadressen til kontoen din, så får du tilsendt et hint om passordet ditt"
   },
   "getMasterPasswordHint": {
-    "message": "Få et hint om superpassordet"
+    "message": "Få et hint om hovedpassordet"
   },
   "continue": {
     "message": "Fortsett"
@@ -281,25 +291,25 @@
     "message": "Endre hovedpassordet"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Vil du fortsette til nettappen?"
   },
   "continueToWebAppDesc": {
     "message": "Explore more features of your Bitwarden account on the web app."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Vil du fortsette til Hjelpesenteret?"
   },
   "continueToHelpCenterDesc": {
     "message": "Learn more about how to use Bitwarden on the Help Center."
   },
   "continueToBrowserExtensionStore": {
-    "message": "Continue to browser extension store?"
+    "message": "Vil du fortsette til nettleserutvidelsesbutikken?"
   },
   "continueToBrowserExtensionStoreDesc": {
     "message": "Help others find out if Bitwarden is right for them. Visit your browser's extension store and leave a rating now."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "You can change your master password on the Bitwarden web app."
+    "message": "Du kan endre hovedpassordet ditt i Bitwardens nettapp."
   },
   "fingerprintPhrase": {
     "message": "Fingeravtrykksfrase",
@@ -322,19 +332,19 @@
     "message": "Om"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Mer fra Bitwarden"
   },
   "continueToBitwardenDotCom": {
     "message": "Vil du fortsette til bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden for bedrifter"
   },
   "bitwardenAuthenticator": {
-    "message": "Bitwarden Authenticator"
+    "message": "Bitwarden-autentiserer"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "Med Bitwarden Authenticator kan du lagre autentiseringsnøkler og generere TOTP-koder for 2-trinnspålogging. Les mer på nettstedet bitwarden.com"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -349,7 +359,7 @@
     "message": "Create smooth and secure login experiences free from traditional passwords with Passwordless.dev. Learn more on the bitwarden.com website."
   },
   "freeBitwardenFamilies": {
-    "message": "Free Bitwarden Families"
+    "message": "Gratis Bitwarden-familier"
   },
   "freeBitwardenFamiliesPageDesc": {
     "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
@@ -371,6 +381,15 @@
   },
   "editFolder": {
     "message": "Rediger mappen"
+  },
+  "editFolderWithName": {
+    "message": "Rediger mappe: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
   },
   "newFolder": {
     "message": "Ny mappe"
@@ -431,7 +450,7 @@
     "message": "Generer automatisk sterke og unike passord for dine innlogginger."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Bitwardens nett-app"
   },
   "importItems": {
     "message": "Importer elementer"
@@ -443,19 +462,19 @@
     "message": "Generer et passord"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generér passordfrase"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Passord generert"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Passordfrase generert"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Brukernavn generert"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "E-postadresse generert"
   },
   "regeneratePassword": {
     "message": "Omgenerer et passord"
@@ -465,22 +484,6 @@
   },
   "length": {
     "message": "Lengde"
-  },
-  "uppercase": {
-    "message": "Store bokstaver (A–Å)",
-    "description": "deprecated. Use uppercaseLabel instead."
-  },
-  "lowercase": {
-    "message": "Små bokstaver (a-z)",
-    "description": "deprecated. Use lowercaseLabel instead."
-  },
-  "numbers": {
-    "message": "Tall (0-9)",
-    "description": "deprecated. Use numbersLabel instead."
-  },
-  "specialCharacters": {
-    "message": "Spesialtegn (!@#$%^&*)",
-    "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
     "message": "Inkluder",
@@ -513,10 +516,6 @@
   "specialCharactersDescription": {
     "message": "Inkluder spesialtegn",
     "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Antall ord"
@@ -567,7 +566,7 @@
     "message": "Passord"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "Autentiseringsnøkkel"
   },
   "passphrase": {
     "message": "Passfrase"
@@ -633,19 +632,19 @@
     "message": "Annet"
   },
   "unlockMethods": {
-    "message": "Unlock options"
+    "message": "Opplåsingsalternativer"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Sett opp en opplåsingsmetode for å endre tidsavbruddshandlingen for hvelvet."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "Sett opp en opplåsingsmetode i Innstillinger"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Tidsavbrudd for økten"
   },
   "vaultTimeoutHeader": {
-    "message": "Vault timeout"
+    "message": "Tidsavbrudd for hvelvet"
   },
   "otherOptions": {
     "message": "Andre valg"
@@ -656,23 +655,23 @@
   "browserNotSupportClipboard": {
     "message": "Nettleseren din støtter ikke kopiering til utklippstavlen på noe enkelt vis. Prøv å kopiere det manuelt i stedet."
   },
-  "verifyIdentity": {
-    "message": "Bekreft identitet"
+  "verifyYourIdentity": {
+    "message": "Bekreft identiteten din"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Fortsett innloggingen"
   },
   "yourVaultIsLocked": {
     "message": "Hvelvet ditt er låst. Kontroller hovedpassordet ditt for å fortsette."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Hvelvet ditt er låst"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Kontoen din er låst"
   },
   "or": {
     "message": "eller"
@@ -694,7 +693,7 @@
     }
   },
   "invalidMasterPassword": {
-    "message": "Ugyldig superpassord"
+    "message": "Ugyldig hovedpassord"
   },
   "vaultTimeout": {
     "message": "Tidsavbrudd i hvelvet"
@@ -791,16 +790,16 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "Superpassord-bekreftelsen er ikke samsvarende."
+    "message": "Bekreftelsen på hovedpassordet samsvarer ikke."
   },
   "newAccountCreated": {
     "message": "Din nye konto har blitt opprettet! Du kan nå logge på."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Den nye kontoen din er opprettet!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Du har blitt logget inn!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Du har vellykket logget inn"
@@ -809,7 +808,7 @@
     "message": "Du kan lukke dette vinduet"
   },
   "masterPassSent": {
-    "message": "Vi har sendt deg en E-post med hintet til superpassordet."
+    "message": "Vi har sendt deg en e-post med hintet til hovedpassordet."
   },
   "verificationCodeRequired": {
     "message": "En verifiseringskode er påkrevd."
@@ -843,7 +842,7 @@
     "message": "Scan authenticator QR code from current webpage"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Gjør 2-trinnsbekreftelse sømløs"
   },
   "totpHelper": {
     "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
@@ -861,7 +860,7 @@
     "message": "Logget av"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "Du har blitt logget ut av kontoen din."
   },
   "loginExpired": {
     "message": "Din innloggingsøkt har utløpt."
@@ -872,8 +871,26 @@
   "logInToBitwarden": {
     "message": "Logg inn på Bitwarden"
   },
+  "enterTheCodeSentToYourEmail": {
+    "message": "Skriv inn koden du har fått tilsendt på e-post"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Skriv inn koden fra autentiseringsappen din"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Trykk på YubiKey-en for å autentisere"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Følg trinnene nedenfor for å fullføre innloggingen."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Følg trinnene nedenfor for å fullføre innloggingen med sikkerhetsnøkkelen din."
+  },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Start registreringen på nytt"
   },
   "expiredLink": {
     "message": "Utløpt lenke"
@@ -893,6 +910,9 @@
   "no": {
     "message": "Nei"
   },
+  "location": {
+    "message": "Sted"
+  },
   "unexpectedError": {
     "message": "En uventet feil har oppstått."
   },
@@ -909,7 +929,7 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Vil du fortsette til nettappen?"
   },
   "editedFolder": {
     "message": "Redigerte mappen"
@@ -996,7 +1016,7 @@
     "message": "Spør om å legge til innlogging"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Innstillinger for hvelvlagring"
   },
   "addLoginNotificationDesc": {
     "message": "\"Legg til innlogging\"-beskjeden ber deg automatisk om å lagre nye innlogginger til hvelvet ditt hver gang du logger på dem for første gang."
@@ -1005,7 +1025,7 @@
     "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
   },
   "showCardsInVaultViewV2": {
-    "message": "Always show cards as Autofill suggestions on Vault view"
+    "message": "Alltid vis kort som auto-utfyllingsforslag i Hvelv-visningen"
   },
   "showCardsCurrentTab": {
     "message": "Vis kort på fanesiden"
@@ -1014,7 +1034,7 @@
     "message": "Vis kortelementer på fanesiden for lett auto-utfylling."
   },
   "showIdentitiesInVaultViewV2": {
-    "message": "Always show identities as Autofill suggestions on Vault view"
+    "message": "Alltid vis identiteter som auto-utfyllingsforslag i Hvelv-visningen"
   },
   "showIdentitiesCurrentTab": {
     "message": "Vis identiteter på fanesiden"
@@ -1023,7 +1043,10 @@
     "message": "Vis identitetselementer på fanesiden for enkel auto-utfylling."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Klikk på gjenstander som skal auto-utfylles i Hvelv-visningen"
+  },
+  "clickToAutofill": {
+    "message": "Klikk på gjenstander i auto-utfyllingsforslagene for å utfylle"
   },
   "clearClipboard": {
     "message": "Tøm utklippstavlen",
@@ -1039,6 +1062,117 @@
   "notificationAddSave": {
     "message": "Ja, lagre nå"
   },
+  "notificationViewAria": {
+    "message": "Vis $ITEMNAME$, åpnes i nytt vindu",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Rediger før du lagrer",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "Nytt varsel"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nytt varsel",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "Lagre som ny pålogging",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "Oppdater pålogging",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Lagre pålogging",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Oppdater eksisterende pålogging",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "Påloggingen ble lagret",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "Påloggingen ble oppdatert",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "Feil under lagring",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "description": "Detailed error message shown when saving login details fails."
+  },
   "enableChangedPasswordNotification": {
     "message": "Spør om å oppdatere eksisterende innlogginger"
   },
@@ -1049,7 +1183,7 @@
     "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
   },
   "enableUsePasskeys": {
-    "message": "Ask to save and use passkeys"
+    "message": "Spør om å lagre og bruke passnøkler"
   },
   "usePasskeysDesc": {
     "message": "Ask to save new passkeys or log in with passkeys stored in your vault. Applies to all logged in accounts."
@@ -1061,7 +1195,7 @@
     "message": "Ja, oppdater nå"
   },
   "notificationUnlockDesc": {
-    "message": "Unlock your Bitwarden vault to complete the autofill request."
+    "message": "Lås opp Bitwarden-hvelvet ditt for å utføre auto-utfyllingen."
   },
   "notificationUnlock": {
     "message": "Lås opp"
@@ -1076,7 +1210,7 @@
     "message": "Bruk et sekundært klikk for å få tilgang til passordgenerering og samsvarende innlogginger for nettsiden. "
   },
   "contextMenuItemDescAlt": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. Applies to all logged in accounts."
+    "message": "Bruk et andre klikk for å få tilgang til passordgenerering og samsvarende pålogginger for nettstedet. Gjelder for alle innloggede kontoer."
   },
   "defaultUriMatchDetection": {
     "message": "Standard URI-samsvarsgjenkjenning",
@@ -1102,12 +1236,8 @@
     "message": "Lyst",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarisert mørk",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
-  },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Eksporter fra"
   },
   "exportVault": {
     "message": "Eksporter hvelvet"
@@ -1137,7 +1267,7 @@
     "message": "Account restricted"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
+    "message": "«Filpassord» og «Bekreft filpassord» stemmer ikke overens."
   },
   "warning": {
     "message": "ADVARSEL",
@@ -1160,7 +1290,7 @@
     "message": "Kontokrypteringsnøkler er unike for hver Bitwarden sin brukerkonto, og du kan ikke importere en kryptert eksport til en annen konto."
   },
   "exportMasterPassword": {
-    "message": "Skriv inn ditt superpassord for å eksportere dine hvelvdataer."
+    "message": "Skriv inn hovedpassordet ditt for å eksportere dine hvelvdataer."
   },
   "shared": {
     "message": "Delt"
@@ -1235,8 +1365,8 @@
   "featureUnavailable": {
     "message": "Egenskapen er utilgjengelig"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium-medlemskap"
@@ -1280,9 +1410,6 @@
   "premiumPurchase": {
     "message": "Kjøp Premium"
   },
-  "premiumPurchaseAlert": {
-    "message": "Du kan kjøpe et Premium-medlemskap på bitwarden.com. Vil du besøke det nettstedet nå?"
-  },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
@@ -1293,7 +1420,7 @@
     "message": "Takk for at du støtter Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "Oppgrader til Premium og motta:"
   },
   "premiumPrice": {
     "message": "Og alt det for %price%/år!",
@@ -1305,7 +1432,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "Alt for bare $PRICE$ per år!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1331,23 +1458,11 @@
   "premiumRequiredDesc": {
     "message": "Et Premium-medlemskap er påkrevd for å bruke denne funksjonen."
   },
-  "enterVerificationCodeApp": {
-    "message": "Skriv inn den 6-sifrede verifiseringskoden som står på din autentiseringsapp."
-  },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tidsavbrudd for autentisering"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "Skriv inn den 6-sifrede verifiseringskoden som ble sendt til",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "En verifiserings-E-post har blitt sendt til $EMAIL$.",
@@ -1358,29 +1473,30 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "Husk på meg"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Ikke spør igjen på denne enheten på 30 dager"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "Send E-posten med verifiseringskoden på nytt"
+  "selectAnotherMethod": {
+    "message": "Velg en annen metode",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "Bruk en annen 2-trinnsinnloggingsmetode"
-  },
-  "insertYubiKey": {
-    "message": "Sett inn din YubiKey i din datamaskins USB-uttak, og så trykk på dens knapp."
+  "useYourRecoveryCode": {
+    "message": "Bruk gjenopprettingskoden din"
   },
   "insertU2f": {
     "message": "Sett din sikkerhetsnøkkel inn i din datamaskins USB-uttak. Dersom den har en knapp, trykk på den."
   },
-  "webAuthnNewTab": {
-    "message": "For å starte WebAuthn 2FA bekreftelsen. Klikk på knappen nedenfor for å åpne en ny fane og følge instruksene som er gitt i den nye fanen."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "Åpne ny fane"
+  "openInNewTab": {
+    "message": "Åpne i ny fane"
   },
   "webAuthnAuthenticate": {
     "message": "Autentiser WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "Les sikkerhetsnøkkel"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
   },
   "loginUnavailable": {
     "message": "Innloggingen er utilgjengelig"
@@ -1394,6 +1510,9 @@
   "twoStepOptions": {
     "message": "Alternativer for 2-trinnsinnlogging"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Velg 2-trinnspåloggingsmetode"
+  },
   "recoveryCodeDesc": {
     "message": "Har du mistet tilgang til alle dine 2-trinnsleverandører? Bruk din gjenopprettingskode til å fjerne alle 2-trinnsleverandører fra din konto."
   },
@@ -1404,17 +1523,17 @@
     "message": "Autentiseringsapp"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Skriv inn en kode generert av en autentiseringsapp som Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP Security Key"
+    "message": "Yubico OTP-sikkerhetsnøkkel"
   },
   "yubiKeyDesc": {
     "message": "Bruk en YubiKey for å få tilgang til kontoen din. Virker med enheter av typene YubiKey 4, 4 Nano, 4C, og NEO."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Skriv inn en kode generert av Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1436,9 +1555,6 @@
   "selfHostedEnvironment": {
     "message": "Selvbetjent miljø"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "Spesifiser grunn-nettadressen til din selvbetjente Bitwarden-installasjon."
-  },
   "selfHostedBaseUrlHint": {
     "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
   },
@@ -1450,9 +1566,6 @@
   },
   "customEnvironment": {
     "message": "Tilpasset miljø"
-  },
-  "customEnvironmentFooter": {
-    "message": "For avanserte brukere. Du kan bestemme grunn-nettadressen til hver tjeneste separat."
   },
   "baseUrl": {
     "message": "Tjener-nettadresse"
@@ -1480,29 +1593,47 @@
     "message": "Miljø-nettadressene har blitt lagret."
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Show autofill menu on form fields",
+    "message": "Vis autoutfyll-menyen i tekstbokser",
     "description": "Represents the message for allowing the user to enable the autofill overlay"
   },
   "autofillSuggestionsSectionTitle": {
     "message": "Autoutfyllingsforslag"
   },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
+  },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Vis autoutfyll-forslag i tekstbokser"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Display identities as suggestions"
+    "message": "Vis identiteter som forslag"
   },
   "showInlineMenuCardsLabel": {
-    "message": "Display cards as suggestions"
+    "message": "Vis kort som forslag"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Vis forslag når ikonet er valgt"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Gjelder for alle innloggede kontoer."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser's built in password manager settings to avoid conflicts."
+    "message": "Skru av din nettlesers innebygde passordbehandler for å unngå konflikter."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Rediger nettleserinnstillingene."
@@ -1512,15 +1643,15 @@
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "Når et felt er valgt (ved fokus)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "When autofill icon is selected",
+    "message": "Når auto-utfyllingsikonet er valgt",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoadSectionTitle": {
-    "message": "Autofill on page load"
+    "message": "Auto-utfyll ved sideinnlasting"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Aktiver auto-utfylling ved sideinnlastning"
@@ -1541,7 +1672,7 @@
     "message": "Standard autofyll innstilling for innloggingselementer"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Etter aktivering av auto-utfylling på sidelasser, kan du aktivere eller deaktivere funksjonen for individuelle innloggingselementer. Dette er standardinnstillingen for innloggingselementer som ikke er satt opp separat."
+    "message": "Du kan skru av auto-utfylling ved sideinnlastinger for individuelle innloggingsgjenstander fra gjenstandens «Redigér»-visning."
   },
   "itemAutoFillOnPageLoad": {
     "message": "Auto-utfyll på sideinnlastning (hvis aktivert i Alternativer)"
@@ -1591,6 +1722,9 @@
   "dragToSort": {
     "message": "Dra for å sortere"
   },
+  "dragToReorder": {
+    "message": "Dra for å omorganisere"
+  },
   "cfTypeText": {
     "message": "Tekst"
   },
@@ -1601,7 +1735,7 @@
     "message": "Boolsk verdi"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Avkryssingsboks"
   },
   "cfTypeLinked": {
     "message": "Tilkoblet",
@@ -1788,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH-nøkkel"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Ny $TYPE$",
     "placeholders": {
@@ -1822,7 +1959,7 @@
     "message": "Generatorhistorikk"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "Tøm generatorhistorikk"
   },
   "cleargGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
@@ -1834,7 +1971,7 @@
     "message": "Samlinger"
   },
   "nCollections": {
-    "message": "$COUNT$ collections",
+    "message": "$COUNT$ samlinger",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1890,7 +2027,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Grunndomene (anbefalt)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1950,7 +2087,7 @@
     "message": "Ingenting å vise"
   },
   "nothingGeneratedRecently": {
-    "message": "You haven't generated anything recently"
+    "message": "Du har ikke generert noe i det siste"
   },
   "remove": {
     "message": "Fjern"
@@ -2001,7 +2138,7 @@
     "message": "Svakt hovedpassord"
   },
   "weakMasterPasswordDesc": {
-    "message": "Superpassordet du har valgt er svakt. Du bør bruke et sterkt superpassord (eller en passordfrase) for å sikre Bitwarden-kontoen din på en forsvarlig måte. Er du sikker på at du vil bruke dette superpassordet?"
+    "message": "Hovedpassordet du har valgt er svakt. Du bør bruke et sterkt hovedpassord (eller en passordfrase) for å sikre Bitwarden-kontoen din på en forsvarlig måte. Er du sikker på at du vil bruke dette hovedpassordet?"
   },
   "pin": {
     "message": "PIN",
@@ -2019,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Angi PIN-koden din for å låse opp Bitwarden. PIN-innstillingene tilbakestilles hvis du logger deg helt ut av programmet."
   },
-  "setYourPinCode1": {
-    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "PIN-kode er påkrevd."
@@ -2029,7 +2166,7 @@
     "message": "Ugyldig PIN-kode."
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Too many invalid PIN entry attempts. Logging out."
+    "message": "For mange ugyldige PIN-kodeforsøk. Logger ut."
   },
   "unlockWithBiometrics": {
     "message": "Lås opp med biometri"
@@ -2064,8 +2201,14 @@
   "usernameGenerator": {
     "message": "Brukernavngenerator"
   },
+  "useThisEmail": {
+    "message": "Bruk denne E-postadressen"
+  },
   "useThisPassword": {
     "message": "Bruk dette passordet"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Bruk dette brukernavnet"
@@ -2078,14 +2221,17 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "useGeneratorHelpTextPartTwo": {
-    "message": "to create a strong unique password",
+    "message": "for å lage et sterkt og unikt passord",
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "Tilpasning av hvelv"
   },
   "vaultTimeoutAction": {
     "message": "Handling ved tidsavbrudd i hvelvet"
   },
   "vaultTimeoutAction1": {
-    "message": "Timeout action"
+    "message": "Handling ved tidsavbrudd"
   },
   "lock": {
     "message": "Lås",
@@ -2135,7 +2281,7 @@
     "message": "Autoutfylt element"
   },
   "insecurePageWarning": {
-    "message": "Warning: This is an unsecured HTTP page, and any information you submit can potentially be seen and changed by others. This Login was originally saved on a secure (HTTPS) page."
+    "message": "Advarsel: Dette er en usikret HTTP-side, og all informasjon du sender inn kan potensielt bli sett og endret av andre. Denne påloggingen ble opprinnelig lagret på et sikkert (HTTPS) nettsted."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Ønsker du likevel å fylle ut denne innloggingen?"
@@ -2233,6 +2379,9 @@
   "privacyPolicy": {
     "message": "Personvernerklæring"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
+  },
   "hintEqualsPassword": {
     "message": "Passordhintet ditt kan ikke være det samme som passordet ditt."
   },
@@ -2240,7 +2389,7 @@
     "message": "Ok"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Feil ved oppdatering av tilgangssjetongen"
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
@@ -2282,7 +2431,7 @@
     "message": "Kontoen eksisterer ikke"
   },
   "nativeMessagingWrongUserKeyTitle": {
-    "message": "Biometric key missmatch"
+    "message": "Biometrisk nøkkel samsvarer ikke"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
@@ -2300,13 +2449,13 @@
     "message": "Biometri i nettleseren støttes ikke på denne enheten."
   },
   "biometricsNotUnlockedTitle": {
-    "message": "User locked or logged out"
+    "message": "Brukeren er låst eller avlogget"
   },
   "biometricsNotUnlockedDesc": {
-    "message": "Please unlock this user in the desktop application and try again."
+    "message": "Vennligst lås opp denne brukeren i skrivebordsprogrammet og prøv igjen."
   },
   "biometricsNotAvailableTitle": {
-    "message": "Biometric unlock unavailable"
+    "message": "Biometrisk opplåsing er utilgjengelig"
   },
   "biometricsNotAvailableDesc": {
     "message": "Biometric unlock is currently unavailable. Please try again later."
@@ -2336,7 +2485,13 @@
     "message": "En virksomhetsregel påvirker dine eierskapsinnstillinger."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "An organization policy has blocked importing items into your individual vault."
+    "message": "En organisasjonsretningslinje har blokkert import av gjenstander til ditt individuelle hvelv."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "domainsTitle": {
     "message": "Domener",
@@ -2344,6 +2499,9 @@
   },
   "blockedDomains": {
     "message": "Blokkerte domener"
+  },
+  "learnMoreAboutBlockedDomains": {
+    "message": "Finn ut mer om blokkerte domener"
   },
   "excludedDomains": {
     "message": "Ekskluderte domener"
@@ -2358,13 +2516,143 @@
     "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autofill is blocked for this website."
+    "message": "Auto-utfylling er blokkert for dette nettstedet."
   },
   "autofillBlockedNoticeGuidance": {
-    "message": "Change this in settings"
+    "message": "Endre dette i innstillingene"
+  },
+  "change": {
+    "message": "Endre"
+  },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
+  "changeButtonTitle": {
+    "message": "Endre passord - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
+  "atRiskPasswords": {
+    "message": "At-risk passwords"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ is requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "Your organizations are requesting you change the $COUNT$ passwords because they are at-risk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "Review and change one at-risk password"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "Change at-risk passwords faster"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "Update your settings so you can quickly autofill your passwords and generate new ones"
+  },
+  "reviewAtRiskLogins": {
+    "message": "Review at-risk logins"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Review at-risk passwords"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "Your organization passwords are at-risk because they are weak, reused, and/or exposed.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+  },
+  "updateInBitwarden": {
+    "message": "Oppdater i Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+  },
+  "turnOnAutofill": {
+    "message": "Skru på auto-utfylling"
+  },
+  "turnedOnAutofill": {
+    "message": "Skrudde på auto-utfylling"
+  },
+  "dismiss": {
+    "message": "Avvis"
   },
   "websiteItemLabel": {
-    "message": "Website $number$ (URI)",
+    "message": "Nettsted $number$ (URİ)",
     "placeholders": {
       "number": {
         "content": "$1",
@@ -2391,11 +2679,11 @@
     "message": "Begrens visninger"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Ingen kan se denne Send-en etter at grensen er nådd.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visninger igjen",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -2409,7 +2697,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Send-detaljer",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -2425,8 +2713,12 @@
     "message": "Alle Send-er",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Skjul tekst som standard"
   },
   "expired": {
     "message": "Utløpt"
@@ -2506,7 +2798,7 @@
     "message": "Egendefinert"
   },
   "sendPasswordDescV3": {
-    "message": "Add an optional password for recipients to access this Send.",
+    "message": "Legg til et valgfritt passord for at mottakerne skal få tilgang til denne Send-en.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
@@ -2561,7 +2853,7 @@
     }
   },
   "sendLinkCopied": {
-    "message": "Send link copied",
+    "message": "Send-lenken ble kopiert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -2569,7 +2861,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogText": {
-    "message": "Pop out extension?",
+    "message": "Vil du sprette ut utvidelsen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFilePopoutDialogDesc": {
@@ -2586,7 +2878,7 @@
     "message": "For å velge en fil med Safari, popp ut i et nytt vindu ved å klikke på dette banneret."
   },
   "popOut": {
-    "message": "Pop out"
+    "message": "Sprett ut"
   },
   "sendFileCalloutHeader": {
     "message": "Før du starter"
@@ -2607,13 +2899,13 @@
     "message": "Det oppstod en feil ved lagring av slettingen og utløpsdatoene."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Skjul E-postadressen din fra seere."
   },
   "passwordPrompt": {
     "message": "Forespørsel om hovedpassord på nytt"
   },
   "passwordConfirmation": {
-    "message": "Hovedpassord bekreftelse"
+    "message": "Hovedpassord-bekreftelse"
   },
   "passwordConfirmationDesc": {
     "message": "Denne handlingen er beskyttet. For å fortsette, skriv inn hovedpassordet på nytt for å bekrefte identiteten din."
@@ -2699,7 +2991,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "Maks $HOURS$ time(r) og $MINUTES$ minutt(er).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2765,14 +3057,14 @@
   "copyCustomFieldNameNotUnique": {
     "message": "Ingen unik identifikator ble funnet."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ bruker SSO med en selvdrevet nøkkelserver. Et hovedpassord er ikke lenger nødvendig for å logge inn for medlemmer av denne organisasjonen.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "Forlat organisasjonen"
@@ -2807,6 +3099,15 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
@@ -2833,14 +3134,14 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
-    "message": "to avoid additional data loss.",
+    "message": "for å unngå ytterligere datatap.",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
     "message": "Generer brukernavn"
   },
   "generateEmail": {
-    "message": "Generate email"
+    "message": "Generér E-post"
   },
   "spinboxBoundariesHint": {
     "message": "Verdien må være mellom $MIN$ og $MAX$.",
@@ -2857,7 +3158,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "message": " Bruk minst $RECOMMENDED$ tegn for å generere et sterkt passord.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -2912,7 +3213,7 @@
     "description": "Labels the domain name email forwarder service option"
   },
   "forwarderDomainNameHint": {
-    "message": "Choose a domain that is supported by the selected service",
+    "message": "Velg et domene som støttes av den valgte tjenesten",
     "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
@@ -2944,7 +3245,7 @@
     }
   },
   "forwaderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -2954,8 +3255,32 @@
     }
   },
   "forwaderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ avslo forespørselen din: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
         "content": "$1",
@@ -2988,7 +3313,7 @@
     }
   },
   "forwarderNoUrl": {
-    "message": "Invalid $SERVICENAME$ url.",
+    "message": "Ugyldig $SERVICENAME$-url.",
     "description": "Displayed when the url of the forwarding service wasn't supplied.",
     "placeholders": {
       "servicename": {
@@ -2998,7 +3323,7 @@
     }
   },
   "forwarderUnknownError": {
-    "message": "Unknown $SERVICENAME$ error occurred.",
+    "message": "Ukjent $SERVICENAME$-feil oppstod.",
     "description": "Displayed when the forwarding service failed due to an unknown error.",
     "placeholders": {
       "servicename": {
@@ -3048,15 +3373,6 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Innstillingene har blitt endret"
-  },
-  "environmentEditedClick": {
-    "message": "Klikk her"
-  },
-  "environmentEditedReset": {
-    "message": "for å tilbakestille til forhåndskonfigurerte innstillinger"
-  },
   "serverVersion": {
     "message": "Server Versjon"
   },
@@ -3087,12 +3403,6 @@
   "loginWithMasterPassword": {
     "message": "Logg på med hovedpassord"
   },
-  "loggingInAs": {
-    "message": "Logger på som"
-  },
-  "notYou": {
-    "message": "Ikke deg?"
-  },
   "newAroundHere": {
     "message": "Er du ny her?"
   },
@@ -3101,9 +3411,6 @@
   },
   "loginWithDevice": {
     "message": "Logg inn med enhet"
-  },
-  "loginWithDeviceEnabledInfo": {
-    "message": "Logg på med enhet må settes opp i Bitwarden-innstillingene. Trenger du et annet alternativ?"
   },
   "fingerprintPhraseHeader": {
     "message": "Fingeravtrykksfrase"
@@ -3117,17 +3424,20 @@
   "viewAllLogInOptions": {
     "message": "Vis alle påloggingsalternativer"
   },
-  "viewAllLoginOptionsV1": {
-    "message": "Vis alle påloggingsalternativer"
-  },
   "notificationSentDevice": {
     "message": "Et varsel er sendt til enheten din."
   },
+  "notificationSentDevicePart1": {
+    "message": "Lås opp Bitwarden på enheten din eller på"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "nett-app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
   "aNotificationWasSentToYourDevice": {
     "message": "Et varsel ble sendt til enheten din"
-  },
-  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
-    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
     "message": "You will be notified once the request is approved"
@@ -3136,7 +3446,10 @@
     "message": "Trenger du et annet alternativ?"
   },
   "loginInitiated": {
-    "message": "Login initiated"
+    "message": "Innlogging igangsatt"
+  },
+  "logInRequestSent": {
+    "message": "Forespørsel sendt"
   },
   "exposedMasterPassword": {
     "message": "Eksponert hovedpassord"
@@ -3193,22 +3506,22 @@
     "message": "Innstillinger for auto-utfylling"
   },
   "autofillKeyboardShortcutSectionTitle": {
-    "message": "Autofill shortcut"
+    "message": "Auto-utfyllingshurtigtast(er)"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Endre snarvei"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Behandle snarveier"
   },
   "autofillShortcut": {
     "message": "Auto-utfyll tastatursnarvei"
   },
   "autofillLoginShortcutNotSet": {
-    "message": "The autofill login shortcut is not set. Change this in the browser's settings."
+    "message": "Snarveien for auto-utfyllingspålogging er ikke angitt. Endre dette i nettleserens innstillinger."
   },
   "autofillLoginShortcutText": {
-    "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
+    "message": "Autoutfyll-snarveien for pålogging er $COMMAND$. Håndter alle snarveiene i nettleserens innstillinger.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -3238,7 +3551,7 @@
     "message": "Enhetsgodkjennelse kreves"
   },
   "selectAnApprovalOptionBelow": {
-    "message": "Select an approval option below"
+    "message": "Velg en godkjenningsmetode nedenfor"
   },
   "rememberThisDevice": {
     "message": "Husk denne enheten"
@@ -3252,9 +3565,6 @@
   "requestAdminApproval": {
     "message": "Be om administratorgodkjennelse"
   },
-  "approveWithMasterPassword": {
-    "message": "Godkjenn med hovedpassord"
-  },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
   },
@@ -3262,16 +3572,16 @@
     "message": "Oppretter en konto på"
   },
   "checkYourEmail": {
-    "message": "Check your email"
+    "message": "Sjekk E-postinnboksen din"
   },
   "followTheLinkInTheEmailSentTo": {
-    "message": "Follow the link in the email sent to"
+    "message": "Følg lenken i E-postadressen som ble sendt til"
   },
   "andContinueCreatingYourAccount": {
     "message": "and continue creating your account."
   },
   "noEmail": {
-    "message": "No email?"
+    "message": "Ingen E-post?"
   },
   "goBack": {
     "message": "Gå tilbake"
@@ -3301,9 +3611,6 @@
   "adminApprovalRequestSentToAdmins": {
     "message": "Forespørselen din har blitt sendt til administratoren din."
   },
-  "youWillBeNotifiedOnceApproved": {
-    "message": "Du vil bli varslet når det er godkjent."
-  },
   "troubleLoggingIn": {
     "message": "Har du problemer med å logge inn?"
   },
@@ -3311,7 +3618,7 @@
     "message": "Innlogging godkjent"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Brukerens e-postadresse mangler"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
     "message": "Active user email not found. Logging you out."
@@ -3319,12 +3626,36 @@
   "deviceTrusted": {
     "message": "Enheten er betrodd"
   },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
+  "trustOrganization": {
+    "message": "Stol på organisasjon"
+  },
+  "trust": {
+    "message": "Stol på"
+  },
+  "doNotTrust": {
+    "message": "Ikke stol på"
+  },
+  "organizationNotTrusted": {
+    "message": "Organisasjonen har ikke blitt stolt på"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Stol på brukler"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3382,17 +3713,17 @@
     }
   },
   "multipleInputEmails": {
-    "message": "1 or more emails are invalid"
+    "message": "1 eller flere e-postadresser er ugyldige"
   },
   "inputTrimValidator": {
-    "message": "Input must not contain only whitespace.",
+    "message": "Inndataen kan ikke bare inneholde tomrom.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "inputEmail": {
     "message": "Inndataen er ikke en E-postadresse."
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ field(s) above need your attention.",
+    "message": "$COUNT$ felt(er) ovenfor trenger din oppmerksomhet.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3401,10 +3732,10 @@
     }
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 felt trenger din oppmerksomhet."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ felter trenger din oppmerksomhet.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3440,7 +3771,7 @@
     "message": "Undermeny"
   },
   "toggleCollapse": {
-    "message": "Toggle collapse",
+    "message": "Utvid eller klapp sammen",
     "description": "Toggling an expand/collapse state."
   },
   "aliasDomain": {
@@ -3459,7 +3790,7 @@
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Skru av/på sidenavigering"
   },
   "skipToContent": {
     "message": "Hopp frem til innholdet"
@@ -3469,7 +3800,7 @@
     "description": "Page title for the iframe containing the overlay button"
   },
   "toggleBitwardenVaultOverlay": {
-    "message": "Toggle Bitwarden autofill menu",
+    "message": "Skru på/av Bitwardens auto-utfyllmeny",
     "description": "Screen reader and tool tip label for the overlay button"
   },
   "bitwardenVault": {
@@ -3477,11 +3808,11 @@
     "description": "Page title in overlay"
   },
   "unlockYourAccountToViewMatchingLogins": {
-    "message": "Unlock your account to view matching logins",
+    "message": "Lås opp kontoen din for å se samsvarende pålogginger",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockYourAccountToViewAutofillSuggestions": {
-    "message": "Unlock your account to view autofill suggestions",
+    "message": "Lås opp kontoen din for å vise auto-utfyllingsforslag",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -3489,11 +3820,11 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Lås opp kontoen din, åpnes i et nytt vindu",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
-    "message": "Time-based One-Time Password Verification Code",
+    "message": "Tidsbasert engangskode for bekreftelse av passord",
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
@@ -3501,7 +3832,7 @@
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
-    "message": "Fill credentials for",
+    "message": "Fyll ut innloggingsdetaljer for",
     "description": "Screen reader text for when overlay item is in focused"
   },
   "partialUsername": {
@@ -3525,7 +3856,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Add new vault login item, opens in a new window",
+    "message": "Legg til ny hvelvpåloggingsgjenstand, åpnes i et nytt vindu",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
@@ -3533,7 +3864,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
-    "message": "Add new vault card item, opens in a new window",
+    "message": "Legg til ny hvelvkortgjenstand, åpnes i et nytt vindu",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
@@ -3541,11 +3872,11 @@
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Add new vault identity item, opens in a new window",
+    "message": "Legg til ny hvelvinnstillingsgjenstand, åpnes i et nytt vindu",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Bitwarden autofill menu available. Press the down arrow key to select.",
+    "message": "Bitwarden-autoutfyllingsmenyen er tilgjengelig. Trykk på «Piltast ned»-knappen for å velge.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -3633,23 +3964,17 @@
   "duoHealthCheckResultsInNullAuthUrlError": {
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
-  "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
-  },
   "duoRequiredForAccount": {
-    "message": "Duo two-step login is required for your account."
-  },
-  "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "Duo-totrinnspålogging er påkrevd for kontoen din."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Sprett ut utvidelse"
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "Start Duo"
   },
   "importFormatError": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Dataene er ikke formatert riktig. Sjekk importfilen og prøv på nytt."
   },
   "importNothingError": {
     "message": "Ingenting ble importert."
@@ -3658,7 +3983,7 @@
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Ugyldig filpassord, vennligst bruk passordet du skrev inn da du opprettet eksportfilen."
   },
   "destination": {
     "message": "Destinasjon"
@@ -3714,19 +4039,19 @@
     "message": "Bekreft hvelvimportering"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Denne filen er passordbeskyttet. Vennligst skriv inn filpassordet for å importere data."
   },
   "confirmFilePassword": {
     "message": "Bekreft filpassord"
   },
   "exportSuccess": {
-    "message": "Vault data exported"
+    "message": "Hvelvdataen ble eksportert"
   },
   "typePasskey": {
     "message": "Passnøkkel"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "Logger inn på"
   },
   "loggedInExclamation": {
     "message": "Innlogget!"
@@ -3741,22 +4066,22 @@
     "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
   "logInWithPasskeyQuestion": {
-    "message": "Log in with passkey?"
+    "message": "Vil du logge inn med passnøkkel?"
   },
   "passkeyAlreadyExists": {
-    "message": "A passkey already exists for this application."
+    "message": "En passnøkkel finnes allerede for dette programmet."
   },
   "noPasskeysFoundForThisApplication": {
-    "message": "No passkeys found for this application."
+    "message": "Ingen passnøkler ble funnet for dette programmet."
   },
   "noMatchingPasskeyLogin": {
     "message": "Du har ikke en samsvarende innlogging for dette nettstedet."
   },
   "noMatchingLoginsForSite": {
-    "message": "No matching logins for this site"
+    "message": "Ingen samsvarende pålogginger for dette nettstedet"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Search or save passkey as new login"
+    "message": "Søk eller lagre passnøkkelen som en ny innlogging"
   },
   "confirm": {
     "message": "Bekreft"
@@ -3768,16 +4093,16 @@
     "message": "Lagre passnøkkelen som en ny pålogging"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choose a login to save this passkey to"
+    "message": "Velg en pålogging å lagre denne passnøkkelen til"
   },
   "chooseCipherForPasskeyAuth": {
-    "message": "Choose a passkey to log in with"
+    "message": "Velg en passnøkkel å logge inn med"
   },
   "passkeyItem": {
-    "message": "Passkey Item"
+    "message": "Passkode-gjenstand"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Vil du overskrive passnøkkelen?"
   },
   "overwritePasskeyAlert": {
     "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
@@ -3786,7 +4111,7 @@
     "message": "Funksjonen støttes ikke ennå"
   },
   "yourPasskeyIsLocked": {
-    "message": "Authentication required to use passkey. Verify your identity to continue."
+    "message": "Autentisering kreves for å bruke passnøkkel. Bekreft identiteten din for å fortsette."
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktorautentisering ble avbrutt"
@@ -3822,7 +4147,7 @@
     "message": "LastPass-multifaktorautentisering kreves"
   },
   "lastPassMFADesc": {
-    "message": "Enter your one-time passcode from your authentication app"
+    "message": "Skriv inn engangs-passkoden fra autentiseringsappen din"
   },
   "lastPassOOBDesc": {
     "message": "Approve the login request in your authentication app or enter a one-time passcode."
@@ -3873,6 +4198,9 @@
   "activeAccount": {
     "message": "Aktiv konto"
   },
+  "bitwardenAccount": {
+    "message": "Bitwarden-konto"
+  },
   "availableAccounts": {
     "message": "Tilgjengelige kontoer"
   },
@@ -3921,7 +4249,7 @@
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
-    "message": "Continue to Help Center?",
+    "message": "Vil du fortsette til Hjelpesenteret?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
   },
   "confirmContinueToHelpCenterPasswordManagementContent": {
@@ -3941,7 +4269,7 @@
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "Make Bitwarden your default password manager?",
+    "message": "Vil du sette Bitwarden som din standard passordbehandler?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
@@ -3953,7 +4281,7 @@
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "privacyPermissionAdditionNotGrantedTitle": {
-    "message": "Unable to set Bitwarden as the default password manager",
+    "message": "Klarte ikke å sette Bitwarden som standard passordbehandler",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "privacyPermissionAdditionNotGrantedDescription": {
@@ -3965,7 +4293,7 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {
-    "message": "Credentials saved successfully!",
+    "message": "Legitimasjonen ble vellykket lagret!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "passwordSaved": {
@@ -3973,7 +4301,7 @@
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
-    "message": "Credentials updated successfully!",
+    "message": "Legitimasjonen ble vellykket oppdatert!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "passwordUpdated": {
@@ -3991,28 +4319,28 @@
     "message": "Fjern passordnøkkel"
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Passnøkkelen ble fjernet"
   },
   "autofillSuggestions": {
-    "message": "Autofill suggestions"
+    "message": "Autoutfyllingsforslag"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Foreslåtte gjenstander"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Lagre en påloggingsgjenstand for dette nettstedet for å auto-utfylle"
   },
   "yourVaultIsEmpty": {
     "message": "Hvelvet ditt er tomt"
   },
   "noItemsMatchSearch": {
-    "message": "No items match your search"
+    "message": "Ingen gjenstander samsvarer med søket ditt"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Tøm filtrene eller prøv et annet søkeuttrykk"
   },
   "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+    "message": "Kopiér info - $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -4022,7 +4350,7 @@
     }
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Kopiér notat - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -4061,6 +4389,20 @@
       }
     }
   },
+  "viewItemTitleWithField": {
+    "message": "Vis gjenstand - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
   "autofillTitle": {
     "message": "Autoutfyll - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
@@ -4071,23 +4413,51 @@
       }
     }
   },
+  "autofillTitleWithField": {
+    "message": "Auto-utfyll - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "Kopier $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
+      }
+    }
+  },
   "noValuesToCopy": {
-    "message": "No values to copy"
+    "message": "Ingen verdier å kopiere"
   },
   "assignToCollections": {
     "message": "Legg til i samlinger"
   },
   "copyEmail": {
-    "message": "Copy email"
+    "message": "Kopier e-postadresse"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopiér telefonnummer"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopiér adresse"
   },
   "adminConsole": {
-    "message": "Admin Console"
+    "message": "Administrasjonskonsoll"
   },
   "accountSecurity": {
     "message": "Kontosikkerhet"
@@ -4146,17 +4516,8 @@
   "itemName": {
     "message": "Gjenstandens navn"
   },
-  "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
-    "placeholders": {
-      "collections": {
-        "content": "$1",
-        "example": "Work, Personal"
-      }
-    }
-  },
   "organizationIsDeactivated": {
-    "message": "Organization is deactivated"
+    "message": "Organisasjonen er deaktivert"
   },
   "owner": {
     "message": "Eier"
@@ -4178,13 +4539,13 @@
     "message": "Nyligst redigert"
   },
   "ownerYou": {
-    "message": "Owner: You"
+    "message": "Eier: Du"
   },
   "linked": {
     "message": "Tilknyttet"
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopiering lyktes"
   },
   "upload": {
     "message": "Last opp"
@@ -4196,7 +4557,7 @@
     "message": "Maksimal filstørrelse er 500 MB"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Slett $NAME$-vedlegget",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4213,6 +4574,33 @@
       }
     }
   },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
   },
@@ -4226,7 +4614,7 @@
     "message": "Filtre"
   },
   "filterVault": {
-    "message": "Filter vault"
+    "message": "Filtrer hvelv"
   },
   "filterApplied": {
     "message": "Ett filter er benyttet"
@@ -4272,10 +4660,10 @@
     "message": "Autoutfyllings-innstillinger"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Nettsted (URİ)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Nettsted (URİ) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -4322,7 +4710,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Vil du auto-utfylle ved sideinnlasting?"
   },
   "cardExpiredTitle": {
     "message": "Utløpt kort"
@@ -4403,10 +4791,10 @@
     "message": "Feltetikett"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Bruk tekstfelter for data som sikkerhetsspørsmål"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Bruk skjulte felter for sensitive data, for eksempel passord"
   },
   "checkBoxHelpText": {
     "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
@@ -4421,7 +4809,7 @@
     "message": "Rediger felt"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Rediger $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4456,6 +4844,9 @@
       }
     }
   },
+  "reorderWebsiteUriButton": {
+    "message": "Reorder website URI. Use arrow key to move item up or down."
+  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -4474,7 +4865,7 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Velg samlinger å tilordne"
   },
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
@@ -4514,19 +4905,10 @@
     "message": "Successfully assigned collections"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
-  },
-  "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
-    "placeholders": {
-      "orgname": {
-        "content": "$1",
-        "example": "Company Name"
-      }
-    }
+    "message": "Du har ikke valgt noe."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Gjenstandene ble flyttet til $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4535,7 +4917,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Gjenstanden ble flyttet til $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4576,13 +4958,13 @@
     "message": "Text Sends"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Kontohandlinger"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Show number of login autofill suggestions on extension icon"
+    "message": "Vis antall auto-utfyllingsforslag for pålogging på utvidelsesikonet"
   },
   "showQuickCopyActions": {
-    "message": "Show quick copy actions on Vault"
+    "message": "Vis hurtigkopieringshandlinger i hvelvet"
   },
   "systemDefault": {
     "message": "Systemforvalg"
@@ -4618,7 +5000,7 @@
     "message": "Prøv igjen"
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "Minste egendefinerte tidsavbrudd er 1 minutt."
   },
   "additionalContentAvailable": {
     "message": "Ytterligere innhold er tilgjengelig"
@@ -4639,10 +5021,10 @@
     "message": "Ingen gjenstander i papirkurven"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Gjenstander du sletter, vises her og slettes permanent etter 30 dager"
   },
   "trashWarning": {
-    "message": "Items that have been in trash more than 30 days will automatically be deleted"
+    "message": "Gjenstander som har ligget i papirkurven i mer enn 30 dager, blir automatisk slettet"
   },
   "restore": {
     "message": "Gjenopprett"
@@ -4651,22 +5033,22 @@
     "message": "Slett for alltid"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Du har ikke tillatelse til å redigere denne gjenstanden"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "Biometrisk opplåsing er ikke tilgjengelig fordi PIN-kode eller passord kreves først."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "Biometrisk opplåsing er utilgjengelig for øyeblikket."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrisk opplåsing er ikke tilgjengelig på grunn av feilkonfigurerte systemfiler."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "Biometrisk opplåsing er ikke tilgjengelig på grunn av feilkonfigurerte systemfiler."
   },
   "biometricsStatusHelptextDesktopDisconnected": {
-    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+    "message": "Biometrisk opplåsing er ikke tilgjengelig fordi Bitwarden-skrivebordsappen er lukket."
   },
   "biometricsStatusHelptextNotEnabledInDesktop": {
     "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
@@ -4680,19 +5062,31 @@
   "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
   },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Autentiserer"
   },
   "fillGeneratedPassword": {
-    "message": "Fill generated password",
+    "message": "Fyll inn generert passord",
     "description": "Heading for the password generator within the inline menu"
   },
   "passwordRegenerated": {
-    "message": "Password regenerated",
+    "message": "Passord ble generert på nytt",
     "description": "Notification message for when a password has been regenerated"
   },
-  "saveLoginToBitwarden": {
-    "message": "Vil du lagre påloggingen i Bitwarden?",
+  "saveToBitwarden": {
+    "message": "Lagre til Bitwarden",
     "description": "Confirmation message for saving a login to Bitwarden"
   },
   "spaceCharacterDescriptor": {
@@ -4716,7 +5110,7 @@
     "description": "Represents the @ key in screen reader content as a readable word"
   },
   "hashSignCharacterDescriptor": {
-    "message": "Hash sign",
+    "message": "Hashtag-symbol",
     "description": "Represents the # key in screen reader content as a readable word"
   },
   "dollarSignCharacterDescriptor": {
@@ -4760,7 +5154,7 @@
     "description": "Represents the + key in screen reader content as a readable word"
   },
   "equalsCharacterDescriptor": {
-    "message": "Equals",
+    "message": "Er lik",
     "description": "Represents the = key in screen reader content as a readable word"
   },
   "braceLeftCharacterDescriptor": {
@@ -4780,7 +5174,7 @@
     "description": "Represents the ] key in screen reader content as a readable word"
   },
   "pipeCharacterDescriptor": {
-    "message": "Pipe",
+    "message": "Rør",
     "description": "Represents the | key in screen reader content as a readable word"
   },
   "backSlashCharacterDescriptor": {
@@ -4842,42 +5236,6 @@
   "beta": {
     "message": "Beta"
   },
-  "importantNotice": {
-    "message": "Viktig melding"
-  },
-  "setupTwoStepLogin": {
-    "message": "Sett opp 2-trinnspålogging"
-  },
-  "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
-  },
-  "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
-  },
-  "remindMeLater": {
-    "message": "Remind me later"
-  },
-  "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "your_name@email.com"
-      }
-    }
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "Nei, det gjør jeg ikke"
-  },
-  "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
-  },
-  "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
-  },
-  "changeAcctEmail": {
-    "message": "Endre kontoens E-postadresse"
-  },
   "extensionWidth": {
     "message": "Utvidelsens bredde"
   },
@@ -4887,10 +5245,179 @@
   "extraWide": {
     "message": "Ekstra bred"
   },
+  "sshKeyWrongPassword": {
+    "message": "Passordet du skrev inn er feil."
+  },
+  "importSshKey": {
+    "message": "Importer"
+  },
+  "confirmSshKeyPassword": {
+    "message": "Bekreft passordet"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "Enter the password for the SSH key."
+  },
+  "enterSshKeyPassword": {
+    "message": "Skriv inn passord"
+  },
+  "invalidSshKey": {
+    "message": "SSH-nøkkelen er ugyldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importer nøkkel fra utklippstavlen"
+  },
+  "sshKeyImported": {
+    "message": "SSH-nøkkelen ble vellykket importert"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
+    "message": "Vennligst oppdater skrivebordsprogrammet ditt"
   },
   "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
+    "message": "For å bruke biometrisk opplåsing, må du oppdatere skrivebordsprogrammet eller skru av fingeravtrykksopplåsing i skrivebordsinnstillingene."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "settingsVaultOptions": {
+    "message": "Hvelvinnstillinger"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Velkommen til Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Sikkerhet, prioritert"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Rask og enkel pålogging"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Dine data, når og hvor du trenger dem"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Importer eksisterende passord"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Importér nå"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Velkommen til hvelvet ditt!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Spar tid med auto-utfylling"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Forenkle oppretting av kontoer"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Beskytt dine sensitive data"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Utviklervennlig SSH-tilgang"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

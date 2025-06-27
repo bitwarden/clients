@@ -1,8 +1,8 @@
-<bit-dialog dialogSize="default">
-  <span bitDialogTitle>
-    {{ "twoStepLogin" | i18n }}
-    <span bitTypography="body1">{{ "recoveryCodeTitle" | i18n }}</span>
-  </span>
+<bit-dialog
+  dialogSize="default"
+  [title]="'twoStepLogin' | i18n"
+  [subtitle]="'recoveryCodeTitle' | i18n"
+>
   <ng-container *ngIf="authed" bitDialogContent>
     <ng-container *ngIf="code">
       <p bitTypography="body1" class="tw-text-center">{{ "twoFactorRecoveryYourCode" | i18n }}:</p>

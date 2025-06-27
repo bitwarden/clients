@@ -7,6 +7,7 @@ export const ScheduledTaskNames = {
   scheduleNextSyncInterval: "scheduleNextSyncInterval",
   eventUploadsInterval: "eventUploadsInterval",
   vaultTimeoutCheckInterval: "vaultTimeoutCheckInterval",
+  clearPopupViewCache: "clearPopupViewCache",
 } as const;
 
 export type ScheduledTaskName = (typeof ScheduledTaskNames)[keyof typeof ScheduledTaskNames];

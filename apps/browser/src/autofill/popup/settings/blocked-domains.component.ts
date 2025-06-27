@@ -7,7 +7,13 @@ import {
   AfterViewInit,
   ViewChildren,
 } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  FormArray,
+} from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
@@ -33,17 +39,18 @@ import { PopOutComponent } from "../../../platform/popup/components/pop-out.comp
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
   selector: "app-blocked-domains",
   templateUrl: "blocked-domains.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CardComponent,
     CommonModule,
     FormFieldModule,
     FormsModule,
+    ReactiveFormsModule,
     IconButtonModule,
     ItemModule,
     JslibModule,
@@ -66,6 +73,11 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
   isLoading = false;
   blockedDomainsState: string[] = [];
   storedBlockedDomains: string[] = [];
+
+  protected domainListForm = new FormGroup({
+    domains: this.formBuilder.array([]),
+  });
+
   // How many fields should be non-editable before editable fields
   fieldsEditThreshold: number = 0;
 
@@ -75,7 +87,13 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
     private domainSettingsService: DomainSettingsService,
     private i18nService: I18nService,
     private toastService: ToastService,
+    private formBuilder: FormBuilder,
+    private popupRouterCacheService: PopupRouterCacheService,
   ) {}
+
+  get domainForms() {
+    return this.domainListForm.get("domains") as FormArray;
+  }
 
   async ngAfterViewInit() {
     this.domainSettingsService.blockedInteractionsUris$
@@ -113,8 +131,7 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
   }
 
   async addNewDomain() {
-    // add empty field to the Domains list interface
-    this.blockedDomainsState.push("");
+    this.domainForms.push(this.formBuilder.control(null));
 
     await this.fieldChange();
   }
@@ -144,7 +161,8 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
     this.isLoading = true;
 
     const newBlockedDomainsSaveState: NeverDomains = {};
-    const uniqueBlockedDomains = new Set(this.blockedDomainsState);
+
+    const uniqueBlockedDomains = new Set([...this.blockedDomainsState, ...this.domainForms.value]);
 
     for (const uri of uniqueBlockedDomains) {
       if (uri && uri !== "") {
@@ -152,7 +170,7 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
 
         if (!validatedHost) {
           this.toastService.showToast({
-            message: this.i18nService.t("excludedDomainsInvalidDomain", uri),
+            message: this.i18nService.t("blockedDomainsInvalidDomain", uri),
             title: "",
             variant: "error",
           });
@@ -190,16 +208,21 @@ export class BlockedDomainsComponent implements AfterViewInit, OnDestroy {
         title: "",
         variant: "success",
       });
+
+      this.domainForms.clear();
     } catch {
       this.toastService.showToast({
         message: this.i18nService.t("unexpectedError"),
         title: "",
         variant: "error",
       });
-
       // Don't reset via `handleStateUpdate` to preserve input values
       this.isLoading = false;
     }
+  }
+
+  async goBack() {
+    await this.popupRouterCacheService.back();
   }
 
   trackByFunction(index: number, _: string) {

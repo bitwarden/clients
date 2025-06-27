@@ -3,7 +3,8 @@ import { mock } from "jest-mock-extended";
 import { IdentityConstraint } from "@bitwarden/common/tools/state/identity-state-constraint";
 
 import { UsernameRandomizer } from "../../engine";
-import { EffUsernameGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { EffUsernameGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";
@@ -20,11 +21,13 @@ describe("username - eff words generator metadata", () => {
   });
 
   describe("profiles[account]", () => {
-    let accountProfile: CoreProfileMetadata<EffUsernameGenerationOptions> = null;
+    let accountProfile: CoreProfileMetadata<EffUsernameGenerationOptions> = null!;
     beforeEach(() => {
       const profile = effWordList.profiles[Profile.account];
-      if (isCoreProfile(profile)) {
+      if (isCoreProfile(profile!)) {
         accountProfile = profile;
+      } else {
+        throw new Error("this branch should never run");
       }
     });
 

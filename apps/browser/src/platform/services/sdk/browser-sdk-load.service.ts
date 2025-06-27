@@ -35,9 +35,9 @@ if (BrowserApi.isManifestVersion(3)) {
     console.info("WebAssembly is supported in this environment");
     loadingPromise = import("./wasm");
   } else {
-    // eslint-disable-next-line no-console
-    console.info("WebAssembly is not supported in this environment");
-    loadingPromise = import("./fallback");
+    loadingPromise = new Promise((_, reject) => {
+      reject(new Error("WebAssembly is not supported in this environment"));
+    });
   }
 }
 
@@ -51,17 +51,17 @@ async function importModule(): Promise<GlobalWithWasmInit["initSdk"]> {
     console.info("WebAssembly is supported in this environment");
     await import("./wasm");
   } else {
-    // eslint-disable-next-line no-console
-    console.info("WebAssembly is not supported in this environment");
-    await import("./fallback");
+    throw new Error("WebAssembly is not supported in this environment");
   }
 
   // the wasm and fallback imports mutate globalThis to add the initSdk function
   return (globalThis as GlobalWithWasmInit).initSdk;
 }
 
-export class BrowserSdkLoadService implements SdkLoadService {
-  constructor(readonly logService: LogService) {}
+export class BrowserSdkLoadService extends SdkLoadService {
+  constructor(readonly logService: LogService) {
+    super();
+  }
 
   async load(): Promise<void> {
     const startTime = performance.now();

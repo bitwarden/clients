@@ -12,8 +12,6 @@ let nextId = 0;
 @Component({
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",
-  preserveWhitespaces: false,
-  standalone: true,
 })
 export class ToggleGroupComponent<TValue = unknown> {
   private id = nextId++;

@@ -1,9 +1,11 @@
 import { mock } from "jest-mock-extended";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { makeStaticByteArray, mockEnc } from "../../../../../spec";
-import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
 import { UserKey } from "../../../../types/key";
@@ -112,7 +114,7 @@ describe("Send", () => {
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
-    encryptService.decryptToBytes
+    encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
     keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);

@@ -1,7 +1,8 @@
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "../../../../key-management/src/abstractions/key.service";
-import { EncryptService } from "../abstractions/encrypt.service";
+import { KeyService } from "@bitwarden/key-management";
+
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 
 export class ContainerService {
   constructor(

@@ -9,20 +9,26 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnInit,
   Output,
   Signal,
   signal,
   ViewChild,
+  computed,
+  OnInit,
+  ChangeDetectionStrategy,
+  input,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
@@ -44,7 +50,7 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
@@ -68,11 +74,10 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ScrollingModule,
     DisclosureComponent,
     DisclosureTriggerForDirective,
-    DecryptionFailureDialogComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
@@ -110,11 +115,51 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
    */
   private viewCipherTimeout: number | null;
 
+  ciphers = input<PopupCipherView[]>([]);
+
   /**
-   * The list of ciphers to display.
+   * If true, we will group ciphers by type (Login, Card, Identity)
+   * within subheadings in a single container, converted to a WritableSignal.
    */
-  @Input()
-  ciphers: PopupCipherView[] = [];
+  groupByType = input<boolean>(false);
+
+  /**
+   * Computed signal for a grouped list of ciphers with an optional header
+   */
+  cipherGroups$ = computed<
+    {
+      subHeaderKey?: string | null;
+      ciphers: PopupCipherView[];
+    }[]
+  >(() => {
+    const groups: { [key: string]: CipherView[] } = {};
+
+    this.ciphers().forEach((cipher) => {
+      let groupKey;
+
+      if (this.groupByType()) {
+        switch (cipher.type) {
+          case CipherType.Card:
+            groupKey = "cards";
+            break;
+          case CipherType.Identity:
+            groupKey = "identities";
+            break;
+        }
+      }
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+
+      groups[groupKey].push(cipher);
+    });
+
+    return Object.keys(groups).map((key) => ({
+      subHeaderKey: this.groupByType ? key : "",
+      ciphers: groups[key],
+    }));
+  });
 
   /**
    * Title for the vault list item section.
@@ -159,11 +204,14 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   /**
    * Resolved i18n key to use for suggested cipher items
    */
-  cipherItemTitleKey = this.currentURIIsBlocked$.pipe(
-    map((uriIsBlocked) =>
-      this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle",
-    ),
-  );
+  cipherItemTitleKey = (cipher: CipherView) =>
+    this.currentURIIsBlocked$.pipe(
+      map((uriIsBlocked) => {
+        const hasUsername = cipher.login?.username != null;
+        const key = this.primaryActionAutofill && !uriIsBlocked ? "autofillTitle" : "viewItemTitle";
+        return hasUsername ? `${key}WithField` : key;
+      }),
+    );
 
   /**
    * Option to show the autofill button for each item.
@@ -199,6 +247,12 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   disableSectionMargin: boolean = false;
 
   /**
+   * Remove the description margin
+   */
+  @Input({ transform: booleanAttribute })
+  disableDescriptionMargin: boolean = false;
+
+  /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    * @param cipher
    */
@@ -220,6 +274,7 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -266,7 +321,8 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
       this.viewCipherTimeout = null;
     }
 
-    await this.cipherService.updateLastLaunchedDate(cipher.id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.updateLastLaunchedDate(cipher.id, activeUserId);
 
     await BrowserApi.createNewTab(cipher.login.launchUri);
 

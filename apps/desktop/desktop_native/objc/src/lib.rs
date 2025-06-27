@@ -68,13 +68,13 @@ mod objc {
 
     use super::*;
 
-    extern "C" {
-        pub fn runCommand(context: *mut c_void, value: *const c_char);
-        pub fn freeObjCString(value: &ObjCString);
+    unsafe extern "C" {
+        pub unsafe fn runCommand(context: *mut c_void, value: *const c_char);
+        pub unsafe fn freeObjCString(value: &ObjCString);
     }
 
     /// This function is called from the ObjC code to return the output of the command
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub extern "C" fn commandReturn(context: &mut CommandContext, value: ObjCString) -> bool {
         let value: String = match value.try_into() {
             Ok(value) => value,

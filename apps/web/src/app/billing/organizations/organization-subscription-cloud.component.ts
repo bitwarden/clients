@@ -2,15 +2,19 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
+import {
+  OrganizationApiKeyType,
+  OrganizationUserStatusType,
+} from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -18,7 +22,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,6 +44,7 @@ import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.comp
 
 @Component({
   templateUrl: "organization-subscription-cloud.component.html",
+  standalone: false,
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
   static readonly QUERY_PARAM_UPGRADE: string = "upgrade";
@@ -56,11 +60,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSecretsManagerSubscribe = false;
   loading = true;
   locale: string;
-  showUpdatedSubscriptionStatusSection$: Observable<boolean>;
   preSelectedProductTier: ProductTierType = ProductTierType.Free;
   showSubscription = true;
   showSelfHost = false;
   organizationIsManagedByConsolidatedBillingMSP = false;
+  resellerSeatsRemainingMessage: string;
 
   protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
@@ -79,6 +83,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private configService: ConfigService,
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   async ngOnInit() {
@@ -87,10 +92,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         OrganizationSubscriptionCloudComponent.ROUTE_PARAM_ORGANIZATION_ID
       ];
     await this.load();
-
-    this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
-    );
 
     if (
       this.route.snapshot.queryParams[OrganizationSubscriptionCloudComponent.QUERY_PARAM_UPGRADE]
@@ -103,6 +104,28 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           this.preSelectedProductTier = productTier;
         }
       }
+    }
+
+    if (this.userOrg.hasReseller) {
+      const allUsers = await this.organizationUserApiService.getAllUsers(this.userOrg.id);
+
+      const userCount = allUsers.data.filter((user) =>
+        [
+          OrganizationUserStatusType.Invited,
+          OrganizationUserStatusType.Accepted,
+          OrganizationUserStatusType.Confirmed,
+        ].includes(user.status),
+      ).length;
+
+      const remainingSeats = this.userOrg.seats - userCount;
+
+      const seatsRemaining = this.i18nService.t(
+        "seatsRemaining",
+        remainingSeats.toString(),
+        this.userOrg.seats.toString(),
+      );
+
+      this.resellerSeatsRemainingMessage = seatsRemaining;
     }
   }
 
@@ -472,7 +495,12 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   get showChangePlanButton() {
-    return this.sub.plan.productTier !== ProductTierType.Enterprise && !this.showChangePlan;
+    return (
+      (!this.showChangePlan &&
+        this.sub.plan.productTier !== ProductTierType.Enterprise &&
+        !this.sub.subscription?.cancelled) ||
+      (this.sub.subscription?.cancelled && this.sub.plan.productTier === ProductTierType.Free)
+    );
   }
 
   get canUseBillingSync() {

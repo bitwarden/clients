@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -12,24 +12,26 @@ import { DialogModule } from "../../dialog.module";
 
 @Component({
   template: `
-    <div *ngFor="let group of dialogs">
-      <h2>{{ group.title }}</h2>
-      <div class="tw-mb-4 tw-flex tw-flex-row tw-gap-2">
-        <button
-          type="button"
-          *ngFor="let dialog of group.dialogs"
-          bitButton
-          (click)="openSimpleConfigurableDialog(dialog)"
-        >
-          {{ dialog.title }}
-        </button>
+    @for (group of dialogs; track group) {
+      <div>
+        <h2>{{ group.title }}</h2>
+        <div class="tw-mb-4 tw-flex tw-flex-row tw-gap-2">
+          @for (dialog of group.dialogs; track dialog) {
+            <button type="button" bitButton (click)="openSimpleConfigurableDialog(dialog)">
+              {{ dialog.title }}
+            </button>
+          }
+        </div>
       </div>
-    </div>
+    }
 
-    <bit-callout *ngIf="showCallout" [type]="calloutType" title="Dialog Close Result">
-      {{ dialogCloseResult }}
-    </bit-callout>
+    @if (showCallout) {
+      <bit-callout [type]="calloutType" title="Dialog Close Result">
+        {{ dialogCloseResult }}
+      </bit-callout>
+    }
   `,
+  imports: [ButtonModule, CalloutModule, DialogModule],
 })
 class StoryDialogComponent {
   protected dialogs: { title: string; dialogs: SimpleDialogOptions[] }[] = [
@@ -145,11 +147,9 @@ export default {
   title: "Component Library/Dialogs/Service/SimpleConfigurable",
   component: StoryDialogComponent,
   decorators: [
-    moduleMetadata({
-      imports: [ButtonModule, BrowserAnimationsModule, DialogModule, CalloutModule],
-    }),
     applicationConfig({
       providers: [
+        provideAnimations(),
         {
           provide: I18nService,
           useFactory: () => {

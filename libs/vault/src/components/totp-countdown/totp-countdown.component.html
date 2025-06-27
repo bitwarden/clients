@@ -1,34 +1,42 @@
-<div class="tw-flex tw-items-center tw-justify-center totp-v2">
-  <span class="tw-relative tw-flex tw-justify-center tw-items-center" aria-hidden="true">
-    <span
-      class="tw-absolute"
-      [ngClass]="{ 'tw-text-main': !totpLow, 'tw-text-danger': totpLow }"
-      bitTypography="helper"
-      >{{ totpSec }}</span
-    >
-    <svg class="tw-size-7" transform="rotate(-90)">
-      <g>
-        <circle
-          class="tw-fill-none"
-          [ngClass]="{ 'tw-stroke-text-main': !totpLow, 'tw-stroke-danger-600': totpLow }"
-          r="9.5"
-          cy="14"
-          cx="14"
-          stroke-width="2"
-          stroke-dasharray="60"
-          [ngStyle]="{ 'stroke-dashoffset.px': totpDash }"
-        ></circle>
-        <circle
-          class="tw-fill-none"
-          [ngClass]="{ 'tw-stroke-text-main': !totpLow, 'tw-stroke-danger-600': totpLow }"
-          r="11"
-          cy="14"
-          cx="14"
-          stroke-width="1"
-          stroke-dasharray="71"
-          stroke-dashoffset="0"
-        ></circle>
-      </g>
-    </svg>
-  </span>
-</div>
+<ng-container *ngIf="totpInfo$ | async as totpInfo">
+  <div class="tw-flex tw-items-center tw-justify-center">
+    <span class="tw-relative tw-flex tw-justify-center tw-items-center" aria-hidden="true">
+      <span
+        class="tw-absolute"
+        [ngClass]="{ 'tw-text-main': !totpInfo.totpLow, 'tw-text-danger': totpInfo.totpLow }"
+        bitTypography="helper"
+        >{{ totpInfo.totpSec }}</span
+      >
+      <svg class="tw-size-7" transform="rotate(-90)" viewBox="0 0 28 28">
+        <g>
+          <circle
+            class="tw-fill-none"
+            [ngClass]="{
+              'tw-stroke-text-main': !totpInfo.totpLow,
+              'tw-stroke-danger-600': totpInfo.totpLow,
+            }"
+            r="9.5"
+            cy="14"
+            cx="14"
+            stroke-width="2"
+            stroke-dasharray="60"
+            [ngStyle]="{ 'stroke-dashoffset.px': totpInfo.totpDash }"
+          ></circle>
+          <circle
+            class="tw-fill-none"
+            [ngClass]="{
+              'tw-stroke-text-main': !totpInfo.totpLow,
+              'tw-stroke-danger-600': totpInfo.totpLow,
+            }"
+            r="11"
+            cy="14"
+            cx="14"
+            stroke-width="1"
+            stroke-dasharray="71"
+            stroke-dashoffset="0"
+          ></circle>
+        </g>
+      </svg>
+    </span>
+  </div>
+</ng-container>

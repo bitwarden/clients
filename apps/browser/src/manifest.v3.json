@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "minimum_chrome_version": "102.0",
   "name": "__MSG_extName__",
-  "short_name": "__MSG_appName__",
-  "version": "2025.1.4",
+  "short_name": "Bitwarden",
+  "version": "2025.6.0",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -26,7 +26,7 @@
     {
       "all_frames": true,
       "css": ["content/autofill.css"],
-      "js": ["content/trigger-autofill-script-injection.js", "content/misc-utils.js"],
+      "js": ["content/trigger-autofill-script-injection.js"],
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
@@ -63,6 +63,22 @@
     "webRequestAuthProvider",
     "notifications"
   ],
+  "__firefox__permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardRead",
+    "clipboardWrite",
+    "contextMenus",
+    "idle",
+    "scripting",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "webNavigation",
+    "webRequest",
+    "webRequestAuthProvider",
+    "notifications"
+  ],
   "__safari__permissions": [
     "activeTab",
     "alarms",
@@ -86,15 +102,10 @@
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; script-src 'self'"
+    "__chrome__sandbox": "sandbox allow-scripts; script-src 'self'"
   },
   "sandbox": {
-    "pages": [
-      "overlay/menu-button.html",
-      "overlay/menu-list.html",
-      "overlay/button.html",
-      "overlay/list.html"
-    ]
+    "pages": ["overlay/menu-button.html", "overlay/menu-list.html"]
   },
   "__firefox__sandbox": null,
   "commands": {
@@ -106,6 +117,13 @@
       "description": "__MSG_commandOpenPopup__"
     },
     "__firefox___execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y",
+        "linux": "Alt+Shift+U"
+      },
+      "description": "__MSG_commandOpenSidebar__"
+    },
+    "__opera___execute_sidebar_action": {
       "suggested_key": {
         "default": "Alt+Shift+Y",
         "linux": "Alt+Shift+U"
@@ -144,8 +162,6 @@
         "overlay/menu-button.html",
         "overlay/menu-list.html",
         "overlay/menu.html",
-        "overlay/button.html",
-        "overlay/list.html",
         "popup/fonts/*"
       ],
       "matches": ["<all_urls>"]
@@ -166,5 +182,12 @@
   "storage": {
     "managed_schema": "managed_schema.json"
   },
-  "__firefox__storage": null
+  "__firefox__storage": null,
+  "__opera__sidebar_action": {
+    "default_title": "Bitwarden",
+    "default_panel": "popup/index.html?uilocation=sidebar",
+    "default_icon": "images/icon19.png",
+    "open_at_install": false,
+    "browser_style": false
+  }
 }

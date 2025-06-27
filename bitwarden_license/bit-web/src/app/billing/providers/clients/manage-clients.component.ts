@@ -6,7 +6,11 @@ import { firstValueFrom, from, lastValueFrom, map } from "rxjs";
 import { debounceTime, first, switchMap } from "rxjs/operators";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderStatusType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserType,
+} from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
@@ -21,10 +25,15 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
+import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { WebProviderService } from "../../../admin-console/providers/services/web-provider.service";
 
+import {
+  AddExistingOrganizationDialogComponent,
+  AddExistingOrganizationDialogResultType,
+} from "./add-existing-organization-dialog.component";
 import {
   CreateClientDialogResultType,
   openCreateClientDialog,
@@ -42,7 +51,6 @@ import { ReplacePipe } from "./replace.pipe";
 
 @Component({
   templateUrl: "manage-clients.component.html",
-  standalone: true,
   imports: [
     AvatarModule,
     TableModule,
@@ -63,6 +71,10 @@ export class ManageClientsComponent {
   protected searchControl = new FormControl("", { nonNullable: true });
   protected plans: PlanResponse[] = [];
 
+  pageTitle = this.i18nService.t("clients");
+  clientColumnHeader = this.i18nService.t("client");
+  newClientButtonLabel = this.i18nService.t("newClient");
+
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private providerService: ProviderService,
@@ -73,6 +85,7 @@ export class ManageClientsComponent {
     private toastService: ToastService,
     private validationService: ValidationService,
     private webProviderService: WebProviderService,
+    private billingNotificationService: BillingNotificationService,
   ) {
     this.activatedRoute.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((queryParams) => {
       this.searchControl.setValue(queryParams.search);
@@ -110,19 +123,39 @@ export class ManageClientsComponent {
   }
 
   async load() {
-    this.provider = await firstValueFrom(this.providerService.get$(this.providerId));
-
-    this.isProviderAdmin = this.provider?.type === ProviderUserType.ProviderAdmin;
-
-    const clients = (await this.billingApiService.getProviderClientOrganizations(this.providerId))
-      .data;
-
-    this.dataSource.data = clients;
-
-    this.plans = (await this.billingApiService.getPlans()).data;
-
-    this.loading = false;
+    try {
+      this.provider = await firstValueFrom(this.providerService.get$(this.providerId));
+      if (this.provider?.providerType === ProviderType.BusinessUnit) {
+        this.pageTitle = this.i18nService.t("businessUnits");
+        this.clientColumnHeader = this.i18nService.t("businessUnit");
+        this.newClientButtonLabel = this.i18nService.t("newBusinessUnit");
+      }
+      this.isProviderAdmin = this.provider?.type === ProviderUserType.ProviderAdmin;
+      this.dataSource.data = (
+        await this.billingApiService.getProviderClientOrganizations(this.providerId)
+      ).data;
+      this.plans = (await this.billingApiService.getPlans()).data;
+      this.loading = false;
+    } catch (error) {
+      this.billingNotificationService.handleError(error);
+    }
   }
+
+  addExistingOrganization = async () => {
+    if (this.provider) {
+      const reference = AddExistingOrganizationDialogComponent.open(this.dialogService, {
+        data: {
+          provider: this.provider,
+        },
+      });
+
+      const result = await lastValueFrom(reference.closed);
+
+      if (result === AddExistingOrganizationDialogResultType.Submitted) {
+        await this.load();
+      }
+    }
+  };
 
   createClient = async () => {
     const reference = openCreateClientDialog(this.dialogService, {

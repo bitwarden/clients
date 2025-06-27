@@ -11,17 +11,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordHistoryViewComponent } from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PasswordHistoryViewComponent } from "../../../../../../../../libs/vault/src/components/password-history-view/password-history-view.component";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 
 @Component({
-  standalone: true,
   selector: "vault-password-history-v2",
   templateUrl: "vault-password-history-v2.component.html",
   imports: [
@@ -60,8 +57,6 @@ export class PasswordHistoryV2Component implements OnInit {
 
   /** Load the cipher based on the given Id */
   private async loadCipher(cipherId: string) {
-    const cipher = await this.cipherService.get(cipherId);
-
     const activeAccount = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a: { id: string | undefined }) => a)),
     );
@@ -71,8 +66,8 @@ export class PasswordHistoryV2Component implements OnInit {
     }
 
     const activeUserId = activeAccount.id as UserId;
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+
+    const cipher = await this.cipherService.get(cipherId, activeUserId);
+    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
   }
 }

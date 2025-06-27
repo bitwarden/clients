@@ -1,13 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable, NgZone } from "@angular/core";
-import { combineLatest, concatMap, firstValueFrom, map } from "rxjs";
+import { combineLatest, concatMap, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -25,8 +23,7 @@ import {
 } from "@bitwarden/key-management";
 
 import { BrowserSyncVerificationDialogComponent } from "../app/components/browser-sync-verification-dialog.component";
-import { LegacyMessage } from "../models/native-messaging/legacy-message";
-import { LegacyMessageWrapper } from "../models/native-messaging/legacy-message-wrapper";
+import { LegacyMessage, LegacyMessageWrapper } from "../models/native-messaging";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 const MessageValidTimeout = 10 * 1000;
@@ -34,14 +31,14 @@ const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 type ConnectedApp = {
   publicKey: string;
-  sessionSecret: string;
+  sessionSecret: string | null;
   trusted: boolean;
 };
 
 const ConnectedAppPrefix = "connectedApp_";
 
 class ConnectedApps {
-  async get(appId: string): Promise<ConnectedApp> {
+  async get(appId: string): Promise<ConnectedApp | null> {
     if (!(await this.has(appId))) {
       return null;
     }
@@ -94,12 +91,27 @@ export class BiometricMessageHandlerService {
     private i18nService: I18nService,
   ) {
     combineLatest([
-      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
       this.desktopSettingService.browserIntegrationEnabled$,
+      this.desktopSettingService.browserIntegrationFingerprintEnabled$,
     ])
       .pipe(
-        concatMap(async () => {
-          await this.connectedApps.clear();
+        concatMap(async ([browserIntegrationEnabled, browserIntegrationFingerprintEnabled]) => {
+          if (!browserIntegrationEnabled) {
+            this.logService.info("[Native Messaging IPC] Clearing connected apps");
+            await this.connectedApps.clear();
+          } else if (!browserIntegrationFingerprintEnabled) {
+            this.logService.info(
+              "[Native Messaging IPC] Browser integration fingerprint validation is disabled, untrusting all connected apps",
+            );
+            const connected = await this.connectedApps.list();
+            for (const appId of connected) {
+              const connectedApp = await this.connectedApps.get(appId);
+              if (connectedApp != null) {
+                connectedApp.trusted = false;
+                await this.connectedApps.set(appId, connectedApp);
+              }
+            }
+          }
         }),
       )
       .subscribe();
@@ -112,6 +124,12 @@ export class BiometricMessageHandlerService {
 
     // Request to setup secure encryption
     if ("command" in rawMessage && rawMessage.command === "setupEncryption") {
+      if (rawMessage.publicKey == null || rawMessage.userId == null) {
+        this.logService.warning(
+          "[Native Messaging IPC] Received invalid setupEncryption message. Ignoring.",
+        );
+        return;
+      }
       const remotePublicKey = Utils.fromB64ToArray(rawMessage.publicKey);
 
       // Validate the UserId to ensure we are logged into the same account.
@@ -134,16 +152,18 @@ export class BiometricMessageHandlerService {
         );
       }
 
-      await this.connectedApps.set(appId, {
+      const connectedApp = {
         publicKey: Utils.fromBufferToB64(remotePublicKey),
         sessionSecret: null,
         trusted: false,
-      });
-      await this.secureCommunication(remotePublicKey, appId);
+      } as ConnectedApp;
+      await this.connectedApps.set(appId, connectedApp);
+      await this.secureCommunication(connectedApp, remotePublicKey, appId);
       return;
     }
 
-    if ((await this.connectedApps.get(appId))?.sessionSecret == null) {
+    const sessionSecret = (await this.connectedApps.get(appId))?.sessionSecret;
+    if (sessionSecret == null) {
       this.logService.info(
         "[Native Messaging IPC] Session secret for secure channel is missing. Invalidating encryption...",
       );
@@ -155,9 +175,9 @@ export class BiometricMessageHandlerService {
     }
 
     const message: LegacyMessage = JSON.parse(
-      await this.encryptService.decryptToUtf8(
+      await this.encryptService.decryptString(
         rawMessage as EncString,
-        SymmetricCryptoKey.fromString((await this.connectedApps.get(appId)).sessionSecret),
+        SymmetricCryptoKey.fromString(sessionSecret),
       ),
     );
 
@@ -173,7 +193,10 @@ export class BiometricMessageHandlerService {
       return;
     }
 
-    if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
+    if (
+      message.timestamp == null ||
+      Math.abs(message.timestamp - Date.now()) > MessageValidTimeout
+    ) {
       this.logService.info("[Native Messaging IPC] Received a too old message. Ignoring.");
       return;
     }
@@ -232,102 +255,6 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
-      // TODO: legacy, remove after 2025.3
-      case BiometricsCommands.IsAvailable: {
-        const available =
-          (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
-        return this.send(
-          {
-            command: BiometricsCommands.IsAvailable,
-            response: available ? "available" : "not available",
-          },
-          appId,
-        );
-      }
-      // TODO: legacy, remove after 2025.3
-      case BiometricsCommands.Unlock: {
-        if (
-          await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)
-        ) {
-          await this.send({ command: "biometricUnlock", response: "not available" }, appId);
-          await this.dialogService.openSimpleDialog({
-            title: this.i18nService.t("updateBrowserOrDisableFingerprintDialogTitle"),
-            content: this.i18nService.t("updateBrowserOrDisableFingerprintDialogMessage"),
-            type: "warning",
-          });
-          return;
-        }
-
-        const isTemporarilyDisabled =
-          (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
-          !((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available);
-        if (isTemporarilyDisabled) {
-          return this.send({ command: "biometricUnlock", response: "not available" }, appId);
-        }
-
-        if (!((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available)) {
-          return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
-        }
-
-        const userId =
-          (message.userId as UserId) ??
-          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-
-        if (userId == null) {
-          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
-        }
-
-        const biometricUnlockPromise =
-          message.userId == null
-            ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
-            : this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId);
-        if (!(await biometricUnlockPromise)) {
-          await this.send({ command: "biometricUnlock", response: "not enabled" }, appId);
-
-          return this.ngZone.run(() =>
-            this.dialogService.openSimpleDialog({
-              type: "warning",
-              title: { key: "biometricsNotEnabledTitle" },
-              content: { key: "biometricsNotEnabledDesc" },
-              cancelButtonText: null,
-              acceptButtonText: { key: "cancel" },
-            }),
-          );
-        }
-
-        try {
-          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
-
-          if (userKey != null) {
-            await this.send(
-              {
-                command: "biometricUnlock",
-                response: "unlocked",
-                userKeyB64: userKey.keyB64,
-              },
-              appId,
-            );
-
-            const currentlyActiveAccountId = (
-              await firstValueFrom(this.accountService.activeAccount$)
-            ).id;
-            const isCurrentlyActiveAccountUnlocked =
-              (await this.authService.getAuthStatus(userId)) == AuthenticationStatus.Unlocked;
-
-            // prevent proc reloading an active account, when it is the same as the browser
-            if (currentlyActiveAccountId != message.userId || !isCurrentlyActiveAccountUnlocked) {
-              await ipc.platform.reloadProcess();
-            }
-          } else {
-            await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
-          }
-          // FIXME: Remove when updating file. Eslint update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-          await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
-        }
-        break;
-      }
       default:
         this.logService.error("NativeMessage, got unknown command: " + message.command);
         break;
@@ -337,9 +264,14 @@ export class BiometricMessageHandlerService {
   private async send(message: any, appId: string) {
     message.timestamp = Date.now();
 
-    const encrypted = await this.encryptService.encrypt(
+    const sessionSecret = (await this.connectedApps.get(appId))?.sessionSecret;
+    if (sessionSecret == null) {
+      throw new Error("Session secret is missing");
+    }
+
+    const encrypted = await this.encryptService.encryptString(
       JSON.stringify(message),
-      SymmetricCryptoKey.fromString((await this.connectedApps.get(appId)).sessionSecret),
+      SymmetricCryptoKey.fromString(sessionSecret),
     );
 
     ipc.platform.nativeMessaging.sendMessage({
@@ -349,9 +281,13 @@ export class BiometricMessageHandlerService {
     });
   }
 
-  private async secureCommunication(remotePublicKey: Uint8Array, appId: string) {
+  private async secureCommunication(
+    connectedApp: ConnectedApp,
+    remotePublicKey: Uint8Array,
+    appId: string,
+  ) {
     const secret = await this.cryptoFunctionService.randomBytes(64);
-    const connectedApp = await this.connectedApps.get(appId);
+
     connectedApp.sessionSecret = new SymmetricCryptoKey(secret).keyB64;
     await this.connectedApps.set(appId, connectedApp);
 
@@ -421,11 +357,15 @@ export class BiometricMessageHandlerService {
     }
   }
 
-  /** A process reload after a biometric unlock should happen if the userkey that was used for biometric unlock is for a different user than the
+  /**
+   * A process reload after a biometric unlock should happen if the userkey that was used for biometric unlock is for a different user than the
    * currently active account. The userkey for the active account was in memory anyways. Further, if the desktop app is locked, a reload should occur (since the userkey was not already in memory).
    */
   async processReloadWhenRequired(messageUserId: UserId) {
-    const currentlyActiveAccountId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+    const currentlyActiveAccountId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    if (currentlyActiveAccountId == null) {
+      return;
+    }
     const isCurrentlyActiveAccountUnlocked =
       (await firstValueFrom(this.authService.authStatusFor$(currentlyActiveAccountId))) ==
       AuthenticationStatus.Unlocked;

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
+
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
@@ -38,11 +40,10 @@ export class LoginUri extends Domain {
     context: string = "No Cipher Context",
     encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
-    return this.decryptObj(
+    return this.decryptObj<LoginUri, LoginUriView>(
+      this,
       new LoginUriView(this),
-      {
-        uri: null,
-      },
+      ["uri"],
       orgId,
       encKey,
       context,
@@ -87,5 +88,18 @@ export class LoginUri extends Domain {
       uri,
       uriChecksum,
     });
+  }
+
+  /**
+   *  Maps LoginUri to SDK format.
+   *
+   * @returns {SdkLoginUri} The SDK login uri object.
+   */
+  toSdkLoginUri(): SdkLoginUri {
+    return {
+      uri: this.uri.toJSON(),
+      uriChecksum: this.uriChecksum.toJSON(),
+      match: this.match,
+    };
   }
 }

@@ -7,12 +7,16 @@ import { Subject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
-import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
 import { VaultOnboardingComponent } from "./vault-onboarding.component";
@@ -25,10 +29,11 @@ describe("VaultOnboardingComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockVaultOnboardingService: MockProxy<VaultOnboardingServiceAbstraction>;
-  let mockStateProvider: Partial<StateProvider>;
   let setInstallExtLinkSpy: any;
   let individualVaultPolicyCheckSpy: any;
   let mockConfigService: MockProxy<ConfigService>;
+  const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
+  let mockStateProvider: Partial<StateProvider>;
 
   beforeEach(() => {
     mockPolicyService = mock<PolicyService>();
@@ -38,6 +43,7 @@ describe("VaultOnboardingComponent", () => {
       getProfile: jest.fn(),
     };
     mockVaultOnboardingService = mock<VaultOnboardingServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
     mockStateProvider = {
       getActive: jest.fn().mockReturnValue(
         of({
@@ -47,7 +53,6 @@ describe("VaultOnboardingComponent", () => {
         }),
       ),
     };
-    mockConfigService = mock<ConfigService>();
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
@@ -59,8 +64,9 @@ describe("VaultOnboardingComponent", () => {
         { provide: VaultOnboardingServiceAbstraction, useValue: mockVaultOnboardingService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
-        { provide: StateProvider, useValue: mockStateProvider },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: StateProvider, useValue: mockStateProvider },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
@@ -71,11 +77,15 @@ describe("VaultOnboardingComponent", () => {
       .mockReturnValue(undefined);
     jest.spyOn(component, "checkCreationDate").mockReturnValue(null);
     jest.spyOn(window, "postMessage").mockImplementation(jest.fn());
-    (component as any).vaultOnboardingService.vaultOnboardingState$ = of({
-      createAccount: true,
-      importData: false,
-      installExtension: false,
-    });
+    (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
+      .fn()
+      .mockImplementation(() => {
+        return of({
+          createAccount: true,
+          importData: false,
+          installExtension: false,
+        });
+      });
   });
 
   it("should create", () => {
@@ -132,13 +142,13 @@ describe("VaultOnboardingComponent", () => {
   });
 
   describe("individualVaultPolicyCheck", () => {
-    it("should set isIndividualPolicyVault to true", async () => {
+    it("should set isIndividualPolicyVault to true", () => {
       individualVaultPolicyCheckSpy.mockRestore();
       const spy = jest
-        .spyOn((component as any).policyService, "policyAppliesToActiveUser$")
+        .spyOn((component as any).policyService, "policyAppliesToUser$")
         .mockReturnValue(of(true));
 
-      await component.individualVaultPolicyCheck();
+      component.individualVaultPolicyCheck();
       fixture.detectChanges();
       expect(spy).toHaveBeenCalled();
     });
@@ -148,7 +158,7 @@ describe("VaultOnboardingComponent", () => {
     it("should call getMessages when showOnboarding is true", () => {
       const messageEventSubject = new Subject<MessageEvent>();
       const messageEvent = new MessageEvent("message", {
-        data: VaultOnboardingMessages.HasBwInstalled,
+        data: VaultMessages.HasBwInstalled,
       });
       const getMessagesSpy = jest.spyOn(component, "getMessages");
 
@@ -158,7 +168,7 @@ describe("VaultOnboardingComponent", () => {
 
       void fixture.whenStable().then(() => {
         expect(window.postMessage).toHaveBeenCalledWith({
-          command: VaultOnboardingMessages.checkBwInstalled,
+          command: VaultMessages.checkBwInstalled,
         });
         expect(getMessagesSpy).toHaveBeenCalled();
       });
@@ -169,13 +179,16 @@ describe("VaultOnboardingComponent", () => {
         .spyOn((component as any).vaultOnboardingService, "setVaultOnboardingTasks")
         .mockReturnValue(Promise.resolve());
 
-      (component as any).vaultOnboardingService.vaultOnboardingState$ = of({
-        createAccount: true,
-        importData: false,
-        installExtension: false,
-      });
-
-      const eventData = { data: { command: VaultOnboardingMessages.HasBwInstalled } };
+      (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
+        .fn()
+        .mockImplementation(() => {
+          return of({
+            createAccount: true,
+            importData: false,
+            installExtension: false,
+          });
+        });
+      const eventData = { data: { command: VaultMessages.HasBwInstalled } };
 
       (component as any).showOnboarding = true;
 

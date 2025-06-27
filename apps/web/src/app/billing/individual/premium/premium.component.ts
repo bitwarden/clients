@@ -13,7 +13,6 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PreviewIndividualInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-individual-invoice.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,6 +25,7 @@ import { TaxInfoComponent } from "../../shared/tax-info.component";
 
 @Component({
   templateUrl: "./premium.component.html",
+  standalone: false,
 })
 export class PremiumComponent {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
@@ -43,10 +43,6 @@ export class PremiumComponent {
 
   protected cloudWebVaultURL: string;
   protected isSelfHost = false;
-
-  protected useLicenseUploaderComponent$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM11901_RefactorSelfHostingLicenseUploader,
-  );
 
   protected estimatedTax: number = 0;
   protected readonly familyPlanMaxUserCount = 6;

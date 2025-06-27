@@ -17,6 +17,8 @@ export type Urls = {
 /**
  * A subset of available regions, additional regions can be loaded through configuration.
  */
+// FIXME: update to use a const object instead of a typescript enum
+// eslint-disable-next-line @bitwarden/platform/no-enums
 export enum Region {
   US = "US",
   EU = "EU",
@@ -128,7 +130,7 @@ export abstract class EnvironmentService {
   /**
    * Get the environment from state. Useful if you need to get the environment for another user.
    */
-  abstract getEnvironment$(userId?: string): Observable<Environment | undefined>;
+  abstract getEnvironment$(userId: UserId): Observable<Environment | undefined>;
 
   /**
    * @deprecated Use {@link getEnvironment$} instead.

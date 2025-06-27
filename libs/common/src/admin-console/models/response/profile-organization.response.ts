@@ -14,6 +14,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -51,9 +52,12 @@ export class ProfileOrganizationResponse extends BaseResponse {
   accessSecretsManager: boolean;
   limitCollectionCreation: boolean;
   limitCollectionDeletion: boolean;
+  limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(response: any) {
     super(response);
@@ -67,6 +71,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.use2fa = this.getResponseProperty("Use2fa");
     this.useApi = this.getResponseProperty("UseApi");
     this.useSso = this.getResponseProperty("UseSso");
+    this.useOrganizationDomains = this.getResponseProperty("UseOrganizationDomains");
     this.useKeyConnector = this.getResponseProperty("UseKeyConnector") ?? false;
     this.useScim = this.getResponseProperty("UseScim") ?? false;
     this.useCustomPermissions = this.getResponseProperty("UseCustomPermissions") ?? false;
@@ -114,10 +119,13 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
     this.limitCollectionDeletion = this.getResponseProperty("LimitCollectionDeletion");
+    this.limitItemDeletion = this.getResponseProperty("LimitItemDeletion");
     this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
       "AllowAdminAccessToAllCollectionItems",
     );
     this.userIsManagedByOrganization = this.getResponseProperty("UserIsManagedByOrganization");
     this.useRiskInsights = this.getResponseProperty("UseRiskInsights");
+    this.useAdminSponsoredFamilies = this.getResponseProperty("UseAdminSponsoredFamilies");
+    this.isAdminInitiated = this.getResponseProperty("IsAdminInitiated");
   }
 }

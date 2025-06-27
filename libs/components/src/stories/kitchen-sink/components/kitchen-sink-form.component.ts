@@ -8,7 +8,6 @@ import { I18nMockService } from "../../../utils/i18n-mock.service";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 @Component({
-  standalone: true,
   selector: "bit-kitchen-sink-form",
   imports: [KitchenSinkSharedModule],
   providers: [
@@ -49,11 +48,9 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
       <bit-form-field>
         <bit-label>Your favorite color</bit-label>
         <bit-select formControlName="favColor">
-          <bit-option
-            *ngFor="let color of colors"
-            [value]="color.value"
-            [label]="color.name"
-          ></bit-option>
+          @for (color of colors; track color) {
+            <bit-option [value]="color.value" [label]="color.name"></bit-option>
+          }
         </bit-select>
       </bit-form-field>
 
@@ -119,7 +116,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
       <bit-popover [title]="'Password help'" #myPopover>
         <div>A strong password has the following:</div>
-        <ul class="tw-mt-2 tw-mb-0 tw-pl-4">
+        <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
           <li>Letters</li>
           <li>Numbers</li>
           <li>Special characters</li>

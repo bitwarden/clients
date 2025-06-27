@@ -1,14 +1,17 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -23,7 +26,7 @@ import {
 } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 
@@ -48,6 +51,7 @@ describe("AddEditV2Component", () => {
   const disable = jest.fn();
   const navigate = jest.fn();
   const back = jest.fn().mockResolvedValue(null);
+  const setHistory = jest.fn();
   const collect = jest.fn().mockResolvedValue(null);
 
   beforeEach(async () => {
@@ -58,16 +62,16 @@ describe("AddEditV2Component", () => {
     collect.mockClear();
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);
-    cipherServiceMock = mock<CipherService>();
-    cipherServiceMock.addEditCipherInfo$ =
-      addEditCipherInfo$.asObservable() as Observable<AddEditCipherInfo>;
+    cipherServiceMock = mock<CipherService>({
+      addEditCipherInfo$: jest.fn().mockReturnValue(addEditCipherInfo$),
+    });
 
     await TestBed.configureTestingModule({
       imports: [AddEditV2Component],
       providers: [
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ConfigService, useValue: mock<ConfigService>() },
-        { provide: PopupRouterCacheService, useValue: { back } },
+        { provide: PopupRouterCacheService, useValue: { back, setHistory } },
         { provide: PopupCloseWarningService, useValue: { disable } },
         { provide: Router, useValue: { navigate } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$ } },
@@ -81,6 +85,7 @@ describe("AddEditV2Component", () => {
             canDeleteCipher$: jest.fn().mockReturnValue(true),
           },
         },
+        { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
       ],
     })
       .overrideProvider(CipherFormConfigService, {

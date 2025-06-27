@@ -1,7 +1,7 @@
 <bit-container>
-  <div class="tabbed-header">
+  <div class="tw-mt-6 tw-mb-2 tw-pb-2.5">
     <div class="tw-flex tw-items-center tw-gap-2">
-      <h1>{{ "devices" | i18n }}</h1>
+      <h1 class="tw-m-0">{{ "devices" | i18n }}</h1>
       <button
         [bitPopoverTriggerFor]="infoPopover"
         type="button"
@@ -40,7 +40,8 @@
       >
         {{ col.title }}
       </th>
-      <th bitCell scope="col" role="columnheader"></th>
+      <!-- TODO: Add a column for the device actions when available -->
+      <!-- <th bitCell scope="col" role="columnheader"></th> -->
     </ng-container>
     <ng-template bitRowDef let-row>
       <td bitCell class="tw-flex tw-gap-2">

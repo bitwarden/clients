@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { NgClass, NgIf } from "@angular/common";
+import { NgClass } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,8 +14,7 @@ import { BitFormControlAbstraction } from "./form-control.abstraction";
 @Component({
   selector: "bit-form-control",
   templateUrl: "form-control.component.html",
-  standalone: true,
-  imports: [NgClass, TypographyDirective, NgIf, I18nPipe],
+  imports: [NgClass, TypographyDirective, I18nPipe],
 })
 export class FormControlComponent {
   @Input() label: string;
@@ -40,7 +39,7 @@ export class FormControlComponent {
 
   @HostBinding("class") get classes() {
     return []
-      .concat(this.inline ? ["tw-inline-block", "tw-mr-4"] : ["tw-block"])
+      .concat(this.inline ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
       .concat(this.disableMargin ? [] : ["tw-mb-4"]);
   }
 

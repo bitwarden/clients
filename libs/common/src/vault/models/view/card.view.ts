@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { CardView as SdkCardView } from "@bitwarden/sdk-internal";
+
 import { normalizeExpiryYearFormat } from "../../../autofill/utils";
 import { CardLinkedId as LinkedId } from "../../enums";
 import { linkedFieldOption } from "../../linked-field-option.decorator";
@@ -145,5 +147,25 @@ export class CardView extends ItemView {
     }
 
     return null;
+  }
+
+  /**
+   * Converts an SDK CardView to a CardView.
+   */
+  static fromSdkCardView(obj: SdkCardView): CardView | undefined {
+    if (obj == null) {
+      return undefined;
+    }
+
+    const cardView = new CardView();
+
+    cardView.cardholderName = obj.cardholderName ?? null;
+    cardView.brand = obj.brand ?? null;
+    cardView.number = obj.number ?? null;
+    cardView.expMonth = obj.expMonth ?? null;
+    cardView.expYear = obj.expYear ?? null;
+    cardView.code = obj.code ?? null;
+
+    return cardView;
   }
 }

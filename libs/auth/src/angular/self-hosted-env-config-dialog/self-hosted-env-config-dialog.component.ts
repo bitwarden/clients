@@ -1,6 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -19,7 +16,10 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -55,7 +55,6 @@ function selfHostedEnvSettingsFormValidator(): ValidatorFn {
  * Dialog for configuring self-hosted environment settings.
  */
 @Component({
-  standalone: true,
   selector: "self-hosted-env-config-dialog",
   templateUrl: "self-hosted-env-config-dialog.component.html",
   imports: [
@@ -83,17 +82,17 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
 
     const dialogResult = await firstValueFrom(dialogRef.closed);
 
-    return dialogResult;
+    return dialogResult ?? false;
   }
 
   formGroup = this.formBuilder.group(
     {
-      baseUrl: [null],
-      webVaultUrl: [null],
-      apiUrl: [null],
-      identityUrl: [null],
-      iconsUrl: [null],
-      notificationsUrl: [null],
+      baseUrl: [""],
+      webVaultUrl: [""],
+      apiUrl: [""],
+      identityUrl: [""],
+      iconsUrl: [""],
+      notificationsUrl: [""],
     },
     { validators: selfHostedEnvSettingsFormValidator() },
   );

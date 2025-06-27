@@ -18,9 +18,8 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { compareValues } from "../../../common/src/platform/misc/compare-values";
+import { compareValues } from "@bitwarden/common/platform/misc/compare-values";
+
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
@@ -34,10 +33,12 @@ export type ChipSelectOption<T> = Option<T> & {
   children?: ChipSelectOption<T>[];
 };
 
+/**
+ * `<bit-chip-select>` is a select element that is commonly used to filter items in lists or tables.
+ */
 @Component({
   selector: "bit-chip-select",
   templateUrl: "chip-select.component.html",
-  standalone: true,
   imports: [SharedModule, ButtonModule, IconButtonModule, MenuModule, TypographyModule],
   providers: [
     {
@@ -81,7 +82,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   protected focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
   onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches(".fvw-target:focus-visible"));
+    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {

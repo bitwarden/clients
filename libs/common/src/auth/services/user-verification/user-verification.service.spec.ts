@@ -1,30 +1,32 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   PinLockType,
   PinServiceAbstraction,
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricsService,
   BiometricsStatus,
   KdfConfig,
   KeyService,
+  KdfConfigService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { KdfConfigService } from "../../../../../key-management/src/abstractions/kdf-config.service";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
-import { VaultTimeoutSettingsService } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { HashPurpose } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
-import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
 import { VerificationType } from "../../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../../models/response/master-password-policy.response";
@@ -226,6 +228,8 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: null,
           masterKey: "masterKey",
+          kdfConfig: "kdfConfig",
+          email: "email",
         });
       });
 
@@ -284,6 +288,8 @@ describe("UserVerificationService", () => {
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
           masterKey: "masterKey",
+          kdfConfig: "kdfConfig",
+          email: "email",
         });
       });
 

@@ -17,10 +17,5 @@
     "build": "npm run clean && tsc",
     "build:watch": "npm run clean && tsc -watch",
     "test": "jest"
-  },
-  "dependencies": {
-    "@bitwarden/angular": "file:../angular",
-    "@bitwarden/common": "file:../common",
-    "@bitwarden/components": "file:../components"
   }
 }

@@ -18,5 +18,6 @@ import { VaultTimeoutInputComponent as VaultTimeoutInputComponentBase } from "@b
       useExisting: VaultTimeoutInputComponent,
     },
   ],
+  standalone: false,
 })
 export class VaultTimeoutInputComponent extends VaultTimeoutInputComponentBase {}

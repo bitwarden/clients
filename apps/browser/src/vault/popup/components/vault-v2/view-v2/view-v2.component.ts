@@ -5,46 +5,52 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AUTOFILL_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
   SHOW_AUTOFILL_BUTTON,
+  UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   AsyncActionsModule,
   ButtonModule,
+  CalloutModule,
   DialogService,
   IconButtonModule,
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+import {
+  ChangeLoginPasswordService,
+  CipherViewComponent,
+  CopyCipherFieldService,
+  DefaultChangeLoginPasswordService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { PremiumUpgradePromptService } from "../../../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
+import { sendExtensionMessage } from "../../../../../autofill/utils/index";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
@@ -66,12 +72,12 @@ type LoadAction =
   | typeof SHOW_AUTOFILL_BUTTON
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
-  | typeof COPY_VERIFICATION_CODE_ID;
+  | typeof COPY_VERIFICATION_CODE_ID
+  | typeof UPDATE_PASSWORD;
 
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     SearchModule,
@@ -85,13 +91,17 @@ type LoadAction =
     CipherViewComponent,
     AsyncActionsModule,
     PopOutComponent,
+    CalloutModule,
   ],
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewV2Component {
+  private activeUserId: UserId;
+
   headerText: string;
   cipher: CipherView;
   organization$: Observable<Organization>;
@@ -100,7 +110,10 @@ export class ViewV2Component {
   loadAction: LoadAction;
   senderTabId?: number;
 
+  protected showFooter$: Observable<boolean>;
+
   constructor(
+    private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
     private router: Router,
     private i18nService: I18nService,
@@ -122,20 +135,32 @@ export class ViewV2Component {
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
-        switchMap(async (params): Promise<CipherView> => {
+        switchMap(async (params) => {
           this.loadAction = params.action;
           this.senderTabId = params.senderTabId ? parseInt(params.senderTabId, 10) : undefined;
-          return await this.getCipherData(params.cipherId);
+
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(getUserId),
+          );
+          const cipher = await this.getCipherData(params.cipherId, activeUserId);
+          return { activeUserId, cipher };
         }),
-        switchMap(async (cipher) => {
+        switchMap(async ({ activeUserId, cipher }) => {
           this.cipher = cipher;
           this.headerText = this.setHeader(cipher.type);
+          this.activeUserId = activeUserId;
 
           if (this.loadAction) {
             await this._handleLoadAction(this.loadAction, this.senderTabId);
           }
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
+
+          this.showFooter$ = of(
+            cipher &&
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
+          );
 
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
@@ -164,14 +189,9 @@ export class ViewV2Component {
     }
   }
 
-  async getCipherData(id: string) {
-    const cipher = await this.cipherService.get(id);
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    return await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+  async getCipherData(id: string, userId: UserId) {
+    const cipher = await this.cipherService.get(id, userId);
+    return await this.cipherService.decrypt(cipher, userId);
   }
 
   async editCipher() {
@@ -218,7 +238,7 @@ export class ViewV2Component {
 
   restore = async (): Promise<void> => {
     try {
-      await this.cipherService.restoreWithServer(this.cipher.id);
+      await this.cipherService.restoreWithServer(this.cipher.id, this.activeUserId);
     } catch (e) {
       this.logService.error(e);
     }
@@ -233,16 +253,8 @@ export class ViewV2Component {
 
   protected deleteCipher() {
     return this.cipher.isDeleted
-      ? this.cipherService.deleteWithServer(this.cipher.id)
-      : this.cipherService.softDeleteWithServer(this.cipher.id);
-  }
-
-  protected showFooter(): boolean {
-    return (
-      this.cipher &&
-      (!this.cipher.isDeleted ||
-        (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
-    );
+      ? this.cipherService.deleteWithServer(this.cipher.id, this.activeUserId)
+      : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
   }
 
   /**
@@ -253,39 +265,60 @@ export class ViewV2Component {
    * @param senderTabId
    * @private
    */
-  private async _handleLoadAction(loadAction: LoadAction, senderTabId?: number): Promise<void> {
+  private async _handleLoadAction(
+    loadAction: LoadAction,
+    senderTabId?: number,
+  ): Promise<void | boolean> {
     let actionSuccess = false;
 
     // Both vaultPopupAutofillService and copyCipherFieldService will perform password re-prompting internally.
 
     switch (loadAction) {
-      case "show-autofill-button":
+      case SHOW_AUTOFILL_BUTTON:
         // This action simply shows the cipher view, no need to do anything.
+        if (
+          this.cipher.reprompt !== CipherRepromptType.None &&
+          !(await this.passwordRepromptService.showPasswordPrompt())
+        ) {
+          await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+        }
         return;
-      case "autofill":
+      case AUTOFILL_ID:
         actionSuccess = await this.vaultPopupAutofillService.doAutofill(this.cipher, false);
         break;
-      case "copy-username":
+      case COPY_USERNAME_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.username,
           "username",
           this.cipher,
         );
         break;
-      case "copy-password":
+      case COPY_PASSWORD_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.password,
           "password",
           this.cipher,
         );
         break;
-      case "copy-totp":
+      case COPY_VERIFICATION_CODE_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
           this.cipher.login.totp,
           "totp",
           this.cipher,
         );
         break;
+      case UPDATE_PASSWORD: {
+        const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
+
+        await sendExtensionMessage("bgHandleReprompt", {
+          tab: await chrome.tabs.get(senderTabId),
+          success: repromptSuccess,
+        });
+
+        await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+
+        break;
+      }
     }
 
     if (BrowserPopupUtils.inPopout(window)) {

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { combineLatest, filter, firstValueFrom, map } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider, DerivedState } from "@bitwarden/common/platform/state";
@@ -113,7 +113,7 @@ export class DefaultvNextCollectionService implements vNextCollectionService {
     collection.organizationId = model.organizationId;
     collection.readOnly = model.readOnly;
     collection.externalId = model.externalId;
-    collection.name = await this.encryptService.encrypt(model.name, key);
+    collection.name = await this.encryptService.encryptString(model.name, key);
     return collection;
   }
 

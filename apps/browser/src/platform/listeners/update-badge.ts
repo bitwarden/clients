@@ -2,16 +2,18 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import MainBackground from "../../background/main.background";
 import IconDetails from "../../vault/background/models/icon-details";
 import { BrowserApi } from "../browser/browser-api";
-import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 export type BadgeOptions = {
   tab?: chrome.tabs.Tab;
@@ -22,9 +24,11 @@ export class UpdateBadge {
   private authService: AuthService;
   private badgeSettingsService: BadgeSettingsServiceAbstraction;
   private cipherService: CipherService;
+  private accountService: AccountService;
   private badgeAction: typeof chrome.action | typeof chrome.browserAction;
   private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
   private win: Window & typeof globalThis;
+  private platformUtilsService: PlatformUtilsService;
 
   constructor(win: Window & typeof globalThis, services: MainBackground) {
     this.badgeAction = BrowserApi.getBrowserAction();
@@ -34,6 +38,8 @@ export class UpdateBadge {
     this.badgeSettingsService = services.badgeSettingsService;
     this.authService = services.authService;
     this.cipherService = services.cipherService;
+    this.accountService = services.accountService;
+    this.platformUtilsService = services.platformUtilsService;
   }
 
   async run(opts?: { tabId?: number; windowId?: number }): Promise<void> {
@@ -87,7 +93,14 @@ export class UpdateBadge {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(opts?.tab?.url);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId),
+    );
+    if (!activeUserId) {
+      return;
+    }
+
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(opts?.tab?.url, activeUserId);
     let countText = ciphers.length == 0 ? "" : ciphers.length.toString();
     if (ciphers.length > 9) {
       countText = "9+";
@@ -118,7 +131,7 @@ export class UpdateBadge {
         38: "/images/icon38" + iconSuffix + ".png",
       },
     };
-    if (windowId && BrowserPlatformUtilsService.isFirefox()) {
+    if (windowId && this.platformUtilsService.isFirefox()) {
       options.windowId = windowId;
     }
 
@@ -165,6 +178,13 @@ export class UpdateBadge {
       return;
     }
 
+    if ("opr" in this.win && BrowserApi.isManifestVersion(3)) {
+      // setIcon API is currenly broken for Opera MV3 extensions
+      // https://forums.opera.com/topic/75680/opr-sidebaraction-seticon-api-is-broken-access-to-extension-api-denied?_=1738349261570
+      // The API currently crashes on MacOS
+      return;
+    }
+
     if (this.isOperaSidebar(this.sidebarAction)) {
       await new Promise<void>((resolve) =>
         (this.sidebarAction as OperaSidebarAction).setIcon(options, () => resolve()),
@@ -186,9 +206,7 @@ export class UpdateBadge {
   }
 
   private get useSyncApiCalls() {
-    return (
-      BrowserPlatformUtilsService.isFirefox() || BrowserPlatformUtilsService.isSafari(this.win)
-    );
+    return this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari();
   }
 
   private isOperaSidebar(

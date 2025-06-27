@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, effect, input } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -16,10 +16,9 @@ import { CalloutModule } from "@bitwarden/components";
 @Component({
   selector: "tools-export-scope-callout",
   templateUrl: "export-scope-callout.component.html",
-  standalone: true,
   imports: [CommonModule, JslibModule, CalloutModule],
 })
-export class ExportScopeCalloutComponent implements OnInit {
+export class ExportScopeCalloutComponent {
   show = false;
   scopeConfig: {
     title: string;
@@ -27,35 +26,23 @@ export class ExportScopeCalloutComponent implements OnInit {
     scopeIdentifier: string;
   };
 
-  private _organizationId: string;
-
-  get organizationId(): string {
-    return this._organizationId;
-  }
-
-  @Input() set organizationId(value: string) {
-    this._organizationId = value;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.getScopeMessage(this._organizationId);
-  }
+  /* Optional OrganizationId, if not provided, it will display individual vault export message */
+  readonly organizationId = input<string>();
+  /* Optional export format, determines which individual export description to display */
+  readonly exportFormat = input<string>();
 
   constructor(
     protected organizationService: OrganizationService,
     protected accountService: AccountService,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    if (!(await firstValueFrom(this.organizationService.hasOrganizations(userId)))) {
-      return;
-    }
-
-    await this.getScopeMessage(this.organizationId);
-    this.show = true;
+  ) {
+    effect(async () => {
+      this.show = false;
+      await this.getScopeMessage(this.organizationId(), this.exportFormat());
+      this.show = true;
+    });
   }
 
-  private async getScopeMessage(organizationId: string) {
+  private async getScopeMessage(organizationId: string, exportFormat: string): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.scopeConfig =
       organizationId != null
@@ -72,7 +59,10 @@ export class ExportScopeCalloutComponent implements OnInit {
           }
         : {
             title: "exportingPersonalVaultTitle",
-            description: "exportingIndividualVaultDescription",
+            description:
+              exportFormat == "zip"
+                ? "exportingIndividualVaultWithAttachmentsDescription"
+                : "exportingIndividualVaultDescription",
             scopeIdentifier: await firstValueFrom(
               this.accountService.activeAccount$.pipe(map((a) => a?.email)),
             ),

@@ -28,6 +28,7 @@ export class Organization {
   use2fa: boolean;
   useApi: boolean;
   useSso: boolean;
+  useOrganizationDomains: boolean;
   useKeyConnector: boolean;
   useScim: boolean;
   useCustomPermissions: boolean;
@@ -76,6 +77,12 @@ export class Organization {
   /**
    * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
+  limitItemDeletion: boolean;
+  /**
+   * Refers to the ability to limit delete permission of collection items.
+   * If set to true, members can only delete items when they have a Can Manage permission over the collection.
+   * If set to false, members can delete items when they have a Can Manage OR Can Edit permission over the collection.
+   */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
    * Indicates if this organization manages the user.
@@ -84,6 +91,8 @@ export class Organization {
    */
   userIsManagedByOrganization: boolean;
   useRiskInsights: boolean;
+  useAdminSponsoredFamilies: boolean;
+  isAdminInitiated: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -103,6 +112,7 @@ export class Organization {
     this.use2fa = obj.use2fa;
     this.useApi = obj.useApi;
     this.useSso = obj.useSso;
+    this.useOrganizationDomains = obj.useOrganizationDomains;
     this.useKeyConnector = obj.useKeyConnector;
     this.useScim = obj.useScim;
     this.useCustomPermissions = obj.useCustomPermissions;
@@ -138,9 +148,12 @@ export class Organization {
     this.accessSecretsManager = obj.accessSecretsManager;
     this.limitCollectionCreation = obj.limitCollectionCreation;
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
+    this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
     this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
     this.useRiskInsights = obj.useRiskInsights;
+    this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.isAdminInitiated = obj.isAdminInitiated;
   }
 
   get canAccess() {
@@ -270,7 +283,7 @@ export class Organization {
   }
 
   get canManageDomainVerification() {
-    return (this.isAdmin || this.permissions.manageSso) && this.useSso;
+    return (this.isAdmin || this.permissions.manageSso) && this.useOrganizationDomains;
   }
 
   get canManageScim() {
@@ -324,8 +337,7 @@ export class Organization {
   get hasBillableProvider() {
     return (
       this.hasProvider &&
-      (this.providerType === ProviderType.Msp ||
-        this.providerType === ProviderType.MultiOrganizationEnterprise)
+      (this.providerType === ProviderType.Msp || this.providerType === ProviderType.BusinessUnit)
     );
   }
 

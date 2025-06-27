@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
+
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -52,41 +54,38 @@ export class Fido2Credential extends Domain {
   }
 
   async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<Fido2CredentialView> {
-    const view = await this.decryptObj(
+    const view = await this.decryptObj<Fido2Credential, Fido2CredentialView>(
+      this,
       new Fido2CredentialView(),
-      {
-        credentialId: null,
-        keyType: null,
-        keyAlgorithm: null,
-        keyCurve: null,
-        keyValue: null,
-        rpId: null,
-        userHandle: null,
-        userName: null,
-        rpName: null,
-        userDisplayName: null,
-        discoverable: null,
-      },
+      [
+        "credentialId",
+        "keyType",
+        "keyAlgorithm",
+        "keyCurve",
+        "keyValue",
+        "rpId",
+        "userHandle",
+        "userName",
+        "rpName",
+        "userDisplayName",
+      ],
       orgId,
       encKey,
     );
 
-    const { counter } = await this.decryptObj(
-      { counter: "" },
+    const { counter } = await this.decryptObj<
+      Fido2Credential,
       {
-        counter: null,
-      },
-      orgId,
-      encKey,
-    );
+        counter: string;
+      }
+    >(this, { counter: "" }, ["counter"], orgId, encKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
-    const { discoverable } = await this.decryptObj(
+    const { discoverable } = await this.decryptObj<Fido2Credential, { discoverable: string }>(
+      this,
       { discoverable: "" },
-      {
-        discoverable: null,
-      },
+      ["discoverable"],
       orgId,
       encKey,
     );
@@ -150,5 +149,28 @@ export class Fido2Credential extends Domain {
       discoverable,
       creationDate,
     });
+  }
+
+  /**
+   *  Maps Fido2Credential to SDK format.
+   *
+   * @returns {SdkFido2Credential} The SDK Fido2Credential object.
+   */
+  toSdkFido2Credential(): SdkFido2Credential {
+    return {
+      credentialId: this.credentialId?.toJSON(),
+      keyType: this.keyType.toJSON(),
+      keyAlgorithm: this.keyAlgorithm.toJSON(),
+      keyCurve: this.keyCurve.toJSON(),
+      keyValue: this.keyValue.toJSON(),
+      rpId: this.rpId.toJSON(),
+      userHandle: this.userHandle?.toJSON(),
+      userName: this.userName?.toJSON(),
+      counter: this.counter.toJSON(),
+      rpName: this.rpName?.toJSON(),
+      userDisplayName: this.userDisplayName?.toJSON(),
+      discoverable: this.discoverable?.toJSON(),
+      creationDate: this.creationDate.toISOString(),
+    };
   }
 }

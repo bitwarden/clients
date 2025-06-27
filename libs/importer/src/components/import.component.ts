@@ -15,9 +15,11 @@ import {
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import * as JSZip from "jszip";
-import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { filter, map, switchMap, takeUntil } from "rxjs/operators";
+import { Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
+import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/operators";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -33,22 +35,23 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
   CardComponent,
-  ContainerComponent,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -96,6 +99,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       PinServiceAbstraction,
       AccountService,
+      SdkService,
     ],
   }),
 ];
@@ -103,7 +107,6 @@ const safeProviders: SafeProvider[] = [
 @Component({
   selector: "tools-import",
   templateUrl: "import.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -117,7 +120,6 @@ const safeProviders: SafeProvider[] = [
     ImportLastPassComponent,
     RadioButtonModule,
     CardComponent,
-    ContainerComponent,
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
@@ -159,6 +161,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   protected organization: Organization;
   protected destroy$ = new Subject<void>();
+
+  protected readonly isCardTypeRestricted$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(map((items) => items.length > 0));
 
   private _importBlockedByPolicy = false;
   protected isFromAC = false;
@@ -219,6 +224,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected importCollectionService: ImportCollectionServiceAbstraction,
     protected toastService: ToastService,
     protected accountService: AccountService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -239,11 +245,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   async ngOnInit() {
     this.setImportOptions();
 
-    await this.initializeOrganizations();
-    if (this.organizationId && (await this.canAccessImport(this.organizationId))) {
-      this.handleOrganizationImportInit();
+    if (this.organizationId) {
+      await this.handleOrganizationImportInit();
     } else {
-      this.handleImportInit();
+      await this.handleImportInit();
     }
 
     this.formGroup.controls.format.valueChanges
@@ -255,7 +260,19 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     await this.handlePolicies();
   }
 
-  private handleOrganizationImportInit() {
+  private async handleOrganizationImportInit() {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService
+      .memberOrganizations$(userId)
+      .pipe(
+        map((orgs) =>
+          orgs.filter(
+            (org) =>
+              org.id == this.organizationId && (org.canAccessImport || org.canCreateNewCollections),
+          ),
+        ),
+      );
+
     this.formGroup.controls.vaultSelector.patchValue(this.organizationId);
     this.formGroup.controls.vaultSelector.disable();
 
@@ -268,7 +285,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isFromAC = true;
   }
 
-  private handleImportInit() {
+  private async handleImportInit() {
     // Filter out the no folder-item from folderViews$
     this.folders$ = this.activeUserId$.pipe(
       switchMap((userId) => {
@@ -278,6 +295,17 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     this.formGroup.controls.targetSelector.disable();
+
+    // Retrieve all organizations a user is a member of and has collections they can manage
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
+      combineLatestWith(this.collectionService.decryptedCollections$),
+      map(([organizations, collections]) =>
+        organizations
+          .filter((org) => collections.some((c) => c.organizationId === org.id && c.manage))
+          .sort(Utils.getSortFunction(this.i18nService, "name")),
+      ),
+    );
 
     combineLatest([this.formGroup.controls.vaultSelector.valueChanges, this.organizations$])
       .pipe(takeUntil(this.destroy$))
@@ -303,21 +331,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.formGroup.controls.vaultSelector.setValue("myVault");
   }
 
-  private async initializeOrganizations() {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.organizations$ = concat(
-      this.organizationService.memberOrganizations$(userId).pipe(
-        // Import is an alternative way to create collections during onboarding, so import from Password Manager
-        // is available to any user who can create collections in the organization.
-        map((orgs) => orgs.filter((org) => org.canAccessImport || org.canCreateNewCollections)),
-        map((orgs) => orgs.sort(Utils.getSortFunction(this.i18nService, "name"))),
-      ),
-    );
-  }
-
   private async handlePolicies() {
     combineLatest([
-      this.policyService.policyAppliesToActiveUser$(PolicyType.PersonalOwnership),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        ),
+      ),
       this.organizations$,
     ])
       .pipe(takeUntil(this.destroy$))

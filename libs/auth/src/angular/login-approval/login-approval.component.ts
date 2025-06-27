@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subject, firstValueFrom, map } from "rxjs";
@@ -18,7 +17,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import {
+  DIALOG_DATA,
+  DialogRef,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
@@ -37,7 +40,6 @@ export interface LoginApprovalDialogParams {
 @Component({
   selector: "login-approval",
   templateUrl: "login-approval.component.html",
-  standalone: true,
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
 export class LoginApprovalComponent implements OnInit, OnDestroy {
@@ -85,7 +87,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       }
 
       const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
-      this.email = await await firstValueFrom(
+      this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
       );
       this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
@@ -98,6 +100,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.updateTimeText();
       }, RequestTimeUpdate);
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
 
       this.loading = false;

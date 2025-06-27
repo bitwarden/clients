@@ -7,7 +7,10 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -17,13 +20,12 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
-import { SshAgentService } from "../../platform/services/ssh-agent.service";
 import { VersionService } from "../../platform/services/version.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
@@ -32,7 +34,7 @@ export class InitService {
   constructor(
     @Inject(WINDOW) private win: Window,
     private syncService: SyncServiceAbstraction,
-    private vaultTimeoutService: VaultTimeoutService,
+    private vaultTimeoutService: DefaultVaultTimeoutService,
     private i18nService: I18nServiceAbstraction,
     private eventUploadService: EventUploadServiceAbstraction,
     private twoFactorService: TwoFactorServiceAbstraction,
@@ -49,15 +51,24 @@ export class InitService {
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private sdkLoadService: SdkLoadService,
+    private configService: ConfigService,
+    private bulkEncryptService: BulkEncryptService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
   init() {
     return async () => {
-      await this.sdkLoadService.load();
+      await this.sdkLoadService.loadAndInit();
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
+
+      this.configService.serverConfig$.subscribe((newConfig) => {
+        if (newConfig != null) {
+          this.encryptService.onServerConfigChange(newConfig);
+          this.bulkEncryptService.onServerConfigChange(newConfig);
+        }
+      });
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const setUserKeyInMemoryPromises = [];

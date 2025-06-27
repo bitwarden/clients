@@ -10,11 +10,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -28,10 +29,9 @@ import { CliUtils } from "../utils";
 
 import { CipherResponse } from "./models/cipher.response";
 import { FolderResponse } from "./models/folder.response";
+import { CliRestrictedItemTypesService } from "./services/cli-restricted-item-types.service";
 
 export class CreateCommand {
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
@@ -42,6 +42,7 @@ export class CreateCommand {
     private accountProfileService: BillingAccountProfileStateService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(
@@ -90,13 +91,20 @@ export class CreateCommand {
   }
 
   private async createCipher(req: CipherExport) {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipherView = CipherExport.toView(req);
+    const isCipherTypeRestricted =
+      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+
+    if (isCipherTypeRestricted) {
+      return Response.error("Creating this item type is restricted by organizational policy.");
+    }
+
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req), activeUserId);
     try {
       const newCipher = await this.cipherService.createWithServer(cipher);
-      const decCipher = await newCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(newCipher, activeUserId),
-      );
+      const decCipher = await this.cipherService.decrypt(newCipher, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -132,13 +140,13 @@ export class CreateCommand {
       return Response.badRequest("File name not provided.");
     }
 
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const itemId = options.itemId.toLowerCase();
-    const cipher = await this.cipherService.get(itemId);
+    const cipher = await this.cipherService.get(itemId, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
-
-    const activeUserId = await firstValueFrom(this.activeUserId$);
 
     const canAccessPremium = await firstValueFrom(
       this.accountProfileService.hasPremiumFromAnySource$(activeUserId),
@@ -163,9 +171,7 @@ export class CreateCommand {
         new Uint8Array(fileBuf).buffer,
         activeUserId,
       );
-      const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
       return Response.success(new CipherResponse(decCipher));
     } catch (e) {
       return Response.error(e);
@@ -173,7 +179,7 @@ export class CreateCommand {
   }
 
   private async createFolder(req: FolderExport) {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
     const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
     try {
@@ -228,7 +234,7 @@ export class CreateCommand {
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
       const request = new CollectionRequest();
-      request.name = (await this.encryptService.encrypt(req.name, orgKey)).encryptedString;
+      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
       request.externalId = req.externalId;
       request.groups = groups;
       request.users = users;

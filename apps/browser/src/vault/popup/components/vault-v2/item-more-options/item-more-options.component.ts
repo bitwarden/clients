@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, Input, OnInit } from "@angular/core";
+import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, switchMap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 import { filter } from "rxjs/operators";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -28,12 +29,11 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
-  standalone: true,
   selector: "app-item-more-options",
   templateUrl: "./item-more-options.component.html",
   imports: [ItemModule, IconButtonModule, MenuModule, CommonModule, JslibModule, RouterModule],
 })
-export class ItemMoreOptionsComponent implements OnInit {
+export class ItemMoreOptionsComponent {
   private _cipher$ = new BehaviorSubject<CipherView>(undefined);
 
   @Input({
@@ -72,8 +72,21 @@ export class ItemMoreOptionsComponent implements OnInit {
     switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
   );
 
-  /** Boolean dependent on the current user having access to an organization */
-  protected hasOrganizations = false;
+  /** Observable Boolean dependent on the current user having access to an organization and editable collections */
+  protected canAssignCollections$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => {
+      return combineLatest([
+        this.organizationService.hasOrganizations(userId),
+        this.collectionService.decryptedCollections$,
+      ]).pipe(
+        map(([hasOrgs, collections]) => {
+          const canEditCollections = collections.some((c) => !c.readOnly);
+          return hasOrgs && canEditCollections;
+        }),
+      );
+    }),
+  );
 
   constructor(
     private cipherService: CipherService,
@@ -86,22 +99,23 @@ export class ItemMoreOptionsComponent implements OnInit {
     private accountService: AccountService,
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
+    private collectionService: CollectionService,
   ) {}
-
-  async ngOnInit(): Promise<void> {
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.hasOrganizations = await firstValueFrom(this.organizationService.hasOrganizations(userId));
-  }
 
   get canEdit() {
     return this.cipher.edit;
   }
 
+  get canViewPassword() {
+    return this.cipher.viewPassword;
+  }
   /**
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return [CipherType.Login, CipherType.Card, CipherType.Identity].includes(this.cipher.type);
+    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
+      this.cipher.type,
+    );
   }
 
   get isLogin() {

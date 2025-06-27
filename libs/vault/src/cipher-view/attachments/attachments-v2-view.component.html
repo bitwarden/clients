@@ -1,4 +1,4 @@
-<bit-section>
+<section class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">{{ "attachments" | i18n }}</h2>
   </bit-section-header>
@@ -11,12 +11,14 @@
       <ng-container slot="end">
         <bit-item-action>
           <app-download-attachment
+            [admin]="admin"
             [cipher]="cipher"
             [attachment]="attachment"
             [checkPwReprompt]="true"
+            [emergencyAccessId]="emergencyAccessId"
           ></app-download-attachment>
         </bit-item-action>
       </ng-container>
     </bit-item>
   </bit-item-group>
-</bit-section>
+</section>

@@ -5,7 +5,7 @@
 
   <app-cipher-view *ngIf="cipher" [cipher]="cipher"></app-cipher-view>
 
-  <popup-footer slot="footer" *ngIf="showFooter()">
+  <popup-footer slot="footer" *ngIf="showFooter$ | async">
     <button
       *ngIf="!cipher.isDeleted"
       buttonType="primary"
@@ -17,7 +17,7 @@
     </button>
 
     <button
-      *ngIf="cipher.isDeleted && cipher.edit"
+      *ngIf="cipher.isDeleted && cipher.permissions.restore"
       buttonType="primary"
       type="button"
       bitButton

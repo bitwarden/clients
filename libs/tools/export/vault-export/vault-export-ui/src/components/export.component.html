@@ -1,9 +1,13 @@
-<bit-callout type="danger" title="{{ 'vaultExportDisabled' | i18n }}" *ngIf="disabledByPolicy">
+<bit-callout
+  type="danger"
+  title="{{ 'vaultExportDisabled' | i18n }}"
+  *ngIf="disablePersonalVaultExportPolicy$ | async"
+>
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
 <tools-export-scope-callout
   [organizationId]="organizationId"
-  *ngIf="!disabledByPolicy"
+  [exportFormat]="format"
 ></tools-export-scope-callout>
 
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
@@ -11,7 +15,12 @@
     <bit-form-field *ngIf="organizations.length > 0">
       <bit-label>{{ "exportFrom" | i18n }}</bit-label>
       <bit-select formControlName="vaultSelector">
-        <bit-option [label]="'myVault' | i18n" value="myVault" icon="bwi-user" />
+        <bit-option
+          [label]="'myVault' | i18n"
+          value="myVault"
+          icon="bwi-user"
+          *ngIf="!(organizationDataOwnershipPolicy$ | async)"
+        />
         <bit-option
           *ngFor="let o of organizations$ | async"
           [value]="o.id"

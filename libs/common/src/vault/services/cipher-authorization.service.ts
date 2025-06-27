@@ -1,12 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { map, Observable, of, shareReplay, switchMap } from "rxjs";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 
+import { getUserId } from "../../auth/services/account.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
 
@@ -23,14 +24,25 @@ export abstract class CipherAuthorizationService {
    * Determines if the user can delete the specified cipher.
    *
    * @param {CipherLike} cipher - The cipher object to evaluate for deletion permissions.
-   * @param {CollectionId[]} [allowedCollections] - Optional. The selected collection id from the vault filter.
    * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
    *
    * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can delete the cipher.
    */
-  canDeleteCipher$: (
+  abstract canDeleteCipher$: (
     cipher: CipherLike,
-    allowedCollections?: CollectionId[],
+    isAdminConsoleAction?: boolean,
+  ) => Observable<boolean>;
+
+  /**
+   * Determines if the user can restore the specified cipher.
+   *
+   * @param {CipherLike} cipher - The cipher object to evaluate for restore permissions.
+   * @param {boolean} isAdminConsoleAction - Optional. A flag indicating if the action is being performed from the admin console.
+   *
+   * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can restore the cipher.
+   */
+  abstract canRestoreCipher$: (
+    cipher: CipherLike,
     isAdminConsoleAction?: boolean,
   ) => Observable<boolean>;
 
@@ -42,7 +54,10 @@ export abstract class CipherAuthorizationService {
    *
    * @returns {Observable<boolean>} - An observable that emits a boolean value indicating if the user can clone the cipher.
    */
-  canCloneCipher$: (cipher: CipherLike, isAdminConsoleAction?: boolean) => Observable<boolean>;
+  abstract canCloneCipher$: (
+    cipher: CipherLike,
+    isAdminConsoleAction?: boolean,
+  ) => Observable<boolean>;
 }
 
 /**
@@ -57,48 +72,53 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
 
   private organization$ = (cipher: CipherLike) =>
     this.accountService.activeAccount$.pipe(
-      switchMap((account) => this.organizationService.organizations$(account?.id)),
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
       map((orgs) => orgs.find((org) => org.id === cipher.organizationId)),
     );
+
   /**
    *
    * {@link CipherAuthorizationService.canDeleteCipher$}
    */
-  canDeleteCipher$(
-    cipher: CipherLike,
-    allowedCollections?: CollectionId[],
-    isAdminConsoleAction?: boolean,
-  ): Observable<boolean> {
-    if (cipher.organizationId == null) {
-      return of(true);
-    }
-
+  canDeleteCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
     return this.organization$(cipher).pipe(
-      switchMap((organization) => {
+      map((organization) => {
         if (isAdminConsoleAction) {
           // If the user is an admin, they can delete an unassigned cipher
           if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
-            return of(organization?.canEditUnassignedCiphers === true);
+            return organization?.canEditUnassignedCiphers === true;
           }
 
           if (organization?.canEditAllCiphers) {
-            return of(true);
+            return true;
           }
         }
 
-        return this.collectionService
-          .decryptedCollectionViews$(cipher.collectionIds as CollectionId[])
-          .pipe(
-            map((allCollections) => {
-              const shouldFilter = allowedCollections?.some(Boolean);
+        return cipher.permissions.delete;
+      }),
+    );
+  }
 
-              const collections = shouldFilter
-                ? allCollections.filter((c) => allowedCollections.includes(c.id as CollectionId))
-                : allCollections;
+  /**
+   *
+   * {@link CipherAuthorizationService.canRestoreCipher$}
+   */
+  canRestoreCipher$(cipher: CipherLike, isAdminConsoleAction?: boolean): Observable<boolean> {
+    return this.organization$(cipher).pipe(
+      map((organization) => {
+        if (isAdminConsoleAction) {
+          // If the user is an admin, they can restore an unassigned cipher
+          if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+            return organization?.canEditUnassignedCiphers === true;
+          }
 
-              return collections.some((collection) => collection.manage);
-            }),
-          );
+          if (organization?.canEditAllCiphers) {
+            return true;
+          }
+        }
+
+        return cipher.permissions.restore;
       }),
     );
   }
@@ -116,6 +136,7 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
         // Admins and custom users can always clone when in the Admin Console
         if (
           isAdminConsoleAction &&
+          organization &&
           (organization.isAdmin || organization.permissions?.editAnyCollection)
         ) {
           return of(true);

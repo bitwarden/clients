@@ -45,6 +45,7 @@ import { ProjectService } from "../project.service";
 @Component({
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
+  standalone: false,
 })
 export class ProjectSecretsComponent implements OnInit {
   secrets$: Observable<SecretListView[]>;

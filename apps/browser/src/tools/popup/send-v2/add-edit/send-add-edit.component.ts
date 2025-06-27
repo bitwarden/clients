@@ -29,6 +29,7 @@ import {
   SendFormModule,
 } from "@bitwarden/send-ui";
 
+import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -62,7 +63,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 @Component({
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
-  standalone: true,
   providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
   imports: [
     CommonModule,
@@ -77,6 +77,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     SendFilePopoutDialogContainerComponent,
     SendFormModule,
     AsyncActionsModule,
+    PopupBackBrowserDirective,
   ],
 })
 export class SendAddEditComponent {

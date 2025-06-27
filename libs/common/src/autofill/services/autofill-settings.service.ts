@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { map, Observable } from "rxjs";
+import { map, Observable, switchMap } from "rxjs";
 
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { getUserId } from "../../auth/services/account.service";
 import {
   AUTOFILL_SETTINGS_DISK,
   AUTOFILL_SETTINGS_DISK_LOCAL,
@@ -152,6 +154,7 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   constructor(
     private stateProvider: StateProvider,
     private policyService: PolicyService,
+    private accountService: AccountService,
   ) {
     this.autofillOnPageLoadState = this.stateProvider.getActive(AUTOFILL_ON_PAGE_LOAD);
     this.autofillOnPageLoad$ = this.autofillOnPageLoadState.state$.pipe(map((x) => x ?? false));
@@ -169,8 +172,11 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
     this.autofillOnPageLoadCalloutIsDismissed$ =
       this.autofillOnPageLoadCalloutIsDismissedState.state$.pipe(map((x) => x ?? false));
 
-    this.activateAutofillOnPageLoadFromPolicy$ = this.policyService.policyAppliesToActiveUser$(
-      PolicyType.ActivateAutofill,
+    this.activateAutofillOnPageLoadFromPolicy$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.ActivateAutofill, userId),
+      ),
     );
 
     this.autofillOnPageLoadPolicyToastHasDisplayedState = this.stateProvider.getActive(

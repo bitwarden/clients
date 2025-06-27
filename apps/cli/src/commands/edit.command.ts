@@ -1,15 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { CollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
-import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -23,10 +24,9 @@ import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
 import { FolderResponse } from "../vault/models/folder.response";
+import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
 
 export class EditCommand {
-  private activeUserId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
-
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
@@ -35,6 +35,7 @@ export class EditCommand {
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
     private accountService: AccountService,
+    private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
   ) {}
 
   async run(
@@ -85,27 +86,28 @@ export class EditCommand {
   }
 
   private async editCipher(id: string, req: CipherExport) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    let cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    let cipherView = await this.cipherService.decrypt(cipher, activeUserId);
     if (cipherView.isDeleted) {
       return Response.badRequest("You may not edit a deleted item. Use the restore command first.");
     }
     cipherView = CipherExport.toView(req, cipherView);
+
+    const isCipherRestricted =
+      await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
+    if (isCipherRestricted) {
+      return Response.error("Editing this item type is restricted by organizational policy.");
+    }
+
     const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
       const updatedCipher = await this.cipherService.updateWithServer(encCipher);
-      const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher, activeUserId),
-      );
+      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -114,7 +116,9 @@ export class EditCommand {
   }
 
   private async editCipherCollections(id: string, req: string[]) {
-    const cipher = await this.cipherService.get(id);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const cipher = await this.cipherService.get(id, activeUserId);
     if (cipher == null) {
       return Response.notFound();
     }
@@ -123,16 +127,17 @@ export class EditCommand {
         "Item does not belong to an organization. Consider moving it first.",
       );
     }
+    if (!cipher.viewPassword) {
+      return Response.noEditPermission();
+    }
 
     cipher.collectionIds = req;
     try {
-      const updatedCipher = await this.cipherService.saveCollectionsWithServer(cipher);
-      const decCipher = await updatedCipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(
-          updatedCipher,
-          await firstValueFrom(this.activeUserId$),
-        ),
+      const updatedCipher = await this.cipherService.saveCollectionsWithServer(
+        cipher,
+        activeUserId,
       );
+      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -141,7 +146,7 @@ export class EditCommand {
   }
 
   private async editFolder(id: string, req: FolderExport) {
-    const activeUserId = await firstValueFrom(this.activeUserId$);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const folder = await this.folderService.getFromState(id, activeUserId);
     if (folder == null) {
       return Response.notFound();
@@ -199,7 +204,7 @@ export class EditCommand {
               (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
             );
       const request = new CollectionRequest();
-      request.name = (await this.encryptService.encrypt(req.name, orgKey)).encryptedString;
+      request.name = (await this.encryptService.encryptString(req.name, orgKey)).encryptedString;
       request.externalId = req.externalId;
       request.groups = groups;
       request.users = users;

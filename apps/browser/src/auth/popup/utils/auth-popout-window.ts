@@ -1,16 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 
 const AuthPopoutType = {
   unlockExtension: "auth_unlockExtension",
   ssoAuthResult: "auth_ssoAuthResult",
   twoFactorAuthWebAuthn: "auth_twoFactorAuthWebAuthn",
+  twoFactorAuthEmail: "auth_twoFactorAuthEmail",
+  twoFactorAuthDuo: "auth_twoFactorAuthDuo",
 } as const;
+
 const extensionUnlockUrls = new Set([
   chrome.runtime.getURL("popup/index.html#/lock"),
-  chrome.runtime.getURL("popup/index.html#/home"),
+  chrome.runtime.getURL("popup/index.html#/login"),
 ]);
 
 /**
@@ -87,10 +90,42 @@ async function openTwoFactorAuthWebAuthnPopout(twoFactorAuthWebAuthnData: {
 }
 
 /**
- * Closes the two-factor authentication popout window.
+ * Closes the two-factor authentication WebAuthn popout window.
  */
 async function closeTwoFactorAuthWebAuthnPopout() {
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthWebAuthn);
+}
+
+/**
+ * Opens a popout that facilitates two-factor authentication via email.
+ */
+async function openTwoFactorAuthEmailPopout() {
+  await BrowserPopupUtils.openPopout("popup/index.html#/2fa", {
+    singleActionKey: AuthPopoutType.twoFactorAuthEmail,
+  });
+}
+
+/**
+ * Closes the two-factor authentication email popout window.
+ */
+async function closeTwoFactorAuthEmailPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthEmail);
+}
+
+/**
+ * Opens the two-factor authentication Duo popout.
+ */
+async function openTwoFactorAuthDuoPopout() {
+  await BrowserPopupUtils.openPopout("popup/index.html#/2fa", {
+    singleActionKey: AuthPopoutType.twoFactorAuthDuo,
+  });
+}
+
+/**
+ * Closes the two-factor authentication Duo popout.
+ */
+async function closeTwoFactorAuthDuoPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthDuo);
 }
 
 export {
@@ -101,4 +136,8 @@ export {
   closeSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
   closeTwoFactorAuthWebAuthnPopout,
+  openTwoFactorAuthEmailPopout,
+  closeTwoFactorAuthEmailPopout,
+  openTwoFactorAuthDuoPopout,
+  closeTwoFactorAuthDuoPopout,
 };
