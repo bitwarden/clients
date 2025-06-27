@@ -6,6 +6,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  from,
   map,
   Observable,
   shareReplay,
@@ -14,7 +15,11 @@ import {
   take,
 } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import {
+  CollectionService,
+  CollectionTypes,
+  CollectionView,
+} from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -24,6 +29,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -181,6 +188,7 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -430,39 +438,57 @@ export class VaultPopupListFiltersService {
   /**
    * Collection array structured to be directly passed to `ChipSelectComponent`
    */
-  collections$: Observable<ChipSelectOption<CollectionView>[]> = combineLatest([
-    this.filters$.pipe(
-      distinctUntilChanged(
-        (previousFilter, currentFilter) =>
-          // Only update the collections when the organizationId filter changes
-          previousFilter.organization?.id === currentFilter.organization?.id,
+  collections$: Observable<ChipSelectOption<CollectionView>[]> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        combineLatest([
+          this.filters$.pipe(
+            distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
+          ),
+          this.collectionService.decryptedCollections$,
+          this.organizationService.memberOrganizations$(userId),
+          this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+        ]),
       ),
-    ),
-    this.collectionService.decryptedCollections$,
-  ]).pipe(
-    map(([filters, allCollections]) => {
-      const organizationId = filters.organization?.id ?? null;
-      // When the organization filter is selected, filter out collections that do not belong to the selected organization
-      const collections =
-        organizationId === null
-          ? allCollections
-          : allCollections.filter((c) => c.organizationId === organizationId);
+      map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
+        const orgFilterId = filters.organization?.id ?? null;
+        // When the organization filter is selected, filter out collections that do not belong to the selected organization
+        const filtered = orgFilterId
+          ? allCollections.filter((c) => c.organizationId === orgFilterId)
+          : allCollections;
 
-      return collections;
-    }),
-    switchMap(async (collections) => {
-      const nestedCollections = await this.collectionService.getAllNested(collections);
-
-      return new DynamicTreeNode<CollectionView>({
-        fullList: collections,
-        nestedList: nestedCollections,
-      });
-    }),
-    map((collections) =>
-      collections.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
-    ),
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
+        if (!defaultVaultEnabled) {
+          return filtered;
+        }
+        // Sort collections so that default user collection is first, then by organization name
+        return filtered.sort((a, b) => {
+          const aDef = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+          const bDef = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
+          if (aDef !== bDef) {
+            return aDef - bDef;
+          }
+          const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+          const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+          return this.i18nService.collator.compare(aName, bName);
+        });
+      }),
+      switchMap((collections) => {
+        return from(this.collectionService.getAllNested(collections)).pipe(
+          map(
+            (nested) =>
+              new DynamicTreeNode<CollectionView>({
+                fullList: collections,
+                nestedList: nested,
+              }),
+          ),
+        );
+      }),
+      map((tree) =>
+        tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
   /** Organizations, collection, folders filters. */
   allFilters$ = combineLatest([this.organizations$, this.collections$, this.folders$]);

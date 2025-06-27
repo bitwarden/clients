@@ -404,6 +404,7 @@ const safeProviders: SafeProvider[] = [
       PolicyService,
       StateProvider,
       AccountServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({

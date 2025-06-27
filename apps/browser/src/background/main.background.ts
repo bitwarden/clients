@@ -918,6 +918,7 @@ export default class MainBackground {
       this.policyService,
       this.stateProvider,
       this.accountService,
+      this.configService,
     );
 
     this.vaultSettingsService = new VaultSettingsService(this.stateProvider);

@@ -11,6 +11,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -30,6 +31,10 @@ import {
   MY_VAULT_ID,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
+
+const configService = {
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
+} as unknown as ConfigService;
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -137,6 +142,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     });
@@ -399,6 +408,51 @@ describe("VaultPopupListFiltersService", () => {
         done();
       });
     });
+
+    it("sorts collections first by DefaultUserCollection and by organization name", (done) => {
+      const defaultCollections = [
+        {
+          id: "default-collection",
+          name: "Default User Collection Org 1",
+          organizationId: "org1",
+          type: "DefaultUserCollection",
+        },
+        {
+          id: "default-collection",
+          name: "Default User Collection Org 2",
+          organizationId: "org2",
+          type: "DefaultUserCollection",
+        },
+      ] as unknown as CollectionView[];
+
+      const allCollections = [...defaultCollections, ...testCollections];
+
+      decryptedCollections$.next(allCollections);
+
+      _memberOrganizations$.next([
+        { id: "org1", name: "Organization 1" },
+        { id: "org2", name: "Organization 2" },
+      ] as Organization[]);
+
+      collectionService.getAllNested = () =>
+        Promise.resolve(
+          allCollections.map((c) => ({
+            children: [],
+            node: c,
+            parent: null,
+          })),
+        );
+
+      service.collections$.subscribe((collections) => {
+        expect(collections.map((c) => c.label)).toEqual([
+          "Default User Collection Org 1",
+          "Default User Collection Org 2",
+          "Test collection",
+          "Test collection 2",
+        ]);
+        done();
+      });
+    });
   });
 
   describe("folders$", () => {
@@ -577,6 +631,8 @@ describe("VaultPopupListFiltersService", () => {
 
       const seededOrganizations: Organization[] = [
         { id: MY_VAULT_ID, name: "Test Org" } as Organization,
+        { id: "org1", name: "Default User Collection Org 1" } as Organization,
+        { id: "org2", name: "Default User Collection Org 2" } as Organization,
       ];
       const seededCollections: CollectionView[] = [
         {
@@ -756,6 +812,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 
