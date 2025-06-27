@@ -102,7 +102,6 @@ export default class TabsBackground {
     this.main.onUpdatedRan = true;
 
     await this.notificationBackground.checkNotificationQueue(tab);
-    await this.main.refreshBadge();
     await this.main.refreshMenu();
     this.main.messagingService.send("tabChanged");
   };
@@ -122,7 +121,6 @@ export default class TabsBackground {
    */
   private updateCurrentTabData = async () => {
     await Promise.all([
-      this.main.refreshBadge(),
       this.main.refreshMenu(),
       this.overlayBackground.updateOverlayCiphers(false),
     ]);
