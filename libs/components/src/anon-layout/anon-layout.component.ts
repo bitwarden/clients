@@ -46,10 +46,10 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  @Input() maxWidth: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" = "md";
+  @Input() maxWidth: "md" | "3xl" = "md";
 
   protected logo = BitwardenLogo;
-  protected year: string;
+  protected year = "2024";
   protected clientType: ClientType;
   protected hostname: string;
   protected version: string;
@@ -67,7 +67,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   async ngOnInit() {
     this.maxWidth = this.maxWidth ?? "md";
-    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? undefined;
+    this.titleAreaMaxWidth = this.titleAreaMaxWidth ?? null;
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 
