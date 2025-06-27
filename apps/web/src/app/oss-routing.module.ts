@@ -10,6 +10,8 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -36,6 +38,7 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import { VaultIcons } from "@bitwarden/vault";
@@ -140,13 +143,29 @@ const routes: Routes = [
       {
         path: "update-temp-password",
         component: UpdateTempPasswordComponent,
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            false,
+            "change-password",
+            false,
+          ),
+          authGuard,
+        ],
         data: { titleId: "updateTempPassword" } satisfies RouteDataProperties,
       },
       {
         path: "update-password",
         component: UpdatePasswordComponent,
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+            false,
+            "change-password",
+            false,
+          ),
+          authGuard,
+        ],
         data: { titleId: "updatePassword" } satisfies RouteDataProperties,
       },
     ],
@@ -569,6 +588,11 @@ const routes: Routes = [
             outlet: "secondary",
           },
         ],
+      },
+      {
+        path: "change-password",
+        component: ChangePasswordComponent,
+        canActivate: [authGuard],
       },
     ],
   },

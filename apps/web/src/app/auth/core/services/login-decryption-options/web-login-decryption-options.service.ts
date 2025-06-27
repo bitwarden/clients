@@ -4,10 +4,10 @@ import {
   LoginDecryptionOptionsService,
   DefaultLoginDecryptionOptionsService,
 } from "@bitwarden/auth/angular";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { RouterService } from "../../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
 export class WebLoginDecryptionOptionsService
   extends DefaultLoginDecryptionOptionsService
@@ -16,7 +16,7 @@ export class WebLoginDecryptionOptionsService
   constructor(
     protected messagingService: MessagingService,
     private routerService: RouterService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
   ) {
     super(messagingService);
   }
@@ -27,7 +27,7 @@ export class WebLoginDecryptionOptionsService
       // accepted while being enrolled in admin recovery. So we need to clear
       // the redirect and stored org invite.
       await this.routerService.getAndClearLoginRedirectUrl();
-      await this.acceptOrganizationInviteService.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvitation();
     } catch (error) {
       throw new Error(error);
     }

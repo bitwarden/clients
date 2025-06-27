@@ -536,6 +536,152 @@ describe("PolicyService", () => {
     });
   });
 
+  describe("combinePoliciesIntoMasterPasswordPolicyOptions", () => {
+    let policyService: DefaultPolicyService;
+    let stateProvider: FakeStateProvider;
+    let organizationService: MockProxy<OrganizationService>;
+
+    beforeEach(() => {
+      stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+      organizationService = mock<OrganizationService>();
+      policyService = new DefaultPolicyService(stateProvider, organizationService);
+    });
+
+    it("returns undefined when there are no policies", () => {
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions([]);
+      expect(result).toBeUndefined();
+    });
+
+    it("returns options for a single policy", () => {
+      const masterPasswordPolicyRequirements = {
+        minComplexity: 3,
+        minLength: 10,
+        requireUpper: true,
+      };
+      const policies = [
+        new Policy(
+          policyData(
+            "1",
+            "org1",
+            PolicyType.MasterPassword,
+            true,
+            masterPasswordPolicyRequirements,
+          ),
+        ),
+      ];
+
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+
+      expect(result).toEqual({
+        minComplexity: 3,
+        minLength: 10,
+        requireUpper: true,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        enforceOnLogin: false,
+      });
+    });
+
+    it("merges options from multiple policies", () => {
+      const masterPasswordPolicyRequirements1 = {
+        minComplexity: 3,
+        minLength: 10,
+        requireUpper: true,
+      };
+      const masterPasswordPolicyRequirements2 = { minComplexity: 5, requireNumbers: true };
+      const policies = [
+        new Policy(
+          policyData(
+            "1",
+            "org1",
+            PolicyType.MasterPassword,
+            true,
+            masterPasswordPolicyRequirements1,
+          ),
+        ),
+        new Policy(
+          policyData(
+            "2",
+            "org2",
+            PolicyType.MasterPassword,
+            true,
+            masterPasswordPolicyRequirements2,
+          ),
+        ),
+      ];
+
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+
+      expect(result).toEqual({
+        minComplexity: 5,
+        minLength: 10,
+        requireUpper: true,
+        requireLower: false,
+        requireNumbers: true,
+        requireSpecial: false,
+        enforceOnLogin: false,
+      });
+    });
+
+    it("ignores disabled policies", () => {
+      const masterPasswordPolicyRequirements = {
+        minComplexity: 3,
+        minLength: 10,
+        requireUpper: true,
+      };
+      const policies = [
+        new Policy(
+          policyData(
+            "1",
+            "org1",
+            PolicyType.MasterPassword,
+            false,
+            masterPasswordPolicyRequirements,
+          ),
+        ),
+      ];
+
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("ignores policies with no data", () => {
+      const policies = [new Policy(policyData("1", "org1", PolicyType.MasterPassword, true))];
+
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined when policies are not MasterPassword related", () => {
+      const unrelatedPolicyRequirements = {
+        minComplexity: 3,
+        minLength: 10,
+        requireUpper: true,
+      };
+      const policies = [
+        new Policy(
+          policyData(
+            "1",
+            "org1",
+            PolicyType.MaximumVaultTimeout,
+            true,
+            unrelatedPolicyRequirements,
+          ),
+        ),
+        new Policy(
+          policyData("2", "org2", PolicyType.DisableSend, true, unrelatedPolicyRequirements),
+        ),
+      ];
+
+      const result = policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   function policyData(
     id: string,
     organizationId: string,

@@ -394,7 +394,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "error",
-      title: this.i18nService.t("errorOccured"),
+      title: this.i18nService.t("errorOccurred"),
       message: this.i18nService.t("legacyEncryptionUnsupported"),
     });
     return true;
@@ -494,7 +494,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const defaultSuccessRoute = await this.determineDefaultSuccessRoute();
+    const defaultSuccessRoute = await this.determineDefaultSuccessRoute(authResult.userId);
 
     await this.router.navigate([defaultSuccessRoute], {
       queryParams: {
@@ -503,10 +503,26 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async determineDefaultSuccessRoute(): Promise<string> {
+  private async determineDefaultSuccessRoute(userId: UserId): Promise<string> {
     const activeAccountStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (activeAccountStatus === AuthenticationStatus.Locked) {
       return "lock";
+    }
+
+    // TODO: PM-22663 use the new service to handle routing.
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      const forceSetPasswordReason = await firstValueFrom(
+        this.masterPasswordService.forceSetPasswordReason$(userId),
+      );
+
+      if (
+        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+        forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+      ) {
+        return "change-password";
+      }
     }
 
     return "vault";

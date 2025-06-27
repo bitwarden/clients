@@ -36,7 +36,6 @@ import {
   PinServiceAbstraction,
   SsoUrlService,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
@@ -380,12 +379,11 @@ const safeProviders: SafeProvider[] = [
     provide: SetPasswordJitService,
     useClass: DesktopSetPasswordJitService,
     deps: [
-      ApiService,
-      MasterPasswordApiService,
-      KeyService,
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      KeyService,
+      MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,

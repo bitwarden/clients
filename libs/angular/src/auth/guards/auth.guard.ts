@@ -63,9 +63,6 @@ export const authGuard: CanActivateFn = async (
   const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
     FeatureFlag.PM16117_SetInitialPasswordRefactor,
   );
-  const isChangePasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-  );
 
   // User JIT provisioned into a master-password-encryption org
   if (
@@ -98,15 +95,31 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree([route]);
   }
 
-  // Post- Account Recovery or Weak Password on login
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
-    (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword &&
+  const isChangePasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+  );
+
+  if (isChangePasswordFlagOn) {
+    // When the PM16117_ChangeExistingPasswordRefactor flag is removed AS WELL AS the cleanup for
+    // update-temp-password also remove the conditional check for update-temp-password here.
+    // That route will no longer be in effect.
+    if (
+      (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
       !routerState.url.includes("update-temp-password") &&
-      !routerState.url.includes("change-password"))
-  ) {
-    const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
-    return router.createUrlTree([route]);
+      !routerState.url.includes("change-password")
+    ) {
+      return router.createUrlTree(["/change-password"]);
+    }
+
+    // Remove this else condition when taking out the PM16117_ChangeExistingPasswordRefactor flag.
+  } else {
+    if (
+      forceSetPasswordReason !== ForceSetPasswordReason.None &&
+      !routerState.url.includes("update-temp-password")
+    ) {
+      return router.createUrlTree(["/update-temp-password"]);
+    }
   }
 
   return true;

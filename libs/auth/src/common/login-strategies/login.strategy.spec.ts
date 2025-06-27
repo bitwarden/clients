@@ -24,6 +24,7 @@ import {
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -123,6 +124,7 @@ describe("LoginStrategy", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
+  let configService: MockProxy<ConfigService>;
 
   let passwordLoginStrategy: PasswordLoginStrategy;
   let credentials: PasswordLoginCredentials;
@@ -148,6 +150,7 @@ describe("LoginStrategy", () => {
     passwordStrengthService = mock<PasswordStrengthService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     environmentService = mock<EnvironmentService>();
+    configService = mock<ConfigService>();
 
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
 
@@ -177,6 +180,7 @@ describe("LoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new PasswordLoginCredentials(email, masterPassword);
   });
@@ -491,6 +495,7 @@ describe("LoginStrategy", () => {
         vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
+        configService,
       );
 
       apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
@@ -551,6 +556,7 @@ describe("LoginStrategy", () => {
         vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
+        configService,
       );
 
       const result = await passwordLoginStrategy.logIn(credentials);
