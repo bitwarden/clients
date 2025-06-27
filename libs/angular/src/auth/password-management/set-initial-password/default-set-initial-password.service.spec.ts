@@ -112,7 +112,7 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey, // TODO-rr-bw: verify masterKey mock is correct
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
@@ -125,15 +125,15 @@ describe("DefaultSetInitialPasswordService", () => {
       userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
 
       // Mock other function data
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey; // TODO-rr-bw: verify userKey mock is correct
-      userKeyEncString = new EncString("masterKeyEncryptedUserKey"); // TODO-rr-bw: verify EncString mock is correct
-      masterKeyEncryptedUserKey = [userKey, userKeyEncString]; // TODO-rr-bw: the above line (userKeyEncString) is used here
+      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKeyEncString = new EncString("masterKeyEncryptedUserKey");
+      masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
       existingUserPublicKey = Utils.fromB64ToArray("existingUserPublicKey") as UserPublicKey;
       existingUserPrivateKey = Utils.fromB64ToArray("existingUserPrivateKey") as UserPrivateKey;
-      userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey"); // TODO-rr-bw: verify EncString mock is correct
+      userKeyEncryptedPrivateKey = new EncString("userKeyEncryptedPrivateKey");
 
-      keyPair = ["publicKey", new EncString("privateKey")]; // TODO-rr-bw: verify keyPair mock is correct
+      keyPair = ["publicKey", new EncString("privateKey")];
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
 
       organizationKeys = {
@@ -142,7 +142,7 @@ describe("DefaultSetInitialPasswordService", () => {
       } as OrganizationKeysResponse;
       orgPublicKeyEncryptedUserKey = new EncString("orgPublicKeyEncryptedUserKey");
 
-      userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true }); // TODO-rr-bw
+      userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
       userDecryptionOptionsService.userDecryptionOptions$ = userDecryptionOptionsSubject;
 
@@ -190,7 +190,7 @@ describe("DefaultSetInitialPasswordService", () => {
         if (config.userHasLocalKeyPair) {
           keyService.userPrivateKey$.mockReturnValue(of(existingUserPrivateKey));
           keyService.userPublicKey$.mockReturnValue(of(existingUserPublicKey));
-          encryptService.wrapDecapsulationKey.mockResolvedValue(userKeyEncryptedPrivateKey); // TODO-rr-bw: verify mock is correct
+          encryptService.wrapDecapsulationKey.mockResolvedValue(userKeyEncryptedPrivateKey);
         } else {
           keyService.userPrivateKey$.mockReturnValue(of(null));
           keyService.userPublicKey$.mockReturnValue(of(null));
@@ -256,8 +256,8 @@ describe("DefaultSetInitialPasswordService", () => {
         it("should NOT create a brand new key pair for the user", async () => {
           // Arrange
           setPasswordRequest.keys = {
-            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString, // TODO-rr-bw: verify mock is correct
-            publicKey: Utils.fromBufferToB64(existingUserPublicKey), // TODO-rr-bw: verify mock is correct
+            encryptedPrivateKey: userKeyEncryptedPrivateKey.encryptedString,
+            publicKey: Utils.fromBufferToB64(existingUserPublicKey),
           };
 
           setupMocks({ ...defaultMockConfig, userHasLocalKeyPair: true });
@@ -272,7 +272,7 @@ describe("DefaultSetInitialPasswordService", () => {
           expect(encryptService.wrapDecapsulationKey).toHaveBeenCalledWith(
             existingUserPrivateKey,
             masterKeyEncryptedUserKey[0],
-          ); // TODO-rr-bw: verify mock is correct
+          );
           expect(keyService.makeKeyPair).not.toHaveBeenCalled();
         });
       });
