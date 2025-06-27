@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
   },
+  "restrictCardTypeImport": {
+    "message": "Kan kaart item types niet importeren"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Een beleid ingesteld door 1 of meer organisaties voorkomt dat je kaarten naar je kluizen kunt importeren."
+  },
   "domainsTitle": {
     "message": "Domeinen",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "PIN-code ontgrendelen instellen"
   },
-  "unlockBiometricSet": {
-    "message": "Biometrische set ontgrendelen"
+  "unlockWithBiometricSet": {
+    "message": "Met biometrische set ontgrendelen"
   },
   "authenticating": {
     "message": "Aan het inloggen"
