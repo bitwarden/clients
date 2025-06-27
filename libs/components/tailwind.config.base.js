@@ -63,6 +63,7 @@ module.exports = {
         100: rgba("--color-notification-100"),
         600: rgba("--color-notification-600"),
       },
+      // art styles deprecated, use 'illustration' instead
       art: {
         primary: rgba("--color-art-primary"),
         accent: rgba("--color-art-accent"),
@@ -83,6 +84,14 @@ module.exports = {
         alt4: rgba("--color-background-alt4"),
       },
       "marketing-logo": rgba("--color-marketing-logo"),
+      illustration: {
+        outline: rgba("--color-illustration-outline"),
+        "bg-primary": rgba("--color-illustration-bg-primary"),
+        "bg-secondary": rgba("--color-illustration-bg-secondary"),
+        "bg-tertiary": rgba("--color-illustration-bg-tertiary"),
+        tertiary: rgba("--color-illustration-tertiary"),
+        logo: rgba("--color-illustration-logo"),
+      },
     },
     textColor: {
       main: rgba("--color-text-main"),
