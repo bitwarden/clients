@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "启用两步登录可能会将您永久锁定在 Bitwarden 账户之外。当您无法使用常规的两步登录提供程序（例如您丢失了设备）时，可以使用恢复代码访问您的账户。如果您失去对您账户的访问，Bitwarden 支持也无法帮助您。我们建议您写下或打印恢复代码，并将其妥善保管。"
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "禁用支付卡项目类型"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "不允许成员创建支付卡项目类型。"
+  "restrictedItemTypePolicyDesc": {
+    "message": "不允许成员创建支付卡项目类型。现有支付卡将自动被移除。"
+  },
+  "restrictCardTypeImport": {
+    "message": "无法导入支付卡项目类型"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
   },
   "yourSingleUseRecoveryCode": {
     "message": "当您无法访问两步登录提供程序时，您的一次性恢复代码可用于停用两步登录。Bitwarden 建议您写下恢复代码，并将其妥善保管。"
@@ -2189,7 +2195,7 @@
     "message": "需要高级会员"
   },
   "premiumRequiredDesc": {
-    "message": "此功能需要高级会员资格。"
+    "message": "使用此功能需要高级会员资格。"
   },
   "youHavePremiumAccess": {
     "message": "您拥有高级访问权限"
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "停用"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "未找到成员详细信息。"
   },
   "revokeAccess": {
     "message": "撤销访问权限"
@@ -2608,7 +2617,7 @@
     "message": "检查泄漏情况"
   },
   "breachUsernameNotFound": {
-    "message": "在任何已知数据泄漏中找不到 $USERNAME$。",
+    "message": "没有在已知的数据泄露中发现 $USERNAME$。",
     "placeholders": {
       "username": {
         "content": "$1",
@@ -4345,7 +4354,7 @@
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "最大潜在席位费用"
+    "message": "最大潜在的席位费用"
   },
   "addSeats": {
     "message": "添加席位",
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "紧急访问已拒绝"
   },
+  "grantorDetailsNotFound": {
+    "message": "未找到授予人详细信息"
+  },
   "passwordResetFor": {
     "message": "$USER$ 的密码已重置。您现在可以使用新密码登录了。",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "强制组织数据所有权"
   },
   "personalOwnership": {
     "message": "禁用个人密码库"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "继续操作会将 $NAME$ 登出当前会话，要求他们重新登录。在其他设备上的活动会话可能继续活动长达一个小时。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "此用户"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "一个或多个组织策略要求主密码满足以下要求："
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求主密码满足以下要求："
   },
   "resetPasswordSuccess": {
@@ -6681,7 +6708,7 @@
     "message": "上面的 1 个字段需要您注意。"
   },
   "fieldRequiredError": {
-    "message": "$FIELDNAME$ 必填。",
+    "message": "必须填写 $FIELDNAME$。",
     "placeholders": {
       "fieldname": {
         "content": "$1",
@@ -8436,7 +8463,7 @@
     }
   },
   "notFound": {
-    "message": "$RESOURCE$ 未找到",
+    "message": "未找到 $RESOURCE$",
     "placeholders": {
       "resource": {
         "content": "$1",
@@ -8734,7 +8761,7 @@
     "message": "服务账户限制（可选）"
   },
   "maxServiceAccountCost": {
-    "message": "最大潜在服务账户费用"
+    "message": "最大潜在的服务账户费用"
   },
   "loggedInExclamation": {
     "message": "已登录！"
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "添加信用额度需要计费地址。",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

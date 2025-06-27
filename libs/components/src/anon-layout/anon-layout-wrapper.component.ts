@@ -41,6 +41,10 @@ export interface AnonLayoutWrapperData {
    * Optional flag to set the max-width of the title area. Defaults to null if not provided.
    */
   titleAreaMaxWidth?: "md";
+  /**
+   * Hide the card that wraps the default content. Defaults to false.
+   */
+  hideCardWrapper?: boolean;
 }
 
 @Component({
@@ -56,6 +60,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected showReadonlyHostname: boolean;
   protected maxWidth: "md" | "3xl";
   protected titleAreaMaxWidth: "md";
+  protected hideCardWrapper: boolean;
 
   constructor(
     private router: Router,
@@ -107,6 +112,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
     this.maxWidth = firstChildRouteData["maxWidth"];
     this.titleAreaMaxWidth = firstChildRouteData["titleAreaMaxWidth"];
+    this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
   }
 
   private listenForServiceDataChanges() {
@@ -143,6 +149,10 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showReadonlyHostname = data.showReadonlyHostname;
     }
 
+    if (data.hideCardWrapper !== undefined) {
+      this.hideCardWrapper = data.hideCardWrapper;
+    }
+
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
     this.changeDetectorRef.detectChanges();
@@ -165,6 +175,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showReadonlyHostname = null;
     this.maxWidth = null;
     this.titleAreaMaxWidth = null;
+    this.hideCardWrapper = null;
   }
 
   ngOnDestroy() {
