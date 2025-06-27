@@ -119,7 +119,7 @@ describe("CipherAuthorizationService", () => {
 
       cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
         expect(result).toBe(false);
-        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
         done();
       });
     });
@@ -133,7 +133,7 @@ describe("CipherAuthorizationService", () => {
 
       cipherAuthorizationService.canRestoreCipher$(cipher, false).subscribe((result) => {
         expect(result).toBe(true);
-        expect(mockCollectionService.decryptedCollectionViews$).not.toHaveBeenCalled();
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
         done();
       });
     });
@@ -198,6 +198,7 @@ describe("CipherAuthorizationService", () => {
 
       cipherAuthorizationService.canDeleteCipher$(cipher, false).subscribe((result) => {
         expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
         done();
       });
     });
@@ -251,7 +252,7 @@ describe("CipherAuthorizationService", () => {
           createMockCollection("col1", true),
           createMockCollection("col2", false),
         ];
-        mockCollectionService.decryptedCollectionViews$.mockReturnValue(
+        mockCollectionService.decryptedCollections$.mockReturnValue(
           of(allCollections as CollectionView[]),
         );
 
@@ -270,7 +271,7 @@ describe("CipherAuthorizationService", () => {
           createMockCollection("col1", false),
           createMockCollection("col2", false),
         ];
-        mockCollectionService.decryptedCollectionViews$.mockReturnValue(
+        mockCollectionService.decryptedCollections$.mockReturnValue(
           of(allCollections as CollectionView[]),
         );
 
