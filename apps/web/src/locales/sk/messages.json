@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Zapnutie dvojstupňového prihlásenia vás môže natrvalo vymknúť z vášho Bitwarden účtu. Záchranný kód umožňuje prístup k vášmu kontu v prípade že už nemôžete použiť svoj normálny dvojstupňový spôsob overenia. (napríklad ak stratíte zariadenie) Zákaznícka podpora nebude schopná pomôcť vám ak stratíte prístup k účtu. Preto vám odporúčame zapísať si, alebo si vytlačiť záchranný kód a uložiť ho na bezpečnom mieste."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Odstrániť typ položky pre kartu"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Nedovoliť členom vytvárať typy položiek pre karty."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Neumožniť členom vytvárať typ položky pre kartu. Existujúce karty budú automaticky odstránené."
+  },
+  "restrictCardTypeImport": {
+    "message": "Položky typu karta sa nedajú importovať"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Politika nastavená 1 alebo viacerými organizáciami vám bráni v importovaní kariet do vašich trezorov."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Váš jednorázový záchranný kód sa dá použiť na vypnutie dvojstupňového prihlasovania ak ste stratili pristúp k jeho poskytovateľovi. Bitwarden odporúča, aby ste si záchranný kód zapísali a odložili na bezpečné miesto."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Vypnúť"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Detaily o členovi nenájdené."
   },
   "revokeAccess": {
     "message": "Zrušiť prístup"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Núdzový prístup odmietnutý"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Resetovanie hesla pre $USER$. Teraz sa môžete prihlásiť s novým heslom.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Požadovanie vlastníctva údajov organizácie"
   },
   "personalOwnership": {
     "message": "Zakázať osobný trezor"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Pokračovaním sa $NAME$ odhlási z aktuálnej relácie a bude sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "tento používateľ"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
   "resetPasswordSuccess": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "A kétlépcsős bejelentkezés engedélyezése véglegesen kizárhatja a felhasználót a Bitwarden fiókból. A helyreállítási kód lehetővé teszi a fiókjához való hozzáférést abban az esetben, ha már nem tudjuk használni a szokásos kétlépcsős bejelentkezési szolgáltatást (pl. készülék elvesztése). A Bitwarden támogatás nem tud segíteni abban az esetben, ha elveszítjük a hozzáférést a fiókhoz. Célszerű leírni vagy kinyomtatni a helyreállítási kódot és azt biztonságos helyen tartani."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Kártyaelem típus eltávolítása"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Ne engedjük a felhasználóknak a kártyaelem típusok létrehozását."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Ne engedjük meg a tagoknak, hogy kártyaelem típusokat hozzanak létre. A meglévő kártyák automatikusan eltávolításra kerülnek."
+  },
+  "restrictCardTypeImport": {
+    "message": "A kártya elem típusokat nem lehet importálni."
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Egy vagy több szervezet által beállított szabályzat megakadályozza a kártyák importálását a széfekbe."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Az egyszer használatos helyreállítási kóddal kikapcsolhatjuk a kétlépcsős bejelentkezést abban az esetben, ha elveszítjük a hozzáférést a kétlépcsős bejelentkezési szolgáltatóhoz. A Bitwarden azt javasolja, hogy írjuk le a helyreállítási kódot és tartsuk biztonságos helyen."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Letiltás"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "A tag adatai nem találhatók."
   },
   "revokeAccess": {
     "message": "Hozzáférés visszavonása"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "A vészhelyzeti hozzáférés elutasításra került."
   },
+  "grantorDetailsNotFound": {
+    "message": "Az adományozó adatai nem találhatók."
+  },
   "passwordResetFor": {
     "message": "A jelszó alaphelyzetbe került $USER$ részére. Most az új jelszóval lehet bejelentkezni.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "A szervezet adat tulajdonjogának érvényesítése"
   },
   "personalOwnership": {
     "message": "Személyes tulajdon"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "A folyamat során $NAME$ kijelentkezése történik az aktuális munkamenetből, ezért vissza kell jelentkezni. Az aktív munkamenetek más eszközökön akár egy órán keresztül is aktívak maradhatnak.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ez a felhasználó"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
   },
   "resetPasswordSuccess": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "A jóváírás hozzáadásához szükséges számlázási cím.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
