@@ -25,6 +25,7 @@ import {
   USER_ENCRYPTED_PRIVATE_KEY,
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
+  USER_KEY_ENCRYPTED_SIGNING_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
@@ -44,6 +45,7 @@ import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
 import { DefaultKeyService } from "./key.service";
+import { SigningKey } from "./models/signing-key";
 
 describe("keyService", () => {
   let keyService: DefaultKeyService;
@@ -461,6 +463,7 @@ describe("keyService", () => {
       USER_ENCRYPTED_ORGANIZATION_KEYS,
       USER_ENCRYPTED_PROVIDER_KEYS,
       USER_ENCRYPTED_PRIVATE_KEY,
+      USER_KEY_ENCRYPTED_SIGNING_KEY,
       USER_KEY,
     ])("key removal", (key: UserKeyDefinition<unknown>) => {
       it(`clears ${key.key} for the specified user when specified`, async () => {
@@ -564,6 +567,51 @@ describe("keyService", () => {
 
       const userPrivateKey = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
       expect(userPrivateKey).toBeFalsy();
+    });
+  });
+
+  describe("userSigningKey$", () => {
+    it("returns the signing key when the user has a signing key set", async () => {
+      const fakeSigningKey = new SigningKey("");
+      const fakeSigningKeyState = stateProvider.singleUser.getFake(
+        mockUserId,
+        USER_KEY_ENCRYPTED_SIGNING_KEY,
+      );
+      fakeSigningKeyState.nextState(fakeSigningKey.toSerializable());
+
+      const signingKey = await firstValueFrom(keyService.userSigningKey$(mockUserId));
+
+      expect(signingKey).toEqual(fakeSigningKey);
+    });
+
+    it("returns null when the user does not have a signing key set", async () => {
+      const signingKey = await firstValueFrom(keyService.userSigningKey$(mockUserId));
+
+      expect(signingKey).toBeFalsy();
+    });
+  });
+
+  describe("setUserSigningKey", () => {
+    it("throws if the signing key is null", async () => {
+      await expect(keyService.setUserSigningKey(null as any, mockUserId)).rejects.toThrow(
+        "No user signing key provided.",
+      );
+    });
+    it("throws if the userId is null", async () => {
+      await expect(
+        keyService.setUserSigningKey(new SigningKey(""), null as unknown as UserId),
+      ).rejects.toThrow("No userId provided.");
+    });
+    it("sets the signing key for the user", async () => {
+      const fakeSigningKey = new SigningKey("test");
+      const fakeSigningKeyState = stateProvider.singleUser.getFake(
+        mockUserId,
+        USER_KEY_ENCRYPTED_SIGNING_KEY,
+      );
+      fakeSigningKeyState.nextState(null);
+      await keyService.setUserSigningKey(fakeSigningKey, mockUserId);
+      expect(fakeSigningKeyState.nextMock).toHaveBeenCalledTimes(1);
+      expect(fakeSigningKeyState.nextMock).toHaveBeenCalledWith(fakeSigningKey.toSerializable());
     });
   });
 
