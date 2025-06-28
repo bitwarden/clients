@@ -248,10 +248,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.SeparateCustomRolePermissions,
     );
-    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+    this.showUserManagementControls$ = combineLatest([
+      separateCustomRolePermissionsEnabled$,
+      organization$,
+    ]).pipe(
       map(
-        (separateCustomRolePermissionsEnabled) =>
-          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+        ([separateCustomRolePermissionsEnabled, organization]) =>
+          !separateCustomRolePermissionsEnabled || organization.canManageUsers,
       ),
     );
   }
