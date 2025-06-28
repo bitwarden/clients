@@ -91,6 +91,7 @@ libs/common/spec @bitwarden/team-platform-dev
 libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
+libs/storage-test-utils @bitwarden/team-platform-dev
 # Web utils used across app and connectors
 apps/web/src/utils/ @bitwarden/team-platform-dev
 # Web core and shared files
