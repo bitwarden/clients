@@ -514,7 +514,7 @@ async function getPrivateKeyFromFido2Credential(
   const keyBuffer = Fido2Utils.stringToBuffer(fido2Credential.keyValue);
   return await crypto.subtle.importKey(
     "pkcs8",
-    keyBuffer,
+    new Uint8Array(keyBuffer),
     {
       name: fido2Credential.keyAlgorithm,
       namedCurve: fido2Credential.keyCurve,
