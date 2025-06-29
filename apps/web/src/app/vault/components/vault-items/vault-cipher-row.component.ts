@@ -157,7 +157,7 @@ export class VaultCipherRowComponent implements OnInit {
     return this.isNotDeletedLoginCipher && this.cipher.login.canLaunch;
   }
 
-  protected get disableMenu() {
+  protected get hideMenu() {
     return !(
       this.isNotDeletedLoginCipher ||
       this.showCopyPassword ||
