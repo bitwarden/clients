@@ -36,7 +36,7 @@ export interface AnonLayoutWrapperData {
   /**
    * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
    */
-  maxWidth?: "md" | "3xl";
+  maxWidth?: "md" | "lg" | "3xl";
   /**
    * Optional flag to set the max-width of the title area. Defaults to null if not provided.
    */

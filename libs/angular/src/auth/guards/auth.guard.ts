@@ -39,7 +39,32 @@ export const authGuard: CanActivateFn = async (
     return false;
   }
 
-  if (authStatus === AuthenticationStatus.Locked) {
+  const userId = (await firstValueFrom(accountService.activeAccount$)).id;
+  const forceSetPasswordReason = await firstValueFrom(
+    masterPasswordService.forceSetPasswordReason$(userId),
+  );
+
+  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_SetInitialPasswordRefactor,
+  );
+  const isChangePasswordFlagOn = await configService.getFeatureFlag(
+    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+  );
+
+  // User JIT provisioned into a master-password-encryption org
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    !routerState.url.includes("set-initial-password") &&
+    isSetInitialPasswordFlagOn
+  ) {
+    return router.createUrlTree(["/set-initial-password"]);
+  }
+
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser
+  ) {
     if (routerState != null) {
       messagingService.send("lockedUrl", { url: routerState.url });
     }
@@ -54,18 +79,6 @@ export const authGuard: CanActivateFn = async (
   ) {
     return router.createUrlTree(["/remove-password"]);
   }
-
-  const userId = (await firstValueFrom(accountService.activeAccount$)).id;
-  const forceSetPasswordReason = await firstValueFrom(
-    masterPasswordService.forceSetPasswordReason$(userId),
-  );
-
-  const isSetInitialPasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_SetInitialPasswordRefactor,
-  );
-  const isChangePasswordFlagOn = await configService.getFeatureFlag(
-    FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-  );
 
   // TDE org user has "manage account recovery" permission
   if (
