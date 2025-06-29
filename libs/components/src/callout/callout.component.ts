@@ -10,7 +10,7 @@ import { TypographyModule } from "../typography";
 export type CalloutTypes = "success" | "info" | "warning" | "danger";
 
 const defaultIcon: Record<CalloutTypes, string> = {
-  success: "bwi-check",
+  success: "bwi-check-circle",
   info: "bwi-info-circle",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
@@ -53,26 +53,13 @@ export class CalloutComponent implements OnInit {
   get calloutClass() {
     switch (this.type) {
       case "danger":
-        return "tw-border-danger-600";
+        return "tw-bg-danger-100";
       case "info":
-        return "tw-border-info-600";
+        return "tw-bg-info-100";
       case "success":
-        return "tw-border-success-600";
+        return "tw-bg-success-100";
       case "warning":
-        return "tw-border-warning-600";
-    }
-  }
-
-  get headerClass() {
-    switch (this.type) {
-      case "danger":
-        return "!tw-text-danger";
-      case "info":
-        return "!tw-text-info";
-      case "success":
-        return "!tw-text-success";
-      case "warning":
-        return "!tw-text-warning";
+        return "tw-bg-warning-100";
     }
   }
 }

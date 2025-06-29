@@ -20,5 +20,5 @@ export abstract class DeprecatedVaultFilterService {
   buildCollapsedFilterNodes: () => Promise<Set<string>>;
   storeCollapsedFilterNodes: (collapsedFilterNodes: Set<string>) => Promise<void>;
   checkForSingleOrganizationPolicy: () => Promise<boolean>;
-  checkForPersonalOwnershipPolicy: () => Promise<boolean>;
+  checkForOrganizationDataOwnershipPolicy: () => Promise<boolean>;
 }
