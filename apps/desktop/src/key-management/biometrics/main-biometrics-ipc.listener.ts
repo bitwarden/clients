@@ -55,7 +55,7 @@ export class MainBiometricsIPCListener {
             return;
         }
       } catch (e) {
-        this.logService.info(e);
+        this.logService.error("[Main Biometrics IPC Listener] %s failed", message.action, e);
       }
     });
   }

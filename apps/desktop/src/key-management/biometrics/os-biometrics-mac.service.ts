@@ -1,6 +1,7 @@
 import { systemPreferences } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { passwords } from "@bitwarden/desktop-napi";
@@ -14,7 +15,10 @@ function getLookupKeyForUser(userId: UserId): string {
 }
 
 export default class OsBiometricsServiceMac implements OsBiometricService {
-  constructor(private i18nservice: I18nService) {}
+  constructor(
+    private i18nservice: I18nService,
+    private logService: LogService,
+  ) {}
 
   async supportsBiometrics(): Promise<boolean> {
     return systemPreferences.canPromptTouchID();
@@ -52,7 +56,19 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
   }
 
   async deleteBiometricKey(user: UserId): Promise<void> {
-    return await passwords.deletePassword(SERVICE, getLookupKeyForUser(user));
+    try {
+      return await passwords.deletePassword(SERVICE, getLookupKeyForUser(user));
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          getLookupKeyForUser(user),
+          SERVICE,
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 
   private async valueUpToDate(user: UserId, key: SymmetricCryptoKey): Promise<boolean> {
