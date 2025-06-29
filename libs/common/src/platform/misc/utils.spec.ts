@@ -775,4 +775,42 @@ describe("Utils Service", () => {
       });
     });
   });
+
+  describe("chunkArray", () => {
+    it("handles empty array", () => {
+      const result = Utils.chunkArray([], 3);
+      expect(result).toEqual([]);
+    });
+
+    it("handles null array", () => {
+      const result = Utils.chunkArray(null!, 3);
+      expect(result).toEqual([]);
+    });
+
+    it.each([0, -1, null!])("handles errors on invalid chunk sizes", (chunkSize: number) => {
+      expect(() => Utils.chunkArray([1, 2, 3], chunkSize)).toThrow(
+        `Chunk size must be greater than 0`,
+      );
+    });
+
+    it("handles chunk size of 1", () => {
+      const result = Utils.chunkArray([1, 2, 3], 1);
+      expect(result).toEqual([[1], [2], [3]]);
+    });
+
+    it("handles chunk size equal to array length", () => {
+      const result = Utils.chunkArray([1, 2, 3], 3);
+      expect(result).toEqual([[1, 2, 3]]);
+    });
+
+    it("handles chunk size greater than array length", () => {
+      const result = Utils.chunkArray([1, 2, 3], 5);
+      expect(result).toEqual([[1, 2, 3]]);
+    });
+
+    it("handles chunk size less than array length", () => {
+      const result = Utils.chunkArray([1, 2, 3, 4, 5], 2);
+      expect(result).toEqual([[1, 2], [3, 4], [5]]);
+    });
+  });
 });
