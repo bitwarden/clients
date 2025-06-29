@@ -394,7 +394,7 @@ export class Main {
       this.desktopSettingsService.hardwareAcceleration$,
     );
 
-    if (!hardwareAcceleration) {
+    if (!hardwareAcceleration || process.env.ELECTRON_DISABLE_GPU) {
       this.logService.warning("Hardware acceleration is disabled");
       app.disableHardwareAcceleration();
     } else if (isMacAppStore()) {

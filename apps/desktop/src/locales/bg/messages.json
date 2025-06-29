@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Регистрацията е ограничена"
   },
+  "restrictCardTypeImport": {
+    "message": "Картовите елементи не могат да бъдат внесени"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, зададена от 1 или повече организации, не позволява да внасяте карти в трезорите си."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Дънните в полетата „Парола на файла“ и „Потвърждаване на паролата на файла“ не съвпадат."
   },

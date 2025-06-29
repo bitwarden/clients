@@ -160,7 +160,7 @@
     "@angular/platform-browser": "19.2.14",
     "@angular/platform-browser-dynamic": "19.2.14",
     "@angular/router": "19.2.14",
-    "@bitwarden/sdk-internal": "0.2.0-main.203",
+    "@bitwarden/sdk-internal": "0.2.0-main.213",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "3.1.0",
@@ -231,7 +231,7 @@
     "*.ts": "eslint --cache --cache-strategy content --fix"
   },
   "engines": {
-    "node": "~20",
+    "node": "~22",
     "npm": "~10"
   }
 }

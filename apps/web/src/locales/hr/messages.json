@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Uključivanje prijave dvostrukom autentifikacijom može ti trajno onemogućiti pristup Bitwarden računu. Kôd za oporavak ti omogućuje pristup računu u slučaju kada više ne možeš koristiti redovnog pružatelja prijave dvostrukom autentifikacijom (npr. izgubiš svoj uređaj). Bitwarden podrška neće ti moći pomoći ako izgubiš pristup svojem računu. Savjetujemo da zapišeš ili ispišeš kôd za oporavak i spremiš ga na sigurno mjesto."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remove card item type"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Do not allow members to create card item types."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Tvoj jednokratni kôd za oporavak može se koristiti za isključivanje prijave dvostruke autentifikacije u slučaju da izgubiš pristup svom davatelju usluge dvostruke autentifikacije. Bitwarden preporučuje da zapišeš kôd za oporavak i čuvaš ga na sigurnom mjestu."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Onemogući"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Opozovi pristup"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Pristup u nuždi odbijen"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Lozinka za $USER$ resetirana. Sada se možeš prijaviti novom lozinkom.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Ukloni osobni trezor"
@@ -5763,11 +5778,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ovaj korisnik"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "Jedno ili više organizacijskih pravila zahtijeva da glavna lozinka ispunjava sljedeće uvjete:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "Uspješno ponovno postalvjena lozinka!"
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

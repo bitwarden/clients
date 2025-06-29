@@ -67,16 +67,6 @@ export const authGuard: CanActivateFn = async (
     FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
   );
 
-  // User JIT provisioned into a master-password-encryption org
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-password-jit") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
-    return router.createUrlTree([route]);
-  }
-
   // TDE org user has "manage account recovery" permission
   if (
     forceSetPasswordReason ===
@@ -100,10 +90,10 @@ export const authGuard: CanActivateFn = async (
 
   // Post- Account Recovery or Weak Password on login
   if (
-    forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
-    (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword &&
-      !routerState.url.includes("update-temp-password") &&
-      !routerState.url.includes("change-password"))
+    (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("change-password")
   ) {
     const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
     return router.createUrlTree([route]);
