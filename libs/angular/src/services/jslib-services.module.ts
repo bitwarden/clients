@@ -107,6 +107,10 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { SendTokenApiService as SendTokenApiServiceAbstraction } from "@bitwarden/common/auth/send-access/abstractions/send-token-api.service";
+import { SendTokenService as SendTokenServiceAbstraction } from "@bitwarden/common/auth/send-access/abstractions/send-token.service";
+import { SendTokenApiService } from "@bitwarden/common/auth/send-access/services/send-token-api.service";
+import { SendTokenService } from "@bitwarden/common/auth/send-access/services/send-token.service";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
@@ -167,6 +171,7 @@ import {
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { SendPasswordService } from "@bitwarden/common/key-management/sends/send-password.service";
 import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
@@ -1453,6 +1458,21 @@ const safeProviders: SafeProvider[] = [
     provide: ViewCacheService,
     useExisting: NoopViewCacheService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SendPasswordService,
+    useClass: SendPasswordService,
+    deps: [CryptoFunctionServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SendTokenApiServiceAbstraction,
+    useClass: SendTokenApiService,
+    deps: [EnvironmentService, ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SendTokenServiceAbstraction,
+    useClass: SendTokenService,
+    deps: [GlobalStateProvider, SendTokenApiServiceAbstraction, SendPasswordService],
   }),
   safeProvider({
     provide: LoginComponentService,
