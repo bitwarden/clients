@@ -9,7 +9,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
-
 import { WindowMain } from "../../main/window.main";
 
 import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
@@ -21,9 +20,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
     getBiometricSecret: jest.fn(),
     deleteBiometricSecret: jest.fn(),
     prompt: jest.fn(),
-    available: jest.fn(),
     deriveKeyMaterial: jest.fn(),
-    prompt: jest.fn(),
   },
   passwords: {
     getPassword: jest.fn(),
@@ -39,6 +36,8 @@ describe("OsBiometricsServiceWindows", () => {
   let windowMain: WindowMain;
   let logService: LogService;
   let biometricStateService: BiometricStateService;
+
+  const mockUserId = "test-user-id" as UserId;
 
   beforeEach(() => {
     i18nService = mock<I18nService>();
@@ -94,7 +93,7 @@ describe("OsBiometricsServiceWindows", () => {
       cryptoFunctionService = mock<CryptoFunctionService>();
       service = new OsBiometricsServiceWindows(
         mock<I18nService>(),
-        null,
+        windowMain,
         mock<LogService>(),
         biometricStateService,
         encryptionService,
@@ -155,12 +154,12 @@ describe("OsBiometricsServiceWindows", () => {
   });
 
   describe("deleteBiometricKey", () => {
-    const serviceName = "testService";
-    const keyName = "testKey";
-    const witnessKeyName = "testKey_witness";
+    const serviceName = "Bitwarden_biometric";
+    const keyName = "test-user-id_user_biometric";
+    const witnessKeyName = "test-user-id_user_biometric_witness";
 
     it("should delete biometric key successfully", async () => {
-      await service.deleteBiometricKey(serviceName, keyName);
+      await service.deleteBiometricKey(mockUserId);
 
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, witnessKeyName);
@@ -189,7 +188,7 @@ describe("OsBiometricsServiceWindows", () => {
           throw new Error("Unexpected key");
         });
 
-        await service.deleteBiometricKey(serviceName, keyName);
+        await service.deleteBiometricKey(mockUserId);
 
         expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
         expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, witnessKeyName);
@@ -222,7 +221,7 @@ describe("OsBiometricsServiceWindows", () => {
         throw new Error("Unexpected key");
       });
 
-      await expect(service.deleteBiometricKey(serviceName, keyName)).rejects.toThrow(error);
+      await expect(service.deleteBiometricKey(mockUserId)).rejects.toThrow(error);
 
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
       expect(passwords.deletePassword).not.toHaveBeenCalledWith(serviceName, witnessKeyName);
@@ -240,7 +239,7 @@ describe("OsBiometricsServiceWindows", () => {
         throw new Error("Unexpected key");
       });
 
-      await expect(service.deleteBiometricKey(serviceName, keyName)).rejects.toThrow(error);
+      await expect(service.deleteBiometricKey(mockUserId)).rejects.toThrow(error);
 
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, keyName);
       expect(passwords.deletePassword).toHaveBeenCalledWith(serviceName, witnessKeyName);

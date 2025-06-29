@@ -70,8 +70,8 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
         this.logService.debug(
           "[OsBiometricService] Biometric key %s not found for service %s.",
-          key,
-          service,
+          getLookupKeyForUser(userId),
+          SERVICE,
         );
       } else {
         throw e;

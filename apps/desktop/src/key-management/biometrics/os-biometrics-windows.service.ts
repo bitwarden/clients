@@ -122,8 +122,8 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
         this.logService.debug(
           "[OsBiometricService] Biometric key %s not found for service %s.",
-          key,
-          service,
+          getLookupKeyForUser(userId),
+          SERVICE,
         );
       } else {
         throw e;
@@ -135,8 +135,8 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
       if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
         this.logService.debug(
           "[OsBiometricService] Biometric witness key %s not found for service %s.",
-          key + KEY_WITNESS_SUFFIX,
-          service,
+          getLookupKeyForUser(userId) + KEY_WITNESS_SUFFIX,
+          SERVICE,
         );
       } else {
         throw e;
