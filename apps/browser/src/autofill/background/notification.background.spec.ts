@@ -23,6 +23,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
+import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
@@ -68,6 +69,7 @@ describe("NotificationBackground", () => {
   const configService = mock<ConfigService>();
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
+  const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
@@ -98,6 +100,7 @@ describe("NotificationBackground", () => {
       themeStateService,
       userNotificationSettingsService,
       taskService,
+      changeLoginPasswordService,
       messagingService,
     );
   });
