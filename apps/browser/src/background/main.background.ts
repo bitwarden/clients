@@ -45,6 +45,10 @@ import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
+import {
+  ChromeBrowserExtensionAuthRequestApprovalService,
+  AuthRequestLoginApprovalAbstraction,
+} from "@bitwarden/common/auth/services/loginAuthRequestApprovalService/chrome-browser-extension-auth-request-approval.service";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -168,6 +172,8 @@ import { WindowStorageService } from "@bitwarden/common/platform/storage/window-
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+import { BrowserSystemNotificationService } from "@bitwarden/common/platform/system-notifications/browser-system-notification.service";
+import { SystemNotificationServiceAbstraction } from "@bitwarden/common/platform/system-notifications/system-notification-service";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -339,6 +345,8 @@ export default class MainBackground {
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
   notificationsService: NotificationsService;
+  deviceManagementApprovalService: AuthRequestLoginApprovalAbstraction;
+  systemNotificationService: SystemNotificationServiceAbstraction;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -1102,6 +1110,17 @@ export default class MainBackground {
       this.webPushConnectionService = new UnsupportedWebPushConnectionService();
     }
 
+    this.systemNotificationService = new BrowserSystemNotificationService(
+      this.logService,
+      this.platformUtilsService,
+    );
+
+    this.deviceManagementApprovalService = new ChromeBrowserExtensionAuthRequestApprovalService(
+      this.platformUtilsService,
+      this.logService,
+      this.systemNotificationService,
+    );
+
     this.notificationsService = new DefaultNotificationsService(
       this.logService,
       this.syncService,
@@ -1113,6 +1132,7 @@ export default class MainBackground {
       new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
+      this.deviceManagementApprovalService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
