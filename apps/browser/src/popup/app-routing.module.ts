@@ -381,7 +381,7 @@ const routes: Routes = [
       },
       {
         path: "set-initial-password",
-        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor)],
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor), authGuard],
         component: SetInitialPasswordComponent,
         data: {
           elevation: 1,
