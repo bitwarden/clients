@@ -24,9 +24,8 @@ export class PlanCardComponent {
   cardCLicked = output();
 
   getPlanCardContainerClasses(): string[] {
-    const isSelected = this.plan().isAnnual;
+    const isSelected = this.plan().isSelected;
     const isDisabled = this.plan().isDisabled;
-
     if (isDisabled) {
       return [
         "tw-cursor-not-allowed",
@@ -47,8 +46,10 @@ export class PlanCardComponent {
           "tw-border",
           "tw-border-solid",
           "tw-border-primary-600",
+          "tw-border-2",
+          "tw-rounded-lg",
           "hover:tw-border-primary-700",
-          "focus:tw-border-2",
+          "focus:tw-border-3",
           "focus:tw-border-primary-700",
           "focus:tw-rounded-lg",
         ]
@@ -64,8 +65,6 @@ export class PlanCardComponent {
           "focus:tw-border-primary-700",
         ];
   }
-
-  onFocus() {}
 
   selectPlanCard() {
     this.cardCLicked.emit();

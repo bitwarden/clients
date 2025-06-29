@@ -1,13 +1,12 @@
-@let isFocused = plan().isAnnual || plan().productTier === productTiers.Enterprise;
-@let isRecommended = plan().isAnnual || plan().productTier === productTiers.Enterprise;
+@let isFocused = plan().isSelected;
+@let isRecommended = plan().isAnnual;
 
 <bit-card
   class="tw-h-full"
   [ngClass]="getPlanCardContainerClasses()"
   (click)="selectPlanCard()"
   [attr.tabindex]="!isFocused || plan().isDisabled ? '-1' : '0'"
-  (focus)="onFocus()"
-  [attr.aria-disabled]="plan().isDisabled"
+  [attr.data-selected]="plan()?.isSelected"
 >
   <div class="tw-relative">
     @if (isRecommended) {

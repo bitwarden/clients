@@ -1,4 +1,4 @@
-<bit-dialog dialogSize="default" [loading]="loading()">
+<bit-dialog dialogSize="default">
   <span bitDialogTitle class="tw-font-semibold">
     {{ "subscribetoEnterprise" | i18n: currentPlanName }}
   </span>
@@ -71,7 +71,7 @@
         <h4 class="tw-text-lg tw-text-main">{{ "selectAPlan" | i18n }}</h4>
       </div>
 
-      <ng-container *ngIf="!organization?.selfHost && planCards().length > 0">
+      <ng-container *ngIf="planCards().length > 0">
         <div
           class="tw-grid tw-grid-flow-col tw-gap-4 tw-mb-2"
           [class]="'tw-grid-cols-' + planCards().length"
@@ -107,7 +107,7 @@
   </div>
   <!-- Dialog Footer -->
   <ng-container bitDialogFooter>
-    <button bitButton bitFormButton buttonType="primary" type="submit">
+    <button bitButton buttonType="primary" type="button" [bitAction]="onSubscribe.bind(this)">
       {{ "subscribe" | i18n }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.CLOSED">

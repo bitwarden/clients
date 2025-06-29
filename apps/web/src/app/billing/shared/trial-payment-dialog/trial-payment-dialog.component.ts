@@ -1,6 +1,7 @@
-import { Component, Inject, OnInit, signal, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Inject, OnInit, Output, signal, ViewChild } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
+import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -9,10 +10,15 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
+import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
+import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
+import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
+import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -47,6 +53,10 @@ export const TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE = {
 export type TrialPaymentDialogResultType =
   (typeof TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE)[keyof typeof TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE];
 
+interface OnSuccessArgs {
+  organizationId: string;
+}
+
 @Component({
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
@@ -54,6 +64,8 @@ export type TrialPaymentDialogResultType =
 })
 export class TrialPaymentDialogComponent implements OnInit {
   @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
+  @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
+
   currentPlan: PlanResponse;
   currentPlanName: string;
   productTypes = ProductTierType;
@@ -66,7 +78,7 @@ export class TrialPaymentDialogComponent implements OnInit {
   planCards = signal<PlanCard[]>([]);
   plans: ListResponse<PlanResponse>;
 
-  loading = signal(true);
+  @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
   protected taxInformation: TaxInformation;
   protected totalOpened = false;
@@ -86,13 +98,12 @@ export class TrialPaymentDialogComponent implements OnInit {
     private apiService: ApiService,
     private taxService: TaxServiceAbstraction,
     private toastService: ToastService,
+    private billingApiService: BillingApiServiceAbstraction,
   ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
 
   async ngOnInit(): Promise<void> {
-    this.loading.set(false);
-
     if (this.dialogParams.organizationId) {
       this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
       this.sub =
@@ -297,6 +308,83 @@ export class TrialPaymentDialogComponent implements OnInit {
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
       ) ?? false
     );
+  }
+
+  async onSubscribe(): Promise<void> {
+    if (!this.taxComponent.validate()) {
+      this.taxComponent.markAllAsTouched();
+    }
+    try {
+      if (this.organizationId) {
+        await this.updateOrganizationPaymentMethod(
+          this.organizationId,
+          this.paymentComponent,
+          this.taxInformation,
+        );
+      } else {
+        await this.updatePremiumUserPaymentMethod(this.paymentComponent, this.taxInformation);
+      }
+
+      if (this.currentPlan.type !== this.sub.planType) {
+        const changePlanRequest = new ChangePlanFrequencyRequest();
+        changePlanRequest.newPlanType = this.currentPlan.type;
+        await this.billingApiService.changeSubscriptionFrequency(
+          this.organizationId,
+          changePlanRequest,
+        );
+      }
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("updatedPaymentMethod"),
+      });
+
+      this.onSuccess.emit({ organizationId: this.organizationId });
+      this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
+    } catch (error) {
+      const msg = typeof error === "object" ? error.message : error;
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t(msg) || msg,
+      });
+    }
+  }
+
+  private async updateOrganizationPaymentMethod(
+    organizationId: string,
+    paymentComponent: PaymentComponent,
+    taxInformation: TaxInformation,
+  ): Promise<void> {
+    const paymentSource = await paymentComponent.tokenize();
+
+    const request = new UpdatePaymentMethodRequest();
+    request.paymentSource = paymentSource;
+    request.taxInformation = ExpandedTaxInfoUpdateRequest.From(taxInformation);
+
+    await this.billingApiService.updateOrganizationPaymentMethod(organizationId, request);
+  }
+
+  private async updatePremiumUserPaymentMethod(
+    paymentComponent: PaymentComponent,
+    taxInformation: TaxInformation,
+  ): Promise<void> {
+    const { type, token } = await paymentComponent.tokenize();
+
+    const request = new PaymentRequest();
+    request.paymentMethodType = type;
+    request.paymentToken = token;
+    request.country = taxInformation.country;
+    request.postalCode = taxInformation.postalCode;
+    request.taxId = taxInformation.taxId;
+    request.state = taxInformation.state;
+    request.line1 = taxInformation.line1;
+    request.line2 = taxInformation.line2;
+    request.city = taxInformation.city;
+    request.state = taxInformation.state;
+
+    await this.apiService.postAccountPayment(request);
   }
 
   resolvePlanName(productTier: ProductTierType) {
