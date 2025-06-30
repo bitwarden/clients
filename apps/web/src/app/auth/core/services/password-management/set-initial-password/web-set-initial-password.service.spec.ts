@@ -34,45 +34,45 @@ describe("WebSetInitialPasswordService", () => {
   let sut: SetInitialPasswordService;
 
   let apiService: MockProxy<ApiService>;
-  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
-  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
+  let keyService: MockProxy<KeyService>;
+  let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
-  let routerService: MockProxy<RouterService>;
   let acceptOrganizationInviteService: MockProxy<AcceptOrganizationInviteService>;
+  let routerService: MockProxy<RouterService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
-    masterPasswordApiService = mock<MasterPasswordApiService>();
-    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
+    keyService = mock<KeyService>();
+    masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationUserApiService = mock<OrganizationUserApiService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
-    routerService = mock<RouterService>();
     acceptOrganizationInviteService = mock<AcceptOrganizationInviteService>();
+    routerService = mock<RouterService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
-      masterPasswordApiService,
-      keyService,
       encryptService,
       i18nService,
       kdfConfigService,
+      keyService,
+      masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
-      routerService,
       acceptOrganizationInviteService,
+      routerService,
     );
   });
 
