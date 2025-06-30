@@ -8,9 +8,6 @@ import {
 } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PasswordInputResult } from "@bitwarden/auth/angular";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -33,6 +30,7 @@ import {
   SetInitialPasswordService,
   SetInitialPasswordCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordTdeOffboardingCredentials,
 } from "./set-initial-password.service.abstraction";
 
 export class DefaultSetInitialPasswordService implements SetInitialPasswordService {
@@ -252,7 +250,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
   }
 
-  async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult, userId: UserId) {
+  async setInitialPasswordTdeOffboarding(
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
+
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
@@ -260,7 +263,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     }
 
     const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      passwordInputResult.newMasterKey,
+      newMasterKey,
       userKey,
     );
 
@@ -270,10 +273,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
     const request = new UpdateTdeOffboardingPasswordRequest();
     request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-    request.masterPasswordHint = passwordInputResult.newPasswordHint;
+    request.newMasterPasswordHash = newServerMasterKeyHash;
+    request.masterPasswordHint = newPasswordHint;
 
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
 

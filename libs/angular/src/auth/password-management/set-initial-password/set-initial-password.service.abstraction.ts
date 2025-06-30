@@ -1,6 +1,3 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { PasswordInputResult } from "@bitwarden/auth/angular";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfig } from "@bitwarden/key-management";
@@ -49,6 +46,12 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
 }
 
+export interface SetInitialPasswordTdeOffboardingCredentials {
+  newMasterKey: MasterKey;
+  newServerMasterKeyHash: string;
+  newPasswordHint: string;
+}
+
 /**
  * Handles setting an initial password for an existing authed user.
  *
@@ -80,7 +83,7 @@ export abstract class SetInitialPasswordService {
    * @param userId the account `userId`
    */
   abstract setInitialPasswordTdeOffboarding: (
-    passwordInputResult: PasswordInputResult,
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) => Promise<void>;
 

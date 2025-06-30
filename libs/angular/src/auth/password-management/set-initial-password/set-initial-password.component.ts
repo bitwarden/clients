@@ -33,6 +33,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
+  SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
 
@@ -82,10 +83,7 @@ export class SetInitialPasswordComponent implements OnInit {
     this.email = activeAccount?.email;
 
     await this.determineUserType();
-
-    if (this.userType !== SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
-      await this.handleQueryParams();
-    }
+    await this.getOrgInfoFromParams();
 
     this.initializing = false;
   }
@@ -99,13 +97,15 @@ export class SetInitialPasswordComponent implements OnInit {
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
 
-    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
-      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER;
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser) {
+      this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "setMasterPassword" },
-        pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
+        pageTitle: { key: "joinOrganization" },
+        pageSubtitle: { key: "finishJoiningThisOrganizationBySettingAMasterPassword" },
       });
-    } else if (
+    }
+
+    if (
       this.forceSetPasswordReason ===
       ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
     ) {
@@ -114,16 +114,27 @@ export class SetInitialPasswordComponent implements OnInit {
         pageTitle: { key: "setMasterPassword" },
         pageSubtitle: { key: "orgPermissionsUpdatedMustSetPassword" },
       });
-    } else {
-      this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;
+    }
+
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding) {
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "joinOrganization" },
-        pageSubtitle: { key: "finishJoiningThisOrganizationBySettingAMasterPassword" },
+        pageTitle: { key: "setMasterPassword" },
+        pageSubtitle: { key: "tdeDisabledMasterPasswordRequired" },
       });
+    }
+
+    // If we somehow end up here without a reason, navigate to root
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.None) {
+      await this.router.navigate(["/"]);
     }
   }
 
-  private async handleQueryParams() {
+  private async getOrgInfoFromParams() {
+    if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
+      return;
+    }
+
     if (!this.userId) {
       throw new Error("userId not found. Could not handle query params.");
     }
@@ -194,17 +205,6 @@ export class SetInitialPasswordComponent implements OnInit {
       this.userType ===
         SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP
     ) {
-      if (
-        !this.userType ||
-        !this.orgSsoIdentifier ||
-        !this.orgId ||
-        this.resetPasswordAutoEnroll == null
-      ) {
-        throw new Error(
-          "orgSsoIdentifier, orgId, or resetPasswordAutoEnroll not found. Could not set password.",
-        );
-      }
-
       try {
         const credentials: SetInitialPasswordCredentials = {
           newMasterKey: passwordInputResult.newMasterKey,
@@ -231,22 +231,22 @@ export class SetInitialPasswordComponent implements OnInit {
         this.validationService.showError(e);
         this.submitting = false;
       }
-
-      return;
     }
 
     if (this.userType === SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER) {
       try {
+        const credentials: SetInitialPasswordTdeOffboardingCredentials = {
+          newMasterKey: passwordInputResult.newMasterKey,
+          newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
+          newPasswordHint: passwordInputResult.newPasswordHint,
+        };
+
         await this.setInitialPasswordService.setInitialPasswordTdeOffboarding(
-          passwordInputResult,
+          credentials,
           this.userId,
         );
 
-        this.toastService.showToast({
-          variant: "success",
-          title: "",
-          message: this.i18nService.t("masterPasswordSuccessfullySet"),
-        });
+        this.showSuccessToastByUserType();
 
         await this.setInitialPasswordService.logoutAndOptionallyNavigate();
       } catch (e) {
@@ -254,8 +254,6 @@ export class SetInitialPasswordComponent implements OnInit {
       } finally {
         this.submitting = false;
       }
-
-      return;
     }
   }
 
@@ -272,12 +270,7 @@ export class SetInitialPasswordComponent implements OnInit {
         title: "",
         message: this.i18nService.t("inviteAccepted"),
       });
-    }
-
-    if (
-      this.userType ===
-      SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP
-    ) {
+    } else {
       this.toastService.showToast({
         variant: "success",
         title: "",
