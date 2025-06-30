@@ -482,7 +482,9 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
         });
       }
 
-      if (cipher.canAssignToCollections) {
+      const hasEditableCollections = this.allCollections.some((collection) => !collection.readOnly);
+
+      if (cipher.canAssignToCollections && hasEditableCollections) {
         menu.push({
           label: this.i18nService.t("assignToCollections"),
           click: () =>

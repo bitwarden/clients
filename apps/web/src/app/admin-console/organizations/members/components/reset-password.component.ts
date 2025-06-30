@@ -13,6 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -47,7 +48,7 @@ export type ResetPasswordDialogData = {
   /**
    * The organization's `organizationId`
    */
-  organizationId: string;
+  organizationId: OrganizationId;
 };
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -56,16 +57,18 @@ export enum ResetPasswordDialogResult {
   Ok = "ok",
 }
 
+/**
+ * Used in a dialog for initiating the account recovery process against a
+ * given organization user. An admin will access this form when they want to
+ * reset a user's password and log them out of sessions.
+ *
+ * @deprecated Use the `AccountRecoveryDialogComponent` instead.
+ */
 @Component({
   selector: "app-reset-password",
   templateUrl: "reset-password.component.html",
   standalone: false,
 })
-/**
- * Used in a dialog for initiating the account recovery process against a
- * given organization user. An admin will access this form when they want to
- * reset a user's password and log them out of sessions.
- */
 export class ResetPasswordComponent implements OnInit, OnDestroy {
   formGroup = this.formBuilder.group({
     newPassword: ["", Validators.required],

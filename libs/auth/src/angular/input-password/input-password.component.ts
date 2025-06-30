@@ -261,7 +261,7 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  submit = async () => {
+  submit = async (): Promise<PasswordInputResult | undefined> => {
     try {
       this.isSubmitting.emit(true);
 
@@ -280,8 +280,7 @@ export class InputPasswordComponent implements OnInit {
       const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
 
       if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
-        await this.handleChangePasswordDelegationFlow(newPassword);
-        return;
+        return await this.handleChangePasswordDelegationFlow(newPassword);
       }
 
       if (!this.email) {
@@ -388,6 +387,7 @@ export class InputPasswordComponent implements OnInit {
 
       // 5. Emit cryptographic keys and other password related properties
       this.onPasswordFormSubmit.emit(passwordInputResult);
+      return passwordInputResult;
     } catch (e) {
       this.validationService.showError(e);
     } finally {
@@ -441,7 +441,9 @@ export class InputPasswordComponent implements OnInit {
     }
   }
 
-  private async handleChangePasswordDelegationFlow(newPassword: string) {
+  private async handleChangePasswordDelegationFlow(
+    newPassword: string,
+  ): Promise<PasswordInputResult | undefined> {
     const newPasswordVerified = await this.verifyNewPassword(
       newPassword,
       this.passwordStrengthScore,
@@ -456,6 +458,7 @@ export class InputPasswordComponent implements OnInit {
     };
 
     this.onPasswordFormSubmit.emit(passwordInputResult);
+    return passwordInputResult;
   }
 
   /**
