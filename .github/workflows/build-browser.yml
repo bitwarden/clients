@@ -279,9 +279,10 @@ jobs:
           declare -a FILES
 
           # Search for source files that are greater than 4M
+          TARGET_DIR='./browser-source/apps/browser'
           while IFS=' ' read -r RESULT; do
               FILES+=("$RESULT")
-          done < <(find ./browser-source -size +4M)
+          done < <(find $TARGET_DIR -size +4M)
 
           # Validate results and provide messaging
           if [[ ${#FILES[@]} -ne 0 ]]; then
