@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe
-// @ts-strict-ignore
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
