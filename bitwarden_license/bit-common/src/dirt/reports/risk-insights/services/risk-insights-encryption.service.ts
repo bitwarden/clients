@@ -22,14 +22,17 @@ export class RiskInsightsEncryptionService {
       throw new Error("Organization key not found");
     }
 
-    const encryptionKey = await this.keyGeneratorService.createKey(512);
+    const contentEncryptionKey = await this.keyGeneratorService.createKey(512);
 
     const dataEncrypted = await this.encryptService.encryptString(
       JSON.stringify(data),
-      encryptionKey,
+      contentEncryptionKey,
     );
 
-    const wrappedEncryptionKey = await this.encryptService.wrapSymmetricKey(encryptionKey, orgKey);
+    const wrappedEncryptionKey = await this.encryptService.wrapSymmetricKey(
+      contentEncryptionKey,
+      orgKey,
+    );
 
     const encryptedDataPacket = {
       organizationId: organizationId,
