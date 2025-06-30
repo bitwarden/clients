@@ -132,6 +132,16 @@ export type AppAtRiskMembersDialogParams = {
   applicationName: string;
 };
 
+/*
+ * After data is encrypted, it is returned with the
+ * encryption key used to encrypt the data.
+ */
+export interface EncryptedDataWithKey {
+  organizationId: OrganizationId;
+  encryptedData: string;
+  encryptionKey: string;
+}
+
 /**
  * Request to drop a password health report application
  * Model is expected by the API endpoint
@@ -175,8 +185,8 @@ export interface RiskInsightsReport {
 }
 
 export interface ReportInsightsReportData {
-  data: string;
-  key: string;
+  data: ApplicationHealthReportDetail[];
+  summary: ApplicationHealthReportSummary;
 }
 
 export interface SaveRiskInsightsReportRequest {

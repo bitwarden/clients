@@ -6,12 +6,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  ApplicationHealthReportDetail,
-  ApplicationHealthReportSummary,
-  RiskInsightsReport,
-  GetRiskInsightsReportResponse,
-} from "../models/password-health";
+import { EncryptedDataWithKey } from "../models/password-health";
 
 export class RiskInsightsEncryptionService {
   constructor(
@@ -20,70 +15,62 @@ export class RiskInsightsEncryptionService {
     private keyGeneratorService: KeyGenerationService,
   ) {}
 
-  async encryptRiskInsightsReport(
+  async encryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
-    details: ApplicationHealthReportDetail[],
-    summary: ApplicationHealthReportSummary,
-  ): Promise<RiskInsightsReport> {
+    data: T,
+  ): Promise<EncryptedDataWithKey> {
     const orgKey = await this.keyService.getOrgKey(organizationId as string);
     if (orgKey === null) {
       throw new Error("Organization key not found");
     }
 
-    const reportWithSummary = { details, summary };
+    const encryptionKey = await this.keyGeneratorService.createKey(512);
 
-    const reportContentEncryptionKey = await this.keyGeneratorService.createKey(512);
-
-    const reportEncrypted = await this.encryptService.encryptString(
-      JSON.stringify(reportWithSummary),
-      reportContentEncryptionKey,
+    const dataEncrypted = await this.encryptService.encryptString(
+      JSON.stringify(data),
+      encryptionKey,
     );
 
-    const wrappedReportContentEncryptionKey = await this.encryptService.wrapSymmetricKey(
-      reportContentEncryptionKey,
-      orgKey,
-    );
+    const wrappedEncryptionKey = await this.encryptService.wrapSymmetricKey(encryptionKey, orgKey);
 
-    const riskInsightReport = {
+    const encryptedDataPacket = {
       organizationId: organizationId,
-      date: new Date().toISOString(),
-      reportData: reportEncrypted.encryptedString,
-      reportKey: wrappedReportContentEncryptionKey.encryptedString,
+      encryptedData: dataEncrypted.encryptedString,
+      encryptionKey: wrappedEncryptionKey.encryptedString,
     };
 
-    return riskInsightReport;
+    return encryptedDataPacket;
   }
 
-  async decryptRiskInsightsReport(
+  async decryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
-    riskInsightsReportResponse: GetRiskInsightsReportResponse,
-  ): Promise<[ApplicationHealthReportDetail[], ApplicationHealthReportSummary]> {
+    encryptedData: string,
+    key: string,
+  ): Promise<T | null> {
     try {
       const orgKey = await this.keyService.getOrgKey(organizationId as string);
       if (orgKey === null) {
         throw new Error("Organization key not found");
       }
 
-      const reportEncrypted = riskInsightsReportResponse.reportData;
-      const wrappedReportContentEncryptionKey = riskInsightsReportResponse.reportKey;
+      const dataEncrypted = encryptedData;
+      const wrappedEncryptionKey = key;
 
-      const unwrappedReportContentEncryptionKey = await this.encryptService.unwrapSymmetricKey(
-        new EncString(wrappedReportContentEncryptionKey),
+      const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(
+        new EncString(wrappedEncryptionKey),
         orgKey,
       );
 
-      const reportUnencrypted = await this.encryptService.decryptString(
-        new EncString(reportEncrypted),
-        unwrappedReportContentEncryptionKey,
+      const dataUnencrypted = await this.encryptService.decryptString(
+        new EncString(dataEncrypted),
+        unwrappedEncryptionKey,
       );
 
-      const reportWithSummary = JSON.parse(reportUnencrypted);
-      const reportJson = reportWithSummary.details;
-      const reportSummary = reportWithSummary.summary;
+      const dataUnencryptedJson = JSON.parse(dataUnencrypted);
 
-      return [reportJson, reportSummary];
+      return dataUnencryptedJson as T;
     } catch {
-      return [null, null];
+      return null;
     }
   }
 }

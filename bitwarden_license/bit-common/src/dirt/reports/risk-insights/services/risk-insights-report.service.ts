@@ -33,6 +33,7 @@ import {
   WeakPasswordDetail,
   WeakPasswordScore,
   ApplicationHealthReportDetailWithCriticalFlagAndCipher,
+  ReportInsightsReportData,
 } from "../models/password-health";
 
 import { MemberCipherDetailsApiService } from "./member-cipher-details-api.service";
@@ -215,28 +216,29 @@ export class RiskInsightsReportService {
         switchMap((response) => {
           if (!response) {
             // Return an empty report and summary if response is falsy
-            return of<[ApplicationHealthReportDetail[], ApplicationHealthReportSummary]>([
-              [],
-              {
+            return of<ReportInsightsReportData>({
+              data: [],
+              summary: {
                 totalMemberCount: 0,
                 totalAtRiskMemberCount: 0,
                 totalApplicationCount: 0,
                 totalAtRiskApplicationCount: 0,
               },
-            ]);
+            });
           }
           return from(
-            this.riskInsightsEncryptionService.decryptRiskInsightsReport(
+            this.riskInsightsEncryptionService.decryptRiskInsightsReport<ReportInsightsReportData>(
               organizationId as OrganizationId,
-              response,
+              response.reportData,
+              response.reportKey,
             ),
           );
         }),
       )
       .subscribe({
-        next: ([report, summary]) => {
-          this.riskInsightsReportSubject.next(report);
-          this.riskInsightsSummarySubject.next(summary);
+        next: (decryptRiskInsightsReport) => {
+          this.riskInsightsReportSubject.next(decryptRiskInsightsReport.data);
+          this.riskInsightsSummarySubject.next(decryptRiskInsightsReport.summary);
         },
       });
   }
@@ -246,14 +248,23 @@ export class RiskInsightsReportService {
     report: ApplicationHealthReportDetail[],
     summary: ApplicationHealthReportSummary,
   ): Promise<void> {
+    const reportWithSummary = {
+      data: report,
+      summary: summary,
+    };
+
     const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
       organizationId as OrganizationId,
-      report,
-      summary,
+      reportWithSummary,
     );
 
     const saveRequest = {
-      data: encryptedReport,
+      data: {
+        organizationId: organizationId as OrganizationId,
+        date: new Date().toISOString(),
+        reportData: encryptedReport.encryptedData,
+        reportKey: encryptedReport.encryptionKey,
+      },
     };
 
     const response = await firstValueFrom(
