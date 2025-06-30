@@ -291,10 +291,10 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
   // Parses a custom field and adds it to the cipher
   private parseCustomField(customField: Element): FieldView | null {
-    let key: string | null = null;
-    let value: string | null = null;
+    let key: string = undefined;
+    let value: string = undefined;
     let sourceFieldType: PasswordDepotCustomFieldType = PasswordDepotCustomFieldType.Memo;
-    let visible: string | null = null;
+    let visible: string = undefined;
     // A custom field is represented by a <field> element
     // On exports from the Windows clients: It contains a <name>, <value>, and optionally a <type> and <visible> element
     // On exports from the MacOs clients the key-values are defined as xml attributes instead of child nodes
