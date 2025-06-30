@@ -63,28 +63,28 @@ interface OnSuccessArgs {
   standalone: false,
 })
 export class TrialPaymentDialogComponent implements OnInit {
-  @ViewChild(PaymentComponent) paymentComponent: PaymentComponent;
-  @ViewChild(ManageTaxInformationComponent) taxComponent: ManageTaxInformationComponent;
+  @ViewChild(PaymentComponent) paymentComponent!: PaymentComponent;
+  @ViewChild(ManageTaxInformationComponent) taxComponent!: ManageTaxInformationComponent;
 
-  currentPlan: PlanResponse;
-  currentPlanName: string;
+  currentPlan!: PlanResponse;
+  currentPlanName!: string;
   productTypes = ProductTierType;
-  organization: Organization;
-  organizationId: string;
-  sub: OrganizationSubscriptionResponse;
+  organization!: Organization;
+  organizationId!: string;
+  sub!: OrganizationSubscriptionResponse;
   selectedInterval: PlanInterval = PlanInterval.Annually;
-  secretsManagerTotal: number;
+  secretsManagerTotal!: number;
 
   planCards = signal<PlanCard[]>([]);
-  plans: ListResponse<PlanResponse>;
+  plans!: ListResponse<PlanResponse>;
 
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
-  protected taxInformation: TaxInformation;
+  protected taxInformation!: TaxInformation;
   protected totalOpened = false;
   protected estimatedTax: number = 0;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;
-  pricingSummaryData: PricingSummaryData;
+  pricingSummaryData!: PricingSummaryData;
 
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: TrialPaymentDialogParams,
@@ -114,11 +114,18 @@ export class TrialPaymentDialogComponent implements OnInit {
       const userId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
-      this.organization = await firstValueFrom(
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+      const organization = await firstValueFrom(
         this.organizationService
           .organizations$(userId)
           .pipe(getOrganizationById(this.organizationId)),
       );
+      if (!organization) {
+        throw new Error("Organization not found");
+      }
+      this.organization = organization;
 
       const result = await this.planService.getPlanCards(this.currentPlan, this.sub, true);
 
@@ -227,6 +234,7 @@ export class TrialPaymentDialogComponent implements OnInit {
           return true;
       }
     }
+    return false;
   }
 
   private refreshSalesTax(): void {
@@ -254,9 +262,10 @@ export class TrialPaymentDialogComponent implements OnInit {
 
     if (this.organization.useSecretsManager) {
       request.secretsManager = {
-        seats: this.sub.smSeats,
+        seats: this.sub.smSeats ?? 0,
         additionalMachineAccounts:
-          this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
+          (this.sub.smServiceAccounts ?? 0) -
+          (this.sub.plan.SecretsManager?.baseServiceAccount ?? 0),
       };
     }
 
@@ -336,17 +345,20 @@ export class TrialPaymentDialogComponent implements OnInit {
 
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("updatedPaymentMethod"),
       });
 
       this.onSuccess.emit({ organizationId: this.organizationId });
       this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
     } catch (error) {
-      const msg = typeof error === "object" ? error.message : error;
+      const msg =
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : String(error);
       this.toastService.showToast({
         variant: "error",
-        title: null,
+        title: undefined,
         message: this.i18nService.t(msg) || msg,
       });
     }
@@ -387,7 +399,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     await this.apiService.postAccountPayment(request);
   }
 
-  resolvePlanName(productTier: ProductTierType) {
+  resolvePlanName(productTier: ProductTierType): string {
     switch (productTier) {
       case ProductTierType.Enterprise:
         return this.i18nService.t("planNameEnterprise");
@@ -399,6 +411,8 @@ export class TrialPaymentDialogComponent implements OnInit {
         return this.i18nService.t("planNameTeams");
       case ProductTierType.TeamsStarter:
         return this.i18nService.t("planNameTeamsStarter");
+      default:
+        return this.i18nService.t("planNameFree");
     }
   }
 }
