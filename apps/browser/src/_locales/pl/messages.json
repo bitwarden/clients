@@ -1923,7 +1923,7 @@
     "message": "Klucz SSH"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Notatka"
   },
   "newItemHeader": {
     "message": "Nowy $TYPE$",
@@ -2486,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Polityka organizacji zablokowała importowanie elementów do Twojego sejfu."
+  },
+  "restrictCardTypeImport": {
+    "message": "Nie można importować elementów typu karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Polityka ustawiona przez 1 lub więcej organizacji uniemożliwia importowanie kart do sejfów."
   },
   "domainsTitle": {
     "message": "Domeny",
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Ustaw kod PIN odblokowujący"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Odblokuj za pomocą danych biometrycznych"
   },
   "authenticating": {
     "message": "Uwierzytelnianie"
@@ -5411,7 +5417,7 @@
     "message": "Nie masz uprawnień do przeglądania tej strony. Spróbuj zalogować się na inne konto."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "Zestaw WebAssembly nie jest obsługiwany w przeglądarce lub nie jest włączony. Do korzystania z aplikacji Bitwarden wymagany jest zestaw WebAssembre.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
