@@ -3276,6 +3276,9 @@
   "defaultCollection": {
     "message": "Default collection"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Get help"
   },

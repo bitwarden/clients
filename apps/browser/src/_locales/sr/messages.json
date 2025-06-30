@@ -1923,7 +1923,7 @@
     "message": "SSH кључ"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Белешка"
   },
   "newItemHeader": {
     "message": "Нови $TYPE$",
@@ -2157,7 +2157,7 @@
     "message": "Поставите свој ПИН код за откључавање Bitwarden-а. Поставке ПИН-а ће се ресетовати ако се икада потпуно одјавите из апликације."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Можете употребити овај ПИН да би деблокирали Bitwarden. Ваш ПИН ће се ресетовати ако се икада у потпуности одјавите из апликације."
   },
   "pinRequired": {
     "message": "ПИН је обавезан."
@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика организације је блокирала увоз ставки у ваш појединачни сеф."
   },
+  "restrictCardTypeImport": {
+    "message": "Не могу увозити врсте картица"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика која је поставила 1 или више организација спречава вас да се увозе картице у сефу."
+  },
   "domainsTitle": {
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
@@ -2519,7 +2525,7 @@
     "message": "Промени"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Промени лозинку",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2532,7 +2538,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Лозинка под ризиком"
   },
   "atRiskPasswords": {
     "message": "Лозинке под ризиком"
@@ -2569,7 +2575,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "Ваша лозинка за ову страницу је ризична. $ORGANIZATION$ је затражио да је промените.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2579,7 +2585,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ жели да промените ову лозинку јер је ризична. Идите до поставки вашег налога да бисте променили лозинку.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Постављен ПИН деблокирања"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Откључај биометријом"
   },
   "authenticating": {
     "message": "Аутентификација"
@@ -5411,7 +5417,7 @@
     "message": "Немате дозволе за преглед ове странице. Покушајте да се пријавите са другим налогом."
   },
   "wasmNotSupported": {
-    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "message": "WebAssembly није подржано или није уапљено на вашем прегледачу. WebAssembly је потребно да би се користила апликација Bitwarden.",
     "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
