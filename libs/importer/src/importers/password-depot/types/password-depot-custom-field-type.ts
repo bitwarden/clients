@@ -1,4 +1,5 @@
-const _PasswordDepotCustomFieldType = {
+/** This object represents the different custom field types in Password Depot */
+export const PasswordDepotCustomFieldType = Object.freeze({
   Password: "1",
   Memo: "2",
   Date: "3",
@@ -7,16 +8,8 @@ const _PasswordDepotCustomFieldType = {
   Decimal: "6",
   Email: "7",
   URL: "8",
-} as const;
-type _PasswordDepotCustomFieldType = typeof _PasswordDepotCustomFieldType;
+} as const);
 
-// This type represents the different custom field types in Password Depot
+/** This type represents the different custom field types in Password Depot */
 export type PasswordDepotCustomFieldType =
-  _PasswordDepotCustomFieldType[keyof _PasswordDepotCustomFieldType];
-
-// This object represents the different custom field types in Password Depot
-// It is a union of the string literals defined in _PasswordDepotCustomFieldType
-// Each key in _PasswordDepotCustomFieldType corresponds to a specific custom field type
-export const PasswordDepotCustomFieldType: Readonly<{
-  [K in keyof typeof _PasswordDepotCustomFieldType]: PasswordDepotCustomFieldType;
-}> = Object.freeze(_PasswordDepotCustomFieldType);
+  (typeof PasswordDepotCustomFieldType)[keyof typeof PasswordDepotCustomFieldType];
