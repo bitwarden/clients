@@ -22,11 +22,13 @@ export class OverlayNotificationsContentService
   private currentNotificationBarType: NotificationType | null = null;
   private notificationRefreshFlag: boolean = false;
   private getNotificationBarStyles(): Partial<CSSStyleDeclaration> {
-    const base: Partial<CSSStyleDeclaration> = {
+    const styles: Partial<CSSStyleDeclaration> = {
+      height: "400px",
       width: "430px",
       maxWidth: "calc(100% - 20px)",
       minHeight: "initial",
       top: "10px",
+      right: "0px",
       padding: "0",
       position: "fixed",
       zIndex: "2147483647",
@@ -39,11 +41,11 @@ export class OverlayNotificationsContentService
       transitionDelay: "0.15s",
     };
 
-    return {
-      ...base,
-      height: this.notificationRefreshFlag ? "400px" : "82px",
-      right: this.notificationRefreshFlag ? "0px" : "10px",
-    };
+    if (!this.notificationRefreshFlag) {
+      styles.height = "82px";
+      styles.right = "10px";
+    }
+    return styles;
   }
   private notificationBarIframeElementStyles: Partial<CSSStyleDeclaration> = {
     width: "100%",
@@ -64,6 +66,9 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
+    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+    });
   }
 
   /**
@@ -79,12 +84,10 @@ export class OverlayNotificationsContentService
    *
    * @param message - The message containing the initialization data for the notification bar.
    */
-  private async handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
+  private handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
     if (!message.data) {
       return;
     }
-
-    this.notificationRefreshFlag = !!(await sendExtensionMessage("notificationRefreshFlagValue"));
 
     const { type, typeData, params } = message.data;
 
