@@ -27,7 +27,7 @@
     "message": "Note"
   },
   "typeSecureNote": {
-    "message": "Bezpieczna notatka"
+    "message": "Notatka"
   },
   "typeSshKey": {
     "message": "Klucz SSH"

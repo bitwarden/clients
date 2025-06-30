@@ -1083,7 +1083,7 @@
     "message": "Nueva notificación"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Nueva notificación",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1121,7 +1121,7 @@
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Desbloquea para guardar este inicio de sesión",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
@@ -1141,7 +1141,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "¡Buen trabajo! Has dado los pasos para que tú y $ORGANIZATION$ seáis más seguros.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1150,7 +1150,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "Gracias por hacer $ORGANIZATION$ más seguro. Tienes $TASK_COUNT$ contraseñas más que actualizar.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1162,7 +1162,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Cambiar siguiente contraseña",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -1170,7 +1170,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "¡Oh no! No pudimos guardar esto. Intenta introducir los datos manualmente.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
@@ -1366,7 +1366,7 @@
     "message": "Característica no disponible"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "La encriptación antigua ya no está soportada. Por favor, contacta con soporte para recuperar tu cuenta."
   },
   "premiumMembership": {
     "message": "Membresía Premium"
@@ -1411,7 +1411,7 @@
     "message": "Comprar Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Puedes comprar el Premium desde los ajustes de tu cuenta en la aplicación web de Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "¡Eres un miembro Premium!"
@@ -1474,7 +1474,7 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "No volver a preguntar en este dispositivo durante 30 días"
   },
   "selectAnotherMethod": {
     "message": "Selecciona otro método",
@@ -1511,7 +1511,7 @@
     "message": "Opciones de la autenticación en dos pasos"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Selecciona un método de inicio de sesión en dos pasos"
   },
   "recoveryCodeDesc": {
     "message": "¿Has perdido el acceso a todos tus métodos de autenticación en dos pasos? Utiliza tu código de recuperación para deshabilitar todos los métodos de autenticación en dos pasos de tu cuenta."
@@ -1600,13 +1600,13 @@
     "message": "Sugerencias de autocompletar"
   },
   "autofillSpotlightTitle": {
-    "message": "Easily find autofill suggestions"
+    "message": "Encuentra fácilmente sugerencias de autocompletado"
   },
   "autofillSpotlightDesc": {
-    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+    "message": "Desactiva los ajustes de autocompletado de tu navegador para que no entren en conflicto con Bitwarden."
   },
   "turnOffBrowserAutofill": {
-    "message": "Turn off $BROWSER$ autofill",
+    "message": "Desactivar autocompletado de $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -1615,22 +1615,22 @@
     }
   },
   "turnOffAutofill": {
-    "message": "Turn off autofill"
+    "message": "Desactivar autocompletado"
   },
   "showInlineMenuLabel": {
-    "message": "Show autofill suggestions on form fields"
+    "message": "Mostrar sugerencias de autocompletado en campos de formulario"
   },
   "showInlineMenuIdentitiesLabel": {
-    "message": "Display identities as suggestions"
+    "message": "Mostrar identidades como sugerencias"
   },
   "showInlineMenuCardsLabel": {
     "message": "Mostrar tarjetas como sugerencias"
   },
   "showInlineMenuOnIconSelectionLabel": {
-    "message": "Display suggestions when icon is selected"
+    "message": "Mostrar sugerencias cuando el icono esté seleccionado"
   },
   "showInlineMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Se aplica a todas las cuentas a las que se haya iniciado sesión."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Desactive la configuración del gestor de contraseñas del navegador para evitar conflictos."
@@ -1693,13 +1693,13 @@
     "message": "Abrir caja fuerte en la barra lateral"
   },
   "commandAutofillLoginDesc": {
-    "message": "Autofill the last used login for the current website"
+    "message": "Autocompletar el último inicio de sesión usado para el sitio web actual"
   },
   "commandAutofillCardDesc": {
-    "message": "Autofill the last used card for the current website"
+    "message": "Autocompletar la última tarjeta usada para el sitio web actual"
   },
   "commandAutofillIdentityDesc": {
-    "message": "Autofill the last used identity for the current website"
+    "message": "Autocompletar la última identidad usada para el sitio web actual"
   },
   "commandGeneratePasswordDesc": {
     "message": "Generar y copiar una nueva contraseña aleatoria al portapapeles."
@@ -2491,7 +2491,7 @@
     "message": "Cannot import card item types"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "Una política establecida en 1 o más organizaciones te impide importar tarjetas a tus cajas fuertes."
   },
   "domainsTitle": {
     "message": "Dominios",
@@ -2991,7 +2991,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "message": "$HOURS$ hora(s) y $MINUTES$ minuto(s) como máximo.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3621,7 +3621,7 @@
     "message": "Falta el correo electrónico del usuario"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Correo electrónico del usuario activo no encontrado. Cerrando sesión."
   },
   "deviceTrusted": {
     "message": "Dispositivo de confianza"
@@ -3651,11 +3651,11 @@
     "message": "Confiar con el usuario"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Envía información sensible de forma segura",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Comparte archivos y datos de forma segura con cualquiera, en cualquier plataforma. Tu información permanecerá encriptada de extremo a extremo, limitando su exposición.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3820,7 +3820,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Desbloquea tu cuenta, se abre en una nueva ventana",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "totpCodeAria": {
@@ -3828,7 +3828,7 @@
     "description": "Aria label for the totp code displayed in the inline menu for autofill"
   },
   "totpSecondsSpanAria": {
-    "message": "Time remaining before current TOTP expires",
+    "message": "Tiempo restante antes de que el TOTP actual expire",
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
@@ -3856,7 +3856,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Add new vault login item, opens in a new window",
+    "message": "Añadir nuevo elemento de inicio de sesión a la caja fuerte, se abre en una nueva ventana",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
@@ -4081,7 +4081,7 @@
     "message": "No hay inicios de sesión coincidentes para este sitio"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Search or save passkey as new login"
+    "message": "Busca o guarda la clave de acceso como nuevo inicio de sesión"
   },
   "confirm": {
     "message": "Confirmar"
@@ -4093,10 +4093,10 @@
     "message": "Guardar clave de acceso como nuevo inicio de sesión"
   },
   "chooseCipherForPasskeySave": {
-    "message": "Choose a login to save this passkey to"
+    "message": "Elige un inicio de sesión al que guardar esta clave de acceso"
   },
   "chooseCipherForPasskeyAuth": {
-    "message": "Choose a passkey to log in with"
+    "message": "Elige una clave de acceso para iniciar sesión en"
   },
   "passkeyItem": {
     "message": "Elemento de clave de acceso"
@@ -4245,7 +4245,7 @@
     "description": "Label indicating the most common import formats"
   },
   "confirmContinueToBrowserSettingsTitle": {
-    "message": "Continue to browser settings?",
+    "message": "¿Continuar a los ajustes del navegador?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
   },
   "confirmContinueToHelpCenter": {
@@ -4325,7 +4325,7 @@
     "message": "Sugerencias de autocompletado"
   },
   "itemSuggestions": {
-    "message": "Suggested items"
+    "message": "Elementos sugeridos"
   },
   "autofillSuggestionsTip": {
     "message": "Guarda un elemento de inicio de sesión para este sitio para autocompletar"
@@ -4767,7 +4767,7 @@
     "message": "Solo los miembros de la organización con acceso a estas colecciones podrán ver los elementos."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Has seleccionado $TOTAL_COUNT$ elementos. No puedes actualizar $READONLY_COUNT$ de los elementos porque no tienes permisos de edición.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4865,10 +4865,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Selecciona colecciones para asignar"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 elemento será transferido permanentemente a la organización seleccionada. Ya no serás el propietario de este elemento."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
@@ -4902,13 +4902,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Colecciones asignadas correctamente"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "No has seleccionado nada."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Elementos movidos a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4917,7 +4917,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Elemento movido a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4961,13 +4961,13 @@
     "message": "Acciones de cuenta"
   },
   "showNumberOfAutofillSuggestions": {
-    "message": "Show number of login autofill suggestions on extension icon"
+    "message": "Mostrar número de sugerencias de autocompletado de inicios de sesión en el icono de la extensión"
   },
   "showQuickCopyActions": {
     "message": "Show quick copy actions on Vault"
   },
   "systemDefault": {
-    "message": "System default"
+    "message": "Predeterminado del sistema"
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Enterprise policy requirements have been applied to this setting"
@@ -5009,10 +5009,10 @@
     "message": "File saved to device. Manage from your device downloads."
   },
   "showCharacterCount": {
-    "message": "Show character count"
+    "message": "Mostrar número de caracteres"
   },
   "hideCharacterCount": {
-    "message": "Hide character count"
+    "message": "Ocultar número de caracteres"
   },
   "itemsInTrash": {
     "message": "Elementos en la papelera"
@@ -5069,10 +5069,10 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "Desbloqueo con PIN establecido"
   },
   "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
+    "message": "Desbloqueo con biometría establecido"
   },
   "authenticating": {
     "message": "Autenticando"
@@ -5309,7 +5309,7 @@
     "message": "Quick and easy login"
   },
   "quickLoginBody": {
-    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+    "message": "Configura el desbloqueo biométrico y el autocompletado para iniciar sesión en tus cuentas sin tener que escribir ni una sola letra."
   },
   "secureUser": {
     "message": "Level up your logins"
@@ -5318,7 +5318,7 @@
     "message": "Utilice el generador para crear y guardar contraseñas fuertes y únicas para todas sus cuentas."
   },
   "secureDevices": {
-    "message": "Your data, when and where you need it"
+    "message": "Tus datos, dónde y cuándo los necesites"
   },
   "secureDevicesBody": {
     "message": "Guarda contraseñas ilimitadas a través de dispositivos ilimitados con aplicaciones móviles, de navegador y de escritorio de Bitwarden."
@@ -5348,7 +5348,7 @@
     "message": "Search your vault for something else"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Ahorra tiempo con el autocompletado"
   },
   "newLoginNudgeBodyOne": {
     "message": "Include a",
@@ -5372,7 +5372,7 @@
     "message": "With cards, easily autofill payment forms securely and accurately."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Simplifica la creación de cuentas"
   },
   "newIdentityNudgeBody": {
     "message": "With identities, quickly autofill long registration or contact forms."
