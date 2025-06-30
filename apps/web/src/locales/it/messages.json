@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Impostare la verifica in due passaggi potrebbe bloccarti permanentemente fuori dal tuo account Bitwarden. Un codice di recupero ti permette di accedere al tuo account il caso non potessi più usare il tuo solito metodo di verifica in due passaggi (per esempio se perdi il telefono). L'assistenza clienti di Bitwarden non sarà in grado di aiutarti se perdi l'accesso al tuo account. Scrivi o stampa il tuo codice di recupero e conservalo in un luogo sicuro."
   },
-  "restrictedItemTypesPolicy": {
-    "message": "Rimuovi tipo di carta"
+  "restrictedItemTypePolicy": {
+    "message": "Rimuovi l'elemento carta"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Non consentire ai membri di salvare le carte."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Non consentire ai membri di creare elementi di tipo carta. Le carte esistenti saranno rimosse automaticamente."
+  },
+  "restrictCardTypeImport": {
+    "message": "Impossibile importare elementi di tipo carta"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Non puoi importare carte nelle tue casseforti a causa di una politica impostata da una o più organizzazioni."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Puoi usare il codice di recupero monouso se non hai accesso a nessuno dei metodi impostati per l'accesso in due passaggi. Se accedi con un codice, l'accesso in due passaggi sarà disattivato. Conserva il codice in un luogo sicuro e accessibile solo a te."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Disattiva"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revoca accesso"
@@ -5363,6 +5372,9 @@
   "emergencyRejected": {
     "message": "Accesso di emergenza rifiutato"
   },
+  "grantorDetailsNotFound": {
+    "message": "Dettagli del concedente non trovati"
+  },
   "passwordResetFor": {
     "message": "Password ripristinata per $USER$. Ora puoi accedere usando la nuova password.",
     "placeholders": {
@@ -5371,6 +5383,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Forza la proprietà dei dati dell'organizzazione"
   },
   "personalOwnership": {
     "message": "Rimuovi cassaforte individuale"
@@ -5763,10 +5778,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Se si procede, sarà chiusa la sessione corrente di $NAME$, cui sarà richiesto un nuovo accesso. Le sue sessioni attive su altri dispositivi potrebbero restare attive per un periodo massimo di un'ora.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "questo utente"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Una o più politiche dell'organizzazione richiedono che la tua password principale soddisfi questi requisiti:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Una o più politiche dell'organizzazione richiedono che la tua password principale soddisfi questi requisiti:"
   },
   "resetPasswordSuccess": {
@@ -10649,5 +10676,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Indirizzo di fatturazione richiesto per aggiungere credito.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
