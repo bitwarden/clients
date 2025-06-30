@@ -191,6 +191,7 @@ import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitw
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DefaultEndUserNotificationService,
@@ -1694,14 +1695,44 @@ export default class MainBackground {
       // Set route of the popup before attempting to open it.
       // If the vault is locked, this won't have an effect as the auth guards will
       // redirect the user to the login page.
-      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+      await browserAction.setPopup({ popup: ExtensionPageUrls.AtRiskPasswords });
 
       await this.openPopup();
     } finally {
       // Reset the popup route to the default route so any subsequent
       // popup openings will not open to the at-risk-passwords page.
       await browserAction.setPopup({
-        popup: "popup/index.html#/",
+        popup: ExtensionPageUrls.Index,
+      });
+    }
+  }
+
+  /**
+   * Opens the popup to the given page
+   * @default ExtensionPageUrls.Index
+   */
+  async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
+    const isValidUrl = Object.values(ExtensionPageUrls).includes(url);
+
+    // If a non-defined URL is provided, return early.
+    if (!isValidUrl) {
+      return;
+    }
+
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: url });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: ExtensionPageUrls.Index,
       });
     }
   }

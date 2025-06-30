@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "既定のコレクション"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "ヘルプを参照する"
   },

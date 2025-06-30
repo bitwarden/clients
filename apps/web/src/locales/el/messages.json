@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Προεπιλεγμένη Συλλογή"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Ζητήστε Βοήθεια"
   },

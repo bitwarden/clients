@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Verstekversameling"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Kry Hulp"
   },

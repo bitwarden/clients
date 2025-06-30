@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Oletuskokoelma"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Hanki apua"
   },

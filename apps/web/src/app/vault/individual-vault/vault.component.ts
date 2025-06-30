@@ -48,7 +48,6 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -85,7 +84,6 @@ import {
 import {
   getNestedCollectionTree,
   getFlatCollectionTree,
-  getNestedCollectionTree_vNext,
 } from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
@@ -331,15 +329,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const filter$ = this.routedVaultFilterService.filter$;
     const allCollections$ = this.collectionService.decryptedCollections$;
-    const nestedCollections$ = combineLatest([
-      allCollections$,
-      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
-    ]).pipe(
-      map(([collections, shouldOptimize]) =>
-        shouldOptimize
-          ? getNestedCollectionTree_vNext(collections)
-          : getNestedCollectionTree(collections),
-      ),
+    const nestedCollections$ = allCollections$.pipe(
+      map((collections) => getNestedCollectionTree(collections)),
     );
 
     this.searchText$

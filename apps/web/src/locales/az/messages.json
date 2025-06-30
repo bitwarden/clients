@@ -2154,16 +2154,16 @@
     "message": "İki addımlı girişi qurmaq, Bitwarden hesabınızı birdəfəlik kilidləyə bilər. Geri qaytarma kodu, normal iki addımlı giriş provayderinizi artıq istifadə edə bilmədiyiniz hallarda (məs. cihazınızı itirəndə) hesabınıza müraciət etməyinizə imkan verir. Hesabınıza müraciəti itirsəniz, Bitwarden dəstəyi sizə kömək edə bilməyəcək. Geri qaytarma kodunuzu bir yerə yazmağınızı və ya çap etməyinizi və onu etibarlı bir yerdə saxlamağınızı məsləhət görürük."
   },
   "restrictedItemTypePolicy": {
-    "message": "Remove card item type"
+    "message": "Kart element növünü sil"
   },
   "restrictedItemTypePolicyDesc": {
-    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+    "message": "Üzvlərin kart element növlərini yaratmasına icazə verməyin. Mövcud kartlar avtomatik silinəcək."
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "Kart element növləri daxilə köçürülə bilmir"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "1 və ya daha çox təşkilat tərəfindən təyin edilən bir siyasət, kartların seyfinizə köçürülməsini əngəlləyir."
   },
   "yourSingleUseRecoveryCode": {
     "message": "İki addımlı giriş provayderinizə müraciəti itirdiyiniz halda, iki addımlı girişi söndürmək üçün təkistifadəlik geri qaytarma kodunu istifadə edə bilərsiniz. Bitwarden tövsiyə edir ki, geri qaytarma kodunuzu bir yerə yazıb güvənli bir yerdə saxlayın."
@@ -2225,7 +2225,7 @@
     "message": "Sıradan çıxart"
   },
   "orgUserDetailsNotFound": {
-    "message": "Member details not found."
+    "message": "Üzv təfsilatları tapılmadı."
   },
   "revokeAccess": {
     "message": "Müraciəti ləğv et"
@@ -3274,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "İlkin kolleksiya"
+  },
+  "myItems": {
+    "message": "Elementlərim"
   },
   "getHelp": {
     "message": "Kömək alın"
@@ -5373,7 +5376,7 @@
     "message": "Fövqəladə hal müraciəti rədd edildi"
   },
   "grantorDetailsNotFound": {
-    "message": "Grantor details not found"
+    "message": "Qrant verən təfsilatları tapılmadı"
   },
   "passwordResetFor": {
     "message": "$USER$ üçün parol sıfırlandı. Artıq yeni parol ilə giriş edə bilərsiniz.",
@@ -5385,7 +5388,7 @@
     }
   },
   "organizationDataOwnership": {
-    "message": "Enforce organization data ownership"
+    "message": "Təşkilata data üzərində məcburi sahiblik ver"
   },
   "personalOwnership": {
     "message": "Fərdi sahiblik"
@@ -5779,7 +5782,7 @@
     }
   },
   "emergencyAccessLoggedOutWarning": {
-    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "message": "Davam etsəniz, $NAME$ üçün hazırkı seans bitəcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5794,7 +5797,7 @@
     "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
   "resetPasswordSuccess": {
     "message": "Parol sıfırlama uğurludur!"
@@ -10678,7 +10681,7 @@
     }
   },
   "billingAddressRequiredToAddCredit": {
-    "message": "Billing address required to add credit.",
+    "message": "Kredit əlavə etmək üçün faktura ünvanı tələb olunur.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
