@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "ಡೀಫಾಲ್ಟ್ ಸಂಗ್ರಹ"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "ಸಹಾಯ ಪಡೆ"
   },
