@@ -2,10 +2,8 @@ import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import {
-  DefaultSetInitialPasswordService,
-  SetInitialPasswordService,
-} from "@bitwarden/auth/angular";
+import { DefaultSetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
+import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -16,7 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-import { postLogoutMessageListener$ } from "../../../auth/popup/utils/post-logout-message-listener";
+import { postLogoutMessageListener$ } from "../utils/post-logout-message-listener";
 
 export class ExtensionSetInitialPasswordService
   extends DefaultSetInitialPasswordService
