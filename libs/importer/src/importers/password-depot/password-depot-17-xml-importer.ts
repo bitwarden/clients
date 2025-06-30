@@ -85,7 +85,9 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
 
     this.buildFavouritesLookupTable(rootNode);
 
-    this.traverse(passwordsNode, true, "");
+    this.querySelectorAllDirectChild(passwordsNode, "group").forEach((group) => {
+      this.traverse(group, "");
+    });
 
     if (this.organization) {
       this.moveFoldersToCollections(this.result);
@@ -98,24 +100,22 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
   // Traverses the XML tree and processes each node
   // It starts from the root node and goes through each group and item
   // This method is recursive and handles nested groups
-  private traverse(node: Element, isRootNode: boolean, groupPrefixName: string) {
+  private traverse(node: Element, groupPrefixName: string) {
     const folderIndex = this.result.folders.length;
     let groupName = groupPrefixName;
 
-    if (!isRootNode) {
-      if (groupName !== "") {
-        groupName += "/";
-      }
+    if (groupName !== "") {
+      groupName += "/";
+    }
 
-      // Check if the group has a fingerprint attribute (GUID of a folder)
-      const groupFingerprint = node.attributes.getNamedItem("fingerprint");
-      if (groupFingerprint?.textContent != "" && groupFingerprint.textContent != "null") {
-        const nameEl = node.attributes.getNamedItem("name");
-        groupName += nameEl == null ? "-" : nameEl.textContent;
-        const folder = new FolderView();
-        folder.name = groupName;
-        this.result.folders.push(folder);
-      }
+    // Check if the group has a fingerprint attribute (GUID of a folder)
+    const groupFingerprint = node.attributes.getNamedItem("fingerprint");
+    if (groupFingerprint?.textContent != "" && groupFingerprint.textContent != "null") {
+      const nameEl = node.attributes.getNamedItem("name");
+      groupName += nameEl == null ? "-" : nameEl.textContent;
+      const folder = new FolderView();
+      folder.name = groupName;
+      this.result.folders.push(folder);
     }
 
     this.querySelectorAllDirectChild(node, "item").forEach((entry) => {
@@ -216,13 +216,13 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       this.cleanupCipher(cipher);
       this.result.ciphers.push(cipher);
 
-      if (!isRootNode) {
+      if (groupName !== "") {
         this.result.folderRelationships.push([cipherIndex, folderIndex]);
       }
     });
 
     this.querySelectorAllDirectChild(node, "group").forEach((group) => {
-      this.traverse(group, false, groupName);
+      this.traverse(group, groupName);
     });
   }
 
