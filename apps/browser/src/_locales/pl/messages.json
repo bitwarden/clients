@@ -14,7 +14,7 @@
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
-    "message": "Zaloguj się lub utwórz nowe konto, aby uzyskać dostęp do Twojego bezpiecznego sejfu."
+    "message": "Zaloguj się lub utwórz nowe konto, aby uzyskać dostęp do bezpiecznego sejfu."
   },
   "inviteAccepted": {
     "message": "Zaproszenie zostało zaakceptowane"
