@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitwardenShield } from "@bitwarden/auth/angular";
@@ -76,8 +76,7 @@ const DIALOG_MESSAGES = {
 })
 export class Fido2CreateComponent implements OnInit, OnDestroy {
   session?: DesktopFido2UserInterfaceSession = null;
-  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
+  ciphers$: Observable<CipherView[]>;
   readonly Icons = { BitwardenShield };
   protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
 
@@ -95,17 +94,14 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.session = this.fido2UserInterfaceService.getCurrentSession();
+    const rpid = await this.session?.getRpId();
+
     if (!this.session) {
       await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
       return;
     }
 
-    try {
-      const displayedCiphers = await this.getDisplayedCiphers();
-      this.ciphersSubject.next(displayedCiphers);
-    } catch {
-      await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
-    }
+    this.initializeCiphersObservable(rpid);
   }
 
   async ngOnDestroy(): Promise<void> {
@@ -152,28 +148,39 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getDisplayedCiphers(): Promise<CipherView[]> {
+  private initializeCiphersObservable(rpid: string): void {
     const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
-    const rpid = await this.session?.getRpId();
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
 
-    if (!lastRegistrationRequest || !rpid || !activeUserId) {
-      return [];
+    if (!lastRegistrationRequest || !rpid) {
+      return;
     }
 
-    const equivalentDomains = await firstValueFrom(
-      this.domainSettingsService.getUrlEquivalentDomains(rpid),
-    );
     const userHandle = Fido2Utils.bufferToString(
       new Uint8Array(lastRegistrationRequest.userHandle),
     );
-    return (await this.cipherService.getAllDecrypted(activeUserId)).filter(
-      (cipher) =>
-        cipher.login?.matchesUri(rpid, equivalentDomains) &&
-        Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
-        !cipher.deletedDate,
+
+    this.ciphers$ = combineLatest([
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      this.domainSettingsService.getUrlEquivalentDomains(rpid),
+    ]).pipe(
+      switchMap(async ([activeUserId, equivalentDomains]) => {
+        if (!activeUserId) {
+          return [];
+        }
+
+        try {
+          const allCiphers = await this.cipherService.getAllDecrypted(activeUserId);
+          return allCiphers.filter(
+            (cipher) =>
+              cipher.login?.matchesUri(rpid, equivalentDomains) &&
+              Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
+              !cipher.deletedDate,
+          );
+        } catch {
+          await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
+          return [];
+        }
+      }),
     );
   }
 
