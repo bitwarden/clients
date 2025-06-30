@@ -144,6 +144,12 @@ If a checkbox group has more than 4 options a
 
 ## Accessibility
 
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
+
 ### Required Fields
 
 - Use "(required)" in the label of each required form field styled the same as the field's helper
@@ -151,12 +157,6 @@ If a checkbox group has more than 4 options a
 - If whether or not a form field is required depends on another field, add this to the field's
   helper text.
   - **Example:** "Billing Email is required if owned by a business".
-
-### Icon Buttons in Form Fields
-
-When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
-directive to provide a label for screenreaders. Typically, the label should follow this pattern:
-`{Action} {field label}`, i.e. "Copy username".
 
 ### Form Field Errors
 
@@ -193,6 +193,10 @@ directive to provide a label for screenreaders. Typically, the label should foll
   timeout to follow the 6 second
 
 * 1 second for each additional 120 words rule.
+
+### Validation messages
+
+<Canvas of={formStories.Validations} />
 
 ### Helper Text
 
