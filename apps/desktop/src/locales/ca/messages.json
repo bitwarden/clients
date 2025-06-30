@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Compte restringit"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Contrasenya del fitxer\" i \"Confirma contrasenya del fitxer\" no coincideixen."
   },
@@ -3740,7 +3746,7 @@
     "message": "Nom de la carpeta"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Imbriqueu una carpeta afegint el nom de la carpeta principal seguit d'una \"/\". Exemple: Social/Fòrums"
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",

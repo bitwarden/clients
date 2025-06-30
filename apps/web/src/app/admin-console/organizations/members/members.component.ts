@@ -337,10 +337,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     if (
       await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
     ) {
-      this.organizationUserService
-        .confirmUser(this.organization, user, publicKey)
-        .pipe(takeUntilDestroyed())
-        .subscribe();
+      await firstValueFrom(
+        this.organizationUserService.confirmUser(this.organization, user, publicKey),
+      );
     } else {
       const orgKey = await this.keyService.getOrgKey(this.organization.id);
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);

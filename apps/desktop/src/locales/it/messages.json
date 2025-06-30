@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Account limitato"
   },
+  "restrictCardTypeImport": {
+    "message": "Impossibile importare elementi di tipo carta"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Non puoi importare carte nelle tue casseforti a causa di una politica impostata da una o più organizzazioni."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Le due password del file non corrispondono."
   },

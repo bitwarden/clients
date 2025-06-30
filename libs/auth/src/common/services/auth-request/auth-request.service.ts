@@ -1,15 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, Subject, firstValueFrom } from "rxjs";
+import { Observable, Subject, defer, firstValueFrom, map } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,6 +24,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
+import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
 
 /**
@@ -49,12 +50,12 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
 
   constructor(
     private appIdService: AppIdService,
-    private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
+    private authRequestApiService: AuthRequestApiServiceAbstraction,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
     this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
@@ -89,6 +90,19 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     }
 
     await this.stateProvider.setUserState(ADMIN_AUTH_REQUEST_KEY, null, userId);
+  }
+
+  /**
+   * @description Gets the list of all standard (not admin approval) pending AuthRequests.
+   */
+  getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>> {
+    return defer(() => this.authRequestApiService.getPendingAuthRequests()).pipe(
+      map((authRequestResponses: ListResponse<AuthRequestResponse>) => {
+        return authRequestResponses.data.map((authRequestResponse: AuthRequestResponse) => {
+          return new AuthRequestResponse(authRequestResponse);
+        });
+      }),
+    );
   }
 
   async approveOrDenyAuthRequest(

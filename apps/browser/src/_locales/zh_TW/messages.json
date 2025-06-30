@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "某個組織原則已禁止您將項目匯入至您的個人密碼庫。"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "網域",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "驗證中"
