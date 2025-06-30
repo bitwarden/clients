@@ -271,6 +271,10 @@ jobs:
       - name: Check source file size
         if: ${{ startsWith(matrix.name, 'firefox') }}
         run: |
+          # TEST: failure condition
+          TARGET='./browser-source/TEST.file'
+          dd if=/dev/zero of=$TARGET bs=1024 count=4099
+
           # Declare variable as indexed array
           declare -a FILES
 
