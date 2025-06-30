@@ -105,7 +105,7 @@ export class ChangePasswordComponent implements OnInit {
         pageIcon: Icons.LockIcon,
         pageTitle: { key: "updateMasterPassword" },
         pageSubtitle: { key: "updateMasterPasswordSubtitle" },
-        // maxWidth: "lg", // TODO: depends on https://github.com/bitwarden/clients/pull/15362
+        maxWidth: "lg",
       });
     }
 
