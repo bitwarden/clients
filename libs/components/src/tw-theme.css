@@ -58,6 +58,8 @@
   --color-marketing-logo: 23 93 220;
 
   --tw-ring-offset-color: #ffffff;
+
+  --tw-sm-breakpoint: 640px;
 }
 
 .theme_light {
