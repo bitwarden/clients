@@ -80,8 +80,7 @@ mod objc {
             Ok(value) => value,
             Err(e) => {
                 println!(
-                    "Error: Failed to convert ObjCString to Rust string during commandReturn: {}",
-                    e
+                    "Error: Failed to convert ObjCString to Rust string during commandReturn: {e}"
                 );
 
                 return false;
@@ -92,8 +91,7 @@ mod objc {
             Ok(_) => 0,
             Err(e) => {
                 println!(
-                    "Error: Failed to return ObjCString from ObjC code to Rust code: {}",
-                    e
+                    "Error: Failed to return ObjCString from ObjC code to Rust code: {e}"
                 );
 
                 return false;

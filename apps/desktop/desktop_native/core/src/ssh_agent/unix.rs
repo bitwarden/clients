@@ -66,14 +66,12 @@ impl BitwardenDesktopAgent {
             };
 
             println!(
-                "[SSH Agent Native Module] Starting SSH Agent server on {:?}",
-                ssh_path
+                "[SSH Agent Native Module] Starting SSH Agent server on {ssh_path:?}"
             );
             let sockname = std::path::Path::new(&ssh_path);
             if let Err(e) = std::fs::remove_file(sockname) {
                 println!(
-                    "[SSH Agent Native Module] Could not remove existing socket file: {}",
-                    e
+                    "[SSH Agent Native Module] Could not remove existing socket file: {e}"
                 );
                 if e.kind() != std::io::ErrorKind::NotFound {
                     return;
@@ -86,8 +84,7 @@ impl BitwardenDesktopAgent {
                     if let Err(e) = fs::set_permissions(sockname, fs::Permissions::from_mode(0o600))
                     {
                         println!(
-                            "[SSH Agent Native Module] Could not set socket permissions: {}",
-                            e
+                            "[SSH Agent Native Module] Could not set socket permissions: {e}"
                         );
                         return;
                     }
@@ -113,8 +110,7 @@ impl BitwardenDesktopAgent {
                 }
                 Err(e) => {
                     eprintln!(
-                        "[SSH Agent Native Module] Error while starting agent server: {}",
-                        e
+                        "[SSH Agent Native Module] Error while starting agent server: {e}"
                     );
                 }
             }
