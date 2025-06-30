@@ -90,9 +90,7 @@ mod objc {
         match context.send(value) {
             Ok(_) => 0,
             Err(e) => {
-                println!(
-                    "Error: Failed to return ObjCString from ObjC code to Rust code: {e}"
-                );
+                println!("Error: Failed to return ObjCString from ObjC code to Rust code: {e}");
 
                 return false;
             }
