@@ -226,7 +226,7 @@
     "message": "Introducir la contraseña"
   },
   "sshAgentUnlockRequired": {
-    "message": "Please unlock your vault to approve the SSH key request."
+    "message": "Por favor, desbloquea tu caja fuerte para aprobar la solicitud de clave SSH."
   },
   "sshAgentUnlockTimeout": {
     "message": "SSH key request timed out."
@@ -1019,7 +1019,7 @@
     "message": "URL del servidor"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Tiempo de autenticación agotado"
   },
   "authenticationSessionTimedOut": {
     "message": "The authentication session timed out. Please restart the login process."
@@ -1215,7 +1215,7 @@
     "message": "Timeout"
   },
   "vaultTimeoutDesc": {
-    "message": "Elije cuando se agotará el tiempo de espera de tu caja fuerte y se ejecutará la acción seleccionada."
+    "message": "Elige cuando se agotará el tiempo de espera de tu caja fuerte y se ejecutará la acción seleccionada."
   },
   "immediately": {
     "message": "Inmediatamente"
@@ -1465,7 +1465,7 @@
     "message": "Comprar Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Puedes comprar el Premium desde la configuración de tu cuenta en la aplicación web de Bitwarden."
+    "message": "Puedes comprar el Premium desde los ajustes de tu cuenta en la aplicación web de Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "¡Eres un miembro Premium!"
@@ -1588,7 +1588,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Copia Exitosa"
   },
   "errorRefreshingAccessToken": {
     "message": "Error de actualización del token de acceso"
@@ -3176,7 +3176,7 @@
     "message": "Falta el correo electrónico del usuario"
   },
   "activeUserEmailNotFoundLoggingYouOut": {
-    "message": "Active user email not found. Logging you out."
+    "message": "Correo electrónico del usuario activo no encontrado. Cerrando sesión."
   },
   "deviceTrusted": {
     "message": "Dispositivo de confianza"
@@ -3600,7 +3600,7 @@
     "message": "Envío de texto"
   },
   "ssoError": {
-    "message": "No free ports could be found for the sso login."
+    "message": "No se encontraron puertos libres para el inicio de sesión sso."
   },
   "securePasswordGenerated": {
     "message": "¡Contraseña segura generada! No olvides actualizar tu contraseña en el sitio web."
@@ -3614,19 +3614,19 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+    "message": "El desbloqueo biométrico no está disponible porque primero es necesario desbloquear con PIN o contraseña."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "Biometric unlock is currently unavailable."
+    "message": "El desbloqueo biométrico no está disponible actualmente."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "El desbloqueo biométrico no está disponible por archivos del sistema mal configurados."
   },
   "biometricsStatusHelptextManualSetupNeeded": {
-    "message": "Biometric unlock is unavailable due to misconfigured system files."
+    "message": "El desbloqueo biométrico no está disponible por archivos del sistema mal configurados."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "message": "El desbloqueo biométrico no está disponible porque no está habilitado para $EMAIL$ en la aplicación de escritorio Bitwarden.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3635,7 +3635,7 @@
     }
   },
   "biometricsStatusHelptextUnavailableReasonUnknown": {
-    "message": "Biometric unlock is currently unavailable for an unknown reason."
+    "message": "El desbloqueo biométrico no está disponible actualmente por una razón desconocida."
   },
   "itemDetails": {
     "message": "Detalles del elemento"
@@ -3644,7 +3644,7 @@
     "message": "Nombre del elemento"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Credenciales de inicio de sesión"
   },
   "additionalOptions": {
     "message": "Opciones adicionales"
@@ -3774,7 +3774,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Ahora tiempo con autocompletado"
+    "message": "Ahorra tiempo con el autocompletado"
   },
   "newLoginNudgeBodyOne": {
     "message": "Incluír un",
@@ -3856,7 +3856,7 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Selecciona colecciones para asignar"
   },
   "personalItemsTransferWarning": {
     "message": "$PERSONAL_ITEMS_COUNT$ serán transferidos permanentemente a la organización seleccionada. Ya no serás el propietario de estos elementos.",
@@ -3893,10 +3893,10 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Colecciones asignadas correctamente"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "No has seleccionado nada."
   },
   "itemsMovedToOrg": {
     "message": "Elementos movidos a $ORGNAME$",
