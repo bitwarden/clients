@@ -795,15 +795,15 @@ export class ServiceContainer {
 
     this.totpService = new TotpService(this.sdkService);
 
-    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
-      this.restrictedItemTypesService,
-    );
-
     this.restrictedItemTypesService = new RestrictedItemTypesService(
       this.configService,
       this.accountService,
       this.organizationService,
       this.policyService,
+    );
+
+    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
+      this.restrictedItemTypesService,
     );
 
     this.importApiService = new ImportApiService(this.apiService);
