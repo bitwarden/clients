@@ -1,0 +1,61 @@
+<div
+  class="tw-mb-6 tw-grid tw-gap-10 tw-grid-rows-1 tw-justify-center md:tw-grid-cols-3"
+  [attr.aria-label]="'setupExtensionContentAlt' | i18n"
+>
+  <div
+    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-hidden"
+  >
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
+    ></div>
+    <video
+      #video
+      muted
+      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+      [attr.aria-hidden]="!allVideosLoaded"
+      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
+      (loadeddata)="onVideoLoad()"
+      src="/videos/setup-extension/new-login-item.mp4"
+      appDarkImgSrc="/videos/setup-extension/new-login-item-dark.mp4"
+    ></video>
+  </div>
+
+  <div
+    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-clip"
+  >
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
+    ></div>
+    <video
+      #video
+      muted
+      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+      [attr.aria-hidden]="!allVideosLoaded"
+      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
+      (loadeddata)="onVideoLoad()"
+      src="/videos/setup-extension/browser-extension-easy-access.mp4"
+      appDarkImgSrc="/videos/setup-extension/browser-extension-easy-access-dark.mp4"
+    ></video>
+  </div>
+
+  <div
+    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-clip"
+  >
+    <div
+      *ngIf="!allVideosLoaded"
+      class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
+    ></div>
+    <video
+      #video
+      muted
+      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+      [attr.aria-hidden]="!allVideosLoaded"
+      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
+      (loadeddata)="onVideoLoad()"
+      src="/videos/setup-extension/onboarding-autofill.mp4"
+      appDarkImgSrc="/videos/setup-extension/onboarding-autofill-dark.mp4"
+    ></video>
+  </div>
+</div>

@@ -23,6 +23,7 @@ import { VaultIcons } from "@bitwarden/vault";
 import { WebBrowserInteractionService } from "../../services/web-browser-interaction.service";
 
 import { AddExtensionLaterDialogComponent } from "./add-extension-later-dialog.component";
+import { AddExtensionVideosComponent } from "./add-extension-videos.component";
 
 const SetupExtensionState = {
   Loading: "loading",
@@ -35,7 +36,15 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
 @Component({
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
-  imports: [NgIf, JslibModule, ButtonComponent, LinkModule, IconModule, RouterModule],
+  imports: [
+    NgIf,
+    JslibModule,
+    ButtonComponent,
+    LinkModule,
+    IconModule,
+    RouterModule,
+    AddExtensionVideosComponent,
+  ],
 })
 export class SetupExtensionComponent implements OnInit {
   private webBrowserExtensionInteractionService = inject(WebBrowserInteractionService);
