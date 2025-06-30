@@ -259,10 +259,11 @@ jobs:
 
           # Validate results and provide messaging
           if [[ ${#FILES[@]} -ne 0 ]]; then
-              echo "File(s) exceeds size limit: 4M"
+              echo "File(s) exceeds size limit: 4MB"
               for FILE in ${FILES[@]}; do
                   echo "- $(du --si $FILE)"
               done
+              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
               # Invoke failure
               exit 1
           fi
