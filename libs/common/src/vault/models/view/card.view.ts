@@ -157,6 +157,15 @@ export class CardView extends ItemView {
       return undefined;
     }
 
-    return Object.assign(new CardView(), obj);
+    const cardView = new CardView();
+
+    cardView.cardholderName = obj.cardholderName ?? null;
+    cardView.brand = obj.brand ?? null;
+    cardView.number = obj.number ?? null;
+    cardView.expMonth = obj.expMonth ?? null;
+    cardView.expYear = obj.expYear ?? null;
+    cardView.code = obj.code ?? null;
+
+    return cardView;
   }
 }

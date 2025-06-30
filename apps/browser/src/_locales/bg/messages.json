@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeNote": {
+    "message": "Бележка"
+  },
   "newItemHeader": {
     "message": "Ново $TYPE$",
     "placeholders": {
@@ -2483,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Политика на организацията забранява да внасяте елементи в личния си трезор."
+  },
+  "restrictCardTypeImport": {
+    "message": "Картовите елементи не могат да бъдат внесени"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, зададена от 1 или повече организации, не позволява да внасяте карти в трезорите си."
   },
   "domainsTitle": {
     "message": "Домейни",
@@ -5062,6 +5071,9 @@
   "unlockPinSet": {
     "message": "Зададен е ПИН код за отключване"
   },
+  "unlockWithBiometricSet": {
+    "message": "Отключване с биометричен набор"
+  },
   "authenticating": {
     "message": "Удостоверяване"
   },
@@ -5403,5 +5415,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не е включено или не се поддържа от Вашия браузър. За ползването на приложението на Битуорден е необходимо WebAssembly да работи.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
