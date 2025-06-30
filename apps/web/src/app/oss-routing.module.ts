@@ -358,7 +358,6 @@ const routes: Routes = [
           pageSubtitle: {
             key: "singleSignOnEnterOrgIdentifierText",
           },
-          titleAreaMaxWidth: "md",
           pageIcon: SsoKeyIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
@@ -392,7 +391,6 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
-          titleAreaMaxWidth: "md",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
