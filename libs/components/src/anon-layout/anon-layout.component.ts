@@ -14,7 +14,7 @@ import { BitwardenLogo, BitwardenShield } from "../icon/icons";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
-export type AnonLayoutMaxWidths = "md" | "lg" | "xl" | "2xl" | "3xl";
+export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl";
 
 @Component({
   selector: "auth-anon-layout",
@@ -42,7 +42,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  @Input() maxWidth: AnonLayoutMaxWidths = "md";
+  @Input() maxWidth: AnonLayoutMaxWidth = "md";
 
   protected logo = BitwardenLogo;
   protected year: string;

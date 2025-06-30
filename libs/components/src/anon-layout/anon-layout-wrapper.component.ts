@@ -10,7 +10,7 @@ import { Translation } from "../dialog";
 import { Icon } from "../icon";
 
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent, AnonLayoutMaxWidths } from "./anon-layout.component";
+import { AnonLayoutComponent, AnonLayoutMaxWidth } from "./anon-layout.component";
 
 export interface AnonLayoutWrapperData {
   /**
@@ -36,7 +36,7 @@ export interface AnonLayoutWrapperData {
   /**
    * Optional flag to set the max-width of the page. Defaults to 'md' if not provided.
    */
-  maxWidth?: AnonLayoutMaxWidths;
+  maxWidth?: AnonLayoutMaxWidth;
   /**
    * Hide the card that wraps the default content. Defaults to false.
    */
@@ -54,7 +54,7 @@ export class AnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected pageSubtitle: string;
   protected pageIcon: Icon;
   protected showReadonlyHostname: boolean;
-  protected maxWidth: AnonLayoutMaxWidths;
+  protected maxWidth: AnonLayoutMaxWidth;
   protected hideCardWrapper: boolean;
 
   constructor(
