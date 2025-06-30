@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, PBKDF2KdfConfig, Argon2KdfConfig, KdfType } from "@bitwarden/key-management";
+import { KdfConfig } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
@@ -47,37 +48,15 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
     salt: string | Uint8Array,
     kdfConfig: KdfConfig,
   ): Promise<SymmetricCryptoKey> {
-    let key: Uint8Array = null;
-    if (kdfConfig.kdfType == null || kdfConfig.kdfType === KdfType.PBKDF2_SHA256) {
-      if (kdfConfig.iterations == null) {
-        kdfConfig.iterations = PBKDF2KdfConfig.ITERATIONS.defaultValue;
-      }
-
-      key = await this.cryptoFunctionService.pbkdf2(password, salt, "sha256", kdfConfig.iterations);
-    } else if (kdfConfig.kdfType == KdfType.Argon2id) {
-      if (kdfConfig.iterations == null) {
-        kdfConfig.iterations = Argon2KdfConfig.ITERATIONS.defaultValue;
-      }
-
-      if (kdfConfig.memory == null) {
-        kdfConfig.memory = Argon2KdfConfig.MEMORY.defaultValue;
-      }
-
-      if (kdfConfig.parallelism == null) {
-        kdfConfig.parallelism = Argon2KdfConfig.PARALLELISM.defaultValue;
-      }
-
-      const saltHash = await this.cryptoFunctionService.hash(salt, "sha256");
-      key = await this.cryptoFunctionService.argon2(
-        password,
-        saltHash,
-        kdfConfig.iterations,
-        kdfConfig.memory * 1024, // convert to KiB from MiB
-        kdfConfig.parallelism,
-      );
-    } else {
-      throw new Error("Unknown Kdf.");
+    if (typeof password === "string") {
+      password = new TextEncoder().encode(password);
     }
+    if (typeof salt === "string") {
+      salt = new TextEncoder().encode(salt);
+    }
+
+    const key: Uint8Array = PureCrypto.derive_kdf_output(password, salt, kdfConfig.toSdkConfig());
+
     return new SymmetricCryptoKey(key);
   }
 
