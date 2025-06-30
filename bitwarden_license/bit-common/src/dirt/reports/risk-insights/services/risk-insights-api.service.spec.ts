@@ -81,6 +81,13 @@ describe("RiskInsightsApiService", () => {
         fail("Expected error to be thrown");
       },
       error: () => {
+        expect(apiService.send).toHaveBeenCalledWith(
+          "POST",
+          `/reports/organization-reports`,
+          saveRiskInsightsReportRequest.data,
+          true,
+          true,
+        );
         done();
       },
       complete: () => {
