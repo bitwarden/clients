@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Прадвызначаная калекцыя"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Атрымаць даведку"
   },

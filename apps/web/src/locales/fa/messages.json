@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "مجموعه پیش‌فرض"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "کمک گرفتن"
   },
