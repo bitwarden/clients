@@ -21,8 +21,10 @@ import {
   BitwardenClient,
   ClientSettings,
   DeviceType as SdkDeviceType,
+  TokenProvider,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
@@ -44,6 +46,14 @@ import { initializeState } from "./client-managed-state";
 // blocking the creation of an internal client for that user.
 const UnsetClient = Symbol("UnsetClient");
 
+class JsTokenProvider implements TokenProvider {
+  constructor(private apiService: ApiService) {}
+
+  async get_access_token(): Promise<string> {
+    return await this.apiService.getActiveBearerToken();
+  }
+}
+
 export class DefaultSdkService implements SdkService {
   private sdkClientOverrides = new BehaviorSubject<{
     [userId: UserId]: Rc<BitwardenClient> | typeof UnsetClient;
@@ -54,7 +64,10 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(settings);
+      return await this.sdkClientFactory.createSdkClient(
+        settings,
+        new JsTokenProvider(this.apiService),
+      );
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -71,6 +84,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private apiService: ApiService,
     private stateProvider?: StateProvider,
     private userAgent: string | null = null,
   ) {}
@@ -155,7 +169,10 @@ export class DefaultSdkService implements SdkService {
             }
 
             const settings = this.toSettings(env);
-            const client = await this.sdkClientFactory.createSdkClient(settings);
+            const client = await this.sdkClientFactory.createSdkClient(
+              settings,
+              new JsTokenProvider(this.apiService),
+            );
 
             await this.initializeClient(
               userId,
@@ -301,4 +318,6 @@ export class DefaultSdkService implements SdkService {
         return "SDK";
     }
   }
+
+  private getAccessToken() {}
 }

@@ -1,4 +1,9 @@
+import { firstValueFrom, map } from "rxjs";
+
+import { FolderAddEditRequest } from "@bitwarden/sdk-internal";
+
 import { ApiService } from "../../../abstractions/api.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../../types/guid";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -6,11 +11,13 @@ import { FolderData } from "../../../vault/models/data/folder.data";
 import { Folder } from "../../../vault/models/domain/folder";
 import { FolderRequest } from "../../../vault/models/request/folder.request";
 import { FolderResponse } from "../../../vault/models/response/folder.response";
+import { FolderView } from "../../models/view/folder.view";
 
 export class FolderApiService implements FolderApiServiceAbstraction {
   constructor(
     private folderService: InternalFolderService,
     private apiService: ApiService,
+    private sdkService: SdkService,
   ) {}
 
   async save(folder: Folder, userId: UserId): Promise<FolderData> {
@@ -27,6 +34,21 @@ export class FolderApiService implements FolderApiServiceAbstraction {
     const data = new FolderData(response);
     await this.folderService.upsert(data, userId);
     return data;
+  }
+
+  async create(request: FolderAddEditRequest, userId: UserId): Promise<FolderView> {
+    const folder = await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map(async (sdk) => {
+          using ref = sdk.take();
+
+          const sdkFolder = await ref.value.vault().folders().create(request);
+          return FolderView.fromSdk(sdkFolder);
+        }),
+      ),
+    );
+
+    return folder;
   }
 
   async delete(id: string, userId: UserId): Promise<any> {

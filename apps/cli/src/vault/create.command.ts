@@ -180,13 +180,10 @@ export class CreateCommand {
 
   private async createFolder(req: FolderExport) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
-    const folder = await this.folderService.encrypt(FolderExport.toView(req), userKey);
+
     try {
-      await this.folderApiService.save(folder, activeUserId);
-      const newFolder = await this.folderService.get(folder.id, activeUserId);
-      const decFolder = await newFolder.decrypt();
-      const res = new FolderResponse(decFolder);
+      const data = await this.folderApiService.create({ name: req.name }, activeUserId);
+      const res = new FolderResponse(data);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

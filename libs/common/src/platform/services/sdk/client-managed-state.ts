@@ -4,6 +4,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher";
 import { StateClient, Repository } from "@bitwarden/sdk-internal";
 
+import { FolderRecordMapper } from "../../../vault/models/domain/folder";
 import { StateProvider, UserKeyDefinition } from "../../state";
 
 export async function initializeState(
@@ -13,6 +14,9 @@ export async function initializeState(
 ): Promise<void> {
   await stateClient.register_cipher_repository(
     new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
+  );
+  await stateClient.register_folder_repository(
+    new RepositoryRecord(userId, stateProvider, new FolderRecordMapper()),
   );
 }
 

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { FolderView as SdkFolderView } from "@bitwarden/sdk-internal";
+
 import { View } from "../../../models/view/view";
 import { DecryptedObject } from "../../../platform/models/domain/domain-base";
 import { Folder } from "../domain/folder";
@@ -24,5 +26,13 @@ export class FolderView implements View, ITreeNodeObject {
   static fromJSON(obj: Jsonify<FolderView>) {
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     return Object.assign(new FolderView(), obj, { revisionDate });
+  }
+
+  static fromSdk(sdkFolder: SdkFolderView): FolderView {
+    const folder = new FolderView();
+    folder.id = sdkFolder.id;
+    folder.name = sdkFolder.name;
+    folder.revisionDate = sdkFolder.revisionDate ? new Date(sdkFolder.revisionDate) : null;
+    return folder;
   }
 }
