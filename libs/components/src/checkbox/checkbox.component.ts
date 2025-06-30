@@ -22,6 +22,13 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-align-sub",
     "tw-me-1.5",
     "tw-flex-none", // Flexbox fix for bit-form-control
+    "!tw-p-1",
+    "after:tw-inset-1",
+    "tw-me-[.125rem]",
+    // negative margin to negate the positioning added by the padding
+    "!-tw-mt-1",
+    "!-tw-mb-1",
+    "!-tw-ms-1",
 
     "before:tw-content-['']",
     "before:tw-block",
@@ -47,12 +54,6 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-2",
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-offset-2",
     "[&:not(bit-form-control_*)]:focus-visible:before:tw-ring-primary-600",
-
-    // Only apply extra padding to increase click area if checkbox is not inside of a label/bit-form-control
-    // We are assuming the checkbox has no label in this instance
-    "[&:not(bit-form-control_*)]:!tw-p-1",
-    "[&:not(bit-form-control_*)]:after:tw-inset-1",
-    "[&:not(bit-form-control_*)]:tw-me-[.125rem]",
 
     "disabled:before:tw-cursor-auto",
     "disabled:before:tw-border",
