@@ -82,6 +82,10 @@ module.exports = {
         alt3: rgba("--color-background-alt3"),
         alt4: rgba("--color-background-alt4"),
       },
+      hover: {
+        default: "var(--color-hover-default)",
+        contrast: "var(--color-hover-contrast)",
+      },
       "marketing-logo": rgba("--color-marketing-logo"),
     },
     textColor: {
