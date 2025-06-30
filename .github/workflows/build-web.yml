@@ -206,7 +206,6 @@ jobs:
 
       ########## ACRs ##########
       - name: Log in to Azure
-        id: azure-login
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
@@ -353,7 +352,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Log in to Azure
-        id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -392,7 +390,6 @@ jobs:
       id-token: write
     steps:
       - name: Log in to Azure
-        id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -446,7 +443,6 @@ jobs:
         run: exit 1
 
       - name: Log in to Azure
-        id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

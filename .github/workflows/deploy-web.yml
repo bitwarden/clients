@@ -213,7 +213,6 @@ jobs:
           artifacts: ${{ env._ENVIRONMENT_ARTIFACT }}
 
       - name: Log in to Azure
-        id: azure-login
         if: ${{ steps.download-latest-artifacts.outcome == 'failure' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
