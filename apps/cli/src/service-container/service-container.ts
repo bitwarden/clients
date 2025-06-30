@@ -132,7 +132,6 @@ import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { SearchService } from "@bitwarden/common/services/search.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -153,6 +152,7 @@ import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-u
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
   legacyPasswordGenerationServiceFactory,
@@ -796,6 +796,17 @@ export class ServiceContainer {
 
     this.totpService = new TotpService(this.sdkService);
 
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
+    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
+      this.restrictedItemTypesService,
+    );
+
     this.importApiService = new ImportApiService(this.apiService);
 
     this.importService = new ImportService(
@@ -876,17 +887,6 @@ export class ServiceContainer {
     );
 
     this.masterPasswordApiService = new MasterPasswordApiService(this.apiService, this.logService);
-
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
-    );
-
-    this.cliRestrictedItemTypesService = new CliRestrictedItemTypesService(
-      this.restrictedItemTypesService,
-    );
   }
 
   async logout() {

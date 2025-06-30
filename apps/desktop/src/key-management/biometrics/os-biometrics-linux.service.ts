@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -42,6 +43,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
+    private logService: LogService,
   ) {}
   private _iv: string | null = null;
   // Use getKeyMaterial helper instead of direct access
@@ -62,7 +64,19 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     );
   }
   async deleteBiometricKey(userId: UserId): Promise<void> {
-    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    try {
+      await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          getLookupKeyForUser(userId),
+          SERVICE,
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 
   async getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null> {

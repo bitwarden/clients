@@ -64,16 +64,6 @@ export const authGuard: CanActivateFn = async (
     FeatureFlag.PM16117_SetInitialPasswordRefactor,
   );
 
-  // User JIT provisioned into a master-password-encryption org
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-password-jit") &&
-    !routerState.url.includes("set-initial-password")
-  ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
-    return router.createUrlTree([route]);
-  }
-
   // TDE org user has "manage account recovery" permission
   if (
     forceSetPasswordReason ===
@@ -99,27 +89,15 @@ export const authGuard: CanActivateFn = async (
     FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
   );
 
-  if (isChangePasswordFlagOn) {
-    // When the PM16117_ChangeExistingPasswordRefactor flag is removed AS WELL AS the cleanup for
-    // update-temp-password also remove the conditional check for update-temp-password here.
-    // That route will no longer be in effect.
-    if (
-      (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
-        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
-      !routerState.url.includes("update-temp-password") &&
-      !routerState.url.includes("change-password")
-    ) {
-      return router.createUrlTree(["/change-password"]);
-    }
-
-    // Remove this else condition when taking out the PM16117_ChangeExistingPasswordRefactor flag.
-  } else {
-    if (
-      forceSetPasswordReason !== ForceSetPasswordReason.None &&
-      !routerState.url.includes("update-temp-password")
-    ) {
-      return router.createUrlTree(["/update-temp-password"]);
-    }
+  // Post- Account Recovery or Weak Password on login
+  if (
+    (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("change-password")
+  ) {
+    const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
+    return router.createUrlTree([route]);
   }
 
   return true;

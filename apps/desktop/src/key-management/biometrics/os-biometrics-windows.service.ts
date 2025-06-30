@@ -116,8 +116,32 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
   }
 
   async deleteBiometricKey(userId: UserId): Promise<void> {
-    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
-    await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId) + KEY_WITNESS_SUFFIX);
+    try {
+      await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric key %s not found for service %s.",
+          getLookupKeyForUser(userId),
+          SERVICE,
+        );
+      } else {
+        throw e;
+      }
+    }
+    try {
+      await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId) + KEY_WITNESS_SUFFIX);
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric witness key %s not found for service %s.",
+          getLookupKeyForUser(userId) + KEY_WITNESS_SUFFIX,
+          SERVICE,
+        );
+      } else {
+        throw e;
+      }
+    }
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -227,8 +251,19 @@ export default class OsBiometricsServiceWindows implements OsBiometricService {
         storageKey + KEY_WITNESS_SUFFIX,
         witnessKeyMaterial,
       );
-    } catch {
-      this.logService.debug("Error retrieving witness key, assuming value is not up to date.");
+    } catch (e) {
+      if (e instanceof Error && e.message === passwords.PASSWORD_NOT_FOUND) {
+        this.logService.debug(
+          "[OsBiometricService] Biometric witness key %s not found for service %s, value is not up to date.",
+          storageKey + KEY_WITNESS_SUFFIX,
+          service,
+        );
+      } else {
+        this.logService.error(
+          "[OsBiometricService] Error retrieving witness key, assuming value is not up to date.",
+          e,
+        );
+      }
       return false;
     }
 

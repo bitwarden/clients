@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "默认集合"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "获取帮助"
   },
@@ -8725,13 +8728,13 @@
     "message": "管理组织的集合行为"
   },
   "limitCollectionCreationDesc": {
-    "message": "限制为所有者和管理员可以创建集合"
+    "message": "仅限所有者和管理员可以创建集合"
   },
   "limitCollectionDeletionDesc": {
-    "message": "限制为所有者和管理员可以删除集合"
+    "message": "仅限所有者和管理员可以删除集合"
   },
   "limitItemDeletionDescription": {
-    "message": "限制为具有「管理集合」权限的成员可以删项目"
+    "message": "仅限具有「管理集合」权限的成员可以删除项目"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者和管理员可以管理所有集合和项目"
