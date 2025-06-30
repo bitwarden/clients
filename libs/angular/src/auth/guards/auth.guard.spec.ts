@@ -127,7 +127,6 @@ describe("AuthGuard", () => {
   describe("given user is Unlocked", () => {
     describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
       const tests = [
-        ForceSetPasswordReason.SsoNewJitProvisionedUser,
         ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
         ForceSetPasswordReason.TdeOffboarding,
       ];
@@ -167,10 +166,6 @@ describe("AuthGuard", () => {
 
     describe("given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
       const tests = [
-        {
-          reason: ForceSetPasswordReason.SsoNewJitProvisionedUser,
-          url: "/set-password-jit",
-        },
         {
           reason: ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
           url: "/set-password",
