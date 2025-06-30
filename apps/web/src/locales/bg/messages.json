@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Стандартна колекция"
   },
+  "myItems": {
+    "message": "Моите елементи"
+  },
   "getHelp": {
     "message": "Помощ"
   },
@@ -5385,7 +5388,7 @@
     }
   },
   "organizationDataOwnership": {
-    "message": "Enforce organization data ownership"
+    "message": "Задължителна собственост на организационните данни"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
