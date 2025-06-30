@@ -399,11 +399,11 @@ const safeProviders: SafeProvider[] = [
     useClass: DesktopSetInitialPasswordService,
     deps: [
       ApiService,
-      MasterPasswordApiService,
-      KeyService,
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      KeyService,
+      MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,

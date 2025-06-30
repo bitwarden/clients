@@ -1426,11 +1426,11 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultSetInitialPasswordService,
     deps: [
       ApiServiceAbstraction,
-      MasterPasswordApiServiceAbstraction,
-      KeyService,
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      KeyService,
+      MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
