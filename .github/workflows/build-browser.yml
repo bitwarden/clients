@@ -246,28 +246,6 @@ jobs:
           unzip browser-source.zip
           rm browser-source.zip
 
-      - name: Check source file size
-        if: ${{ startsWith(matrix.name, 'firefox') }}
-        run: |
-          # Declare variable as indexed array
-          declare -a FILES
-
-          # Search for source files that are greater than 4M
-          while IFS=' ' read -r RESULT; do
-              FILES+=("$RESULT")
-          done < <(find ./browser-source -size +4M)
-
-          # Validate results and provide messaging
-          if [[ ${#FILES[@]} -ne 0 ]]; then
-              echo "File(s) exceeds size limit: 4MB"
-              for FILE in ${FILES[@]}; do
-                  echo "- $(du --si $FILE)"
-              done
-              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
-              # Invoke failure
-              exit 1
-          fi
-
       - name: NPM setup
         run: npm ci
         working-directory: browser-source/
@@ -289,6 +267,28 @@ jobs:
         if: ${{ inputs.sdk_branch != '' }}
         working-directory: browser-source/
         run: npm link ../sdk-internal
+
+      - name: Check source file size
+        if: ${{ startsWith(matrix.name, 'firefox') }}
+        run: |
+          # Declare variable as indexed array
+          declare -a FILES
+
+          # Search for source files that are greater than 4M
+          while IFS=' ' read -r RESULT; do
+              FILES+=("$RESULT")
+          done < <(find ./browser-source -size +4M)
+
+          # Validate results and provide messaging
+          if [[ ${#FILES[@]} -ne 0 ]]; then
+              echo "File(s) exceeds size limit: 4MB"
+              for FILE in ${FILES[@]}; do
+                  echo "- $(du --si $FILE)"
+              done
+              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
+              # Invoke failure
+              exit 1
+          fi
 
       - name: Build extension
         run: npm run ${{ matrix.npm_command }}
