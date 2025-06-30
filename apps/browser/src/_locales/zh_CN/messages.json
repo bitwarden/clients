@@ -300,7 +300,7 @@
     "message": "前往帮助中心吗？"
   },
   "continueToHelpCenterDesc": {
-    "message": "在帮助中心进一步了解如何使用 Bitwarden。"
+    "message": "访问帮助中心进一步了解如何使用 Bitwarden。"
   },
   "continueToBrowserExtensionStore": {
     "message": "前往浏览器扩展商店吗？"
@@ -2160,7 +2160,7 @@
     "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
   },
   "pinRequired": {
-    "message": "需要 PIN 码。"
+    "message": "必须填写 PIN 码。"
   },
   "invalidPin": {
     "message": "无效 PIN 码。"
@@ -2486,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "某个组织策略已阻止将项目导入您的个人密码库。"
+  },
+  "restrictCardTypeImport": {
+    "message": "无法导入支付卡项目类型"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
   },
   "domainsTitle": {
     "message": "域名",
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "解锁 PIN 设置"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "生物识别解锁设置"
   },
   "authenticating": {
     "message": "正在验证"

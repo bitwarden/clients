@@ -24,7 +24,7 @@
     "message": "Идентитет"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Белешка"
   },
   "typeSecureNote": {
     "message": "Сигурносна белешка"
@@ -1715,6 +1715,12 @@
   },
   "accountRestricted": {
     "message": "Налог је ограничен"
+  },
+  "restrictCardTypeImport": {
+    "message": "Не могу увозити врсте картица"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика која је поставила 1 или више организација спречава вас да се увозе картице у сефу."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Унете лозинке се не подударају."
@@ -3817,28 +3823,28 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Додели колекцијама"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "Додели овим колекцијама"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Само чланови организације са приступом овим збиркама ће моћи да виде ставку."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Само чланови организације са приступом овим збиркама ће моћи да виде ставке."
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "Није додељена ниједна колекција"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Додели"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Само чланови организације са приступом овим збиркама ће моћи да виде ставке."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Одабрали сте $TOTAL_COUNT$ ставки. Не можете да ажурирате $READONLY_COUNT$ од ставки јер немате дозволе за уређивање.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -3850,10 +3856,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Изаберите колекције за доделу"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ биће трајно пребачени у изабрану организацију. Више нећете имати ове ставке.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3862,7 +3868,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ биће трајно пребачени у $ORG$. Више нећете имати ове ставке.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -3875,10 +3881,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 ставка биће трајно пребачена у изабрану организацију. Више нећете имати ову ставку."
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 ставка биће трајно пребачена у $ORG$. Више нећете имати ову ставку.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -3887,13 +3893,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Успешно додељене колекције"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Нисте ништа изабрали."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Ставке премештене у $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3902,7 +3908,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Ставка премештена у $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -3911,7 +3917,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Одабране ставке премештене у $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",

@@ -13,11 +13,8 @@
     <bit-icon [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
   </a>
 
-  <div
-    class="tw-text-center tw-mb-4 sm:tw-mb-6"
-    [ngClass]="{ 'tw-max-w-md tw-mx-auto': titleAreaMaxWidth === 'md' }"
-  >
-    <div *ngIf="!hideIcon" class="tw-mx-auto tw-max-w-24 sm:tw-max-w-28 md:tw-max-w-32">
+  <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
+    <div *ngIf="!hideIcon" class="tw-w-24 sm:tw-w-28 md:tw-w-32 tw-mx-auto">
       <bit-icon [icon]="icon"></bit-icon>
     </div>
 
@@ -36,8 +33,8 @@
   </div>
 
   <div
-    class="tw-grow tw-w-full tw-max-w-md tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
-    [ngClass]="{ 'tw-max-w-md': maxWidth === 'md', 'tw-max-w-3xl': maxWidth === '3xl' }"
+    class="tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
+    [ngClass]="maxWidthClass"
   >
     @if (hideCardWrapper) {
       <div class="tw-mb-6 sm:tw-mb-10">
