@@ -192,6 +192,7 @@ export class SetInitialPasswordComponent implements OnInit {
         this.logService.error(
           `Unexpected user type: ${this.userType}. Could not set initial password.`,
         );
+        this.validationService.showError("Unexpected user type. Could not set initial password.");
     }
   }
 
@@ -231,6 +232,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.submitting = false;
       await this.router.navigate(["vault"]);
     } catch (e) {
+      this.logService.error("Error setting initial password", e);
       this.validationService.showError(e);
       this.submitting = false;
     }
@@ -261,6 +263,7 @@ export class SetInitialPasswordComponent implements OnInit {
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     } catch (e) {
+      this.logService.error("Error setting initial password during TDE offboarding", e);
       this.validationService.showError(e);
     } finally {
       this.submitting = false;
