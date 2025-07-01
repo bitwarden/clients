@@ -15,8 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -29,6 +27,7 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -95,29 +94,29 @@ export interface VaultItemDialogParams {
   restore?: (c: CipherView) => Promise<boolean>;
 }
 
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum VaultItemDialogResult {
+export const VaultItemDialogResult = {
   /**
    * A cipher was saved (created or updated).
    */
-  Saved = "saved",
+  Saved: "saved",
 
   /**
    * A cipher was deleted.
    */
-  Deleted = "deleted",
+  Deleted: "deleted",
 
   /**
    * The dialog was closed to navigate the user the premium upgrade page.
    */
-  PremiumUpgrade = "premiumUpgrade",
+  PremiumUpgrade: "premiumUpgrade",
 
   /**
    * A cipher was restored
    */
-  Restored = "restored",
-}
+  Restored: "restored",
+} as const;
+
+export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
 
 @Component({
   selector: "app-vault-item-dialog",
@@ -227,10 +226,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
    * A user may restore items if they have delete permissions and the item is in the trash.
    */
   protected async canUserRestore() {
-    if (await firstValueFrom(this.limitItemDeletion$)) {
-      return this.isTrashFilter && this.cipher?.isDeleted && this.cipher?.permissions.restore;
-    }
-    return this.isTrashFilter && this.cipher?.isDeleted && this.canDelete;
+    return this.isTrashFilter && this.cipher?.isDeleted && this.cipher?.permissions.restore;
   }
 
   protected showRestore: boolean;
@@ -276,8 +272,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected canDelete = false;
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
-
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -295,7 +289,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private routedVaultFilterService: RoutedVaultFilterService,
-    private configService: ConfigService,
   ) {
     this.updateTitle();
   }
@@ -322,7 +315,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.canDelete = await firstValueFrom(
         this.cipherAuthorizationService.canDeleteCipher$(
           this.cipher,
-          [this.params.activeCollectionId],
           this.params.isAdminConsoleAction,
         ),
       );

@@ -2153,6 +2153,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "La configuration d'un système d'authentification à deux facteurs peut définitivement vous verrouiller l'accès à votre compte Bitwarden. Un code de récupération vous permet d'accéder à votre compte dans le cas où vous ne pourriez plus utiliser votre fournisseur normal d'authentification à deux facteurs (exemple : vous perdez votre appareil). L'assistance de Bitwarden ne pourra pas vous aider si vous perdez l'accès à votre compte. Nous vous recommandons de noter ou d'imprimer le code de récupération et de le conserver en lieu sûr."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Supprimer le type d'élément de la carte"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Ne pas autoriser les membres à créer des types d'éléments de carte. Les cartes existantes seront automatiquement supprimées."
+  },
+  "restrictCardTypeImport": {
+    "message": "Impossible d'importer les types de l'élément de la carte"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Une politique de sécurité définie par 1 organisation ou plus vous empêche d'importer des cartes dans vos coffres."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
   },
@@ -2211,6 +2223,9 @@
   },
   "disable": {
     "message": "Désactiver"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Informations sur le membre non trouvés."
   },
   "revokeAccess": {
     "message": "Révoquer l'Accès"
@@ -3259,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Collection par défaut"
+  },
+  "myItems": {
+    "message": "Mes éléments"
   },
   "getHelp": {
     "message": "Obtenir de l'aide"
@@ -4472,9 +4490,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "La mise à jour de la clé de chiffrement ne peut pas continuer"
-  },
   "editFieldLabel": {
     "message": "Modifier $LABEL$",
     "placeholders": {
@@ -4527,23 +4542,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Lors de la mise à jour de votre clé de chiffrement, vos dossiers n'ont pas pu être déchiffrés. Pour continuer avec la mise à jour, vos dossiers doivent être supprimés. Aucun élément du coffre ne sera supprimé si vous continuez."
-  },
-  "keyUpdated": {
-    "message": "Clé mise à jour"
-  },
-  "updateEncryptionKey": {
-    "message": "Mettre à jour la clé de chiffrement"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Nous avons modifié le schéma de chiffrement pour améliorer la sécurité. Mettez à jour votre clé de chiffrement maintenant en entrant votre mot de passe principal ci-dessous."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "L'ancien chiffrement n'est plus pris en charge. Veuillez contacter le support pour récupérer votre compte."
   },
   "subscription": {
     "message": "Abonnement"
@@ -5369,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Accès d'urgence refusé."
   },
+  "grantorDetailsNotFound": {
+    "message": "Détails de la source non trouvés"
+  },
   "passwordResetFor": {
     "message": "Mot de passe réinitialisé pour $USER$. Vous pouvez maintenant vous connecter en utilisant le nouveau mot de passe.",
     "placeholders": {
@@ -5377,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Forcer la propriété des données de l'organisation"
   },
   "personalOwnership": {
     "message": "Supprimer le coffre individuel"
@@ -5769,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "En poursuivant, $NAME$ sera déconnecté de sa session actuelle, ce qui l'obligera à se reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "cet utilisateur"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
   },
   "resetPasswordSuccess": {
@@ -7620,9 +7644,9 @@
     "message": "Compte de service mis à jour",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Saisir ou sélectionner des projets ou des secrets",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Saisissez ou sélectionnez des projets",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Saisir pour filtrer",
@@ -7707,8 +7731,8 @@
     "message": "Jetons d'accès",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nouveau jeton d'accès",
+  "createAccessToken": {
+    "message": "Créer un jeton d'accès",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8618,14 +8642,6 @@
   },
   "deviceTrusted": {
     "message": "Appareil de confiance"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Aucun Send actif",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Utilisez Send pour partager en toute sécurité des informations chiffrées avec tout le monde.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Inviter des utilisateurs"
@@ -10663,5 +10679,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "L'adresse de facturation est requise pour ajouter du crédit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
