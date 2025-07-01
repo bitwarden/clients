@@ -53,6 +53,7 @@
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
     ></div>
     <ng-container *ngTemplateOutlet="newLoginItem"></ng-container>
   </div>
@@ -63,6 +64,7 @@
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
     ></div>
     <ng-container *ngTemplateOutlet="browserExtensionEasyAccess"></ng-container>
   </div>
@@ -73,6 +75,7 @@
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
+      data-testid="video-pulse"
     ></div>
     <ng-container *ngTemplateOutlet="onboardingAutofill"></ng-container>
   </div>

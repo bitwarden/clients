@@ -125,7 +125,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
     const isMobile = Utils.isMobileBrowser;
 
     if (!isFeatureEnabled || isMobile) {
-      // await this.router.navigate(["/vault"]);
+      await this.router.navigate(["/vault"]);
     }
   }
 
