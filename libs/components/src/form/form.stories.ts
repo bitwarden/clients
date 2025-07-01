@@ -1,12 +1,4 @@
-import {
-  // AbstractControl,
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  // ValidationErrors,
-  // ValidatorFn,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -184,7 +176,7 @@ const showValidationsFormObj = fb.group({
   minLength: ["Hello", [Validators.minLength(8)]],
   maxLength: ["Hello there", [Validators.maxLength(8)]],
   minValue: [9, [Validators.min(10)]],
-  maxValue: [9, [Validators.max(10)]],
+  maxValue: [15, [Validators.max(10)]],
   forbiddenChars: ["Th!$ value cont#in$ forbidden char$", forbiddenCharacters(["#", "!", "$"])],
 });
 
