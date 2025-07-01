@@ -13,7 +13,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 

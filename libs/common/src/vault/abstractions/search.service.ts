@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { SendView } from "../tools/send/models/view/send.view";
-import { IndexedEntityId, UserId } from "../types/guid";
-import { CipherView } from "../vault/models/view/cipher.view";
+import { SendView } from "../../tools/send/models/view/send.view";
+import { IndexedEntityId, UserId } from "../../types/guid";
+import { CipherView } from "../models/view/cipher.view";
 
 export abstract class SearchService {
   indexedEntityId$: (userId: UserId) => Observable<IndexedEntityId | null>;
