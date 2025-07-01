@@ -81,7 +81,7 @@ jobs:
 
           case ${{ inputs.environment }} in
             "USQA")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_QA" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USQA" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-QA.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US QA Cloud" >> $GITHUB_OUTPUT
@@ -89,7 +89,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "EUQA")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EU_QA" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUQA" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euqa.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU QA Cloud" >> $GITHUB_OUTPUT
@@ -97,7 +97,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "USPROD")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_PROD" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USPROD" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Production Cloud" >> $GITHUB_OUTPUT
@@ -105,7 +105,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "EUPROD")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EU_PROD" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUPROD" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euprd.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU Production Cloud" >> $GITHUB_OUTPUT
@@ -113,7 +113,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "USDEV")
-              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_DEV" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_USDEV" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-usdev.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Development Cloud" >> $GITHUB_OUTPUT
@@ -348,6 +348,9 @@ jobs:
         with:
           keyvault: ${{ needs.setup.outputs.retrive_secrets_keyvault }}
           secrets: "sa-bitwarden-web-vault-name,sp-bitwarden-web-vault-password,sp-bitwarden-web-vault-appid,sp-bitwarden-web-vault-tenant"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: 'Download latest cloud asset using GitHub Run ID: ${{ inputs.build-web-run-id }}'
         if: ${{ inputs.build-web-run-id }}
