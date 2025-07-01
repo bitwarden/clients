@@ -10,6 +10,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -572,7 +573,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.collections = [def] as CollectionView[];
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" }]));
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
 
       const ids = await (component as any).getDefaultCollectionIds("orgA");
       expect(ids).toEqual(["def1"]);
@@ -582,7 +583,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.collections = [createMockCollection("c1", "C1", "orgB")] as CollectionView[];
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" }]));
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
 
       const result = await (component as any).getDefaultCollectionIds("orgA");
       expect(result).toBeUndefined();
