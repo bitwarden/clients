@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Bilduma lehenetsia"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Jaso laguntza"
   },

@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "預設集合"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "尋求幫助"
   },

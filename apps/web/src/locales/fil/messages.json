@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Default na koleksyon"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Humingi ng tulong"
   },

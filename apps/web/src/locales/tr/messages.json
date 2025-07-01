@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Varsayılan koleksiyon"
   },
+  "myItems": {
+    "message": "Kayıtlarım"
+  },
   "getHelp": {
     "message": "Yardım al"
   },
