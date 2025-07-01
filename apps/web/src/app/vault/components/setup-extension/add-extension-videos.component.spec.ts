@@ -17,8 +17,12 @@ describe("AddExtensionVideosComponent", () => {
     writable: true,
   });
 
+  const play = jest.fn(() => Promise.resolve());
+  HTMLMediaElement.prototype.play = play;
+
   beforeEach(async () => {
     window.matchMedia = jest.fn().mockReturnValue(false);
+    play.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [AddExtensionVideosComponent, RouterModule.forRoot([])],
@@ -108,5 +112,59 @@ describe("AddExtensionVideosComponent", () => {
     }));
   });
 
-  describe("video sequence", () => {});
+  describe("video sequence", () => {
+    let firstVideo: HTMLVideoElement;
+    let secondVideo: HTMLVideoElement;
+    let thirdVideo: HTMLVideoElement;
+
+    beforeEach(() => {
+      component["numberOfLoadedVideos"] = 2;
+      component["onVideoLoad"]();
+
+      firstVideo = component["videoElements"].get(0)!.nativeElement;
+      secondVideo = component["videoElements"].get(1)!.nativeElement;
+      thirdVideo = component["videoElements"].get(2)!.nativeElement;
+    });
+
+    it("starts the video sequence when all videos are loaded", fakeAsync(() => {
+      tick();
+
+      expect(firstVideo.play).toHaveBeenCalled();
+    }));
+
+    it("plays videos in sequence", fakeAsync(() => {
+      tick(); // let first video play
+
+      play.mockClear();
+      firstVideo.onended!(new Event("ended")); // trigger next video
+
+      tick();
+
+      expect(secondVideo.play).toHaveBeenCalledTimes(1);
+
+      play.mockClear();
+      secondVideo.onended!(new Event("ended")); // trigger next video
+
+      tick();
+
+      expect(thirdVideo.play).toHaveBeenCalledTimes(1);
+    }));
+
+    it("doesn't play videos again when the user prefers no motion", fakeAsync(() => {
+      component["prefersReducedMotion"] = true;
+
+      tick();
+      firstVideo.onended!(new Event("ended"));
+      tick();
+      secondVideo.onended!(new Event("ended"));
+      tick();
+
+      play.mockClear();
+
+      thirdVideo.onended!(new Event("ended")); // trigger first video again
+
+      tick();
+      expect(play).toHaveBeenCalledTimes(0);
+    }));
+  });
 });
