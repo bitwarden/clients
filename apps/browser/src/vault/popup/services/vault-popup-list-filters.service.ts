@@ -461,17 +461,19 @@ export class VaultPopupListFiltersService {
         if (!defaultVaultEnabled) {
           return filtered;
         }
-        // Sort collections so that default user collection is first, then by organization name
-        return filtered.sort((a, b) => {
-          const aDef = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-          const bDef = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-          if (aDef !== bDef) {
-            return aDef - bDef;
-          }
-          const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
-          const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
-          return this.i18nService.collator.compare(aName, bName);
-        });
+        // Sort the default user collections by organization name
+        const sortedDefaultCollectionTypes = filtered
+          .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
+          .sort((a, b) => {
+            const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+            const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+            return this.i18nService.collator.compare(aName, bName);
+          });
+        // Default user collections at the top, and the remaining collections after
+        return [
+          ...sortedDefaultCollectionTypes,
+          ...filtered.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
+        ];
       }),
       switchMap((collections) => {
         return from(this.collectionService.getAllNested(collections)).pipe(

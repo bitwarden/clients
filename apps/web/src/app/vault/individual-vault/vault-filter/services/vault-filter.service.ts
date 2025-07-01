@@ -112,8 +112,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     this.memberOrganizations$,
     this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
   ]).pipe(
-    map(([collections, organizations, defaultVaultEnabled]) =>
-      this.buildCollectionTree(collections, organizations, defaultVaultEnabled),
+    map(([collections, organizations, defaultCollectionsFlagEnabled]) =>
+      this.buildCollectionTree(collections, organizations, defaultCollectionsFlagEnabled),
     ),
   );
 
@@ -240,7 +240,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   protected buildCollectionTree(
     collections?: CollectionView[],
     organizations?: Organization[],
-    defaultVaultEnabled?: boolean,
+    defaultCollectionsFlagEnabled?: boolean,
   ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
     if (!collections) {
@@ -248,21 +248,22 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     }
     const nodes: TreeNode<CollectionFilter>[] = [];
 
-    if (defaultVaultEnabled) {
-      collections = collections
-        // Sort collections so that default user collection is first, then by organization name
+    if (defaultCollectionsFlagEnabled) {
+      // Sort the default user collections by organization name
+      const sortedDefaultCollectionTypes = collections
+        .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
         .sort((a, b) => {
-          const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-          const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-
-          if (aIsDefault !== bIsDefault) {
-            return aIsDefault - bIsDefault;
-          }
-
-          const aOrg = organizations?.find((o) => o.id === a.organizationId)?.name ?? "";
-          const bOrg = organizations?.find((o) => o.id === b.organizationId)?.name ?? "";
-          return this.i18nService.collator.compare(aOrg, bOrg);
+          const aName =
+            organizations.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+          const bName =
+            organizations.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+          return this.i18nService.collator.compare(aName, bName);
         });
+      // Default user collections at the top, and the remaining collections after
+      collections = [
+        ...sortedDefaultCollectionTypes,
+        ...collections.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
+      ];
     }
 
     collections.forEach((c) => {

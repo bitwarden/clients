@@ -18,6 +18,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -47,6 +48,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
     protected stateProvider: StateProvider,
     protected accountService: AccountService,
     protected configService: ConfigService,
+    protected i18nService: I18nService,
   ) {}
 
   async storeCollapsedFilterNodes(
@@ -111,7 +113,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
     const storedCollections = await this.collectionService.getAllDecrypted();
     const allOrganizations = await this.buildOrganizations();
-    const defaultVaultEnabled = await this.configService.getFeatureFlag(
+    const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CreateDefaultLocation,
     );
 
@@ -120,7 +122,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         ? storedCollections
         : storedCollections.filter((c) => c.organizationId === organizationId);
 
-    if (defaultVaultEnabled) {
+    if (defaulCollectionsFlagEnabled) {
       // Sort collections so that default user collection is first, then by organization name
       collections = collections.sort((a, b) => {
         const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
@@ -133,7 +135,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         const aOrg = allOrganizations.find((o) => o.id === a.organizationId)?.name ?? "";
         const bOrg = allOrganizations.find((o) => o.id === b.organizationId)?.name ?? "";
 
-        return aOrg.localeCompare(bOrg);
+        return this.i18nService.collator.compare(aOrg, bOrg);
       });
     }
 
