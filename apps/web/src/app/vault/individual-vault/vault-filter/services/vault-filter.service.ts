@@ -239,7 +239,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
 
   protected buildCollectionTree(
     collections?: CollectionView[],
-    organizations?: Organization[],
+    orgs?: Organization[],
     defaultCollectionsFlagEnabled?: boolean,
   ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
@@ -253,10 +253,8 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       const sortedDefaultCollectionTypes = collections
         .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
         .sort((a, b) => {
-          const aName =
-            organizations.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
-          const bName =
-            organizations.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+          const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+          const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
           return this.i18nService.collator.compare(aName, bName);
         });
       // Default user collections at the top, and the remaining collections after
