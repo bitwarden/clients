@@ -46,7 +46,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideCardWrapper = input<boolean>(false);
 
   /**
-   * Max width of the layout title, subtitle, and content areas.
+   * Max width of the anon layout title, subtitle, and content areas.
    *
    * @default 'md'
    */
