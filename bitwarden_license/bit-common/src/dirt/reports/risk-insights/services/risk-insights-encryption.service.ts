@@ -36,8 +36,8 @@ export class RiskInsightsEncryptionService {
 
     const encryptedDataPacket = {
       organizationId: organizationId,
-      encryptedData: dataEncrypted.encryptedString,
-      encryptionKey: wrappedEncryptionKey.encryptedString,
+      encryptedData: dataEncrypted.encryptedString as string,
+      encryptionKey: wrappedEncryptionKey.encryptedString as string,
     };
 
     return encryptedDataPacket;
