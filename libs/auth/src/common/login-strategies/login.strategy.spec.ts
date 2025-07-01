@@ -339,6 +339,15 @@ describe("LoginStrategy", () => {
 
       expect(apiService.postAccountKeys).toHaveBeenCalled();
     });
+
+    it("throws if userKey is CoseEncrypt0 (V2 encryption) in createKeyPairForOldAccount", async () => {
+      keyService.getUserKeyWithLegacySupport.mockResolvedValue({
+        inner: () => ({ type: 7 }),
+      } as UserKey);
+      await expect(passwordLoginStrategy["createKeyPairForOldAccount"](userId)).resolves.toBe(
+        undefined,
+      );
+    });
   });
 
   describe("Two-factor authentication", () => {

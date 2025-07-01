@@ -5,6 +5,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -56,6 +57,13 @@ export class DefaultUserAsymmetricKeysRegenerationService
     if (!userKey) {
       this.logService.info(
         "[UserAsymmetricKeyRegeneration] User symmetric key unavailable, skipping regeneration for the user.",
+      );
+      return false;
+    }
+
+    if (userKey.inner().type === EncryptionType.CoseEncrypt0) {
+      this.logService.error(
+        "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
       );
       return false;
     }
