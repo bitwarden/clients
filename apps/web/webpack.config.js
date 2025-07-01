@@ -268,6 +268,9 @@ const devServer =
                   https://www.paypalobjects.com
                   https://q.stripe.com
                   https://haveibeenpwned.com
+                ;media-src
+                  'self'
+                  https://assets.bitwarden.com
                 ;child-src
                   'self'
                   https://js.stripe.com
