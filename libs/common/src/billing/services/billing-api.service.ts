@@ -9,7 +9,6 @@ import { ProviderOrganizationOrganizationDetailsResponse } from "../../admin-con
 import { ListResponse } from "../../models/response/list.response";
 import { BillingApiServiceAbstraction } from "../abstractions";
 import { PaymentMethodType } from "../enums";
-import { ChangePlanFrequencyRequest } from "../models/request/change-plan-frequency.request";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { ExpandedTaxInfoUpdateRequest } from "../models/request/expanded-tax-info-update.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
@@ -253,19 +252,6 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/billing/restart-subscription",
-      request,
-      true,
-      false,
-    );
-  }
-
-  async changeSubscriptionFrequency(
-    organizationId: string,
-    request: ChangePlanFrequencyRequest,
-  ): Promise<void> {
-    return await this.apiService.send(
-      "POST",
-      "/organizations/" + organizationId + "/billing/change-frequency",
       request,
       true,
       false,

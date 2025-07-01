@@ -11,6 +11,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
+import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
 import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
@@ -99,6 +100,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     private taxService: TaxServiceAbstraction,
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
+    private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
   ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
@@ -337,7 +339,7 @@ export class TrialPaymentDialogComponent implements OnInit {
       if (this.currentPlan.type !== this.sub.planType) {
         const changePlanRequest = new ChangePlanFrequencyRequest();
         changePlanRequest.newPlanType = this.currentPlan.type;
-        await this.billingApiService.changeSubscriptionFrequency(
+        await this.organizationBillingApiServiceAbstraction.changeSubscriptionFrequency(
           this.organizationId,
           changePlanRequest,
         );

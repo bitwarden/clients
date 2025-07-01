@@ -10,7 +10,6 @@ import { OrganizationBillingMetadataResponse } from "../../billing/models/respon
 import { PlanResponse } from "../../billing/models/response/plan.response";
 import { ListResponse } from "../../models/response/list.response";
 import { PaymentMethodType } from "../enums";
-import { ChangePlanFrequencyRequest } from "../models/request/change-plan-frequency.request";
 import { CreateClientOrganizationRequest } from "../models/request/create-client-organization.request";
 import { ExpandedTaxInfoUpdateRequest } from "../models/request/expanded-tax-info-update.request";
 import { UpdateClientOrganizationRequest } from "../models/request/update-client-organization.request";
@@ -94,10 +93,5 @@ export abstract class BillingApiServiceAbstraction {
   restartSubscription: (
     organizationId: string,
     request: OrganizationCreateRequest,
-  ) => Promise<void>;
-
-  changeSubscriptionFrequency: (
-    organizationId: string,
-    request: ChangePlanFrequencyRequest,
   ) => Promise<void>;
 }
