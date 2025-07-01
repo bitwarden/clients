@@ -255,9 +255,17 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ) {
     const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
+    for (const [key, value] of Object.entries(credentials)) {
+      if (value == null) {
+        throw new Error(`${key} not found. Could not set password.`);
+      }
+    }
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
     if (userKey == null) {
       throw new Error("userKey not found. Could not set password.");
     }
