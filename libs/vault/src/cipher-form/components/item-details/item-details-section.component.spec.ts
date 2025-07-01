@@ -3,7 +3,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -566,37 +566,25 @@ describe("ItemDetailsSectionComponent", () => {
     });
   });
 
-  describe("defaultCollectionIds$", () => {
-    it("emits initial collectionIds if provided", async () => {
-      component.config.initialValues = { collectionIds: ["c1" as any] } as OptionalInitialValues;
-      const result = await firstValueFrom((component as any).defaultCollectionIds$(undefined));
-      expect(result).toEqual(["c1"]);
-    });
-
-    it("emits the matching default user collection id when no initial collectionIds and a policy matches", async () => {
-      const defaultCol = createMockCollection("def1", "Default", "orgA");
-      component.config.collections = [defaultCol];
+  describe("getDefaultCollectionIds", () => {
+    it("returns matching default when flag & policy match", async () => {
+      const def = createMockCollection("def1", "Def", "orgA");
+      component.config.collections = [def] as CollectionView[];
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" }]));
 
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as any]));
-
-      const ids = await firstValueFrom(
-        (component as any).defaultCollectionIds$("orgA" as Organization["id"]),
-      );
+      const ids = await (component as any).getDefaultCollectionIds("orgA");
       expect(ids).toEqual(["def1"]);
     });
 
-    it("emits undefined when no default collection can be found", async () => {
-      component.config.collections = [createMockCollection("c1", "Col1", "orgB")];
+    it("returns undefined when no default found", async () => {
+      component.config.collections = [createMockCollection("c1", "C1", "orgB")] as CollectionView[];
       component.config.initialValues = { collectionIds: [] } as OptionalInitialValues;
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" }]));
 
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as any]));
-
-      const result = await firstValueFrom(
-        (component as any).defaultCollectionIds$("orgA" as Organization["id"]),
-      );
+      const result = await (component as any).getDefaultCollectionIds("orgA");
       expect(result).toBeUndefined();
     });
   });

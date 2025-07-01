@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { concatMap, distinctUntilChanged, from, map, of, startWith, switchMap } from "rxjs";
+import { concatMap, firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -216,11 +216,13 @@ export class ItemDetailsSectionComponent implements OnInit {
       });
       this.itemDetailsForm.controls.organizationId.valueChanges
         .pipe(
-          startWith(this.itemDetailsForm.controls.organizationId.value),
           takeUntilDestroyed(this.destroyRef),
-          distinctUntilChanged(),
-          switchMap((orgId) => this.defaultCollectionIds$(orgId)),
-          concatMap((ids) => from(this.updateCollectionOptions(ids))),
+          concatMap(async (orgId) => {
+            const defaultCollectionIds = await this.getDefaultCollectionIds(orgId);
+            await this.updateCollectionOptions(
+              defaultCollectionIds || this.initialValues?.collectionIds,
+            );
+          }),
         )
         .subscribe();
     }
@@ -230,41 +232,41 @@ export class ItemDetailsSectionComponent implements OnInit {
     }
   }
 
-  private defaultCollectionIds$(orgId?: OrganizationId) {
-    const initial = this.initialValues?.collectionIds?.filter(Boolean);
-    if (initial?.length) {
-      return of(initial as CollectionId[]);
+  /**
+   * Gets the default collection IDs for the selected organization.
+   * Returns null if any of the following apply:
+   * - the feature flag is disabled
+   * - no org is currently selected
+   * - the selected org doesn't have the "no private data policy" enabled
+   */
+  private async getDefaultCollectionIds(orgId?: OrganizationId) {
+    if (!orgId) {
+      return;
     }
-
-    return this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation).pipe(
-      switchMap((enabled) => {
-        if (!enabled) {
-          return of(undefined as CollectionId[] | undefined);
-        }
-        return this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) =>
-            this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
-          ),
-          map((policies) => policies.map((p) => p.organizationId)),
-          map((orgIdsWithPolicy) => {
-            const matchingOrgId = orgIdsWithPolicy.includes(orgId) ? orgId : orgIdsWithPolicy[0];
-            if (!matchingOrgId) {
-              return;
-            }
-            const defaultUserCollection = this.collections.find(
-              (c) =>
-                c.organizationId === matchingOrgId &&
-                c.type === CollectionTypes.DefaultUserCollection,
-            );
-            if (!defaultUserCollection) {
-              return;
-            }
-            return [defaultUserCollection.id as CollectionId];
-          }),
-        );
-      }),
+    const isFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CreateDefaultLocation,
     );
+    if (!isFeatureEnabled) {
+      return;
+    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const selectedOrgHasPolicyEnabled = (
+      await firstValueFrom(
+        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+      )
+    ).find((p) => p.organizationId);
+    if (!selectedOrgHasPolicyEnabled) {
+      return;
+    }
+    const defaultUserCollection = this.collections.find(
+      (c) => c.organizationId === orgId && c.type === CollectionTypes.DefaultUserCollection,
+    );
+    // If the user was added after the policy was enabled as they will not have any private data
+    // and will not have a default collection.
+    if (!defaultUserCollection) {
+      return;
+    }
+    return [defaultUserCollection.id as CollectionId];
   }
 
   private async initFromExistingCipher(prefillCipher: CipherView) {
