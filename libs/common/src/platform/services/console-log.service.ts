@@ -1,1 +1,1 @@
-export { ConsoleLogService } from "@bitwarden/logging/internal";
+export { ConsoleLogService } from "@bitwarden/logging";
