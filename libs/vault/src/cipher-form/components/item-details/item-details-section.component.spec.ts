@@ -567,7 +567,7 @@ describe("ItemDetailsSectionComponent", () => {
     });
   });
 
-  describe("getDefaultCollectionIds", () => {
+  describe("getDefaultCollectionId", () => {
     it("returns matching default when flag & policy match", async () => {
       const def = createMockCollection("def1", "Def", "orgA");
       component.config.collections = [def] as CollectionView[];
@@ -575,8 +575,8 @@ describe("ItemDetailsSectionComponent", () => {
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
 
-      const ids = await (component as any).getDefaultCollectionIds("orgA");
-      expect(ids).toEqual(["def1"]);
+      const id = await (component as any).getDefaultCollectionId("orgA");
+      expect(id).toEqual("def1");
     });
 
     it("returns undefined when no default found", async () => {
@@ -585,7 +585,7 @@ describe("ItemDetailsSectionComponent", () => {
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([{ organizationId: "orgA" } as Policy]));
 
-      const result = await (component as any).getDefaultCollectionIds("orgA");
+      const result = await (component as any).getDefaultCollectionId("orgA");
       expect(result).toBeUndefined();
     });
   });
