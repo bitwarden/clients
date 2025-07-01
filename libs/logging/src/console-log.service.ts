@@ -6,7 +6,7 @@ export class ConsoleLogService implements LogService {
 
   constructor(
     protected isDev: boolean,
-    protected filter: (level: LogLevel) => boolean = null,
+    protected filter: ((level: LogLevel) => boolean) | null = null,
   ) {}
 
   debug(message?: any, ...optionalParams: any[]) {
