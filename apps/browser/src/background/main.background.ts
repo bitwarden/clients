@@ -6,8 +6,10 @@ import { filter, firstValueFrom, map, merge, Subject, timeout } from "rxjs";
 
 import { CollectionService, DefaultCollectionService } from "@bitwarden/admin-console/common";
 import {
+  AuthRequestApiServiceAbstraction,
   AuthRequestService,
   AuthRequestServiceAbstraction,
+  DefaultAuthRequestApiService,
   DefaultLockService,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailServiceAbstraction,
@@ -20,7 +22,6 @@ import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstracti
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -172,7 +173,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { SearchService } from "@bitwarden/common/services/search.service";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -188,8 +188,10 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DefaultEndUserNotificationService,
@@ -204,6 +206,8 @@ import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
@@ -374,6 +378,7 @@ export default class MainBackground {
   devicesService: DevicesServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestServiceAbstraction;
+  authRequestApiService: AuthRequestApiServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
   pinService: PinServiceAbstraction;
@@ -411,6 +416,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
+  private restrictedItemTypesService: RestrictedItemTypesService;
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
@@ -437,7 +443,7 @@ export default class MainBackground {
 
   constructor() {
     // Services
-    const lockedCallback = async (userId?: string) => {
+    const lockedCallback = async (userId: UserId) => {
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
@@ -811,14 +817,16 @@ export default class MainBackground {
       this.appIdService,
     );
 
+    this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
+
     this.authRequestService = new AuthRequestService(
       this.appIdService,
-      this.accountService,
       this.masterPasswordService,
       this.keyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
+      this.authRequestApiService,
     );
 
     this.authService = new AuthService(
@@ -1053,6 +1061,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.accountService,
       this.apiService,
+      this.restrictedItemTypesService,
     );
 
     this.organizationVaultExportService = new OrganizationVaultExportService(
@@ -1065,6 +1074,7 @@ export default class MainBackground {
       this.collectionService,
       this.kdfConfigService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.exportService = new VaultExportService(
@@ -1083,6 +1093,7 @@ export default class MainBackground {
           this.configService,
           new WebPushNotificationsApiService(this.apiService, this.appIdService),
           registration,
+          this.stateProvider,
         );
       } else {
         this.webPushConnectionService = new UnsupportedWebPushConnectionService();
@@ -1203,7 +1214,6 @@ export default class MainBackground {
       this.stateProvider,
       this.apiService,
       this.organizationService,
-      this.configService,
       this.authService,
       this.notificationsService,
       messageListener,
@@ -1231,6 +1241,9 @@ export default class MainBackground {
     this.overlayNotificationsBackground = new OverlayNotificationsBackground(
       this.logService,
       this.notificationBackground,
+      this.taskService,
+      this.accountService,
+      this.cipherService,
     );
 
     this.autoSubmitLoginBackground = new AutoSubmitLoginBackground(
@@ -1294,6 +1307,13 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
     this.mainContextMenuHandler = new MainContextMenuHandler(
       this.stateService,
       this.autofillSettingsService,
@@ -1301,6 +1321,7 @@ export default class MainBackground {
       this.logService,
       this.billingAccountProfileStateService,
       this.accountService,
+      this.restrictedItemTypesService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1326,13 +1347,12 @@ export default class MainBackground {
       this.collectionService,
       this.organizationService,
       this.accountService,
-      this.configService,
     );
 
     this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.logService);
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
@@ -1423,9 +1443,7 @@ export default class MainBackground {
         this.backgroundSyncService.init();
         this.notificationsService.startListening();
 
-        if (await this.configService.getFeatureFlag(FeatureFlag.SecurityTasks)) {
-          this.taskService.listenForTaskNotifications();
-        }
+        this.taskService.listenForTaskNotifications();
 
         if (await this.configService.getFeatureFlag(FeatureFlag.EndUserNotifications)) {
           this.endUserNotificationService.listenForEndUserNotifications();
@@ -1540,6 +1558,7 @@ export default class MainBackground {
     }
   }
 
+  // TODO: PM-21212 - consolidate the logic of this method into the new ExtensionLogoutService
   async logout(logoutReason: LogoutReason, userId?: UserId) {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
@@ -1676,14 +1695,44 @@ export default class MainBackground {
       // Set route of the popup before attempting to open it.
       // If the vault is locked, this won't have an effect as the auth guards will
       // redirect the user to the login page.
-      await browserAction.setPopup({ popup: "popup/index.html#/at-risk-passwords" });
+      await browserAction.setPopup({ popup: ExtensionPageUrls.AtRiskPasswords });
 
       await this.openPopup();
     } finally {
       // Reset the popup route to the default route so any subsequent
       // popup openings will not open to the at-risk-passwords page.
       await browserAction.setPopup({
-        popup: "popup/index.html#/",
+        popup: ExtensionPageUrls.Index,
+      });
+    }
+  }
+
+  /**
+   * Opens the popup to the given page
+   * @default ExtensionPageUrls.Index
+   */
+  async openTheExtensionToPage(url: ExtensionPageUrls = ExtensionPageUrls.Index) {
+    const isValidUrl = Object.values(ExtensionPageUrls).includes(url);
+
+    // If a non-defined URL is provided, return early.
+    if (!isValidUrl) {
+      return;
+    }
+
+    const browserAction = BrowserApi.getBrowserAction();
+
+    try {
+      // Set route of the popup before attempting to open it.
+      // If the vault is locked, this won't have an effect as the auth guards will
+      // redirect the user to the login page.
+      await browserAction.setPopup({ popup: url });
+
+      await this.openPopup();
+    } finally {
+      // Reset the popup route to the default route so any subsequent
+      // popup openings will not open to the at-risk-passwords page.
+      await browserAction.setPopup({
+        popup: ExtensionPageUrls.Index,
       });
     }
   }

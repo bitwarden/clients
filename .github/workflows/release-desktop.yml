@@ -17,10 +17,15 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     outputs:
       release_version: ${{ steps.version.outputs.version }}
       release_channel: ${{ steps.release_channel.outputs.channel }}
@@ -89,12 +94,6 @@ jobs:
         working-directory: apps/desktop/artifacts
         run: mv Bitwarden-${{ env.PKG_VERSION }}-universal.pkg Bitwarden-${{ env.PKG_VERSION }}-universal.pkg.archive
 
-      - name: Get checksum files
-        uses: bitwarden/gh-actions/get-checksum@main
-        with:
-          packages_dir: "apps/desktop/artifacts"
-          file_path: "apps/desktop/artifacts/sha256-checksums.txt"
-
       - name: Create Release
         uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
         if: ${{ steps.release_channel.outputs.channel == 'latest' && github.event.inputs.release_type != 'Dry Run' }}
@@ -125,8 +124,7 @@ jobs:
             apps/desktop/artifacts/Bitwarden-${{ env.PKG_VERSION }}-universal.pkg.archive,
             apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}.yml,
             apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-linux.yml,
-            apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-mac.yml,
-            apps/desktop/artifacts/sha256-checksums.txt"
+            apps/desktop/artifacts/${{ env.RELEASE_CHANNEL }}-mac.yml"
           commit: ${{ github.sha }}
           tag: desktop-v${{ env.PKG_VERSION }}
           name: Desktop v${{ env.PKG_VERSION }}

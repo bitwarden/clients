@@ -22,7 +22,6 @@ import { PasswordInputResult } from "../input-password/password-input-result";
 import { ChangePasswordService } from "./change-password.service.abstraction";
 
 @Component({
-  standalone: true,
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
   imports: [InputPasswordComponent, I18nPipe],
@@ -72,8 +71,11 @@ export class ChangePasswordComponent implements OnInit {
           throw new Error("activeAccount not found");
         }
 
-        if (passwordInputResult.currentPassword == null) {
-          throw new Error("currentPassword not found");
+        if (
+          passwordInputResult.currentPassword == null ||
+          passwordInputResult.newPasswordHint == null
+        ) {
+          throw new Error("currentPassword or newPasswordHint not found");
         }
 
         await this.syncService.fullSync(true);

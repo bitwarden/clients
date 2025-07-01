@@ -2153,6 +2153,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "2단계 로그인을 활성화하면 Bitwarden 계정을 영원히 잠글 수 있습니다. 복구 코드를 사용하면 정상적인 2단계 로그인 제공자를 더 이상 사용할 수 없는 경우(예. 장치를 잃어버렸을 때) 계정에 액세스할 수 있습니다. 계정에 접근하지 못한다면 Bitwarden 지원팀은 어떤 도움도 줄 수 없습니다. 복구 코드를 기록하거나 출력하여 안전한 장소에 보관할 것을 권장합니다."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Remove card item type"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Your single-use recovery code can be used to turn off two-step login in the event that you lose access to your two-step login provider. Bitwarden recommends you write down the recovery code and keep it in a safe place."
   },
@@ -2211,6 +2223,9 @@
   },
   "disable": {
     "message": "비활성화"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
   },
   "revokeAccess": {
     "message": "Revoke access"
@@ -3259,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "기본 컬렉션"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "getHelp": {
     "message": "문의하기"
@@ -4472,9 +4490,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Encryption key update cannot proceed"
-  },
   "editFieldLabel": {
     "message": "Edit $LABEL$",
     "placeholders": {
@@ -4527,23 +4542,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
-  },
-  "keyUpdated": {
-    "message": "키 업데이트됨"
-  },
-  "updateEncryptionKey": {
-    "message": "암호화 키 업데이트"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "암호화 키를 업데이트하고난 후 현재 사용 중인 모든 Bitwarden 애플리케이션(예. 모바일 앱 혹은 브라우저 확장 기능)에서 로그아웃 후 다시 로그인해야 합니다. 재로그인하지 않으면 (새 암호화 키를 다운로드받는 경우) 데이터 손실이 발생할 수 있습니다. 자동으로 로그아웃을 시도하지만 지연될 수 있습니다."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "subscription": {
     "message": "구독"
@@ -5369,6 +5375,9 @@
   "emergencyRejected": {
     "message": "긴급 접근 거절됨."
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "$USER$ 사용자의 비밀번호가 초기화되었습니다. 이제 새로운 비밀번호로 로그인할 수 있습니다.",
     "placeholders": {
@@ -5377,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "개인 소유권"
@@ -5769,11 +5781,23 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "이 사용자"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
     "message": "하나 이상의 단체 정책이 마스터 비밀번호가 다음 사항을 따르도록 요구합니다:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "resetPasswordSuccess": {
     "message": "비밀번호 재설정 성공!"
@@ -7620,9 +7644,9 @@
     "message": "Service account updated",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Type or select projects or secrets",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Type or select projects",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Type to filter",
@@ -7707,8 +7731,8 @@
     "message": "Access tokens",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "New access token",
+  "createAccessToken": {
+    "message": "Create access token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8618,14 +8642,6 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
-  },
-  "sendsNoItemsTitle": {
-    "message": "No active Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
     "message": "Invite Users"
@@ -10663,5 +10679,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Billing address required to add credit.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
