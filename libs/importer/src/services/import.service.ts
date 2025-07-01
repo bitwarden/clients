@@ -21,7 +21,7 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -90,6 +90,7 @@ import {
   YotiCsvImporter,
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
+  PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -348,6 +349,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasswordXPCsvImporter();
       case "netwrixpasswordsecure":
         return new NetwrixPasswordSecureCsvImporter();
+      case "passworddepot17xml":
+        return new PasswordDepot17XmlImporter();
       default:
         return null;
     }
@@ -426,7 +429,7 @@ export class ImportService implements ImportServiceAbstraction {
       switch (key.match(/^\w+/)[0]) {
         case "Ciphers":
           item = importResult.ciphers[i];
-          itemType = CipherType[item.type];
+          itemType = toCipherTypeName(item.type);
           break;
         case "Folders":
           item = importResult.folders[i];

@@ -153,4 +153,41 @@ describe("MasterPasswordService", () => {
       expect(result).toBeNull();
     });
   });
+
+  describe("setMasterKeyEncryptedUserKey", () => {
+    test.each([null as unknown as EncString, undefined as unknown as EncString])(
+      "throws when the provided encryptedKey is %s",
+      async (encryptedKey) => {
+        await expect(sut.setMasterKeyEncryptedUserKey(encryptedKey, userId)).rejects.toThrow(
+          "Encrypted Key is required.",
+        );
+      },
+    );
+
+    it("throws an error if encryptedKey is malformed null", async () => {
+      await expect(
+        sut.setMasterKeyEncryptedUserKey(new EncString(null as unknown as string), userId),
+      ).rejects.toThrow("Encrypted Key is required.");
+    });
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(
+          sut.setMasterKeyEncryptedUserKey(new EncString(testMasterKeyEncryptedKey), userId),
+        ).rejects.toThrow("User ID is required.");
+      },
+    );
+
+    it("calls stateProvider with the provided encryptedKey and user ID", async () => {
+      const encryptedKey = new EncString(testMasterKeyEncryptedKey);
+
+      await sut.setMasterKeyEncryptedUserKey(encryptedKey, userId);
+
+      expect(stateProvider.getUser).toHaveBeenCalled();
+      expect(mockUserState.update).toHaveBeenCalled();
+      const updateFn = mockUserState.update.mock.calls[0][0];
+      expect(updateFn(null)).toEqual(encryptedKey.toJSON());
+    });
+  });
 });

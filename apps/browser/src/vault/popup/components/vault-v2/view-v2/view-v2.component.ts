@@ -5,7 +5,7 @@ import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, Observable, switchMap, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -22,8 +22,6 @@ import {
   UPDATE_PASSWORD,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -52,7 +50,7 @@ import {
 
 import { sendExtensionMessage } from "../../../../../autofill/utils/index";
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
@@ -112,7 +110,6 @@ export class ViewV2Component {
   loadAction: LoadAction;
   senderTabId?: number;
 
-  protected limitItemDeletion$ = this.configService.getFeatureFlag$(FeatureFlag.LimitItemDeletion);
   protected showFooter$: Observable<boolean>;
 
   constructor(
@@ -131,7 +128,6 @@ export class ViewV2Component {
     protected cipherAuthorizationService: CipherAuthorizationService,
     private copyCipherFieldService: CopyCipherFieldService,
     private popupScrollPositionService: VaultPopupScrollPositionService,
-    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -160,17 +156,10 @@ export class ViewV2Component {
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
 
-          this.showFooter$ = this.limitItemDeletion$.pipe(
-            map((enabled) => {
-              if (enabled) {
-                return (
-                  cipher &&
-                  (!cipher.isDeleted ||
-                    (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete)))
-                );
-              }
-              return this.showFooterLegacy();
-            }),
+          this.showFooter$ = of(
+            cipher &&
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
           await this.eventCollectionService.collect(
@@ -266,15 +255,6 @@ export class ViewV2Component {
     return this.cipher.isDeleted
       ? this.cipherService.deleteWithServer(this.cipher.id, this.activeUserId)
       : this.cipherService.softDeleteWithServer(this.cipher.id, this.activeUserId);
-  }
-
-  //@TODO: remove this when the LimitItemDeletion feature flag is removed
-  protected showFooterLegacy(): boolean {
-    return (
-      this.cipher &&
-      (!this.cipher.isDeleted ||
-        (this.cipher.isDeleted && this.cipher.edit && this.cipher.viewPassword))
-    );
   }
 
   /**
