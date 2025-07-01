@@ -21,7 +21,7 @@ export class PlanCardComponent {
   plan = input.required<PlanCard>();
   productTiers = ProductTierType;
 
-  cardCLicked = output();
+  cardClicked = output();
 
   getPlanCardContainerClasses(): string[] {
     const isSelected = this.plan().isSelected;
@@ -67,6 +67,6 @@ export class PlanCardComponent {
   }
 
   selectPlanCard() {
-    this.cardCLicked.emit();
+    this.cardClicked.emit();
   }
 }

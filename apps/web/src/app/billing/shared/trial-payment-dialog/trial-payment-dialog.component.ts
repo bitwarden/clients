@@ -74,7 +74,6 @@ export class TrialPaymentDialogComponent implements OnInit {
   organizationId!: string;
   sub!: OrganizationSubscriptionResponse;
   selectedInterval: PlanInterval = PlanInterval.Annually;
-  secretsManagerTotal!: number;
 
   planCards = signal<PlanCard[]>([]);
   plans!: ListResponse<PlanResponse>;
@@ -82,7 +81,6 @@ export class TrialPaymentDialogComponent implements OnInit {
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
   protected taxInformation!: TaxInformation;
-  protected totalOpened = false;
   protected estimatedTax: number = 0;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;
   pricingSummaryData!: PricingSummaryData;
