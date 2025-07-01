@@ -17,7 +17,6 @@ import { PaymentMethodType, PlanInterval, ProductTierType } from "@bitwarden/com
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
-import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { PreviewOrganizationInvoiceRequest } from "@bitwarden/common/billing/models/request/preview-organization-invoice.request";
 import { UpdatePaymentMethodRequest } from "@bitwarden/common/billing/models/request/update-payment-method.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -102,65 +101,61 @@ export class TrialPaymentDialogComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    if (this.dialogParams.organizationId) {
-      this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
-      this.sub =
-        this.dialogParams.subscription ??
-        (await this.organizationApiService.getSubscription(this.dialogParams.organizationId));
-      this.organizationId = this.dialogParams.organizationId;
-      this.currentPlan = this.sub?.plan;
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      if (!userId) {
-        throw new Error("User ID is required");
-      }
-      const organization = await firstValueFrom(
-        this.organizationService
-          .organizations$(userId)
-          .pipe(getOrganizationById(this.organizationId)),
-      );
-      if (!organization) {
-        throw new Error("Organization not found");
-      }
-      this.organization = organization;
-
-      const result = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
-
-      const planCards = result
-        .map((planCard) => {
-          if (planCard.isAnnual) {
-            return {
-              ...planCard,
-              isSelected: true,
-            };
-          }
-          return planCard;
-        })
-        .reverse();
-
-      this.planCards.set(planCards);
-
-      if (!this.selectedInterval) {
-        this.selectedInterval = planCards.find((card) => card.isSelected)?.isAnnual
-          ? PlanInterval.Annually
-          : PlanInterval.Monthly;
-      }
-
-      const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
-      this.taxInformation = TaxInformation.from(taxInfo);
-
-      this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
-        this.currentPlan,
-        this.sub,
-        this.organization,
-        this.selectedInterval,
-        this.estimatedTax,
-        this.isSecretsManagerTrial(),
-      );
-
-      this.plans = await this.apiService.getPlans();
+    this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
+    this.sub =
+      this.dialogParams.subscription ??
+      (await this.organizationApiService.getSubscription(this.dialogParams.organizationId));
+    this.organizationId = this.dialogParams.organizationId;
+    this.currentPlan = this.sub?.plan;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
     }
+    const organization = await firstValueFrom(
+      this.organizationService
+        .organizations$(userId)
+        .pipe(getOrganizationById(this.organizationId)),
+    );
+    if (!organization) {
+      throw new Error("Organization not found");
+    }
+    this.organization = organization;
+
+    const result = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
+
+    const planCards = result
+      .map((planCard) => {
+        if (planCard.isAnnual) {
+          return {
+            ...planCard,
+            isSelected: true,
+          };
+        }
+        return planCard;
+      })
+      .reverse();
+
+    this.planCards.set(planCards);
+
+    if (!this.selectedInterval) {
+      this.selectedInterval = planCards.find((card) => card.isSelected)?.isAnnual
+        ? PlanInterval.Annually
+        : PlanInterval.Monthly;
+    }
+
+    const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
+    this.taxInformation = TaxInformation.from(taxInfo);
+
+    this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+      this.currentPlan,
+      this.sub,
+      this.organization,
+      this.selectedInterval,
+      this.estimatedTax,
+      this.isSecretsManagerTrial(),
+    );
+
+    this.plans = await this.apiService.getPlans();
   }
 
   static open = (
@@ -223,16 +218,13 @@ export class TrialPaymentDialogComponent implements OnInit {
   }
 
   protected get showTaxIdField(): boolean {
-    if (this.organizationId) {
-      switch (this.currentPlan.productTier) {
-        case ProductTierType.Free:
-        case ProductTierType.Families:
-          return false;
-        default:
-          return true;
-      }
+    switch (this.currentPlan.productTier) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return false;
+      default:
+        return true;
     }
-    return false;
   }
 
   private refreshSalesTax(): void {
@@ -322,15 +314,11 @@ export class TrialPaymentDialogComponent implements OnInit {
       this.taxComponent.markAllAsTouched();
     }
     try {
-      if (this.organizationId) {
-        await this.updateOrganizationPaymentMethod(
-          this.organizationId,
-          this.paymentComponent,
-          this.taxInformation,
-        );
-      } else {
-        await this.updatePremiumUserPaymentMethod(this.paymentComponent, this.taxInformation);
-      }
+      await this.updateOrganizationPaymentMethod(
+        this.organizationId,
+        this.paymentComponent,
+        this.taxInformation,
+      );
 
       if (this.currentPlan.type !== this.sub.planType) {
         const changePlanRequest = new ChangePlanFrequencyRequest();
@@ -374,27 +362,6 @@ export class TrialPaymentDialogComponent implements OnInit {
     request.taxInformation = ExpandedTaxInfoUpdateRequest.From(taxInformation);
 
     await this.billingApiService.updateOrganizationPaymentMethod(organizationId, request);
-  }
-
-  private async updatePremiumUserPaymentMethod(
-    paymentComponent: PaymentComponent,
-    taxInformation: TaxInformation,
-  ): Promise<void> {
-    const { type, token } = await paymentComponent.tokenize();
-
-    const request = new PaymentRequest();
-    request.paymentMethodType = type;
-    request.paymentToken = token;
-    request.country = taxInformation.country;
-    request.postalCode = taxInformation.postalCode;
-    request.taxId = taxInformation.taxId;
-    request.state = taxInformation.state;
-    request.line1 = taxInformation.line1;
-    request.line2 = taxInformation.line2;
-    request.city = taxInformation.city;
-    request.state = taxInformation.state;
-
-    await this.apiService.postAccountPayment(request);
   }
 
   resolvePlanName(productTier: ProductTierType): string {
