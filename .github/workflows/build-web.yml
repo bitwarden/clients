@@ -444,6 +444,7 @@ jobs:
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
+        if: failure()
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
