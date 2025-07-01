@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, inject, Input, signal } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ScrollLayoutHostDirective } from "@bitwarden/components";
 
 @Component({
   selector: "popup-page",
@@ -9,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-overflow-y-hidden",
   },
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollLayoutHostDirective],
 })
 export class PopupPageComponent {
   protected i18nService = inject(I18nService);
