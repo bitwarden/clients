@@ -108,6 +108,10 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       _WIN_PKG_FETCH_VERSION: 20.11.1
       _WIN_PKG_VERSION: 3.5
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -156,9 +160,11 @@ jobs:
 
       - name: Login to Azure
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Get certificates
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
@@ -168,10 +174,20 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
             jq -r .value | base64 -d > $HOME/certificates/devid-app-cert.p12
 
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Set up keychain
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -199,13 +215,13 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Notarize app
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          APP_STORE_CONNECT_TEAM_ISSUER: ${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
         run: |
