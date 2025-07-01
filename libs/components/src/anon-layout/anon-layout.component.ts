@@ -22,6 +22,8 @@ import { BitwardenLogo, BitwardenShield } from "../icon/icons";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
+export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl";
+
 @Component({
   selector: "auth-anon-layout",
   templateUrl: "./anon-layout.component.html",
@@ -41,28 +43,38 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
   readonly hideIcon = input<boolean>(false);
+  readonly hideCardWrapper = input<boolean>(false);
 
   /**
-   * Max width of the title area content
-   *
-   * @default undefined
-   */
-  titleAreaMaxWidth = model<"md">();
-
-  /**
-   * Max width of the layout content
+   * Max width of the layout title, subtitle, and content areas.
    *
    * @default 'md'
    */
-  maxWidth = model<"md" | "3xl">("md");
+  maxWidth = model<AnonLayoutMaxWidth>("md");
 
   protected logo = BitwardenLogo;
-  protected year = "2024";
+  protected year: string;
   protected clientType: ClientType;
   protected hostname: string;
   protected version: string;
 
   protected hideYearAndVersion = false;
+
+  get maxWidthClass(): string {
+    const maxWidth = this.maxWidth();
+    switch (maxWidth) {
+      case "md":
+        return "tw-max-w-md";
+      case "lg":
+        return "tw-max-w-lg";
+      case "xl":
+        return "tw-max-w-xl";
+      case "2xl":
+        return "tw-max-w-2xl";
+      case "3xl":
+        return "tw-max-w-3xl";
+    }
+  }
 
   constructor(
     private environmentService: EnvironmentService,
@@ -75,7 +87,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   async ngOnInit() {
     this.maxWidth.set(this.maxWidth() ?? "md");
-    this.titleAreaMaxWidth.set(this.titleAreaMaxWidth() ?? null);
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
 

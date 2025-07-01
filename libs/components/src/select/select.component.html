@@ -9,6 +9,7 @@
   [clearable]="false"
   (close)="onClose()"
   appendTo="body"
+  [keyDownFn]="onKeyDown"
 >
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex" [title]="item.label">
