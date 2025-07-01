@@ -98,7 +98,9 @@ export class TrialPaymentDialogComponent implements OnInit {
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
     private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
-  ) {}
+  ) {
+    this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
+  }
 
   async ngOnInit(): Promise<void> {
     this.currentPlanName = this.resolvePlanName(this.dialogParams.productTierType);
