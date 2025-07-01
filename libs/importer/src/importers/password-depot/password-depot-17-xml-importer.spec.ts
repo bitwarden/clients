@@ -70,7 +70,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("password type");
     expect(cipher.notes).toBe("someComment");
 
@@ -190,7 +190,7 @@ describe("Password Depot 17 Xml Importer", () => {
     const result = await importer.parse(RDPTestData);
 
     const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("rdp type");
     expect(cipher.notes).toBe("someNote");
 
@@ -206,7 +206,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toBe("software-license type");
     expect(cipher.notes).toBe("someComment");
 
@@ -273,7 +273,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("TeamViewer type");
     expect(cipher.notes).toBe("someNote");
 
@@ -293,7 +293,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("Putty type");
     expect(cipher.notes).toBe("someNote");
 
@@ -325,7 +325,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("banking type");
     expect(cipher.notes).toBe("someNote");
 
@@ -410,7 +410,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toBe("information type");
     expect(cipher.notes).toBe("some note content");
   });
@@ -421,7 +421,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("certificate type");
     expect(cipher.notes).toBe("someNote");
 
@@ -435,7 +435,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toEqual(CipherType.Login);
     expect(cipher.name).toBe("encrypted file type");
     expect(cipher.notes).toBe("some comment");
 
@@ -449,7 +449,7 @@ describe("Password Depot 17 Xml Importer", () => {
 
     const cipher = result.ciphers.shift();
 
-    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.type).toEqual(CipherType.SecureNote);
     expect(cipher.name).toBe("document type");
     expect(cipher.notes).toBe("document comment");
 
