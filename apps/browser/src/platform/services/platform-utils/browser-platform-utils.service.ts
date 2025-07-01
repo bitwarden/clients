@@ -40,6 +40,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       this.deviceCache = DeviceType.VivaldiExtension;
     } else if (BrowserPlatformUtilsService.isChrome(globalContext)) {
       this.deviceCache = DeviceType.ChromeExtension;
+    } else if (BrowserPlatformUtilsService.isDuckDuckGo(globalContext)) {
+      this.deviceCache = DeviceType.DuckDuckGoExtension;
     } else if (BrowserPlatformUtilsService.isSafari(globalContext)) {
       this.deviceCache = DeviceType.SafariExtension;
     }
@@ -121,6 +123,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
 
   isSafari(): boolean {
     return this.getDevice() === DeviceType.SafariExtension;
+  }
+
+  private static isDuckDuckGo(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+    return navigator.userAgent.indexOf(" Ddg/") !== -1;
   }
 
   /**
