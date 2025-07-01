@@ -66,7 +66,7 @@ jobs:
       environment_url: ${{ steps.config.outputs.environment_url }}
       environment_name: ${{ steps.config.outputs.environment_name }}
       environment_artifact: ${{ steps.config.outputs.environment_artifact }}
-      azure_login_creds: ${{ steps.config.outputs.azure_login_creds }}
+      azure_login_client_key_name: ${{ steps.config.outputs.azure_login_client_key_name }}
       retrive_secrets_keyvault: ${{ steps.config.outputs.retrive_secrets_keyvault }}
       sync_utility: ${{ steps.config.outputs.sync_utility }}
       sync_delete_destination_files: ${{ steps.config.outputs.sync_delete_destination_files }}
@@ -81,7 +81,7 @@ jobs:
 
           case ${{ inputs.environment }} in
             "USQA")
-              echo "azure_login_creds=AZURE_KV_US_QA_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_QA" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-QA.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US QA Cloud" >> $GITHUB_OUTPUT
@@ -89,7 +89,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "EUQA")
-              echo "azure_login_creds=AZURE_KV_EU_QA_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EU_QA" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euqa.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU QA Cloud" >> $GITHUB_OUTPUT
@@ -97,7 +97,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-qa"  >> $GITHUB_OUTPUT
               ;;
             "USPROD")
-              echo "azure_login_creds=AZURE_KV_US_PROD_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_PROD" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Production Cloud" >> $GITHUB_OUTPUT
@@ -105,7 +105,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "EUPROD")
-              echo "azure_login_creds=AZURE_KV_EU_PRD_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_EU_PROD" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euprd.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU Production Cloud" >> $GITHUB_OUTPUT
@@ -113,7 +113,7 @@ jobs:
               echo "slack_channel_name=alerts-deploy-prd"  >> $GITHUB_OUTPUT
               ;;
             "USDEV")
-              echo "azure_login_creds=AZURE_KV_US_DEV_SERVICE_PRINCIPAL" >> $GITHUB_OUTPUT
+              echo "azure_login_client_key_name=AZURE_CLIENT_ID_US_DEV" >> $GITHUB_OUTPUT
               echo "retrive_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-usdev.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Development Cloud" >> $GITHUB_OUTPUT
@@ -327,9 +327,11 @@ jobs:
           ref: ${{ needs.artifact-check.outputs.artifact_build_commit }}
 
       - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets[needs.setup.outputs.azure_login_creds] }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
 
       - name: Retrieve Storage Account connection string for az sync
         if: ${{ needs.setup.outputs.sync_utility == 'az-sync' }}
