@@ -214,22 +214,17 @@ export class ItemDetailsSectionComponent implements OnInit {
         collectionIds: [],
         favorite: false,
       });
-      this.itemDetailsForm.controls.organizationId.valueChanges
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          concatMap(async (orgId) => {
-            const defaultCollectionIds = await this.getDefaultCollectionIds(orgId);
-            await this.updateCollectionOptions(
-              defaultCollectionIds || this.initialValues?.collectionIds,
-            );
-          }),
-        )
-        .subscribe();
+      await this.updateCollectionOptions(this.initialValues?.collectionIds);
     }
-
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
+    this.itemDetailsForm.controls.organizationId.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        concatMap(async () => await this.updateCollectionOptions()),
+      )
+      .subscribe();
   }
 
   /**
@@ -239,7 +234,7 @@ export class ItemDetailsSectionComponent implements OnInit {
    * - no org is currently selected
    * - the selected org doesn't have the "no private data policy" enabled
    */
-  private async getDefaultCollectionIds(orgId?: OrganizationId) {
+  private async getDefaultCollectionId(orgId?: OrganizationId) {
     if (!orgId) {
       return;
     }
@@ -263,10 +258,7 @@ export class ItemDetailsSectionComponent implements OnInit {
     );
     // If the user was added after the policy was enabled as they will not have any private data
     // and will not have a default collection.
-    if (!defaultUserCollection) {
-      return;
-    }
-    return [defaultUserCollection.id as CollectionId];
+    return defaultUserCollection?.id;
   }
 
   private async initFromExistingCipher(prefillCipher: CipherView) {
@@ -399,10 +391,17 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    if (startingSelection.length > 0) {
+    if (startingSelection.filter(Boolean).length > 0) {
       collectionsControl.setValue(
         this.collectionOptions.filter((c) => startingSelection.includes(c.id as CollectionId)),
       );
+    } else {
+      const defaultCollectionId = await this.getDefaultCollectionId(orgId);
+      if (defaultCollectionId) {
+        collectionsControl.setValue(
+          this.collectionOptions.filter((c) => c.id === defaultCollectionId),
+        );
+      }
     }
   }
 }
