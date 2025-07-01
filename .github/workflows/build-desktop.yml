@@ -147,8 +147,6 @@ jobs:
 
       - name: Check secrets
         id: check-secrets
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           has_secrets=${{ secrets.AZURE_CLIENT_ID != '' }}
           echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
@@ -876,6 +874,10 @@ jobs:
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     uses: ./.github/workflows/build-browser.yml
     secrets: inherit
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
 
 
   macos-package-github:
