@@ -1,15 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import {
-  filter,
-  from,
-  lastValueFrom,
-  map,
-  Observable,
-  shareReplay,
-  switchMap,
-  takeWhile,
-} from "rxjs";
+import { filter, from, lastValueFrom, map, Observable, switchMap, takeWhile } from "rxjs";
 import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -19,7 +10,9 @@ import { OrganizationWarningsResponse } from "@bitwarden/common/billing/models/r
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { openChangePlanDialog } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
+
+import { openChangePlanDialog } from "../../organizations/change-plan-dialog.component";
+import { OrganizationFreeTrialWarning, OrganizationResellerRenewalWarning } from "../types";
 
 const format = (date: Date) =>
   date.toLocaleDateString("en-US", {
@@ -27,16 +20,6 @@ const format = (date: Date) =>
     day: "2-digit",
     year: "numeric",
   });
-
-export type FreeTrialWarning = {
-  organization: Pick<Organization, "id" & "name">;
-  message: string;
-};
-
-export type ResellerRenewalWarning = {
-  type: "info" | "warning";
-  message: string;
-};
 
 @Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
@@ -50,8 +33,11 @@ export class OrganizationWarningsService {
     private router: Router,
   ) {}
 
-  getFreeTrialWarning$ = (organization: Organization): Observable<FreeTrialWarning> =>
-    this.getWarning$(organization, (response) => response.freeTrial).pipe(
+  getFreeTrialWarning$ = (
+    organization: Organization,
+    bypassCache: boolean = false,
+  ): Observable<OrganizationFreeTrialWarning> =>
+    this.getWarning$(organization, (response) => response.freeTrial, bypassCache).pipe(
       map((warning) => {
         const { remainingTrialDays } = warning;
 
@@ -76,9 +62,12 @@ export class OrganizationWarningsService {
       }),
     );
 
-  getResellerRenewalWarning$ = (organization: Organization): Observable<ResellerRenewalWarning> =>
-    this.getWarning$(organization, (response) => response.resellerRenewal).pipe(
-      map((warning): ResellerRenewalWarning | null => {
+  getResellerRenewalWarning$ = (
+    organization: Organization,
+    bypassCache: boolean = false,
+  ): Observable<OrganizationResellerRenewalWarning> =>
+    this.getWarning$(organization, (response) => response.resellerRenewal, bypassCache).pipe(
+      map((warning): OrganizationResellerRenewalWarning | null => {
         switch (warning.type) {
           case "upcoming": {
             return {
@@ -116,8 +105,11 @@ export class OrganizationWarningsService {
       filter((result): result is NonNullable<typeof result> => result !== null),
     );
 
-  showInactiveSubscriptionDialog$ = (organization: Organization): Observable<void> =>
-    this.getWarning$(organization, (response) => response.inactiveSubscription).pipe(
+  showInactiveSubscriptionDialog$ = (
+    organization: Organization,
+    bypassCache: boolean = false,
+  ): Observable<void> =>
+    this.getWarning$(organization, (response) => response.inactiveSubscription, bypassCache).pipe(
       switchMap(async (warning) => {
         switch (warning.resolution) {
           case "contact_provider": {
@@ -177,14 +169,15 @@ export class OrganizationWarningsService {
       }),
     );
 
-  private getResponse$ = (organization: Organization): Observable<OrganizationWarningsResponse> => {
+  private getResponse$ = (
+    organization: Organization,
+    bypassCache: boolean = false,
+  ): Observable<OrganizationWarningsResponse> => {
     const existing = this.cache$.get(organization.id as OrganizationId);
-    if (existing) {
+    if (existing && !bypassCache) {
       return existing;
     }
-    const response$ = from(this.organizationBillingApiService.getWarnings(organization.id)).pipe(
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+    const response$ = from(this.organizationBillingApiService.getWarnings(organization.id));
     this.cache$.set(organization.id as OrganizationId, response$);
     return response$;
   };
@@ -192,8 +185,9 @@ export class OrganizationWarningsService {
   private getWarning$ = <T>(
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
+    bypassCache: boolean = false,
   ): Observable<T> =>
-    this.getResponse$(organization).pipe(
+    this.getResponse$(organization, bypassCache).pipe(
       map(extract),
       takeWhile((warning): warning is T => !!warning),
       take(1),
