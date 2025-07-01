@@ -1,61 +1,81 @@
+<ng-template #newLoginItem>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-max-w-full tw-object-cover"
+    (loadeddata)="onVideoLoad()"
+    src="/videos/setup-extension/new-login-item.mp4"
+    appDarkImgSrc="/videos/setup-extension/new-login-item-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<ng-template #browserExtensionEasyAccess>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-max-w-full tw-object-cover"
+    (loadeddata)="onVideoLoad()"
+    src="/videos/setup-extension/browser-extension-easy-access.mp4"
+    appDarkImgSrc="/videos/setup-extension/browser-extension-easy-access-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<ng-template #onboardingAutofill>
+  <video
+    #video
+    muted
+    [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
+    [attr.aria-hidden]="!allVideosLoaded"
+    class="tw-max-w-full tw-object-cover"
+    (loadeddata)="onVideoLoad()"
+    src="/videos/setup-extension/onboarding-autofill.mp4"
+    appDarkImgSrc="/videos/setup-extension/onboarding-autofill-dark.mp4"
+    aria-hidden
+  ></video>
+</ng-template>
+
+<!--
+  On desktop, videos are shown in a 1 row, 3 column grid.
+  Below tablet viewports, videos are shown one at a time. The videos are absolute positioned, except the first.
+  The first video is relatively positioned to force the layout and spacing of the videos.
+-->
 <div
-  class="tw-mb-6 tw-grid tw-gap-10 tw-grid-rows-1 tw-justify-center md:tw-grid-cols-3"
+  class="tw-mx-auto overflow-hidden tw-w-[15rem] tw-mb-6 tw-relative md:tw-grid md:tw-gap-10 md:tw-w-auto md:overflow-auto md:tw-grid-rows-1 md:tw-grid-cols-3 md:tw-justify-center md:tw-justify-items-center"
   [attr.aria-label]="'setupExtensionContentAlt' | i18n"
 >
   <div
-    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-hidden"
+    class="tw-relative tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-overflow-hidden"
   >
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
     ></div>
-    <video
-      #video
-      muted
-      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
-      [attr.aria-hidden]="!allVideosLoaded"
-      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
-      (loadeddata)="onVideoLoad()"
-      src="/videos/setup-extension/new-login-item.mp4"
-      appDarkImgSrc="/videos/setup-extension/new-login-item-dark.mp4"
-    ></video>
+    <ng-container *ngTemplateOutlet="newLoginItem"></ng-container>
   </div>
 
   <div
-    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-clip"
+    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-overflow-hidden"
   >
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
     ></div>
-    <video
-      #video
-      muted
-      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
-      [attr.aria-hidden]="!allVideosLoaded"
-      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
-      (loadeddata)="onVideoLoad()"
-      src="/videos/setup-extension/browser-extension-easy-access.mp4"
-      appDarkImgSrc="/videos/setup-extension/browser-extension-easy-access-dark.mp4"
-    ></video>
+    <ng-container *ngTemplateOutlet="browserExtensionEasyAccess"></ng-container>
   </div>
 
   <div
-    class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-relative tw-overflow-clip"
+    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-overflow-hidden"
   >
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0"
     ></div>
-    <video
-      #video
-      muted
-      [ngClass]="{ 'tw-opacity-0': !allVideosLoaded }"
-      [attr.aria-hidden]="!allVideosLoaded"
-      class="tw-rounded-lg tw-w-[15rem] tw-max-w-full tw-aspect-[0.85/1] tw-object-cover"
-      (loadeddata)="onVideoLoad()"
-      src="/videos/setup-extension/onboarding-autofill.mp4"
-      appDarkImgSrc="/videos/setup-extension/onboarding-autofill-dark.mp4"
-    ></video>
+    <ng-container *ngTemplateOutlet="onboardingAutofill"></ng-container>
   </div>
 </div>
