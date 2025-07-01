@@ -58,8 +58,10 @@ export class PricingSummaryService {
       : 0;
 
     const totalAppliedDiscount = 0;
-    const discountPercentageFromSub = sub?.customerDiscount?.percentOff || 0;
-    const discountPercentage = sub?.customerDiscount?.percentOff || 0;
+    const discountPercentageFromSub = isSecretsManagerTrial
+      ? 0
+      : (sub?.customerDiscount?.percentOff ?? 0);
+    const discountPercentage = 20;
     const acceptingSponsorship = false;
     const storageGb = sub?.maxStorageGb ? sub?.maxStorageGb - 1 : 0;
 
