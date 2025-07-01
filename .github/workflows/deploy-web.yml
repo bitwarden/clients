@@ -313,6 +313,9 @@ jobs:
       _ENVIRONMENT_URL: ${{ needs.setup.outputs.environment_url }}
       _ENVIRONMENT_NAME: ${{ needs.setup.outputs.environment_name }}
       _ENVIRONMENT_ARTIFACT: ${{ needs.setup.outputs.environment_artifact }}
+    permissions:
+      id-token: write
+      deployments: write
     steps:
       - name: Create GitHub deployment
         uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
@@ -435,6 +438,8 @@ jobs:
       - notify-start
       - azure-deploy
       - artifact-check
+    permissions:
+      id-token: write
     steps:
       - name: Notify Slack with result
         uses: bitwarden/gh-actions/report-deployment-status-to-slack@main
