@@ -195,38 +195,19 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
-    if (!passwordInputResult.newMasterKey) {
-      throw new Error("newMasterKey not found. Could not set initial password.");
-    }
-    if (!passwordInputResult.newServerMasterKeyHash) {
-      throw new Error("newServerMasterKeyHash not found. Could not set initial password.");
-    }
-    if (!passwordInputResult.newLocalMasterKeyHash) {
-      throw new Error("newLocalMasterKeyHash not found. Could not set initial password.");
-    }
-    // newPasswordHint can have an empty string as a valid value, so we specifically check for null or undefined
-    if (passwordInputResult.newPasswordHint == null) {
-      throw new Error("newPasswordHint not found. Could not set initial password.");
-    }
-    if (!passwordInputResult.kdfConfig) {
-      throw new Error("kdfConfig not found. Could not set initial password.");
-    }
-    if (!this.orgSsoIdentifier) {
-      throw new Error("orgSsoIdentifier not found. Could not set initial password.");
-    }
-    if (!this.orgId) {
-      throw new Error("orgId not found. Could not set initial password.");
-    }
-    // resetPasswordAutoEnroll can have `false` as a valid value, so we specifically check for null or undefined
-    if (this.resetPasswordAutoEnroll == null) {
-      throw new Error("resetPasswordAutoEnroll not found. Could not set initial password.");
-    }
-    if (!this.userType) {
-      throw new Error("userType not found. Could not set initial password.");
-    }
-    if (!this.userId) {
-      throw new Error("userId not found. Could not set initial password.");
-    }
+    const ctx = "Could not set initial password.";
+
+    this.assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
+    this.assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
+    this.assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
+    this.assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+    this.assertTruthy(this.orgSsoIdentifier, "orgSsoIdentifier", ctx);
+    this.assertTruthy(this.orgId, "orgId", ctx);
+    this.assertTruthy(this.userType, "userType", ctx);
+    this.assertTruthy(this.userId, "userId", ctx);
+
+    this.assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
+    this.assertNonNullish(this.resetPasswordAutoEnroll, "resetPasswordAutoEnroll", ctx); // can have `false` as a valid value, so check non-nullish
 
     try {
       const credentials: SetInitialPasswordCredentials = {
@@ -257,19 +238,13 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   private async setInitialPasswordTdeOffboarding(passwordInputResult: PasswordInputResult) {
-    if (!passwordInputResult.newMasterKey) {
-      throw new Error("newMasterKey not found. Could not set initial password.");
-    }
-    if (!passwordInputResult.newServerMasterKeyHash) {
-      throw new Error("newServerMasterKeyHash not found. Could not set initial password.");
-    }
-    // newPasswordHint can have an empty string as a valid value, so we specifically check for null or undefined
-    if (passwordInputResult.newPasswordHint == null) {
-      throw new Error("newPasswordHint not found. Could not set initial password.");
-    }
-    if (!this.userId) {
-      throw new Error("userId not found. Could not set initial password.");
-    }
+    const ctx = "Could not set initial password.";
+
+    this.assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
+    this.assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
+    this.assertTruthy(this.userId, "userId", ctx);
+
+    this.assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
 
     try {
       const credentials: SetInitialPasswordTdeOffboardingCredentials = {
@@ -327,6 +302,89 @@ export class SetInitialPasswordComponent implements OnInit {
 
     if (confirmed) {
       this.messagingService.send("logout");
+    }
+  }
+
+  /**
+   * Asserts that a value is non-nullish (not null or undefined).
+   * @param val the value to check
+   * @param name the name of the value to include in the error message
+   * @param ctx context to optionally append to the error message
+   * @throws if the value is null or undefined
+   *
+   * @example
+   *
+   * ```
+   *    // `newPasswordHint` can have an empty string as a valid value, so we check non-nullish
+   *    this.assertNonNullish(
+   *      passwordInputResult.newPasswordHint,
+   *      "newPasswordHint",
+   *      "Could not set initial password."
+   *    );
+   *    // Output error message: "newPasswordHint not found. Could not set initial password."
+   * ```
+   *
+   * @remarks
+   *
+   * If you use this method repeatedly to check several values, it may help to assign any
+   * additional context (`ctx`) to a variable and pass it in to each call. This prevents
+   * the function call from formatting vertically in your text editor, taking up extra space.
+   *
+   * For example:
+   * ```
+   *    const ctx = "Could not set initial password.";
+   *
+   *    this.assertNonNullish(myValueOne, "myValueOne", ctx);
+   *    this.assertNonNullish(myValueTwo, "myValueTwo", ctx);
+   *    this.assertNonNullish(myValueThree, "myValueThree", ctx);
+   * ```
+   */
+  private assertNonNullish<T>(val: T, name: string, ctx?: string): asserts val is NonNullable<T> {
+    if (val == null) {
+      // If context is provided, append it to the error message with a space before it.
+      throw new Error(`${name} not found.${ctx ? ` ${ctx}` : ""}`);
+    }
+  }
+
+  /**
+   * Asserts that a value is truthy.
+   * @param val the value to check
+   * @param name the name of the value to include in the error message
+   * @param ctx context to optionally append to the error message
+   * @throws if the value is falsy (`false`, `""`, `0`, `null`, `undefined`, `void`, or `NaN`)
+   *
+   * @example
+   *
+   * ```
+   *    this.assertTruthy(this.userId, "userId", "Could not set initial password.");
+   *    // Output error message: "userId not found. Could not set initial password."
+   * ```
+   *
+   * @remarks
+   *
+   * If you use this method repeatedly to check several values, it may help to assign any
+   * additional context (`ctx`) to a variable and pass it in to each call. This prevents
+   * the function call from formatting vertically in your text editor, taking up extra space.
+   *
+   * For example:
+   * ```
+   *    const ctx = "Could not set initial password.";
+   *
+   *    this.assertTruhy(myValueOne, "myValueOne", ctx);
+   *    this.assertTruhy(myValueTwo, "myValueTwo", ctx);
+   *    this.assertTruhy(myValueThree, "myValueThree", ctx);
+   */
+  private assertTruthy<T>(
+    val: T,
+    name: string,
+    ctx?: string,
+  ): asserts val is Exclude<T, false | "" | 0 | null | undefined | void | 0n> {
+    // Because `NaN` is a value (not a type) of type 'number', that means we cannot add
+    // it to the list of falsy values in the type assertion. Instead, we check for it
+    // separately at runtime.
+    if (!val || (typeof val === "number" && Number.isNaN(val))) {
+      // If context is provided, append it to the error message with a space before it.
+      throw new Error(`${name} not found.${ctx ? ` ${ctx}` : ""}`);
     }
   }
 }
