@@ -323,6 +323,7 @@ describe("LoginStrategy", () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.privateKey = null;
       keyService.makeKeyPair.mockResolvedValue(["PUBLIC_KEY", new EncString("PRIVATE_KEY")]);
+      keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
       masterPasswordService.masterKeySubject.next(masterKey);
