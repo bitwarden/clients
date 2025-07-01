@@ -51,7 +51,7 @@ impl ssh_agent::Agent<peerinfo::models::PeerInfo> for BitwardenDesktopAgent {
         let request_data = match request_parser::parse_request(data) {
             Ok(data) => data,
             Err(e) => {
-                println!("[SSH Agent] Error while parsing request: {}", e);
+                println!("[SSH Agent] Error while parsing request: {e}");
                 return false;
             }
         };
@@ -178,7 +178,7 @@ impl BitwardenDesktopAgent {
                     );
                 }
                 Err(e) => {
-                    eprintln!("[SSH Agent Native Module] Error while parsing key: {}", e);
+                    eprintln!("[SSH Agent Native Module] Error while parsing key: {e}");
                 }
             }
         }
@@ -234,10 +234,9 @@ fn parse_key_safe(pem: &str) -> Result<ssh_key::private::PrivateKey, anyhow::Err
         Ok(key) => match key.public_key().to_bytes() {
             Ok(_) => Ok(key),
             Err(e) => Err(anyhow::Error::msg(format!(
-                "Failed to parse public key: {}",
-                e
+                "Failed to parse public key: {e}"
             ))),
         },
-        Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {}", e))),
+        Err(e) => Err(anyhow::Error::msg(format!("Failed to parse key: {e}"))),
     }
 }
