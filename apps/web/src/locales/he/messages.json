@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "אוסף ברירת מחדל"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "קבל עזרה"
   },

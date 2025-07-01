@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "기본 컬렉션"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "문의하기"
   },

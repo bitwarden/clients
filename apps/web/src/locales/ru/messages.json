@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Коллекция по умолчанию"
   },
+  "myItems": {
+    "message": "Мои элементы"
+  },
   "getHelp": {
     "message": "Получить помощь"
   },

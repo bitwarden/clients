@@ -353,14 +353,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       type: this.type,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
-      edit: this.edit,
+      edit: this.edit ?? true,
       permissions: this.permissions
         ? {
             delete: this.permissions.delete,
             restore: this.permissions.restore,
           }
         : undefined,
-      viewPassword: this.viewPassword,
+      viewPassword: this.viewPassword ?? true,
       localData: this.localData
         ? {
             lastUsedDate: this.localData.lastUsedDate
