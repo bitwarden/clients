@@ -5,21 +5,18 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 
 @Injectable({ providedIn: "root" })
-export class PlanService {
+export class PlanCardService {
   constructor(private apiService: ApiService) {}
 
-  async getPlanCards(
-    currentPlan: PlanResponse,
-    subscription: OrganizationSubscriptionResponse,
-    isTrial: boolean = false,
-  ) {
+  async getCadenceCards(currentPlan: PlanResponse, subscription: OrganizationSubscriptionResponse) {
     const plans = await this.apiService.getPlans();
 
     const filteredPlans = plans.data.filter((plan) => !!plan.PasswordManager);
 
     const result =
       filteredPlans?.filter(
-        (plan) => plan.productTier === currentPlan.productTier && this.planIsEnabled(plan),
+        (plan) =>
+          plan.productTier === currentPlan.productTier && !plan.disabled && !plan.legacyYear,
       ) || [];
 
     return result.map((plan) => {
@@ -41,7 +38,7 @@ export class PlanService {
       const discount = percentOff === 0 && plan.isAnnual ? 20 : percentOff;
 
       return {
-        title: isTrial ? (plan.isAnnual ? "Annually" : "Monthly") : plan.name,
+        title: plan.isAnnual ? "Annually" : "Monthly",
         costPerMember,
         discount,
         isDisabled: false,
@@ -50,9 +47,5 @@ export class PlanService {
         productTier: plan.productTier,
       };
     });
-  }
-
-  private planIsEnabled(plan: PlanResponse) {
-    return !plan.disabled && !plan.legacyYear;
   }
 }

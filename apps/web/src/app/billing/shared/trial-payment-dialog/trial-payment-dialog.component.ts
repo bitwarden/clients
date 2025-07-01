@@ -32,7 +32,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { PlanService } from "../../services/plan.service";
+import { PlanCardService } from "../../services/plan-card.service";
 import { PaymentComponent } from "../payment/payment.component";
 import { PlanCard } from "../plan-card/plan-card.component";
 import { PricingSummaryData } from "../pricing-summary/pricing-summary.component";
@@ -94,7 +94,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private accountService: AccountService,
-    private planService: PlanService,
+    private planCardService: PlanCardService,
     private pricingSummaryService: PricingSummaryService,
     private apiService: ApiService,
     private taxService: TaxServiceAbstraction,
@@ -129,7 +129,7 @@ export class TrialPaymentDialogComponent implements OnInit {
       }
       this.organization = organization;
 
-      const result = await this.planService.getPlanCards(this.currentPlan, this.sub, true);
+      const result = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
 
       const planCards = result
         .map((planCard) => {
