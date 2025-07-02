@@ -36,12 +36,14 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ChipSelectOption } from "@bitwarden/components";
+
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
@@ -107,7 +109,7 @@ export class VaultPopupListFiltersService {
   /**
    * Static list of ciphers views used in synchronous context
    */
-  private cipherViews: CipherView[] = [];
+  private cipherViews: PopupCipherViewLike[] = [];
 
   private activeUserId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -211,54 +213,58 @@ export class VaultPopupListFiltersService {
   filterVisibilityState$ = this.filterVisibilityState.state$;
 
   /**
-   * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
+   * Observable whose value is a function that filters an array of `PopupCipherViewLike` objects based on the current filters
    */
-  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
-    this.filters$,
-    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
-  ]).pipe(
-    map(
-      ([filters, restrictions]) =>
-        (ciphers: CipherView[]) =>
-          ciphers.filter((cipher) => {
-            // Vault popup lists never shows deleted ciphers
-            if (cipher.isDeleted) {
-              return false;
-            }
-
-            // Check if cipher type is restricted (with organization exemptions)
-            if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
-              return false;
-            }
-
-            if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
-              return false;
-            }
-
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
-              return false;
-            }
-
-            if (filters.folder && cipher.folderId !== filters.folder.id) {
-              return false;
-            }
-
-            const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-            if (isMyVault) {
-              if (cipher.organizationId !== null) {
+  filterFunction$: Observable<(ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[]> =
+    combineLatest([
+      this.filters$,
+      this.restrictedItemTypesService.restricted$.pipe(startWith([])),
+    ]).pipe(
+      map(
+        ([filters, restrictions]) =>
+          (ciphers: PopupCipherViewLike[]) =>
+            ciphers.filter((cipher) => {
+              // Vault popup lists never shows deleted ciphers
+              if (CipherViewLikeUtils.isDeleted(cipher)) {
                 return false;
               }
-            } else if (filters.organization) {
-              if (cipher.organizationId !== filters.organization.id) {
+
+              // Check if cipher type is restricted (with organization exemptions)
+              if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
                 return false;
               }
-            }
 
-            return true;
-          }),
-    ),
-  );
+              if (
+                filters.cipherType !== null &&
+                CipherViewLikeUtils.getType(cipher) !== filters.cipherType
+              ) {
+                return false;
+              }
+
+              if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
+                return false;
+              }
+
+              if (filters.folder && cipher.folderId !== filters.folder.id) {
+                return false;
+              }
+
+              const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+              if (isMyVault) {
+                if (cipher.organizationId !== null) {
+                  return false;
+                }
+              } else if (filters.organization) {
+                if (cipher.organizationId !== filters.organization.id) {
+                  return false;
+                }
+              }
+
+              return true;
+            }),
+      ),
+    );
 
   /**
    * All available cipher types (filtered by policy restrictions)
@@ -357,7 +363,7 @@ export class VaultPopupListFiltersService {
   folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
     switchMap((userId) => {
       // Observable of cipher views
-      const cipherViews$ = this.cipherService.cipherViews$(userId).pipe(
+      const cipherViews$ = this.cipherService.cipherListViews$(userId).pipe(
         map((ciphers) => {
           this.cipherViews = ciphers ? Object.values(ciphers) : [];
           return this.cipherViews;
@@ -375,30 +381,36 @@ export class VaultPopupListFiltersService {
         this.folderService.folderViews$(userId),
         cipherViews$,
       ]).pipe(
-        map(([filters, folders, cipherViews]): [PopupListFilter, FolderView[], CipherView[]] => {
-          if (folders.length === 1 && folders[0].id === null) {
-            // Do not display folder selections when only the "no folder" option is available.
-            return [filters as PopupListFilter, [], cipherViews];
-          }
+        map(
+          ([filters, folders, cipherViews]): [
+            PopupListFilter,
+            FolderView[],
+            PopupCipherViewLike[],
+          ] => {
+            if (folders.length === 1 && folders[0].id === null) {
+              // Do not display folder selections when only the "no folder" option is available.
+              return [filters as PopupListFilter, [], cipherViews];
+            }
 
-          // Sort folders by alphabetic name
-          folders.sort(Utils.getSortFunction(this.i18nService, "name"));
-          let arrangedFolders = folders;
+            // Sort folders by alphabetic name
+            folders.sort(Utils.getSortFunction(this.i18nService, "name"));
+            let arrangedFolders = folders;
 
-          const noFolder = folders.find((f) => f.id === null);
+            const noFolder = folders.find((f) => f.id === null);
 
-          if (noFolder) {
-            // Update `name` of the "no folder" option to "Items with no folder"
-            const updatedNoFolder = {
-              ...noFolder,
-              name: this.i18nService.t("itemsWithNoFolder"),
-            };
+            if (noFolder) {
+              // Update `name` of the "no folder" option to "Items with no folder"
+              const updatedNoFolder = {
+                ...noFolder,
+                name: this.i18nService.t("itemsWithNoFolder"),
+              };
 
-            // Move the "no folder" option to the end of the list
-            arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
-          }
-          return [filters as PopupListFilter, arrangedFolders, cipherViews];
-        }),
+              // Move the "no folder" option to the end of the list
+              arrangedFolders = [...folders.filter((f) => f.id !== null), updatedNoFolder];
+            }
+            return [filters as PopupListFilter, arrangedFolders, cipherViews];
+          },
+        ),
         map(([filters, folders, cipherViews]) => {
           const organizationId = filters.organization?.id ?? null;
 

@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { IndexedEntityId, UserId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export abstract class SearchService {
   indexedEntityId$: (userId: UserId) => Observable<IndexedEntityId | null>;
@@ -16,12 +17,16 @@ export abstract class SearchService {
     ciphersToIndex: CipherView[],
     indexedEntityGuid?: string,
   ) => Promise<void>;
-  searchCiphers: (
+  searchCiphers: <C extends CipherViewLike>(
     userId: UserId,
     query: string,
-    filter?: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[],
-    ciphers?: CipherView[],
-  ) => Promise<CipherView[]>;
-  searchCiphersBasic: (ciphers: CipherView[], query: string, deleted?: boolean) => CipherView[];
+    filter?: ((cipher: C) => boolean) | ((cipher: C) => boolean)[],
+    ciphers?: C[],
+  ) => Promise<C[]>;
+  searchCiphersBasic: <C extends CipherViewLike>(
+    ciphers: C[],
+    query: string,
+    deleted?: boolean,
+  ) => C[];
   searchSends: (sends: SendView[], query: string) => SendView[];
 }
