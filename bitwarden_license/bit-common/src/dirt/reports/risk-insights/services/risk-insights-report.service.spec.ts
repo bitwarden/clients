@@ -230,8 +230,16 @@ describe("RiskInsightsReportService", () => {
     it("should call riskInsightsApiService.getRiskInsightsReport with the correct organizationId", () => {
       // we need to ensure that the api is invoked with the specified organizationId
       // here it doesn't matter what the Api returns
+      const apiResponse = {
+        id: "reportId",
+        date: new Date().toISOString(),
+        organizationId: "orgId",
+        reportData: "encryptedReportData",
+        reportKey: "encryptionKey",
+      } as GetRiskInsightsReportResponse;
+
       const organizationId = "orgId";
-      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(undefined));
+      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(apiResponse));
       service.getRiskInsightsReport(organizationId);
       expect(riskInsightsApiService.getRiskInsightsReport).toHaveBeenCalledWith(organizationId);
     });
@@ -239,7 +247,15 @@ describe("RiskInsightsReportService", () => {
     it("should set empty report and summary if response is falsy", (done) => {
       // arrange: Api service returns undefined or null
       const organizationId = "orgId";
-      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(undefined));
+      const apiResponse = {
+        id: "reportId",
+        date: new Date().toISOString(),
+        organizationId: "orgId",
+        reportData: "encryptedReportData",
+        reportKey: "encryptionKey",
+      } as GetRiskInsightsReportResponse;
+
+      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(apiResponse));
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
       const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
 
@@ -261,7 +277,7 @@ describe("RiskInsightsReportService", () => {
 
     it("should decrypt report and update subjects if response is present", (done) => {
       const organizationId = "orgId";
-      
+
       const mockResponse = {
         id: "reportId",
         date: new Date().toISOString(),
