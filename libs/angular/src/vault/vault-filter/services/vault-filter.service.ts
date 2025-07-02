@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, from, map, mergeMap, Observable, switchMap, take } from "rxjs";
 
@@ -162,7 +160,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       folderCopy.id = f.id;
       folderCopy.revisionDate = f.revisionDate;
       const parts = f.name != null ? f.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, null, NestingDelimiter);
+      ServiceUtils.nestedTraverse(nodes, 0, parts, folderCopy, undefined, NestingDelimiter);
     });
     return nodes;
   }
