@@ -80,18 +80,6 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
     this.setOpen(!this.open);
   }
 
-  /**
-   * - For any nested NavGroupComponents or NavItemComponents, increment the `treeDepth` by 1.
-   */
-  private initNestedStyles() {
-    if (this.variant !== "tree") {
-      return;
-    }
-    [...this.nestedNavComponents].forEach((navGroupOrItem) => {
-      navGroupOrItem.treeDepth += 1;
-    });
-  }
-
   protected handleMainContentClicked() {
     if (!this.sideNavService.open) {
       if (!this.route) {
@@ -102,9 +90,5 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
       this.toggle();
     }
     this.mainContentClicked.emit();
-  }
-
-  ngAfterContentInit(): void {
-    this.initNestedStyles();
   }
 }
