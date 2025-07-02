@@ -244,38 +244,33 @@ describe("RiskInsightsReportService", () => {
       expect(riskInsightsApiService.getRiskInsightsReport).toHaveBeenCalledWith(organizationId);
     });
 
-    it("should set empty report and summary if response is falsy", (done) => {
+    it("should set empty report and summary if response is falsy", async () => {
       // arrange: Api service returns undefined or null
       const organizationId = "orgId";
-      const apiResponse = {
-        id: "reportId",
-        date: new Date().toISOString(),
-        organizationId: "orgId",
-        reportData: "encryptedReportData",
-        reportKey: "encryptionKey",
-      } as GetRiskInsightsReportResponse;
-
-      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(apiResponse));
+      // Simulate a falsy response from the API (undefined)
+      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(
+        of(null as GetRiskInsightsReportResponse),
+      );
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
       const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
 
       // act: call the service method
       service.getRiskInsightsReport(organizationId);
 
+      // wait for the observable to emit and microtasks to complete
+      await Promise.resolve();
+
       // assert: verify that the report and summary subjects are updated with empty values
-      setTimeout(() => {
-        expect(reportSubjectSpy).toHaveBeenCalledWith([]);
-        expect(summarySubjectSpy).toHaveBeenCalledWith({
-          totalMemberCount: 0,
-          totalAtRiskMemberCount: 0,
-          totalApplicationCount: 0,
-          totalAtRiskApplicationCount: 0,
-        });
-        done();
-      }, 0);
+      expect(reportSubjectSpy).toHaveBeenCalledWith([]);
+      expect(summarySubjectSpy).toHaveBeenCalledWith({
+        totalMemberCount: 0,
+        totalAtRiskMemberCount: 0,
+        totalApplicationCount: 0,
+        totalAtRiskApplicationCount: 0,
+      });
     });
 
-    it("should decrypt report and update subjects if response is present", (done) => {
+    it("should decrypt report and update subjects if response is present", async () => {
       const organizationId = "orgId";
 
       const mockResponse = {
@@ -303,16 +298,16 @@ describe("RiskInsightsReportService", () => {
 
       service.getRiskInsightsReport(organizationId);
 
-      setTimeout(() => {
-        expect(riskInsightsEncryptionService.decryptRiskInsightsReport).toHaveBeenCalledWith(
-          organizationId,
-          expect.anything(),
-          expect.anything(),
-        );
-        expect(reportSubjectSpy).toHaveBeenCalledWith(decryptedReport.data);
-        expect(summarySubjectSpy).toHaveBeenCalledWith(decryptedReport.summary);
-        done();
-      }, 0);
+      // Wait for all microtasks to complete
+      await Promise.resolve();
+
+      expect(riskInsightsEncryptionService.decryptRiskInsightsReport).toHaveBeenCalledWith(
+        organizationId,
+        expect.anything(),
+        expect.anything(),
+      );
+      expect(reportSubjectSpy).toHaveBeenCalledWith(decryptedReport.data);
+      expect(summarySubjectSpy).toHaveBeenCalledWith(decryptedReport.summary);
     });
   });
 });
