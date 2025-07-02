@@ -15,13 +15,10 @@ import {
   take,
 } from "rxjs";
 
-import {
-  CollectionService,
-  CollectionTypes,
-  CollectionView,
-} from "@bitwarden/admin-console/common";
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
+import { VaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -189,6 +186,7 @@ export class VaultPopupListFiltersService {
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private vaultFilterService: VaultFilterService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -461,19 +459,7 @@ export class VaultPopupListFiltersService {
         if (!defaultVaultEnabled) {
           return filtered;
         }
-        // Sort the default user collections by organization name
-        const sortedDefaultCollectionTypes = filtered
-          .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
-          .sort((a, b) => {
-            const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
-            const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
-            return this.i18nService.collator.compare(aName, bName);
-          });
-        // Default user collections at the top, and the remaining collections after
-        return [
-          ...sortedDefaultCollectionTypes,
-          ...filtered.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
-        ];
+        return this.vaultFilterService.sortDefaultCollections(filtered, orgs);
       }),
       switchMap((collections) => {
         return from(this.collectionService.getAllNested(collections)).pipe(

@@ -16,9 +16,9 @@ import {
 import {
   CollectionAdminView,
   CollectionService,
-  CollectionTypes,
   CollectionView,
 } from "@bitwarden/admin-console/common";
+import { VaultFilterService as SharedVaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -132,6 +132,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
+    protected vaultFilterService: SharedVaultFilterService,
     protected configService?: ConfigService,
   ) {}
 
@@ -249,19 +250,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     const nodes: TreeNode<CollectionFilter>[] = [];
 
     if (defaultCollectionsFlagEnabled) {
-      // Sort the default user collections by organization name
-      const sortedDefaultCollectionTypes = collections
-        .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
-        .sort((a, b) => {
-          const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
-          const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
-          return this.i18nService.collator.compare(aName, bName);
-        });
-      // Default user collections at the top, and the remaining collections after
-      collections = [
-        ...sortedDefaultCollectionTypes,
-        ...collections.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
-      ];
+      collections = this.vaultFilterService.sortDefaultCollections(collections, orgs);
     }
 
     collections.forEach((c) => {

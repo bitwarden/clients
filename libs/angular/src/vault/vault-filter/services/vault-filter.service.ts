@@ -112,7 +112,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
     const storedCollections = await this.collectionService.getAllDecrypted();
-    const allOrganizations = await this.buildOrganizations();
+    const orgs = await this.buildOrganizations();
     const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CreateDefaultLocation,
     );
@@ -123,20 +123,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         : storedCollections.filter((c) => c.organizationId === organizationId);
 
     if (defaulCollectionsFlagEnabled) {
-      // Sort collections so that default user collection is first, then by organization name
-      collections = collections.sort((a, b) => {
-        const aIsDefault = a.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-        const bIsDefault = b.type === CollectionTypes.DefaultUserCollection ? 0 : 1;
-
-        if (aIsDefault !== bIsDefault) {
-          return aIsDefault - bIsDefault;
-        }
-
-        const aOrg = allOrganizations.find((o) => o.id === a.organizationId)?.name ?? "";
-        const bOrg = allOrganizations.find((o) => o.id === b.organizationId)?.name ?? "";
-
-        return this.i18nService.collator.compare(aOrg, bOrg);
-      });
+      collections = this.sortDefaultCollections(collections, orgs);
     }
 
     const nestedCollections = await this.collectionService.getAllNested(collections);
@@ -186,5 +173,29 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
       await firstValueFrom(this.folderService.folderViews$(activeUserId)),
     );
     return ServiceUtils.getTreeNodeObjectFromList(folders, id) as TreeNode<FolderView>;
+  }
+
+  /**
+   * Sorts collections with default user collections at the top, sorted by organization name.
+   * Remaining collections are sorted by name.
+   * @param collections - The list of collections to sort.
+   * @param orgs - The list of organizations to use for sorting default user collections.
+   * @returns Sorted list of collections.
+   */
+  sortDefaultCollections(
+    collections: CollectionView[],
+    orgs: Organization[] = [],
+  ): CollectionView[] {
+    const sortedDefaultCollectionTypes = collections
+      .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
+      .sort((a, b) => {
+        const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
+        const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
+        return this.i18nService.collator.compare(aName, bName);
+      });
+    return [
+      ...sortedDefaultCollectionTypes,
+      ...collections.filter((c) => c.type !== CollectionTypes.DefaultUserCollection),
+    ];
   }
 }
