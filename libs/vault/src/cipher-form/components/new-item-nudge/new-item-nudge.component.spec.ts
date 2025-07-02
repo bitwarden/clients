@@ -48,11 +48,13 @@ describe("NewItemNudgeComponent", () => {
   it("should set nudge title and body for CipherType.Login type", async () => {
     component.configType = CipherType.Login;
     accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(true);
+    jest.spyOn(component, "checkHasSpotlightDismissed").mockImplementation(() => of(true));
 
     await component.ngOnInit();
 
-    expect(component.showNewItemSpotlight).toBe(true);
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(true);
+    });
     expect(component.nudgeTitle).toBe("newLoginNudgeTitle");
     expect(component.nudgeBody).toBe(
       "newLoginNudgeBodyOne <strong>newLoginNudgeBodyBold</strong> newLoginNudgeBodyTwo",
@@ -63,11 +65,13 @@ describe("NewItemNudgeComponent", () => {
   it("should set nudge title and body for CipherType.Card type", async () => {
     component.configType = CipherType.Card;
     accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(true);
+    jest.spyOn(component, "checkHasSpotlightDismissed").mockImplementation(() => of(true));
 
     await component.ngOnInit();
 
-    expect(component.showNewItemSpotlight).toBe(true);
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(true);
+    });
     expect(component.nudgeTitle).toBe("newCardNudgeTitle");
     expect(component.nudgeBody).toBe("newCardNudgeBody");
     expect(component.dismissalNudgeType).toBe(NudgeType.NewCardItemStatus);
@@ -76,16 +80,18 @@ describe("NewItemNudgeComponent", () => {
   it("should not show anything if spotlight has been dismissed", async () => {
     component.configType = CipherType.Identity;
     accountService.activeAccount$ = of({ id: "test-user-id" as UserId } as Account);
-    jest.spyOn(component, "checkHasSpotlightDismissed").mockResolvedValue(false);
+    jest.spyOn(component, "checkHasSpotlightDismissed").mockImplementation(() => of(false));
 
     await component.ngOnInit();
 
-    expect(component.showNewItemSpotlight).toBe(false);
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(false);
+    });
     expect(component.dismissalNudgeType).toBe(NudgeType.NewIdentityItemStatus);
   });
 
   it("should set showNewItemSpotlight to false when user dismisses spotlight", async () => {
-    component.showNewItemSpotlight = true;
+    component.showNewItemSpotlight$ = of(true);
     component.dismissalNudgeType = NudgeType.NewLoginItemStatus;
     component.activeUserId = "test-user-id" as UserId;
 
@@ -93,7 +99,9 @@ describe("NewItemNudgeComponent", () => {
 
     await component.dismissNewItemSpotlight();
 
-    expect(component.showNewItemSpotlight).toBe(false);
+    component.showNewItemSpotlight$.subscribe((value) => {
+      expect(value).toEqual(false);
+    });
     expect(dismissSpy).toHaveBeenCalledWith(NudgeType.NewLoginItemStatus, component.activeUserId);
   });
 });

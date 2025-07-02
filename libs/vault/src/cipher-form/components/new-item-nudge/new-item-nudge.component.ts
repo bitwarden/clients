@@ -1,6 +1,7 @@
-import { NgIf } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { AsyncPipe, NgIf } from "@angular/common";
+import { Component, DestroyRef, Input, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable, of } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
@@ -13,12 +14,12 @@ import { CipherType } from "@bitwarden/sdk-internal";
 @Component({
   selector: "vault-new-item-nudge",
   templateUrl: "./new-item-nudge.component.html",
-  imports: [NgIf, SpotlightComponent],
+  imports: [NgIf, SpotlightComponent, AsyncPipe],
 })
 export class NewItemNudgeComponent implements OnInit {
   @Input({ required: true }) configType: CipherType | null = null;
   activeUserId: UserId | null = null;
-  showNewItemSpotlight: boolean = false;
+  showNewItemSpotlight$: Observable<boolean> = of(false);
   nudgeTitle: string = "";
   nudgeBody: string = "";
   dismissalNudgeType: NudgeType | null = null;
@@ -27,6 +28,7 @@ export class NewItemNudgeComponent implements OnInit {
     private i18nService: I18nService,
     private accountService: AccountService,
     private nudgesService: NudgesService,
+    private destroyRef: DestroyRef,
   ) {}
 
   async ngOnInit() {
@@ -72,7 +74,7 @@ export class NewItemNudgeComponent implements OnInit {
       default:
         throw new Error("Unsupported cipher type");
     }
-    this.showNewItemSpotlight = await this.checkHasSpotlightDismissed(
+    this.showNewItemSpotlight$ = this.checkHasSpotlightDismissed(
       this.dismissalNudgeType as NudgeType,
       this.activeUserId,
     );
@@ -81,11 +83,13 @@ export class NewItemNudgeComponent implements OnInit {
   async dismissNewItemSpotlight() {
     if (this.dismissalNudgeType && this.activeUserId) {
       await this.nudgesService.dismissNudge(this.dismissalNudgeType, this.activeUserId as UserId);
-      this.showNewItemSpotlight = false;
+      this.showNewItemSpotlight$ = of(false);
     }
   }
 
-  async checkHasSpotlightDismissed(nudgeType: NudgeType, userId: UserId): Promise<boolean> {
-    return await firstValueFrom(this.nudgesService.showNudgeSpotlight$(nudgeType, userId));
+  checkHasSpotlightDismissed(nudgeType: NudgeType, userId: UserId): Observable<boolean> {
+    return this.nudgesService
+      .showNudgeSpotlight$(nudgeType, userId)
+      .pipe(takeUntilDestroyed(this.destroyRef));
   }
 }
