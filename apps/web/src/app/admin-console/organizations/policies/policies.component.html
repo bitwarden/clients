@@ -24,7 +24,7 @@
   </ng-container>
   <bit-table *ngIf="!loading">
     <ng-template body>
-      <tr bitRow *ngFor="let p of policies">
+      <tr bitRow *ngFor="let p of policies$ | async">
         <td bitCell *ngIf="p.display(organization)" ngPreserveWhitespaces>
           <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>
           <span bitBadge variant="success" *ngIf="policiesEnabledMap.get(p.type)">{{

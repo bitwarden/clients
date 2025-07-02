@@ -3,7 +3,7 @@
 import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
+import { Subject, filter, firstValueFrom, map, of, timeout } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -35,6 +36,7 @@ import {
   MasterPasswordPolicy,
   PasswordGeneratorPolicy,
   OrganizationDataOwnershipPolicy,
+  vNextOrganizationDataOwnershipPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   SendOptionsPolicy,
@@ -235,18 +237,31 @@ export class AppComponent implements OnDestroy, OnInit {
       });
     });
 
-    this.policyListService.addPolicies([
-      new TwoFactorAuthenticationPolicy(),
-      new MasterPasswordPolicy(),
-      new RemoveUnlockWithPinPolicy(),
-      new ResetPasswordPolicy(),
-      new PasswordGeneratorPolicy(),
-      new SingleOrgPolicy(),
-      new RequireSsoPolicy(),
-      new OrganizationDataOwnershipPolicy(),
-      new DisableSendPolicy(),
-      new SendOptionsPolicy(),
-    ]);
+    this.policyListService.addPolicies(
+      of([
+        new TwoFactorAuthenticationPolicy(),
+        new MasterPasswordPolicy(),
+        new RemoveUnlockWithPinPolicy(),
+        new ResetPasswordPolicy(),
+        new PasswordGeneratorPolicy(),
+        new SingleOrgPolicy(),
+        new RequireSsoPolicy(),
+        new DisableSendPolicy(),
+        new SendOptionsPolicy(),
+      ]),
+    );
+
+    const vNextOrganizationDataOwnershipPolicy$ = this.configService
+      .getFeatureFlag$(FeatureFlag.CreateDefaultLocation)
+      .pipe(
+        map((enabled) =>
+          enabled
+            ? [new vNextOrganizationDataOwnershipPolicy()]
+            : [new OrganizationDataOwnershipPolicy()],
+        ),
+      );
+
+    this.policyListService.addPolicies(vNextOrganizationDataOwnershipPolicy$);
   }
 
   ngOnDestroy() {
