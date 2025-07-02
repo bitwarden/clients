@@ -132,7 +132,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
-    protected configService?: ConfigService,
+    protected configService: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
