@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import {
-  AfterContentInit,
   booleanAttribute,
   Component,
   ContentChildren,
@@ -29,7 +28,7 @@ import { SideNavService } from "./side-nav.service";
   ],
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
-export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
+export class NavGroupComponent extends NavBaseComponent {
   @ContentChildren(NavBaseComponent, {
     descendants: true,
   })
