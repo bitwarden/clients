@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
+import { A11yGridDirective } from "../a11y/a11y-grid.directive";
+
 @Component({
   selector: "bit-item-group",
   imports: [],
@@ -8,5 +10,6 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   host: {
     class: "tw-block",
   },
+  hostDirectives: [A11yGridDirective],
 })
 export class ItemGroupComponent {}

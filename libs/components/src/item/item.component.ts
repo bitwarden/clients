@@ -1,11 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostBinding,
   HostListener,
+  effect,
+  inject,
   signal,
 } from "@angular/core";
 
+import { A11yGridDirective } from "../a11y/a11y-grid.directive";
 import { A11yRowDirective } from "../a11y/a11y-row.directive";
 
 import { ItemActionComponent } from "./item-action.component";
@@ -33,6 +37,23 @@ export class ItemComponent extends A11yRowDirective {
   @HostListener("focusout")
   onFocusOut() {
     this.focusVisibleWithin.set(false);
+  }
+
+  private a11yGrid = inject(A11yGridDirective, { optional: true });
+  private el = inject(ElementRef<HTMLElement>);
+
+  constructor() {
+    super();
+
+    /** Workaround to reset internal component state when view is recycled during virtual scroll */
+    effect(
+      () => {
+        if (this.a11yGrid && !this.el.nativeElement.contains(this.a11yGrid.focusTarget())) {
+          this.focusVisibleWithin.set(false);
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   @HostBinding("class") get classList(): string[] {
