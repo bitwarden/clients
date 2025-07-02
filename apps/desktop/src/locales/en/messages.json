@@ -2392,6 +2392,9 @@
   "passwordConfirmationDesc": {
     "message": "This action is protected. To continue, please re-enter your master password to verify your identity."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Updated master password"
   },

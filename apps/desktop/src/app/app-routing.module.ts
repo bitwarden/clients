@@ -15,6 +15,7 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
@@ -323,6 +324,14 @@ const routes: Routes = [
           pageSubtitle: {
             key: "finishJoiningThisOrganizationBySettingAMasterPassword",
           },
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor), authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          maxWidth: "lg",
         } satisfies AnonLayoutWrapperData,
       },
       {
