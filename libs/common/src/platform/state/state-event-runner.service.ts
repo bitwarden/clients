@@ -2,8 +2,9 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+
 import { UserId } from "../../types/guid";
-import { StorageServiceProvider } from "../services/storage-service.provider";
 
 import { GlobalState } from "./global-state";
 import { GlobalStateProvider } from "./global-state.provider";

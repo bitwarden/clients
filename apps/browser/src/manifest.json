@@ -56,7 +56,8 @@
     "unlimitedStorage",
     "webNavigation",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "notifications"
   ],
   "__safari__permissions": [
     "<all_urls>",
