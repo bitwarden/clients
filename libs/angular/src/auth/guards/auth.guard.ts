@@ -39,22 +39,6 @@ export const authGuard: CanActivateFn = async (
     return false;
   }
 
-  if (authStatus === AuthenticationStatus.Locked) {
-    if (routerState != null) {
-      messagingService.send("lockedUrl", { url: routerState.url });
-    }
-    // TODO PM-9674: when extension refresh is finished, remove promptBiometric
-    // as it has been integrated into the component as a default feature.
-    return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
-  }
-
-  if (
-    !routerState.url.includes("remove-password") &&
-    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
-  ) {
-    return router.createUrlTree(["/remove-password"]);
-  }
-
   const userId = (await firstValueFrom(accountService.activeAccount$)).id;
   const forceSetPasswordReason = await firstValueFrom(
     masterPasswordService.forceSetPasswordReason$(userId),
@@ -69,12 +53,31 @@ export const authGuard: CanActivateFn = async (
 
   // User JIT provisioned into a master-password-encryption org
   if (
+    authStatus === AuthenticationStatus.Locked &&
     forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser &&
-    !routerState.url.includes("set-password-jit") &&
-    !routerState.url.includes("set-initial-password")
+    !routerState.url.includes("set-initial-password") &&
+    isSetInitialPasswordFlagOn
   ) {
-    const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/set-password-jit";
-    return router.createUrlTree([route]);
+    return router.createUrlTree(["/set-initial-password"]);
+  }
+
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser
+  ) {
+    if (routerState != null) {
+      messagingService.send("lockedUrl", { url: routerState.url });
+    }
+    // TODO PM-9674: when extension refresh is finished, remove promptBiometric
+    // as it has been integrated into the component as a default feature.
+    return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
+  }
+
+  if (
+    !routerState.url.includes("remove-password") &&
+    (await firstValueFrom(keyConnectorService.convertAccountRequired$))
+  ) {
+    return router.createUrlTree(["/remove-password"]);
   }
 
   // TDE org user has "manage account recovery" permission
@@ -100,10 +103,10 @@ export const authGuard: CanActivateFn = async (
 
   // Post- Account Recovery or Weak Password on login
   if (
-    forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
-    (forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword &&
-      !routerState.url.includes("update-temp-password") &&
-      !routerState.url.includes("change-password"))
+    (forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset ||
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword) &&
+    !routerState.url.includes("update-temp-password") &&
+    !routerState.url.includes("change-password")
   ) {
     const route = isChangePasswordFlagOn ? "/change-password" : "/update-temp-password";
     return router.createUrlTree([route]);

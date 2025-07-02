@@ -1,10 +1,11 @@
 import { mock } from "jest-mock-extended";
 
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+
 import { mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
 import { LogService } from "../../abstractions/log.service";
-import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { KeyDefinition } from "../key-definition";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";

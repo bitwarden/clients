@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   Component,
   ContentChildren,
@@ -185,4 +186,20 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   protected onClose() {
     this.closed.emit();
   }
+
+  /**
+   * Prevent Escape key press from propagating to parent components
+   * (for example, parent dialog should not close when Escape is pressed in the select)
+   *
+   * @returns true to keep default key behavior; false to prevent default key behavior
+   *
+   * Needs to be arrow function to retain `this` scope.
+   */
+  protected onKeyDown = (event: KeyboardEvent) => {
+    if (this.select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+      event.stopPropagation();
+    }
+
+    return true;
+  };
 }

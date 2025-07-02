@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Colecție implicită"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Obținere ajutor"
   },

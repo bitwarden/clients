@@ -37,7 +37,10 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -391,6 +394,12 @@ export class VaultV2Component<C extends CipherViewLike>
   }
 
   async viewCipher(c: CipherViewLike) {
+    if (CipherViewLikeUtils.decryptionFailure(c)) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [c.id as CipherId],
+      });
+      return;
+    }
     const cipher = await this.cipherService.getFullCipherView(c);
     if (await this.shouldReprompt(cipher, "view")) {
       return;
@@ -487,7 +496,9 @@ export class VaultV2Component<C extends CipherViewLike>
         });
       }
 
-      if (cipher.canAssignToCollections) {
+      const hasEditableCollections = this.allCollections.some((collection) => !collection.readOnly);
+
+      if (cipher.canAssignToCollections && hasEditableCollections) {
         menu.push({
           label: this.i18nService.t("assignToCollections"),
           click: () =>
