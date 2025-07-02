@@ -45,25 +45,22 @@ export class RiskInsightsEncryptionService {
 
   async decryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
-    encryptedData: string,
-    key: string,
+    encryptedData: EncString,
+    wrappedKey: EncString,
   ): Promise<T | null> {
     try {
-      const orgKey = await this.keyService.getOrgKey(organizationId as string);
+      const orgKey = await this.keyService.getOrgKey(organizationId);
       if (orgKey === null) {
         throw new Error("Organization key not found");
       }
 
-      const dataEncrypted = encryptedData;
-      const wrappedEncryptionKey = key;
-
       const unwrappedEncryptionKey = await this.encryptService.unwrapSymmetricKey(
-        new EncString(wrappedEncryptionKey),
+        wrappedKey,
         orgKey,
       );
 
       const dataUnencrypted = await this.encryptService.decryptString(
-        new EncString(dataEncrypted),
+        encryptedData,
         unwrappedEncryptionKey,
       );
 
