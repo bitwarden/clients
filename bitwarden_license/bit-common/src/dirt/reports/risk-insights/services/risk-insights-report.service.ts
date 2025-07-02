@@ -15,6 +15,7 @@ import {
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -229,8 +230,8 @@ export class RiskInsightsReportService {
           return from(
             this.riskInsightsEncryptionService.decryptRiskInsightsReport<ReportInsightsReportData>(
               organizationId as OrganizationId,
-              response.reportData,
-              response.reportKey,
+              new EncString(response.reportData),
+              new EncString(response.reportKey),
             ),
           );
         }),
