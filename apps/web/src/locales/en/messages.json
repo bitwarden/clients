@@ -2225,6 +2225,9 @@
   "disable": {
     "message": "Turn off"
   },
+  "orgUserDetailsNotFound": {
+    "message": "Member details not found."
+  },
   "revokeAccess": {
     "message": "Revoke access"
   },
@@ -3272,6 +3275,9 @@
   },
   "defaultCollection": {
     "message": "Default collection"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "getHelp": {
     "message": "Get help"
@@ -6058,6 +6064,9 @@
   },
   "add": {
     "message": "Add"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Master password saved"
