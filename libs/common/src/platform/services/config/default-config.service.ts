@@ -1,17 +1,18 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   mergeWith,
   NEVER,
   Observable,
   of,
-  shareReplay,
+  ReplaySubject,
+  share,
   Subject,
   switchMap,
   tap,
+  timer,
 } from "rxjs";
 import { SemVer } from "semver";
 
@@ -50,6 +51,10 @@ export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, A
   },
 );
 
+const environmentComparer = (previous: Environment, current: Environment) => {
+  return previous.getApiUrl() === current.getApiUrl();
+};
+
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
   private failedFetchFallbackSubject = new Subject<ServerConfig>();
@@ -67,25 +72,52 @@ export class DefaultConfigService implements ConfigService {
     private stateProvider: StateProvider,
     private authService: AuthService,
   ) {
-    const userId$ = this.stateProvider.activeUserId$;
-    const authStatus$ = userId$.pipe(
-      switchMap((userId) => (userId == null ? of(null) : this.authService.authStatusFor$(userId))),
+    const globalConfig$ = this.environmentService.globalEnvironment$.pipe(
+      distinctUntilChanged(environmentComparer),
+      switchMap((environment) =>
+        this.globalConfigFor$(environment.getApiUrl()).pipe(
+          map((config) => {
+            return [config, null as UserId, environment] as const;
+          }),
+        ),
+      ),
     );
 
-    this.serverConfig$ = combineLatest([
-      userId$,
-      this.environmentService.environment$,
-      authStatus$,
-    ]).pipe(
-      switchMap(([userId, environment, authStatus]) => {
-        if (userId == null || authStatus !== AuthenticationStatus.Unlocked) {
-          return this.globalConfigFor$(environment.getApiUrl()).pipe(
-            map((config) => [config, null, environment] as const),
-          );
+    this.serverConfig$ = this.stateProvider.activeUserId$.pipe(
+      distinctUntilChanged(),
+      switchMap((userId) => {
+        if (userId == null) {
+          // Global
+          return globalConfig$;
         }
 
-        return this.userConfigFor$(userId).pipe(
-          map((config) => [config, userId, environment] as const),
+        return this.authService.authStatusFor$(userId).pipe(
+          map((authStatus) => authStatus === AuthenticationStatus.Unlocked),
+          distinctUntilChanged(),
+          switchMap((isUnlocked) => {
+            if (!isUnlocked) {
+              return globalConfig$;
+            }
+
+            return combineLatest([
+              this.environmentService
+                .getEnvironment$(userId)
+                .pipe(distinctUntilChanged(environmentComparer)),
+              this.userConfigFor$(userId),
+            ]).pipe(
+              switchMap(([environment, config]) => {
+                if (config == null) {
+                  const t = this.globalConfigFor$(environment.getApiUrl());
+                  // If the user doesn't have any config yet, use the global config for that url as the fallback
+                  return t.pipe(
+                    map((globalConfig) => [globalConfig, userId, environment] as const),
+                  );
+                }
+
+                return of([config, userId, environment] as const);
+              }),
+            );
+          }),
         );
       }),
       tap(async (rec) => {
@@ -106,7 +138,7 @@ export class DefaultConfigService implements ConfigService {
       }),
       // If fetch fails, we'll emit on this subject to fallback to the existing config
       mergeWith(this.failedFetchFallbackSubject),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      share({ connector: () => new ReplaySubject(1), resetOnRefCountZero: () => timer(1000) }),
     );
 
     this.cloudRegion$ = this.serverConfig$.pipe(
@@ -164,9 +196,7 @@ export class DefaultConfigService implements ConfigService {
       // somewhat quickly even though it may not be accurate, we won't cancel the HTTP request
       // though so that hopefully it can have finished and hydrated a more accurate value.
       const handle = setTimeout(() => {
-        this.logService.info(
-          "Self-host environment did not respond in time, emitting previous config.",
-        );
+        this.logService.info("Environment did not respond in time, emitting previous config.");
         this.failedFetchFallbackSubject.next(existingConfig);
       }, SLOW_EMISSION_GUARD);
       const response = await this.configApiService.get(userId);
