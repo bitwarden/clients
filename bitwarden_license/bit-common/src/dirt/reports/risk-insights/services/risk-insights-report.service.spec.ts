@@ -248,9 +248,7 @@ describe("RiskInsightsReportService", () => {
       // arrange: Api service returns undefined or null
       const organizationId = "orgId";
       // Simulate a falsy response from the API (undefined)
-      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(
-        of(null as GetRiskInsightsReportResponse),
-      );
+      riskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(null));
       const reportSubjectSpy = jest.spyOn((service as any).riskInsightsReportSubject, "next");
       const summarySubjectSpy = jest.spyOn((service as any).riskInsightsSummarySubject, "next");
 
