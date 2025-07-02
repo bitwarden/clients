@@ -167,6 +167,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
           forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
         ) {
           await this.router.navigate(["/change-password"]);
+        } else {
+          await this.router.navigate(["/vault"]);
         }
       } else {
         await this.router.navigate(["/vault"]);
