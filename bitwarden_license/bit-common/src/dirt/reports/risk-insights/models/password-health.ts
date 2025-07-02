@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
 import { Opaque } from "type-fest";
 
+import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
@@ -138,8 +138,8 @@ export type AppAtRiskMembersDialogParams = {
  */
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
-  encryptedData: string;
-  encryptionKey: string;
+  encryptedData: EncryptedString;
+  encryptionKey: EncryptedString;
 }
 
 /**
@@ -180,8 +180,8 @@ export enum DrawerType {
 export interface RiskInsightsReport {
   organizationId: OrganizationId;
   date: string;
-  reportData: string;
-  reportKey: string;
+  reportData: EncryptedString;
+  reportKey: EncryptedString;
 }
 
 export interface ReportInsightsReportData {
@@ -201,8 +201,8 @@ export interface GetRiskInsightsReportResponse {
   id: string;
   organizationId: OrganizationId;
   date: string;
-  reportData: string;
-  reportKey: string;
+  reportData: EncryptedString;
+  reportKey: EncryptedString;
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;

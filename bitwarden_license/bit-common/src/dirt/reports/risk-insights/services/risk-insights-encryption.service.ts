@@ -1,7 +1,10 @@
+import { firstValueFrom, map } from "rxjs";
+import { Jsonify } from "type-fest";
+
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptedDataWithKey } from "../models/password-health";
@@ -15,9 +18,15 @@ export class RiskInsightsEncryptionService {
 
   async encryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
+    userId: UserId,
     data: T,
   ): Promise<EncryptedDataWithKey> {
-    const orgKey = await this.keyService.getOrgKey(organizationId as string);
+    const orgKey = await firstValueFrom(
+      this.keyService
+        .orgKeys$(userId)
+        .pipe(map((organizationKeysById) => organizationKeysById[organizationId])),
+    );
+
     if (orgKey === null) {
       throw new Error("Organization key not found");
     }
@@ -36,8 +45,8 @@ export class RiskInsightsEncryptionService {
 
     const encryptedDataPacket = {
       organizationId: organizationId,
-      encryptedData: dataEncrypted.encryptedString as string,
-      encryptionKey: wrappedEncryptionKey.encryptedString as string,
+      encryptedData: dataEncrypted.encryptedString,
+      encryptionKey: wrappedEncryptionKey.encryptedString,
     };
 
     return encryptedDataPacket;
@@ -45,11 +54,18 @@ export class RiskInsightsEncryptionService {
 
   async decryptRiskInsightsReport<T>(
     organizationId: OrganizationId,
+    userId: UserId,
     encryptedData: EncString,
     wrappedKey: EncString,
+    parser: (data: Jsonify<T>) => T,
   ): Promise<T | null> {
     try {
-      const orgKey = await this.keyService.getOrgKey(organizationId);
+      const orgKey = await firstValueFrom(
+        this.keyService
+          .orgKeys$(userId)
+          .pipe(map((organizationKeysById) => organizationKeysById[organizationId])),
+      );
+
       if (orgKey === null) {
         throw new Error("Organization key not found");
       }
@@ -64,7 +80,7 @@ export class RiskInsightsEncryptionService {
         unwrappedEncryptionKey,
       );
 
-      const dataUnencryptedJson = JSON.parse(dataUnencrypted);
+      const dataUnencryptedJson = parser(JSON.parse(dataUnencrypted));
 
       return dataUnencryptedJson as T;
     } catch {

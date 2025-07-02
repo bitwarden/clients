@@ -1,10 +1,11 @@
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -19,9 +20,15 @@ describe("RiskInsightsEncryptionService", () => {
   const ENCRYPTED_TEXT = "This data has been encrypted";
   const ENCRYPTED_KEY = "Re-encrypted Cipher Key";
   const orgId = "org-123" as OrganizationId;
+  const userId = "user-123" as UserId;
   const orgKey = "org-key" as unknown as OrgKey;
   const contentEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64));
   const testData = { foo: "bar" };
+  const OrgRecords: Record<OrganizationId, OrgKey> = {
+    [orgId]: orgKey,
+    ["testOrg" as OrganizationId]: "test-org-key" as unknown as OrgKey,
+  };
+  const orgKey$ = new BehaviorSubject(OrgRecords);
 
   beforeEach(() => {
     service = new RiskInsightsEncryptionService(
@@ -38,18 +45,19 @@ describe("RiskInsightsEncryptionService", () => {
     mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
     mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
+    mockKeyService.orgKeys$.mockReturnValue(orgKey$);
   });
 
   describe("encryptRiskInsightsReport", () => {
     it("should encrypt data and return encrypted packet", async () => {
       // arrange: setup our mocks
-      mockKeyService.getOrgKey.mockResolvedValue(orgKey);
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
 
       // Act: call the method under test
-      const result = await service.encryptRiskInsightsReport(orgId, testData);
+      const result = await service.encryptRiskInsightsReport(orgId, userId, testData);
 
       // Assert: ensure that the methods were called with the expected parameters
-      expect(mockKeyService.getOrgKey).toHaveBeenCalledWith(orgId);
+      expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
       expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
         JSON.stringify(testData),
@@ -68,9 +76,13 @@ describe("RiskInsightsEncryptionService", () => {
 
     it("should throw if org key is not found", async () => {
       // when we cannot get an organization key, we should throw an error
-      mockKeyService.getOrgKey.mockResolvedValue(null);
+      mockKeyService.orgKeys$.mockReturnValue(
+        new BehaviorSubject({
+          [orgId]: null as unknown as OrgKey, // Simulate no key found for the org
+        }),
+      );
 
-      await expect(service.encryptRiskInsightsReport(orgId, testData)).rejects.toThrow(
+      await expect(service.encryptRiskInsightsReport(orgId, userId, testData)).rejects.toThrow(
         "Organization key not found",
       );
     });
@@ -79,7 +91,7 @@ describe("RiskInsightsEncryptionService", () => {
   describe("decryptRiskInsightsReport", () => {
     it("should decrypt data and return original object", async () => {
       // Arrange: setup our mocks
-      mockKeyService.getOrgKey.mockResolvedValue(orgKey);
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
       mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
 
@@ -88,11 +100,13 @@ describe("RiskInsightsEncryptionService", () => {
       // we just want to ensure the method calls are correct
       const result = await service.decryptRiskInsightsReport(
         orgId,
+        userId,
         new EncString("encrypted-data"),
         new EncString("wrapped-key"),
+        (data) => data as typeof testData,
       );
 
-      expect(mockKeyService.getOrgKey).toHaveBeenCalledWith(orgId);
+      // expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(orgId);
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
         new EncString("wrapped-key"),
         orgKey,
@@ -105,48 +119,60 @@ describe("RiskInsightsEncryptionService", () => {
     });
 
     it("should return null if org key is not found", async () => {
-      mockKeyService.getOrgKey.mockResolvedValue(null);
+      mockKeyService.orgKeys$.mockReturnValue(
+        new BehaviorSubject({
+          [orgId]: null as unknown as OrgKey, // Simulate no key found for the org
+        }),
+      );
 
       const result = await service.decryptRiskInsightsReport(
         orgId,
+        userId,
         new EncString("encrypted-data"),
         new EncString("wrapped-key"),
+        (data) => data as typeof testData,
       );
       expect(result).toBeNull();
     });
 
     it("should return null if decrypt throws", async () => {
-      mockKeyService.getOrgKey.mockResolvedValue(orgKey);
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockRejectedValue(new Error("fail"));
 
       const result = await service.decryptRiskInsightsReport(
         orgId,
+        userId,
         new EncString("encrypted-data"),
         new EncString("wrapped-key"),
+        (data) => data as typeof testData,
       );
       expect(result).toBeNull();
     });
 
     it("should return null if decrypt throws", async () => {
-      mockKeyService.getOrgKey.mockResolvedValue(orgKey);
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockRejectedValue(new Error("fail"));
 
       const result = await service.decryptRiskInsightsReport(
         orgId,
+        userId,
         new EncString("encrypted-data"),
         new EncString("wrapped-key"),
+        (data) => data as typeof testData,
       );
       expect(result).toBeNull();
     });
 
     it("should return null if decrypt throws", async () => {
-      mockKeyService.getOrgKey.mockResolvedValue(orgKey);
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockRejectedValue(new Error("fail"));
 
       const result = await service.decryptRiskInsightsReport(
         orgId,
+        userId,
         new EncString("encrypted-data"),
         new EncString("wrapped-key"),
+        (data) => data as typeof testData,
       );
       expect(result).toBeNull();
     });

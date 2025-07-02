@@ -17,7 +17,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -210,7 +210,7 @@ export class RiskInsightsReportService {
     return dataWithCiphers;
   }
 
-  getRiskInsightsReport(organizationId: string): void {
+  getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
     this.riskInsightsApiService
       .getRiskInsightsReport(organizationId as OrganizationId)
       .pipe(
@@ -229,9 +229,11 @@ export class RiskInsightsReportService {
           }
           return from(
             this.riskInsightsEncryptionService.decryptRiskInsightsReport<ReportInsightsReportData>(
-              organizationId as OrganizationId,
+              organizationId,
+              userId,
               new EncString(response.reportData),
               new EncString(response.reportKey),
+              (data) => data as ReportInsightsReportData,
             ),
           );
         }),
@@ -245,7 +247,8 @@ export class RiskInsightsReportService {
   }
 
   async saveRiskInsightsReport(
-    organizationId: string,
+    organizationId: OrganizationId,
+    userId: UserId,
     report: ApplicationHealthReportDetail[],
     summary: ApplicationHealthReportSummary,
   ): Promise<void> {
@@ -255,7 +258,8 @@ export class RiskInsightsReportService {
     };
 
     const encryptedReport = await this.riskInsightsEncryptionService.encryptRiskInsightsReport(
-      organizationId as OrganizationId,
+      organizationId,
+      userId,
       reportWithSummary,
     );
 

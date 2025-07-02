@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { SaveRiskInsightsReportRequest } from "../models/password-health";
@@ -24,8 +25,8 @@ describe("RiskInsightsApiService", () => {
     data: {
       organizationId: orgId,
       date: new Date().toISOString(),
-      reportData: "test",
-      reportKey: "test-key",
+      reportData: "test" as EncryptedString,
+      reportKey: "test-key" as EncryptedString,
     },
   };
   const saveRiskInsightsReportResponse = {
