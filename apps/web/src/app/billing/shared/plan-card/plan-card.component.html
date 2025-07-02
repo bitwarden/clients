@@ -4,7 +4,7 @@
 <bit-card
   class="tw-h-full"
   [ngClass]="getPlanCardContainerClasses()"
-  (click)="selectPlanCard()"
+  (click)="cardClicked.emit()"
   [attr.tabindex]="!isFocused || plan().isDisabled ? '-1' : '0'"
   [attr.data-selected]="plan()?.isSelected"
 >

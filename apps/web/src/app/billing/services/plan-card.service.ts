@@ -19,7 +19,7 @@ export class PlanCardService {
           plan.productTier === currentPlan.productTier && !plan.disabled && !plan.legacyYear,
       ) || [];
 
-    return result.map((plan) => {
+    const planCards = result.map((plan) => {
       let costPerMember = 0;
 
       if (plan.PasswordManager.basePrice) {
@@ -42,10 +42,12 @@ export class PlanCardService {
         costPerMember,
         discount,
         isDisabled: false,
-        isSelected: false,
+        isSelected: plan.isAnnual,
         isAnnual: plan.isAnnual,
         productTier: plan.productTier,
       };
     });
+
+    return planCards.reverse();
   }
 }

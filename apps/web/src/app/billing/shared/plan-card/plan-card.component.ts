@@ -65,8 +65,4 @@ export class PlanCardComponent {
           "focus:tw-border-primary-700",
         ];
   }
-
-  selectPlanCard() {
-    this.cardClicked.emit();
-  }
 }

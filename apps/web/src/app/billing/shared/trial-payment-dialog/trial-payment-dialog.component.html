@@ -77,7 +77,7 @@
           [class]="'tw-grid-cols-' + planCards().length"
         >
           @for (planCard of planCards(); track $index) {
-            <app-plan-card [plan]="planCard" (cardCLicked)="setSelected(planCard)"></app-plan-card>
+            <app-plan-card [plan]="planCard" (cardClicked)="setSelected(planCard)"></app-plan-card>
           }
         </div>
       </ng-container>

@@ -123,19 +123,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     }
     this.organization = organization;
 
-    const result = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
-
-    const planCards = result
-      .map((planCard) => {
-        if (planCard.isAnnual) {
-          return {
-            ...planCard,
-            isSelected: true,
-          };
-        }
-        return planCard;
-      })
-      .reverse();
+    const planCards = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
 
     this.planCards.set(planCards);
 
