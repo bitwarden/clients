@@ -12,7 +12,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
-import { TaxServiceAbstraction } from "@bitwarden/common/billing/abstractions/tax.service.abstraction";
 import { PaymentMethodType, PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
@@ -80,7 +79,6 @@ export class TrialPaymentDialogComponent implements OnInit {
   @Output() onSuccess = new EventEmitter<OnSuccessArgs>();
   protected initialPaymentMethod: PaymentMethodType;
   protected taxInformation!: TaxInformation;
-  protected estimatedTax: number = 0;
   protected readonly ResultType = TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE;
   pricingSummaryData!: PricingSummaryData;
 
@@ -94,7 +92,6 @@ export class TrialPaymentDialogComponent implements OnInit {
     private planCardService: PlanCardService,
     private pricingSummaryService: PricingSummaryService,
     private apiService: ApiService,
-    private taxService: TaxServiceAbstraction,
     private toastService: ToastService,
     private billingApiService: BillingApiServiceAbstraction,
     private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
@@ -136,12 +133,12 @@ export class TrialPaymentDialogComponent implements OnInit {
     const taxInfo = await this.organizationApiService.getTaxInfo(this.organizationId);
     this.taxInformation = TaxInformation.from(taxInfo);
 
-    this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+    this.pricingSummaryData = await this.pricingSummaryService.getPricingSummaryData(
       this.currentPlan,
       this.sub,
       this.organization,
       this.selectedInterval,
-      this.estimatedTax,
+      this.taxInformation,
       this.isSecretsManagerTrial(),
     );
 
@@ -153,7 +150,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     dialogConfig: DialogConfig<TrialPaymentDialogParams>,
   ) => dialogService.open<TrialPaymentDialogResultType>(TrialPaymentDialogComponent, dialogConfig);
 
-  setSelected(planCard: PlanCard) {
+  async setSelected(planCard: PlanCard) {
     this.selectedInterval = planCard.isAnnual ? PlanInterval.Annually : PlanInterval.Monthly;
 
     this.planCards.update((planCards) => {
@@ -172,19 +169,19 @@ export class TrialPaymentDialogComponent implements OnInit {
       });
     });
 
-    this.selectPlan();
+    await this.selectPlan();
 
-    this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
+    this.pricingSummaryData = await this.pricingSummaryService.getPricingSummaryData(
       this.currentPlan,
       this.sub,
       this.organization,
       this.selectedInterval,
-      this.estimatedTax,
+      this.taxInformation,
       this.isSecretsManagerTrial(),
     );
   }
 
-  protected selectPlan() {
+  protected async selectPlan() {
     if (
       this.selectedInterval === PlanInterval.Monthly &&
       this.currentPlan.productTier == ProductTierType.Families
@@ -201,9 +198,14 @@ export class TrialPaymentDialogComponent implements OnInit {
       this.currentPlan = filteredPlans[0];
     }
     try {
-      this.refreshSalesTax();
-    } catch {
-      this.estimatedTax = 0;
+      await this.refreshSalesTax();
+    } catch (error) {
+      const translatedMessage = this.i18nService.t(error.message);
+      this.toastService.showToast({
+        title: "",
+        variant: "error",
+        message: !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
+      });
     }
   }
 
@@ -217,7 +219,7 @@ export class TrialPaymentDialogComponent implements OnInit {
     }
   }
 
-  private refreshSalesTax(): void {
+  private async refreshSalesTax(): Promise<void> {
     if (
       this.taxInformation === undefined ||
       !this.taxInformation.country ||
@@ -249,35 +251,20 @@ export class TrialPaymentDialogComponent implements OnInit {
       };
     }
 
-    this.taxService
-      .previewOrganizationInvoice(request)
-      .then((invoice) => {
-        this.estimatedTax = invoice.taxAmount;
-        // Recalculate pricing summary data with the new estimated tax
-        this.pricingSummaryData = this.pricingSummaryService.getPricingSummaryData(
-          this.currentPlan,
-          this.sub,
-          this.organization,
-          this.selectedInterval,
-          this.estimatedTax,
-          this.isSecretsManagerTrial(),
-        );
-      })
-      .catch((error) => {
-        const translatedMessage = this.i18nService.t(error.message);
-        this.toastService.showToast({
-          title: "",
-          variant: "error",
-          message:
-            !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
-        });
-      });
+    this.pricingSummaryData = await this.pricingSummaryService.getPricingSummaryData(
+      this.currentPlan,
+      this.sub,
+      this.organization,
+      this.selectedInterval,
+      this.taxInformation,
+      this.isSecretsManagerTrial(),
+    );
   }
 
-  taxInformationChanged(event: TaxInformation) {
+  async taxInformationChanged(event: TaxInformation) {
     this.taxInformation = event;
     this.toggleBankAccount();
-    this.refreshSalesTax();
+    await this.refreshSalesTax();
   }
 
   toggleBankAccount = () => {
