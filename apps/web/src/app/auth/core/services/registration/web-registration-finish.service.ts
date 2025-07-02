@@ -87,7 +87,7 @@ export class WebRegistrationFinishService
     if (endUserActivationFlagEnabled) {
       return "/setup-extension";
     } else {
-      return "/vault";
+      return super.determineLoginSuccessRoute();
     }
   }
 
