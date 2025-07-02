@@ -107,9 +107,8 @@ export class DefaultConfigService implements ConfigService {
             ]).pipe(
               switchMap(([environment, config]) => {
                 if (config == null) {
-                  const t = this.globalConfigFor$(environment.getApiUrl());
                   // If the user doesn't have any config yet, use the global config for that url as the fallback
-                  return t.pipe(
+                  return this.globalConfigFor$(environment.getApiUrl()).pipe(
                     map((globalConfig) => [globalConfig, userId, environment] as const),
                   );
                 }
