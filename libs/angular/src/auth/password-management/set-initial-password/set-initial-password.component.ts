@@ -9,7 +9,6 @@ import {
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
-  RegistrationLockAltIcon,
 } from "@bitwarden/auth/angular";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -31,11 +30,14 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   AnonLayoutWrapperDataService,
+  ButtonModule,
   CalloutComponent,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { NoAccessIcon } from "../../icons/no-access.icon";
 
 import {
   SetInitialPasswordCredentials,
@@ -47,7 +49,7 @@ import {
 @Component({
   standalone: true,
   templateUrl: "set-initial-password.component.html",
-  imports: [CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
+  imports: [ButtonModule, CalloutComponent, CommonModule, InputPasswordComponent, I18nPipe],
 })
 export class SetInitialPasswordComponent implements OnInit {
   protected inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAuthedUser;
@@ -111,7 +113,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "unableToCompleteLogin" },
-        pageIcon: RegistrationLockAltIcon,
+        pageIcon: NoAccessIcon,
       });
     }
 

@@ -276,7 +276,7 @@ export abstract class LoginStrategy {
     await this.setUserKey(response, userId);
     await this.setPrivateKey(response, userId);
 
-    // This needs to run after the keys are set so its logic works correctly.
+    // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     this.messagingService.send("loggedIn");

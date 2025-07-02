@@ -351,14 +351,17 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (isSetInitialPasswordFlagOn) {
-      const newSsoUser = tokenResponse.key == null;
-
-      if (!newSsoUser) {
+      if (tokenResponse.key != null) {
+        // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
+        // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
+        // and so we don't want them falling into the createKeyPairForOldAccount flow
         await this.keyService.setPrivateKey(
           tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
           userId,
         );
       } else if (tokenResponse.privateKey) {
+        // User doesn't have masterKeyEncryptedUserKey but they do have a userKeyEncryptedPrivateKey
+        // This is just existing TDE users or a TDE offboarder on an untrusted device
         await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
       }
     } else {
@@ -418,21 +421,13 @@ export class SsoLoginStrategy extends LoginStrategy {
       return true;
     }
 
-    // TODO: add feature flagging
-    // JIT provisioned users into a MP encryption org do not have a user asymmetric key pair yet when they land here.
-    // TDE org users always will have a user asymmetric key pair by this point b/c they have already had their account created.
-
-    // If a TDE org user in an offboarding state (server flag) logs in on a trusted device, then they will receive their existing user private key from the server and then
-    // TDE will decrypt their user key.  Both should be available here for TDE org users on trusted devices.
-
     // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing user private from the server, but
     // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
     // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
     // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
     // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
-    // - UserKey is not set after successful login
+    // - UserKey is not set after successful login -- because automatic decryption is not available
     // - UserPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
-
     const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
       FeatureFlag.PM16117_SetInitialPasswordRefactor,
     );
