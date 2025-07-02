@@ -458,7 +458,7 @@ export class VaultPopupListFiltersService {
         if (!defaultVaultEnabled) {
           return filtered;
         }
-        return sortDefaultCollections(filtered, orgs);
+        return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
       }),
       switchMap((collections) => {
         return from(this.collectionService.getAllNested(collections)).pipe(

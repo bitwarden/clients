@@ -123,7 +123,7 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
         : storedCollections.filter((c) => c.organizationId === organizationId);
 
     if (defaulCollectionsFlagEnabled) {
-      collections = sortDefaultCollections(collections, orgs);
+      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
 
     const nestedCollections = await this.collectionService.getAllNested(collections);
@@ -186,13 +186,14 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
 export function sortDefaultCollections(
   collections: CollectionView[],
   orgs: Organization[] = [],
+  collator: Intl.Collator,
 ): CollectionView[] {
   const sortedDefaultCollectionTypes = collections
     .filter((c) => c.type === CollectionTypes.DefaultUserCollection)
     .sort((a, b) => {
       const aName = orgs.find((o) => o.id === a.organizationId)?.name ?? a.organizationId;
       const bName = orgs.find((o) => o.id === b.organizationId)?.name ?? b.organizationId;
-      return this.i18nService.collator.compare(aName, bName);
+      return collator.compare(aName, bName);
     });
   return [
     ...sortedDefaultCollectionTypes,

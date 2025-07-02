@@ -332,6 +332,7 @@ describe("vault filter service", () => {
         expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(
           storedCollections,
           storedOrgs,
+          i18nService.collator,
         );
       });
     });

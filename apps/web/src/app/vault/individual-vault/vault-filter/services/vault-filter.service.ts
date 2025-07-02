@@ -249,7 +249,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     const nodes: TreeNode<CollectionFilter>[] = [];
 
     if (defaultCollectionsFlagEnabled) {
-      collections = sortDefaultCollections(collections, orgs);
+      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
     }
 
     collections.forEach((c) => {

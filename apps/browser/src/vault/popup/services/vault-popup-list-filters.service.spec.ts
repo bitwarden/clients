@@ -428,7 +428,11 @@ describe("VaultPopupListFiltersService", () => {
       createSeededVaultPopupListFiltersService(orgs, collections, [], {});
 
       service.collections$.subscribe(() => {
-        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(collections, orgs);
+        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(
+          collections,
+          orgs,
+          i18nService.collator,
+        );
         done();
       });
     });
