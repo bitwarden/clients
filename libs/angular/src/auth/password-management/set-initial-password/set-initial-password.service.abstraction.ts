@@ -19,6 +19,12 @@ export const _SetInitialPasswordUserType = {
    */
   TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
     "tde_org_user_reset_password_permission_requires_mp",
+
+  /**
+   * A user in an org that offboarded from trusted device encryption and is now a
+   * master-password-encryption org
+   */
+  OFFBOARDED_TDE_ORG_USER: "offboarded_tde_org_user",
 } as const;
 
 type _SetInitialPasswordUserType = typeof _SetInitialPasswordUserType;
@@ -40,6 +46,12 @@ export interface SetInitialPasswordCredentials {
   resetPasswordAutoEnroll: boolean;
 }
 
+export interface SetInitialPasswordTdeOffboardingCredentials {
+  newMasterKey: MasterKey;
+  newServerMasterKeyHash: string;
+  newPasswordHint: string;
+}
+
 /**
  * Handles setting an initial password for an existing authed user.
  *
@@ -59,6 +71,19 @@ export abstract class SetInitialPasswordService {
   abstract setInitialPassword: (
     credentials: SetInitialPasswordCredentials,
     userType: SetInitialPasswordUserType,
+    userId: UserId,
+  ) => Promise<void>;
+
+  /**
+   * Sets an initial password for a user who logs in after their org offboarded from
+   * trusted device encryption and is now a master-password-encryption org:
+   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
+   *
+   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
+   * @param userId the account `userId`
+   */
+  abstract setInitialPasswordTdeOffboarding: (
+    credentials: SetInitialPasswordTdeOffboardingCredentials,
     userId: UserId,
   ) => Promise<void>;
 }
