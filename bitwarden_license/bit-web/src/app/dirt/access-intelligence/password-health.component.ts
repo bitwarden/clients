@@ -10,6 +10,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RiskInsightsReportService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { CipherHealthReportDetail } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/password-health";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
   ContainerComponent,
@@ -54,13 +55,13 @@ export class PasswordHealthComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
         map(async (params) => {
           const organizationId = params.get("organizationId");
-          await this.setCiphers(organizationId);
+          await this.setCiphers(organizationId as OrganizationId);
         }),
       )
       .subscribe();
   }
 
-  async setCiphers(organizationId: string) {
+  async setCiphers(organizationId: OrganizationId) {
     this.dataSource.data = await firstValueFrom(
       this.riskInsightsReportService.generateRawDataReport$(organizationId),
     );

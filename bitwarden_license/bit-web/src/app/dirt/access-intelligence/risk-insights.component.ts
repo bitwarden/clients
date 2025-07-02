@@ -75,7 +75,7 @@ export class RiskInsightsComponent implements OnInit {
   criticalAppsCount: number = 0;
   notifiedMembersCount: number = 0;
 
-  private organizationId: string | null = null;
+  private organizationId: OrganizationId;
   private destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
@@ -103,10 +103,10 @@ export class RiskInsightsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
-        switchMap((orgId: string | null) => {
+        switchMap((orgId) => {
           if (orgId) {
-            this.organizationId = orgId;
-            this.dataService.fetchApplicationsReport(orgId);
+            this.organizationId = orgId as OrganizationId;
+            this.dataService.fetchApplicationsReport(this.organizationId);
             this.isLoading$ = this.dataService.isLoading$;
             this.isRefreshing$ = this.dataService.isRefreshing$;
             this.dataLastUpdated$ = this.dataService.dataLastUpdated$;

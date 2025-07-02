@@ -69,7 +69,7 @@ export class RiskInsightsReportService {
    * @param organizationId
    * @returns Cipher health report data with members and trimmed uris
    */
-  generateRawDataReport$(organizationId: string): Observable<CipherHealthReportDetail[]> {
+  generateRawDataReport$(organizationId: OrganizationId): Observable<CipherHealthReportDetail[]> {
     const allCiphers$ = from(this.cipherService.getAllFromApiForOrganization(organizationId));
     const memberCiphers$ = from(
       this.memberCipherDetailsApiService.getMemberCipherDetails(organizationId),
@@ -97,7 +97,9 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns Cipher health report data flattened to the uris
    */
-  generateRawDataUriReport$(organizationId: string): Observable<CipherHealthReportUriDetail[]> {
+  generateRawDataUriReport$(
+    organizationId: OrganizationId,
+  ): Observable<CipherHealthReportUriDetail[]> {
     const cipherHealthDetails$ = this.generateRawDataReport$(organizationId);
     const results$ = cipherHealthDetails$.pipe(
       map((healthDetails) => this.getCipherUriDetails(healthDetails)),
@@ -113,7 +115,9 @@ export class RiskInsightsReportService {
    * @param organizationId Id of the organization
    * @returns The all applications health report data
    */
-  generateApplicationsReport$(organizationId: string): Observable<ApplicationHealthReportDetail[]> {
+  generateApplicationsReport$(
+    organizationId: OrganizationId,
+  ): Observable<ApplicationHealthReportDetail[]> {
     const cipherHealthUriReport$ = this.generateRawDataUriReport$(organizationId);
     const results$ = cipherHealthUriReport$.pipe(
       map((uriDetails) => this.getApplicationHealthReport(uriDetails)),
@@ -196,7 +200,7 @@ export class RiskInsightsReportService {
 
   async identifyCiphers(
     data: ApplicationHealthReportDetail[],
-    organizationId: string,
+    organizationId: OrganizationId,
   ): Promise<ApplicationHealthReportDetailWithCriticalFlagAndCipher[]> {
     const cipherViews = await this.cipherService.getAllFromApiForOrganization(organizationId);
 
