@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import {
   Component,
@@ -23,7 +21,7 @@ import { TypographyModule } from "@bitwarden/components";
   imports: [CommonModule, TypographyModule],
 })
 export class BitTotpCountdownComponent implements OnInit, OnChanges {
-  @Input() cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
   @Output() sendCopyCode = new EventEmitter();
 
   /**
