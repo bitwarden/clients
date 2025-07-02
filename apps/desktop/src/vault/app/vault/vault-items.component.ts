@@ -4,10 +4,11 @@ import { Component } from "@angular/core";
 import { distinctUntilChanged } from "rxjs";
 
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -22,8 +23,9 @@ export class VaultItemsComponent extends BaseVaultItemsComponent {
     searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(searchService, cipherService, accountService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService);
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     searchBarService.searchText$.pipe(distinctUntilChanged()).subscribe((searchText) => {

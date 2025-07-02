@@ -1,7 +1,3 @@
-// FIXME (PM-22628): angular imports are forbidden in background
-// eslint-disable-next-line no-restricted-imports
-import { Injectable } from "@angular/core";
-
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -20,7 +16,6 @@ import {
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-@Injectable()
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,

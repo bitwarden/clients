@@ -11,6 +11,7 @@ import {
   CollectionService,
 } from "@bitwarden/admin-console/common";
 import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/components/device-management/default-device-management-component.service";
+import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -119,6 +120,7 @@ import {
   WebLoginDecryptionOptionsService,
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
+  WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -283,6 +285,24 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: WebSetInitialPasswordService,
+    deps: [
+      ApiService,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      KeyServiceAbstraction,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      AcceptOrganizationInviteService,
+      RouterService,
     ],
   }),
   safeProvider({

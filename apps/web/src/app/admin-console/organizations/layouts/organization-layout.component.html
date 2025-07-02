@@ -4,7 +4,7 @@
     <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
     <bit-nav-group
       icon="bwi-filter"
-      *ngIf="organization.useRiskInsights"
+      *ngIf="organization.useRiskInsights && organization.canAccessReports"
       [text]="'accessIntelligence' | i18n"
       route="access-intelligence"
     >

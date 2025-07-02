@@ -72,7 +72,7 @@ import {
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -240,7 +240,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.form.patchValue(initialValues, { emitEvent: false });
 
     this.extensionLoginApprovalFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM14939_ExtensionApproval,
+      FeatureFlag.PM14938_BrowserExtensionLoginApproval,
     );
 
     timer(0, 1000)
@@ -541,7 +541,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         await this.biometricStateService.setBiometricUnlockEnabled(successful);
         if (!successful) {
           await this.biometricStateService.setFingerprintValidated(false);
+          return;
         }
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("unlockWithBiometricSet"),
+        });
       } catch (error) {
         this.form.controls.biometric.setValue(false);
         this.validationService.showError(error);
@@ -600,6 +606,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.i18nService.t("errorEnableBiometricTitle"),
             this.i18nService.t("errorEnableBiometricDesc"),
           );
+          setupResult = false;
+          return;
         }
         setupResult = true;
       } catch (e) {

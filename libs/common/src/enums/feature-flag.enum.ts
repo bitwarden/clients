@@ -12,12 +12,13 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
-  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
+  CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
+  PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
-  PM14939_ExtensionApproval = "pm-14939-extension-approval",
+  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -44,7 +45,6 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
 
   /* Tools */
-  ItemShare = "item-share",
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
 
   /* Vault */
@@ -76,7 +76,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
-  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
+  [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
   [FeatureFlag.BlockBrowserInjectionsByDomain]: FALSE,
@@ -89,7 +89,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
-  [FeatureFlag.ItemShare]: FALSE,
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
 
   /* Vault */
@@ -102,9 +101,10 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
-  [FeatureFlag.PM14939_ExtensionApproval]: FALSE,
+  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

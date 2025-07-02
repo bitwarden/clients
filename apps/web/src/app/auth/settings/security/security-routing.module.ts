@@ -60,7 +60,7 @@ export const routes: Routes = [
       ...featureFlaggedRoute({
         defaultComponent: DeviceManagementOldComponent,
         flaggedComponent: DeviceManagementComponent,
-        featureFlag: FeatureFlag.PM14939_ExtensionApproval,
+        featureFlag: FeatureFlag.PM14938_BrowserExtensionLoginApproval,
         routeOptions: {
           path: "device-management",
           data: { titleId: "devices" },
