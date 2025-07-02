@@ -28,10 +28,10 @@ export class DesktopSetInitialPasswordService
     protected keyService: KeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected messagingService: MessagingService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    private messagingService: MessagingService,
   ) {
     super(
       apiService,
@@ -41,7 +41,6 @@ export class DesktopSetInitialPasswordService
       keyService,
       masterPasswordApiService,
       masterPasswordService,
-      messagingService,
       organizationApiService,
       organizationUserApiService,
       userDecryptionOptionsService,
