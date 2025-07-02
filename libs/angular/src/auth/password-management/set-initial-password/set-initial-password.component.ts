@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+// import { NoAccess } from "libs/components/src/icon/icons";
 import { firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -34,10 +35,9 @@ import {
   CalloutComponent,
   DialogService,
   ToastService,
+  Icons,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { NoAccessIcon } from "../../icons/no-access.icon";
 
 import {
   SetInitialPasswordCredentials,
@@ -113,7 +113,7 @@ export class SetInitialPasswordComponent implements OnInit {
       this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: { key: "unableToCompleteLogin" },
-        pageIcon: NoAccessIcon,
+        pageIcon: Icons.NoAccess,
       });
     }
 
