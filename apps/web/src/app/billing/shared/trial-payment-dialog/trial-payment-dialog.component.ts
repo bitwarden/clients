@@ -200,11 +200,12 @@ export class TrialPaymentDialogComponent implements OnInit {
     try {
       await this.refreshSalesTax();
     } catch (error) {
-      const translatedMessage = this.i18nService.t(error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const translatedMessage = this.i18nService.t(errorMessage);
       this.toastService.showToast({
         title: "",
         variant: "error",
-        message: !translatedMessage || translatedMessage === "" ? error.message : translatedMessage,
+        message: !translatedMessage || translatedMessage === "" ? errorMessage : translatedMessage,
       });
     }
   }
