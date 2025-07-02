@@ -18,7 +18,7 @@ import {
   CollectionService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
-import { VaultFilterService as SharedVaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
+import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -132,7 +132,6 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
-    protected vaultFilterService: SharedVaultFilterService,
     protected configService?: ConfigService,
   ) {}
 
@@ -250,7 +249,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     const nodes: TreeNode<CollectionFilter>[] = [];
 
     if (defaultCollectionsFlagEnabled) {
-      collections = this.vaultFilterService.sortDefaultCollections(collections, orgs);
+      collections = sortDefaultCollections(collections, orgs);
     }
 
     collections.forEach((c) => {

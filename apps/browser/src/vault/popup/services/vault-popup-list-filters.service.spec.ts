@@ -5,7 +5,7 @@ import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
-import { VaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
+import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -37,9 +37,9 @@ const configService = {
   getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
 } as unknown as ConfigService;
 
-const vaultFilterService = {
-  sortDefaultCollections: jest.fn((collections: CollectionView[]) => collections),
-} as unknown as VaultFilterService;
+jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
+  sortDefaultCollections: jest.fn(),
+}));
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -151,10 +151,6 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: ConfigService,
           useValue: configService,
-        },
-        {
-          provide: VaultFilterService,
-          useValue: vaultFilterService,
         },
       ],
     });
@@ -432,7 +428,7 @@ describe("VaultPopupListFiltersService", () => {
       createSeededVaultPopupListFiltersService(orgs, collections, [], {});
 
       service.collections$.subscribe(() => {
-        expect(vaultFilterService.sortDefaultCollections).toHaveBeenCalledWith(collections, orgs);
+        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(collections, orgs);
         done();
       });
     });
@@ -796,7 +792,6 @@ function createSeededVaultPopupListFiltersService(
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
       configService,
-      vaultFilterService,
     );
   });
 

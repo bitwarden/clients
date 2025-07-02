@@ -2,7 +2,6 @@ import { Injectable, OnDestroy } from "@angular/core";
 import { map, Observable, ReplaySubject, Subject } from "rxjs";
 
 import { CollectionAdminView, CollectionService } from "@bitwarden/admin-console/common";
-import { VaultFilterService as SharedVaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -35,7 +34,6 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
     stateProvider: StateProvider,
     collectionService: CollectionService,
     accountService: AccountService,
-    vaultFilterService: SharedVaultFilterService,
   ) {
     super(
       organizationService,
@@ -46,7 +44,6 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
       stateProvider,
       collectionService,
       accountService,
-      vaultFilterService,
     );
   }
 
