@@ -61,6 +61,7 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/set-initial-password"]);
   }
 
+  // TODO: add unit tests for this scenario
   // TDE Offboarding on untrusted device
   if (
     authStatus === AuthenticationStatus.Locked &&
@@ -71,6 +72,8 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/set-initial-password"]);
   }
 
+  // We must add exemptions for the SsoNewJitProvisionedUser and TdeOffboardingUntrustedDevice scenarios as
+  // the "set-initial-password" route is guarded by the authGuard.
   if (
     authStatus === AuthenticationStatus.Locked &&
     forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser &&

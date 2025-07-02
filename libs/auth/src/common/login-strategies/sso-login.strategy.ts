@@ -421,6 +421,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       return true;
     }
 
+    // TODO: add tests for this
+
     // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing user private from the server, but
     // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
     // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
