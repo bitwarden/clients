@@ -5,6 +5,7 @@ import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import { VaultFilterService } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -33,8 +34,12 @@ import {
 } from "./vault-popup-list-filters.service";
 
 const configService = {
-  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
 } as unknown as ConfigService;
+
+const vaultFilterService = {
+  sortDefaultCollections: jest.fn((collections: CollectionView[]) => collections),
+} as unknown as VaultFilterService;
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -146,6 +151,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: ConfigService,
           useValue: configService,
+        },
+        {
+          provide: VaultFilterService,
+          useValue: vaultFilterService,
         },
       ],
     });
@@ -409,47 +418,21 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    it("sorts collections first by DefaultUserCollection and by organization name", (done) => {
-      const defaultCollections = [
-        {
-          id: "default-collection",
-          name: "Default User Collection Org 1",
-          organizationId: "org1",
-          type: "DefaultUserCollection",
-        },
-        {
-          id: "default-collection",
-          name: "Default User Collection Org 2",
-          organizationId: "org2",
-          type: "DefaultUserCollection",
-        },
-      ] as unknown as CollectionView[];
+    it("calls vaultFilterService.sortDefaultCollections", (done) => {
+      const collections = [
+        { id: "1234", name: "Default Collection", organizationId: "org1" },
+        { id: "5678", name: "Shared Collection", organizationId: "org2" },
+      ] as CollectionView[];
 
-      const allCollections = [...defaultCollections, ...testCollections];
-
-      decryptedCollections$.next(allCollections);
-
-      _memberOrganizations$.next([
+      const orgs = [
         { id: "org1", name: "Organization 1" },
         { id: "org2", name: "Organization 2" },
-      ] as Organization[]);
+      ] as Organization[];
 
-      collectionService.getAllNested = () =>
-        Promise.resolve(
-          allCollections.map((c) => ({
-            children: [],
-            node: c,
-            parent: null,
-          })),
-        );
+      createSeededVaultPopupListFiltersService(orgs, collections, [], {});
 
-      service.collections$.subscribe((collections) => {
-        expect(collections.map((c) => c.label)).toEqual([
-          "Default User Collection Org 1",
-          "Default User Collection Org 2",
-          "Test collection",
-          "Test collection 2",
-        ]);
+      service.collections$.subscribe(() => {
+        expect(vaultFilterService.sortDefaultCollections).toHaveBeenCalledWith(collections, orgs);
         done();
       });
     });
@@ -813,6 +796,7 @@ function createSeededVaultPopupListFiltersService(
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
       configService,
+      vaultFilterService,
     );
   });
 
