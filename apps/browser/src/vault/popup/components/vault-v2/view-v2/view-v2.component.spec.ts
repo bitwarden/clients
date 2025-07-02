@@ -10,6 +10,7 @@ import {
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
+  SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -20,7 +21,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -239,6 +240,34 @@ describe("ViewV2Component", () => {
       flush(); // Resolve all promises
 
       expect(copy).toHaveBeenCalledTimes(1);
+    }));
+
+    it("does not set the cipher until reprompt is complete", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      showPasswordPrompt.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: SHOW_AUTOFILL_BUTTON });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(showPasswordPrompt).toHaveBeenCalled();
+
+      promptPromise!(true); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toEqual({ ...mockCipher, reprompt: CipherRepromptType.Password });
     }));
 
     it("closes the popout after a load action", fakeAsync(() => {

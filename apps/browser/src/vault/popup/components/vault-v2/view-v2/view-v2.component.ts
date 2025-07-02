@@ -139,20 +139,24 @@ export class ViewV2Component {
           this.loadAction = params.action;
           this.senderTabId = params.senderTabId ? parseInt(params.senderTabId, 10) : undefined;
 
-          const activeUserId = await firstValueFrom(
+          this.activeUserId = await firstValueFrom(
             this.accountService.activeAccount$.pipe(getUserId),
           );
-          const cipher = await this.getCipherData(params.cipherId, activeUserId);
-          return { activeUserId, cipher };
-        }),
-        switchMap(async ({ activeUserId, cipher }) => {
-          this.cipher = cipher;
-          this.headerText = this.setHeader(cipher.type);
-          this.activeUserId = activeUserId;
 
+          const cipher = await this.getCipherData(params.cipherId, this.activeUserId);
+          this.headerText = this.setHeader(cipher.type);
+
+          // Handling the load action needs to take place before setting `this.cipher`,
+          // This is important for scenarios where the action requires a password re-prompt.
+          // For those instances, no cipher details should be shown behind the re-prompt dialog until the password has been verified.
           if (this.loadAction) {
-            await this._handleLoadAction(this.loadAction, this.senderTabId);
+            await this._handleLoadAction(this.loadAction, cipher, this.senderTabId);
           }
+
+          return { cipher };
+        }),
+        switchMap(async ({ cipher }) => {
+          this.cipher = cipher;
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
 
@@ -262,11 +266,13 @@ export class ViewV2Component {
    * via the extension context menu. It is necessary to render the view for items that have password
    * reprompt enabled.
    * @param loadAction
+   * @param cipher - The cipher being viewed, passed as a param because `this.cipher` may not be set yet.
    * @param senderTabId
    * @private
    */
   private async _handleLoadAction(
     loadAction: LoadAction,
+    cipher: CipherView,
     senderTabId?: number,
   ): Promise<void | boolean> {
     let actionSuccess = false;
@@ -277,35 +283,31 @@ export class ViewV2Component {
       case SHOW_AUTOFILL_BUTTON:
         // This action simply shows the cipher view, no need to do anything.
         if (
-          this.cipher.reprompt !== CipherRepromptType.None &&
+          cipher.reprompt !== CipherRepromptType.None &&
           !(await this.passwordRepromptService.showPasswordPrompt())
         ) {
-          await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+          await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${cipher.id}`);
         }
         return;
       case AUTOFILL_ID:
-        actionSuccess = await this.vaultPopupAutofillService.doAutofill(this.cipher, false);
+        actionSuccess = await this.vaultPopupAutofillService.doAutofill(cipher, false);
         break;
       case COPY_USERNAME_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
-          this.cipher.login.username,
+          cipher.login.username,
           "username",
-          this.cipher,
+          cipher,
         );
         break;
       case COPY_PASSWORD_ID:
         actionSuccess = await this.copyCipherFieldService.copy(
-          this.cipher.login.password,
+          cipher.login.password,
           "password",
-          this.cipher,
+          cipher,
         );
         break;
       case COPY_VERIFICATION_CODE_ID:
-        actionSuccess = await this.copyCipherFieldService.copy(
-          this.cipher.login.totp,
-          "totp",
-          this.cipher,
-        );
+        actionSuccess = await this.copyCipherFieldService.copy(cipher.login.totp, "totp", cipher);
         break;
       case UPDATE_PASSWORD: {
         const repromptSuccess = await this.passwordRepromptService.showPasswordPrompt();
@@ -315,7 +317,7 @@ export class ViewV2Component {
           success: repromptSuccess,
         });
 
-        await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+        await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${cipher.id}`);
 
         break;
       }
@@ -329,7 +331,7 @@ export class ViewV2Component {
             senderTabId
           ) {
             await BrowserApi.focusTab(senderTabId);
-            await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
+            await closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${cipher.id}`);
           } else {
             await this.popupRouterCacheService.back();
           }
