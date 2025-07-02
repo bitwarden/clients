@@ -389,10 +389,42 @@ export class SsoLoginStrategy extends LoginStrategy {
       return false;
     }
 
-    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password
+    // Check for TDE offboarding - user is being offboarded from TDE and needs to set a password on a trusted device
     if (userDecryptionOptions.trustedDeviceOption?.isTdeOffboarding) {
       await this.masterPasswordService.setForceSetPasswordReason(
         ForceSetPasswordReason.TdeOffboarding,
+        userId,
+      );
+      return true;
+    }
+
+    // TODO: add feature flagging
+    // JIT provisioned users into a MP encryption org do not have a user asymmetric key pair yet when they land here.
+    // TDE org users always will have a user asymmetric key pair by this point b/c they have already had their account created.
+
+    // If a TDE org user in an offboarding state (server flag) logs in on a trusted device, then they will receive their existing user private key from the server and then
+    // TDE will decrypt their user key.  Both should be available here for TDE org users on trusted devices.
+
+    // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing user private from the server, but
+    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
+    // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
+    // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
+    // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
+    // - UserKey is not set after successful login
+    // - UserPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
+
+    const hasUserPrivateKey = await firstValueFrom(this.keyService.userPrivateKey$(userId));
+    const hasUserKey = await this.keyService.hasUserKey(userId);
+
+    if (
+      !userDecryptionOptions.trustedDeviceOption &&
+      !userDecryptionOptions.hasMasterPassword &&
+      !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+      hasUserPrivateKey &&
+      !hasUserKey
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
         userId,
       );
       return true;

@@ -91,13 +91,23 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree([route]);
   }
 
-  // TDE Offboarding
+  // TDE Offboarding on trusted device
   if (
     forceSetPasswordReason === ForceSetPasswordReason.TdeOffboarding &&
     !routerState.url.includes("update-temp-password") &&
     !routerState.url.includes("set-initial-password")
   ) {
     const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/update-temp-password";
+    return router.createUrlTree([route]);
+  }
+
+  // TDE Offboarding on untrusted device
+  if (
+    isSetInitialPasswordFlagOn &&
+    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
+    !routerState.url.includes("set-initial-password")
+  ) {
+    const route = "/set-initial-password";
     return router.createUrlTree([route]);
   }
 
