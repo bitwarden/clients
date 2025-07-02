@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Ограничено аккаунтом"
   },
+  "restrictCardTypeImport": {
+    "message": "Невозможно импортировать элементы карт"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, установленная 1 или более организациями, не позволяет импортировать карты в ваши хранилища."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Пароль к файлу\" и \"Подтверждение пароля к файлу\" не совпадают."
   },
