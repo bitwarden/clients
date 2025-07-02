@@ -10,7 +10,6 @@ import {
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
   COPY_VERIFICATION_CODE_ID,
-  SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { EventType } from "@bitwarden/common/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -250,24 +249,52 @@ describe("ViewV2Component", () => {
           reprompt: CipherRepromptType.Password,
         }),
       );
-      showPasswordPrompt.mockImplementationOnce(() => {
+      doAutofill.mockImplementationOnce(() => {
         return new Promise((resolve) => {
           // store the promise resolver to manually trigger the promise resolve
           promptPromise = resolve;
         });
       });
 
-      params$.next({ action: SHOW_AUTOFILL_BUTTON });
+      params$.next({ action: AUTOFILL_ID });
 
       flush(); // Flush all pending actions
 
       expect(component.cipher).toBeUndefined();
-      expect(showPasswordPrompt).toHaveBeenCalled();
+      expect(doAutofill).toHaveBeenCalled();
 
       promptPromise!(true); // resolve the password prompt
 
       flush();
       expect(component.cipher).toEqual({ ...mockCipher, reprompt: CipherRepromptType.Password });
+    }));
+
+    it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(false); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toBeUndefined();
     }));
 
     it("closes the popout after a load action", fakeAsync(() => {

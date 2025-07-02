@@ -31,6 +31,7 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -150,12 +151,24 @@ export class ViewV2Component {
           // This is important for scenarios where the action requires a password re-prompt.
           // For those instances, no cipher details should be shown behind the re-prompt dialog until the password has been verified.
           if (this.loadAction) {
-            await this._handleLoadAction(this.loadAction, cipher, this.senderTabId);
+            const success = await this._handleLoadAction(this.loadAction, cipher, this.senderTabId);
+
+            // When the autofill action is not successful and the cipher has a reprompt enabled,
+            // The cipher details can flash on the screen before the popout closes,
+            // pass `null` to prevent this.
+            if (
+              this.loadAction === AUTOFILL_ID &&
+              success === false &&
+              cipher.reprompt !== CipherRepromptType.None
+            ) {
+              return null;
+            }
           }
 
-          return { cipher };
+          return cipher;
         }),
-        switchMap(async ({ cipher }) => {
+        filterOutNullish(),
+        switchMap(async (cipher) => {
           this.cipher = cipher;
 
           this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(cipher);
@@ -277,8 +290,6 @@ export class ViewV2Component {
   ): Promise<void | boolean> {
     let actionSuccess = false;
 
-    // Both vaultPopupAutofillService and copyCipherFieldService will perform password re-prompting internally.
-
     switch (loadAction) {
       case SHOW_AUTOFILL_BUTTON:
         // This action simply shows the cipher view, no need to do anything.
@@ -339,5 +350,7 @@ export class ViewV2Component {
         actionSuccess ? 1000 : 0,
       );
     }
+
+    return actionSuccess;
   }
 }
