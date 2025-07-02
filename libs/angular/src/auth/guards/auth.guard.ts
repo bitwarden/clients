@@ -61,6 +61,16 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/set-initial-password"]);
   }
 
+  // TDE Offboarding on untrusted device
+  if (
+    authStatus === AuthenticationStatus.Locked &&
+    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
+    !routerState.url.includes("set-initial-password") &&
+    isSetInitialPasswordFlagOn
+  ) {
+    return router.createUrlTree(["/set-initial-password"]);
+  }
+
   if (
     authStatus === AuthenticationStatus.Locked &&
     forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser &&
@@ -100,15 +110,6 @@ export const authGuard: CanActivateFn = async (
   ) {
     const route = isSetInitialPasswordFlagOn ? "/set-initial-password" : "/update-temp-password";
     return router.createUrlTree([route]);
-  }
-
-  // TDE Offboarding on untrusted device
-  if (
-    forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
-    !routerState.url.includes("set-initial-password") &&
-    isSetInitialPasswordFlagOn
-  ) {
-    return router.createUrlTree(["/set-initial-password"]);
   }
 
   // Post- Account Recovery or Weak Password on login
