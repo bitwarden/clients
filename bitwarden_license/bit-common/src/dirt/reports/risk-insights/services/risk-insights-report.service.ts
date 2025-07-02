@@ -212,7 +212,7 @@ export class RiskInsightsReportService {
 
   getRiskInsightsReport(organizationId: OrganizationId, userId: UserId): void {
     this.riskInsightsApiService
-      .getRiskInsightsReport(organizationId as OrganizationId)
+      .getRiskInsightsReport(organizationId)
       .pipe(
         switchMap((response) => {
           if (!response) {
@@ -265,7 +265,7 @@ export class RiskInsightsReportService {
 
     const saveRequest = {
       data: {
-        organizationId: organizationId as OrganizationId,
+        organizationId: organizationId,
         date: new Date().toISOString(),
         reportData: encryptedReport.encryptedData,
         reportKey: encryptedReport.encryptionKey,
