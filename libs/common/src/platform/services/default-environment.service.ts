@@ -133,6 +133,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   );
 
   environment$: Observable<Environment>;
+  globalEnvironment$: Observable<Environment>;
   cloudWebVaultUrl$: Observable<string>;
 
   constructor(
@@ -147,6 +148,10 @@ export class DefaultEnvironmentService implements EnvironmentService {
       // Use == here to not trigger on undefined -> null transition
       distinctUntilChanged((oldUserId: UserId, newUserId: UserId) => oldUserId == newUserId),
     );
+
+    this.globalEnvironment$ = this.stateProvider
+      .getGlobal(GLOBAL_ENVIRONMENT_KEY)
+      .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
     this.environment$ = account$.pipe(
       switchMap((userId) => {
