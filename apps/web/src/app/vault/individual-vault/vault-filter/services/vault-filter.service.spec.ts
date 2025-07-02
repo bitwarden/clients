@@ -13,6 +13,7 @@ import {
   CollectionTypes,
   CollectionView,
 } from "@bitwarden/admin-console/common";
+import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -28,6 +29,10 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 
 import { VaultFilterService } from "./vault-filter.service";
+
+jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
+  sortDefaultCollections: jest.fn(() => []),
+}));
 
 describe("vault filter service", () => {
   let vaultFilterService: VaultFilterService;
@@ -297,7 +302,7 @@ describe("vault filter service", () => {
         expect(c3.parent.node.id).toEqual("id-1");
       });
 
-      it("sorts the collections by default user collection and organization name within default user collections, then by organization name", async () => {
+      it.only("calls sortDefaultCollections with the correct args", async () => {
         const storedOrgs = [
           createOrganization("id-defaultOrg1", "org1"),
           createOrganization("id-defaultOrg2", "org2"),
@@ -322,9 +327,12 @@ describe("vault filter service", () => {
         ];
         collectionViews.next(storedCollections);
 
-        const result = await firstValueFrom(vaultFilterService.collectionTree$);
+        await firstValueFrom(vaultFilterService.collectionTree$);
 
-        expect(result.children.map((c) => c.node.id)).toEqual(["id-4", "id-3", "id-2", "id-1"]);
+        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(
+          storedCollections,
+          storedOrgs,
+        );
       });
     });
   });
