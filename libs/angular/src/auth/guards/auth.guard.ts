@@ -63,7 +63,8 @@ export const authGuard: CanActivateFn = async (
 
   if (
     authStatus === AuthenticationStatus.Locked &&
-    forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser
+    forceSetPasswordReason !== ForceSetPasswordReason.SsoNewJitProvisionedUser &&
+    forceSetPasswordReason !== ForceSetPasswordReason.TdeOffboardingUntrustedDevice
   ) {
     if (routerState != null) {
       messagingService.send("lockedUrl", { url: routerState.url });
@@ -103,12 +104,11 @@ export const authGuard: CanActivateFn = async (
 
   // TDE Offboarding on untrusted device
   if (
-    isSetInitialPasswordFlagOn &&
     forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice &&
-    !routerState.url.includes("set-initial-password")
+    !routerState.url.includes("set-initial-password") &&
+    isSetInitialPasswordFlagOn
   ) {
-    const route = "/set-initial-password";
-    return router.createUrlTree([route]);
+    return router.createUrlTree(["/set-initial-password"]);
   }
 
   // Post- Account Recovery or Weak Password on login

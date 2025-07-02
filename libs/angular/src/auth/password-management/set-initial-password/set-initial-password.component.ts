@@ -9,6 +9,7 @@ import {
   InputPasswordComponent,
   InputPasswordFlow,
   PasswordInputResult,
+  RegistrationLockAltIcon,
 } from "@bitwarden/auth/angular";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -105,6 +106,14 @@ export class SetInitialPasswordComponent implements OnInit {
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
     );
+
+    if (this.forceSetPasswordReason === ForceSetPasswordReason.TdeOffboardingUntrustedDevice) {
+      this.userType = SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE;
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "unableToCompleteLogin" },
+        pageIcon: RegistrationLockAltIcon,
+      });
+    }
 
     if (this.forceSetPasswordReason === ForceSetPasswordReason.SsoNewJitProvisionedUser) {
       this.userType = SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER;

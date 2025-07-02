@@ -9,9 +9,11 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -72,6 +74,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
+    private configService: ConfigService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -343,13 +346,30 @@ export class SsoLoginStrategy extends LoginStrategy {
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const newSsoUser = tokenResponse.key == null;
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
 
-    if (!newSsoUser) {
-      await this.keyService.setPrivateKey(
-        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
-        userId,
-      );
+    if (isSetInitialPasswordFlagOn) {
+      const newSsoUser = tokenResponse.key == null;
+
+      if (!newSsoUser) {
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      } else if (tokenResponse.privateKey) {
+        await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
+      }
+    } else {
+      const newSsoUser = tokenResponse.key == null;
+
+      if (!newSsoUser) {
+        await this.keyService.setPrivateKey(
+          tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+          userId,
+        );
+      }
     }
   }
 
@@ -413,21 +433,29 @@ export class SsoLoginStrategy extends LoginStrategy {
     // - UserKey is not set after successful login
     // - UserPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
 
-    const hasUserPrivateKey = await firstValueFrom(this.keyService.userPrivateKey$(userId));
-    const hasUserKey = await this.keyService.hasUserKey(userId);
+    const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_SetInitialPasswordRefactor,
+    );
 
-    if (
-      !userDecryptionOptions.trustedDeviceOption &&
-      !userDecryptionOptions.hasMasterPassword &&
-      !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
-      hasUserPrivateKey &&
-      !hasUserKey
-    ) {
-      await this.masterPasswordService.setForceSetPasswordReason(
-        ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
-        userId,
+    if (isSetInitialPasswordFlagOn) {
+      const hasUserKeyEncryptedPrivateKey = await firstValueFrom(
+        this.keyService.userEncryptedPrivateKey$(userId),
       );
-      return true;
+      const hasUserKey = await this.keyService.hasUserKey(userId);
+
+      if (
+        !userDecryptionOptions.trustedDeviceOption &&
+        !userDecryptionOptions.hasMasterPassword &&
+        !userDecryptionOptions.keyConnectorOption?.keyConnectorUrl &&
+        hasUserKeyEncryptedPrivateKey &&
+        !hasUserKey
+      ) {
+        await this.masterPasswordService.setForceSetPasswordReason(
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          userId,
+        );
+        return true;
+      }
     }
 
     // Check if user has permission to set password but hasn't yet
