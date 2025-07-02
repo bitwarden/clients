@@ -36,7 +36,7 @@
     class="tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
     [ngClass]="maxWidthClass"
   >
-    @if (hideCardWrapper) {
+    @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
