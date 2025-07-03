@@ -295,6 +295,15 @@ export class WindowMain {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
 
+    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // We can't depend on higher level web events (like close) to do this
+    // because locking the vault resets window state.
+    this.win.webContents.on("zoom-changed", async () => {
+      const newZoom = this.win.webContents.zoomFactor;
+      this.windowStates[mainWindowSizeKey].zoomFactor = newZoom;
+      await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
+    });
+
     if (this.windowStates[mainWindowSizeKey].isMaximized) {
       this.win.maximize();
     }

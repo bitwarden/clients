@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import {
-  AfterContentInit,
   booleanAttribute,
   Component,
   ContentChildren,
@@ -30,7 +29,7 @@ import { SideNavService } from "./side-nav.service";
   ],
   imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
 })
-export class NavGroupComponent extends NavBaseComponent implements AfterContentInit {
+export class NavGroupComponent extends NavBaseComponent {
   @ContentChildren(NavBaseComponent, {
     descendants: true,
   })
@@ -79,18 +78,6 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
     this.setOpen(!this.open());
   }
 
-  /**
-   * - For any nested NavGroupComponents or NavItemComponents, increment the `treeDepth` by 1.
-   */
-  private initNestedStyles() {
-    if (this.variant() !== "tree") {
-      return;
-    }
-    [...this.nestedNavComponents].forEach((navGroupOrItem) => {
-      navGroupOrItem.treeDepth.update((depth) => depth + 1);
-    });
-  }
-
   protected handleMainContentClicked() {
     if (!this.sideNavService.open) {
       if (!this.route()) {
@@ -101,9 +88,5 @@ export class NavGroupComponent extends NavBaseComponent implements AfterContentI
       this.toggle();
     }
     this.mainContentClicked.emit();
-  }
-
-  ngAfterContentInit(): void {
-    this.initNestedStyles();
   }
 }

@@ -1,6 +1,21 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { concatWith, filter, fromEvent, map, Observable, race, take, tap, timer } from "rxjs";
+import {
+  concat,
+  filter,
+  fromEvent,
+  interval,
+  map,
+  Observable,
+  of,
+  race,
+  shareReplay,
+  switchMap,
+  take,
+  takeWhile,
+  tap,
+  timer,
+} from "rxjs";
 
 import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -22,13 +37,22 @@ export class WebBrowserInteractionService {
   );
 
   /** Emits the installation status of the extension. */
-  extensionInstalled$ = this.checkForExtension().pipe(
-    concatWith(
-      this.messages$.pipe(
-        filter((event) => event.data.command === VaultMessages.HasBwInstalled),
-        map(() => true),
-      ),
-    ),
+  extensionInstalled$: Observable<boolean> = this.checkForExtension().pipe(
+    switchMap((installed) => {
+      if (installed) {
+        return of(true);
+      }
+
+      return concat(
+        of(false),
+        interval(2500).pipe(
+          switchMap(() => this.checkForExtension()),
+          takeWhile((installed) => !installed, true),
+          filter((installed) => installed),
+        ),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /** Attempts to open the extension, rejects if the extension is not installed or it fails to open.  */

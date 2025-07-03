@@ -72,6 +72,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        A11yTitleDirective,
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,

@@ -388,6 +388,13 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async viewCipher(cipher: CipherView) {
+    if (cipher.decryptionFailure) {
+      DecryptionFailureDialogComponent.open(this.dialogService, {
+        cipherIds: [cipher.id as CipherId],
+      });
+      return;
+    }
+
     if (await this.shouldReprompt(cipher, "view")) {
       return;
     }

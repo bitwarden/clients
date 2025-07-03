@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, EventEmitter, Output, input, model } from "@angular/core";
+import { Directive, EventEmitter, Output, input } from "@angular/core";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
@@ -54,16 +54,6 @@ export abstract class NavBaseComponent {
     fragment: "ignored",
     matrixParams: "ignored",
   });
-
-  /**
-   * If this item is used within a tree, set `variant` to `"tree"`
-   */
-  readonly variant = input<"default" | "tree">("default");
-
-  /**
-   * Depth level when nested inside of a `'tree'` variant
-   */
-  treeDepth = model(0);
 
   /**
    * If `true`, do not change styles when nav item is active.
