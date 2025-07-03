@@ -6,7 +6,7 @@
   cdkTrapFocus
   cdkTrapFocusAutoCapture
 >
-  @let showHeaderBorder = !isDrawer || background === "alt" || bodyHasScrolledFrom().top;
+  @let showHeaderBorder = !isDrawer || background() === "alt" || bodyHasScrolledFrom().top;
   <header
     class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid"
     [ngClass]="{
@@ -22,10 +22,10 @@
       noMargin
       class="tw-text-main tw-mb-0 tw-truncate"
     >
-      {{ title }}
-      @if (subtitle) {
+      {{ title() }}
+      @if (subtitle(); as subtitleText) {
         <span class="tw-text-muted tw-font-normal tw-text-sm">
-          {{ subtitle }}
+          {{ subtitleText }}
         </span>
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
@@ -46,12 +46,12 @@
   <div
     class="tw-relative tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden"
     [ngClass]="{
-      'tw-min-h-60': loading,
-      'tw-bg-background': background === 'default',
-      'tw-bg-background-alt': background === 'alt',
+      'tw-min-h-60': loading(),
+      'tw-bg-background': background() === 'default',
+      'tw-bg-background-alt': background() === 'alt',
     }"
   >
-    @if (loading) {
+    @if (loading()) {
       <div class="tw-absolute tw-flex tw-size-full tw-items-center tw-justify-center">
         <i class="bwi bwi-spinner bwi-spin bwi-lg" [attr.aria-label]="'loading' | i18n"></i>
       </div>
@@ -59,17 +59,17 @@
     <div
       cdkScrollable
       [ngClass]="{
-        'tw-p-4': !disablePadding && !isDrawer,
-        'tw-px-6 tw-py-4': !disablePadding && isDrawer,
-        'tw-overflow-y-auto': !loading,
-        'tw-invisible tw-overflow-y-hidden': loading,
+        'tw-p-4': !disablePadding() && !isDrawer,
+        'tw-px-6 tw-py-4': !disablePadding() && isDrawer,
+        'tw-overflow-y-auto': !loading(),
+        'tw-invisible tw-overflow-y-hidden': loading(),
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
     </div>
   </div>
 
-  @let showFooterBorder = !isDrawer || background === "alt" || bodyHasScrolledFrom().bottom;
+  @let showFooterBorder = !isDrawer || background() === "alt" || bodyHasScrolledFrom().bottom;
   <footer
     class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-bg-background"
     [ngClass]="[isDrawer ? 'tw-px-6 tw-py-4' : 'tw-p-4']"

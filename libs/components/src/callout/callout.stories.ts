@@ -68,3 +68,18 @@ export const Danger: Story = {
     type: "danger",
   },
 };
+
+export const CustomIcon: Story = {
+  ...Info,
+  args: {
+    ...Info.args,
+    icon: "bwi-star",
+  },
+};
+
+export const NoTitle: Story = {
+  ...Info,
+  args: {
+    icon: "bwi-star",
+  },
+};
