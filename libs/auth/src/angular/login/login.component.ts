@@ -18,9 +18,12 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -122,6 +125,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private validationService: ValidationService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private configService: ConfigService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -225,7 +230,29 @@ export class LoginComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const credentials = new PasswordLoginCredentials(email, masterPassword);
+    let credentials: PasswordLoginCredentials;
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+    ) {
+      // Try to retrieve any org policies from an org invite now so we can send it to the
+      // login strategies. Since it is optional and we only want to be doing this on the
+      // web we will only send in content in the right context.
+      const orgPoliciesFromInvite = this.loginComponentService.getOrgPoliciesFromOrgInvite
+        ? await this.loginComponentService.getOrgPoliciesFromOrgInvite()
+        : null;
+
+      const orgMasterPasswordPolicyOptions = orgPoliciesFromInvite?.enforcedPasswordPolicyOptions;
+
+      credentials = new PasswordLoginCredentials(
+        email,
+        masterPassword,
+        undefined,
+        orgMasterPasswordPolicyOptions,
+      );
+    } else {
+      credentials = new PasswordLoginCredentials(email, masterPassword);
+    }
 
     try {
       const authResult = await this.loginStrategyService.logIn(credentials);
@@ -284,7 +311,7 @@ export class LoginComponent implements OnInit, OnDestroy {
          This is now unsupported and requires a downgraded client */
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccured"),
+        title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("legacyEncryptionUnsupported"),
       });
       return;
@@ -325,7 +352,13 @@ export class LoginComponent implements OnInit, OnDestroy {
           orgPolicies.enforcedPasswordPolicyOptions,
         );
         if (isPasswordChangeRequired) {
-          await this.router.navigate(["update-password"]);
+          const changePasswordFeatureFlagOn = await this.configService.getFeatureFlag(
+            FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+          );
+
+          await this.router.navigate(
+            changePasswordFeatureFlagOn ? ["change-password"] : ["update-password"],
+          );
           return;
         }
       }
@@ -337,9 +370,15 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.router.navigate(["vault"]);
     }
   }
+
   /**
    * Checks if the master password meets the enforced policy requirements
    * and if the user is required to change their password.
+   *
+   * TODO: This is duplicate checking that we want to only do in the password login strategy.
+   *       Once we no longer need the policies state being set to reference later in change password
+   *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
+   *       PM-23001 for details.
    */
   private async isPasswordChangeRequiredByOrgPolicy(
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,

@@ -17,36 +17,17 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import {
-  GlobalState,
-  GlobalStateProvider,
-  KeyDefinition,
-  ORGANIZATION_INVITE_DISK,
-} from "@bitwarden/common/platform/state";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-
-import { OrganizationInvite } from "./organization-invite";
-
-// We're storing the organization invite for 2 reasons:
-// 1. If the org requires a MP policy check, we need to keep track that the user has already been redirected when they return.
-// 2. The MP policy check happens on login/register flows, we need to store the token to retrieve the policies then.
-export const ORGANIZATION_INVITE = new KeyDefinition<OrganizationInvite | null>(
-  ORGANIZATION_INVITE_DISK,
-  "organizationInvite",
-  {
-    deserializer: (invite) => (invite ? OrganizationInvite.fromJSON(invite) : null),
-  },
-);
 
 @Injectable()
 export class AcceptOrganizationInviteService {
-  private organizationInvitationState: GlobalState<OrganizationInvite | null>;
   private orgNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   private policyCache: Policy[];
 
@@ -64,34 +45,9 @@ export class AcceptOrganizationInviteService {
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly organizationUserApiService: OrganizationUserApiService,
     private readonly i18nService: I18nService,
-    private readonly globalStateProvider: GlobalStateProvider,
-    private readonly dialogService: DialogService,
+    private readonly organizationInviteService: OrganizationInviteService,
     private readonly accountService: AccountService,
-  ) {
-    this.organizationInvitationState = this.globalStateProvider.get(ORGANIZATION_INVITE);
-  }
-
-  /** Returns the currently stored organization invite */
-  async getOrganizationInvite(): Promise<OrganizationInvite | null> {
-    return await firstValueFrom(this.organizationInvitationState.state$);
-  }
-
-  /**
-   * Stores a new organization invite
-   * @param invite an organization invite
-   * @throws if the invite is nullish
-   */
-  async setOrganizationInvitation(invite: OrganizationInvite): Promise<void> {
-    if (invite == null) {
-      throw new Error("Invite cannot be null. Use clearOrganizationInvitation instead.");
-    }
-    await this.organizationInvitationState.update(() => invite);
-  }
-
-  /** Clears the currently stored organization invite */
-  async clearOrganizationInvitation(): Promise<void> {
-    await this.organizationInvitationState.update(() => null);
-  }
+  ) {}
 
   /**
    * Validates and accepts the organization invitation if possible.
@@ -113,7 +69,7 @@ export class AcceptOrganizationInviteService {
 
     // Accepting an org invite from existing org
     if (await this.masterPasswordPolicyCheckRequired(invite)) {
-      await this.setOrganizationInvitation(invite);
+      await this.organizationInviteService.setOrganizationInvitation(invite);
       this.authService.logOut(() => {
         /* Do nothing */
       });
@@ -134,7 +90,7 @@ export class AcceptOrganizationInviteService {
       ),
     );
     await this.apiService.refreshIdentityToken();
-    await this.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvitation();
   }
 
   private async prepareAcceptAndInitRequest(
@@ -170,7 +126,7 @@ export class AcceptOrganizationInviteService {
     );
 
     await this.apiService.refreshIdentityToken();
-    await this.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvitation();
   }
 
   private async prepareAcceptRequest(
@@ -224,10 +180,10 @@ export class AcceptOrganizationInviteService {
       (p) => p.type === PolicyType.MasterPassword && p.enabled,
     );
 
-    let storedInvite = await this.getOrganizationInvite();
+    let storedInvite = await this.organizationInviteService.getOrganizationInvite();
     if (storedInvite?.email !== invite.email) {
       // clear stored invites if the email doesn't match
-      await this.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvitation();
       storedInvite = null;
     }
     // if we don't have an org invite stored, we know the user hasn't been redirected yet to check the MP policy

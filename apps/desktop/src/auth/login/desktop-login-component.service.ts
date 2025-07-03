@@ -84,7 +84,7 @@ export class DesktopLoginComponentService
     } catch (err) {
       this.toastService.showToast({
         variant: "error",
-        title: this.i18nService.t("errorOccured"),
+        title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("ssoError"),
       });
     }

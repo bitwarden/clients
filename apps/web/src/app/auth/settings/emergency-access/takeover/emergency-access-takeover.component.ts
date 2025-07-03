@@ -71,15 +71,15 @@ export class EmergencyAccessTakeoverComponent
     protected toastService: ToastService,
   ) {
     super(
+      accountService,
+      dialogService,
       i18nService,
+      kdfConfigService,
       keyService,
+      masterPasswordService,
       messagingService,
       platformUtilsService,
       policyService,
-      dialogService,
-      kdfConfigService,
-      masterPasswordService,
-      accountService,
       toastService,
     );
   }
