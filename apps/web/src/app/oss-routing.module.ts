@@ -10,6 +10,8 @@ import {
   unauthGuardFn,
   activeAuthGuard,
 } from "@bitwarden/angular/auth/guards";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -36,6 +38,7 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 import { VaultIcons } from "@bitwarden/vault";
@@ -78,6 +81,7 @@ import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
+import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -306,6 +310,14 @@ const routes: Routes = [
         ],
       },
       {
+        path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor), authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          maxWidth: "lg",
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
         path: "set-password-jit",
         component: SetPasswordJitComponent,
         data: {
@@ -347,7 +359,6 @@ const routes: Routes = [
           pageSubtitle: {
             key: "singleSignOnEnterOrgIdentifierText",
           },
-          titleAreaMaxWidth: "md",
           pageIcon: SsoKeyIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
         children: [
@@ -381,7 +392,6 @@ const routes: Routes = [
           pageTitle: {
             key: "verifyYourIdentity",
           },
-          titleAreaMaxWidth: "md",
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
@@ -567,6 +577,20 @@ const routes: Routes = [
             path: "",
             component: BrowserExtensionPromptInstallComponent,
             outlet: "secondary",
+          },
+        ],
+      },
+      {
+        path: "setup-extension",
+        data: {
+          hideCardWrapper: true,
+          hideIcon: true,
+          maxWidth: "3xl",
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: SetupExtensionComponent,
           },
         ],
       },

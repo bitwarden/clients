@@ -1,0 +1,10 @@
+{
+  "name": "@bitwarden/user-core",
+  "version": "0.0.0",
+  "description": "The very basic concept that constitutes a user, this needs to be very low level to facilitate Platform keeping their own code low level.",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0",
+  "author": "auth"
+}

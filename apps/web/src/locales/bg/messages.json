@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Включването на двустепенна идентификация може завинаги да предотврати вписването ви в абонамента към Битуорден. Кодът за възстановяване ще ви позволи да достъпите абонамента дори и да имате проблем с доставчика на двустепенна идентификация (напр. ако изгубите устройството си). Дори и екипът по поддръжката към няма да ви помогне в такъв случай. Силно препоръчваме да отпечатате или запишете кодовете и да ги пазете на надеждно място."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Премахване на елемента за карти"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Да не се позволява на членовете да създават елементи от тип „карта“."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Да не се разрешава на членовете да създават картови елементи. Съществуващите карти ще бъдат премахнати автоматично."
+  },
+  "restrictCardTypeImport": {
+    "message": "Картовите елементи не могат да бъдат внесени"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, зададена от 1 или повече организации, не позволява да внасяте карти в трезорите си."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Вашият еднократен код за възстановяване може да бъде използван, за да изключите двустепенното удостоверяване, в случай че нямате достъп до доставчика си за двустепенно вписване. Битуорден препоръчва да запишете кода си за възстановяване и да го пазите на сигурно място."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Изключване"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Няма намерени подробности за члена."
   },
   "revokeAccess": {
     "message": "Отнемане на достъпа"
@@ -3265,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Стандартна колекция"
+  },
+  "myItems": {
+    "message": "Моите елементи"
   },
   "getHelp": {
     "message": "Помощ"
@@ -5363,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Извънредният достъп е отказан."
   },
+  "grantorDetailsNotFound": {
+    "message": "Няма намерени подробности за Gantor"
+  },
   "passwordResetFor": {
     "message": "Паролата на потребителя $USER$ е сменена и той може вече да влезе с новата.",
     "placeholders": {
@@ -5371,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Задължителна собственост на организационните данни"
   },
   "personalOwnership": {
     "message": "Индивидуално притежание"
@@ -5763,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Действието ще прекрати текущата сесия на $NAME$, след което ще се наложи той/тя отново да се впише. Активните сесии на другите устройства може да останат такива до един час.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "този потребител"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Поне една политика на организация има следните изисквания към главната парола:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Поне една политика на организация има следните изисквания към главната парола:"
   },
   "resetPasswordSuccess": {
@@ -7614,9 +7644,9 @@
     "message": "Сервизният акаунт е обновен",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Пишете тук или изберете проекти или тайни",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Пишете тук или изберете проекти",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Пишете тук за филтриране",
@@ -7701,8 +7731,8 @@
     "message": "Идентификатори за достъп",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Нов идентификатор за достъп",
+  "createAccessToken": {
+    "message": "Създаване на идентификатор за достъп",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -10649,5 +10679,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Адресът за таксуване е задължителен за добавянето на средства.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

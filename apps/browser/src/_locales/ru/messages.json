@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeNote": {
+    "message": "Заметка"
+  },
   "newItemHeader": {
     "message": "Новый $TYPE$",
     "placeholders": {
@@ -2483,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Импорт элементов в ваше личное хранилище отключен политикой организации."
+  },
+  "restrictCardTypeImport": {
+    "message": "Невозможно импортировать элементы карт"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, установленная 1 или более организациями, не позволяет импортировать карты в ваши хранилища."
   },
   "domainsTitle": {
     "message": "Домены",
@@ -5062,6 +5071,9 @@
   "unlockPinSet": {
     "message": "Установить PIN--код разблокировки"
   },
+  "unlockWithBiometricSet": {
+    "message": "Разблокировать с помощью биометрии"
+  },
   "authenticating": {
     "message": "Аутентификация"
   },
@@ -5403,5 +5415,9 @@
   },
   "noPermissionsViewPage": {
     "message": "У вас нет прав для просмотра этой страницы. Попробуйте авторизоваться под другим аккаунтом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не поддерживается вашим браузером или не включен. WebAssembly необходим для использования приложения Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
