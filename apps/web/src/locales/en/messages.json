@@ -864,6 +864,9 @@
   "me": {
     "message": "Me"
   },
+  "myItems": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "My vault"
   },
