@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
@@ -86,6 +88,25 @@ describe("CipherView", () => {
       } as any);
 
       expect(actual).toMatchObject(expected);
+    });
+
+    it("handle both string and object inputs for the cipher key", () => {
+      const cipherKeyString = "cipherKeyString";
+      const cipherKeyObject = new EncString("cipherKeyObject");
+
+      // Test with string input
+      let actual = CipherView.fromJSON({
+        key: cipherKeyString,
+      });
+      expect(actual.key).toBeInstanceOf(EncString);
+      expect(actual.key?.toJSON()).toBe(cipherKeyString);
+
+      // Test with object input (which can happen when cipher view is stored in an InMemory state provider)
+      actual = CipherView.fromJSON({
+        key: cipherKeyObject,
+      } as Jsonify<CipherView>);
+      expect(actual.key).toBeInstanceOf(EncString);
+      expect(actual.key?.toJSON()).toBe(cipherKeyObject.toJSON());
     });
   });
 

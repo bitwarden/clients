@@ -201,7 +201,17 @@ export class CipherView implements View, InitializerMetadata {
     const fields = obj.fields?.map((f: any) => FieldView.fromJSON(f));
     const passwordHistory = obj.passwordHistory?.map((ph: any) => PasswordHistoryView.fromJSON(ph));
     const permissions = CipherPermissionsApi.fromJSON(obj.permissions);
-    const key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    let key: EncString | undefined;
+
+    if (obj.key != null) {
+      if (typeof obj.key === "string") {
+        // If the key is a string, we need to parse it as EncString
+        key = EncString.fromJSON(obj.key);
+      } else if ((obj.key as any) instanceof EncString) {
+        // If the key is already an EncString instance, we can use it directly
+        key = obj.key;
+      }
+    }
 
     Object.assign(view, obj, {
       creationDate: creationDate,
