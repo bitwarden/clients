@@ -143,7 +143,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   autofillKeyboardHelperText: string;
@@ -181,10 +181,11 @@ export class AutofillComponent implements OnInit {
     this.uriMatchOptions = [
       { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
-      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
-      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
       { name: i18nService.t("exact"), value: UriMatchStrategy.Exact },
       { name: i18nService.t("never"), value: UriMatchStrategy.Never },
+      { name: this.i18nService.t("uriAdvancedOption"), value: null, disabled: true },
+      { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
+      { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     ];
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);

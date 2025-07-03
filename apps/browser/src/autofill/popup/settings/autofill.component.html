@@ -262,6 +262,7 @@
                 *ngFor="let option of uriMatchOptions"
                 [label]="option.name"
                 [value]="option.value"
+                [disabled]="option.disabled"
               ></bit-option>
             </bit-select>
             <bit-hint class="tw-text-sm" id="defaultUriMatchHelp">
