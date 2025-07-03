@@ -76,6 +76,10 @@ export class ProjectsComponent implements OnInit {
         return await this.getProjects();
       }),
     );
+
+    if (this.route.snapshot.queryParams.search) {
+      this.search = this.route.snapshot.queryParams.search;
+    }
   }
 
   private async getProjects(): Promise<ProjectListView[]> {

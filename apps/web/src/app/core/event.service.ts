@@ -467,8 +467,45 @@ export class EventService {
         break;
       // Secrets Manager
       case EventType.Secret_Retrieved:
-        msg = this.i18nService.t("accessedSecret", this.formatSecretId(ev));
-        humanReadableMsg = this.i18nService.t("accessedSecret", this.getShortId(ev.secretId));
+        msg = this.i18nService.t("accessedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("accessedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Created:
+        msg = this.i18nService.t("createdSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("createdSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Deleted:
+        msg = this.i18nService.t("deletedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("deletedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Secret_Edited:
+        msg = this.i18nService.t("editedSecretWithId", this.formatSecretId(ev));
+        humanReadableMsg = this.i18nService.t("editedSecretWithId", this.getShortId(ev.secretId));
+        break;
+      case EventType.Project_Retrieved:
+        msg = this.i18nService.t("accessedProjectWithId", this.formatProjectId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "accessedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Created:
+        msg = this.i18nService.t("createdProjectWithId", this.formatProjectId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "createdProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Deleted:
+        msg = this.i18nService.t("deletedProjectWithId", this.formatProjectId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedProjectWithId",
+          this.getShortId(ev.projectId),
+        );
+        break;
+      case EventType.Project_Edited:
+        msg = this.i18nService.t("editedProjectWithId", this.formatProjectId(ev));
+        humanReadableMsg = this.i18nService.t("editedProjectWithId", this.getShortId(ev.projectId));
         break;
       default:
         break;
@@ -627,8 +664,24 @@ export class EventService {
 
   formatSecretId(ev: EventResponse): string {
     const shortId = this.getShortId(ev.secretId);
+
+    if (ev.type == EventType.Secret_Deleted) {
+      return shortId;
+    }
+
     const a = this.makeAnchor(shortId);
     a.setAttribute("href", "#/sm/" + ev.organizationId + "/secrets?search=" + shortId);
+    return a.outerHTML;
+  }
+
+  formatProjectId(ev: EventResponse): string {
+    const shortId = this.getShortId(ev.projectId);
+
+    if (ev.type == EventType.Project_Deleted) {
+      return shortId;
+    }
+    const a = this.makeAnchor(shortId);
+    a.setAttribute("href", "#/sm/" + ev.organizationId + "/projects?search=" + shortId);
     return a.outerHTML;
   }
 
