@@ -12,7 +12,15 @@ import { AddAccountCreditDialogComponent } from "./add-account-credit-dialog.com
 
 @Component({
   selector: "app-display-account-credit",
-  templateUrl: "./display-account-credit.component.html",
+  template: `
+    <bit-section>
+      <h2 bitTypography="h2">{{ "accountCredit" | i18n }}: {{ formattedCredit }}</h2>
+      <p>{{ "availableCreditAppliedToInvoice" | i18n }}</p>
+      <button type="button" bitButton buttonType="secondary" [bitAction]="addAccountCredit">
+        {{ "addCredit" | i18n }}
+      </button>
+    </bit-section>
+  `,
   standalone: true,
   imports: [SharedModule],
   providers: [BillingClient, CurrencyPipe],

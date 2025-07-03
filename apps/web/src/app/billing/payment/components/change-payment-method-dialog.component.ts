@@ -21,7 +21,32 @@ type DialogResult =
   | { type: "success"; paymentMethod: MaskedPaymentMethod };
 
 @Component({
-  templateUrl: "./change-payment-method-dialog.component.html",
+  template: `
+    <form [formGroup]="formGroup" [bitSubmit]="submit">
+      <bit-dialog>
+        <span bitDialogTitle class="tw-font-semibold">
+          {{ "changePaymentMethod" | i18n }}
+        </span>
+        <div bitDialogContent>
+          <app-enter-payment-method [group]="formGroup" [includeBillingAddress]="true">
+          </app-enter-payment-method>
+        </div>
+        <ng-container bitDialogFooter>
+          <button bitButton bitFormButton buttonType="primary" type="submit">
+            {{ "save" | i18n }}
+          </button>
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            [bitDialogClose]="{ type: 'cancelled' }"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+        </ng-container>
+      </bit-dialog>
+    </form>
+  `,
   standalone: true,
   imports: [EnterPaymentMethodComponent, SharedModule],
   providers: [BillingClient],

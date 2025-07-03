@@ -12,7 +12,23 @@ import { EditBillingAddressDialogComponent } from "./edit-billing-address-dialog
 
 @Component({
   selector: "app-display-billing-address",
-  templateUrl: "./display-billing-address.component.html",
+  template: `
+    <bit-section>
+      <h2 bitTypography="h2">{{ "billingAddress" | i18n }}</h2>
+      @if (billingAddress) {
+        <p>{{ billingAddress | address }}</p>
+        @if (billingAddress.taxId) {
+          <p>{{ "taxId" | i18n: billingAddress.taxId.value }}</p>
+        }
+      } @else {
+        <p>{{ "noBillingAddress" | i18n }}</p>
+      }
+      @let key = billingAddress ? "editBillingAddress" : "addBillingAddress";
+      <button type="button" bitButton buttonType="secondary" [bitAction]="editBillingAddress">
+        {{ key | i18n }}
+      </button>
+    </bit-section>
+  `,
   standalone: true,
   imports: [AddressPipe, SharedModule],
 })

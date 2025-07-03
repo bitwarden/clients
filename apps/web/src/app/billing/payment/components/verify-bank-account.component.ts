@@ -11,7 +11,25 @@ import { MaskedPaymentMethod } from "../types";
 
 @Component({
   selector: "app-verify-bank-account",
-  templateUrl: "./verify-bank-account.component.html",
+  template: `
+    <bit-callout type="warning" title="{{ 'verifyBankAccount' | i18n }}">
+      <p>{{ "verifyBankAccountWithStatementDescriptorInstructions" | i18n }}</p>
+      <form [formGroup]="formGroup" [bitSubmit]="submit">
+        <bit-form-field class="tw-mr-2 tw-w-48">
+          <bit-label>{{ "descriptorCode" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            placeholder="SMAB12"
+            [formControl]="formGroup.controls.descriptorCode"
+          />
+        </bit-form-field>
+        <button type="submit" bitButton bitFormButton buttonType="primary">
+          {{ "submit" | i18n }}
+        </button>
+      </form>
+    </bit-callout>
+  `,
   standalone: true,
   imports: [SharedModule],
   providers: [BillingClient],
