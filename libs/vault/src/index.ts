@@ -19,6 +19,7 @@ export { DecryptionFailureDialogComponent } from "./components/decryption-failur
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/carousel";
+export * from "./components/new-cipher-menu/new-cipher-menu.component";
 
 export * as VaultIcons from "./icons";
 
