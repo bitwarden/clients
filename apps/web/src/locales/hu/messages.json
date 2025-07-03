@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Alapértelmezett gyűjtemény"
   },
+  "myItems": {
+    "message": "Saját elemek"
+  },
   "getHelp": {
     "message": "Segítségkérés"
   },

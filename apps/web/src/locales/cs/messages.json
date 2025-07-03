@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Výchozí sbírka"
   },
+  "myItems": {
+    "message": "Moje položky"
+  },
   "getHelp": {
     "message": "Získat nápovědu"
   },

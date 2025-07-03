@@ -2154,10 +2154,10 @@
     "message": "Омогућавање пријаве у два корака може вас трајно закључати са вашег Bitwarden-а налога. Код за опоравак омогућава вам приступ вашем налогу у случају да више не можете да користите свог уобичајеног добављача услуге пријављивања у два корака (нпр. ако изгубите уређај). Подршка Bitwarden-а неће вам моћи помоћи ако изгубите приступ свом налогу. Препоручујемо да запишете или одштампате код за опоравак и сачувате га на сигурном месту."
   },
   "restrictedItemTypePolicy": {
-    "message": "Remove card item type"
+    "message": "Уклоните тип ставке картице"
   },
   "restrictedItemTypePolicyDesc": {
-    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+    "message": "Не дозволите члановима да креирају врсте предмета картице. Постојеће картице ће се аутоматски уклонити."
   },
   "restrictCardTypeImport": {
     "message": "Не могу увозити врсте картица"
@@ -2225,7 +2225,7 @@
     "message": "Онемогући"
   },
   "orgUserDetailsNotFound": {
-    "message": "Member details not found."
+    "message": "Детаљи чланова нису пронађени."
   },
   "revokeAccess": {
     "message": "Опозови Приступ"
@@ -3274,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Стандардна колекција"
+  },
+  "myItems": {
+    "message": "Моји предмети"
   },
   "getHelp": {
     "message": "Потражи помоћ"
@@ -5373,7 +5376,7 @@
     "message": "Одбијен хитни приступ"
   },
   "grantorDetailsNotFound": {
-    "message": "Grantor details not found"
+    "message": "Детаљи одобравања нису пронађени"
   },
   "passwordResetFor": {
     "message": "Ресетовање лозинке за $USER$. Сада се можете пријавити помоћу нове лозинке.",
@@ -5385,7 +5388,7 @@
     }
   },
   "organizationDataOwnership": {
-    "message": "Enforce organization data ownership"
+    "message": "Спровести власништво података о организацији"
   },
   "personalOwnership": {
     "message": "Лично власништво"
@@ -5779,7 +5782,7 @@
     }
   },
   "emergencyAccessLoggedOutWarning": {
-    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
+    "message": "Ако наставите, објавићете $NAME$ са тренутне сесије, захтевајући их да се поново пријаве. Активне сесије на другим уређајима могу наставити да остају активне до једног сата.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5794,7 +5797,7 @@
     "message": "Једна или више смерница организације захтевају главну лозинку да би испуњавали следеће захтеве:"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Једна или више смерница организације захтевају главну лозинку да би испуњавали следеће захтеве:"
   },
   "resetPasswordSuccess": {
     "message": "Успешно ресетовање лозинке!"
@@ -10678,7 +10681,7 @@
     }
   },
   "billingAddressRequiredToAddCredit": {
-    "message": "Billing address required to add credit.",
+    "message": "Адреса за наплату је потребна за додавање кредита.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

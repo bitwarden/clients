@@ -502,7 +502,7 @@
     "message": "Nom de la carpeta"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Imbriqueu una carpeta afegint el nom de la carpeta principal seguit d'una \"/\". Exemple: Social/Fòrums"
   },
   "deleteFolderPermanently": {
     "message": "Are you sure you want to permanently delete this folder?"
@@ -3274,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Col·lecció per defecte"
+  },
+  "myItems": {
+    "message": "Els meus elements"
   },
   "getHelp": {
     "message": "Obteniu ajuda"

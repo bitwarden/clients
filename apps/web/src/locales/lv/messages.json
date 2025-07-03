@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Noklusējuma krājums"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Saņemt palīdzību"
   },

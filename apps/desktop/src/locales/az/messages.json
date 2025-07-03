@@ -1717,10 +1717,10 @@
     "message": "Hesab məhdudlaşdırıldı"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "Kart element növləri daxilə köçürülə bilmir"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "1 və ya daha çox təşkilat tərəfindən təyin edilən bir siyasət, kartların seyfinizə köçürülməsini əngəlləyir."
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyuşmur."

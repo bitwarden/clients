@@ -3275,6 +3275,9 @@
   "defaultCollection": {
     "message": "Vaikekogumik"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "getHelp": {
     "message": "Klienditugi"
   },

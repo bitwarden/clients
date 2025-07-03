@@ -1,0 +1,100 @@
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  concat,
+  filter,
+  fromEvent,
+  interval,
+  map,
+  Observable,
+  of,
+  race,
+  shareReplay,
+  switchMap,
+  take,
+  takeWhile,
+  tap,
+  timer,
+} from "rxjs";
+
+import { ExtensionPageUrls } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+
+/**
+ * The amount of time in milliseconds to wait for a response from the browser extension.
+ * NOTE: This value isn't computed by any means, it is just a reasonable timeout for the extension to respond.
+ */
+const MESSAGE_RESPONSE_TIMEOUT_MS = 1500;
+
+@Injectable({
+  providedIn: "root",
+})
+export class WebBrowserInteractionService {
+  destroyRef = inject(DestroyRef);
+
+  private messages$ = fromEvent<MessageEvent>(window, "message").pipe(
+    takeUntilDestroyed(this.destroyRef),
+  );
+
+  /** Emits the installation status of the extension. */
+  extensionInstalled$: Observable<boolean> = this.checkForExtension().pipe(
+    switchMap((installed) => {
+      if (installed) {
+        return of(true);
+      }
+
+      return concat(
+        of(false),
+        interval(2500).pipe(
+          switchMap(() => this.checkForExtension()),
+          takeWhile((installed) => !installed, true),
+          filter((installed) => installed),
+        ),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /** Attempts to open the extension, rejects if the extension is not installed or it fails to open.  */
+  openExtension = (url?: ExtensionPageUrls) => {
+    return new Promise<void>((resolve, reject) => {
+      race(
+        this.messages$.pipe(
+          filter((event) => event.data.command === VaultMessages.PopupOpened),
+          map(() => true),
+        ),
+        timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+      )
+        .pipe(take(1))
+        .subscribe((didOpen) => {
+          if (!didOpen) {
+            return reject("Failed to open the extension");
+          }
+
+          resolve();
+        });
+
+      window.postMessage({ command: VaultMessages.OpenBrowserExtensionToUrl, url });
+    });
+  };
+
+  /** Sends a message via the window object to check if the extension is installed */
+  private checkForExtension(): Observable<boolean> {
+    const checkForExtension$ = race(
+      this.messages$.pipe(
+        filter((event) => event.data.command === VaultMessages.HasBwInstalled),
+        map(() => true),
+      ),
+      timer(MESSAGE_RESPONSE_TIMEOUT_MS).pipe(map(() => false)),
+    ).pipe(
+      tap({
+        subscribe: () => {
+          window.postMessage({ command: VaultMessages.checkBwInstalled });
+        },
+      }),
+      take(1),
+    );
+
+    return checkForExtension$;
+  }
+}
