@@ -49,7 +49,7 @@ export class OrganizationFreeTrialWarningComponent implements OnInit {
     this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
   }
 
-  public refresh = () => {
+  refresh = () => {
     this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization, true);
   };
 }
