@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir kuruluş ilkesi, kayıtları kişisel kasanıza içe aktarmayı engelledi."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Alan adları",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"

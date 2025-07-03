@@ -248,10 +248,13 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     const separateCustomRolePermissionsEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.SeparateCustomRolePermissions,
     );
-    this.showUserManagementControls$ = separateCustomRolePermissionsEnabled$.pipe(
+    this.showUserManagementControls$ = combineLatest([
+      separateCustomRolePermissionsEnabled$,
+      organization$,
+    ]).pipe(
       map(
-        (separateCustomRolePermissionsEnabled) =>
-          !separateCustomRolePermissionsEnabled || this.organization.canManageUsers,
+        ([separateCustomRolePermissionsEnabled, organization]) =>
+          !separateCustomRolePermissionsEnabled || organization.canManageUsers,
       ),
     );
   }
@@ -337,10 +340,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
     if (
       await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
     ) {
-      this.organizationUserService
-        .confirmUser(this.organization, user, publicKey)
-        .pipe(takeUntilDestroyed())
-        .subscribe();
+      await firstValueFrom(
+        this.organizationUserService.confirmUser(this.organization, user, publicKey),
+      );
     } else {
       const orgKey = await this.keyService.getOrgKey(this.organization.id);
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);

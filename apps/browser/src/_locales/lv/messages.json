@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Apvienības nosacījums neļauj ievietot ārējos vienumus savā personīgajā glabātavā."
   },
+  "restrictCardTypeImport": {
+    "message": "Nevar ievietot karšu vienumu veidus"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Pamatnostādne, ko ir iestatījusi viena vai vairākas apvienības, liedz karšu ievietošanu savās glabātavās."
+  },
   "domainsTitle": {
     "message": "Domēna vārdi",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Atslēgšanas PIN iestatīts"
   },
-  "unlockBiometricSet": {
-    "message": "Atslēgt biometrijas kopu"
+  "unlockWithBiometricSet": {
+    "message": "Atslēgt ar biometriju"
   },
   "authenticating": {
     "message": "Autentificē"

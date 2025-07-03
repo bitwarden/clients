@@ -12,13 +12,13 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
-  OptimizeNestedTraverseTypescript = "pm-21695-optimize-nested-traverse-typescript",
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
   PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
   PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
+  PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
   BlockBrowserInjectionsByDomain = "block-browser-injections-by-domain",
@@ -55,6 +55,7 @@ export enum FeatureFlag {
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
+  PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -76,7 +77,6 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
-  [FeatureFlag.OptimizeNestedTraverseTypescript]: FALSE,
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
@@ -100,11 +100,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM19315EndUserActivationMvp]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
   [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
+  [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
   [FeatureFlag.TrialPaymentOptional]: FALSE,

@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Zásady organizácie zablokovali importovanie položiek do vášho osobného trezoru."
   },
+  "restrictCardTypeImport": {
+    "message": "Položky typu karta sa nedajú importovať"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Politika nastavená 1 alebo viacerými organizáciami vám bráni v importovaní kariet do vašich trezorov."
+  },
   "domainsTitle": {
     "message": "Domény",
     "description": "A category title describing the concept of web domains"
@@ -5065,7 +5071,7 @@
   "unlockPinSet": {
     "message": "PIN na odomknutie nastavený"
   },
-  "unlockBiometricSet": {
+  "unlockWithBiometricSet": {
     "message": "Odomknutie biometrickými údajmi nastavené"
   },
   "authenticating": {
