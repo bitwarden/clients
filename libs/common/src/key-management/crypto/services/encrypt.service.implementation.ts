@@ -25,6 +25,13 @@ export class EncryptServiceImplementation implements EncryptService {
 
   // Proxy functions; Their implementation are temporary before moving at this level to the SDK
   async encryptString(plainValue: string, key: SymmetricCryptoKey): Promise<EncString> {
+    if (plainValue == null) {
+      this.logService.warning(
+        "[EncryptService] WARNING: encryptString called with null value. Returning null, but this behavior is deprecated and will be removed.",
+      );
+      return null;
+    }
+
     await SdkLoadService.Ready;
     return new EncString(PureCrypto.symmetric_encrypt_string(plainValue, key.toEncoded()));
   }
