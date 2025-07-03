@@ -1,0 +1,74 @@
+import { CommonModule } from "@angular/common";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { RouterModule, Router } from "@angular/router";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import {
+  BadgeModule,
+  ButtonModule,
+  DialogModule,
+  IconModule,
+  ItemModule,
+  SectionComponent,
+  TableModule,
+  SectionHeaderComponent,
+  BitIconButtonComponent,
+} from "@bitwarden/components";
+
+import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
+import {
+  DesktopFido2UserInterfaceService,
+  DesktopFido2UserInterfaceSession,
+} from "../../services/desktop-fido2-user-interface.service";
+
+import { BitwardenShield } from "./bitwarden-shield.icon";
+import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
+
+@Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    SectionHeaderComponent,
+    BitIconButtonComponent,
+    TableModule,
+    JslibModule,
+    IconModule,
+    ButtonModule,
+    DialogModule,
+    SectionComponent,
+    ItemModule,
+    BadgeModule,
+  ],
+  templateUrl: "fido2-excluded-ciphers.component.html",
+})
+export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
+  session?: DesktopFido2UserInterfaceSession = null;
+  readonly Icons = { BitwardenShield };
+  protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
+
+  constructor(
+    private readonly desktopSettingsService: DesktopSettingsService,
+    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
+    private readonly accountService: AccountService,
+    private readonly router: Router,
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.session = this.fido2UserInterfaceService.getCurrentSession();
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    await this.closeModal();
+  }
+
+  async closeModal(): Promise<void> {
+    await this.router.navigate(["/"]);
+
+    if (this.session) {
+      this.session.notifyConfirmCreateCredential(false);
+      this.session.confirmChosenCipher(null);
+    }
+  }
+}
