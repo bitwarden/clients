@@ -31,9 +31,9 @@ const passphrase: GeneratorMetadata<PassphraseGenerationOptions> = {
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PassphraseGenerationOptions> {
       if (dependencies.sdk == undefined) {
-        return new PasswordRandomizer(dependencies.randomizer, dependencies.currentTime);
+        return new PasswordRandomizer(dependencies.randomizer, dependencies.now);
       }
-      return new SdkPasswordRandomizer(dependencies.sdk, dependencies.currentTime);
+      return new SdkPasswordRandomizer(dependencies.sdk, dependencies.now);
     },
   },
   profiles: {

@@ -31,9 +31,9 @@ const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
       if (dependencies.sdk == undefined) {
-        return new PasswordRandomizer(dependencies.randomizer, dependencies.currentTime);
+        return new PasswordRandomizer(dependencies.randomizer, dependencies.now);
       }
-      return new SdkPasswordRandomizer(dependencies.sdk, dependencies.currentTime);
+      return new SdkPasswordRandomizer(dependencies.sdk, dependencies.now);
     },
   },
   profiles: {

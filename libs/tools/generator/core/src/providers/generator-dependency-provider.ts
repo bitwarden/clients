@@ -11,5 +11,5 @@ export type GeneratorDependencyProvider = {
   //        structures and remove this dependency
   i18nService: I18nService;
   sdk?: BitwardenClient;
-  currentTime: () => number;
+  now: () => number;
 };

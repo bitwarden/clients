@@ -151,7 +151,7 @@ const SYSTEM_SERVICE_PROVIDER = new SafeInjectionToken<SystemServiceProvider>("S
           client: new RestClient(api, i18n),
           i18nService: i18n,
           sdk: sdkService,
-          currentTime: Date.now,
+          now: Date.now,
         };
 
         const userState: UserStateSubjectDependencyProvider = {
