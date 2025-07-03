@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate napi_derive;
 
+mod autotype_internal;
 mod passkey_authenticator_internal;
 mod registry;
 
@@ -881,5 +882,13 @@ pub mod logging {
         }
 
         fn flush(&self) {}
+    }
+}
+
+#[napi]
+pub mod autotype {
+    #[napi]
+    pub fn register_hotkey() -> napi::Result<String, napi::Status> {
+        crate::autotype_internal::register_hotkey().map_err(|e| napi::Error::from_reason(e))
     }
 }
