@@ -147,6 +147,10 @@ export class VaultItemsComponent {
     );
   }
 
+  clearSelection() {
+    this.selection.clear();
+  }
+
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }
