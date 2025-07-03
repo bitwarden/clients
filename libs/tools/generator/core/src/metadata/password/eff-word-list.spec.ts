@@ -17,7 +17,7 @@ const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - eff words generator metadata", () => {
   describe("engine.create", () => {
-    it("returns a sdk email randomizer", () => {
+    it("returns an sdk password randomizer", () => {
       expect(effPassphrase.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
     });
   });
@@ -25,7 +25,7 @@ describe("password - eff words generator metadata", () => {
   describe("engine.create", () => {
     const nonSdkDependencyProvider = mock<GeneratorDependencyProvider>();
     nonSdkDependencyProvider.sdk = undefined;
-    it("returns an email randomizer", () => {
+    it("returns a password randomizer", () => {
       expect(effPassphrase.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(
         PasswordRandomizer,
       );
