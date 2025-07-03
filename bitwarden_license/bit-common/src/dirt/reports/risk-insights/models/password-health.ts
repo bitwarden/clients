@@ -6,6 +6,7 @@ import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-st
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+import { EncString } from "@bitwarden/sdk-internal";
 
 /**
  * All applications report summary. The total members,
@@ -138,8 +139,8 @@ export type AppAtRiskMembersDialogParams = {
  */
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
-  encryptedData: EncryptedString;
-  encryptionKey: EncryptedString;
+  encryptedData: EncString;
+  encryptionKey: EncString;
 }
 
 /**
@@ -180,8 +181,8 @@ export enum DrawerType {
 export interface RiskInsightsReport {
   organizationId: OrganizationId;
   date: string;
-  reportData: EncryptedString;
-  reportKey: EncryptedString;
+  reportData: string;
+  reportKey: string;
 }
 
 export interface ReportInsightsReportData {

@@ -24,7 +24,11 @@ export class RiskInsightsEncryptionService {
     const orgKey = await firstValueFrom(
       this.keyService
         .orgKeys$(userId)
-        .pipe(map((organizationKeysById) => organizationKeysById[organizationId])),
+        .pipe(
+          map((organizationKeysById) =>
+            organizationKeysById ? organizationKeysById[organizationId] : null,
+          ),
+        ),
     );
 
     if (orgKey === null) {
@@ -47,7 +51,7 @@ export class RiskInsightsEncryptionService {
       organizationId: organizationId,
       encryptedData: dataEncrypted.encryptedString,
       encryptionKey: wrappedEncryptionKey.encryptedString,
-    };
+    } as EncryptedDataWithKey; // needed to pass the type check in the build
 
     return encryptedDataPacket;
   }
@@ -63,7 +67,11 @@ export class RiskInsightsEncryptionService {
       const orgKey = await firstValueFrom(
         this.keyService
           .orgKeys$(userId)
-          .pipe(map((organizationKeysById) => organizationKeysById[organizationId])),
+          .pipe(
+            map((organizationKeysById) =>
+              organizationKeysById ? organizationKeysById[organizationId] : null,
+            ),
+          ),
       );
 
       if (orgKey === null) {

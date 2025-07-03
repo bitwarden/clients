@@ -75,7 +75,7 @@ export class RiskInsightsComponent implements OnInit {
   criticalAppsCount: number = 0;
   notifiedMembersCount: number = 0;
 
-  private organizationId: OrganizationId;
+  private organizationId: OrganizationId = "" as OrganizationId;
   private destroyRef = inject(DestroyRef);
   isLoading$: Observable<boolean> = new Observable<boolean>();
   isRefreshing$: Observable<boolean> = new Observable<boolean>();
