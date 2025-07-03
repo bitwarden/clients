@@ -1,6 +1,8 @@
 import { BehaviorSubject } from "rxjs";
 import { finalize } from "rxjs/operators";
 
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
 import {
   AppAtRiskMembersDialogParams,
   ApplicationHealthReportDetail,
@@ -40,7 +42,7 @@ export class RiskInsightsDataService {
    * Fetches the applications report and updates the applicationsSubject.
    * @param organizationId The ID of the organization.
    */
-  fetchApplicationsReport(organizationId: string, isRefresh?: boolean): void {
+  fetchApplicationsReport(organizationId: OrganizationId, isRefresh?: boolean): void {
     if (isRefresh) {
       this.isRefreshingSubject.next(true);
     } else {
@@ -66,7 +68,7 @@ export class RiskInsightsDataService {
       });
   }
 
-  refreshApplicationsReport(organizationId: string): void {
+  refreshApplicationsReport(organizationId: OrganizationId): void {
     this.fetchApplicationsReport(organizationId, true);
   }
 

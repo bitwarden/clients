@@ -60,7 +60,7 @@ export class CriticalApplicationsComponent implements OnInit {
   protected searchControl = new FormControl("", { nonNullable: true });
   private destroyRef = inject(DestroyRef);
   protected loading = false;
-  protected organizationId: string;
+  protected organizationId: OrganizationId;
   protected applicationSummary = {} as ApplicationHealthReportSummary;
   noItemsIcon = Icons.Security;
   isNotificationsFeatureEnabled: boolean = false;
@@ -71,7 +71,9 @@ export class CriticalApplicationsComponent implements OnInit {
       FeatureFlag.EnableRiskInsightsNotifications,
     );
 
-    this.organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId") ?? "";
+    this.organizationId = this.activatedRoute.snapshot.paramMap.get(
+      "organizationId",
+    ) as OrganizationId;
 
     combineLatest([
       this.dataService.applications$,

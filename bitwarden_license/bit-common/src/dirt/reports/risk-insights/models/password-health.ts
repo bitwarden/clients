@@ -1,11 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-
 import { Opaque } from "type-fest";
 
+import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+import { EncString } from "@bitwarden/sdk-internal";
 
 /**
  * All applications report summary. The total members,
@@ -132,6 +133,16 @@ export type AppAtRiskMembersDialogParams = {
   applicationName: string;
 };
 
+/*
+ * After data is encrypted, it is returned with the
+ * encryption key used to encrypt the data.
+ */
+export interface EncryptedDataWithKey {
+  organizationId: OrganizationId;
+  encryptedData: EncString;
+  encryptionKey: EncString;
+}
+
 /**
  * Request to drop a password health report application
  * Model is expected by the API endpoint
@@ -175,8 +186,8 @@ export interface RiskInsightsReport {
 }
 
 export interface ReportInsightsReportData {
-  data: string;
-  key: string;
+  data: ApplicationHealthReportDetail[];
+  summary: ApplicationHealthReportSummary;
 }
 
 export interface SaveRiskInsightsReportRequest {
@@ -191,8 +202,8 @@ export interface GetRiskInsightsReportResponse {
   id: string;
   organizationId: OrganizationId;
   date: string;
-  reportData: string;
-  reportKey: string;
+  reportData: EncryptedString;
+  reportKey: EncryptedString;
 }
 
 export type PasswordHealthReportApplicationId = Opaque<string, "PasswordHealthReportApplicationId">;
