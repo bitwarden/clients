@@ -107,7 +107,7 @@ export class RestrictedItemTypesService {
       return !restriction.allowViewOrgIds.includes(cipher.organizationId);
     }
 
-    // Cipher is restricted by at least one orgganization
+    // Cipher is restricted by at least one organization, restrict it
     return true;
   }
 
