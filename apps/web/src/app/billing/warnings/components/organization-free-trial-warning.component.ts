@@ -6,15 +6,13 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AnchorLinkDirective, BannerComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  FreeTrialWarning,
-  OrganizationWarningsService,
-} from "../services/organization-warnings.service";
+import { OrganizationWarningsService } from "../services";
+import { OrganizationFreeTrialWarning } from "../types";
 
 @Component({
-  selector: "app-free-trial-warning",
+  selector: "app-organization-free-trial-warning",
   template: `
-    @let warning = freeTrialWarning$ | async;
+    @let warning = warning$ | async;
 
     @if (warning) {
       <bit-banner
@@ -39,17 +37,19 @@ import {
   `,
   imports: [AnchorLinkDirective, AsyncPipe, BannerComponent, I18nPipe],
 })
-export class FreeTrialWarningComponent implements OnInit {
+export class OrganizationFreeTrialWarningComponent implements OnInit {
   @Input({ required: true }) organization!: Organization;
   @Output() clicked = new EventEmitter<void>();
 
-  freeTrialWarning$!: Observable<FreeTrialWarning>;
+  warning$!: Observable<OrganizationFreeTrialWarning>;
 
   constructor(private organizationWarningsService: OrganizationWarningsService) {}
 
   ngOnInit() {
-    this.freeTrialWarning$ = this.organizationWarningsService.getFreeTrialWarning$(
-      this.organization,
-    );
+    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
   }
+
+  refresh = () => {
+    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization, true);
+  };
 }

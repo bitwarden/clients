@@ -1,14 +1,14 @@
-<app-free-trial-warning
+<app-organization-free-trial-warning
   *ngIf="useOrganizationWarningsService$ | async"
   [organization]="organization"
   (clicked)="navigateToPaymentMethod()"
 >
-</app-free-trial-warning>
-<app-reseller-renewal-warning
+</app-organization-free-trial-warning>
+<app-organization-reseller-renewal-warning
   *ngIf="useOrganizationWarningsService$ | async"
   [organization]="organization"
 >
-</app-reseller-renewal-warning>
+</app-organization-reseller-renewal-warning>
 <ng-container *ngIf="freeTrialWhenWarningsServiceDisabled$ | async as freeTrial">
   <bit-banner
     id="free-trial-banner"

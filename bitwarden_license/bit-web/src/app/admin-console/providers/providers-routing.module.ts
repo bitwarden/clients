@@ -13,6 +13,7 @@ import {
   hasConsolidatedBilling,
   ProviderBillingHistoryComponent,
 } from "../../billing/providers";
+import { ProviderPaymentDetailsComponent } from "../../billing/providers/payment-details/provider-payment-details.component";
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 
 import { ClientsComponent } from "./clients/clients.component";
@@ -140,6 +141,14 @@ const routes: Routes = [
                 canActivate: [providerPermissionsGuard()],
                 data: {
                   titleId: "subscription",
+                },
+              },
+              {
+                path: "payment-details",
+                component: ProviderPaymentDetailsComponent,
+                canActivate: [providerPermissionsGuard()],
+                data: {
+                  titleId: "paymentDetails",
                 },
               },
               {

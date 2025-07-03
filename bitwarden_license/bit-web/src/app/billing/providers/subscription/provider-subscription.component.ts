@@ -13,6 +13,8 @@ import {
   ProviderPlanResponse,
   ProviderSubscriptionResponse,
 } from "@bitwarden/common/billing/models/response/provider-subscription-response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
@@ -34,6 +36,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
   protected loading: boolean;
   private destroy$ = new Subject<void>();
   protected totalCost: number;
+  protected managePaymentDetailsOutsideCheckout: boolean;
 
   protected readonly TaxInformation = TaxInformation;
 
@@ -44,6 +47,7 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
     private billingNotificationService: BillingNotificationService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -51,6 +55,9 @@ export class ProviderSubscriptionComponent implements OnInit, OnDestroy {
       .pipe(
         concatMap(async (params) => {
           this.providerId = params.providerId;
+          this.managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+            FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
+          );
           await this.load();
           this.firstLoaded = true;
         }),

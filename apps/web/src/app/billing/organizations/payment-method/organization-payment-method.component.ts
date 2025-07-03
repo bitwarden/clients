@@ -4,7 +4,7 @@ import { Location } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, from, lastValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, from, lastValueFrom, map, switchMap } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
@@ -19,6 +19,8 @@ import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { VerifyBankAccountRequest } from "@bitwarden/common/billing/models/request/verify-bank-account.request";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PaymentSourceResponse } from "@bitwarden/common/billing/models/response/payment-source.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -72,18 +74,28 @@ export class OrganizationPaymentMethodComponent implements OnDestroy {
     private accountService: AccountService,
     protected syncService: SyncService,
     private billingNotificationService: BillingNotificationService,
+    private configService: ConfigService,
   ) {
-    this.activatedRoute.params
+    combineLatest([
+      this.activatedRoute.params,
+      this.configService.getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout),
+    ])
       .pipe(
-        takeUntilDestroyed(),
-        switchMap(({ organizationId }) => {
+        switchMap(([{ organizationId }, managePaymentDetailsOutsideCheckout]) => {
           if (this.platformUtilsService.isSelfHost()) {
             return from(this.router.navigate(["/settings/subscription"]));
+          }
+
+          if (managePaymentDetailsOutsideCheckout) {
+            return from(
+              this.router.navigate(["../payment-details"], { relativeTo: this.activatedRoute }),
+            );
           }
 
           this.organizationId = organizationId;
           return from(this.load());
         }),
+        takeUntilDestroyed(),
       )
       .subscribe();
 

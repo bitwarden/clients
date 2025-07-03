@@ -65,6 +65,11 @@ export class OrganizationLayoutComponent implements OnInit {
   protected showSponsoredFamiliesDropdown$: Observable<boolean>;
   protected canShowPoliciesTab$: Observable<boolean>;
 
+  protected paymentDetailsPageData$: Observable<{
+    route: string;
+    textKey: string;
+  }>;
+
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
@@ -136,6 +141,16 @@ export class OrganizationLayoutComponent implements OnInit {
           ),
       ),
     );
+
+    this.paymentDetailsPageData$ = this.configService
+      .getFeatureFlag$(FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout)
+      .pipe(
+        map((managePaymentDetailsOutsideCheckout) =>
+          managePaymentDetailsOutsideCheckout
+            ? { route: "billing/payment-details", textKey: "paymentDetails" }
+            : { route: "billing/payment-method", textKey: "paymentMethod" },
+        ),
+      );
   }
 
   canShowVaultTab(organization: Organization): boolean {
