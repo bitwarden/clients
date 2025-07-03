@@ -171,6 +171,8 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
         try {
           const allCiphers = await this.cipherService.getAllDecrypted(activeUserId);
+          // eslint-disable-next-line no-console
+          console.log("Retrieved all decrypted ciphers");
           return allCiphers.filter(
             (cipher) =>
               cipher.type == CipherType.Login &&
@@ -178,7 +180,9 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
               Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
               !cipher.deletedDate,
           );
-        } catch {
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log("Failed filtering ciphers with error: ", error);
           await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
           return [];
         }
