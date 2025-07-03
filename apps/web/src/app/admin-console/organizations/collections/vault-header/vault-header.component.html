@@ -103,7 +103,7 @@
     *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned && organization"
     class="tw-shrink-0"
   >
-    <bit-new-cipher-menu
+    <vault-new-cipher-menu
       [canCreateCipher]="canCreateCipher"
       [canCreateCollection]="canCreateCollection"
       (cipherAdded)="addCipher($event)"
