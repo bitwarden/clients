@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "Účet je omezený"
   },
+  "restrictCardTypeImport": {
+    "message": "Nelze importovat typy položek karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Zásady nastavené 1 nebo více organizací Vám brání v importu karet do Vašeho trezoru."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
   },

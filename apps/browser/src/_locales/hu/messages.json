@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "A szervezeti politika blokkolta az elemek importálását az egyedi széfbe."
   },
+  "restrictCardTypeImport": {
+    "message": "A kártya elem típusokat nem lehet importálni."
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Egy vagy több szervezet által beállított szabályzat megakadályozza a kártyák importálását a széfekbe."
+  },
   "domainsTitle": {
     "message": "Tartomány",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
   },
-  "unlockBiometricSet": {
-    "message": "Biometriai beállítások feloldása"
+  "unlockWithBiometricSet": {
+    "message": "Feloldás biometrikusan"
   },
   "authenticating": {
     "message": "Authenticating"

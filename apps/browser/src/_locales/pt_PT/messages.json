@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Uma política da organização bloqueou a importação de itens para o seu cofre individual."
   },
+  "restrictCardTypeImport": {
+    "message": "Não é possível importar tipos de itens de cartão"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Uma política definida por 1 ou mais organizações impede-o de importar cartões para os seus cofres."
+  },
   "domainsTitle": {
     "message": "Domínios",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "Definição do PIN de desbloqueio"
   },
-  "unlockBiometricSet": {
-    "message": "Desbloquear conjunto de biometria"
+  "unlockWithBiometricSet": {
+    "message": "Desbloquear com conjunto biométrico"
   },
   "authenticating": {
     "message": "A autenticar"

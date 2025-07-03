@@ -1716,6 +1716,12 @@
   "accountRestricted": {
     "message": "账户限制"
   },
+  "restrictCardTypeImport": {
+    "message": "无法导入支付卡项目类型"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
   },
@@ -1779,7 +1785,7 @@
     "message": "设置用于解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销应用程序时被重置。"
   },
   "pinRequired": {
-    "message": "需要 PIN 码。"
+    "message": "必须填写 PIN 码。"
   },
   "invalidPin": {
     "message": "无效的 PIN 码。"

@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
   },
+  "restrictCardTypeImport": {
+    "message": "Kart element növləri daxilə köçürülə bilmir"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "1 və ya daha çox təşkilat tərəfindən təyin edilən bir siyasət, kartların seyfinizə köçürülməsini əngəlləyir."
+  },
   "domainsTitle": {
     "message": "Domenlər",
     "description": "A category title describing the concept of web domains"
@@ -5065,8 +5071,8 @@
   "unlockPinSet": {
     "message": "PIN ilə kilid açma təyini"
   },
-  "unlockBiometricSet": {
-    "message": "Biometrik ilə kilidi aç ayarı"
+  "unlockWithBiometricSet": {
+    "message": "Kilidi biometriklə aç ayarı"
   },
   "authenticating": {
     "message": "Kimlik doğrulama"

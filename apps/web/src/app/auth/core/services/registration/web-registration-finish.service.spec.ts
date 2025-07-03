@@ -9,6 +9,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
@@ -33,6 +34,7 @@ describe("WebRegistrationFinishService", () => {
   let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
+  let configService: MockProxy<ConfigService>;
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
 
@@ -44,6 +46,7 @@ describe("WebRegistrationFinishService", () => {
     logService = mock<LogService>();
     policyService = mock<PolicyService>();
     accountService = mockAccountServiceWith(mockUserId);
+    configService = mock<ConfigService>();
 
     service = new WebRegistrationFinishService(
       keyService,
@@ -53,6 +56,7 @@ describe("WebRegistrationFinishService", () => {
       logService,
       policyService,
       accountService,
+      configService,
     );
   });
 
@@ -416,6 +420,24 @@ describe("WebRegistrationFinishService", () => {
           providerUserId: providerUserId,
         }),
       );
+    });
+  });
+
+  describe("determineLoginSuccessRoute", () => {
+    it("returns /setup-extension when the end user activation feature flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      const result = await service.determineLoginSuccessRoute();
+
+      expect(result).toBe("/setup-extension");
+    });
+
+    it("returns /vault when the end user activation feature flag is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      const result = await service.determineLoginSuccessRoute();
+
+      expect(result).toBe("/vault");
     });
   });
 });
