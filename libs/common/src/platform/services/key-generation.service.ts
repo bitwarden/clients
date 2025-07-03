@@ -8,12 +8,13 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
 import { CsprngArray } from "../../types/csprng";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "../abstractions/key-generation.service";
+import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "../enums";
 import { Utils } from "../misc/utils";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class KeyGenerationService implements KeyGenerationServiceAbstraction {
-  constructor(private cryptoFunctionService: CryptoFunctionService) {}
+  constructor(private cryptoFunctionService: CryptoFunctionService) { }
 
   async createKey(bitLength: 256 | 512): Promise<SymmetricCryptoKey> {
     const key = await this.cryptoFunctionService.aesGenerateKey(bitLength);
@@ -55,9 +56,8 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
       salt = new TextEncoder().encode(salt);
     }
 
-    const key: Uint8Array = PureCrypto.derive_kdf_output(password, salt, kdfConfig.toSdkConfig());
-
-    return new SymmetricCryptoKey(key);
+    await SdkLoadService.Ready;
+    return new SymmetricCryptoKey(PureCrypto.derive_kdf_material(password, salt, kdfConfig.toSdkConfig()));
   }
 
   async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
