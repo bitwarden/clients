@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
