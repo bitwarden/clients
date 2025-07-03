@@ -116,7 +116,7 @@ export default {
           useValue: {
             getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
-              return false;
+              return of(false);
             },
           },
         },
