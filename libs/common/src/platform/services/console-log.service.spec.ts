@@ -1,6 +1,6 @@
-import { interceptConsole, restoreConsole } from "../../../spec";
+import { ConsoleLogService } from "@bitwarden/logging";
 
-import { ConsoleLogService } from "./console-log.service";
+import { interceptConsole, restoreConsole } from "../../../spec";
 
 describe("ConsoleLogService", () => {
   const error = new Error("this is an error");
