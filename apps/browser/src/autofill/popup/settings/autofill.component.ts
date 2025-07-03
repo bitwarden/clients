@@ -131,6 +131,7 @@ export class AutofillComponent implements OnInit {
     defaultUriMatch: new FormControl(),
   });
 
+  advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
@@ -187,6 +188,10 @@ export class AutofillComponent implements OnInit {
       { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
       { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
     ];
+    this.advancedOptionWarningMap = {
+      [UriMatchStrategy.StartsWith]: "startsWithAdvancedOptionWarning",
+      [UriMatchStrategy.RegularExpression]: "regExAdvancedOptionWarning",
+    };
 
     this.browserClientVendor = BrowserApi.getBrowserClientVendor(window);
     this.disablePasswordManagerURI = DisablePasswordManagerUris[this.browserClientVendor];
@@ -529,5 +534,18 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  getMatchHints() {
+    const hints = ["uriMatchDefaultStrategyHint"];
+    const strategy = this.additionalOptionsForm.get("defaultUriMatch")
+      ?.value as UriMatchStrategySetting;
+    if (
+      strategy === UriMatchStrategy.StartsWith ||
+      strategy === UriMatchStrategy.RegularExpression
+    ) {
+      hints.push(this.advancedOptionWarningMap[strategy]);
+    }
+    return hints;
   }
 }
