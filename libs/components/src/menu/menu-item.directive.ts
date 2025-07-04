@@ -20,7 +20,7 @@ export class MenuItemDirective implements FocusableOption {
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-primary-100",
+    "hover:tw-bg-hover-default",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",

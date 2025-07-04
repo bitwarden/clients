@@ -25,7 +25,7 @@ export class RowDirective {
       "tw-border-b",
       "tw-border-secondary-300",
       "tw-border-solid",
-      "hover:tw-bg-background-alt",
+      "hover:tw-bg-hover-default",
       "last:tw-border-0",
       this.alignmentClass,
     ];

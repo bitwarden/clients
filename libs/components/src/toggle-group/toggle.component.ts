@@ -68,7 +68,7 @@ export class ToggleComponent<TValue> implements AfterContentChecked, AfterViewIn
       "tw-border-r",
       "tw-border-l-0",
       "tw-cursor-pointer",
-      "hover:tw-bg-primary-100",
+      "hover:tw-bg-hover-default",
 
       "group-first-of-type/toggle:tw-border-l",
       "group-first-of-type/toggle:tw-rounded-s-full",
