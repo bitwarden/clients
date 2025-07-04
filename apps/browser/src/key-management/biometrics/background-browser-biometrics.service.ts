@@ -35,22 +35,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     // so that there is no wait when used.
     const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
 
-    // Only try to connect via background timer if the popup is not open.
-    // If it is open, then sending regular IPC messages will already attempt to connect.
-    const backgroundTimer = timer(0, this.BACKGROUND_POLLING_INTERVAL).pipe(
-      concatMap(async () => {
-        return await BrowserApi.isPopupOpen();
-      }),
-      filter((isPopupOpen) => !isPopupOpen),
-    );
-
-    combineLatest([backgroundTimer, biometricsEnabled])
+    combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
       .pipe(
         filter(([_, enabled]) => enabled),
         filter(([_]) => !this.nativeMessagingBackground().connected),
         concatMap(async () => {
           try {
             await this.nativeMessagingBackground().connect();
+            await this.getBiometricsStatus();
           } catch {
             // Ignore
           }
@@ -79,8 +71,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
-      await this.ensureConnected();
-
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.GetBiometricsStatus,
       });

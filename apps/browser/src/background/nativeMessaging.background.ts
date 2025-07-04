@@ -111,6 +111,9 @@ export class NativeMessagingBackground {
       );
       return;
     }
+    if (this.connected || this.connecting) {
+      return;
+    }
 
     this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
     const appId = await this.appIdService.getAppId();
