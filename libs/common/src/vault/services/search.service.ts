@@ -147,7 +147,7 @@ export class SearchService implements SearchServiceAbstraction {
       return;
     }
 
-    const indexingStartTime = new Date().getTime();
+    const indexingStartTime = performance.now();
     await this.setIsIndexing(userId, true);
     await this.setIndexedEntityIdForSearch(userId, indexedEntityId as IndexedEntityId);
     const builder = new lunr.Builder();
@@ -188,11 +188,10 @@ export class SearchService implements SearchServiceAbstraction {
     await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
 
     await this.setIsIndexing(userId, false);
-    this.logService.info(
-      `[SearchService] Building search index of ${ciphers.length} ciphers took ${
-        new Date().getTime() - indexingStartTime
-      }ms`,
-    );
+
+    this.logService.measure(indexingStartTime, "Vault", "SearchService", "index complete", [
+      ["Items", ciphers.length],
+    ]);
   }
 
   async searchCiphers(
