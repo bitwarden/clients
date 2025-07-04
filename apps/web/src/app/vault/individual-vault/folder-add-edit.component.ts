@@ -93,7 +93,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
 
     try {
       const activeAccountId = await firstValueFrom(this.activeUserId$);
-      const userKey = await this.keyService.getUserKeyWithLegacySupport(activeAccountId);
+      const userKey = await this.keyService.getUserKey(activeAccountId);
       const folder = await this.folderService.encrypt(this.folder, userKey);
       this.formPromise = this.folderApiService.save(folder, activeAccountId);
       await this.formPromise;
