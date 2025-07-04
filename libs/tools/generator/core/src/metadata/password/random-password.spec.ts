@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
-import { PasswordRandomizer } from "../../engine";
+import { PasswordRandomizer, SdkPasswordRandomizer } from "../../engine";
 import { DynamicPasswordPolicyConstraints } from "../../policies";
 import { GeneratorDependencyProvider } from "../../providers";
 import { PasswordGenerationOptions } from "../../types";
@@ -17,8 +17,16 @@ const dependencyProvider = mock<GeneratorDependencyProvider>();
 
 describe("password - characters generator metadata", () => {
   describe("engine.create", () => {
-    it("returns an email randomizer", () => {
-      expect(password.engine.create(dependencyProvider)).toBeInstanceOf(PasswordRandomizer);
+    it("returns an sdk password randomizer", () => {
+      expect(password.engine.create(dependencyProvider)).toBeInstanceOf(SdkPasswordRandomizer);
+    });
+  });
+
+  describe("engine.create", () => {
+    const nonSdkDependencyProvider = mock<GeneratorDependencyProvider>();
+    nonSdkDependencyProvider.sdk = undefined;
+    it("returns a password randomizer", () => {
+      expect(password.engine.create(nonSdkDependencyProvider)).toBeInstanceOf(PasswordRandomizer);
     });
   });
 

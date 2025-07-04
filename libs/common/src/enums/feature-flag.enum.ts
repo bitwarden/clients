@@ -47,6 +47,7 @@ export enum FeatureFlag {
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
+  UseSdkPasswordGenerators = "use-sdk-password-generators",
 
   /* Vault */
   PM8851_BrowserOnboardingNudge = "pm-8851-browser-onboarding-nudge",
@@ -92,6 +93,7 @@ export const DefaultFeatureFlagValue = {
 
   /* Tools */
   [FeatureFlag.DesktopSendUIRefresh]: FALSE,
+  [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
