@@ -7,7 +7,7 @@ import {
   CipherType as SdkCipherType,
   CipherView as SdkCipherView,
   CipherListView,
-  Attachment as SdkAttachment,
+  AttachmentView as SdkAttachmentView,
 } from "@bitwarden/sdk-internal";
 
 import { mockEnc } from "../../../spec";
@@ -311,7 +311,9 @@ describe("DefaultCipherEncryptionService", () => {
       const expectedDecryptedContent = new Uint8Array([5, 6, 7, 8]);
 
       jest.spyOn(cipher, "toSdkCipher").mockReturnValue({ id: "id" } as SdkCipher);
-      jest.spyOn(attachment, "toSdkAttachmentView").mockReturnValue({ id: "a1" } as SdkAttachment);
+      jest
+        .spyOn(attachment, "toSdkAttachmentView")
+        .mockReturnValue({ id: "a1" } as SdkAttachmentView);
       mockSdkClient.vault().attachments().decrypt_buffer.mockReturnValue(expectedDecryptedContent);
 
       const result = await cipherEncryptionService.decryptAttachmentContent(

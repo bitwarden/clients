@@ -67,6 +67,7 @@ describe("AttachmentView", () => {
         sizeName: "sizeName",
         fileName: "fileName",
         key: "encKeyB64",
+        decryptedKey: null,
       });
     });
   });
