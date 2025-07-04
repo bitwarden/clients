@@ -4,8 +4,12 @@ import type { autofill } from "@bitwarden/desktop-napi";
 
 import { Command } from "../platform/main/autofill/command";
 import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
+import { NativeAutofillSyncParams } from "../platform/main/autofill/sync.command";
 
 export default {
+
+  syncPasskeys: (params: NativeAutofillSyncParams): Promise<string> => ipcRenderer.invoke("autofill.syncPasskeys", params),
+
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
     ipcRenderer.invoke("autofill.runCommand", params),
 

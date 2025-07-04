@@ -11,6 +11,7 @@ import { parseCredentialId } from "./credential-id-utils";
 export async function getCredentialsForAutofill(
   ciphers: CipherView[],
 ): Promise<Fido2CredentialAutofillView[]> {
+  console.log("getCredentialsForAutofill", ciphers.length);
   return ciphers
     .filter(
       (cipher) =>
