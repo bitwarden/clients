@@ -6064,6 +6064,9 @@
   "add": {
     "message": "Přidat"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavní heslo bylo úspěšně nastaveno"
+  },
   "updatedMasterPassword": {
     "message": "Hlavní heslo bylo aktualizováno"
   },
@@ -8233,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "V průběhu pokusu o přečtení souboru s importem se vyskytla chyba"
   },
+  "accessedSecretWithId": {
+    "message": "Přístup k tajnému klíči s identifikátorem: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Přistoupeno k tajnému klíči $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Úprava tajného klíče s identifikátorem: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Smazání tajného klíče s identifikátorem: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Vytvoření nového tajného klíče s identifikátorem: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8867,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Společné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Detekce shody URI je způsob, jakým Bitwarden identifikuje návrhy automatického vyplňování.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulární výraz\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Začíná na\" je pokročilá volba se zvýšeným rizikem odhalení přihlašovacích údajů.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Další informace o detekci shody",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Pro správu předplatného pro $ORG$, ",
@@ -10657,6 +10712,51 @@
     "message": "Další informace o SSH agentovi",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "setupExtensionPageTitle": {
+    "message": "Bezpečné automatické vyplňování hesel jedním klepnutím"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Získejte rozšíření Bitwarden pro prohlížeč a začněte s automatickým vyplňováním ještě dnes"
+  },
+  "getTheExtension": {
+    "message": "Získat rozšíření"
+  },
+  "addItLater": {
+    "message": "Přidat později"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Bez rozšíření prohlížeče nelze automaticky vyplňovat hesla"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Opravdu nechcete nyní přidat rozšíření?"
+  },
+  "skipToWebApp": {
+    "message": "Přeskočit na webovou aplikaci"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Rozšíření Bitwarden nainstalováno!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Otevřete rozšíření pro příhlášení a spuštění automatického vyplňování."
+  },
+  "openBitwardenExtension": {
+    "message": "Otevřít rozšíření Bitwarden"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Pro tipy, jak začít používat Bitwarden, navštivte",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Centrum výuky",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Centrum nápovědy",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "Pomocí rozšíření Bitwarden pro prohlížeč můžete snadno vytvářet nová přihlašovací jména, přistupovat k uloženým přihlašovacím jménům přímo z panelu nástrojů prohlížeče a rychle se přihlašovat k účtům pomocí automatického vyplňování."
   },
   "restart": {
     "message": "Restartovat"
