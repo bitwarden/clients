@@ -46,6 +46,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+import { ConfirmKeyConnectorDomainCommand } from "../../key-management/confirm-key-connector-domain.command";
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 
@@ -330,6 +331,25 @@ export class LoginCommand {
           "In order to log in with SSO from the CLI, you must first log in" +
             " through the web vault to set your master password.",
         );
+      }
+
+      if (response.requiresKeyConnectorDomainConfirmation != null) {
+        const command = new ConfirmKeyConnectorDomainCommand(
+          response.userId,
+          response.requiresKeyConnectorDomainConfirmation.organizationId,
+          response.requiresKeyConnectorDomainConfirmation.keyConnectorUrl,
+          response.requiresKeyConnectorDomainConfirmation.kdf,
+          response.requiresKeyConnectorDomainConfirmation.kdfIterations,
+          response.requiresKeyConnectorDomainConfirmation.kdfMemory,
+          response.requiresKeyConnectorDomainConfirmation.kdfParallelism,
+          this.keyConnectorService,
+          this.logoutCallback,
+          this.i18nService,
+        );
+        const confirmResponse = await command.run();
+        if (!confirmResponse.success) {
+          return confirmResponse;
+        }
       }
 
       // Run full sync before handling success response or password reset flows (to get Master Password Policies)

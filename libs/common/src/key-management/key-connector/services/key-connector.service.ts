@@ -21,7 +21,6 @@ import { OrganizationService } from "../../../admin-console/abstractions/organiz
 import { OrganizationUserType } from "../../../admin-console/enums";
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { TokenService } from "../../../auth/abstractions/token.service";
-import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -129,19 +128,14 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async convertNewSsoUserToKeyConnector(
-    tokenResponse: IdentityTokenResponse,
     orgId: string,
     userId: UserId,
+    keyConnectorUrl: string,
+    kdf: KdfType,
+    kdfIterations: number,
+    kdfMemory?: number,
+    kdfParallelism?: number,
   ) {
-    // TODO: Remove after tokenResponse.keyConnectorUrl is deprecated in 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-    const {
-      kdf,
-      kdfIterations,
-      kdfMemory,
-      kdfParallelism,
-      keyConnectorUrl: legacyKeyConnectorUrl,
-      userDecryptionOptions,
-    } = tokenResponse;
     const password = await this.keyGenerationService.createKey(512);
     const kdfConfig: KdfConfig =
       kdf === KdfType.PBKDF2_SHA256
@@ -165,8 +159,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
 
     try {
-      const keyConnectorUrl =
-        legacyKeyConnectorUrl ?? userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl;
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
     } catch (e) {
       this.handleKeyConnectorError(e);
