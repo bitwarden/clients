@@ -301,28 +301,25 @@ export class TokenService implements TokenServiceAbstraction {
    *
    * @param accessTokenKey - the key used to decrypt the access token
    * @param encryptedAccessToken - the encrypted access token to decrypt
-   * @returns the decrypted access token or null if decryption fails
-   * @throws Error if the access token key is not provided
+   * @returns the decrypted access token
+   * @throws Error if the access token key is not provided or the decryption fails
    */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
-  ): Promise<string | null> {
+  ): Promise<string> {
     if (!accessTokenKey) {
       throw new Error(
         "decryptAccessToken: Access token key required. Cannot decrypt access token.",
       );
     }
 
-    try {
-      const decryptedAccessToken = await this.encryptService.decryptString(
-        encryptedAccessToken,
-        accessTokenKey,
-      );
-      return decryptedAccessToken;
-    } catch {
-      return null;
-    }
+    const decryptedAccessToken = await this.encryptService.decryptString(
+      encryptedAccessToken,
+      accessTokenKey,
+    );
+
+    return decryptedAccessToken;
   }
 
   /**
