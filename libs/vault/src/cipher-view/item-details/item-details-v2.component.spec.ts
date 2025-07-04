@@ -1,11 +1,16 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClientType } from "@bitwarden/common/enums";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -46,7 +51,15 @@ describe("ItemDetailsV2Component", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
-      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+      providers: [
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: PlatformUtilsService, useValue: { getClientType: () => ClientType.Web } },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+      ],
     }).compileComponents();
   });
 
@@ -63,10 +76,10 @@ describe("ItemDetailsV2Component", () => {
   it("displays all available fields", () => {
     const itemName = fixture.debugElement.query(By.css('[data-testid="item-name"]'));
     const owner = fixture.debugElement.query(By.css('[data-testid="owner"]'));
-    const collections = fixture.debugElement.queryAll(By.css('[data-testid="collections"] li'));
+    const collections = fixture.debugElement.queryAll(By.css('[data-testid="collections"]'));
     const folderElement = fixture.debugElement.query(By.css('[data-testid="folder"]'));
 
-    expect(itemName.nativeElement.value).toBe(cipher.name);
+    expect(itemName.nativeElement.textContent).toBe(cipher.name);
     expect(owner.nativeElement.textContent.trim()).toBe(organization.name);
     expect(collections.map((c) => c.nativeElement.textContent.trim())).toEqual([
       collection.name,
