@@ -90,11 +90,6 @@ const moduleRules = [
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
   },
-  {
-    test: /argon2(-simd)?\.wasm$/,
-    loader: "base64-loader",
-    type: "javascript/auto",
-  },
 ];
 
 const plugins = [
