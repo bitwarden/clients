@@ -26,6 +26,7 @@ export class SendView implements View {
   deletionDate: Date = null;
   expirationDate: Date = null;
   password: string = null;
+  emails: string[] = [];
   disabled = false;
   hideEmail = false;
 
