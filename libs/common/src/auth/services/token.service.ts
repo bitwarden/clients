@@ -296,6 +296,14 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
+  /**
+   * Decrypts the access token using the provided access token key.
+   *
+   * @param accessTokenKey - the key used to decrypt the access token
+   * @param encryptedAccessToken - the encrypted access token to decrypt
+   * @returns the decrypted access token or null if decryption fails
+   * @throws Error if the access token key is not provided
+   */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
@@ -306,12 +314,15 @@ export class TokenService implements TokenServiceAbstraction {
       );
     }
 
-    const decryptedAccessToken = await this.encryptService.decryptString(
-      encryptedAccessToken,
-      accessTokenKey,
-    );
-
-    return decryptedAccessToken;
+    try {
+      const decryptedAccessToken = await this.encryptService.decryptString(
+        encryptedAccessToken,
+        accessTokenKey,
+      );
+      return decryptedAccessToken;
+    } catch {
+      return null;
+    }
   }
 
   /**
