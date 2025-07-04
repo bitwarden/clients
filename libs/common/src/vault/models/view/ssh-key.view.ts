@@ -63,4 +63,15 @@ export class SshKeyView extends ItemView {
 
     return sshKeyView;
   }
+
+  /**
+   * Converts the SshKeyView to an SDK SshKeyView.
+   */
+  toSdkSshKeyView(): SdkSshKeyView {
+    return {
+      privateKey: this.privateKey,
+      publicKey: this.publicKey,
+      fingerprint: this.keyFingerprint,
+    };
+  }
 }

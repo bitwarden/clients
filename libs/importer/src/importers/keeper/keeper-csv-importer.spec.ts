@@ -66,7 +66,7 @@ describe("Keeper CSV Importer", () => {
     expect(result != null).toBe(true);
 
     const cipher = result.ciphers.shift();
-    expect(cipher.fields).toBeNull();
+    expect(cipher.fields.length).toBe(0);
 
     const cipher2 = result.ciphers.shift();
     expect(cipher2.fields.length).toBe(2);
