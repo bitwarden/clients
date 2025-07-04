@@ -83,7 +83,7 @@ describe("EncString", () => {
 
       const keyService = mock<KeyService>();
       keyService.hasUserKey.mockResolvedValue(true);
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue(
+      keyService.getUserKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
       );
 
@@ -343,7 +343,7 @@ describe("EncString", () => {
 
       await encString.decrypt(null, key);
 
-      expect(keyService.getUserKeyWithLegacySupport).not.toHaveBeenCalled();
+      expect(keyService.getUserKey).not.toHaveBeenCalled();
       expect(encryptService.decryptString).toHaveBeenCalledWith(encString, key);
     });
 
@@ -361,11 +361,11 @@ describe("EncString", () => {
     it("gets the user's decryption key if required", async () => {
       const userKey = mock<UserKey>();
 
-      keyService.getUserKeyWithLegacySupport.mockResolvedValue(userKey);
+      keyService.getUserKey.mockResolvedValue(userKey);
 
       await encString.decrypt(null, null);
 
-      expect(keyService.getUserKeyWithLegacySupport).toHaveBeenCalledWith();
+      expect(keyService.getUserKey).toHaveBeenCalledWith();
       expect(encryptService.decryptString).toHaveBeenCalledWith(encString, userKey);
     });
   });
