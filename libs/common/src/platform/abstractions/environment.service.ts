@@ -95,6 +95,13 @@ export interface Environment {
  */
 export abstract class EnvironmentService {
   abstract environment$: Observable<Environment>;
+
+  /**
+   * The environment stored in global state, when a user signs in the state stored here will become
+   * their user environment.
+   */
+  abstract globalEnvironment$: Observable<Environment>;
+
   abstract cloudWebVaultUrl$: Observable<string>;
 
   /**
