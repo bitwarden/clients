@@ -3,8 +3,6 @@ import { Jsonify } from "type-fest";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 const TWO_FACTOR_AUTH_COMPONENT_CACHE_KEY = "two-factor-auth-component-cache";
 
@@ -40,10 +38,6 @@ export interface TwoFactorAuthComponentData {
 @Injectable()
 export class TwoFactorAuthComponentCacheService {
   private viewCacheService: ViewCacheService = inject(ViewCacheService);
-  private configService: ConfigService = inject(ConfigService);
-
-  /** True when the `PM9115_TwoFactorExtensionDataPersistence` flag is enabled */
-  private featureEnabled: boolean = false;
 
   /**
    * Signal for the cached TwoFactorAuthData.
@@ -58,22 +52,9 @@ export class TwoFactorAuthComponentCacheService {
   constructor() {}
 
   /**
-   * Must be called once before interacting with the cached data.
-   */
-  async init() {
-    this.featureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-    );
-  }
-
-  /**
    * Update the cache with the new TwoFactorAuthData.
    */
   cacheData(data: TwoFactorAuthComponentData): void {
-    if (!this.featureEnabled) {
-      return;
-    }
-
     this.twoFactorAuthComponentCache.set({
       token: data.token,
       remember: data.remember,
@@ -85,10 +66,6 @@ export class TwoFactorAuthComponentCacheService {
    * Clears the cached TwoFactorAuthData.
    */
   clearCachedData(): void {
-    if (!this.featureEnabled) {
-      return;
-    }
-
     this.twoFactorAuthComponentCache.set(null);
   }
 
@@ -96,10 +73,6 @@ export class TwoFactorAuthComponentCacheService {
    * Returns the cached TwoFactorAuthData (when available).
    */
   getCachedData(): TwoFactorAuthComponentCache | null {
-    if (!this.featureEnabled) {
-      return null;
-    }
-
     return this.twoFactorAuthComponentCache();
   }
 }
