@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
-  AuthRequestApiService,
+  AuthRequestApiServiceAbstraction,
   DeviceManagementComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -64,7 +64,7 @@ export class DeviceManagementComponent implements OnInit {
   protected showHeaderInfo = false;
 
   constructor(
-    private authRequestApiService: AuthRequestApiService,
+    private authRequestApiService: AuthRequestApiServiceAbstraction,
     private destroyRef: DestroyRef,
     private deviceManagementComponentService: DeviceManagementComponentServiceAbstraction,
     private devicesService: DevicesServiceAbstraction,
