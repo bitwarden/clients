@@ -14,8 +14,8 @@ import {
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { UserId } from "../../../types/guid";

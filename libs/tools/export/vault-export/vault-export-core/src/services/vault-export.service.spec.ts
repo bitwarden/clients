@@ -6,9 +6,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";

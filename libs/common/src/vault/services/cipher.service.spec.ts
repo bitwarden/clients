@@ -14,13 +14,13 @@ import { AutofillSettingsService } from "../../autofill/services/autofill-settin
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId } from "../../types/guid";

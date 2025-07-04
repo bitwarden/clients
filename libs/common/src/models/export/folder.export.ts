@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Folder as FolderDomain } from "../../vault/models/domain/folder";
 import { FolderView } from "../../vault/models/view/folder.view";
 

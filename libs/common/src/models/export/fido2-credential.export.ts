@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
 

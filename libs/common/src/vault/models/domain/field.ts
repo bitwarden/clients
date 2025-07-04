@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { Field as SdkField, LinkedIdType as SdkLinkedIdType } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FieldType, LinkedIdType } from "../../enums";
 import { FieldData } from "../data/field.data";

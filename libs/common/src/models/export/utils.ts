@@ -1,4 +1,4 @@
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 
 export function safeGetString(value: string | EncString) {
   if (value == null) {
