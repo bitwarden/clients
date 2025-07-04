@@ -41,6 +41,8 @@ defaults:
   run:
     shell: bash
 
+permissions: {}
+
 jobs:
   setup:
     name: Setup
@@ -266,6 +268,29 @@ jobs:
         working-directory: browser-source/
         run: npm link ../sdk-internal
 
+      - name: Check source file size
+        if: ${{ startsWith(matrix.name, 'firefox') }}
+        run: |
+          # Declare variable as indexed array
+          declare -a FILES
+
+          # Search for source files that are greater than 4M
+          TARGET_DIR='./browser-source/apps/browser'
+          while IFS=' ' read -r RESULT; do
+              FILES+=("$RESULT")
+          done < <(find $TARGET_DIR -size +4M)
+
+          # Validate results and provide messaging
+          if [[ ${#FILES[@]} -ne 0 ]]; then
+              echo "File(s) exceeds size limit: 4MB"
+              for FILE in ${FILES[@]}; do
+                  echo "- $(du --si $FILE)"
+              done
+              echo "ERROR Firefox rejects extension uploads that contain files larger than 4MB"
+              # Invoke failure
+              exit 1
+          fi
+
       - name: Build extension
         run: npm run ${{ matrix.npm_command }}
         working-directory: browser-source/apps/browser
@@ -441,7 +466,7 @@ jobs:
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

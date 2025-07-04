@@ -2,7 +2,13 @@
 // @ts-strict-ignore
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+  StoryObj,
+} from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
 import {
@@ -29,6 +35,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { LayoutComponent } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
@@ -48,8 +56,9 @@ export default {
   title: "Web/Vault/Items",
   component: VaultItemsComponent,
   decorators: [
+    componentWrapperDecorator((story) => `<bit-layout>${story}</bit-layout>`),
     moduleMetadata({
-      imports: [VaultItemsModule, RouterModule],
+      imports: [VaultItemsModule, RouterModule, LayoutComponent],
       providers: [
         {
           provide: EnvironmentService,
@@ -123,6 +132,12 @@ export default {
             canCloneCipher$() {
               return of(true);
             },
+          },
+        },
+        {
+          provide: RestrictedItemTypesService,
+          useValue: {
+            restricted$: of([]), // No restricted item types for this story
           },
         },
       ],

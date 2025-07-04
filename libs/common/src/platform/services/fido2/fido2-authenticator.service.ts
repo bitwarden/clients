@@ -1,13 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
+import { CipherId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../../vault/enums/cipher-type";
+import { Cipher } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import {
@@ -149,7 +151,23 @@ export class Fido2AuthenticatorService<ParentWindowReference>
         const activeUserId = await firstValueFrom(
           this.accountService.activeAccount$.pipe(getUserId),
         );
-        const encrypted = await this.cipherService.get(cipherId, activeUserId);
+
+        const encrypted = await firstValueFrom(
+          this.cipherService.ciphers$(activeUserId).pipe(
+            map((ciphers) => ciphers[cipherId as CipherId]),
+            filter((c) => c !== undefined),
+            timeout({
+              first: 5000,
+              with: () => {
+                this.logService?.error(
+                  `[Fido2Authenticator] Aborting because cipher with ID ${cipherId} could not be found within timeout.`,
+                );
+                throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
+              },
+            }),
+            map((c) => new Cipher(c, null)),
+          ),
+        );
 
         cipher = await this.cipherService.decrypt(encrypted, activeUserId);
 
@@ -496,7 +514,7 @@ async function getPrivateKeyFromFido2Credential(
   const keyBuffer = Fido2Utils.stringToBuffer(fido2Credential.keyValue);
   return await crypto.subtle.importKey(
     "pkcs8",
-    keyBuffer,
+    new Uint8Array(keyBuffer),
     {
       name: fido2Credential.keyAlgorithm,
       namedCurve: fido2Credential.keyCurve,

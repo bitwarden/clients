@@ -79,6 +79,7 @@ const routes: Routes = [
       },
       {
         path: "access-intelligence",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessReports)],
         loadChildren: () =>
           import("../../dirt/access-intelligence/access-intelligence.module").then(
             (m) => m.AccessIntelligenceModule,
