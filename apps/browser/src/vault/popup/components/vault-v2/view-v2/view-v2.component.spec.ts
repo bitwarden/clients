@@ -20,7 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -239,6 +239,62 @@ describe("ViewV2Component", () => {
       flush(); // Resolve all promises
 
       expect(copy).toHaveBeenCalledTimes(1);
+    }));
+
+    it("does not set the cipher until reprompt is complete", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(true); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toEqual({ ...mockCipher, reprompt: CipherRepromptType.Password });
+    }));
+
+    it("does not set the cipher at all if doAutofill fails and reprompt is active", fakeAsync(() => {
+      let promptPromise: (val?: unknown) => void;
+      mockCipherService.decrypt.mockImplementationOnce(() =>
+        Promise.resolve({
+          ...mockCipher,
+          reprompt: CipherRepromptType.Password,
+        }),
+      );
+      doAutofill.mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          // store the promise resolver to manually trigger the promise resolve
+          promptPromise = resolve;
+        });
+      });
+
+      params$.next({ action: AUTOFILL_ID });
+
+      flush(); // Flush all pending actions
+
+      expect(component.cipher).toBeUndefined();
+      expect(doAutofill).toHaveBeenCalled();
+
+      promptPromise!(false); // resolve the password prompt
+
+      flush();
+      expect(component.cipher).toBeUndefined();
     }));
 
     it("closes the popout after a load action", fakeAsync(() => {
