@@ -6,7 +6,7 @@
       [class]="column.headerClass"
       bitCell
       [bitSortable]="column.sortable ? column.name : ''"
-      [default]="column.name === 'loginStatus' ? 'desc' : 'asc'"
+      [default]="column.name === 'loginStatus' ? 'desc' : false"
       scope="col"
       role="columnheader"
     >
