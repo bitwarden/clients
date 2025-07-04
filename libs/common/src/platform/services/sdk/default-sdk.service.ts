@@ -36,6 +36,9 @@ import { SdkService, UserNotLoggedInError } from "../../abstractions/sdk/sdk.ser
 import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
+import { StateProvider } from "../../state";
+
+import { initializeState } from "./client-managed-state";
 
 // A symbol that represents an overriden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -68,6 +71,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private stateProvider?: StateProvider,
     private userAgent: string | null = null,
   ) {}
 
@@ -224,6 +228,12 @@ export class DefaultSdkService implements SdkService {
           .map(([k, v]) => [k, v.key]),
       ),
     });
+
+    // This is optional to avoid having to mock it on the tests
+    if (this.stateProvider) {
+      // Initialize the SDK managed database and the client managed repositories.
+      await initializeState(userId, client.platform().state(), this.stateProvider);
+    }
   }
 
   private toSettings(env: Environment): ClientSettings {
