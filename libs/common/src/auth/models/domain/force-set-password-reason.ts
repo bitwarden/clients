@@ -37,6 +37,15 @@ export enum ForceSetPasswordReason {
    */
   TdeOffboarding,
 
+  /**
+   * Occurs when an org admin switches the org from trusted-device-encryption to master-password-encryption,
+   * which forces the org user to set an initial password. User must not already have a master password,
+   * and they must be on an untrusted device.
+   *
+   * Calculated on client based on server flags and user state.
+   */
+  TdeOffboardingUntrustedDevice,
+
   /*----------------------------
       Change Existing Password  
   -----------------------------*/
