@@ -13,6 +13,7 @@ import { IconButtonModule } from "../icon-button";
 import { InputModule } from "../input/input.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 import { BitSubmitDirective } from "./bit-submit.directive";
 import { BitFormButtonDirective } from "./form-button.directive";
@@ -40,6 +41,13 @@ const template = `
 @Component({
   selector: "app-promise-example",
   template,
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    FormFieldModule,
+    IconButtonModule,
+    ReactiveFormsModule,
+  ],
 })
 class PromiseExampleComponent {
   formObj = this.formBuilder.group({
@@ -77,6 +85,13 @@ class PromiseExampleComponent {
 @Component({
   selector: "app-observable-example",
   template,
+  imports: [
+    AsyncActionsModule,
+    ButtonModule,
+    FormFieldModule,
+    IconButtonModule,
+    ReactiveFormsModule,
+  ],
 })
 class ObservableExampleComponent {
   formObj = this.formBuilder.group({
@@ -109,7 +124,6 @@ export default {
   title: "Component Library/Async Actions/In Forms",
   decorators: [
     moduleMetadata({
-      declarations: [PromiseExampleComponent, ObservableExampleComponent],
       imports: [
         BitSubmitDirective,
         BitFormButtonDirective,
@@ -120,6 +134,8 @@ export default {
         ButtonModule,
         IconButtonModule,
         BitActionDirective,
+        PromiseExampleComponent,
+        ObservableExampleComponent,
       ],
       providers: [
         {
