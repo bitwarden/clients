@@ -1213,11 +1213,11 @@
     "message": "Sekundárnym kliknutím získate prístup k vygenerovaniu hesiel a zodpovedajúcim prihláseniam pre webovú stránku. Platí pre všetky prihlásené účty."
   },
   "defaultUriMatchDetection": {
-    "message": "Predvolené mapovanie",
+    "message": "Predvolený spôsob zisťovania zhody URI",
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Vyberte si predvolený spôsob mapovania, ktorý bude použitý pre prihlasovacie údaje pri využití funkcí ako je napríklad automatické vypĺňanie hesiel."
+    "message": "Vyberte predvolený spôsob zisťovania zhody, ktorý bude použitý pre prihlasovacie údaje pri využití funkcií, ako je napríklad automatické vypĺňanie hesiel."
   },
   "theme": {
     "message": "Motív"
@@ -2049,11 +2049,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Spôsob mapovania",
+    "message": "Zisťovanie zhody",
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
-    "message": "Predvolené mapovanie",
+    "message": "Predvolené zisťovanie zhody",
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
@@ -2918,6 +2918,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Na použitie tejto funkcie musíte overiť svoj e-mail. Svoj e-mail môžete overiť vo webovom trezore."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
     "message": "Hlavné heslo aktualizované"
@@ -4244,6 +4247,26 @@
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Zisťovanie zhody URI je spôsob, akým Bitwarden identifikuje návrhy na automatické vypĺňanie.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Viac informácií o zisťovaní zhody",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšírené možnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Pokračovať do nastavení prehliadača?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4692,7 +4715,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Zobraziť spôsob mapovania $WEBSITE$",
+    "message": "Zobraziť zisťovanie zhody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4701,7 +4724,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Skryť spôsob mapovania $WEBSITE$",
+    "message": "Skryť spôsob zisťovania zhody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
