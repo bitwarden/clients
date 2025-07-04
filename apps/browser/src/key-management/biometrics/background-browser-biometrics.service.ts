@@ -1,3 +1,6 @@
+import { combineLatest, timer } from "rxjs";
+import { filter, concatMap } from "rxjs/operators";
+
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -17,6 +20,8 @@ import { NativeMessagingBackground } from "../../background/nativeMessaging.back
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
+  BACKGROUND_POLLING_INTERVAL = 30_000;
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private logService: LogService,
@@ -26,6 +31,24 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {
     super();
+    // Always connect to the native messaging background if biometrics are enabled, not just when it is used
+    // so that there is no wait when used.
+    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$;
+
+    combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
+      .pipe(
+        filter(([_, enabled]) => enabled),
+        filter(([_]) => !this.nativeMessagingBackground().connected),
+        concatMap(async () => {
+          try {
+            await this.nativeMessagingBackground().connect();
+            await this.getBiometricsStatus();
+          } catch {
+            // Ignore
+          }
+        }),
+      )
+      .subscribe();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -48,8 +71,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
-      await this.ensureConnected();
-
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.GetBiometricsStatus,
       });
