@@ -443,7 +443,7 @@ export abstract class ApiService {
   postBitPayInvoice: (request: BitPayInvoiceRequest) => Promise<string>;
   postSetupPayment: () => Promise<string>;
 
-  getActiveBearerToken: () => Promise<string>;
+  getActiveBearerToken: (userId?: UserId) => Promise<string>;
   fetch: (request: Request) => Promise<Response>;
   nativeFetch: (request: Request) => Promise<Response>;
 

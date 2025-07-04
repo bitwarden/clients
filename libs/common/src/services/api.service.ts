@@ -125,6 +125,7 @@ import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
+import { StateProvider } from "../platform/state";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
@@ -154,7 +155,7 @@ export type HttpOperations = {
 export class ApiService implements ApiServiceAbstraction {
   private device: DeviceType;
   private deviceType: string;
-  private refreshTokenPromise: Promise<string> | undefined;
+  private refreshTokenPromise: Map<UserId, Promise<string> | undefined> = new Map();
 
   /**
    * The message (responseJson.ErrorModel.Message) that comes back from the server when a new device verification is required.
@@ -172,6 +173,7 @@ export class ApiService implements ApiServiceAbstraction {
     private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly httpOperations: HttpOperations,
+    private stateProvider: StateProvider,
     private customUserAgent: string = null,
   ) {
     this.device = platformUtilsService.getDevice();
@@ -242,8 +244,9 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async refreshIdentityToken(): Promise<any> {
+    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
     try {
-      await this.refreshToken();
+      await this.refreshToken(userId);
     } catch (e) {
       this.logService.error("Error refreshing access token: ", e);
       throw e;
@@ -1477,10 +1480,10 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Helpers
 
-  async getActiveBearerToken(): Promise<string> {
-    let accessToken = await this.tokenService.getAccessToken();
-    if (await this.tokenService.tokenNeedsRefresh()) {
-      accessToken = await this.refreshToken();
+  async getActiveBearerToken(userId?: UserId): Promise<string> {
+    let accessToken = await this.tokenService.getAccessToken(userId);
+    if (await this.tokenService.tokenNeedsRefresh(userId)) {
+      accessToken = await this.refreshToken(userId);
     }
     return accessToken;
   }
@@ -1602,14 +1605,15 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   // Keep the running refreshTokenPromise to prevent parallel calls.
-  protected refreshToken(): Promise<string> {
-    if (this.refreshTokenPromise === undefined) {
-      this.refreshTokenPromise = this.internalRefreshToken();
-      void this.refreshTokenPromise.finally(() => {
-        this.refreshTokenPromise = undefined;
+  protected refreshToken(userId: UserId): Promise<string> {
+    if (this.refreshTokenPromise.get(userId) === undefined) {
+      const promise = this.internalRefreshToken();
+      this.refreshTokenPromise.set(userId, promise);
+      void promise.finally(() => {
+        this.refreshTokenPromise.delete(userId);
       });
     }
-    return this.refreshTokenPromise;
+    return this.refreshTokenPromise.get(userId);
   }
 
   private async internalRefreshToken(): Promise<string> {

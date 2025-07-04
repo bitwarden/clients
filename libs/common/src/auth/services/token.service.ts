@@ -903,10 +903,10 @@ export class TokenService implements TokenServiceAbstraction {
   // TODO: PM-6678- tech debt - consider consolidating the return types of all these access
   // token data retrieval methods to return null if something goes wrong instead of throwing an error.
 
-  async getTokenExpirationDate(): Promise<Date | null> {
+  async getTokenExpirationDate(userId?: UserId): Promise<Date | null> {
     let decoded: DecodedAccessToken;
     try {
-      decoded = await this.decodeAccessToken();
+      decoded = await this.decodeAccessToken(userId);
     } catch (error) {
       throw new Error("Failed to decode access token: " + error.message);
     }
@@ -922,8 +922,8 @@ export class TokenService implements TokenServiceAbstraction {
     return expirationDate;
   }
 
-  async tokenSecondsRemaining(offsetSeconds = 0): Promise<number> {
-    const date = await this.getTokenExpirationDate();
+  async tokenSecondsRemaining(userId?: UserId, offsetSeconds = 0): Promise<number> {
+    const date = await this.getTokenExpirationDate(userId);
     if (date == null) {
       return 0;
     }
@@ -932,8 +932,8 @@ export class TokenService implements TokenServiceAbstraction {
     return Math.round(msRemaining / 1000);
   }
 
-  async tokenNeedsRefresh(minutes = 5): Promise<boolean> {
-    const sRemaining = await this.tokenSecondsRemaining();
+  async tokenNeedsRefresh(userId?: UserId, minutes = 5): Promise<boolean> {
+    const sRemaining = await this.tokenSecondsRemaining(userId);
     return sRemaining < 60 * minutes;
   }
 

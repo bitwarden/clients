@@ -1,9 +1,11 @@
-import { ClientSettings, LogLevel, BitwardenClient } from "@bitwarden/sdk-internal";
+import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkClientFactory } from "../src/platform/abstractions/sdk/sdk-client-factory";
 
 export class DefaultSdkClientFactory implements SdkClientFactory {
-  createSdkClient(settings?: ClientSettings, log_level?: LogLevel): Promise<BitwardenClient> {
+  createSdkClient(
+    ...args: ConstructorParameters<typeof BitwardenClient>
+  ): Promise<BitwardenClient> {
     throw new Error("Method not implemented.");
   }
 }

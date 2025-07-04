@@ -170,14 +170,14 @@ export abstract class TokenService {
    * based on the actual expiration.
    * @returns {Promise<number>} Promise resolving to the adjusted seconds remaining.
    */
-  tokenSecondsRemaining: (offsetSeconds?: number) => Promise<number>;
+  tokenSecondsRemaining: (userId: UserId, offsetSeconds?: number) => Promise<number>;
 
   /**
    * Checks if the access token needs to be refreshed.
    * @param {number} [minutes=5] - Optional number of minutes before the access token expires to consider refreshing it.
    * @returns A promise that resolves with a boolean indicating if the access token needs to be refreshed.
    */
-  tokenNeedsRefresh: (minutes?: number) => Promise<boolean>;
+  tokenNeedsRefresh: (userId?: UserId, minutes?: number) => Promise<boolean>;
 
   /**
    * Gets the user id for the active user from the access token.
