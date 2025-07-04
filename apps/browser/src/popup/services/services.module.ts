@@ -63,6 +63,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto/abstractions/key-generation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -77,7 +78,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

@@ -3,7 +3,6 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncryptionType } from "../../../platform/enums";
@@ -18,6 +17,7 @@ import {
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "../../crypto/abstractions/key-generation.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 
 /** Memory since master key shouldn't be available on lock */

@@ -155,7 +155,9 @@ import { TaxService } from "@bitwarden/common/billing/services/tax.service";
 import { BulkEncryptService } from "@bitwarden/common/key-management/crypto/abstractions/bulk-encrypt.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/key-generation.service";
 import { BulkEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/bulk-encrypt.service.implementation";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto/services/key-generation.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/multithread-encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -183,7 +185,6 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -221,7 +222,6 @@ import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/d
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";

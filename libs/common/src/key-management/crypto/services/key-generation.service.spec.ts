@@ -4,10 +4,10 @@ import { mock } from "jest-mock-extended";
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
 
-import { CryptoFunctionService } from "../../key-management/crypto/abstractions/crypto-function.service";
-import { CsprngArray } from "../../types/csprng";
-import { EncryptionType } from "../enums";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { EncryptionType } from "../../../platform/enums";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../../types/csprng";
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 
 import { KeyGenerationService } from "./key-generation.service";
 

@@ -2,8 +2,8 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
 
-import { CsprngArray } from "../../types/csprng";
-import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../../types/csprng";
 
 export abstract class KeyGenerationService {
   /**
