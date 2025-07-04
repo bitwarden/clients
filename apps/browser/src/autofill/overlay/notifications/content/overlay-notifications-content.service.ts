@@ -200,6 +200,7 @@ export class OverlayNotificationsContentService
         ...this.notificationBarIframeElementStyles,
         transform: isNotificationFresh ? "translateX(100%)" : "translateX(0)",
         opacity: isNotificationFresh ? "1" : "0",
+        colorScheme: allowedColorScheme,
       },
       true,
     );
