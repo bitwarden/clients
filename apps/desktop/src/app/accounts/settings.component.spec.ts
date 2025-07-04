@@ -152,6 +152,7 @@ describe("SettingsComponent", () => {
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
     desktopSettingsService.preventScreenshots$ = of(false);
+    desktopSettingsService.autotypeEnabled$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);
     themeStateService.selectedTheme$ = of(ThemeType.System);
