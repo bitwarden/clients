@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeNote": {
+    "message": "Notitie"
+  },
   "newItemHeader": {
     "message": "Nieuwe $TYPE$",
     "placeholders": {
@@ -2483,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
+  },
+  "restrictCardTypeImport": {
+    "message": "Kan kaart item types niet importeren"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Een beleid ingesteld door 1 of meer organisaties voorkomt dat je kaarten naar je kluizen kunt importeren."
   },
   "domainsTitle": {
     "message": "Domeinen",
@@ -5062,6 +5071,9 @@
   "unlockPinSet": {
     "message": "PIN-code ontgrendelen instellen"
   },
+  "unlockWithBiometricSet": {
+    "message": "Met biometrische set ontgrendelen"
+  },
   "authenticating": {
     "message": "Aan het inloggen"
   },
@@ -5403,5 +5415,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly wordt niet ondersteund in je browser of is niet ingeschakeld. WebAssembly is vereist om de Bitwarden-app te gebruiken.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

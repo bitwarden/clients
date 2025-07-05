@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH 鍵"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "$TYPE$ を新規作成",
     "placeholders": {
@@ -2483,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "組織のポリシーにより、個々の保管庫へのアイテムのインポートがブロックされました。"
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
   "domainsTitle": {
     "message": "ドメイン",
@@ -5062,6 +5071,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "認証中"
   },
@@ -5403,5 +5415,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

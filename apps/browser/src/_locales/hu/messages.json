@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeNote": {
+    "message": "Jegyzet"
+  },
   "newItemHeader": {
     "message": "Új $TYPE$",
     "placeholders": {
@@ -2483,6 +2486,12 @@
   },
   "personalOwnershipPolicyInEffectImports": {
     "message": "A szervezeti politika blokkolta az elemek importálását az egyedi széfbe."
+  },
+  "restrictCardTypeImport": {
+    "message": "A kártya elem típusokat nem lehet importálni."
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Egy vagy több szervezet által beállított szabályzat megakadályozza a kártyák importálását a széfekbe."
   },
   "domainsTitle": {
     "message": "Tartomány",
@@ -5062,6 +5071,9 @@
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
   },
+  "unlockWithBiometricSet": {
+    "message": "Feloldás biometrikusan"
+  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -5403,5 +5415,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
+  },
+  "wasmNotSupported": {
+    "message": "A WebAssembly nem támogatott a böngészőben vagy nincs engedélyezve. A WebAssembly szükséges a Bitwarden alkalmazás használatához.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
