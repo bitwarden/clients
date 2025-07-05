@@ -32,7 +32,7 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
+  LoginApprovalDialogComponentServiceAbstraction,
   LoginEmailService,
   PinServiceAbstraction,
   SsoUrlService,
@@ -107,7 +107,7 @@ import {
 import { LockComponentService } from "@bitwarden/key-management-ui";
 import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
 
-import { DesktopLoginApprovalComponentService } from "../../auth/login/desktop-login-approval-component.service";
+import { DesktopLoginApprovalDialogComponentService } from "../../auth/login/desktop-login-approval-dialog-component.service";
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
@@ -461,8 +461,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: LoginApprovalComponentServiceAbstraction,
-    useClass: DesktopLoginApprovalComponentService,
+    provide: LoginApprovalDialogComponentServiceAbstraction,
+    useClass: DesktopLoginApprovalDialogComponentService,
     deps: [I18nServiceAbstraction],
   }),
   safeProvider({

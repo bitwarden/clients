@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 
-import { DefaultLoginApprovalComponentService } from "@bitwarden/auth/angular";
-import { LoginApprovalComponentServiceAbstraction } from "@bitwarden/auth/common";
+import { DefaultLoginApprovalDialogComponentService } from "@bitwarden/auth/angular";
+import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/auth/common";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()
-export class DesktopLoginApprovalComponentService
-  extends DefaultLoginApprovalComponentService
-  implements LoginApprovalComponentServiceAbstraction
+export class DesktopLoginApprovalDialogComponentService
+  extends DefaultLoginApprovalDialogComponentService
+  implements LoginApprovalDialogComponentServiceAbstraction
 {
   constructor(private i18nService: I18nServiceAbstraction) {
     super();

@@ -7,7 +7,7 @@ import { Subject, firstValueFrom, map } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AuthRequestServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction as LoginApprovalComponentService,
+  LoginApprovalDialogComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -40,10 +40,10 @@ export interface LoginApprovalDialogParams {
 
 @Component({
   selector: "login-approval",
-  templateUrl: "login-approval.component.html",
+  templateUrl: "login-approval-dialog.component.html",
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
-export class LoginApprovalComponent implements OnInit, OnDestroy {
+export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   loading = true;
 
   notificationId: string;
@@ -67,7 +67,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     protected keyService: KeyService,
     private dialogRef: DialogRef,
     private toastService: ToastService,
-    private loginApprovalComponentService: LoginApprovalComponentService,
+    private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
     private validationService: ValidationService,
   ) {
     this.notificationId = params.notificationId;
@@ -103,7 +103,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
+      this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
+        this.email,
+      );
 
       this.loading = false;
     }
@@ -115,7 +117,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
    * @param data Configuration for the dialog
    */
   static open(dialogService: DialogService, data: LoginApprovalDialogParams) {
-    return dialogService.open(LoginApprovalComponent, { data });
+    return dialogService.open(LoginApprovalDialogComponent, { data });
   }
 
   denyLogin = async () => {

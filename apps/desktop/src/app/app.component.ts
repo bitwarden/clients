@@ -28,7 +28,7 @@ import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent, LoginApprovalComponent } from "@bitwarden/auth/angular";
+import { FingerprintDialogComponent, LoginApprovalDialogComponent } from "@bitwarden/auth/angular";
 import {
   DESKTOP_SSO_CALLBACK,
   LogoutReason,
@@ -474,7 +474,7 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openLoginApproval":
             if (message.notificationId != null) {
               this.dialogService.closeAll();
-              const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+              const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
                 notificationId: message.notificationId,
               });
               await firstValueFrom(dialogRef.closed);

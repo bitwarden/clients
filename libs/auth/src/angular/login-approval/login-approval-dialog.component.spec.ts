@@ -4,7 +4,7 @@ import { of } from "rxjs";
 
 import {
   AuthRequestServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
+  LoginApprovalDialogComponentServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,11 +19,11 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { LoginApprovalComponent } from "./login-approval.component";
+import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
-describe("LoginApprovalComponent", () => {
-  let component: LoginApprovalComponent;
-  let fixture: ComponentFixture<LoginApprovalComponent>;
+describe("LoginApprovalDialogComponent", () => {
+  let component: LoginApprovalDialogComponent;
+  let fixture: ComponentFixture<LoginApprovalDialogComponent>;
 
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
@@ -54,7 +54,7 @@ describe("LoginApprovalComponent", () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [LoginApprovalComponent],
+      imports: [LoginApprovalDialogComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: { notificationId: testNotificationId } },
         { provide: AuthRequestServiceAbstraction, useValue: authRequestService },
@@ -68,13 +68,13 @@ describe("LoginApprovalComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
         {
-          provide: LoginApprovalComponentServiceAbstraction,
-          useValue: mock<LoginApprovalComponentServiceAbstraction>(),
+          provide: LoginApprovalDialogComponentServiceAbstraction,
+          useValue: mock<LoginApprovalDialogComponentServiceAbstraction>(),
         },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginApprovalComponent);
+    fixture = TestBed.createComponent(LoginApprovalDialogComponent);
     component = fixture.componentInstance;
   });
 
