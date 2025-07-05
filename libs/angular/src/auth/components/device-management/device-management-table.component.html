@@ -46,12 +46,14 @@
 
     <!-- Column: Login Status -->
     <td bitCell>
-      <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
-        {{ "currentSession" | i18n }}
-      </span>
-      <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
-        {{ "requestPending" | i18n }}
-      </span>
+      <div class="tw-flex tw-gap-1">
+        <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
+          {{ "currentSession" | i18n }}
+        </span>
+        <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
+          {{ "requestPending" | i18n }}
+        </span>
+      </div>
     </td>
 
     <!-- Column: First Login -->
