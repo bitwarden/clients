@@ -46,7 +46,7 @@ export interface LoginApprovalDialogParams {
 export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   loading = true;
 
-  notificationId: string;
+  authRequestId: string;
 
   private destroy$ = new Subject<void>();
 
@@ -70,7 +70,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
     private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
     private validationService: ValidationService,
   ) {
-    this.notificationId = params.notificationId;
+    this.authRequestId = params.notificationId;
   }
 
   async ngOnDestroy(): Promise<void> {
@@ -80,9 +80,9 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    if (this.notificationId != null) {
+    if (this.authRequestId != null) {
       try {
-        this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+        this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
       } catch (error) {
         this.validationService.showError(error);
       }
@@ -129,7 +129,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   };
 
   private async retrieveAuthRequestAndRespond(approve: boolean) {
-    this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+    this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
     if (this.authRequestResponse.requestApproved || this.authRequestResponse.responseDate != null) {
       this.toastService.showToast({
         variant: "info",
