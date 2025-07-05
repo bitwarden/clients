@@ -9,7 +9,13 @@ export class SideNavService {
   open$ = this._open$.asObservable();
 
   isOverlay$ = combineLatest([this.open$, media("(max-width: 768px)")]).pipe(
-    map(([open, isSmallScreen]) => open && isSmallScreen),
+    map(([open, isSmallScreen]) => {
+      if (open && isSmallScreen) {
+        this.setClose();
+        return false;
+      }
+      return open;
+    }),
   );
 
   get open() {
