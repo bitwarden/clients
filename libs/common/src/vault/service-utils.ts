@@ -4,64 +4,6 @@
 import { ITreeNodeObject, TreeNode } from "./models/domain/tree-node";
 
 export class ServiceUtils {
-  static nestedTraverse(
-    nodeTree: TreeNode<ITreeNodeObject>[],
-    partIndex: number,
-    parts: string[],
-    obj: ITreeNodeObject,
-    parent: TreeNode<ITreeNodeObject> | undefined,
-    delimiter: string,
-  ) {
-    if (parts.length <= partIndex) {
-      return;
-    }
-
-    const end: boolean = partIndex === parts.length - 1;
-    const partName: string = parts[partIndex];
-
-    for (let i = 0; i < nodeTree.length; i++) {
-      if (nodeTree[i].node.name !== partName) {
-        continue;
-      }
-      if (end && nodeTree[i].node.id !== obj.id) {
-        // Another node exists with the same name as the node being added
-        nodeTree.push(new TreeNode(obj, parent, partName));
-        return;
-      }
-      // Move down the tree to the next level
-      ServiceUtils.nestedTraverse(
-        nodeTree[i].children,
-        partIndex + 1,
-        parts,
-        obj,
-        nodeTree[i],
-        delimiter,
-      );
-      return;
-    }
-
-    // If there's no node here with the same name...
-    if (nodeTree.filter((n) => n.node.name === partName).length === 0) {
-      // And we're at the end of the path given, add the node
-      if (end) {
-        nodeTree.push(new TreeNode(obj, parent, partName));
-        return;
-      }
-      // And we're not at the end of the path, combine the current name with the next name
-      // 1, *1.2, 1.2.1 becomes
-      // 1, *1.2/1.2.1
-      const newPartName = partName + delimiter + parts[partIndex + 1];
-      ServiceUtils.nestedTraverse(
-        nodeTree,
-        0,
-        [newPartName, ...parts.slice(partIndex + 2)],
-        obj,
-        parent,
-        delimiter,
-      );
-    }
-  }
-
   /**
    * Recursively adds a node to nodeTree
    * @param {TreeNode<ITreeNodeObject>[]} nodeTree - An array of TreeNodes that the node will be added to
@@ -71,7 +13,7 @@ export class ServiceUtils {
    * @param {ITreeNodeObject} parent - The parent node of the `obj` node
    * @param {string} delimiter - The delimiter used to split the path string, will be used to combine the path for missing nodes
    */
-  static nestedTraverse_vNext(
+  static nestedTraverse(
     nodeTree: TreeNode<ITreeNodeObject>[],
     partIndex: number,
     parts: string[],
@@ -104,7 +46,7 @@ export class ServiceUtils {
       // 1, *1.2, 1.2.1 becomes
       // 1, *1.2/1.2.1
       const newPartName = partName + delimiter + parts[partIndex + 1];
-      ServiceUtils.nestedTraverse_vNext(
+      ServiceUtils.nestedTraverse(
         nodeTree,
         0,
         [newPartName, ...parts.slice(partIndex + 2)],
@@ -114,7 +56,7 @@ export class ServiceUtils {
       );
     } else {
       // There is a node here with the same name, descend into it
-      ServiceUtils.nestedTraverse_vNext(
+      ServiceUtils.nestedTraverse(
         matchingNodes[0].children,
         partIndex + 1,
         parts,

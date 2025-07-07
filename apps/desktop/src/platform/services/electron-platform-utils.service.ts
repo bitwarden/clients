@@ -86,6 +86,14 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return true;
   }
 
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  supportsFileDownloads(): boolean {
+    return false;
+  }
+
   showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,

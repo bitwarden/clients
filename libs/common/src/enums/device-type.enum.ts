@@ -27,6 +27,7 @@ export enum DeviceType {
   WindowsCLI = 23,
   MacOsCLI = 24,
   LinuxCLI = 25,
+  DuckDuckGoBrowser = 26,
 }
 
 /**
@@ -55,6 +56,7 @@ export const DeviceTypeMetadata: Record<DeviceType, DeviceTypeMetadata> = {
   [DeviceType.IEBrowser]: { category: "webVault", platform: "IE" },
   [DeviceType.SafariBrowser]: { category: "webVault", platform: "Safari" },
   [DeviceType.VivaldiBrowser]: { category: "webVault", platform: "Vivaldi" },
+  [DeviceType.DuckDuckGoBrowser]: { category: "webVault", platform: "DuckDuckGo" },
   [DeviceType.UnknownBrowser]: { category: "webVault", platform: "Unknown" },
   [DeviceType.WindowsDesktop]: { category: "desktop", platform: "Windows" },
   [DeviceType.MacOsDesktop]: { category: "desktop", platform: "macOS" },

@@ -59,6 +59,7 @@ export class AttachmentView implements View {
       sizeName: this.sizeName,
       fileName: this.fileName,
       key: this.encryptedKey?.toJSON(),
+      decryptedKey: null,
     };
   }
 

@@ -71,7 +71,6 @@ jobs:
 
       - name: Get Node Version
         id: retrieve-node-version
-        working-directory: ./
         run: |
           NODE_NVMRC=$(cat .nvmrc)
           NODE_VERSION=${NODE_NVMRC/v/''}

@@ -90,6 +90,7 @@ import {
   YotiCsvImporter,
   ZohoVaultCsvImporter,
   PasswordXPCsvImporter,
+  PasswordDepot17XmlImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -348,6 +349,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasswordXPCsvImporter();
       case "netwrixpasswordsecure":
         return new NetwrixPasswordSecureCsvImporter();
+      case "passworddepot17xml":
+        return new PasswordDepot17XmlImporter();
       default:
         return null;
     }
@@ -362,7 +365,7 @@ export class ImportService implements ImportServiceAbstraction {
       const c = await this.cipherService.encrypt(importResult.ciphers[i], activeUserId);
       request.ciphers.push(new CipherRequest(c));
     }
-    const userKey = await this.keyService.getUserKeyWithLegacySupport(activeUserId);
+    const userKey = await this.keyService.getUserKey(activeUserId);
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
