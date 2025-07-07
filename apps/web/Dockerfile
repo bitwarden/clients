@@ -16,7 +16,7 @@ RUN npm run ${NPM_COMMAND}
 ###############################################
 #                Build stage 2                #
 ###############################################
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.21 AS build
 
 # Docker buildx supplies the value for this arg
 ARG TARGETPLATFORM
@@ -56,7 +56,7 @@ WORKDIR /app
 ###############################################
 #                  App stage                  #
 ###############################################
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.21
 
 ARG TARGETPLATFORM
 LABEL com.bitwarden.product="bitwarden"
@@ -65,10 +65,9 @@ ENV ASPNETCORE_URLS=http://+:5000
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 EXPOSE 5000
 
-RUN apk add curl \
+RUN apk add --no-cache curl \
     icu-libs \
-    && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community gosu \
-    && rm -rf /var/cache/apk/*
+    && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community gosu
 
 # Copy app from the build stage
 WORKDIR /bitwarden_server
