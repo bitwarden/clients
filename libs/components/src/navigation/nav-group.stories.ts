@@ -1,7 +1,6 @@
 import { Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
-import { getByRole, userEvent } from "@storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -17,8 +16,6 @@ import { NavigationModule } from "./navigation.module";
   template: "",
 })
 class DummyContentComponent {}
-
-const toggleSideNavButtonText = "Toggle side navigation";
 
 export default {
   title: "Component Library/Nav/Nav Group",
@@ -40,7 +37,7 @@ export default {
             return new I18nMockService({
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
-              toggleSideNavigation: toggleSideNavButtonText,
+              toggleSideNavigation: "Toggle side navigation",
               skipToContent: "Skip to content",
             });
           },
@@ -88,18 +85,6 @@ export const Default: StoryObj<NavGroupComponent> = {
       </bit-side-nav>
     `,
   }),
-};
-
-export const DefaultClosed: StoryObj<NavGroupComponent> = {
-  ...Default,
-  play: async (context) => {
-    const canvas = context.canvasElement;
-    const sideNavToggleBtn = getByRole(canvas, "button", {
-      name: toggleSideNavButtonText,
-    });
-
-    await userEvent.click(sideNavToggleBtn);
-  },
 };
 
 export const HideEmptyGroups: StoryObj<NavGroupComponent & { renderChildren: boolean }> = {
