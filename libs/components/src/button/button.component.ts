@@ -30,9 +30,7 @@ const buttonStyles: Record<ButtonType, string[]> = {
     "tw-bg-transparent",
     "tw-border-primary-600",
     "!tw-text-primary-600",
-    "hover:tw-bg-primary-600",
-    "hover:tw-border-primary-600",
-    "hover:!tw-text-contrast",
+    "hover:tw-bg-hover-default",
     ...focusRing,
   ],
   danger: [
