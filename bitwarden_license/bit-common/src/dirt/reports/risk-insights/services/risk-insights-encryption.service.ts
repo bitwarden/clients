@@ -31,7 +31,7 @@ export class RiskInsightsEncryptionService {
         ),
     );
 
-    if (orgKey === null) {
+    if (!orgKey) {
       throw new Error("Organization key not found");
     }
 
@@ -51,7 +51,7 @@ export class RiskInsightsEncryptionService {
       organizationId: organizationId,
       encryptedData: dataEncrypted.encryptedString,
       encryptionKey: wrappedEncryptionKey.encryptedString,
-    } as EncryptedDataWithKey; // needed to pass the type check in the build
+    };
 
     return encryptedDataPacket;
   }
@@ -74,7 +74,7 @@ export class RiskInsightsEncryptionService {
           ),
       );
 
-      if (orgKey === null) {
+      if (!orgKey) {
         throw new Error("Organization key not found");
       }
 

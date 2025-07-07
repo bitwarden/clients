@@ -5,6 +5,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -21,12 +22,12 @@ describe("RiskInsightsEncryptionService", () => {
   const ENCRYPTED_KEY = "Re-encrypted Cipher Key";
   const orgId = "org-123" as OrganizationId;
   const userId = "user-123" as UserId;
-  const orgKey = "org-key" as unknown as OrgKey;
+  const orgKey = makeSymmetricCryptoKey<OrgKey>();
   const contentEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64));
   const testData = { foo: "bar" };
   const OrgRecords: Record<OrganizationId, OrgKey> = {
     [orgId]: orgKey,
-    ["testOrg" as OrganizationId]: "test-org-key" as unknown as OrgKey,
+    ["testOrg" as OrganizationId]: makeSymmetricCryptoKey<OrgKey>(),
   };
   const orgKey$ = new BehaviorSubject(OrgRecords);
 
@@ -76,11 +77,7 @@ describe("RiskInsightsEncryptionService", () => {
 
     it("should throw if org key is not found", async () => {
       // when we cannot get an organization key, we should throw an error
-      mockKeyService.orgKeys$.mockReturnValue(
-        new BehaviorSubject({
-          [orgId]: null as unknown as OrgKey, // Simulate no key found for the org
-        }),
-      );
+      mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
 
       await expect(service.encryptRiskInsightsReport(orgId, userId, testData)).rejects.toThrow(
         "Organization key not found",
@@ -106,7 +103,7 @@ describe("RiskInsightsEncryptionService", () => {
         (data) => data as typeof testData,
       );
 
-      // expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(orgId);
+      expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(
         new EncString("wrapped-key"),
         orgKey,
@@ -119,11 +116,7 @@ describe("RiskInsightsEncryptionService", () => {
     });
 
     it("should return null if org key is not found", async () => {
-      mockKeyService.orgKeys$.mockReturnValue(
-        new BehaviorSubject({
-          [orgId]: null as unknown as OrgKey, // Simulate no key found for the org
-        }),
-      );
+      mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
 
       const result = await service.decryptRiskInsightsReport(
         orgId,
@@ -132,6 +125,7 @@ describe("RiskInsightsEncryptionService", () => {
         new EncString("wrapped-key"),
         (data) => data as typeof testData,
       );
+
       expect(result).toBeNull();
     });
 
