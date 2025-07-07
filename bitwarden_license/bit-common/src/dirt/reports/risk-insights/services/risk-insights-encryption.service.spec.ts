@@ -115,6 +115,28 @@ describe("RiskInsightsEncryptionService", () => {
       expect(result).toEqual(testData);
     });
 
+    it("should invoke data type validation method during decryption", async () => {
+      // Arrange: setup our mocks
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+      mockEncryptService.decryptString.mockResolvedValue(JSON.stringify(testData));
+      const mockParseFn = jest.fn((data) => data as typeof testData);
+
+      // act: call the decrypt method - with any params
+      // actual decryption does not happen here,
+      // we just want to ensure the method calls are correct
+      const result = await service.decryptRiskInsightsReport(
+        orgId,
+        userId,
+        new EncString("encrypted-data"),
+        new EncString("wrapped-key"),
+        mockParseFn,
+      );
+
+      expect(mockParseFn).toHaveBeenCalledWith(JSON.parse(JSON.stringify(testData)));
+      expect(result).toEqual(testData);
+    });
+
     it("should return null if org key is not found", async () => {
       mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
 
