@@ -21,12 +21,15 @@ describe("RiskInsightsApiService", () => {
     reportKey: "test-key",
   };
 
+  const reportData = makeEncString("test").encryptedString?.toString() ?? "";
+  const reportKey = makeEncString("test-key").encryptedString?.toString() ?? "";
+
   const saveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
     data: {
       organizationId: orgId,
       date: new Date().toISOString(),
-      reportData: makeEncString("test").encryptedString,
-      reportKey: makeEncString("test-key").encryptedString,
+      reportData: reportData,
+      reportKey: reportKey,
     },
   };
   const saveRiskInsightsReportResponse = {
