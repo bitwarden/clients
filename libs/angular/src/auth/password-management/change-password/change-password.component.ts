@@ -127,6 +127,7 @@ export class ChangePasswordComponent implements OnInit {
         await this.changePasswordService.clearDeeplinkState();
       }
 
+      // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
       this.messagingService.send("logout");
     }
   }
@@ -174,6 +175,7 @@ export class ChangePasswordComponent implements OnInit {
           message: this.i18nService.t("masterPasswordChanged"),
         });
 
+        // TODO: PM-23515 eventually use the logout service instead of messaging service once it is available without circular dependencies
         this.messagingService.send("logout");
       }
     } catch (error) {
