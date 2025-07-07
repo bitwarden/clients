@@ -2,10 +2,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import {
-  AuthRequestServiceAbstraction,
-  LoginApprovalDialogComponentServiceAbstraction,
-} from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -14,11 +13,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
 describe("LoginApprovalDialogComponent", () => {

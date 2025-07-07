@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 
-import { DefaultLoginApprovalDialogComponentService } from "@bitwarden/auth/angular";
-import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/auth/common";
+import { DefaultLoginApprovalDialogComponentService } from "@bitwarden/angular/auth/login-approval/default-login-approval-dialog-component.service";
+import { LoginApprovalDialogComponentServiceAbstraction } from "@bitwarden/angular/auth/login-approval/login-approval-dialog-component.service.abstraction";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Injectable()

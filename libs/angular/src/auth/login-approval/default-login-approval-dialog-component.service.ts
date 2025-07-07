@@ -1,4 +1,4 @@
-import { LoginApprovalDialogComponentServiceAbstraction } from "../../common/abstractions/login-approval-dialog-component.service.abstraction";
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 
 /**
  * Default implementation of the LoginApprovalDialogComponentServiceAbstraction.

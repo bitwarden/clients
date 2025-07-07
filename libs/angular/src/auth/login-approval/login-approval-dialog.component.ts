@@ -5,10 +5,9 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subject, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  AuthRequestServiceAbstraction,
-  LoginApprovalDialogComponentServiceAbstraction,
-} from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -18,8 +17,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   DIALOG_DATA,
   DialogRef,
@@ -30,6 +27,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 
 const RequestTimeOut = 60000 * 15; //15 Minutes
 const RequestTimeUpdate = 60000 * 5; //5 Minutes
@@ -101,9 +100,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
         this.updateTimeText();
       }, RequestTimeUpdate);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
+      await this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
         this.email,
       );
 

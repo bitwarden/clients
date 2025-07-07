@@ -42,7 +42,6 @@ import {
   DefaultLoginSuccessHandlerService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LoginApprovalDialogComponentServiceAbstraction,
   LoginEmailService,
   LoginEmailServiceAbstraction,
   LoginStrategyService,
@@ -339,6 +338,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { LoginApprovalDialogComponentServiceAbstraction } from "../auth/login-approval/login-approval-dialog-component.service.abstraction";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";

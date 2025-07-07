@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
-import { LoginApprovalDialogComponent } from "@bitwarden/auth/angular";
+import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval/login-approval-dialog.component";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { DesktopLoginApprovalDialogComponentService } from "./desktop-login-approval-dialog-component.service";
