@@ -17,9 +17,9 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
-import { CollectionData } from "../models";
+import { CollectionData, CollectionView } from "../models";
 
-import { ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
+import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
 
 describe("DefaultCollectionService", () => {
@@ -112,6 +112,35 @@ describe("DefaultCollectionService", () => {
         expect.objectContaining(new EncString(collection2.name)),
         orgKey2,
       );
+    });
+
+    it("emits decrypted collections from in-memory state when available", async () => {
+      // Arrange test data
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionViewDataFactory(org1);
+
+      const org2 = Utils.newGuid() as OrganizationId;
+      const collection2 = collectionViewDataFactory(org2);
+
+      await setDecryptedState([collection1, collection2]);
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      // Assert emitted values
+      expect(result.length).toBe(2);
+      expect(result).toContainPartialObjects([
+        {
+          id: collection1.id,
+          name: "DEC_NAME_" + collection1.id,
+        },
+        {
+          id: collection2.id,
+          name: "DEC_NAME_" + collection2.id,
+        },
+      ]);
+
+      // Ensure that the returned data came from the in-memory state, rather than from decryption.
+      expect(encryptService.decryptString).not.toHaveBeenCalled();
     });
 
     it("handles null collection state", async () => {
@@ -324,6 +353,9 @@ describe("DefaultCollectionService", () => {
       collectionData == null ? null : Object.fromEntries(collectionData.map((c) => [c.id, c])),
       userId,
     );
+
+  const setDecryptedState = (collectionViews: CollectionView[] | null) =>
+    stateProvider.setUserState(DECRYPTED_COLLECTION_DATA_KEY, collectionViews, userId);
 });
 
 const collectionDataFactory = (orgId?: OrganizationId) => {
@@ -334,3 +366,11 @@ const collectionDataFactory = (orgId?: OrganizationId) => {
 
   return collection;
 };
+
+function collectionViewDataFactory(orgId?: OrganizationId): CollectionView {
+  const collectionView = new CollectionView();
+  collectionView.id = Utils.newGuid() as CollectionId;
+  collectionView.organizationId = orgId ?? (Utils.newGuid() as OrganizationId);
+  collectionView.name = "DEC_NAME_" + collectionView.id;
+  return collectionView;
+}

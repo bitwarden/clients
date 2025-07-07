@@ -88,6 +88,7 @@ export class DefaultCollectionService implements CollectionService {
         this.inProgressDecryptions.set(userId, this.initializeDecryptedState(userId));
         return this.inProgressDecryptions.get(userId)!;
       }),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
@@ -108,7 +109,6 @@ export class DefaultCollectionService implements CollectionService {
       // the caller will receive as the first emission. Here we finish with NEVER so that this observable
       // never emits, and will be automatically unsubscribed by the outer switchMap when decryptedState emits.
       switchMap(() => NEVER),
-      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
