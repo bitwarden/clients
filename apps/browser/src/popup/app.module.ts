@@ -28,7 +28,6 @@ import { AccountComponent } from "../auth/popup/account-switching/account.compon
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
-import { VaultTimeoutInputComponent } from "../auth/popup/settings/vault-timeout-input.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
@@ -100,7 +99,6 @@ import "../platform/popup/locales";
     TabsV2Component,
     UpdateTempPasswordComponent,
     UserVerificationComponent,
-    VaultTimeoutInputComponent,
     RemovePasswordComponent,
     EnvironmentSelectorComponent,
   ],
