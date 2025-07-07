@@ -82,6 +82,7 @@ jobs:
           case ${{ inputs.environment }} in
             "USQA")
               echo "azure_login_client_key_name=AZURE_CLIENT_ID_USQA" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USQA" >> $GITHUB_OUTPUT
               echo "retrieve_secrets_keyvault=bw-webvault-rlktusqa-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-QA.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US QA Cloud" >> $GITHUB_OUTPUT
@@ -90,6 +91,7 @@ jobs:
               ;;
             "EUQA")
               echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUQA" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUQA" >> $GITHUB_OUTPUT
               echo "retrieve_secrets_keyvault=webvaulteu-westeurope-qa" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euqa.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU QA Cloud" >> $GITHUB_OUTPUT
@@ -98,6 +100,7 @@ jobs:
               ;;
             "USPROD")
               echo "azure_login_client_key_name=AZURE_CLIENT_ID_USPROD" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USPROD" >> $GITHUB_OUTPUT
               echo "retrieve_secrets_keyvault=bw-webvault-klrt-kv" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-COMMERCIAL.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Production Cloud" >> $GITHUB_OUTPUT
@@ -106,6 +109,7 @@ jobs:
               ;;
             "EUPROD")
               echo "azure_login_client_key_name=AZURE_CLIENT_ID_EUPROD" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_EUPROD" >> $GITHUB_OUTPUT
               echo "retrieve_secrets_keyvault=webvault-westeurope-prod" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-euprd.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - EU Production Cloud" >> $GITHUB_OUTPUT
@@ -114,6 +118,7 @@ jobs:
               ;;
             "USDEV")
               echo "azure_login_client_key_name=AZURE_CLIENT_ID_USDEV" >> $GITHUB_OUTPUT
+              echo "azure_login_subscription_id_key_name=AZURE_SUBSCRIPTION_ID_USDEV" >> $GITHUB_OUTPUT
               echo "retrieve_secrets_keyvault=webvault-eastus-dev" >> $GITHUB_OUTPUT
               echo "environment_artifact=web-*-cloud-usdev.zip" >> $GITHUB_OUTPUT
               echo "environment_name=Web Vault - US Development Cloud" >> $GITHUB_OUTPUT
@@ -332,7 +337,7 @@ jobs:
       - name: Login to Azure
         uses: bitwarden/gh-actions/azure-login@main
         with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription_id: ${{ secrets[needs.setup.outputs.azure_login_subscription_id_key_name] }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets[needs.setup.outputs.azure_login_client_key_name] }}
 
