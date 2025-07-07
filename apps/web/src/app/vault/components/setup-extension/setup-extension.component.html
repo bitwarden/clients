@@ -6,16 +6,13 @@
 ></i>
 
 <section *ngIf="state === SetupExtensionState.NeedsExtension" class="tw-text-center tw-mt-4">
-  <h1 bitTypography="h2">{{ "setupExtensionPageTitle" | i18n }}</h1>
-  <h2 bitTypography="body1">{{ "setupExtensionPageDescription" | i18n }}</h2>
-  <div class="tw-mb-6">
-    <!-- Placeholder - will be removed in following tickets -->
-    <img
-      class="tw-max-w-3xl"
-      [alt]="'setupExtensionContentAlt' | i18n"
-      src="/images/setup-extension/setup-extension-placeholder.png"
-    />
-  </div>
+  <h1 class="tw-text-xl tw-font-semibold tw-text-main sm:tw-text-2xl">
+    {{ "setupExtensionPageTitle" | i18n }}
+  </h1>
+  <h2 class="tw-text-sm tw-text-main tw-mb-6 tw-font-normal sm:tw-text-base">
+    {{ "setupExtensionPageDescription" | i18n }}
+  </h2>
+  <vault-add-extension-videos></vault-add-extension-videos>
   <div class="tw-flex tw-flex-col tw-gap-4 tw-items-center">
     <a
       bitButton
