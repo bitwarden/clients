@@ -335,7 +335,12 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
       this.allOrganizations = orgs;
     });
 
-    this.collectionService.decryptedCollections$
+    if (!this.activeUserId) {
+      throw new Error("No user found.");
+    }
+
+    this.collectionService
+      .decryptedCollections$(this.activeUserId)
       .pipe(takeUntil(this.componentIsDestroyed$))
       .subscribe((collections) => {
         this.allCollections = collections;
