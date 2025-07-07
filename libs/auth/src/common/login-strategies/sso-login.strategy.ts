@@ -428,13 +428,13 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     // TODO: add tests for this
 
-    // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing user private from the server, but
+    // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing userKeyEncryptedPrivateKey from the server, but
     // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
     // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
     // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
     // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
     // - UserKey is not set after successful login -- because automatic decryption is not available
-    // - UserPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
+    // - userKeyEncryptedPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
     const isSetInitialPasswordFlagOn = await this.configService.getFeatureFlag(
       FeatureFlag.PM16117_SetInitialPasswordRefactor,
     );
@@ -445,6 +445,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       );
       const hasUserKey = await this.keyService.hasUserKey(userId);
 
+      // TODO: PM-23491 we should explore consolidating this logic into a flag on the server. It could be set when an org is switched from TDE to MP encryption for each org user.
       if (
         !userDecryptionOptions.trustedDeviceOption &&
         !userDecryptionOptions.hasMasterPassword &&
