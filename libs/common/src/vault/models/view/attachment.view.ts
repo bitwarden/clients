@@ -59,7 +59,8 @@ export class AttachmentView implements View {
       sizeName: this.sizeName,
       fileName: this.fileName,
       key: this.encryptedKey?.toJSON(),
-      decryptedKey: null,
+      // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
+      decryptedKey: this.key ? this.key.toBase64() : null,
     };
   }
 
@@ -77,6 +78,8 @@ export class AttachmentView implements View {
     view.size = obj.size ?? null;
     view.sizeName = obj.sizeName ?? null;
     view.fileName = obj.fileName ?? null;
+    // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
+    view.key = obj.key ? SymmetricCryptoKey.fromString(obj.decryptedKey) : null;
     view.encryptedKey = new EncString(obj.key);
 
     return view;
