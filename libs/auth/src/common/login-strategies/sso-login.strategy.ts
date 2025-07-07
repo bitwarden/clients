@@ -364,6 +364,10 @@ export class SsoLoginStrategy extends LoginStrategy {
         // This is just existing TDE users or a TDE offboarder on an untrusted device
         await this.keyService.setPrivateKey(tokenResponse.privateKey, userId);
       }
+      // else {
+      //    User could be new JIT provisioned SSO user in either a MP encryption org OR a TDE org.
+      //    In either case, the user doesn't yet have a user asymmetric key pair, a user key, or a master key + master key encrypted user key.
+      // }
     } else {
       const newSsoUser = tokenResponse.key == null;
 
