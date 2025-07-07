@@ -31,7 +31,7 @@ export class RadioButtonComponent {
   }
 
   get name() {
-    return this.groupComponent.name();
+    return this.groupComponent.name;
   }
 
   get selected() {

@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgTemplateOutlet } from "@angular/common";
-import { Component, ContentChild, HostBinding, Optional, Self, input } from "@angular/core";
+import { Component, ContentChild, HostBinding, Optional, Input, Self, input } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -22,9 +22,15 @@ export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;
   disabled = false;
 
-  readonly name = input(undefined, {
-    transform: (value: string | undefined) => value ?? this.ngControl?.name?.toString(),
-  });
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
+  private _name?: string;
+  @Input() get name() {
+    return this._name ?? this.ngControl?.name?.toString();
+  }
+  set name(value: string) {
+    this._name = value;
+  }
 
   readonly block = input(false);
 
