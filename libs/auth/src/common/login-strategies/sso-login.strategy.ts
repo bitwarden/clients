@@ -351,7 +351,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (isSetInitialPasswordFlagOn) {
-      if (tokenResponse.key != null) {
+      if (tokenResponse.hasMasterKeyEncryptedUserKey()) {
         // User has masterKeyEncryptedUserKey, so set the userKeyEncryptedPrivateKey
         // Note: new JIT provisioned SSO users will not yet have a user asymmetric key pair
         // and so we don't want them falling into the createKeyPairForOldAccount flow
