@@ -56,16 +56,6 @@ export abstract class NavBaseComponent {
   };
 
   /**
-   * If this item is used within a tree, set `variant` to `"tree"`
-   */
-  @Input() variant: "default" | "tree" = "default";
-
-  /**
-   * Depth level when nested inside of a `'tree'` variant
-   */
-  @Input() treeDepth = 0;
-
-  /**
    * If `true`, do not change styles when nav item is active.
    */
   @Input() hideActiveStyles = false;
