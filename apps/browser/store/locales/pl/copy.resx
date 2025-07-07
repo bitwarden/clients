@@ -118,58 +118,57 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Menedżer Haseł Bitwarden</value>
+    <value>Menedżer haseł Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>W domu, w pracy lub w ruchu Bitwarden z łatwością zabezpiecza wszystkie twoje hasła, klucze i poufne informacje.</value>
+    <value>W domu, w pracy, lub w ruchu, Bitwarden zabezpiecza wszystkie Twoje hasła, klucze dostępu i poufne informacje.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Uznany za najlepszego menedżera haseł przez PCMag, WIRED, The Verge, CNET, G2 i wielu innych!
+    <value>Uznany za najlepszy menedżer haseł przez PCMag, WIRED, The Verge, CNET, G2 i nie tylko!
 
-ZABEZPIECZ SWOJE CYFROWE ŻYCIE
-Zabezpiecz swoje cyfrowe życie i chroń przed naruszeniami danych, generując i zapisując unikalne, silne hasła do każdego konta. Przechowuj wszystko w zaszyfrowanym end-to-end magazynie haseł, do którego tylko Ty masz dostęp.
+ZABEZPIECZ CYFROWE ŻYCIE
+Zabezpiecz cyfrowe życie i chroń się przed naruszeniami danych, generując i zapisując unikalne, silne hasła dla każdego konta. Przechowuj wszystko w szyfrowanym sejfie, do którego tylko Ty masz dostęp.
 
-DOSTĘP DO SWOICH DANYCH W KAŻDYM MIEJSCU, W DOWOLNYM CZASIE, NA KAŻDYM URZĄDZENIU
-Z łatwością zarządzaj, przechowuj, zabezpieczaj i udostępniaj nieograniczoną liczbę haseł na nieograniczonej liczbie urządzeń.
+DOSTĘP DO DANYCH W KAŻDYM MIEJSCU I O KAŻDEJ PORZE, NA KAŻDYM URZĄDZENIU
+Łatwe zarządzanie, przechowywanie, zabezpieczanie i udostępnianie nieograniczonej liczby haseł na dowolnej liczbie urządzeń
 
-KAŻDY POWINIEN POSIADAĆ NARZĘDZIA ABY ZACHOWAĆ BEZPIECZEŃSTWO W INTERNECIE
-Korzystaj z Bitwarden za darmo, bez reklam i sprzedawania Twoich danych. Bitwarden wierzy, że każdy powinien mieć możliwość zachowania bezpieczeństwa w Internecie. Plany premium oferują dostęp do zaawansowanych funkcji.
+KAŻDY POWINIEN MIEĆ NARZĘDZIA, KTÓRE ZAPEWNIĄ BEZPIECZEŃSTWO ONLINE
+Korzystaj z Bitwarden za darmo, bez reklam i bez sprzedawania Twoich danych. Bitwarden wierzy, że każdy powinien mieć możliwość zachowania bezpieczeństwa w sieci. Plany premium oferują dostęp do zaawansowanych funkcji.
 
-WZMOCNIJ SWOJE ZESPOŁY DZIĘKI BITWARDEN
-Plany dla Zespołów i Enterprise oferują profesjonalne funkcje biznesowe. Na przykład obejmują integrację z SSO, własny hosting, integrację katalogów i udostępnianie SCIM, zasady globalne, dostęp do API, dzienniki zdarzeń i inne.
+WZMOCNIJ SWOJE ZESPOŁY Z BITWARDEN
+Plany dla zespołów i przedsiębiorstw zawierają profesjonalne funkcje biznesowe, takie jak logowanie jednokrotne, samodzielne hostowanie, integrację katalogów, udostępnianie SCIM, globalne zasady, dostęp do API, logi zdarzeń i wiele innych.
 
-Użyj Bitwarden, aby zabezpieczyć swoich pracowników i udostępniać poufne informacje współpracownikom.
+Skorzystaj z Bitwarden, aby zabezpieczyć swoich pracowników i udostępniać poufne informacje współpracownikom.
 
 
-Więcej powodów, aby wybrać Bitwarden:
+Więcej powodów, dla których warto wybrać Bitwarden:
 
-Szyfrowanie na światowym poziomie
-Hasła są chronione za pomocą zaawansowanego, kompleksowego szyfrowania (AES-256-bitowy, solony hashtag i PBKDF2 SHA-256), dzięki czemu Twoje dane pozostają bezpieczne i prywatne.
+Światowej klasy szyfrowanie
+Hasła są chronione za pomocą zaawansowanego szyfrowania end-to-end (AES-256 bit z solą i PBKDF2 SHA-256), dzięki czemu dane pozostają bezpieczne i prywatne.
 
 Audyty stron trzecich
-Bitwarden regularnie przeprowadza kompleksowe audyty bezpieczeństwa stron trzecich we współpracy ze znanymi firmami security. Te coroczne audyty obejmują ocenę kodu źródłowego i testy penetracyjne adresów IP Bitwarden, serwerów i aplikacji internetowych.
+Bitwarden regularnie przeprowadza kompleksowe audyty bezpieczeństwa ze znanymi firmami. Te coroczne audyty obejmują ocenę kodu źródłowego i testy penetracyjne adresów IP, serwerów i aplikacji internetowych Bitwarden.
 
-Zaawansowane 2FA
-Zabezpiecz swój login za pomocą zewnętrznego narzędzia uwierzytelniającego, kodów przesłanych pocztą elektroniczną lub poświadczeń FIDO2 WebAuthn, takich jak sprzętowy klucz bezpieczeństwa lub hasło.
+Zaawansowane logowanie dwustopniowe
+Zabezpiecz swoje logowanie za pomocą uwierzytelniacza innej firmy, kodów wysyłanych pocztą e-mail lub danych uwierzytelniających FIDO2 WebAuthn, takich jak sprzętowy klucz bezpieczeństwa lub klucz dostępu.
 
-Bitwarden Wyślij
-Przesyłaj dane bezpośrednio do innych, zachowując kompleksowe szyfrowane bezpieczeństwo i ograniczając ryzyko.
+Bitwarden Send
+Przesyłaj dane bezpośrednio do innych, zachowując bezpieczeństwo szyfrowania end-to-end i ograniczając ekspozycję.
 
 Wbudowany generator
-Twórz długie, złożone i różne hasła oraz unikalne nazwy użytkowników dla każdej odwiedzanej witryny. Zintegruj się z dostawcami aliasów e-mail, aby uzyskać dodatkową prywatność.
+Twórz długie, złożone i unikalne hasła oraz nazwy użytkowników dla każdej strony. Integracja z dostawcami aliasów zapewnia dodatkową prywatność.
 
-Tłumaczenia globalne
-Istnieją tłumaczenia Bitwarden na ponad 60 języków, tłumaczone przez globalną społeczność za pośrednictwem Crowdin.
+Globalnie przetłumaczony
+Bitwarden jest dostępny w ponad 60 językach. Jest przetłumaczony przez globalną społeczność za pośrednictwem Crowdin.
 
 Aplikacje wieloplatformowe
-Zabezpiecz i udostępniaj poufne dane w swoim Sejfie Bitwarden z dowolnej przeglądarki, urządzenia mobilnego lub systemu operacyjnego na komputerze stacjonarnym i nie tylko.
+Zabezpieczaj i udostępniaj poufne dane w sejfie Bitwarden z dowolnej przeglądarki, z dowolnego urządzenia mobilnego, stacjonarnego i nie tylko.
 
-Bitwarden zabezpiecza nie tylko hasła
-Rozwiązania do zarządzania danymi zaszyfrownaymi end-to-end od firmy Bitwarden umożliwiają organizacjom zabezpieczanie wszystkiego, w tym tajemnic programistów i kluczy dostępu. Odwiedź Bitwarden.com, aby dowiedzieć się więcej o Mendżerze Sekretów Bitwarden i Bitwarden Passwordless.dev!
-</value>
+Bitwarden zabezpiecza więcej niż tylko hasła
+Kompleksowe szyfrowane rozwiązania do zarządzania poświadczeniami od Bitwarden umożliwiają organizacjom zabezpieczenie wszystkiego, w tym sekretów programistów i kluczy dostępu. Odwiedź Bitwarden.com, aby dowiedzieć się więcej o Bitwarden Secrets Manager i Bitwarden Passwordless.dev!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>W domu, w pracy, lub w ruchu, Bitwarden z łatwością zabezpiecza wszystkie Twoje hasła, passkeys i poufne informacje.</value>
+    <value>W domu, w pracy, lub w ruchu, Bitwarden zabezpiecza wszystkie Twoje hasła, klucze dostępu i poufne informacje.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchronizacja i dostęp do sejfu z różnych urządzeń</value>
@@ -178,15 +177,15 @@ Rozwiązania do zarządzania danymi zaszyfrownaymi end-to-end od firmy Bitwarden
     <value>Przechowuj wszystkie dane logowania i hasła w bezpiecznym sejfie</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Szybko, automatycznie uzupełnij dane logowania na każdej odwiedzanej stronie</value>
+    <value>Szybkie uzupełnianie danych logowania na dowolnej stronie internetowej</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Twój sejf jest także łatwo dostępny z menu kontekstowego</value>
+    <value>Sejf jest również dostępny z menu po kliknięciu prawym przyciskiem myszy</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Automatycznie wygeneruj silne, losowe i bezpieczne hasło</value>
+    <value>Automatycznie generuj silne, losowe i bezpieczne hasła</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Twoje dane są zabezpieczone z wykorzystaniem szyfrowania AES-256-bit</value>
+    <value>Twoje dane są zabezpieczone szyfrowaniem AES-256-bit</value>
   </data>
 </root>
