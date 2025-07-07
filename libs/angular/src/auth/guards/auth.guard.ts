@@ -61,7 +61,6 @@ export const authGuard: CanActivateFn = async (
     return router.createUrlTree(["/set-initial-password"]);
   }
 
-  // TODO: add unit tests for this scenario
   // TDE Offboarding on untrusted device
   if (
     authStatus === AuthenticationStatus.Locked &&
