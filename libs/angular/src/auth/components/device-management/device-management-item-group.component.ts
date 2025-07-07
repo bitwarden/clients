@@ -2,12 +2,11 @@ import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LoginApprovalComponent } from "@bitwarden/auth/angular";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { BadgeModule, DialogService, ItemModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { LoginApprovalDialogComponent } from "../../login-approval/login-approval-dialog.component";
 
 import { DeviceDisplayData } from "./device-management.component";
 import { deviceReSort } from "./device-re-sort.helper";
@@ -25,7 +24,7 @@ export class DeviceManagementItemGroupComponent {
   constructor(private dialogService: DialogService) {}
 
   protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest) {
-    const loginApprovalDialog = LoginApprovalComponent.open(this.dialogService, {
+    const loginApprovalDialog = LoginApprovalDialogComponent.open(this.dialogService, {
       notificationId: pendingAuthRequest.id,
     });
 

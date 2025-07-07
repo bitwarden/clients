@@ -5,10 +5,9 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subject, firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  AuthRequestServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction as LoginApprovalComponentService,
-} from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -18,8 +17,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   DIALOG_DATA,
   DialogRef,
@@ -31,6 +28,8 @@ import {
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
+
 const RequestTimeOut = 60000 * 15; //15 Minutes
 const RequestTimeUpdate = 60000 * 5; //5 Minutes
 
@@ -40,13 +39,13 @@ export interface LoginApprovalDialogParams {
 
 @Component({
   selector: "login-approval",
-  templateUrl: "login-approval.component.html",
+  templateUrl: "login-approval-dialog.component.html",
   imports: [CommonModule, AsyncActionsModule, ButtonModule, DialogModule, JslibModule],
 })
-export class LoginApprovalComponent implements OnInit, OnDestroy {
+export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   loading = true;
 
-  notificationId: string;
+  authRequestId: string;
 
   private destroy$ = new Subject<void>();
 
@@ -67,10 +66,10 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     protected keyService: KeyService,
     private dialogRef: DialogRef,
     private toastService: ToastService,
-    private loginApprovalComponentService: LoginApprovalComponentService,
+    private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
     private validationService: ValidationService,
   ) {
-    this.notificationId = params.notificationId;
+    this.authRequestId = params.notificationId;
   }
 
   async ngOnDestroy(): Promise<void> {
@@ -80,9 +79,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    if (this.notificationId != null) {
+    if (this.authRequestId != null) {
       try {
-        this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+        this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
       } catch (error) {
         this.validationService.showError(error);
       }
@@ -101,9 +100,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.updateTimeText();
       }, RequestTimeUpdate);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
+      await this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
+        this.email,
+      );
 
       this.loading = false;
     }
@@ -115,7 +114,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
    * @param data Configuration for the dialog
    */
   static open(dialogService: DialogService, data: LoginApprovalDialogParams) {
-    return dialogService.open(LoginApprovalComponent, { data });
+    return dialogService.open(LoginApprovalDialogComponent, { data });
   }
 
   denyLogin = async () => {
@@ -127,7 +126,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
   };
 
   private async retrieveAuthRequestAndRespond(approve: boolean) {
-    this.authRequestResponse = await this.apiService.getAuthRequest(this.notificationId);
+    this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
     if (this.authRequestResponse.requestApproved || this.authRequestResponse.responseDate != null) {
       this.toastService.showToast({
         variant: "info",

@@ -2,10 +2,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import {
-  AuthRequestServiceAbstraction,
-  LoginApprovalComponentServiceAbstraction,
-} from "@bitwarden/auth/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
@@ -14,16 +13,15 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
-import { LoginApprovalComponent } from "./login-approval.component";
+import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
+import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
-describe("LoginApprovalComponent", () => {
-  let component: LoginApprovalComponent;
-  let fixture: ComponentFixture<LoginApprovalComponent>;
+describe("LoginApprovalDialogComponent", () => {
+  let component: LoginApprovalDialogComponent;
+  let fixture: ComponentFixture<LoginApprovalDialogComponent>;
 
   let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
@@ -54,7 +52,7 @@ describe("LoginApprovalComponent", () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [LoginApprovalComponent],
+      imports: [LoginApprovalDialogComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: { notificationId: testNotificationId } },
         { provide: AuthRequestServiceAbstraction, useValue: authRequestService },
@@ -68,13 +66,13 @@ describe("LoginApprovalComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
         {
-          provide: LoginApprovalComponentServiceAbstraction,
-          useValue: mock<LoginApprovalComponentServiceAbstraction>(),
+          provide: LoginApprovalDialogComponentServiceAbstraction,
+          useValue: mock<LoginApprovalDialogComponentServiceAbstraction>(),
         },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginApprovalComponent);
+    fixture = TestBed.createComponent(LoginApprovalDialogComponent);
     component = fixture.componentInstance;
   });
 
