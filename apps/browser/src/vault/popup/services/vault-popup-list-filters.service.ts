@@ -215,19 +215,13 @@ export class VaultPopupListFiltersService {
    */
   filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
     this.filters$,
-    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
   ]).pipe(
     map(
-      ([filters, restrictions]) =>
+      ([filters]) =>
         (ciphers: CipherView[]) =>
           ciphers.filter((cipher) => {
             // Vault popup lists never shows deleted ciphers
             if (cipher.isDeleted) {
-              return false;
-            }
-
-            // Check if cipher type is restricted (with organization exemptions)
-            if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
               return false;
             }
 

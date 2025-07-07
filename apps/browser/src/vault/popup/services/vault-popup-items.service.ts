@@ -31,6 +31,7 @@ import { SearchService } from "@bitwarden/common/vault/abstractions/search.servi
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import { runInsideAngular } from "../../../platform/browser/run-inside-angular.operator";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
@@ -107,9 +108,16 @@ export class VaultPopupItemsService {
           combineLatest([
             Utils.asyncToObservable(() => this.cipherService.getAllDecrypted(userId)),
             this.cipherService.failedToDecryptCiphers$(userId),
+            this.restrictedItemTypesService.restricted$.pipe(startWith([])),
           ]),
         ),
-        map(([ciphers, failedToDecryptCiphers]) => [...(failedToDecryptCiphers || []), ...ciphers]),
+        map(([ciphers, failedToDecryptCiphers, restrictions]) => {
+          const allCiphers = [...(failedToDecryptCiphers || []), ...ciphers];
+
+          return allCiphers.filter(
+            (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions),
+          );
+        }),
       ),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -307,6 +315,7 @@ export class VaultPopupItemsService {
     private syncService: SyncService,
     private accountService: AccountService,
     private ngZone: NgZone,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   applyFilter(newSearchText: string) {
