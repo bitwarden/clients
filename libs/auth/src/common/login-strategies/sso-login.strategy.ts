@@ -369,6 +369,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       //    In either case, the user doesn't yet have a user asymmetric key pair, a user key, or a master key + master key encrypted user key.
       // }
     } else {
+      // A user that does not yet have a masterKeyEncryptedUserKey set is a new SSO user
       const newSsoUser = tokenResponse.key == null;
 
       if (!newSsoUser) {
