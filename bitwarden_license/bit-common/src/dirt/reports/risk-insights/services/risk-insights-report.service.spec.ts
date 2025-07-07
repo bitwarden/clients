@@ -258,6 +258,13 @@ describe("RiskInsightsReportService", () => {
       mockRiskInsightsApiService.getRiskInsightsReport.mockReturnValue(of(apiResponse));
       service.getRiskInsightsReport(organizationId, userId);
       expect(mockRiskInsightsApiService.getRiskInsightsReport).toHaveBeenCalledWith(organizationId);
+      expect(mockRiskInsightsEncryptionService.decryptRiskInsightsReport).toHaveBeenCalledWith(
+        organizationId,
+        userId,
+        expect.anything(), // encryptedData
+        expect.anything(), // wrappedKey
+        expect.any(Function), // parser
+      );
     });
 
     it("should set empty report and summary if response is falsy", async () => {
