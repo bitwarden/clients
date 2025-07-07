@@ -8,6 +8,9 @@ jobs:
   reply:
     name: Auto-reply
     runs-on: ubuntu-22.04
+    permissions:
+      discussions: write
+      contents: read
 
     steps:
       - name: Get discussion label and template name

@@ -10,6 +10,7 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   CLIENT_TYPE,
@@ -61,6 +62,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Urls,
@@ -117,6 +119,7 @@ import {
   WebLoginDecryptionOptionsService,
   WebTwoFactorAuthDuoComponentService,
   LinkSsoService,
+  WebSetInitialPasswordService,
 } from "../auth";
 import { WebSsoComponentService } from "../auth/core/services/login/web-sso-component.service";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -254,6 +257,7 @@ const safeProviders: SafeProvider[] = [
       LogService,
       PolicyService,
       AccountService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -281,6 +285,24 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: WebSetInitialPasswordService,
+    deps: [
+      ApiService,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      KeyServiceAbstraction,
+      MasterPasswordApiService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+      AcceptOrganizationInviteService,
+      RouterService,
     ],
   }),
   safeProvider({

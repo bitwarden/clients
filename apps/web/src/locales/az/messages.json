@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "İki addımlı girişi qurmaq, Bitwarden hesabınızı birdəfəlik kilidləyə bilər. Geri qaytarma kodu, normal iki addımlı giriş provayderinizi artıq istifadə edə bilmədiyiniz hallarda (məs. cihazınızı itirəndə) hesabınıza müraciət etməyinizə imkan verir. Hesabınıza müraciəti itirsəniz, Bitwarden dəstəyi sizə kömək edə bilməyəcək. Geri qaytarma kodunuzu bir yerə yazmağınızı və ya çap etməyinizi və onu etibarlı bir yerdə saxlamağınızı məsləhət görürük."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Kart element növünü sil"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Üzvlərin kart element növünü yaratmasına icazə verilməsin."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Üzvlərin kart element növlərini yaratmasına icazə verməyin. Mövcud kartlar avtomatik silinəcək."
+  },
+  "restrictCardTypeImport": {
+    "message": "Kart element növləri daxilə köçürülə bilmir"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "1 və ya daha çox təşkilat tərəfindən təyin edilən bir siyasət, kartların seyfinizə köçürülməsini əngəlləyir."
   },
   "yourSingleUseRecoveryCode": {
     "message": "İki addımlı giriş provayderinizə müraciəti itirdiyiniz halda, iki addımlı girişi söndürmək üçün təkistifadəlik geri qaytarma kodunu istifadə edə bilərsiniz. Bitwarden tövsiyə edir ki, geri qaytarma kodunuzu bir yerə yazıb güvənli bir yerdə saxlayın."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Sıradan çıxart"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Üzv təfsilatları tapılmadı."
   },
   "revokeAccess": {
     "message": "Müraciəti ləğv et"
@@ -3265,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "İlkin kolleksiya"
+  },
+  "myItems": {
+    "message": "Elementlərim"
   },
   "getHelp": {
     "message": "Kömək alın"
@@ -5363,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Fövqəladə hal müraciəti rədd edildi"
   },
+  "grantorDetailsNotFound": {
+    "message": "Qrant verən təfsilatları tapılmadı"
+  },
   "passwordResetFor": {
     "message": "$USER$ üçün parol sıfırlandı. Artıq yeni parol ilə giriş edə bilərsiniz.",
     "placeholders": {
@@ -5371,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Təşkilata data üzərində məcburi sahiblik ver"
   },
   "personalOwnership": {
     "message": "Fərdi sahiblik"
@@ -5763,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Davam etsəniz, $NAME$ üçün hazırkı seans bitəcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "bu istifadəçi"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
   "resetPasswordSuccess": {
@@ -7614,9 +7644,9 @@
     "message": "Xidmət hesabı güncəlləndi",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Layihələri və ya sirləri yazın və ya seçin",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Layihələri yaz və ya seç",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Filtrləmək üçün yazın",
@@ -7701,8 +7731,8 @@
     "message": "Müraciət tokenləri",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Yeni müraciət tokeni",
+  "createAccessToken": {
+    "message": "Müraciət tokeni yarat",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -10649,5 +10679,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Kredit əlavə etmək üçün faktura ünvanı tələb olunur.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
