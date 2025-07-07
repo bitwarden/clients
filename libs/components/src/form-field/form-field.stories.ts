@@ -72,6 +72,7 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        A11yTitleDirective,
         FormsModule,
         ReactiveFormsModule,
         FormFieldModule,
@@ -88,7 +89,6 @@ export default {
         TextFieldModule,
         BadgeModule,
       ],
-      declarations: [A11yTitleDirective],
       providers: [
         {
           provide: I18nService,
