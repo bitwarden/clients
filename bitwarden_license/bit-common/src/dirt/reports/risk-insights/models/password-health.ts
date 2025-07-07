@@ -138,8 +138,8 @@ export type AppAtRiskMembersDialogParams = {
  */
 export interface EncryptedDataWithKey {
   organizationId: OrganizationId;
-  encryptedData: EncryptedString | undefined;
-  encryptionKey: EncryptedString | undefined;
+  encryptedData: EncryptedString;
+  encryptionKey: EncryptedString;
 }
 
 /**

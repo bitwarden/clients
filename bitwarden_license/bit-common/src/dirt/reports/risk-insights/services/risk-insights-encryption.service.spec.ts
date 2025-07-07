@@ -75,6 +75,30 @@ describe("RiskInsightsEncryptionService", () => {
       });
     });
 
+    it("should throw an error when encrypted text is null or empty", async () => {
+      // arrange: setup our mocks
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.encryptString.mockResolvedValue(new EncString(""));
+      mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
+
+      // Act & Assert: call the method under test and expect rejection
+      await expect(service.encryptRiskInsightsReport(orgId, userId, testData)).rejects.toThrow(
+        "Encryption failed, encrypted strings are null",
+      );
+    });
+
+    it("should throw an error when encrypted key is null or empty", async () => {
+      // arrange: setup our mocks
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
+      mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(""));
+
+      // Act & Assert: call the method under test and expect rejection
+      await expect(service.encryptRiskInsightsReport(orgId, userId, testData)).rejects.toThrow(
+        "Encryption failed, encrypted strings are null",
+      );
+    });
+
     it("should throw if org key is not found", async () => {
       // when we cannot get an organization key, we should throw an error
       mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));

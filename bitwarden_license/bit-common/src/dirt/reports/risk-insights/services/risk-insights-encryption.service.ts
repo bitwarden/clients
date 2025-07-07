@@ -47,10 +47,17 @@ export class RiskInsightsEncryptionService {
       orgKey,
     );
 
+    if (!dataEncrypted.encryptedString || !wrappedEncryptionKey.encryptedString) {
+      throw new Error("Encryption failed, encrypted strings are null");
+    }
+
+    const encryptedData = dataEncrypted.encryptedString;
+    const encryptionKey = wrappedEncryptionKey.encryptedString;
+
     const encryptedDataPacket = {
       organizationId: organizationId,
-      encryptedData: dataEncrypted.encryptedString,
-      encryptionKey: wrappedEncryptionKey.encryptedString,
+      encryptedData: encryptedData,
+      encryptionKey: encryptionKey,
     };
 
     return encryptedDataPacket;
