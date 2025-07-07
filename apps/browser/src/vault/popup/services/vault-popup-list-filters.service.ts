@@ -266,15 +266,15 @@ export class VaultPopupListFiltersService {
   readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
     this.restrictedItemTypesService.restricted$.pipe(
       map((restrictedTypes) => {
-        const restrictedCipherTypes = restrictedTypes.map((r) => r.cipherType);
-
-        return CIPHER_MENU_ITEMS.filter((item) => !restrictedCipherTypes.includes(item.type)).map(
-          (item) => ({
-            value: item.type,
-            label: this.i18nService.t(item.labelKey),
-            icon: item.icon,
-          }),
-        );
+        return CIPHER_MENU_ITEMS.filter((item) => {
+          const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
+          // Show if no restriction or if the restriction allows viewing in at least one org
+          return !restriction || restriction.allowViewOrgIds.length > 0;
+        }).map((item) => ({
+          value: item.type,
+          label: this.i18nService.t(item.labelKey),
+          icon: item.icon,
+        }));
       }),
     );
 
