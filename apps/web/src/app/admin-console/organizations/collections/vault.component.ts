@@ -1065,6 +1065,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (unassignedCiphers.length > 0 || editAccessCiphers.length > 0) {
       await this.cipherService.restoreManyWithServer(
         [...unassignedCiphers, ...editAccessCiphers],
+        this.userId,
         this.organization.id,
       );
     }
