@@ -129,12 +129,15 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   async isSearchable(userId: UserId, query: string): Promise<boolean> {
+    const time = performance.now();
     query = SearchService.normalizeSearchQuery(query);
     const index = await this.getIndexForSearch(userId);
     const notSearchable =
       query == null ||
       (index == null && query.length < this.searchableMinLength) ||
       (index != null && query.length < this.searchableMinLength && query.indexOf(">") !== 0);
+
+    this.logService.measure(time, "Vault", "SearchService", "isSearchable");
     return !notSearchable;
   }
 

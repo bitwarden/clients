@@ -577,6 +577,8 @@ export class LockComponent implements OnInit, OnDestroy {
       throw new Error("No active user.");
     }
 
+    this.logService.mark("Vault unlocked");
+
     await this.keyService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we

@@ -23,4 +23,6 @@ export abstract class LogService {
     measureName: string,
     properties?: [string, any][],
   ): PerformanceMeasure;
+
+  abstract mark(name: string): PerformanceMark;
 }

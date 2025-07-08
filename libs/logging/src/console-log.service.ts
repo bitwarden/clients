@@ -79,4 +79,18 @@ export class ConsoleLogService implements LogService {
     this.info(`${measureName} took ${measure.duration}`, properties);
     return measure;
   }
+
+  mark(name: string): PerformanceMark {
+    const mark = performance.mark(name, {
+      detail: {
+        devtools: {
+          dataType: "marker",
+        },
+      },
+    });
+
+    this.info(mark.name, new Date().toISOString());
+
+    return mark;
+  }
 }

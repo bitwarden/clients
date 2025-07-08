@@ -421,9 +421,6 @@ export class CipherService implements CipherServiceAbstraction {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
       const decryptStartTime = performance.now();
       const decrypted = await this.decryptCiphersWithSdk(ciphers, userId);
-      this.logService.info(
-        `[CipherService] Decrypting ${decrypted.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-      );
 
       this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
         ["Items", ciphers.length],
