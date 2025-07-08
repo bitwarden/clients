@@ -64,7 +64,7 @@
     ]
   },
   "dependencies": {
-    "@koa/multer": "3.1.0",
+    "@koa/multer": "4.0.0",
     "@koa/router": "13.1.0",
     "argon2": "0.41.1",
     "big-integer": "1.6.52",
