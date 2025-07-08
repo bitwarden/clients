@@ -24,5 +24,10 @@ export abstract class LogService {
     properties?: [string, any][],
   ): PerformanceMeasure;
 
+  /**
+   * Helper wrapper around `performance.mark` to log a mark. Should also debug-log the data.
+   *
+   * @param name Name of the mark to create.
+   */
   abstract mark(name: string): PerformanceMark;
 }
