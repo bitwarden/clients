@@ -63,7 +63,11 @@ export class DeviceManagementTableComponent implements OnChanges {
     }
   }
 
-  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest) {
+  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
+    if (pendingAuthRequest == null) {
+      return;
+    }
+
     const loginApprovalDialog = LoginApprovalComponent.open(this.dialogService, {
       notificationId: pendingAuthRequest.id,
     });

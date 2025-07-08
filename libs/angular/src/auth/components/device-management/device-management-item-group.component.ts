@@ -24,7 +24,11 @@ export class DeviceManagementItemGroupComponent {
 
   constructor(private dialogService: DialogService) {}
 
-  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest) {
+  protected async approveOrDenyAuthRequest(pendingAuthRequest: DevicePendingAuthRequest | null) {
+    if (pendingAuthRequest == null) {
+      return;
+    }
+
     const loginApprovalDialog = LoginApprovalComponent.open(this.dialogService, {
       notificationId: pendingAuthRequest.id,
     });
