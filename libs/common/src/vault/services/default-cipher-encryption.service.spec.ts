@@ -91,7 +91,7 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         encrypt: jest.fn(),
-        encrypt_fido2_credentials: jest.fn(),
+        set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
         decrypt_fido2_credentials: jest.fn(),
@@ -200,9 +200,19 @@ describe("DefaultCipherEncryptionService", () => {
           }) as unknown as SdkCipherView,
       );
 
-      mockSdkClient.vault().ciphers().encrypt_fido2_credentials.mockReturnValue({
-        credentialId: "encrypted-credentialId",
-      });
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .set_fido2_credentials.mockReturnValue({
+          id: cipherId as string,
+          login: {
+            fido2Credentials: [
+              {
+                credentialId: "encrypted-credentialId",
+              },
+            ],
+          },
+        });
 
       mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
         cipher: sdkCipher,
@@ -220,10 +230,10 @@ describe("DefaultCipherEncryptionService", () => {
       expect(result).toBeDefined();
       expect(result!.cipher.login!.fido2Credentials).toHaveLength(1);
 
-      // Ensure encrypt_fido2_credentials was called with correct parameters
-      expect(mockSdkClient.vault().ciphers().encrypt_fido2_credentials).toHaveBeenCalledWith(
+      // Ensure set_fido2_credentials was called with correct parameters
+      expect(mockSdkClient.vault().ciphers().set_fido2_credentials).toHaveBeenCalledWith(
         expect.objectContaining({ id: cipherId }),
-        { credentialId: "credentialId" },
+        [{ credentialId: "credentialId" }],
       );
 
       // Encrypted fido2 credential should be in the cipher passed to encrypt
