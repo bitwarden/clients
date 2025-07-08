@@ -600,7 +600,10 @@ const routes: Routes = [
       {
         path: "change-password",
         component: ChangePasswordComponent,
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
+          authGuard,
+        ],
       },
       {
         path: "setup-extension",

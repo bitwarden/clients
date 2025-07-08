@@ -576,7 +576,10 @@ const routes: Routes = [
             component: ChangePasswordComponent,
           },
         ],
-        canActivate: [authGuard],
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
+          authGuard,
+        ],
       },
     ],
   },
