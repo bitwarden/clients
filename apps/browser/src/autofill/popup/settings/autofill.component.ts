@@ -11,7 +11,7 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, Observable, switchMap } from "rxjs";
+import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -44,6 +44,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CardComponent,
   CheckboxModule,
@@ -111,6 +113,11 @@ export class AutofillComponent implements OnInit {
       this.nudgesService.showNudgeSpotlight$(NudgeType.AutofillNudge, account.id),
     ),
   );
+  protected restrictedCardType$: Observable<boolean> =
+    this.restrictedItemTypesService.restricted$.pipe(
+      map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -156,6 +163,7 @@ export class AutofillComponent implements OnInit {
     private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },

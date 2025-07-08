@@ -342,8 +342,6 @@ export class VaultItemsComponent {
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
 
-    this.selection.clear();
-
     // All ciphers are selectable, collections only if they can be edited or deleted
     this.editableItems = items.filter(
       (item) =>
@@ -384,19 +382,22 @@ export class VaultItemsComponent {
     }
 
     if (this.selection.selected.length === 0) {
-      return true;
+      return false;
     }
 
     const hasPersonalItems = this.hasPersonalItems();
     const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
+    const hasEditableCollections = this.allCollections.some((collection) => {
+      return !collection.readOnly;
+    });
 
     // Return false if items are from different organizations
     if (uniqueCipherOrgIds.size > 1) {
       return false;
     }
 
-    // If all items are personal, return based on personal items
-    if (uniqueCipherOrgIds.size === 0) {
+    // If all selected items are personal, return based on personal items
+    if (uniqueCipherOrgIds.size === 0 && hasEditableCollections) {
       return hasPersonalItems;
     }
 
@@ -408,7 +409,11 @@ export class VaultItemsComponent {
     const collectionNotSelected =
       this.selection.selected.filter((item) => item.collection).length === 0;
 
-    return (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) && collectionNotSelected;
+    return (
+      (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) &&
+      collectionNotSelected &&
+      hasEditableCollections
+    );
   }
 
   /**

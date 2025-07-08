@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "A configuração da verificação de dois passos pode bloquear permanentemente a sua conta Bitwarden. Um código de recuperação permite-lhe aceder à sua conta no caso de já não poder utilizar o seu fornecedor normal de verificação de dois passos (por exemplo, se perder o seu dispositivo). O suporte Bitwarden não poderá ajudá-lo se perder o acesso à sua conta. Recomendamos que anote ou imprima o código de recuperação e o guarde num local seguro."
   },
-  "restrictedItemTypesPolicy": {
+  "restrictedItemTypePolicy": {
     "message": "Remover o tipo de item do cartão"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Não permitir que os membros criem tipos de itens de cartão."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Não permitir que os membros criem tipos de itens de cartão. Os cartões existentes serão automaticamente removidos."
+  },
+  "restrictCardTypeImport": {
+    "message": "Não é possível importar tipos de itens de cartão"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Uma política definida por 1 ou mais organizações impede-o de importar cartões para os seus cofres."
   },
   "yourSingleUseRecoveryCode": {
     "message": "O seu código de recuperação de utilização única pode ser utilizado para desativar a verificação de dois passos no caso de perder o acesso ao seu fornecedor de verificação de dois passos. O Bitwarden recomenda que anote o código de recuperação e o guarde num local seguro."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Desativar"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Detalhes do membro não encontrados."
   },
   "revokeAccess": {
     "message": "Revogar o acesso"
@@ -3265,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Coleção predefinida"
+  },
+  "myItems": {
+    "message": "Os meus itens"
   },
   "getHelp": {
     "message": "Obter ajuda"
@@ -5363,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Acesso de emergência rejeitado"
   },
+  "grantorDetailsNotFound": {
+    "message": "Detalhes do concedente não encontrados"
+  },
   "passwordResetFor": {
     "message": "Palavra-passe de $USER$ redefinida. Pode agora iniciar sessão utilizando a nova palavra-passe.",
     "placeholders": {
@@ -5371,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Reforçar a propriedade dos dados da organização"
   },
   "personalOwnership": {
     "message": "Remover cofre pessoal"
@@ -5763,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Ao prosseguir, terminará a sessão atual de $NAME$ e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "este utilizador"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
   },
   "resetPasswordSuccess": {
@@ -6033,6 +6063,9 @@
   },
   "add": {
     "message": "Adicionar"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Palavra-passe mestra definida com sucesso"
   },
   "updatedMasterPassword": {
     "message": "Palavra-passe mestra guardada"
@@ -7614,9 +7647,9 @@
     "message": "Conta de serviço atualizada",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Escreva ou selecione projetos ou segredos",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Introduza ou selecione projetos",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Escreva para filtrar",
@@ -7701,8 +7734,8 @@
     "message": "Tokens de acesso",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Novo token de acesso",
+  "createAccessToken": {
+    "message": "Criar token de acesso",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8203,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "Ocorreu um erro ao tentar ler o ficheiro de importação"
   },
+  "accessedSecretWithId": {
+    "message": "Acedeu a um segredo com o identificador: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Segredo $SECRET_ID$ acedido.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Editou um segredo com o identificador: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Eliminou um segredo com o identificador: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Criou um novo segredo com o identificador: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8837,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Formatos comuns",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "A deteção de correspondência de URI é a forma como o Bitwarden identifica sugestões de preenchimento automático.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Começa com\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mais informações sobre a deteção de correspondências",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Para manter a sua subscrição para a $ORG$, ",
@@ -9733,7 +9818,7 @@
     "message": "Selecionar pasta"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
+    "message": "1 item será permanentemente transferido para a organização selecionada. Este item deixará de lhe pertencer."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão permanentemente transferidos para a organização selecionada. Estes itens deixarão de lhe pertencer.",
@@ -9745,7 +9830,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
+    "message": "1 item será permanentemente transferido para a $ORG$. Este item deixará de lhe pertencer.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -10628,6 +10713,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
   "restart": {
     "message": "Reiniciar"
   },
@@ -10649,5 +10779,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Endereço de faturação necessário para adicionar crédito.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

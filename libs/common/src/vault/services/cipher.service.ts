@@ -9,7 +9,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { KeyService } from "@bitwarden/key-management";
 
 import { ApiService } from "../../abstractions/api.service";
-import { SearchService } from "../../abstractions/search.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
@@ -38,6 +37,7 @@ import {
   EncryptionContext,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
+import { SearchService } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
@@ -217,6 +217,7 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.organizationId = model.organizationId;
     cipher.type = model.type;
     cipher.collectionIds = model.collectionIds;
+    cipher.creationDate = model.creationDate;
     cipher.revisionDate = model.revisionDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
@@ -382,7 +383,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
       await this.reindexCiphers(userId);
-      return await this.getDecryptedCiphers(userId);
+      return decCiphers;
     }
 
     const decrypted = await this.decryptCiphers(await this.getAll(userId), userId);
@@ -448,12 +449,12 @@ export class CipherService implements CipherServiceAbstraction {
           if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
             return await this.bulkEncryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           } else {
             return await this.encryptService.decryptItems(
               groupedCiphers,
-              keys.orgKeys[orgId as OrganizationId] ?? keys.userKey,
+              keys.orgKeys?.[orgId as OrganizationId] ?? keys.userKey,
             );
           }
         }),

@@ -4,7 +4,6 @@ import { OptionValues } from "commander";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -12,6 +11,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";

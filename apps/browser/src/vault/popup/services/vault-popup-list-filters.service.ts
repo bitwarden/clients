@@ -39,6 +39,8 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ChipSelectOption } from "@bitwarden/components";
 
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
@@ -178,6 +180,7 @@ export class VaultPopupListFiltersService {
     private stateProvider: StateProvider,
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -210,74 +213,64 @@ export class VaultPopupListFiltersService {
   /**
    * Observable whose value is a function that filters an array of `CipherView` objects based on the current filters
    */
-  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = this.filters$.pipe(
+  filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
+    this.filters$,
+  ]).pipe(
     map(
-      (filters) => (ciphers: CipherView[]) =>
-        ciphers.filter((cipher) => {
-          // Vault popup lists never shows deleted ciphers
-          if (cipher.isDeleted) {
-            return false;
-          }
-
-          if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
-            return false;
-          }
-
-          if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
-            return false;
-          }
-
-          if (filters.folder && cipher.folderId !== filters.folder.id) {
-            return false;
-          }
-
-          const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-          if (isMyVault) {
-            if (cipher.organizationId !== null) {
+      ([filters]) =>
+        (ciphers: CipherView[]) =>
+          ciphers.filter((cipher) => {
+            // Vault popup lists never shows deleted ciphers
+            if (cipher.isDeleted) {
               return false;
             }
-          } else if (filters.organization) {
-            if (cipher.organizationId !== filters.organization.id) {
+
+            if (filters.cipherType !== null && cipher.type !== filters.cipherType) {
               return false;
             }
-          }
 
-          return true;
-        }),
+            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
+              return false;
+            }
+
+            if (filters.folder && cipher.folderId !== filters.folder.id) {
+              return false;
+            }
+
+            const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+            if (isMyVault) {
+              if (cipher.organizationId !== null) {
+                return false;
+              }
+            } else if (filters.organization) {
+              if (cipher.organizationId !== filters.organization.id) {
+                return false;
+              }
+            }
+
+            return true;
+          }),
     ),
   );
 
   /**
-   * All available cipher types
+   * All available cipher types (filtered by policy restrictions)
    */
-  readonly cipherTypes: ChipSelectOption<CipherType>[] = [
-    {
-      value: CipherType.Login,
-      label: this.i18nService.t("typeLogin"),
-      icon: "bwi-globe",
-    },
-    {
-      value: CipherType.Card,
-      label: this.i18nService.t("typeCard"),
-      icon: "bwi-credit-card",
-    },
-    {
-      value: CipherType.Identity,
-      label: this.i18nService.t("typeIdentity"),
-      icon: "bwi-id-card",
-    },
-    {
-      value: CipherType.SecureNote,
-      label: this.i18nService.t("note"),
-      icon: "bwi-sticky-note",
-    },
-    {
-      value: CipherType.SshKey,
-      label: this.i18nService.t("typeSshKey"),
-      icon: "bwi-key",
-    },
-  ];
+  readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
+    this.restrictedItemTypesService.restricted$.pipe(
+      map((restrictedTypes) => {
+        return CIPHER_MENU_ITEMS.filter((item) => {
+          const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
+          // Show if no restriction or if the restriction allows viewing in at least one org
+          return !restriction || restriction.allowViewOrgIds.length > 0;
+        }).map((item) => ({
+          value: item.type,
+          label: this.i18nService.t(item.labelKey),
+          icon: item.icon,
+        }));
+      }),
+    );
 
   /** Resets `filterForm` to the original state */
   resetFilterForm(): void {
@@ -294,30 +287,30 @@ export class VaultPopupListFiltersService {
       switchMap((userId) =>
         combineLatest([
           this.organizationService.memberOrganizations$(userId),
-          this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         ]),
       ),
-      map(([orgs, personalOwnershipApplies]): [Organization[], boolean] => [
+      map(([orgs, organizationDataOwnership]): [Organization[], boolean] => [
         orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
-        personalOwnershipApplies,
+        organizationDataOwnership,
       ]),
-      map(([orgs, personalOwnershipApplies]) => {
+      map(([orgs, organizationDataOwnership]) => {
         // When there are no organizations return an empty array,
         // resulting in the org filter being hidden
         if (!orgs.length) {
           return [];
         }
 
-        // When there is only one organization and personal ownership policy applies,
+        // When there is only one organization and organization data ownership policy applies,
         // return an empty array, resulting in the org filter being hidden
-        if (orgs.length === 1 && personalOwnershipApplies) {
+        if (orgs.length === 1 && organizationDataOwnership) {
           return [];
         }
 
         const myVaultOrg: ChipSelectOption<Organization>[] = [];
 
-        // Only add "My vault" if personal ownership policy does not apply
-        if (!personalOwnershipApplies) {
+        // Only add "My vault" if organization data ownership policy does not apply
+        if (!organizationDataOwnership) {
           myVaultOrg.push({
             value: { id: MY_VAULT_ID } as Organization,
             label: this.i18nService.t("myVault"),

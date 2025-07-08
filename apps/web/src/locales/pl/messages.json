@@ -2153,11 +2153,17 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Włączenie logowania dwustopniowego można trwale zablokować konto Bitwarden. Kod odzyskiwania pozwala na dostęp do konta w przypadku, gdy nie będziesz mógł skorzystać ze standardowego dostawcy logowania dwustopniowego (np. w przypadku utraty urządzenia). Pomoc techniczna Bitwarden nie będzie w stanie Ci pomóc, jeśli stracisz dostęp do swojego konta. Zalecamy zapisanie lub wydrukowanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
   },
-  "restrictedItemTypesPolicy": {
-    "message": "Usuń typ elementu karty"
+  "restrictedItemTypePolicy": {
+    "message": "Usuń elementy typu karty"
   },
-  "restrictedItemTypesPolicyDesc": {
-    "message": "Nie zezwalaj członkom na tworzenie typów elementów karty."
+  "restrictedItemTypePolicyDesc": {
+    "message": "Nie zezwalaj członkom na tworzenie elementów typu karty. Istniejące karty zostaną automatycznie usunięte."
+  },
+  "restrictCardTypeImport": {
+    "message": "Nie można importować elementów typu karty"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Polityka ustawiona przez 1 lub więcej organizacji uniemożliwia importowanie kart do sejfów."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Jednorazowy kod odzyskiwania może być użyty do wyłączenia dwuetapowego logowania w przypadku utraty dostępu do dostawcy logowania dwuetapowego. Bitwarden zaleca zapisanie kodu odzyskiwania i przechowywanie go w bezpiecznym miejscu."
@@ -2217,6 +2223,9 @@
   },
   "disable": {
     "message": "Wyłącz"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Nie znaleziono szczegółów użytkownika."
   },
   "revokeAccess": {
     "message": "Unieważnij dostęp"
@@ -3265,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Domyślna kolekcja"
+  },
+  "myItems": {
+    "message": "Moje elementy"
   },
   "getHelp": {
     "message": "Uzyskaj pomoc"
@@ -5363,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Dostęp awaryjny został odrzucony"
   },
+  "grantorDetailsNotFound": {
+    "message": "Nie znaleziono szczegółów dotacji"
+  },
   "passwordResetFor": {
     "message": "Zresetowałeś hasło użytkownika $USER$. Możesz zalogować się za pomocą nowego hasła.",
     "placeholders": {
@@ -5371,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Wymuś własność danych organizacji"
   },
   "personalOwnership": {
     "message": "Własność osobista"
@@ -5763,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Kontynuowanie spowoduje wylogowanie użytkownika $NAME$ z obecnej sesji i będzie musiał zalogować się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie godzinę.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "ten użytkownik"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
   },
   "resetPasswordSuccess": {
@@ -6033,6 +6063,9 @@
   },
   "add": {
     "message": "Dodaj"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hasło główne zostało pomyślnie ustawione"
   },
   "updatedMasterPassword": {
     "message": "Hasło główne zostało zapisane"
@@ -7614,9 +7647,9 @@
     "message": "Zaktualizowano konto serwisowe",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Wpisz lub wybierz projekty lub sekrety",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Wpisz lub wybierz projekty",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Wpisz, aby filtrować",
@@ -7701,8 +7734,8 @@
     "message": "Tokeny dostępu",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nowy token dostępu",
+  "createAccessToken": {
+    "message": "Utwórz token dostępu",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8203,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "Wystąpił błąd podczas próby odczytu pliku importu"
   },
+  "accessedSecretWithId": {
+    "message": "Accessed a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Uzyskano dostęp do sekretu $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Edited a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Deleted a secret with identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Created a new secret with identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8837,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Popularne formaty",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Aby utrzymać subskrypcję dla $ORG$ ",
@@ -10628,6 +10713,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
   "restart": {
     "message": "Zrestartuj"
   },
@@ -10649,5 +10779,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Aby dodać środki, wymagany jest adres rozliczeniowy.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

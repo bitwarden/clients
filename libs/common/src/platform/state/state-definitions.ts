@@ -128,6 +128,9 @@ export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
   "extensionInitialInstall",
   "disk",
 );
+export const WEB_PUSH_SUBSCRIPTION = new StateDefinition("webPushSubscription", "disk", {
+  web: "disk-local",
+});
 
 // Design System
 
@@ -152,6 +155,7 @@ export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
 export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
   browser: "memory-large-object",
 });
+export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "memory");
 
 // Vault
 

@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Logo de Bitwarden"
   },
   "extName": {
     "message": "Gestionnaire de mots de passe Bitwarden",
@@ -887,7 +887,7 @@
     "message": "Suivez les étapes ci-dessous afin de réussir à vous connecter."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Suivez les étapes ci-dessous pour terminer la connexion avec votre clé de sécurité."
   },
   "restartRegistration": {
     "message": "Redémarrer l'inscription"
@@ -1080,7 +1080,7 @@
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Nouvelle notification"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
@@ -1093,11 +1093,11 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "enregistré dans Bitwarden.",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "mis à jour dans Bitwarden.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
@@ -1129,7 +1129,7 @@
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Mettre à jour de l'identifiant existant",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
@@ -1162,7 +1162,7 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Changer le mot de passe suivant",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
@@ -1922,6 +1922,9 @@
   "typeSshKey": {
     "message": "Clé SSH"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Créer un(e) $TYPE$",
     "placeholders": {
@@ -2153,8 +2156,8 @@
   "setYourPinCode": {
     "message": "Définissez votre code PIN pour déverrouiller Bitwarden. Les paramètres relatifs à votre code PIN seront réinitialisés si vous vous déconnectez complètement de l'application."
   },
-  "setYourPinCode1": {
-    "message": "Votre code PIN sera utilisé pour déverrouiller Bitwarden au lieu de votre mot de passe principal. Votre code PIN sera réinitialisé si vous vous déconnectez complètement de Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "Le code PIN est requis."
@@ -2484,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Une politique d'organisation a bloqué l'import d'éléments dans votre coffre personel."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domaines",
     "description": "A category title describing the concept of web domains"
@@ -2515,6 +2524,10 @@
   "change": {
     "message": "Modifier"
   },
+  "changePassword": {
+    "message": "Changer le mot de passe",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Modifier le mot de passe - $ITEMNAME$",
     "placeholders": {
@@ -2523,6 +2536,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "Mot de passe à risque"
   },
   "atRiskPasswords": {
     "message": "Mots de passe à risque"
@@ -2557,6 +2573,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Examiner et modifier un mot de passe à risque"
@@ -2882,6 +2918,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Vous devez vérifier votre courriel pour utiliser cette fonctionnalité. Vous pouvez vérifier votre courriel dans le coffre web."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Mot de passe principal mis à jour"
@@ -4208,6 +4247,26 @@
     "message": "Formats communs",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Continuer vers les paramètres du navigateur ?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -5035,6 +5094,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Authentification"
   },
@@ -5376,5 +5438,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }
