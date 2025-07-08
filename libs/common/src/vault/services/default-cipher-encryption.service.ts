@@ -89,11 +89,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             clientCipherView.login.fido2Credentials = fido2CredentialViews
               .map((f) => {
                 const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
-
-                return {
-                  ...view,
-                  keyValue: decryptedKeyValue,
-                };
+                view.keyValue = decryptedKeyValue;
+                return view;
               })
               .filter((view): view is Fido2CredentialView => view !== undefined);
           }
@@ -142,10 +139,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               clientCipherView.login.fido2Credentials = fido2CredentialViews
                 .map((f) => {
                   const view = Fido2CredentialView.fromSdkFido2CredentialView(f)!;
-                  return {
-                    ...view,
-                    keyValue: decryptedKeyValue,
-                  };
+                  view.keyValue = decryptedKeyValue;
+                  return view;
                 })
                 .filter((view): view is Fido2CredentialView => view !== undefined);
             }
