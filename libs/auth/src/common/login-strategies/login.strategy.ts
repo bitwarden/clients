@@ -265,8 +265,6 @@ export abstract class LoginStrategy {
 
     result.resetMasterPassword = response.resetMasterPassword;
 
-    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
-
     if (response.twoFactorToken != null) {
       // note: we can read email from access token b/c it was saved in saveAccountInformation
       const userEmail = await this.tokenService.getEmail();
@@ -277,6 +275,9 @@ export abstract class LoginStrategy {
     await this.setMasterKey(response, userId);
     await this.setUserKey(response, userId);
     await this.setPrivateKey(response, userId);
+
+    // This needs to run after the keys are set because it checks for the existence of the encrypted private key
+    await this.processForceSetPasswordReason(response.forcePasswordReset, userId);
 
     this.messagingService.send("loggedIn");
 

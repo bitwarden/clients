@@ -1,11 +1,13 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcMessage, isIpcMessage, IpcService } from "@bitwarden/common/platform/ipc";
 import {
-  IpcClient,
   IpcCommunicationBackend,
   IncomingMessage,
   OutgoingMessage,
+  ipcRegisterDiscoverHandler,
+  IpcClient,
 } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -13,7 +15,10 @@ import { BrowserApi } from "../browser/browser-api";
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
 
-  constructor(private logService: LogService) {
+  constructor(
+    private platformUtilsService: PlatformUtilsService,
+    private logService: LogService,
+  ) {
     super();
   }
 
@@ -60,11 +65,18 @@ export class IpcBackgroundService extends IpcService {
             {
               Web: { id: sender.tab.id },
             },
+            message.message.topic,
           ),
         );
       });
 
       await super.initWithClient(new IpcClient(this.communicationBackend));
+
+      if (this.platformUtilsService.isDev()) {
+        await ipcRegisterDiscoverHandler(this.client, {
+          version: await this.platformUtilsService.getApplicationVersion(),
+        });
+      }
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

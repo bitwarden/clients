@@ -20,7 +20,10 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { RestrictedCipherType, RestrictedItemTypesService } from "@bitwarden/vault";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 
 import {
   CachedFilterState,
@@ -73,6 +76,7 @@ describe("VaultPopupListFiltersService", () => {
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   };
 
   beforeEach(() => {
@@ -224,10 +228,10 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    describe("PersonalOwnership policy", () => {
-      it('calls policyAppliesToUser$ with "PersonalOwnership"', () => {
+    describe("OrganizationDataOwnership policy", () => {
+      it('calls policyAppliesToUser$ with "OrganizationDataOwnership"', () => {
         expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
-          PolicyType.PersonalOwnership,
+          PolicyType.OrganizationDataOwnership,
           "userId",
         );
       });
@@ -482,10 +486,6 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
 
-    beforeEach(() => {
-      restrictedItemTypesService.restricted$.next([]);
-    });
-
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[0]]);
@@ -726,6 +726,7 @@ function createSeededVaultPopupListFiltersService(
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const restrictedItemTypesServiceMock = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   } as any;
   const formBuilderInstance = new FormBuilder();
 
