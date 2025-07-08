@@ -284,6 +284,9 @@ const mainConfig = {
     path: path.resolve(__dirname, "build"),
     clean: true,
   },
+  module: {
+    rules: moduleRules,
+  },
   experiments: {
     asyncWebAssembly: true,
   },
