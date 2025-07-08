@@ -91,7 +91,6 @@ export class RestrictedItemTypesService {
    * Restriction logic:
    * - If cipher type is not restricted by any org → allowed
    * - If cipher belongs to an org that allows this type → allowed
-   * - If cipher is personal vault and any org allows this type → allowed
    * - Otherwise → restricted
    */
   isCipherRestricted(cipher: CipherLike, restrictedTypes: RestrictedCipherType[]): boolean {
@@ -108,8 +107,8 @@ export class RestrictedItemTypesService {
       return !restriction.allowViewOrgIds.includes(cipher.organizationId);
     }
 
-    // For personal vault ciphers: restricted only if NO organizations allow this type
-    return restriction.allowViewOrgIds.length === 0;
+    // Cipher is restricted by at least one organization, restrict it
+    return true;
   }
 
   /**
