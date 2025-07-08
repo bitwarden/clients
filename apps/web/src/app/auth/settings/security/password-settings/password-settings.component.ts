@@ -5,8 +5,6 @@ import { firstValueFrom } from "rxjs";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { InputPasswordFlow } from "@bitwarden/auth/angular";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CalloutModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -24,14 +22,9 @@ export class PasswordSettingsComponent implements OnInit {
   constructor(
     private router: Router,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
-    this.changePasswordFeatureFlag = await this.configService.getFeatureFlag(
-      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-    );
-
     const userHasMasterPassword = await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPassword$,
     );
