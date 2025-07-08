@@ -1316,7 +1316,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
+    deps: [StateProvider, PolicyServiceAbstraction, AccountService, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: BadgeSettingsServiceAbstraction,
@@ -1331,7 +1331,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: VaultSettingsServiceAbstraction,
     useClass: VaultSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: MigrationRunner,
