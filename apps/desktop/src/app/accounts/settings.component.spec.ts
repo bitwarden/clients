@@ -125,6 +125,20 @@ describe("SettingsComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
+    TestBed.overrideComponent(SettingsComponent, {
+      add: {
+        providers: [
+          {
+            provide: DialogService,
+            useValue: dialogService,
+          },
+        ],
+      },
+      remove: {
+        providers: [DialogService],
+      },
+    });
+
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
