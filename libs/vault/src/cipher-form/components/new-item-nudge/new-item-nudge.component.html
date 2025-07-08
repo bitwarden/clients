@@ -1,4 +1,4 @@
-<ng-container *ngIf="showNewItemSpotlight">
+<ng-container *ngIf="showNewItemSpotlight$ | async">
   <bit-spotlight
     [title]="nudgeTitle"
     [subtitle]="nudgeBody"
