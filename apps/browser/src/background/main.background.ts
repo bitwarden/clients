@@ -788,16 +788,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
-
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
@@ -841,6 +831,16 @@ export default class MainBackground {
       this.apiService,
       this.stateService,
       this.tokenService,
+    );
+
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
