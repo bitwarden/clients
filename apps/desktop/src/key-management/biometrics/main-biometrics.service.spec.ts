@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -11,7 +12,6 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
-import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
 import { WindowMain } from "../../main/window.main";
 
@@ -35,7 +35,7 @@ describe("MainBiometricsService", function () {
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
   const biometricStateService = mock<BiometricStateService>();
-  const cryptoFunctionService = mock<NodeCryptoFunctionService>();
+  const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
 
   it("Should call the platformspecific methods", async () => {
