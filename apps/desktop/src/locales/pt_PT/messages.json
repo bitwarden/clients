@@ -2392,6 +2392,9 @@
   "passwordConfirmationDesc": {
     "message": "Esta ação está protegida. Para continuar, por favor, reintroduza a sua palavra-passe mestra para verificar a sua identidade."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Palavra-passe mestra definida com sucesso"
+  },
   "updatedMasterPassword": {
     "message": "Palavra-passe mestra atualizada"
   },
@@ -3531,6 +3534,22 @@
   "commonImportFormats": {
     "message": "Formatos comuns",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "A deteção de correspondência de URI é a forma como o Bitwarden identifica sugestões de preenchimento automático.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "A \"expressão regular\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Começa com\" é uma opção avançada com um risco acrescido de exposição de credenciais.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Mais informações sobre a deteção de correspondências",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "success": {
     "message": "Com sucesso"

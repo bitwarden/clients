@@ -17,8 +17,8 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   resetMasterPassword: boolean;
-  privateKey: string;
-  key?: EncString;
+  privateKey: string; // userKeyEncryptedPrivateKey
+  key?: EncString; // masterKeyEncryptedUserKey
   twoFactorToken: string;
   kdf: KdfType;
   kdfIterations: number;
@@ -61,5 +61,9 @@ export class IdentityTokenResponse extends BaseResponse {
         this.getResponseProperty("UserDecryptionOptions"),
       );
     }
+  }
+
+  hasMasterKeyEncryptedUserKey(): boolean {
+    return Boolean(this.key);
   }
 }
