@@ -6064,6 +6064,9 @@
   "add": {
     "message": "Toevoegen"
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hoofdwachtwoord succesvol ingesteld"
+  },
   "updatedMasterPassword": {
     "message": "Hoofdwachtwoord bijgewerkt"
   },
@@ -8233,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "Er is een fout opgetreden bij het lezen van het bronbestand"
   },
+  "accessedSecretWithId": {
+    "message": "Geheim benaderd met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Geopend geheim $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Geheim bewerkt met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Geheim verwijderd met identifier: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Nieuw geheim aangemaakt met identifier: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8867,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Gangbare formaten",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Lees meer over overeenkomstdetectie",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Om je abonnement voor $ORG$ te behouden, ",
@@ -10657,6 +10712,51 @@
     "message": "Meer informatie over SSH-agent",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "setupExtensionPageTitle": {
+    "message": "Automatisch je wachtwoorden veilig aanvullen met één klik"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Download de Bitwarden-browserextensie en begin vandaag met automatisch invullen"
+  },
+  "getTheExtension": {
+    "message": "Download de extensie"
+  },
+  "addItLater": {
+    "message": "Later toevoegen"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Je kunt wachtwoorden niet automatisch invullen zonder de browserextensie"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Weet je zeker dat je de extensie nu niet wilt toevoegen?"
+  },
+  "skipToWebApp": {
+    "message": "Ga naar webapp"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extensie geïnstalleerd!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open de extensie om in te loggen en te beginnen met automatisch invullen."
+  },
+  "openBitwardenExtension": {
+    "message": "Bitwarden-extensie openen"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Bezoek voor tips over het beginnen met Bitwarden het",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Leercentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Helpcentrum",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "Met de Bitwarden-browserextensie kun je eenvoudig nieuwe inloggegevens aanmaken, je opgeslagen logins rechtstreeks vanuit je browser toolbar benaderen en je snel aanmelden bij accounts met Bitwarden automatisch invullen."
   },
   "restart": {
     "message": "Herstarten"
