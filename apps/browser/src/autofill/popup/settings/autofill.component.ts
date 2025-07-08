@@ -541,7 +541,7 @@ export class AutofillComponent implements OnInit {
       return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[current]!,
+      contentKey: this.advancedOptionWarningMap[current],
       onContinue: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
