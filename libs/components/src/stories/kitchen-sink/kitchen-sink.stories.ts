@@ -14,6 +14,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { PasswordManagerLogo } from "../../icon";
 import { LayoutComponent } from "../../layout";
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { positionFixedWrapperDecorator } from "../storybook-decorators";
@@ -77,9 +78,13 @@ type Story = StoryObj<LayoutComponent>;
 export const Default: Story = {
   render: (args) => {
     return {
-      props: args,
+      props: {
+        ...args,
+        logo: PasswordManagerLogo,
+      },
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
+          <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
           <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
             <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
             <bit-nav-item text="Child B" route="b"></bit-nav-item>
