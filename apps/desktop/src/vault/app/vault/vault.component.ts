@@ -37,6 +37,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType, toCipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -65,10 +66,10 @@ const BroadcasterSubscriptionId = "VaultComponent";
   templateUrl: "vault.component.html",
   standalone: false,
 })
-export class VaultComponent implements OnInit, OnDestroy {
+export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   @ViewChild(ViewComponent) viewComponent: ViewComponent;
   @ViewChild(AddEditComponent) addEditComponent: AddEditComponent;
-  @ViewChild(VaultItemsComponent, { static: true }) vaultItemsComponent: VaultItemsComponent;
+  @ViewChild(VaultItemsComponent, { static: true }) vaultItemsComponent: VaultItemsComponent<C>;
   @ViewChild("generator", { read: ViewContainerRef, static: true })
   generatorModalRef: ViewContainerRef;
   @ViewChild(VaultFilterComponent, { static: true }) vaultFilterComponent: VaultFilterComponent;
@@ -325,7 +326,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
-  async viewCipher(cipher: CipherView) {
+  async viewCipher(c: CipherViewLike) {
+    const cipher = await this.cipherService.getFullCipherView(c);
     if (!(await this.canNavigateAway("view", cipher))) {
       return;
     } else if (!(await this.passwordReprompt(cipher))) {
@@ -337,7 +339,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.go();
   }
 
-  viewCipherMenu(cipher: CipherView) {
+  async viewCipherMenu(c: CipherViewLike) {
+    const cipher = await this.cipherService.getFullCipherView(c);
     const menu: RendererMenuItem[] = [
       {
         label: this.i18nService.t("view"),

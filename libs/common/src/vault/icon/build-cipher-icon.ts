@@ -1,6 +1,6 @@
 import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums/cipher-type";
-import { CipherView } from "../models/view/cipher.view";
+import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 export interface CipherIconDetails {
   imageEnabled: boolean;
@@ -14,7 +14,7 @@ export interface CipherIconDetails {
 
 export function buildCipherIcon(
   iconsServerUrl: string | null,
-  cipher: CipherView,
+  cipher: CipherViewLike,
   showFavicon: boolean,
 ): CipherIconDetails {
   let icon: string = "bwi-globe";
@@ -36,12 +36,16 @@ export function buildCipherIcon(
     showFavicon = false;
   }
 
-  switch (cipher.type) {
+  const cipherType = CipherViewLikeUtils.getType(cipher);
+  const uri = CipherViewLikeUtils.uri(cipher);
+  const card = CipherViewLikeUtils.getCard(cipher);
+
+  switch (cipherType) {
     case CipherType.Login:
       icon = "bwi-globe";
 
-      if (cipher.login.uri) {
-        let hostnameUri = cipher.login.uri;
+      if (uri) {
+        let hostnameUri = uri;
         let isWebsite = false;
 
         if (hostnameUri.indexOf("androidapp://") === 0) {
@@ -84,8 +88,8 @@ export function buildCipherIcon(
       break;
     case CipherType.Card:
       icon = "bwi-credit-card";
-      if (showFavicon && cipher.card.brand in cardIcons) {
-        icon = `credit-card-icon ${cardIcons[cipher.card.brand]}`;
+      if (showFavicon && card?.brand && card.brand in cardIcons) {
+        icon = `credit-card-icon ${cardIcons[card.brand]}`;
       }
       break;
     case CipherType.Identity:

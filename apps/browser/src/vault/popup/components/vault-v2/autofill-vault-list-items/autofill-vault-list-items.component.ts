@@ -6,12 +6,13 @@ import { combineLatest, map, Observable, startWith } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-import { PopupCipherView } from "../../../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { VaultListItemsContainerComponent } from "../vault-list-items-container/vault-list-items-container.component";
 
 @Component({
@@ -30,7 +31,7 @@ export class AutofillVaultListItemsComponent {
    * The list of ciphers that can be used to autofill the current page.
    * @protected
    */
-  protected autofillCiphers$: Observable<PopupCipherView[]> =
+  protected autofillCiphers$: Observable<PopupCipherViewLike[]> =
     this.vaultPopupItemsService.autoFillCiphers$;
 
   /**
@@ -62,7 +63,9 @@ export class AutofillVaultListItemsComponent {
   ]).pipe(
     map(
       ([hasFilter, ciphers, canAutoFill]) =>
-        !hasFilter && canAutoFill && ciphers.filter((c) => c.type == CipherType.Login).length === 0,
+        !hasFilter &&
+        canAutoFill &&
+        ciphers.filter((c) => CipherViewLikeUtils.getType(c) == CipherType.Login).length === 0,
     ),
   );
 
