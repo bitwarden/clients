@@ -81,16 +81,18 @@ export const Default: Story = {
       template: /* HTML */ `<bit-layout>
         <bit-side-nav>
           <bit-nav-group text="Password Managers" icon="bwi-collection-shared" [open]="true">
-            <bit-nav-group
-              text="Favorites"
-              icon="bwi-collection-shared"
-              variant="tree"
-              [open]="true"
-            >
-              <bit-nav-item text="Bitwarden" route="bitwarden"></bit-nav-item>
-              <bit-nav-divider></bit-nav-divider>
-            </bit-nav-group>
-            <bit-nav-item text="Virtual Scroll" route="virtual-scroll"></bit-nav-item>
+            <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Child B" route="b"></bit-nav-item>
+            <bit-nav-item
+              text="Virtual Scroll"
+              route="virtual-scroll"
+              icon="bwi-filter"
+            ></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-group text="Favorites" icon="bwi-filter">
+            <bit-nav-item text="Favorites Child A" icon="bwi-filter"></bit-nav-item>
+            <bit-nav-item text="Favorites Child B"></bit-nav-item>
+            <bit-nav-item text="Favorites Child C" icon="bwi-filter"></bit-nav-item>
           </bit-nav-group>
         </bit-side-nav>
         <router-outlet></router-outlet>
