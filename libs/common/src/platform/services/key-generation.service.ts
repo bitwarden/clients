@@ -14,7 +14,7 @@ import { Utils } from "../misc/utils";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export class KeyGenerationService implements KeyGenerationServiceAbstraction {
-  constructor(private cryptoFunctionService: CryptoFunctionService) { }
+  constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
   async createKey(bitLength: 256 | 512): Promise<SymmetricCryptoKey> {
     const key = await this.cryptoFunctionService.aesGenerateKey(bitLength);
@@ -57,7 +57,9 @@ export class KeyGenerationService implements KeyGenerationServiceAbstraction {
     }
 
     await SdkLoadService.Ready;
-    return new SymmetricCryptoKey(PureCrypto.derive_kdf_material(password, salt, kdfConfig.toSdkConfig()));
+    return new SymmetricCryptoKey(
+      PureCrypto.derive_kdf_material(password, salt, kdfConfig.toSdkConfig()),
+    );
   }
 
   async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
