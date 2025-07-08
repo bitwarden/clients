@@ -27,6 +27,7 @@ describe("SetupExtensionComponent", () => {
     navigate.mockClear();
     openExtension.mockClear();
     getFeatureFlag.mockClear().mockResolvedValue(true);
+    window.matchMedia = jest.fn().mockReturnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [SetupExtensionComponent, RouterModule.forRoot([])],
