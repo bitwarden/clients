@@ -28,17 +28,17 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           }
 
           using ref = sdk.take();
-          const sdkCipherView = model.toSdkCipherView();
+          let sdkCipherView = model.toSdkCipherView();
 
           if (model.type === CipherType.Login && model.login?.hasFido2Credentials) {
             // Encrypt Fido2 credentials separately
             const fido2Credentials = model.login.fido2Credentials?.map((f) =>
               f.toSdkFido2CredentialFullView(),
             );
-            const encryptedFido2Credentials = fido2Credentials.map((f) =>
-              ref.value.vault().ciphers().encrypt_fido2_credentials(sdkCipherView, f),
-            );
-            sdkCipherView.login!.fido2Credentials = encryptedFido2Credentials;
+            sdkCipherView = ref.value
+              .vault()
+              .ciphers()
+              .set_fido2_credentials(sdkCipherView, fido2Credentials);
           }
 
           const encryptionContext = ref.value.vault().ciphers().encrypt(sdkCipherView);
