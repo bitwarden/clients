@@ -5,7 +5,7 @@ use aes::cipher::{
     BlockEncryptMut, KeyIvInit,
 };
 
-use crate::error::{CryptoError, KdfParamError, Result};
+use crate::error::{CryptoError, Result};
 
 use super::CipherString;
 
