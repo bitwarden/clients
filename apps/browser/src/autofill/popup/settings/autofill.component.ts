@@ -11,7 +11,17 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, map, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  concatMap,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  pairwise,
+  shareReplay,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
@@ -59,6 +69,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
+import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -325,10 +336,13 @@ export class AutofillComponent implements OnInit {
       });
 
     this.additionalOptionsForm.controls.defaultUriMatch.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        void this.domainSettingsService.setDefaultUriMatchStrategy(value);
-      });
+      .pipe(
+        startWith(this.defaultUriMatch),
+        pairwise(),
+        concatMap(([previous, current]) => this.handleAdvancedMatch(previous, current)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
@@ -515,6 +529,29 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = true;
     await this.updateDefaultBrowserAutofillDisabled();
   };
+
+  private async handleAdvancedMatch(
+    previous: UriMatchStrategySetting | null,
+    current: UriMatchStrategySetting | null,
+  ): Promise<void> {
+    const valueChange = previous !== current;
+    const isAdvanced =
+      current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
+    if (!valueChange || !isAdvanced) {
+      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+    }
+    AdvancedUriOptionDialogComponent.open(this.dialogService, {
+      contentKey: this.advancedOptionWarningMap[current]!,
+      onContinue: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      },
+      onCancel: async () => {
+        this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      },
+    });
+  }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
