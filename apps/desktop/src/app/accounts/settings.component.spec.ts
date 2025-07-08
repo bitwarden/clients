@@ -4,7 +4,6 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -32,7 +31,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -87,7 +86,7 @@ describe("SettingsComponent", () => {
     i18nService.supportedTranslationLocales = [];
 
     await TestBed.configureTestingModule({
-      declarations: [SettingsComponent, I18nPipe],
+      imports: [],
       providers: [
         {
           provide: AutofillSettingsServiceAbstraction,
@@ -121,6 +120,7 @@ describe("SettingsComponent", () => {
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
+        { provide: ToastService, useValue: mock<ToastService>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -157,6 +157,7 @@ describe("SettingsComponent", () => {
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    policyService.policiesByType$.mockReturnValue(of([null]));
   });
 
   afterEach(() => {
