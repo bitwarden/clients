@@ -101,9 +101,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.updateTimeText();
       }, RequestTimeUpdate);
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(this.email);
+      await this.loginApprovalComponentService.showLoginRequestedAlertIfWindowNotVisible(
+        this.email,
+      );
 
       this.loading = false;
     }
