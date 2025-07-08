@@ -23,6 +23,7 @@ import {
   BitwardenClient,
   ClientSettings,
   DeviceType as SdkDeviceType,
+  TokenProvider,
 } from "@bitwarden/sdk-internal";
 
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
@@ -44,6 +45,17 @@ import { EncryptedString } from "../../models/domain/enc-string";
 // blocking the creation of an internal client for that user.
 const UnsetClient = Symbol("UnsetClient");
 
+/**
+ * A token provider that exposes the access token to the SDK.
+ */
+class JsTokenProvider implements TokenProvider {
+  constructor() {}
+
+  async get_access_token(): Promise<string | undefined> {
+    return undefined;
+  }
+}
+
 export class DefaultSdkService implements SdkService {
   private sdkClientOverrides = new BehaviorSubject<{
     [userId: UserId]: Rc<BitwardenClient> | typeof UnsetClient;
@@ -54,7 +66,7 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(settings);
+      return await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -162,7 +174,10 @@ export class DefaultSdkService implements SdkService {
               }
 
               const settings = this.toSettings(env);
-              const client = await this.sdkClientFactory.createSdkClient(settings);
+              const client = await this.sdkClientFactory.createSdkClient(
+                new JsTokenProvider(),
+                settings,
+              );
 
               await this.initializeClient(
                 userId,

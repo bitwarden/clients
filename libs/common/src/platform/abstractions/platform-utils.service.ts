@@ -29,6 +29,15 @@ export abstract class PlatformUtilsService {
   abstract supportsWebAuthn(win: Window): boolean;
   abstract supportsDuo(): boolean;
   /**
+   * Returns true if the device supports autofill functionality
+   */
+  abstract supportsAutofill(): boolean;
+  /**
+   * Returns true if the device supports native file downloads without
+   * the need for `target="_blank"`
+   */
+  abstract supportsFileDownloads(): boolean;
+  /**
    * @deprecated use `@bitwarden/components/ToastService.showToast` instead
    *
    * Jira: [CL-213](https://bitwarden.atlassian.net/browse/CL-213)
