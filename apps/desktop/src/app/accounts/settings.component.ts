@@ -1,19 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
-import {
-  concatMap,
-  debounceTime,
-  filter,
-  map,
-  switchMap,
-  takeUntil,
-  tap,
-  timeout,
-} from "rxjs/operators";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
+import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
+import { BehaviorSubject, Observable, Subject, combineLatest, firstValueFrom, of } from "rxjs";
+import { concatMap, map, pairwise, startWith, switchMap, takeUntil, timeout } from "rxjs/operators";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { VaultTimeoutInputComponent } from "@bitwarden/auth/angular";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -31,7 +26,6 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -42,7 +36,19 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.e
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import {
+  CheckboxModule,
+  DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  ItemModule,
+  LinkModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  SelectModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -55,14 +61,30 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CheckboxModule,
+    CommonModule,
+    FormFieldModule,
+    FormsModule,
+    ReactiveFormsModule,
+    IconButtonModule,
+    ItemModule,
+    JslibModule,
+    LinkModule,
+    RouterModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    SelectModule,
+    TypographyModule,
+    VaultTimeoutInputComponent,
+  ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   // For use in template
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
   showMinToTray = false;
-  vaultTimeoutOptions: VaultTimeoutOption[] = [];
   localeOptions: any[];
   themeOptions: any[];
   clearClipboardOptions: any[];
@@ -92,12 +114,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   currentUserEmail: string;
   currentUserId: UserId;
 
-  availableVaultTimeoutActions$: Observable<VaultTimeoutAction[]>;
-  vaultTimeoutPolicyCallout: Observable<{
-    timeout: { hours: number; minutes: number };
-    action: "lock" | "logOut";
-  }>;
-  previousVaultTimeout: VaultTimeout = null;
+  availableVaultTimeoutActions: VaultTimeoutAction[] = [];
+  vaultTimeoutOptions: VaultTimeoutOption[] = [];
+  hasVaultTimeoutPolicy = false;
 
   userHasMasterPassword: boolean;
   userHasPinSet: boolean;
@@ -162,8 +181,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private pinService: PinServiceAbstraction,
     private logService: LogService,
     private nativeMessagingManifestService: NativeMessagingManifestService,
-    private configService: ConfigService,
     private validationService: ValidationService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private toastService: ToastService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -247,38 +267,54 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.currentUserEmail = activeAccount.email;
     this.currentUserId = activeAccount.id;
 
-    this.availableVaultTimeoutActions$ = this.refreshTimeoutSettings$.pipe(
-      switchMap(() =>
-        this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(activeAccount.id),
-      ),
-    );
-
-    // Load timeout policy
-    this.vaultTimeoutPolicyCallout = this.accountService.activeAccount$.pipe(
+    const maximumVaultTimeoutPolicy = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
         this.policyService.policiesByType$(PolicyType.MaximumVaultTimeout, userId),
       ),
       getFirstPolicy,
-      filter((policy) => policy != null),
-      map((policy) => {
-        let timeout;
-        if (policy.data?.minutes) {
-          timeout = {
-            hours: Math.floor(policy.data?.minutes / 60),
-            minutes: policy.data?.minutes % 60,
-          };
-        }
-        return { timeout: timeout, action: policy.data?.action };
-      }),
-      tap((policy) => {
-        if (policy.action) {
+    );
+    if ((await firstValueFrom(maximumVaultTimeoutPolicy)) != null) {
+      this.hasVaultTimeoutPolicy = true;
+    }
+
+    this.refreshTimeoutSettings$
+      .pipe(
+        switchMap(() =>
+          combineLatest([
+            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
+            this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(activeAccount.id),
+          ]),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([availableActions, action]) => {
+        this.availableVaultTimeoutActions = availableActions;
+        this.form.controls.vaultTimeoutAction.setValue(action, { emitEvent: false });
+        // NOTE: The UI doesn't properly update without detect changes.
+        // I've even tried using an async pipe, but it still doesn't work. I'm not sure why.
+        // Using an async pipe means that we can't call `detectChanges` AFTER the data has change
+        // meaning that we are forced to use regular class variables instead of observables.
+        this.changeDetectorRef.detectChanges();
+      });
+
+    this.refreshTimeoutSettings$
+      .pipe(
+        switchMap(() =>
+          combineLatest([
+            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
+            maximumVaultTimeoutPolicy,
+          ]),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(([availableActions, policy]) => {
+        if (policy?.data?.action || availableActions.length <= 1) {
           this.form.controls.vaultTimeoutAction.disable({ emitEvent: false });
         } else {
           this.form.controls.vaultTimeoutAction.enable({ emitEvent: false });
         }
-      }),
-    );
+      });
 
     // Load initial values
     this.userHasPinSet = await this.pinService.isPinSet(activeAccount.id);
@@ -345,7 +381,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Non-form values
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
-    this.previousVaultTimeout = this.form.value.vaultTimeout;
 
     this.refreshTimeoutSettings$
       .pipe(
@@ -361,9 +396,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Form events
     this.form.controls.vaultTimeout.valueChanges
       .pipe(
-        debounceTime(500),
-        concatMap(async (value) => {
-          await this.saveVaultTimeout(value);
+        startWith(initialValues.vaultTimeout), // emit to init pairwise
+        pairwise(),
+        concatMap(async ([previousValue, newValue]) => {
+          await this.saveVaultTimeout(previousValue, newValue);
         }),
         takeUntil(this.destroy$),
       )
@@ -414,7 +450,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  async saveVaultTimeout(newValue: VaultTimeout) {
+  async saveVaultTimeout(previousValue: VaultTimeout, newValue: VaultTimeout) {
     if (newValue === VaultTimeoutStringType.Never) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },
@@ -423,7 +459,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
 
       if (!confirmed) {
-        this.form.controls.vaultTimeout.setValue(this.previousVaultTimeout);
+        this.form.controls.vaultTimeout.setValue(previousValue, { emitEvent: false });
         return;
       }
     }
@@ -442,8 +478,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.previousVaultTimeout = this.form.value.vaultTimeout;
-
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
@@ -451,10 +485,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       newValue,
       this.form.value.vaultTimeoutAction,
     );
+    this.refreshTimeoutSettings$.next();
   }
 
-  async saveVaultTimeoutAction(newValue: VaultTimeoutAction) {
-    if (newValue === "logOut") {
+  async saveVaultTimeoutAction(value: VaultTimeoutAction) {
+    if (value === VaultTimeoutAction.LogOut) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "vaultTimeoutLogOutConfirmationTitle" },
         content: { key: "vaultTimeoutLogOutConfirmation" },
@@ -462,7 +497,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
 
       if (!confirmed) {
-        this.form.controls.vaultTimeoutAction.patchValue(VaultTimeoutAction.Lock, {
+        this.form.controls.vaultTimeoutAction.setValue(VaultTimeoutAction.Lock, {
           emitEvent: false,
         });
         return;
@@ -470,11 +505,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     if (this.form.controls.vaultTimeout.hasError("policyError")) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutTooLarge"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("vaultTimeoutTooLarge"),
+      });
       return;
     }
 
@@ -483,8 +518,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       activeAccount.id,
       this.form.value.vaultTimeout,
-      newValue,
+      value,
     );
+    this.refreshTimeoutSettings$.next();
   }
 
   async updatePinHandler(value: boolean) {

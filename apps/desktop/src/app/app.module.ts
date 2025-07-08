@@ -32,8 +32,6 @@ import { VaultComponent } from "../vault/app/vault/vault.component";
 import { ViewCustomFieldsComponent } from "../vault/app/vault/view-custom-fields.component";
 import { ViewComponent } from "../vault/app/vault/view.component";
 
-import { SettingsComponent } from "./accounts/settings.component";
-import { VaultTimeoutInputComponent } from "./accounts/vault-timeout-input.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
@@ -75,12 +73,10 @@ import { SharedModule } from "./shared/shared.module";
     RemovePasswordComponent,
     SearchComponent,
     SetPasswordComponent,
-    SettingsComponent,
     ShareComponent,
     UpdateTempPasswordComponent,
     VaultComponent,
     VaultItemsComponent,
-    VaultTimeoutInputComponent,
     ViewCustomFieldsComponent,
     ViewComponent,
   ],
