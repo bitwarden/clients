@@ -59,8 +59,7 @@
   },
   "pkg": {
     "assets": [
-      "./build/**/*",
-      "../../node_modules/argon2/**/*"
+      "./build/**/*"
     ]
   },
   "dependencies": {

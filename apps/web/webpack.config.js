@@ -399,7 +399,6 @@ const webpackConfig = {
     clean: true,
   },
   module: {
-    noParse: /argon2(-simd)?\.wasm$/,
     rules: moduleRules,
   },
   experiments: {
