@@ -11,9 +11,9 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
+import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
 import { WindowMain } from "../../main/window.main";
-import { MainCryptoFunctionService } from "../../platform/main/main-crypto-function.service";
 
 import { MainBiometricsService } from "./main-biometrics.service";
 import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
@@ -35,7 +35,7 @@ describe("MainBiometricsService", function () {
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
   const biometricStateService = mock<BiometricStateService>();
-  const cryptoFunctionService = mock<MainCryptoFunctionService>();
+  const cryptoFunctionService = mock<NodeCryptoFunctionService>();
   const encryptService = mock<EncryptService>();
 
   it("Should call the platformspecific methods", async () => {
