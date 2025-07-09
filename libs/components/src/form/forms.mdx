@@ -142,7 +142,19 @@ If a checkbox group has more than 4 options a
 
 <Canvas of={checkboxStories.Default} />
 
+## Validation messages
+
+These are examples of our default validation error messages:
+
+<Canvas of={formStories.Validations} />
+
 ## Accessibility
+
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
 
 ### Required Fields
 
@@ -151,12 +163,6 @@ If a checkbox group has more than 4 options a
 - If whether or not a form field is required depends on another field, add this to the field's
   helper text.
   - **Example:** "Billing Email is required if owned by a business".
-
-### Icon Buttons in Form Fields
-
-When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
-directive to provide a label for screenreaders. Typically, the label should follow this pattern:
-`{Action} {field label}`, i.e. "Copy username".
 
 ### Form Field Errors
 

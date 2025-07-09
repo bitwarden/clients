@@ -339,6 +339,8 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
+import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
 import { DeviceTrustToastService } from "../auth/services/device-trust-toast.service.implementation";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
@@ -496,6 +498,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       KdfConfigService,
       TaskSchedulerService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1413,6 +1416,22 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       I18nServiceAbstraction,
       KdfConfigService,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: SetInitialPasswordService,
+    useClass: DefaultSetInitialPasswordService,
+    deps: [
+      ApiServiceAbstraction,
+      EncryptService,
+      I18nServiceAbstraction,
+      KdfConfigService,
+      KeyService,
+      MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,

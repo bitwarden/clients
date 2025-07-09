@@ -33,6 +33,7 @@ export enum FeatureFlag {
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
+  AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
 
   /* Data Insights and Reporting */
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
@@ -56,6 +57,7 @@ export enum FeatureFlag {
   PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
+  PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
 
   /* Platform */
   IpcChannelFramework = "ipc-channel-framework",
@@ -101,6 +103,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
+  [FeatureFlag.PM19315EndUserActivationMvp]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
@@ -114,6 +117,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
+  [FeatureFlag.AllowTrialLengthZero]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
