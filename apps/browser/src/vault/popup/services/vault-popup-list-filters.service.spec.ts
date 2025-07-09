@@ -486,10 +486,6 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
 
-    beforeEach(() => {
-      restrictedItemTypesService.restricted$.next([]);
-    });
-
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
         expect(filterFunction(ciphers)).toEqual([ciphers[0]]);
