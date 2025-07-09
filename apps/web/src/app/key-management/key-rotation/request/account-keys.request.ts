@@ -1,5 +1,6 @@
 import { SigningKey } from "@bitwarden/common/key-management/keys/models/signing-key";
 import { VerifyingKey } from "@bitwarden/common/key-management/keys/models/verifying-key";
+import { SecurityState } from "@bitwarden/common/key-management/security-state/models/security-state";
 import { SecurityStateRequest } from "@bitwarden/common/key-management/security-state/request/security-state.request";
 import { SignedPublicKey } from "@bitwarden/common/key-management/types";
 import { EncString, SignatureAlgorithm } from "@bitwarden/sdk-internal";
@@ -29,6 +30,8 @@ export class AccountKeysRequest {
     wrappedSigningKey: SigningKey | null,
     verifyingKey: VerifyingKey | null,
     signatureAlgorithm: SignatureAlgorithm | null = null,
+    securityState: SecurityState | null = null,
+    securityVersion: number | null = null,
   ) {
     this.userKeyEncryptedAccountPrivateKey = wrappedPrivateKey;
     this.accountPublicKey = publicKey;
@@ -44,6 +47,7 @@ export class AccountKeysRequest {
         verifyingKey,
         signatureAlgorithm,
       );
+      this.securityState = new SecurityStateRequest(securityState.securityState, securityVersion);
     }
   }
 }
