@@ -48,7 +48,7 @@
       <app-vertical-step
         label="Billing"
         [subLabel]="billingSubLabel"
-        *ngIf="(trialPaymentOptional$ | async) && trialLength === 0 && !isSecretsManagerFree"
+        *ngIf="showBillingStep$ | async"
       >
         <app-trial-billing-step
           *ngIf="stepper.selectedIndex === 2"

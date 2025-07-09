@@ -38,13 +38,6 @@ export abstract class OrganizationUserApiService {
   ): Promise<OrganizationUserDetailsResponse>;
 
   /**
-   * Retrieve a list of groups Ids the specified organization user belongs to
-   * @param organizationId - Identifier for the user's organization
-   * @param id - Organization user identifier
-   */
-  abstract getOrganizationUserGroups(organizationId: string, id: string): Promise<string[]>;
-
-  /**
    * Retrieve full details of all users that belong to the specified organization.
    * This is only accessible to privileged users, if you need a simple listing of basic details, use
    * {@link getAllMiniUserDetails}.

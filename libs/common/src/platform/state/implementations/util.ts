@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { AbstractStorageService } from "../../abstractions/storage.service";
+import { AbstractStorageService } from "@bitwarden/storage-core";
 
 export async function getStoredValue<T>(
   key: string,

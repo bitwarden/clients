@@ -2392,6 +2392,9 @@
   "passwordConfirmationDesc": {
     "message": "Това действие е защитено. За да продължите, въведете отново главната си парола, за да потвърдите самоличността си."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Главната парола е зададена успешно"
+  },
   "updatedMasterPassword": {
     "message": "Главната парола е променена"
   },
@@ -3531,6 +3534,22 @@
   "commonImportFormats": {
     "message": "Често използвани формати",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Разпознаването на съвпадения чрез адреса е начинът, по който Битуорден определя кои елементи да предложи за автоматично попълване.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "„Регулярен израз“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "„Започва с“ е по-сложен метод, който е и по-рисков, тъй като може да застраши сигурността на данните за вписване.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Повече относно разпознаването на съвпадения",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "success": {
     "message": "Успех"
