@@ -88,7 +88,63 @@ export class DefaultPolicyService implements PolicyService {
   ): Observable<MasterPasswordPolicyOptions | undefined> {
     const policies$ = policies ? of(policies) : this.policies$(userId);
     return policies$.pipe(
-      map((obsPolicies) => this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies)),
+      map((obsPolicies) => {
+        // TODO: replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies)) once
+        // FeatureFlag.PM16117_ChangeExistingPasswordRefactor is removed.
+        let enforcedOptions: MasterPasswordPolicyOptions | undefined = undefined;
+        const filteredPolicies =
+          obsPolicies.filter((p) => p.type === PolicyType.MasterPassword) ?? [];
+
+        if (filteredPolicies.length === 0) {
+          return;
+        }
+
+        filteredPolicies.forEach((currentPolicy) => {
+          if (!currentPolicy.enabled || !currentPolicy.data) {
+            return;
+          }
+
+          if (!enforcedOptions) {
+            enforcedOptions = new MasterPasswordPolicyOptions();
+          }
+
+          if (
+            currentPolicy.data.minComplexity != null &&
+            currentPolicy.data.minComplexity > enforcedOptions.minComplexity
+          ) {
+            enforcedOptions.minComplexity = currentPolicy.data.minComplexity;
+          }
+
+          if (
+            currentPolicy.data.minLength != null &&
+            currentPolicy.data.minLength > enforcedOptions.minLength
+          ) {
+            enforcedOptions.minLength = currentPolicy.data.minLength;
+          }
+
+          if (currentPolicy.data.requireUpper) {
+            enforcedOptions.requireUpper = true;
+          }
+
+          if (currentPolicy.data.requireLower) {
+            enforcedOptions.requireLower = true;
+          }
+
+          if (currentPolicy.data.requireNumbers) {
+            enforcedOptions.requireNumbers = true;
+          }
+
+          if (currentPolicy.data.requireSpecial) {
+            enforcedOptions.requireSpecial = true;
+          }
+
+          if (currentPolicy.data.enforceOnLogin) {
+            enforcedOptions.enforceOnLogin = true;
+          }
+        });
+
+        return enforcedOptions;
+      }),
     );
   }
 
@@ -241,9 +297,8 @@ export class DefaultPolicyService implements PolicyService {
       target = new MasterPasswordPolicyOptions();
     }
 
-    // Take the max of the complexity or the required length of the password.
-    // For boolean properties, take the target's value if the source is undefined,
-    // otherwise take true in other scenarios.
+    // For complexity and minLength, take the highest value.
+    // For boolean settings, enable it if either policy has it enabled (OR).
     if (source) {
       target.minComplexity = Math.max(
         target.minComplexity,
