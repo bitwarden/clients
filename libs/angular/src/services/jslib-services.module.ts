@@ -20,14 +20,12 @@ import {
   DefaultRegistrationFinishService,
   DefaultSetPasswordJitService,
   DefaultTwoFactorAuthComponentService,
-  DefaultTwoFactorAuthEmailComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   SetPasswordJitService,
   TwoFactorAuthComponentService,
-  TwoFactorAuthEmailComponentService,
   TwoFactorAuthWebAuthnComponentService,
   ChangePasswordService,
   DefaultChangePasswordService,
@@ -1460,11 +1458,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: TwoFactorAuthWebAuthnComponentService,
     useClass: DefaultTwoFactorAuthWebAuthnComponentService,
-    deps: [],
-  }),
-  safeProvider({
-    provide: TwoFactorAuthEmailComponentService,
-    useClass: DefaultTwoFactorAuthEmailComponentService,
     deps: [],
   }),
   safeProvider({
