@@ -548,7 +548,7 @@ export class AutofillComponent implements OnInit {
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
       },
     });
   }
