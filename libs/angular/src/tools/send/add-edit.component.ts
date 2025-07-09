@@ -148,14 +148,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  get isSafari() {
-    return this.platformUtilsService.isSafari();
-  }
-
-  get isDateTimeLocalSupported(): boolean {
-    return !(this.platformUtilsService.isFirefox() || this.platformUtilsService.isSafari());
-  }
-
   async ngOnInit() {
     this.accountService.activeAccount$
       .pipe(

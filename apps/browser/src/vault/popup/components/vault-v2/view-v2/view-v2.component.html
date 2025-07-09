@@ -17,11 +17,7 @@
     </button>
 
     <button
-      *ngIf="
-        (limitItemDeletion$ | async)
-          ? cipher.isDeleted && cipher.permissions.restore
-          : cipher.isDeleted && cipher.edit
-      "
+      *ngIf="cipher.isDeleted && cipher.permissions.restore"
       buttonType="primary"
       type="button"
       bitButton

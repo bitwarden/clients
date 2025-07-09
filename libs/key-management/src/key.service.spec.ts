@@ -90,6 +90,35 @@ describe("keyService", () => {
     expect(keyService).not.toBeFalsy();
   });
 
+  describe("refreshAdditionalKeys", () => {
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(keyService.refreshAdditionalKeys(userId)).rejects.toThrow(
+          "UserId is required",
+        );
+      },
+    );
+
+    it("throws error if user key not found", async () => {
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+
+      await expect(keyService.refreshAdditionalKeys(mockUserId)).rejects.toThrow(
+        "No user key found for: " + mockUserId,
+      );
+    });
+
+    it("refreshes additional keys when user key is available", async () => {
+      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      const setUserKeySpy = jest.spyOn(keyService, "setUserKey");
+
+      await keyService.refreshAdditionalKeys(mockUserId);
+
+      expect(setUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
+    });
+  });
+
   describe("getUserKey", () => {
     let mockUserKey: UserKey;
 
@@ -378,6 +407,45 @@ describe("keyService", () => {
       await keyService.setUserKeys(mockUserKey, mockEncPrivateKey, mockUserId);
 
       expect(setEncryptedPrivateKeySpy).toHaveBeenCalledWith(mockEncPrivateKey, mockUserId);
+    });
+  });
+
+  describe("clearStoredUserKey", () => {
+    describe("input validation", () => {
+      const invalidUserIdTestCases = [
+        { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
+        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
+      ];
+      test.each(invalidUserIdTestCases)(
+        "throws when keySuffix is $keySuffix and userId is $userId",
+        async ({ keySuffix, userId }) => {
+          await expect(keyService.clearStoredUserKey(keySuffix, userId)).rejects.toThrow(
+            "UserId is required",
+          );
+        },
+      );
+    });
+
+    describe("with Auto key suffix", () => {
+      it("UserKeyAutoUnlock is cleared and pin keys are not cleared", async () => {
+        await keyService.clearStoredUserKey(KeySuffixOptions.Auto, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
+          userId: mockUserId,
+        });
+        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("with PIN key suffix", () => {
+      it("pin keys are cleared and user key auto unlock not", async () => {
+        await keyService.clearStoredUserKey(KeySuffixOptions.Pin, mockUserId);
+
+        expect(stateService.setUserKeyAutoUnlock).not.toHaveBeenCalled();
+        expect(pinService.clearPinKeyEncryptedUserKeyEphemeral).toHaveBeenCalledWith(mockUserId);
+      });
     });
   });
 

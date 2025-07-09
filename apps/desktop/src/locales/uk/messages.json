@@ -23,6 +23,9 @@
   "typeIdentity": {
     "message": "Посвідчення"
   },
+  "typeNote": {
+    "message": "Нотатка"
+  },
   "typeSecureNote": {
     "message": "Захищена нотатка"
   },
@@ -689,10 +692,10 @@
     "message": "Оберіть файл"
   },
   "maxFileSize": {
-    "message": "Максимальний розмір файлу 500 Мб."
+    "message": "Максимальний розмір файлу 500 МБ."
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
+  "legacyEncryptionUnsupported": {
+    "message": "Застаріле шифрування більше не підтримується. Зверніться до служби підтримки, щоб відновити обліковий запис."
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -1713,6 +1716,12 @@
   "accountRestricted": {
     "message": "Обмежено обліковим записом"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "Пароль файлу та підтвердження пароля відрізняються."
   },
@@ -2383,6 +2392,9 @@
   "passwordConfirmationDesc": {
     "message": "Ця дія захищена. Щоб продовжити, повторно введіть головний пароль."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "Головний пароль оновлено"
   },
@@ -2634,16 +2646,16 @@
     "message": "Генерувати парольну фразу"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Пароль згенеровано"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Парольну фразу згенеровано"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Ім'я користувача згенеровано"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Адресу е-пошти згенеровано"
   },
   "spinboxBoundariesHint": {
     "message": "Значення має бути між $MIN$ та $MAX$.",
@@ -2702,7 +2714,7 @@
     "message": "Використати цей пароль"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Використати цю парольну фразу"
   },
   "useThisUsername": {
     "message": "Використати це ім'я користувача"
@@ -3523,6 +3535,22 @@
     "message": "Поширені формати",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
   "success": {
     "message": "Успішно"
   },
@@ -3812,5 +3840,139 @@
     "message": "Докладніше про SSH-агента",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Призначити до збірок"
+  },
+  "assignToTheseCollections": {
+    "message": "Призначити до цих збірок"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "noCollectionsAssigned": {
+    "message": "Не призначено жодної збірки"
+  },
+  "assign": {
+    "message": "Призначити"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Оберіть збірки для призначення"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до вибраної організації. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ буде остаточно перенесено до $ORG$. Ви більше не будете власником цих елементів.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 запис буде остаточно перенесено до $ORG$. Ви більше не будете власником цього запису.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Збірки успішно призначено"
+  },
+  "nothingSelected": {
+    "message": "Ви нічого не вибрали."
+  },
+  "itemsMovedToOrg": {
+    "message": "Записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Запис переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Вибрані записи переміщено до $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

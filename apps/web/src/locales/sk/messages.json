@@ -2153,6 +2153,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "Zapnutie dvojstupňového prihlásenia vás môže natrvalo vymknúť z vášho Bitwarden účtu. Záchranný kód umožňuje prístup k vášmu kontu v prípade že už nemôžete použiť svoj normálny dvojstupňový spôsob overenia. (napríklad ak stratíte zariadenie) Zákaznícka podpora nebude schopná pomôcť vám ak stratíte prístup k účtu. Preto vám odporúčame zapísať si, alebo si vytlačiť záchranný kód a uložiť ho na bezpečnom mieste."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Odstrániť typ položky pre kartu"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Neumožniť členom vytvárať typ položky pre kartu. Existujúce karty budú automaticky odstránené."
+  },
+  "restrictCardTypeImport": {
+    "message": "Položky typu karta sa nedajú importovať"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Politika nastavená 1 alebo viacerými organizáciami vám bráni v importovaní kariet do vašich trezorov."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Váš jednorázový záchranný kód sa dá použiť na vypnutie dvojstupňového prihlasovania ak ste stratili pristúp k jeho poskytovateľovi. Bitwarden odporúča, aby ste si záchranný kód zapísali a odložili na bezpečné miesto."
   },
@@ -2211,6 +2223,9 @@
   },
   "disable": {
     "message": "Vypnúť"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Detaily o členovi nenájdené."
   },
   "revokeAccess": {
     "message": "Zrušiť prístup"
@@ -3259,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Predvolená kolekcia"
+  },
+  "myItems": {
+    "message": "Moje položky"
   },
   "getHelp": {
     "message": "Získať pomoc"
@@ -4472,9 +4490,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Aktualizácia šifrovacieho kľúča nemôže pokračovať"
-  },
   "editFieldLabel": {
     "message": "Upraviť $LABEL$",
     "placeholders": {
@@ -4527,23 +4542,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "Pri aktualizácii šifrovacieho kľúča nebolo možné dešifrovať vaše priečinky. Ak chcete pokračovať v aktualizácii, vaše priečinky sa musia odstrániť. Ak budete pokračovať, nebudú odstránené žiadne položky trezora."
-  },
-  "keyUpdated": {
-    "message": "Kľúč aktualizovaný"
-  },
-  "updateEncryptionKey": {
-    "message": "Aktualizovať šifrovací kľúč"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
-  },
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizácii šifrovacieho kľúča budete požiadaní o opätovné prihlásenie do všetkých Bitwarden aplikácii ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neprihlásite (touto operáciou sa stiahnu nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených dát. Pokúsime sa odhlásiť vás automaticky, ale môže to chvíľu trvať."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Všetky exporty obmedzené účtom budú neplatné."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Staršie šifrovanie už nie je podporované. Ak chcete obnoviť svoj účet, obráťte sa na podporu."
   },
   "subscription": {
     "message": "Predplatné"
@@ -5369,6 +5375,9 @@
   "emergencyRejected": {
     "message": "Núdzový prístup odmietnutý"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Resetovanie hesla pre $USER$. Teraz sa môžete prihlásiť s novým heslom.",
     "placeholders": {
@@ -5377,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Požadovanie vlastníctva údajov organizácie"
   },
   "personalOwnership": {
     "message": "Zakázať osobný trezor"
@@ -5769,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "Pokračovaním sa $NAME$ odhlási z aktuálnej relácie a bude sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "tento používateľ"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
   "resetPasswordSuccess": {
@@ -6039,6 +6063,9 @@
   },
   "add": {
     "message": "Pridať"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
     "message": "Hlavné heslo aktualizované"
@@ -6471,10 +6498,10 @@
     "message": "Neplatný verifikačný kód"
   },
   "removeMasterPasswordForOrganizationUserKeyConnector": {
-    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+    "message": "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie."
   },
   "keyConnectorDomain": {
-    "message": "Key Connector domain"
+    "message": "Doména Key Connectora"
   },
   "leaveOrganization": {
     "message": "Opustiť organizáciu"
@@ -6825,16 +6852,16 @@
     "message": "Generovať prístupovú frázu"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Heslo vygenerované"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Prístupová fráza vygenerovaná"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Používateľské meno vygenerované"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "E-mail vygenerovaný"
   },
   "spinboxBoundariesHint": {
     "message": "Hodnota musí byť medzi $MIN$ a $MAX$.",
@@ -6900,7 +6927,7 @@
     "message": "Použiť toto heslo"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Použiť túto prístupovú frázu"
   },
   "useThisUsername": {
     "message": "Použiť toto používateľské meno"
@@ -7620,9 +7647,9 @@
     "message": "Service account updated",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Type or select projects or secrets",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Zadajte alebo vyberte projekty",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Type to filter",
@@ -7707,8 +7734,8 @@
     "message": "Access tokens",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Nový prístupový token",
+  "createAccessToken": {
+    "message": "Vytvoriť prístupový token",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8209,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "Pri pokuse o prečítanie súboru na import sa vyskytla chyba"
   },
+  "accessedSecretWithId": {
+    "message": "Prístup k položke s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Prístup k heslu $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Upravená položka s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Odstránená položka s identifikátorom: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Vytvorená nová položka s identifikátorom: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8619,14 +8682,6 @@
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
-  "sendsNoItemsTitle": {
-    "message": "Žiadne aktívne Sendy",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Použite Send na bezpečné zdieľanie zašifrovaných informácii s kýmkoľvek.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "inviteUsers": {
     "message": "Pozvať používateľov"
   },
@@ -8851,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Aby ste udržali predplatné pre $ORG$, ",
@@ -10569,28 +10640,28 @@
     "message": "Nová organizačná jednotka"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "Send, citlivé informácie bezpečne",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "Bezpečne zdieľajte súbory a údaje s kýmkoľvek a na akejkoľvek platforme. Vaše informácie zostanú end-to-end zašifrované a zároveň sa obmedzí ich odhalenie.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Rýchle vytváranie hesiel"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "aby ste mohli ochrániť prihlasovacie údaje.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Jednoducho vytvorte silné a jedinečné heslá kliknutím na tlačidlo Generovať heslo, aby ste zabezpečili prihlasovacie údaje.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
@@ -10642,6 +10713,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Autofill your passwords securely with one click"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Get the Bitwarden browser extension and start autofilling today"
+  },
+  "getTheExtension": {
+    "message": "Get the extension"
+  },
+  "addItLater": {
+    "message": "Add it later"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "You can't autofill passwords without the browser extension"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Are you sure you don't want to add the extension now?"
+  },
+  "skipToWebApp": {
+    "message": "Skip to web app"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Bitwarden extension installed!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Open the extension to log in and start autofilling."
+  },
+  "openBitwardenExtension": {
+    "message": "Open Bitwarden extension"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "For tips on getting started with Bitwarden visit the",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "Learning Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Help Center",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
+  },
   "restart": {
     "message": "Reštartovať"
   },
@@ -10652,7 +10768,7 @@
     "message": "Pre pridanie platobnej metódy kliknite prosím na Zaplatiť cez PayPal."
   },
   "revokeActiveSponsorshipConfirmation": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end. A seat within your organization will become available for members or sponsorships after the sponsored organization renewal date on $DATE$.",
+    "message": "Ak odstránite $EMAIL$, sponzorstvo tohto predplatného pre Rodiny skončí. Sedenie v organizácii bude dostupné pre členov alebo sponzorstvo od následujúceho fakturačného obdobia sponzorovanej organizácie dňa $DATE$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -10663,5 +10779,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Na pridanie kreditu je potrebná fakturačná adresa.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }

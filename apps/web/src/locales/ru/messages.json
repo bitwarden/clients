@@ -2153,6 +2153,18 @@
   "twoStepLoginRecoveryWarning": {
     "message": "При включении двухэтапной аутентификации вы можете навсегда потерять доступ к вашей учетной записи Bitwarden. Код восстановления позволяет получить доступ к вашему аккаунту в случае, если вы больше не можете использовать свой обычный метод двухэтапной аутентификации (например, при потере устройства). Служба поддержки Bitwarden не сможет вам помочь, если вы потеряете доступ к своему аккаунту. Мы рекомендуем вам записать или распечатать код восстановления и хранить его в надежном месте."
   },
+  "restrictedItemTypePolicy": {
+    "message": "Удалить элемент типа карта"
+  },
+  "restrictedItemTypePolicyDesc": {
+    "message": "Не разрешать пользователям создавать элементы карт. Существующие карты будут автоматически удалены."
+  },
+  "restrictCardTypeImport": {
+    "message": "Невозможно импортировать элементы карт"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, установленная 1 или более организациями, не позволяет импортировать карты в ваши хранилища."
+  },
   "yourSingleUseRecoveryCode": {
     "message": "Одноразовый код восстановления можно использовать для отключения двухэтапной аутентификации в случае потери доступа к провайдеру двухэтапной аутентификации. Bitwarden рекомендует записать код восстановления и хранить его в надежном месте."
   },
@@ -2211,6 +2223,9 @@
   },
   "disable": {
     "message": "Отключить"
+  },
+  "orgUserDetailsNotFound": {
+    "message": "Данные участника не найдены."
   },
   "revokeAccess": {
     "message": "Отозвать доступ"
@@ -3259,6 +3274,9 @@
   },
   "defaultCollection": {
     "message": "Коллекция по умолчанию"
+  },
+  "myItems": {
+    "message": "Мои элементы"
   },
   "getHelp": {
     "message": "Получить помощь"
@@ -4472,9 +4490,6 @@
       }
     }
   },
-  "encryptionKeyUpdateCannotProceed": {
-    "message": "Обновление ключа шифрования невозможно"
-  },
   "editFieldLabel": {
     "message": "Изменить $LABEL$",
     "placeholders": {
@@ -4527,23 +4542,14 @@
       }
     }
   },
-  "keyUpdateFoldersFailed": {
-    "message": "При обновлении ключа шифрования не удалось расшифровать папки. Чтобы продолжить обновление, папки необходимо удалить. При продолжении обновления элементы хранилища удалены не будут."
-  },
-  "keyUpdated": {
-    "message": "Ключ обновлен"
-  },
-  "updateEncryptionKey": {
-    "message": "Обновить ключ шифрования"
-  },
-  "updateEncryptionSchemeDesc": {
-    "message": "Мы изменили схему шифрования, чтобы повысить безопасность. Обновите ключ шифрования, введя ниже мастер-пароль."
-  },
   "updateEncryptionKeyWarning": {
     "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Все сохраненные экспорты, затронутые ограничениями аккаунта, будут аннулированы."
+  },
+  "legacyEncryptionUnsupported": {
+    "message": "Устаревшее шифрование больше не поддерживается. Для восстановления аккаунта обратитесь в службу поддержки."
   },
   "subscription": {
     "message": "Подписка"
@@ -5369,6 +5375,9 @@
   "emergencyRejected": {
     "message": "В экстренном доступе отказано"
   },
+  "grantorDetailsNotFound": {
+    "message": "Grantor details not found"
+  },
   "passwordResetFor": {
     "message": "Сброшен пароль для $USER$. Теперь вы можете войти, используя новый пароль.",
     "placeholders": {
@@ -5377,6 +5386,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "organizationDataOwnership": {
+    "message": "Enforce organization data ownership"
   },
   "personalOwnership": {
     "message": "Удалить личное хранилище"
@@ -5769,10 +5781,22 @@
       }
     }
   },
+  "emergencyAccessLoggedOutWarning": {
+    "message": "В случае продолжения сессия $NAME$ будет завершена, что потребует повторной авторизации. Сессии на других устройствах могут оставаться активными до одного часа.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "thisUser": {
     "message": "этот пользователь"
   },
   "resetPasswordMasterPasswordPolicyInEffect": {
+    "message": "Согласно одной или нескольким политикам организации необходимо, чтобы мастер-пароль отвечал следующим требованиям:"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Согласно одной или нескольким политикам организации необходимо, чтобы мастер-пароль отвечал следующим требованиям:"
   },
   "resetPasswordSuccess": {
@@ -6039,6 +6063,9 @@
   },
   "add": {
     "message": "Добавить"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Мастер-пароль успешно установлен"
   },
   "updatedMasterPassword": {
     "message": "Мастер-пароль сохранен"
@@ -7620,9 +7647,9 @@
     "message": "Сервисный аккаунт изменен",
     "description": "Notifies that a service account has been updated"
   },
-  "newSaSelectAccess": {
-    "message": "Введите или выберите проекты или секреты",
-    "description": "Instructions for selecting projects or secrets for a new service account"
+  "typeOrSelectProjects": {
+    "message": "Введите или выберите проекты",
+    "description": "Instructions for selecting projects for a service account"
   },
   "newSaTypeToFilter": {
     "message": "Введите для фильтрации",
@@ -7707,8 +7734,8 @@
     "message": "Токены доступа",
     "description": "Title for the section displaying access tokens."
   },
-  "newAccessToken": {
-    "message": "Новый токен доступа",
+  "createAccessToken": {
+    "message": "Создать токен доступа",
     "description": "Button label for creating a new access token."
   },
   "expires": {
@@ -8209,8 +8236,44 @@
   "errorReadingImportFile": {
     "message": "Произошла ошибка при попытке чтения импортируемого файла"
   },
+  "accessedSecretWithId": {
+    "message": "Доступ к секрету с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
   "accessedSecret": {
     "message": "Получен доступ к секрету $SECRET_ID$.",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "editedSecretWithId": {
+    "message": "Изменен секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "deletedSecretWithId": {
+    "message": "Удален секрет с идентификатором: $SECRET_ID$",
+    "placeholders": {
+      "secret_id": {
+        "content": "$1",
+        "example": "4d34e8a8"
+      }
+    }
+  },
+  "createdSecretWithId": {
+    "message": "Создан новый секрет с идентификатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -8619,14 +8682,6 @@
   "deviceTrusted": {
     "message": "Доверенное устройство"
   },
-  "sendsNoItemsTitle": {
-    "message": "Нет активных Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Используйте Send для безопасного обмена зашифрованной информацией с кем угодно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "inviteUsers": {
     "message": "Пригласить пользователей"
   },
@@ -8851,6 +8906,22 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Обнаружение совпадения URI - это способ, с помощью которого Bitwarden идентифицирует предложения по автозаполнению.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Регулярное выражение\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Начинается с\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Подробнее об обнаружении совпадений",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "maintainYourSubscription": {
     "message": "Для сохранения подписки на $ORG$ ",
@@ -10642,6 +10713,51 @@
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
+  "setupExtensionPageTitle": {
+    "message": "Автозаполнение паролей безопасно одним нажатием"
+  },
+  "setupExtensionPageDescription": {
+    "message": "Установите расширение для браузера Bitwarden и начните использовать автозаполнение уже сегодня"
+  },
+  "getTheExtension": {
+    "message": "Получить расширение"
+  },
+  "addItLater": {
+    "message": "Добавить позже"
+  },
+  "cannotAutofillPasswordsWithoutExtensionTitle": {
+    "message": "Вы не можете автоматически заполнять пароли без расширения браузера"
+  },
+  "cannotAutofillPasswordsWithoutExtensionDesc": {
+    "message": "Вы уверены, что не хотите добавить расширение прямо сейчас?"
+  },
+  "skipToWebApp": {
+    "message": "Перейти к веб-приложению"
+  },
+  "bitwardenExtensionInstalled": {
+    "message": "Расширение Bitwarden установлено!"
+  },
+  "openExtensionToAutofill": {
+    "message": "Откройте расширение, чтобы авторизоваться и начать использовать автозаполнение."
+  },
+  "openBitwardenExtension": {
+    "message": "Открыть расширение Bitwarden"
+  },
+  "gettingStartedWithBitwardenPart1": {
+    "message": "Для получения советов по началу работы с Bitwarden посетите сайт",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart2": {
+    "message": "База знаний",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "gettingStartedWithBitwardenPart3": {
+    "message": "Центр поддержки",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+  },
+  "setupExtensionContentAlt": {
+    "message": "С помощью расширения Bitwarden вы можете легко создавать новые логины, получать доступ к сохраненным логинам непосредственно с панели инструментов браузера и быстро входить в аккаунты с помощью автозаполнения Bitwarden."
+  },
   "restart": {
     "message": "Перезапустить"
   },
@@ -10663,5 +10779,9 @@
         "example": "12/31/2024"
       }
     }
+  },
+  "billingAddressRequiredToAddCredit": {
+    "message": "Для пополнения счета необходим платежный адрес.",
+    "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   }
 }
