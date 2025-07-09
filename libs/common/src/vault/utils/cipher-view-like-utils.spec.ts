@@ -307,6 +307,16 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.canLaunch(cipherView)).toBe(true);
       });
 
+      it("returns true when the uri does not have a protocol", () => {
+        const cipherView = createCipherView(CipherType.Login);
+        cipherView.login = new LoginView();
+        const uriView = new LoginUriView();
+        uriView.uri = "bitwarden.com";
+        cipherView.login.uris = [uriView];
+
+        expect(CipherViewLikeUtils.canLaunch(cipherView)).toBe(true);
+      });
+
       it("returns false when the login has no URIs", () => {
         const cipherView = createCipherView(CipherType.Login);
         cipherView.login = new LoginView();
@@ -319,6 +329,14 @@ describe("CipherViewLikeUtils", () => {
       it("returns true when the login has URIs that can be launched", () => {
         const cipherListView = {
           type: { login: { uris: [{ uri: "https://example.com" }] } },
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.canLaunch(cipherListView)).toBe(true);
+      });
+
+      it("returns true when the uri does not have a protocol", () => {
+        const cipherListView = {
+          type: { login: { uris: [{ uri: "bitwarden.com" }] } },
         } as CipherListView;
 
         expect(CipherViewLikeUtils.canLaunch(cipherListView)).toBe(true);

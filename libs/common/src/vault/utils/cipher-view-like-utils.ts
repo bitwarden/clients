@@ -2,12 +2,12 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 import {
   CardListView,
   CipherListView,
   CopyableCipherFields,
   LoginListView,
+  LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
 import { CipherType } from "../enums";
@@ -148,7 +148,7 @@ export class CipherViewLikeUtils {
       return false;
     }
 
-    return !!login.uris?.map((u) => u.uri).some((uri) => uri && SafeUrls.canLaunch(uri));
+    return !!login.uris?.map((u) => toLoginUriView(u)).some((uri) => uri.canLaunch);
   };
 
   /**
@@ -162,7 +162,7 @@ export class CipherViewLikeUtils {
       return undefined;
     }
 
-    return login.uris?.map((u) => u.uri).find((uri) => uri && SafeUrls.canLaunch(uri));
+    return login.uris?.map((u) => toLoginUriView(u)).find((uri) => uri.canLaunch)?.uri;
   };
 
   /**
@@ -282,4 +282,20 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+};
+
+/** Converts a `LoginListUriView` to a `LoginUriView`. */
+const toLoginUriView = (uri: LoginListUriView | LoginUriView): LoginUriView => {
+  if (uri instanceof LoginUriView) {
+    return uri;
+  }
+
+  const loginUriView = new LoginUriView();
+  if (uri.match) {
+    loginUriView.match = uri.match;
+  }
+  if (uri.uri) {
+    loginUriView.uri = uri.uri;
+  }
+  return loginUriView;
 };
