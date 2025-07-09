@@ -104,6 +104,11 @@ export const Default: Story = {
       </bit-layout>`,
     };
   },
+  parameters: {
+    chromatic: {
+      viewports: [640, 1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {

@@ -4,7 +4,6 @@ import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/an
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { PasswordManagerLogo } from "../icon";
 import { LayoutComponent } from "../layout";
 import { SharedModule } from "../shared/shared.module";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
@@ -73,30 +72,6 @@ export const Default: StoryObj<NavGroupComponent> = {
     props: args,
     template: /*html*/ `
       <bit-side-nav>
-        <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
-          <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
-          <bit-nav-item text="Child B" route="b"></bit-nav-item>
-          <bit-nav-item text="Child C" route="c" icon="bwi-filter"></bit-nav-item>
-        </bit-nav-group>
-        <bit-nav-group text="Lorem Ipsum (Button)" icon="bwi-filter">
-          <bit-nav-item text="Child A" icon="bwi-filter"></bit-nav-item>
-          <bit-nav-item text="Child B"></bit-nav-item>
-          <bit-nav-item text="Child C" icon="bwi-filter"></bit-nav-item>
-        </bit-nav-group>
-      </bit-side-nav>
-    `,
-  }),
-};
-
-export const WithProductLogo: StoryObj<NavGroupComponent> = {
-  render: (args) => ({
-    props: {
-      ...args,
-      logo: PasswordManagerLogo,
-    },
-    template: /*html*/ `
-      <bit-side-nav>
-        <bit-nav-logo [openIcon]="logo" route="." [label]="Logo"></bit-nav-logo>
         <bit-nav-group text="Hello World (Anchor)" [route]="['a']" icon="bwi-filter">
           <bit-nav-item text="Child A" route="a" icon="bwi-filter"></bit-nav-item>
           <bit-nav-item text="Child B" route="b"></bit-nav-item>
