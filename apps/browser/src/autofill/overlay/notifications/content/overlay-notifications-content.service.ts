@@ -55,6 +55,7 @@ export class OverlayNotificationsContentService
     position: "relative",
     transition: "transform 0.15s ease-out, opacity 0.15s ease",
     borderRadius: "4px",
+    colorScheme: "normal",
   };
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     openNotificationBar: ({ message }) => this.handleOpenNotificationBarMessage(message),
@@ -195,7 +196,6 @@ export class OverlayNotificationsContentService
         ...this.notificationBarIframeElementStyles,
         transform: isNotificationFresh ? "translateX(100%)" : "translateX(0)",
         opacity: isNotificationFresh ? "1" : "0",
-        colorScheme: allowedColorScheme,
       },
       true,
     );
