@@ -33,9 +33,6 @@ export enum FeatureFlag {
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
 
-  /* Data Insights and Reporting */
-  EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
-
   /* Key Management */
   PrivateKeyRegeneration = "pm-12241-private-key-regeneration",
   PM4154_BulkEncryptionService = "PM-4154-bulk-encryption-service",
@@ -84,9 +81,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
-
-  /* Data Insights and Reporting */
-  [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
 
   /* Tools */
   [FeatureFlag.ItemShare]: FALSE,
