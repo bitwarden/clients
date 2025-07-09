@@ -252,7 +252,7 @@ export class VaultPopupListFiltersService {
               const isMyVault = filters.organization?.id === MY_VAULT_ID;
 
               if (isMyVault) {
-                if (cipher.organizationId !== null) {
+                if (cipher.organizationId != null) {
                   return false;
                 }
               } else if (filters.organization) {

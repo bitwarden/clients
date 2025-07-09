@@ -25,6 +25,8 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { PopupCipherViewLike } from "../views/popup-cipher.view";
+
 import {
   CachedFilterState,
   MY_VAULT_ID,
@@ -527,6 +529,28 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterFunction$.subscribe((filterFunction) => {
           expect(filterFunction(ciphers)).toEqual([ciphers[0], ciphers[2], ciphers[3]]);
+          done();
+        });
+
+        service.filterForm.patchValue({ organization });
+      });
+
+      it("keeps ciphers with null and undefined for organizationId when MyVault is selected", (done) => {
+        const organization = { id: MY_VAULT_ID } as Organization;
+
+        const undefinedOrgIdCipher = {
+          type: CipherType.SecureNote,
+          collectionIds: [],
+          organizationId: undefined,
+        } as unknown as PopupCipherViewLike;
+
+        service.filterFunction$.subscribe((filterFunction) => {
+          expect(filterFunction([...ciphers, undefinedOrgIdCipher])).toEqual([
+            ciphers[0],
+            ciphers[2],
+            ciphers[3],
+            undefinedOrgIdCipher,
+          ]);
           done();
         });
 
