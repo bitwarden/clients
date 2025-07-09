@@ -59,14 +59,12 @@
   },
   "pkg": {
     "assets": [
-      "./build/**/*",
-      "../../node_modules/argon2/**/*"
+      "./build/**/*"
     ]
   },
   "dependencies": {
     "@koa/multer": "4.0.0",
     "@koa/router": "13.1.0",
-    "argon2": "0.41.1",
     "big-integer": "1.6.52",
     "browser-hrtime": "1.1.8",
     "chalk": "4.1.2",

@@ -28,8 +28,9 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { DefaultBiometricStateService } from "@bitwarden/key-management";
 /* eslint-enable import/no-restricted-paths */
+import { DefaultBiometricStateService } from "@bitwarden/key-management";
+import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -46,7 +47,6 @@ import { WindowMain } from "./main/window.main";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
-import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -68,7 +68,7 @@ export class Main {
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
-  mainCryptoFunctionService: MainCryptoFunctionService;
+  mainCryptoFunctionService: NodeCryptoFunctionService;
   migrationRunner: MigrationRunner;
   ssoUrlService: SsoUrlService;
 
@@ -140,8 +140,7 @@ export class Main {
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
-    this.mainCryptoFunctionService = new MainCryptoFunctionService();
-    this.mainCryptoFunctionService.init();
+    this.mainCryptoFunctionService = new NodeCryptoFunctionService();
 
     const stateEventRegistrarService = new StateEventRegistrarService(
       globalStateProvider,

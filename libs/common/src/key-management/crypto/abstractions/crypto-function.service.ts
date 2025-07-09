@@ -12,13 +12,6 @@ export abstract class CryptoFunctionService {
     algorithm: "sha256" | "sha512",
     iterations: number,
   ): Promise<Uint8Array>;
-  abstract argon2(
-    password: string | Uint8Array,
-    salt: string | Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array>;
   abstract hkdf(
     ikm: Uint8Array,
     salt: string | Uint8Array,

@@ -98,17 +98,6 @@ const nativeMessaging = {
   },
 };
 
-const crypto = {
-  argon2: (
-    password: Uint8Array,
-    salt: Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> =>
-    ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
-};
-
 const ephemeralStore = {
   setEphemeralValue: (key: string, value: string): Promise<void> =>
     ipcRenderer.invoke("setEphemeralValue", { key, value }),
