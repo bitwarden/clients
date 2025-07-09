@@ -53,14 +53,17 @@ export class EncryptServiceImplementation implements EncryptService {
   }
 
   async decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string> {
+    await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_string(encString.encryptedString, key.toEncoded());
   }
 
   async decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_bytes(encString.encryptedString, key.toEncoded());
   }
 
   async decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array> {
+    await SdkLoadService.Ready;
     return PureCrypto.symmetric_decrypt_filedata(encBuffer.buffer, key.toEncoded());
   }
 

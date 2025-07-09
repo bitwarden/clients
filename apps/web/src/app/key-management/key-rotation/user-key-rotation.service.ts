@@ -32,7 +32,7 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -51,6 +51,17 @@ type MasterPasswordAuthenticationAndUnlockData = {
   masterKeyKdfConfig: KdfConfig;
   masterPasswordHint: string;
 };
+
+/**
+ * A token provider that exposes a null access token to the SDK.
+ */
+class NoopTokenProvider implements TokenProvider {
+  constructor() {}
+
+  async get_access_token(): Promise<string | undefined> {
+    return undefined;
+  }
+}
 
 @Injectable({ providedIn: "root" })
 export class UserKeyRotationService {
@@ -282,9 +293,9 @@ export class UserKeyRotationService {
     asymmetricEncryptionKeys: {
       wrappedPrivateKey: EncString;
       publicKey: string;
-      signedPublicKey?: string | null;
+      signedPublicKey: string;
     };
-    signatureKeyPair?: {
+    signatureKeyPair: {
       wrappedSigningKey: SigningKey;
       verifyingKey: VerifyingKey;
     };
@@ -293,7 +304,7 @@ export class UserKeyRotationService {
       securityStateVersion?: number | null;
     };
   }> {
-    const sdk = await this.sdkClientFactory.createSdkClient();
+    const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
     await sdk.crypto().initialize_user_crypto({
       userId: userId,
       kdfParams: kdfConfig.toSdkConfig(),
@@ -319,7 +330,7 @@ export class UserKeyRotationService {
         verifyingKey: new VerifyingKey(signatureKeyPairEnrollmentResponse.verifyingKey),
       },
       securityState: {
-        securityState: new SecurityState(signatureKeyPairEnrollmentResponse.signedSecurityState),
+        securityState: new SecurityState(signatureKeyPairEnrollmentResponse.securityState),
         securityStateVersion: signatureKeyPairEnrollmentResponse.securityVersion,
       },
     };

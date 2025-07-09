@@ -10,6 +10,8 @@ import { OrganizationManagementPreferencesService } from "@bitwarden/common/admi
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -34,6 +36,10 @@ import {
   EmergencyAccessAddEditComponent,
   EmergencyAccessAddEditDialogResult,
 } from "./emergency-access-add-edit.component";
+import {
+  EmergencyAccessTakeoverDialogComponent,
+  EmergencyAccessTakeoverDialogResultType,
+} from "./takeover/emergency-access-takeover-dialog.component";
 import {
   EmergencyAccessTakeoverComponent,
   EmergencyAccessTakeoverResultType,
@@ -69,6 +75,7 @@ export class EmergencyAccessComponent implements OnInit {
     private toastService: ToastService,
     private apiService: ApiService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -285,6 +292,45 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   takeover = async (details: GrantorEmergencyAccess) => {
+    const changePasswordRefactorFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+    );
+
+    if (changePasswordRefactorFlag) {
+      if (!details || !details.email || !details.id) {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("grantorDetailsNotFound"),
+        });
+        this.logService.error(
+          "Grantor details not found when attempting emergency access takeover",
+        );
+
+        return;
+      }
+
+      const grantorName = this.userNamePipe.transform(details);
+
+      const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {
+        data: {
+          grantorName,
+          grantorEmail: details.email,
+          emergencyAccessId: details.id,
+        },
+      });
+      const result = await lastValueFrom(dialogRef.closed);
+      if (result === EmergencyAccessTakeoverDialogResultType.Done) {
+        this.toastService.showToast({
+          variant: "success",
+          title: "",
+          message: this.i18nService.t("passwordResetFor", grantorName),
+        });
+      }
+
+      return;
+    }
+
     const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(details),

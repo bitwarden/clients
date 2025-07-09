@@ -23,7 +23,7 @@ export class ProfileResponse extends BaseResponse {
   // Cleanup: Can be removed after moving to accountKeys
   privateKey: string;
   // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
-  accountKeys: PrivateKeysResponseModel | null;
+  accountKeys: PrivateKeysResponseModel | null = null;
   securityStamp: string;
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;

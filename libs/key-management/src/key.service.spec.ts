@@ -7,6 +7,7 @@ import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SigningKey } from "@bitwarden/common/key-management/keys/models/signing-key";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -45,7 +46,6 @@ import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { UserPrivateKeyDecryptionFailedError } from "./abstractions/key.service";
 import { DefaultKeyService } from "./key.service";
-import { SigningKey } from "./models/signing-key";
 
 describe("keyService", () => {
   let keyService: DefaultKeyService;
