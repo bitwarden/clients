@@ -9,6 +9,7 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 
+import { AsyncActionsModule } from "./async-actions.module";
 import { BitActionDirective } from "./bit-action.directive";
 
 const template = /*html*/ `
@@ -20,7 +21,7 @@ const template = /*html*/ `
 @Component({
   template,
   selector: "app-promise-example",
-  imports: [BitActionDirective, ButtonModule, IconButtonModule],
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class PromiseExampleComponent {
   statusEmoji = "🟡";
@@ -37,7 +38,7 @@ class PromiseExampleComponent {
 @Component({
   template,
   selector: "app-action-resolves-quickly",
-  imports: [BitActionDirective, ButtonModule, IconButtonModule],
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ActionResolvesQuicklyComponent {
   statusEmoji = "🟡";
@@ -55,7 +56,7 @@ class ActionResolvesQuicklyComponent {
 @Component({
   template,
   selector: "app-observable-example",
-  imports: [BitActionDirective, ButtonModule, IconButtonModule],
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
   action = () => {
@@ -66,7 +67,7 @@ class ObservableExampleComponent {
 @Component({
   template,
   selector: "app-rejected-promise-example",
-  imports: [BitActionDirective, ButtonModule, IconButtonModule],
+  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
   action = async () => {
@@ -81,6 +82,9 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [
+        ButtonModule,
+        IconButtonModule,
+        BitActionDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
