@@ -2,6 +2,15 @@
 
 <br>
 
+**Table of Contents**
+
+> - [Standard Auth Request Flows](#standard-auth-request-flows)
+> - [Admin Auth Request Flow](#admin-auth-request-flow)
+> - [Summary Table](#summary-table)
+> - [State Management](#state-management)
+
+<br>
+
 ## Standard Auth Request Flows
 
 ### Flow 1: Unauthed user requests approval from device; Approving device has a masterKey in memory
