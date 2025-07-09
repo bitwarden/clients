@@ -90,7 +90,9 @@ export class RoboFormCsvImporter extends BaseImporter implements Importer {
 
     fields.forEach((field: string) => {
       const parts = field.split(",");
-      if (parts.length < 5) {return;}
+      if (parts.length < 5) {
+        return;
+      }
 
       const key = parts[0] === "-no-name-" ? null : parts[0];
       const type = parts[3] === "pwd" ? FieldType.Hidden : FieldType.Text;
