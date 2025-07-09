@@ -42,7 +42,7 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+    { provide: ChangeLoginPasswordService, useExisting: DefaultChangeLoginPasswordService },
   ],
 })
 export class EmergencyViewDialogComponent {

@@ -96,7 +96,7 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+    { provide: ChangeLoginPasswordService, useExisting: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewV2Component {

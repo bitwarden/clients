@@ -233,6 +233,7 @@ import {
   KeyService as KeyServiceAbstraction,
 } from "@bitwarden/key-management";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
+import { ChangeLoginPasswordService, DefaultChangeLoginPasswordService } from "@bitwarden/vault";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -420,6 +421,8 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
+
+  changeLoginPasswordService: ChangeLoginPasswordService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -1221,6 +1224,11 @@ export default class MainBackground {
       messageListener,
     );
 
+    this.changeLoginPasswordService = new DefaultChangeLoginPasswordService(
+      this.apiService,
+      this.platformUtilsService,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1237,6 +1245,7 @@ export default class MainBackground {
       this.themeStateService,
       this.userNotificationSettingsService,
       this.taskService,
+      this.changeLoginPasswordService,
       this.messagingService,
     );
 

@@ -1,5 +1,3 @@
-import { Injectable } from "@angular/core";
-
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -8,7 +6,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
-@Injectable()
 export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordService {
   constructor(
     private apiService: ApiService,

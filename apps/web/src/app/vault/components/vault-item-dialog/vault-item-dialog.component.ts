@@ -136,7 +136,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
     RoutedVaultFilterService,
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
+    { provide: ChangeLoginPasswordService, useExisting: DefaultChangeLoginPasswordService },
   ],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
