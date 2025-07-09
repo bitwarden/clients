@@ -6,6 +6,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  from,
   map,
   Observable,
   shareReplay,
@@ -17,6 +18,7 @@ import {
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
+import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -24,6 +26,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -181,6 +185,7 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -215,19 +220,13 @@ export class VaultPopupListFiltersService {
    */
   filterFunction$: Observable<(ciphers: CipherView[]) => CipherView[]> = combineLatest([
     this.filters$,
-    this.restrictedItemTypesService.restricted$.pipe(startWith([])),
   ]).pipe(
     map(
-      ([filters, restrictions]) =>
+      ([filters]) =>
         (ciphers: CipherView[]) =>
           ciphers.filter((cipher) => {
             // Vault popup lists never shows deleted ciphers
             if (cipher.isDeleted) {
-              return false;
-            }
-
-            // Check if cipher type is restricted (with organization exemptions)
-            if (this.restrictedItemTypesService.isCipherRestricted(cipher, restrictions)) {
               return false;
             }
 
@@ -266,15 +265,15 @@ export class VaultPopupListFiltersService {
   readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
     this.restrictedItemTypesService.restricted$.pipe(
       map((restrictedTypes) => {
-        const restrictedCipherTypes = restrictedTypes.map((r) => r.cipherType);
-
-        return CIPHER_MENU_ITEMS.filter((item) => !restrictedCipherTypes.includes(item.type)).map(
-          (item) => ({
-            value: item.type,
-            label: this.i18nService.t(item.labelKey),
-            icon: item.icon,
-          }),
-        );
+        return CIPHER_MENU_ITEMS.filter((item) => {
+          const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
+          // Show if no restriction or if the restriction allows viewing in at least one org
+          return !restriction || restriction.allowViewOrgIds.length > 0;
+        }).map((item) => ({
+          value: item.type,
+          label: this.i18nService.t(item.labelKey),
+          icon: item.icon,
+        }));
       }),
     );
 
@@ -430,33 +429,47 @@ export class VaultPopupListFiltersService {
   /**
    * Collection array structured to be directly passed to `ChipSelectComponent`
    */
-  collections$: Observable<ChipSelectOption<CollectionView>[]> = combineLatest([
-    this.filters$.pipe(
-      distinctUntilChanged(
-        (previousFilter, currentFilter) =>
-          // Only update the collections when the organizationId filter changes
-          previousFilter.organization?.id === currentFilter.organization?.id,
-      ),
-    ),
+  collections$: Observable<ChipSelectOption<CollectionView>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
-    ),
-  ]).pipe(
-    map(([filters, allCollections]) => {
-      const organizationId = filters.organization?.id ?? null;
-      // When the organization filter is selected, filter out collections that do not belong to the selected organization
-      const collections =
-        organizationId === null
-          ? allCollections
-          : allCollections.filter((c) => c.organizationId === organizationId);
+      switchMap((userId) =>
+        combineLatest([
+          this.filters$.pipe(
+            distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
+          ),
+          this.collectionService.decryptedCollections$(userId),
+          this.organizationService.memberOrganizations$(userId),
+          this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+        ]),
+      ),
+      map(([filters, allCollections, orgs, defaultVaultEnabled]) => {
+        const orgFilterId = filters.organization?.id ?? null;
+        // When the organization filter is selected, filter out collections that do not belong to the selected organization
+        const filtered = orgFilterId
+          ? allCollections.filter((c) => c.organizationId === orgFilterId)
+          : allCollections;
 
-      return this.collectionService
-        .getAllNested(collections)
-        .map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared"));
-    }),
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
+        if (!defaultVaultEnabled) {
+          return filtered;
+        }
+        return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
+      }),
+      switchMap((collections) => {
+        return from(this.collectionService.getAllNested(collections)).pipe(
+          map(
+            (nested) =>
+              new DynamicTreeNode<CollectionView>({
+                fullList: collections,
+                nestedList: nested,
+              }),
+          ),
+        );
+      }),
+      map((tree) =>
+        tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
   /** Organizations, collection, folders filters. */
   allFilters$ = combineLatest([this.organizations$, this.collections$, this.folders$]);

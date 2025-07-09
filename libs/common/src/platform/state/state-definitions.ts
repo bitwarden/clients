@@ -155,6 +155,7 @@ export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
 export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
   browser: "memory-large-object",
 });
+export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "memory");
 
 // Vault
 
