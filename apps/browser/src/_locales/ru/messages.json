@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Импорт элементов в ваше личное хранилище отключен политикой организации."
   },
+  "restrictCardTypeImport": {
+    "message": "Невозможно импортировать элементы карт"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Политика, установленная 1 или более организациями, не позволяет импортировать карты в ваши хранилища."
+  },
   "domainsTitle": {
     "message": "Домены",
     "description": "A category title describing the concept of web domains"
@@ -2912,6 +2918,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Для использования этой функции необходимо подтвердить ваш email. Вы можете это сделать в веб-хранилище."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Мастер-пароль успешно установлен"
   },
   "updatedMasterPassword": {
     "message": "Мастер-пароль обновлен"
@@ -4238,6 +4247,26 @@
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Обнаружение совпадения URI - это способ, с помощью которого Bitwarden идентифицирует предложения по автозаполнению.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Регулярное выражение\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Начинается с\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Подробнее об обнаружении совпадений",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Расширенные настройки",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Перейти к настройкам браузера?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -5065,8 +5094,8 @@
   "unlockPinSet": {
     "message": "Установить PIN--код разблокировки"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Разблокировать с помощью биометрии"
   },
   "authenticating": {
     "message": "Аутентификация"

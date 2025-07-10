@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "某個組織原則已禁止您將項目匯入至您的個人密碼庫。"
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "網域",
     "description": "A category title describing the concept of web domains"
@@ -2912,6 +2918,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "您必須驗證您的電子郵件才能使用此功能。您可以在網頁密碼庫裡驗證您的電子郵件。"
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "已更新主密碼"
@@ -4238,6 +4247,26 @@
     "message": "常見格式",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "繼續前往瀏覽器設定？",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -5065,8 +5094,8 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
-  "unlockBiometricSet": {
-    "message": "Unlock biometrics set"
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "驗證中"

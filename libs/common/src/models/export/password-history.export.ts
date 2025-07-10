@@ -22,7 +22,7 @@ export class PasswordHistoryExport {
 
   static toDomain(req: PasswordHistoryExport, domain = new Password()) {
     domain.password = req.password != null ? new EncString(req.password) : null;
-    domain.lastUsedDate = req.lastUsedDate;
+    domain.lastUsedDate = req.lastUsedDate ? new Date(req.lastUsedDate) : null;
     return domain;
   }
 

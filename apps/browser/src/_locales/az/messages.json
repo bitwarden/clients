@@ -1923,7 +1923,7 @@
     "message": "SSH açarı"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Not"
   },
   "newItemHeader": {
     "message": "Yeni $TYPE$",
@@ -2487,6 +2487,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
   },
+  "restrictCardTypeImport": {
+    "message": "Kart element növləri daxilə köçürülə bilmir"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "1 və ya daha çox təşkilat tərəfindən təyin edilən bir siyasət, kartların seyfinizə köçürülməsini əngəlləyir."
+  },
   "domainsTitle": {
     "message": "Domenlər",
     "description": "A category title describing the concept of web domains"
@@ -2912,6 +2918,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Bu özəlliyi istifadə etmək üçün e-poçtunuzu doğrulamalısınız. E-poçtunuzu veb seyfdə doğrulaya bilərsiniz."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Güncəllənmiş ana parol"
@@ -4238,6 +4247,26 @@
     "message": "Ortaq formatlar",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Brauzer ayarları ilə davam edilsin?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -5065,8 +5094,8 @@
   "unlockPinSet": {
     "message": "PIN ilə kilid açma təyini"
   },
-  "unlockBiometricSet": {
-    "message": "Biometrik ilə kilidi aç ayarı"
+  "unlockWithBiometricSet": {
+    "message": "Kilidi biometriklə aç ayarı"
   },
   "authenticating": {
     "message": "Kimlik doğrulama"

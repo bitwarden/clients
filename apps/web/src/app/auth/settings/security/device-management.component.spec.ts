@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 import { of, Subject } from "rxjs";
 
-import { AuthRequestApiService } from "@bitwarden/auth/common";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -79,7 +79,7 @@ describe("DeviceManagementComponent", () => {
           },
         },
         {
-          provide: AuthRequestApiService,
+          provide: AuthRequestApiServiceAbstraction,
           useValue: {
             getAuthRequest: jest.fn().mockResolvedValue(mockDeviceResponse),
           },
