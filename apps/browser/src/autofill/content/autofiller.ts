@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { setupExtensionDisconnectAction } from "../utils";
 
 if (document.readyState === "loading") {
@@ -9,7 +7,7 @@ if (document.readyState === "loading") {
 }
 
 function loadAutofiller() {
-  let pageHref: string = null;
+  let pageHref: null | string = null;
   let filledThisHref = false;
   let delayFillTimeout: number;
   let doFillInterval: number | NodeJS.Timeout;
@@ -51,9 +49,7 @@ function loadAutofiller() {
         sender: "autofiller",
       };
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.runtime.sendMessage(msg);
+      void chrome.runtime.sendMessage(msg);
     }
   }
 
