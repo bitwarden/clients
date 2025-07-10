@@ -5,7 +5,7 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -31,21 +31,13 @@ export class DefaultCipherFormService implements CipherFormService {
   }
 
   async saveCipher(cipher: CipherView, config: CipherFormConfig): Promise<CipherView> {
-    // Passing the original cipher is important here as it is responsible for appending to password history
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const encrypted = await this.cipherService.encrypt(
-      cipher,
-      activeUserId,
-      null,
-      null,
-      config.originalCipher ?? null,
-    );
-    const encryptedCipher = encrypted.cipher;
 
     let savedCipher: Cipher;
 
     // Creating a new cipher
     if (cipher.id == null) {
+      const encrypted = await this.cipherService.encrypt(cipher, activeUserId);
       savedCipher = await this.cipherService.createWithServer(encrypted, config.admin);
       return await this.cipherService.decrypt(savedCipher, activeUserId);
     }
@@ -61,16 +53,37 @@ export class DefaultCipherFormService implements CipherFormService {
 
     // Call shareWithServer if the owner is changing from a user to an organization
     if (config.originalCipher.organizationId === null && cipher.organizationId != null) {
+      // shareWithServer expects the cipher to have no organizationId set
+      const organizationId = cipher.organizationId as OrganizationId;
+      cipher.organizationId = null;
+
       savedCipher = await this.cipherService.shareWithServer(
         cipher,
-        cipher.organizationId,
+        organizationId,
         cipher.collectionIds,
         activeUserId,
+        config.originalCipher,
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
+      const encrypted = await this.cipherService.encrypt(
+        cipher,
+        activeUserId,
+        null,
+        null,
+        config.originalCipher,
+      );
       savedCipher = await this.cipherService.updateWithServer(encrypted, config.admin);
     } else {
+      const encrypted = await this.cipherService.encrypt(
+        cipher,
+        activeUserId,
+        null,
+        null,
+        config.originalCipher,
+      );
+      const encryptedCipher = encrypted.cipher;
+
       // Updating a cipher with collection changes is not supported with a single request currently
       // First update the cipher with the original collectionIds
       encryptedCipher.collectionIds = config.originalCipher.collectionIds;
