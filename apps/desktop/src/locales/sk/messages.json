@@ -1640,11 +1640,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Spôsob mapovania",
+    "message": "Zisťovanie zhody",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Predvolené mapovanie",
+    "message": "Predvolené zisťovanie zhody",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -2391,6 +2391,9 @@
   },
   "passwordConfirmationDesc": {
     "message": "Táto akcia je chránená. Ak chcete pokračovať, znova zadajte hlavné heslo a overte svoju totožnosť."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
     "message": "Hlavné heslo aktualizované"
@@ -3531,6 +3534,22 @@
   "commonImportFormats": {
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Zisťovanie zhody URI je spôsob, akým Bitwarden identifikuje návrhy na automatické vypĺňanie.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Viac informácií o zisťovaní zhody",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "success": {
     "message": "Úspech"

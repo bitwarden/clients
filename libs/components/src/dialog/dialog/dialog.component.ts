@@ -87,8 +87,10 @@ export class DialogComponent {
   }
 
   handleEsc(event: Event) {
-    this.dialogRef?.close();
-    event.stopPropagation();
+    if (!this.dialogRef?.disableClose) {
+      this.dialogRef?.close();
+      event.stopPropagation();
+    }
   }
 
   get width() {

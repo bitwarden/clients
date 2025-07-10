@@ -124,9 +124,9 @@ export class CipherExport {
       domain.passwordHistory = req.passwordHistory.map((ph) => PasswordHistoryExport.toDomain(ph));
     }
 
-    domain.creationDate = req.creationDate;
-    domain.revisionDate = req.revisionDate;
-    domain.deletedDate = req.deletedDate;
+    domain.creationDate = req.creationDate ? new Date(req.creationDate) : null;
+    domain.revisionDate = req.revisionDate ? new Date(req.revisionDate) : null;
+    domain.deletedDate = req.deletedDate ? new Date(req.deletedDate) : null;
     return domain;
   }
 

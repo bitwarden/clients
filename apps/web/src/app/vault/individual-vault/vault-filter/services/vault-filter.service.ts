@@ -18,12 +18,15 @@ import {
   CollectionService,
   CollectionView,
 } from "@bitwarden/admin-console/common";
+import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -104,8 +107,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       }),
     );
 
-  collectionTree$: Observable<TreeNode<CollectionFilter>> = this.filteredCollections$.pipe(
-    map((collections) => this.buildCollectionTree(collections)),
+  collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
+    this.filteredCollections$,
+    this.memberOrganizations$,
+    this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
+  ]).pipe(
+    map(([collections, organizations, defaultCollectionsFlagEnabled]) =>
+      this.buildCollectionTree(collections, organizations, defaultCollectionsFlagEnabled),
+    ),
   );
 
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
@@ -123,6 +132,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
+    protected configService: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -227,31 +237,39 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       : storedCollections;
   }
 
-  protected buildCollectionTree(collections?: CollectionView[]): TreeNode<CollectionFilter> {
+  protected buildCollectionTree(
+    collections?: CollectionView[],
+    orgs?: Organization[],
+    defaultCollectionsFlagEnabled?: boolean,
+  ): TreeNode<CollectionFilter> {
     const headNode = this.getCollectionFilterHead();
     if (!collections) {
       return headNode;
     }
     const nodes: TreeNode<CollectionFilter>[] = [];
-    collections
-      .sort((a, b) => this.i18nService.collator.compare(a.name, b.name))
-      .forEach((c) => {
-        const collectionCopy = new CollectionView() as CollectionFilter;
-        collectionCopy.id = c.id;
-        collectionCopy.organizationId = c.organizationId;
-        collectionCopy.icon = "bwi-collection-shared";
-        if (c instanceof CollectionAdminView) {
-          collectionCopy.groups = c.groups;
-          collectionCopy.assigned = c.assigned;
-        }
-        const parts =
-          c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
-        ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
-      });
+
+    if (defaultCollectionsFlagEnabled) {
+      collections = sortDefaultCollections(collections, orgs, this.i18nService.collator);
+    }
+
+    collections.forEach((c) => {
+      const collectionCopy = new CollectionView() as CollectionFilter;
+      collectionCopy.id = c.id;
+      collectionCopy.organizationId = c.organizationId;
+      collectionCopy.icon = "bwi-collection-shared";
+      if (c instanceof CollectionAdminView) {
+        collectionCopy.groups = c.groups;
+        collectionCopy.assigned = c.assigned;
+      }
+      const parts = c.name != null ? c.name.replace(/^\/+|\/+$/g, "").split(NestingDelimiter) : [];
+      ServiceUtils.nestedTraverse(nodes, 0, parts, collectionCopy, null, NestingDelimiter);
+    });
+
     nodes.forEach((n) => {
       n.parent = headNode;
       headNode.children.push(n);
     });
+
     return headNode;
   }
 
