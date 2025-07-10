@@ -1,6 +1,6 @@
 import { svgIcon } from "@bitwarden/components";
 
-export const SendCreatedIcon = svgIcon`
+export const ActiveSendIcon = svgIcon`
 <svg width="96" height="95" viewBox="0 0 96 95" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path class="tw-stroke-art-primary" d="M89.4998 48.3919C89.4998 70.5749 70.9198 88.5573 47.9998 88.5573C46.0374 88.5573 44.1068 88.4257 42.217 88.1707M6.49976 48.3919C6.49976 26.2092 25.08 8.22656 47.9998 8.22656C51.8283 8.22656 55.5353 8.72824 59.0553 9.66744" stroke-linecap="round" stroke-linejoin="round"/>
   <path class="tw-stroke-art-primary" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5.47085 67.8617C2.60335 61.9801 1 55.4075 1 48.4729C1 23.3503 22.0426 2.98438 48 2.98438C52.3355 2.98438 56.534 3.55257 60.5205 4.61618M92.211 32.9993C94.016 37.8295 95 43.0399 95 48.4729C95 73.5956 73.9575 93.9614 48 93.9614C45.7775 93.9614 43.5911 93.8119 41.4508 93.5235" />

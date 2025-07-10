@@ -70,10 +70,10 @@ describe("AuthGuard", () => {
           { path: "lock", component: EmptyComponent },
           { path: "set-password", component: EmptyComponent },
           { path: "set-password-jit", component: EmptyComponent },
-          { path: "set-initial-password", component: EmptyComponent },
-          { path: "update-temp-password", component: EmptyComponent },
+          { path: "set-initial-password", component: EmptyComponent, canActivate: [authGuard] },
+          { path: "update-temp-password", component: EmptyComponent, canActivate: [authGuard] },
           { path: "change-password", component: EmptyComponent },
-          { path: "remove-password", component: EmptyComponent },
+          { path: "remove-password", component: EmptyComponent, canActivate: [authGuard] },
         ]),
       ],
       providers: [
@@ -122,6 +122,34 @@ describe("AuthGuard", () => {
 
     await router.navigate(["guarded-route"]);
     expect(router.url).toBe("/remove-password");
+  });
+
+  describe("given user is Locked", () => {
+    describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
+      it("should redirect to /set-initial-password when the user has ForceSetPasswordReaason.TdeOffboardingUntrustedDevice", async () => {
+        const { router } = setup(
+          AuthenticationStatus.Locked,
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          false,
+          FeatureFlag.PM16117_SetInitialPasswordRefactor,
+        );
+
+        await router.navigate(["guarded-route"]);
+        expect(router.url).toBe("/set-initial-password");
+      });
+
+      it("should allow navigation to continue to /set-initial-password when the user has ForceSetPasswordReason.TdeOffboardingUntrustedDevice", async () => {
+        const { router } = setup(
+          AuthenticationStatus.Unlocked,
+          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+          false,
+          FeatureFlag.PM16117_SetInitialPasswordRefactor,
+        );
+
+        await router.navigate(["/set-initial-password"]);
+        expect(router.url).toContain("/set-initial-password");
+      });
+    });
   });
 
   describe("given user is Unlocked", () => {

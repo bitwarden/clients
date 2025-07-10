@@ -1,0 +1,6 @@
+{
+  "extends": "<%= offsetFromRoot %>tsconfig.base.json",
+  "files": [],
+  "include": ["src/**/*.ts", "src/**/*.js"],
+  "exclude": ["**/build", "**/dist"]
+}
