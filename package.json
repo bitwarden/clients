@@ -210,7 +210,7 @@
     "tldts": "7.0.1",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
-    "zone.js": "0.15.0",
+    "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
   "overrides": {

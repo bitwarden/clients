@@ -45,7 +45,8 @@ export class AttachmentView implements View {
 
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
     const key = obj.key == null ? null : SymmetricCryptoKey.fromJSON(obj.key);
-    return Object.assign(new AttachmentView(), obj, { key: key });
+    const encryptedKey = obj.encryptedKey == null ? undefined : new EncString(obj.encryptedKey);
+    return Object.assign(new AttachmentView(), obj, { key: key, encryptedKey: encryptedKey });
   }
 
   /**

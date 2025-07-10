@@ -148,39 +148,25 @@ describe("keyService", () => {
     });
   });
 
-  describe.each(["hasUserKey", "hasUserKeyInMemory"])(`%s`, (methodName: string) => {
+  describe("hasUserKey", () => {
     let mockUserKey: UserKey;
-    let method: (userId?: UserId) => Promise<boolean>;
 
     beforeEach(() => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      method =
-        methodName === "hasUserKey"
-          ? keyService.hasUserKey.bind(keyService)
-          : keyService.hasUserKeyInMemory.bind(keyService);
     });
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "returns false when userId is %s",
+      async (userId) => {
+        expect(await keyService.hasUserKey(userId)).toBe(false);
+      },
+    );
 
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
       stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
-      expect(await method(mockUserId)).toBe(hasKey);
+      expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
     });
-
-    it("returns false when no active userId is set", async () => {
-      accountService.activeAccountSubject.next(null);
-      expect(await method()).toBe(false);
-    });
-
-    it.each([true, false])(
-      "resolves %s for active user id when none is provided",
-      async (hasKey) => {
-        stateProvider.activeUserId$ = of(mockUserId);
-        stateProvider.singleUser
-          .getFake(mockUserId, USER_KEY)
-          .nextState(hasKey ? mockUserKey : null);
-        expect(await method()).toBe(hasKey);
-      },
-    );
   });
 
   describe("getUserKeyWithLegacySupport", () => {
@@ -407,6 +393,19 @@ describe("keyService", () => {
       await keyService.setUserKeys(mockUserKey, mockEncPrivateKey, mockUserId);
 
       expect(setEncryptedPrivateKeySpy).toHaveBeenCalledWith(mockEncPrivateKey, mockUserId);
+    });
+  });
+
+  describe("makeSendKey", () => {
+    const mockRandomBytes = new Uint8Array(16) as CsprngArray;
+    it("calls keyGenerationService with expected hard coded parameters", async () => {
+      await keyService.makeSendKey(mockRandomBytes);
+
+      expect(keyGenerationService.deriveKeyFromMaterial).toHaveBeenCalledWith(
+        mockRandomBytes,
+        "bitwarden-send",
+        "send",
+      );
     });
   });
 
