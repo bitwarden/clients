@@ -26,7 +26,10 @@ export class CollectionData {
     this.type = response.type;
   }
 
-  static fromJSON(obj: Jsonify<CollectionData>) {
+  static fromJSON(obj: Jsonify<CollectionData | null>): CollectionData | null {
+    if (obj == null) {
+      return null;
+    }
     return Object.assign(new CollectionData(new CollectionDetailsResponse({})), obj);
   }
 }

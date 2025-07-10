@@ -5,12 +5,10 @@ import {
   firstValueFrom,
   from,
   map,
-  NEVER,
   Observable,
   of,
   shareReplay,
   switchMap,
-  tap,
 } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -31,13 +29,6 @@ import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./
 const NestingDelimiter = "/";
 
 export class DefaultCollectionService implements CollectionService {
-  /**
-   * This is used to cache in-progress decryptions so that multiple simultaneous calls to collectionViews$
-   * will not result in multiple duplicate decryptions. An observable is removed after decryption is complete and
-   * decryptedState has been updated with the result.
-   */
-  private inProgressDecryptions = new Map<UserId, Observable<never>>();
-
   constructor(
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -48,22 +39,24 @@ export class DefaultCollectionService implements CollectionService {
   /**
    * @returns a SingleUserState for encrypted collection data.
    */
-  private encryptedState(userId: UserId) {
+  private encryptedState(
+    userId: UserId,
+  ): SingleUserState<Record<CollectionId, CollectionData | null>> {
     return this.stateProvider.getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY);
   }
 
   /**
    * @returns a SingleUserState for decrypted collection data.
    */
-  private decryptedState(userId: UserId): SingleUserState<CollectionView[]> {
+  private decryptedState(userId: UserId): SingleUserState<CollectionView[] | null> {
     return this.stateProvider.getUser(userId, DECRYPTED_COLLECTION_DATA_KEY);
   }
 
-  encryptedCollections$(userId: UserId) {
+  encryptedCollections$(userId: UserId): Observable<Collection[] | null> {
     return this.encryptedState(userId).state$.pipe(
       map((collections) => {
         if (collections == null) {
-          return [];
+          return null;
         }
 
         return Object.values(collections).map((c) => new Collection(c));
@@ -71,22 +64,15 @@ export class DefaultCollectionService implements CollectionService {
     );
   }
 
-  decryptedCollections$(userId: UserId) {
+  decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
     return this.decryptedState(userId).state$.pipe(
       switchMap((decryptedState) => {
         // If decrypted state is already populated, return that
-        if (decryptedState?.length) {
-          return of(decryptedState);
+        if (decryptedState !== null) {
+          return of(decryptedState ?? []);
         }
 
-        // If decrypted state is not populated but decryption is in progress,
-        // return the observable that represents the decryption progress
-        if (this.inProgressDecryptions.has(userId)) {
-          return this.inProgressDecryptions.get(userId)!;
-        }
-
-        this.inProgressDecryptions.set(userId, this.initializeDecryptedState(userId));
-        return this.inProgressDecryptions.get(userId)!;
+        return this.initializeDecryptedState(userId);
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -99,16 +85,9 @@ export class DefaultCollectionService implements CollectionService {
     ]).pipe(
       switchMap(([collections, orgKeys]) =>
         this.decryptMany$(collections, orgKeys).pipe(
-          // delayWhen is basically used as an async tap here; wait for decryption to be finished
           delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
-          // once decrypted state has been set, we can remove ourselves from the internal map
-          tap(() => this.inProgressDecryptions.delete(userId)),
         ),
       ),
-      // setDecryptedCollections will trigger a new emission from decryptedState, which is ultimately what
-      // the caller will receive as the first emission. Here we finish with NEVER so that this observable
-      // never emits, and will be automatically unsubscribed by the outer switchMap when decryptedState emits.
-      switchMap(() => NEVER),
     );
   }
 
@@ -206,10 +185,10 @@ export class DefaultCollectionService implements CollectionService {
   // TODO: this should be private.
   // See https://bitwarden.atlassian.net/browse/PM-12375
   decryptMany$(
-    collections: Collection[],
+    collections: Collection[] | null,
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Observable<CollectionView[]> {
-    if (collections === null || collections.length === 0 || orgKeys === null) {
+    if (collections?.length == 0 || collections === null || orgKeys === null) {
       return of([]);
     }
 

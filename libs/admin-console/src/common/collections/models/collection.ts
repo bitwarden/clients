@@ -24,7 +24,7 @@ export class Collection extends Domain {
   manage: boolean;
   type: CollectionType;
 
-  constructor(obj?: CollectionData) {
+  constructor(obj?: CollectionData | null) {
     super();
     if (obj == null) {
       return;

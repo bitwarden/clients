@@ -152,7 +152,7 @@ describe("DefaultCollectionService", () => {
         collectionService.encryptedCollections$(userId),
       );
 
-      expect(encryptedCollections.length).toBe(0);
+      expect(encryptedCollections).toBe(null);
     });
 
     it("handles undefined orgKeys", (done) => {
@@ -194,7 +194,7 @@ describe("DefaultCollectionService", () => {
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
-      expect(result.length).toBe(2);
+      expect(result!.length).toBe(2);
       expect(result).toContainPartialObjects([
         {
           id: collection1.id,
@@ -213,7 +213,7 @@ describe("DefaultCollectionService", () => {
       const decryptedCollections = await firstValueFrom(
         collectionService.encryptedCollections$(userId),
       );
-      expect(decryptedCollections.length).toBe(0);
+      expect(decryptedCollections).toBe(null);
     });
   });
 
@@ -236,7 +236,7 @@ describe("DefaultCollectionService", () => {
 
       const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
-      expect(encryptedResult.length).toBe(1);
+      expect(encryptedResult?.length).toBe(1);
       expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,
@@ -268,7 +268,7 @@ describe("DefaultCollectionService", () => {
       await collectionService.upsert(collection1, userId);
 
       const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(encryptedResult.length).toBe(1);
+      expect(encryptedResult?.length).toBe(1);
       expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,
@@ -300,7 +300,7 @@ describe("DefaultCollectionService", () => {
       );
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toBe(1);
+      expect(result!.length).toBe(1);
       expect(result).toContainPartialObjects([
         {
           id: newCollection3.id,
@@ -319,8 +319,8 @@ describe("DefaultCollectionService", () => {
       await collectionService.delete([collection1.id], userId);
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toEqual(1);
-      expect(result[0]).toMatchObject({ id: collection2.id });
+      expect(result!.length).toEqual(1);
+      expect(result![0]).toMatchObject({ id: collection2.id });
     });
 
     it("deletes several collections", async () => {
@@ -332,8 +332,8 @@ describe("DefaultCollectionService", () => {
       await collectionService.delete([collection1.id, collection3.id], userId);
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toEqual(1);
-      expect(result[0]).toMatchObject({ id: collection2.id });
+      expect(result!.length).toEqual(1);
+      expect(result![0]).toMatchObject({ id: collection2.id });
     });
 
     it("handles null collections", async () => {
@@ -343,7 +343,7 @@ describe("DefaultCollectionService", () => {
       await collectionService.delete([collection1.id], userId);
 
       const result = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(result.length).toEqual(0);
+      expect(result!.length).toEqual(0);
     });
   });
 

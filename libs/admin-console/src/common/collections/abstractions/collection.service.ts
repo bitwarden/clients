@@ -7,8 +7,8 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionData, Collection, CollectionView } from "../models";
 
 export abstract class CollectionService {
-  abstract encryptedCollections$: (userId: UserId) => Observable<Collection[]>;
-  abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[]>;
+  abstract encryptedCollections$: (userId: UserId) => Observable<Collection[] | null>;
+  abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[] | null>;
   abstract upsert: (collection: CollectionData, userId: UserId) => Promise<any>;
   abstract replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   /**
@@ -17,7 +17,7 @@ export abstract class CollectionService {
   abstract decryptMany$: (
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
-  ) => Observable<CollectionView[]>;
+  ) => Observable<CollectionView[] | null>;
   abstract delete: (ids: CollectionId[], userId: UserId) => Promise<any>;
   abstract encrypt: (model: CollectionView, userId: UserId) => Promise<Collection>;
   /**
