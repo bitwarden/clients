@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
@@ -44,7 +42,7 @@ import { VaultAutosizeReadOnlyTextArea } from "../../directives/readonly-textare
   ],
 })
 export class CustomFieldV2Component implements OnInit, OnChanges {
-  @Input() cipher: CipherView;
+  @Input({ required: true }) cipher!: CipherView;
   fieldType = FieldType;
   fieldOptions: Map<number, LinkedMetadata> | null = null;
 
@@ -73,7 +71,7 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
   }
 
   getLinkedType(linkedId: LinkedIdType) {
-    const linkedType = this.fieldOptions.get(linkedId);
+    const linkedType = this.fieldOptions?.get(linkedId);
 
     return linkedType ? this.i18nService.t(linkedType.i18nKey) : null;
   }
