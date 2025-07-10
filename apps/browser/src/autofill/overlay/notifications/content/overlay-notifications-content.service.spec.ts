@@ -10,10 +10,6 @@ import { NotificationTypeData } from "../abstractions/overlay-notifications-cont
 
 import { OverlayNotificationsContentService } from "./overlay-notifications-content.service";
 
-jest.spyOn(utils, "sendExtensionMessage").mockImplementation((command: string) => {
-  return Promise.resolve(command === "notificationRefreshFlagValue" ? false : true);
-});
-
 describe("OverlayNotificationsContentService", () => {
   let overlayNotificationsContentService: OverlayNotificationsContentService;
   let domQueryService: MockProxy<DomQueryService>;
@@ -23,9 +19,11 @@ describe("OverlayNotificationsContentService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    (utils.sendExtensionMessage as jest.Mock).mockImplementation((cmd: string) =>
-      Promise.resolve(cmd === "notificationRefreshFlagValue" ? false : true),
-    );
+    jest
+      .spyOn(utils, "sendExtensionMessage")
+      .mockImplementation((command: string) =>
+        Promise.resolve(command === "notificationRefreshFlagValue" ? false : true),
+      );
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
