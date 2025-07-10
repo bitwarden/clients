@@ -4,10 +4,10 @@ $primary: #175ddc;
 $primary-accent: #1252a3;
 $secondary: #ced4da;
 $secondary-alt: #1a3b66;
-$success: #00a65a;
+$success: #017e45;
 $info: #555555;
-$warning: #bf7e16;
-$danger: #dd4b39;
+$warning: #8b6609;
+$danger: #c83522;
 $white: #ffffff;
 
 // Bootstrap Variable Overrides
@@ -20,8 +20,9 @@ $theme-colors: (
 $body-bg: $white;
 $body-color: #333333;
 
-$font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif,
-  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-family-sans-serif:
+  Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+  "Segoe UI Symbol";
 
 $h1-font-size: 1.7rem;
 $h2-font-size: 1.3rem;
@@ -34,7 +35,6 @@ $small-font-size: 90%;
 $font-size-lg: 1.15rem;
 $code-font-size: 100%;
 
-$navbar-padding-y: 0.75rem;
 $grid-gutter-width: 20px;
 $card-spacer-y: 0.6rem;
 
@@ -48,13 +48,6 @@ $dropdown-link-hover-bg: rgba(#000000, 0.06);
 $dropdown-link-active-color: $dropdown-link-color;
 $dropdown-link-active-bg: rgba(#000000, 0.1);
 $dropdown-item-padding-x: 1rem;
-
-$navbar-brand-font-size: 35px;
-$navbar-brand-height: 35px;
-$navbar-brand-padding-y: 0;
-$navbar-dark-color: rgba($white, 0.7);
-$navbar-dark-hover-color: rgba($white, 0.9);
-$navbar-nav-link-padding-x: 0.8rem;
 
 $input-bg: #fbfbfb;
 $input-focus-bg: $white;
@@ -88,6 +81,7 @@ $mfaTypes: 0, 2, 3, 4, 6;
 $lightDangerHover: #c43421;
 $lightInputColor: #465057;
 $lightInputPlaceholderColor: #b6b8b8;
+$lightCodeColor: #c01176;
 
 // Dark
 
@@ -107,6 +101,7 @@ $darkDarkBlue1: #2f343d;
 $darkDarkBlue2: #1f242e;
 $darkInputColor: $white;
 $darkInputPlaceholderColor: $darkGrey1;
+$darkCodeColor: #f08dc7;
 
 $themes: (
   light: (
@@ -167,7 +162,7 @@ $themes: (
     calloutBackground: #fafafa,
     calloutColor: #212529,
     cdkDraggingBackground: $white,
-    codeColor: #e83e8c,
+    codeColor: $lightCodeColor,
     dropdownBackground: $white,
     dropdownHover: rgba(0, 0, 0, 0.06),
     dropdownTextColor: $body-color,
@@ -195,12 +190,6 @@ $themes: (
     loadingSvg: url("../images/loading.svg"),
     logoSuffix: "dark",
     mfaLogoSuffix: ".png",
-    navActiveBackground: $white,
-    navActiveWeight: 600,
-    navBackground: $primary,
-    navBackgroundAlt: $secondary-alt,
-    navOrgBackgroundColor: #fbfbfb,
-    navWeight: 600,
     pwStrengthBackground: #e9ecef,
     separator: $secondary,
     separatorHr: rgb(0, 0, 0, 0.1),
@@ -276,7 +265,7 @@ $themes: (
     calloutBackground: $darkBlue2,
     calloutColor: $white,
     cdkDraggingBackground: $darkDarkBlue1,
-    codeColor: #e83e8c,
+    codeColor: $darkCodeColor,
     dropdownBackground: $darkDarkBlue1,
     dropdownHover: rgba(255, 255, 255, 0.03),
     dropdownTextColor: $white,
@@ -304,12 +293,6 @@ $themes: (
     loadingSvg: url("../images/loading-white.svg"),
     logoSuffix: "white",
     mfaLogoSuffix: "-w.png",
-    navActiveBackground: $darkDarkBlue2,
-    navActiveWeight: 600,
-    navBackground: $darkDarkBlue1,
-    navBackgroundAlt: $darkDarkBlue1,
-    navOrgBackgroundColor: #161c26,
-    navWeight: 400,
     pwStrengthBackground: $darkBlue2,
     separator: $darkBlue1,
     separatorHr: $darkBlue1,
@@ -350,4 +333,4 @@ $themes: (
 
 @function themed($key) {
   @return map-get($theme-map, $key);
-} ;
+}

@@ -1,0 +1,50 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./progress.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ProgressModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Labels
+
+Always display a label to provide a text based description of what the indicator is measuring. This
+allows those who may not be familiar with the pattern to be able to read and digest the information.
+It also allows assistive technology to accurately describe the indicator to those who may be unable
+to see part or all of the indicator.
+
+<Canvas of={stories.Full} />
+
+## Text label
+
+When measuring something other than progress, such as password strength, update the label to fit the
+context of the implementation.
+
+<Canvas of={stories.CustomText} />
+
+### Strength indicator styles
+
+For a strength indicator use the following styles for fill:
+
+- **Weak:** `danger-600`
+- **Weak2:** `warning-600`
+- **Good:** `primary-600`
+- **Strong:** `success-600`
+
+## Accessibility
+
+Be sure to include the proper `aria-valuemin`, `aria-valuemax`, and `aria-valuenow` attributes. An
+a`ria-valuetext` should also be configurable to include the text a screen reader should read to the
+user.
+
+In the case of a password strength indicator; `aria-describedby` is used on the password field and
+points to the `id` of the progress bar. This results in the screen reader reading the password
+strength to the user after they finish typing.

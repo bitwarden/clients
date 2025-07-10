@@ -1,0 +1,217 @@
+import { Meta, Canvas, Source } from "@storybook/addon-docs";
+
+import * as formStories from "./form.stories";
+import * as fieldStories from "../form-field/form-field.stories";
+import * as passwordToggleStories from "../form-field/password-input-toggle.stories";
+import * as searchStories from "../search/search.stories";
+import * as selectStories from "../select/select.stories";
+import * as multiSelectStories from "../form-field/multi-select.stories";
+import * as radioStories from "../radio-button/radio-button.stories";
+import * as checkboxStories from "../checkbox/checkbox.stories";
+
+<Meta title="Component Library/Form" />
+
+# Forms
+
+Component Library forms should always be built using [Angular Reactive Forms][reactive]. Please read
+[ADR-0001][adr-0001] for a background to this decision. In practice this means that forms should
+always use the native `form` element and bind a `formGroup`.
+
+<Canvas of={formStories.FullExample} />
+
+<br />
+
+## Form spacing and sections
+
+Forms consists of 1 or more inputs, and ends with 1 or 2 buttons.
+
+If there are many inputs in a form, they should be organized into sections as content relates.
+**Example:** Item type form
+
+Each input within a section should follow the following spacing guidelines (see
+[Tailwind CSS spacing documentation](https://tailwindcss.com/docs/customizing-spacing)):
+
+- 1.5rem of vertical spacing between form elements: `mb-6`
+- 1.5rem of horizontal spacing between form elements: `mr-6`
+- 3rem of vertical spacing below a form section: `mb-12`
+- 1rem of vertical spacing between a form group divider and the group's title; so title tag has:
+  `my-4`
+- Form section titles should be styled using `text-lg`
+- Each form sections may have a single column, double or triple column layout. No form should have
+  more than 3 columns. Do NOT use different column layouts within the same form section. Choose the
+  best layout based on the number of fields and type of fields included.
+
+## Input Types
+
+### Field
+
+A form field is the most common input in a form. It consists of a label, control and an optional
+hint.
+
+The styling of form fields applies to all field types: `text`, `number`, `select`, `text-area`,
+`date`, etc.
+
+Be sure to use an appropriate type attribute on fields when defining new field components (e.g.
+`email` for email address or `number` for numerical information) to take advantage of newer input
+controls like email verification, number selection, and more.
+
+Labels accept an optional `end` slot for any content that should not be truncated if the label text
+is too long, such as info link buttons or badges.
+
+```
+<bit-label>
+  Label text goes here
+  <a href="#" slot="end" bitLink>
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</bit-label>
+```
+
+#### Default with required attribute
+
+<Canvas of={fieldStories.Default} />
+
+#### Password Toggle
+
+<Canvas of={passwordToggleStories.Default} />
+
+### Search
+
+<Canvas of={searchStories.Default} />
+
+### Selects
+
+#### Searchable single select (default)
+
+<Canvas of={selectStories.Default} />
+
+#### Multi-select
+
+<Canvas of={multiSelectStories.Members} />
+
+### Radio group
+
+Radio buttons should always be in radio groups.
+
+Radio groups are form fields that consists of a main label and multiple radio buttons. Each radio
+button consists of a label and a radio input.
+
+The full form control + label should be selectable to allow the user a larger click target.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
+
+Radio groups should always have a default selected value.
+
+Radio groups may optionally include extra helper text below each radio button.
+
+If a radio group has more than 4 options and the options do not need helper text, a
+[select menu](?path=/docs/component-library-form-multi-select--docs) should be used instead. Avoid
+using a radio group for more than 5 options even if the options require additional explanation text.
+
+`TODO: extend the select component to support a dropdown menu with descriptions below each option`
+
+#### Block
+
+<Canvas of={radioStories.Block} />
+
+#### Inline
+
+<Canvas of={radioStories.Inline} />
+
+### Checkbox
+
+The checkbox input is used to toggle an action on/off.
+
+Checkboxes can be displayed on their own or in a group (select multiple form question). When
+displayed in a group, include an input Label and any associated required/validation logic for the
+field.
+
+Labels accept an optional `end` slot for any content that is not part of the main label text, such
+as info link buttons or badges.
+
+Unlike radio groups, checkbox groups are not required to have a default selected value.
+
+Checkbox groups can include extra explanation text below each radio button or just the checkbox
+button itself.
+
+If a checkbox group has more than 4 options a
+[multi-select components](?path=/docs/component-library-form-multi-select--docs) should be used.
+
+#### Single checkbox
+
+<Canvas of={checkboxStories.Default} />
+
+## Validation messages
+
+These are examples of our default validation error messages:
+
+<Canvas of={formStories.Validations} />
+
+## Accessibility
+
+### Icon Buttons in Form Fields
+
+When adding prefix or suffix icon buttons to a form field, be sure to use the `appA11yTitle`
+directive to provide a label for screenreaders. Typically, the label should follow this pattern:
+`{Action} {field label}`, i.e. "Copy username".
+
+### Required Fields
+
+- Use "(required)" in the label of each required form field styled the same as the field's helper
+  text (`.muted-text`).
+- If whether or not a form field is required depends on another field, add this to the field's
+  helper text.
+  - **Example:** "Billing Email is required if owned by a business".
+
+### Form Field Errors
+
+- When a resting field is filled out, validation is triggered when the user de-focuses the field
+  (`onblur`). If the control is invalid, assistive technology should announce the error (consider
+  using `role="alert"` or an `aria-live="assertive"`).
+- Validation should not be triggered if the control is left untouched; this allows a user of
+  assistive technology to read the entire form if they wish without triggering validation that could
+  interrupt them. - **TODO:** research how we might implement this behavior; as previous research
+  has shown Angular may not allow both validation when `dirty` `onblur` AND validation on Submit
+  which is a requirement
+- A form control with an error should change to the error UI and the error text should be displayed
+  below the element and be associated to their respective fields (consider using `aria-describedby`)
+- When a field with an error is focused, assistive technology should announce the label and
+  elements' invalid state and then the error text.
+  - **Example:** "URL required, Error, URL format is not acceptable."
+- Once the user has re-focused the field, and starts typing. The error will disappear. Validation
+  should not occur when typing in most cases. Once th user unfocuses the field, validation triggers
+  again.
+
+### Validation on Submit
+
+- Validation must also occur on submit. A user may select the submit button directly without
+  changing focus from a form input. Or a user may disable their browser's javascript which is what
+  supports the inline onblur validation. Finally, there may be a server side error that can only be
+  checked on submit.
+- On submit, a summary error should appear near the submit button or at the top of the form alerting
+  the user of what errors need to be addressed. This summary should be read out by assistive
+  technology after submit regardless of whether or not it was already on screen.
+- Any invalid form control will display an inline error following the field's helper text (or in
+  place of)
+- If submit is successful, use a success toast to alert the user of the successful action.
+- For any server side errors, the Danger toast may still be used. Be sure to adjust the toast's
+  timeout to follow the 6 second
+
+* 1 second for each additional 120 words rule.
+
+### Helper Text
+
+Similar to a field error, helper text should be associated to a field using `aria-describedby`. This
+allows assistive technology to read out the instructional text and field requirements in addition to
+the field’s label.
+
+### Visual style
+
+- All field inputs are interactive elements that must follow the WCAG graphic contrast guidelines.
+  Maintain a ratio of 3:1 with the form's background.
+- Error styling should not rely only on using the `danger-600`color change. Use
+  <i class="bwi bwi-error"></i> as a prefix to highlight the text as error text versus helper
+
+[reactive]: https://angular.io/guide/reactive-forms
+[adr-0001]: https://contributing.bitwarden.com/architecture/adr/reactive-forms

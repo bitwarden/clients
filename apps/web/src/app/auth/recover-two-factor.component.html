@@ -1,0 +1,40 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <p bitTypography="body1">
+    {{ recoveryCodeMessage }}
+    <a
+      bitLink
+      href="https://bitwarden.com/help/lost-two-step-device/"
+      target="_blank"
+      rel="noreferrer"
+      >{{ "learnMore" | i18n }}</a
+    >
+  </p>
+  <bit-form-field>
+    <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      formControlName="email"
+      appAutofocus
+      inputmode="email"
+      appInputVerbatim="false"
+    />
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "masterPass" | i18n }}</bit-label>
+    <input bitInput type="password" formControlName="masterPassword" appInputVerbatim />
+  </bit-form-field>
+  <bit-form-field>
+    <bit-label>{{ "recoveryCodeTitle" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="recoveryCode" appInputVerbatim />
+  </bit-form-field>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="primary" [block]="true">
+      {{ "submit" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/login" [block]="true">
+      {{ "cancel" | i18n }}
+    </a>
+  </div>
+</form>

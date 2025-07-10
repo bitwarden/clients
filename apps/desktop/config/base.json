@@ -1,6 +1,6 @@
 {
-  "dev_flags": {},
   "flags": {
-    "multithreadDecryption": false
-  }
+    "sdk": true
+  },
+  "devFlags": {}
 }

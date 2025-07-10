@@ -1,0 +1,9 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" *ngIf="plan">
+  <sm-subscribe
+    [formGroup]="formGroup"
+    [selectedPlan]="plan"
+    [upgradeOrganization]="false"
+    [showSubmitButton]="true"
+    [customerDiscount]="customerDiscount"
+  ></sm-subscribe>
+</form>

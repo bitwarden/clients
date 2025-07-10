@@ -1,3 +1,3 @@
 import "core-js/stable";
-import "date-input-polyfill";
-import "zone.js/dist/zone";
+import "core-js/proposals/explicit-resource-management";
+import "zone.js";

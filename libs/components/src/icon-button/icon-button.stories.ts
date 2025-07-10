@@ -1,97 +1,124 @@
-import { Meta, Story } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
-import { BitIconButtonComponent, IconButtonType } from "./icon-button.component";
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
-const buttonTypes: IconButtonType[] = [
-  "contrast",
-  "main",
-  "muted",
-  "primary",
-  "secondary",
-  "danger",
-];
+import { BitIconButtonComponent } from "./icon-button.component";
 
 export default {
   title: "Component Library/Icon Button",
   component: BitIconButtonComponent,
+  args: {
+    bitIconButton: "bwi-plus",
+  },
+  argTypes: {
+    buttonType: {
+      options: ["primary", "secondary", "danger", "unstyled", "contrast", "main", "muted", "light"],
+    },
+  },
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=4369%3A16686",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-37011&t=b5tDKylm5sWm2yKo-4",
     },
   },
-  args: {
-    bitIconButton: "bwi-plus",
-    size: "default",
-    disabled: false,
-  },
-  argTypes: {
-    buttonTypes: { table: { disable: true } },
-  },
-} as Meta;
+} as Meta<BitIconButtonComponent>;
 
-const Template: Story<BitIconButtonComponent> = (args: BitIconButtonComponent) => ({
-  props: { ...args, buttonTypes },
-  template: `
-  <table class="tw-border-spacing-2 tw-text-center tw-text-main">
-    <thead>
-      <tr>
-        <td></td>
-        <td *ngFor="let buttonType of buttonTypes" class="tw-capitalize tw-font-bold tw-p-4"
-          [class.tw-text-contrast]="buttonType === 'contrast'"
-          [class.tw-bg-primary-500]="buttonType === 'contrast'">{{buttonType}}</td>
-      </tr>
-    </thead>
+type Story = StoryObj<BitIconButtonComponent>;
 
-    <tbody>
-      <tr>
-        <td class="tw-font-bold tw-p-4 tw-text-left">Default</td>
-          <td *ngFor="let buttonType of buttonTypes" class="tw-p-2" [class.tw-bg-primary-500]="buttonType === 'contrast'">
-            <button
-              [bitIconButton]="bitIconButton"
-              [buttonType]="buttonType"
-              [size]="size"
-              title="Example icon button"
-              aria-label="Example icon button"></button>
-          </td>
-      </tr>
-
-      <tr>
-        <td class="tw-font-bold tw-p-4 tw-text-left">Disabled</td>
-          <td *ngFor="let buttonType of buttonTypes" class="tw-p-2" [class.tw-bg-primary-500]="buttonType === 'contrast'">
-            <button
-              [bitIconButton]="bitIconButton"
-              [buttonType]="buttonType"
-              [size]="size"
-              disabled
-              title="Example icon button"
-              aria-label="Example icon button"></button>
-          </td>
-      </tr>
-
-      <tr>
-        <td class="tw-font-bold tw-p-4 tw-text-left">Loading</td>
-          <td *ngFor="let buttonType of buttonTypes" class="tw-p-2" [class.tw-bg-primary-500]="buttonType === 'contrast'">
-            <button
-              [bitIconButton]="bitIconButton"
-              [buttonType]="buttonType"
-              [size]="size"
-              loading="true"
-              title="Example icon button"
-              aria-label="Example icon button"></button>
-          </td>
-      </tr>
-    </tbody>
-  </table>
-  `,
-});
-
-export const Default = Template.bind({});
-Default.args = {
-  size: "default",
+export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+    `,
+  }),
 };
 
-export const Small = Template.bind({});
-Small.args = {
-  size: "small",
+export const Small: Story = {
+  ...Default,
+  args: {
+    size: "small",
+    buttonType: "primary",
+  },
+};
+
+export const Primary: Story = {
+  ...Default,
+  args: {
+    buttonType: "primary",
+  },
+};
+
+export const Secondary: Story = {
+  ...Default,
+  args: {
+    buttonType: "secondary",
+  },
+};
+
+export const Danger: Story = {
+  ...Default,
+  args: {
+    buttonType: "danger",
+  },
+};
+
+export const Main: Story = {
+  ...Default,
+  args: {
+    buttonType: "main",
+  },
+};
+
+export const Muted: Story = {
+  ...Default,
+  args: {
+    buttonType: "muted",
+  },
+};
+
+export const Light: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div class="tw-bg-background-alt2 tw-p-6 tw-w-full tw-inline-block">
+      <!-- <div> used only to provide dark background color -->
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+    </div>
+      `,
+  }),
+  args: {
+    buttonType: "light",
+  },
+};
+
+export const Contrast: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <div class="tw-bg-primary-600 tw-p-6 tw-w-full tw-inline-block">
+      <!-- <div> used only to provide dark background color -->
+      <button ${formatArgsForCodeSnippet<BitIconButtonComponent>(args)}>Button</button>
+    </div>
+      `,
+  }),
+  args: {
+    buttonType: "contrast",
+  },
+};
+
+export const Loading: Story = {
+  ...Default,
+  args: {
+    disabled: false,
+    loading: true,
+  },
+};
+
+export const Disabled: Story = {
+  ...Default,
+  args: {
+    disabled: true,
+    loading: false,
+  },
 };

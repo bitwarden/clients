@@ -1,11 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
-import { Utils } from "@bitwarden/common/misc/utils";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 @Component({
   selector: "app-avatar",
   template: `<img *ngIf="src" [src]="src" [ngClass]="{ 'rounded-circle': circle }" />`,
+  standalone: false,
 })
 export class AvatarComponent implements OnChanges, OnInit {
   @Input() size = 45;
@@ -26,12 +29,16 @@ export class AvatarComponent implements OnChanges, OnInit {
 
   ngOnInit() {
     if (!this.dynamic) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.generate();
     }
   }
 
   ngOnChanges() {
     if (this.dynamic) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.generate();
     }
   }
@@ -69,7 +76,7 @@ export class AvatarComponent implements OnChanges, OnInit {
     const html = window.document.createElement("div").appendChild(svg).outerHTML;
     const svgHtml = window.btoa(unescape(encodeURIComponent(html)));
     this.src = this.sanitizer.bypassSecurityTrustResourceUrl(
-      "data:image/svg+xml;base64," + svgHtml
+      "data:image/svg+xml;base64," + svgHtml,
     );
   }
 
@@ -107,8 +114,8 @@ export class AvatarComponent implements OnChanges, OnInit {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      '"Open Sans","Helvetica Neue",Helvetica,Arial,' +
-        'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
+        'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
     textTag.textContent = character;
     textTag.style.fontWeight = this.svgFontWeight.toString();

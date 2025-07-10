@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,36 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Ingyenes jelszókezelő</value>
+    <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Egy biztonságos és ingyenes jelszókezelő az összes eszközre.</value>
+    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>A Bitwarden, Inc. a 8bit Solutions LLC anyavállalata.
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-A VERGE, A US NEWS &amp; WORLD REPORT, a CNET ÉS MÁSOK LEGJOBB JELSZÓKEZELŐJE.
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-Korlátlan számú jelszavak kezelése, tárolása, védelme és megosztása korlátlan eszközökön bárhonnan. A Bitwarden nyílt forráskódú jelszókezelési megoldásokat kínál mindenkinek, legyen az otthon, a munkahelyen vagy útközben.
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-Hozzunk létre erős, egyedi és véletlenszerű jelszavakat a biztonsági követelmények alapján minden webhelyre, amelyet gyakran látogatunk.
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-A Bitwarden Send gyorsan továbbítja a titkosított információkat-fájlokat és egyszerű szöveget közvetlenül bárkinek.
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-A Bitwarden csapatokat és vállalati terveket kínál a vállalatok számára, így biztonságosan megoszthatja jelszavait kollégáival.
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
-Miért válasszuk a Bitwardent:
 
-Világszínvonalú titkosítási jelszavak fejlett végpontok közötti titkosítással (AES-256 bit, titkosított hashtag és PBKDF2 SHA-256) védettek, így az adatok biztonságban és titokban maradnak.
+More reasons to choose Bitwarden:
 
-Beépített jelszógenerátor A biztonsági követelmények alapján erős, egyedi és véletlenszerű jelszavakat hozhat létre minden gyakran látogatott webhelyen.
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
 
-Globális fordítások
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-A Bitwarden fordítások 40 nyelven léteznek és globális közösségünknek köszönhetően egyre bővülnek. Többplatformos alkalmazások Biztonságos és megoszthatja az érzékeny adatokat a Bitwarden Széfben bármely böngészőből, mobileszközről vagy asztali operációs rendszerből stb.</value>
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+
+Bitwarden Send
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Egy biztonságos és ingyenes jelszókezelő az összes eszközre</value>
+    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>A széf szinkronizálása és elérése több eszközön.</value>

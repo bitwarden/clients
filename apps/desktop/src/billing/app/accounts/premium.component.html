@@ -1,0 +1,89 @@
+<div class="modal fade" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="box">
+          <h1 class="box-header" id="premiumTitle">
+            {{ "premiumMembership" | i18n }}
+          </h1>
+          <div class="box-content box-content-padded">
+            <div *ngIf="!(isPremium$ | async)">
+              <p class="text-center lead">{{ "premiumNotCurrentMember" | i18n }}</p>
+              <p>{{ "premiumSignUpAndGet" | i18n }}</p>
+              <ul class="bwi-ul">
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpStorage" | i18n }}
+                </li>
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpTwoStepOptions" | i18n }}
+                </li>
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpReports" | i18n }}
+                </li>
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpTotp" | i18n }}
+                </li>
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpSupport" | i18n }}
+                </li>
+                <li>
+                  <i class="bwi bwi-li bwi-check text-success" aria-hidden="true"></i>
+                  {{ "premiumSignUpFuture" | i18n }}
+                </li>
+              </ul>
+              <p class="text-center lead no-margin">
+                {{ "premiumPrice" | i18n: (price | currency: "$") }}
+              </p>
+            </div>
+            <div *ngIf="isPremium$ | async">
+              <p class="text-center lead">{{ "premiumCurrentMember" | i18n }}</p>
+              <p class="text-center">{{ "premiumCurrentMemberThanks" | i18n }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="primary" (click)="manage()" *ngIf="isPremium$ | async">
+          <b>{{ "premiumManage" | i18n }}</b>
+        </button>
+        <button
+          #purchaseBtn
+          type="button"
+          class="primary"
+          (click)="purchase()"
+          *ngIf="!(isPremium$ | async)"
+          [disabled]="$any(purchaseBtn).loading"
+        >
+          <b>{{ "premiumPurchase" | i18n }}</b>
+        </button>
+        <button type="button" data-dismiss="modal">{{ "close" | i18n }}</button>
+        <div class="right" *ngIf="!(isPremium$ | async)">
+          <button
+            #refreshBtn
+            type="button"
+            (click)="refresh()"
+            [disabled]="$any(refreshBtn).loading"
+            appA11yTitle="{{ 'premiumRefresh' | i18n }}"
+            [appApiAction]="refreshPromise"
+          >
+            <i
+              class="bwi bwi-refresh bwi-lg bwi-fw"
+              [hidden]="$any(refreshBtn).loading"
+              aria-hidden="true"
+            ></i>
+            <i
+              class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
+              [hidden]="!$any(refreshBtn).loading"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

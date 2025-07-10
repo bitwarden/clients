@@ -1,0 +1,58 @@
+<form [formGroup]="adjustSubscriptionForm" [bitSubmit]="submit">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <div class="tw-col-span-8">
+      <bit-form-field>
+        <bit-label>{{ "subscriptionSeats" | i18n }}</bit-label>
+        <input bitInput formControlName="newSeatCount" type="number" min="0" step="1" />
+        <bit-hint>
+          <strong>{{ "total" | i18n }}:</strong>
+          {{ adjustSubscriptionForm.value.newSeatCount || 0 }} &times;
+          {{ seatPrice | currency: "$" }} = {{ seatTotalCost | currency: "$" }} /
+          {{ interval | i18n }}</bit-hint
+        >
+      </bit-form-field>
+    </div>
+  </div>
+  <div>
+    <bit-form-control>
+      <input
+        bitCheckbox
+        formControlName="limitSubscription"
+        type="checkbox"
+        (change)="limitSubscriptionChanged()"
+      />
+      <bit-label>{{ "limitSubscription" | i18n }}</bit-label>
+      <bit-hint> {{ "limitSubscriptionDesc" | i18n }}</bit-hint>
+    </bit-form-control>
+  </div>
+  <div
+    class="tw-grid tw-grid-cols-12 tw-gap-4 tw-mb-4"
+    [hidden]="!adjustSubscriptionForm.value.limitSubscription"
+  >
+    <div class="tw-col-span-8">
+      <bit-form-field>
+        <bit-label>{{ "maxSeatLimit" | i18n }}</bit-label>
+        <input
+          bitInput
+          formControlName="newMaxSeats"
+          type="number"
+          [min]="
+            adjustSubscriptionForm.value.newSeatCount == null
+              ? 1
+              : adjustSubscriptionForm.value.newSeatCount
+          "
+          step="1"
+        />
+        <bit-hint>
+          <strong>{{ "maxSeatCost" | i18n }}:</strong>
+          {{ adjustSubscriptionForm.value.newMaxSeats || 0 }} &times;
+          {{ seatPrice | currency: "$" }} = {{ maxSeatTotal | currency: "$" }} /
+          {{ interval | i18n }}</bit-hint
+        >
+      </bit-form-field>
+    </div>
+  </div>
+  <button bitButton buttonType="primary" bitFormButton type="submit">
+    {{ "save" | i18n }}
+  </button>
+</form>

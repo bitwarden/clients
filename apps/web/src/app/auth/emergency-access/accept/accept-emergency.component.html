@@ -1,0 +1,33 @@
+<div class="tw-mt-5 tw-flex tw-justify-center" *ngIf="loading">
+  <div>
+    <p class="tw-text-center">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </p>
+  </div>
+</div>
+<div *ngIf="!loading && !authed">
+  <p bitTypography="body1" class="tw-text-center">
+    {{ name }}
+  </p>
+  <p bitTypography="body1">{{ "acceptEmergencyAccess" | i18n }}</p>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <a
+      bitButton
+      buttonType="primary"
+      routerLink="/login"
+      [queryParams]="{ email: email }"
+      [block]="true"
+    >
+      {{ "logIn" | i18n }}
+    </a>
+    <button type="button" bitButton buttonType="primary" (click)="register()" [block]="true">
+      {{ "createAccount" | i18n }}
+    </button>
+  </div>
+</div>

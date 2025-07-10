@@ -1,0 +1,57 @@
+<div *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</div>
+<form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-6">
+    <div class="tw-col-span-6">
+      <bit-form-field>
+        <bit-label>{{ "name" | i18n }}</bit-label>
+        <input bitInput formControlName="name" />
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>{{ "email" | i18n }}</bit-label>
+        <input bitInput formControlName="email" readonly />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
+        <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" size="large">
+        </dynamic-avatar>
+        <button
+          class="tw-ml-3"
+          type="button"
+          buttonType="secondary"
+          bitButton
+          bitFormButton
+          appStopClick
+          appStopProp
+          [bitAction]="openChangeAvatar"
+        >
+          <i class="bwi bwi-lg bwi-pencil-square" aria-hidden="true"></i>
+          Customize
+        </button>
+      </div>
+      <div *ngIf="managingOrganization$ | async as managingOrganization">
+        {{ "accountIsOwnedMessage" | i18n: managingOrganization?.name }}
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://bitwarden.com/help/claimed-accounts"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </div>
+      <app-account-fingerprint
+        [fingerprintMaterial]="fingerprintMaterial"
+        fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
+      >
+      </app-account-fingerprint>
+    </div>
+  </div>
+  <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>
+</form>

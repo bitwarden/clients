@@ -1,7 +1,10 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
+import { RouterLink, RouterLinkActive } from "@angular/router";
 
 /**
- * Base class used in `NavGroupComponent` and `NavItemComponent`
+ * `NavGroupComponent` builds upon `NavItemComponent`. This class represents the properties that are passed down to `NavItemComponent`.
  */
 @Directive()
 export abstract class NavBaseComponent {
@@ -16,24 +19,41 @@ export abstract class NavBaseComponent {
   @Input() ariaLabel: string;
 
   /**
-   * Optional icon, e.g. `"bwi-collection"`
+   * Optional icon, e.g. `"bwi-collection-shared"`
    */
   @Input() icon: string;
 
   /**
-   * Route to be passed to internal `routerLink`
+   * Optional route to be passed to internal `routerLink`. If not provided, the nav component will render as a button.
+   *
+   * See: {@link RouterLink.routerLink}
+   *
+   * ---
+   *
+   * We can't name this "routerLink" because Angular will mount the `RouterLink` directive.
+   *
+   * See: {@link https://github.com/angular/angular/issues/24482}
    */
-  @Input() route: string | any[];
+  @Input() route?: RouterLink["routerLink"];
 
   /**
-   * If this item is used within a tree, set `variant` to `"tree"`
+   * Passed to internal `routerLink`
+   *
+   * See {@link RouterLink.relativeTo}
    */
-  @Input() variant: "default" | "tree" = "default";
+  @Input() relativeTo?: RouterLink["relativeTo"];
 
   /**
-   * Depth level when nested inside of a `'tree'` variant
+   * Passed to internal `routerLink`
+   *
+   * See {@link RouterLinkActive.routerLinkActiveOptions}
    */
-  @Input() treeDepth = 0;
+  @Input() routerLinkActiveOptions?: RouterLinkActive["routerLinkActiveOptions"] = {
+    paths: "subset",
+    queryParams: "ignored",
+    fragment: "ignored",
+    matrixParams: "ignored",
+  };
 
   /**
    * If `true`, do not change styles when nav item is active.

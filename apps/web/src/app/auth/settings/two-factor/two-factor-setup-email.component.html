@@ -1,0 +1,49 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" *ngIf="authed">
+  <bit-dialog [title]="'twoStepLogin' | i18n" [subtitle]="'emailTitle' | i18n">
+    <ng-container bitDialogContent>
+      <ng-container *ngIf="enabled">
+        <bit-callout type="success" title="{{ 'enabled' | i18n }}" icon="bwi-check-circle">
+          {{ "twoStepLoginProviderEnabled" | i18n }}
+        </bit-callout>
+        <strong>{{ "email" | i18n }}:</strong> {{ email }}
+      </ng-container>
+      <ng-container *ngIf="!enabled">
+        <p class="tw-flex">
+          <span class="tw-mr-3">{{ "twoFactorEmailDesc" | i18n }}</span>
+          <img class="tw-float-right tw-ml-auto mfaType1" alt="Email logo" />
+        </p>
+        <bit-form-field>
+          <bit-label>1. {{ "twoFactorEmailEnterEmail" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="email"
+            inputmode="email"
+            appInputVerbatim="false"
+          />
+        </bit-form-field>
+        <div class="tw-mb-3 tw-flex tw-items-center">
+          <button bitButton type="button" buttonType="primary" [bitAction]="sendEmail">
+            {{ "sendEmail" | i18n }}
+          </button>
+          <span class="tw-text-success tw-ml-3" *ngIf="sentEmail">
+            {{ "emailSent" | i18n }}
+          </span>
+        </div>
+        <bit-form-field>
+          <bit-label>2. {{ "twoFactorEmailEnterCode" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="token" appInputVerbatim />
+        </bit-form-field>
+      </ng-container>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        <span *ngIf="!enabled">{{ "enable" | i18n }}</span>
+        <span *ngIf="enabled">{{ "disable" | i18n }}</span>
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,0 +1,88 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./popover.stories";
+
+<Meta of={stories} />
+
+# Popover
+
+A popover is a page overlay that is triggered by a selecting a button. It displays interactive
+content.
+
+Popovers remain actively open until a user dismisses it in one of the following ways:
+
+- Presses the Esc key
+- Presses the close "x" button in the Popover
+- Presses a button within the Popover triggering close
+- Clicks outside of the Popover
+
+Popovers are used to provide the user with additional context about an interaction or page. We
+primarily use popovers when a user clicks on an icon-button with a question icon. This launches a
+popover that provides the user with in app help text.
+
+Note: Popovers are not tooltips. Use tooltips to show a short text to respondents when they hover
+over a word or icon. Use popovers to show a longer text, or when you want to link to an external web
+page.
+
+<Primary />
+
+## Open on Page Load
+
+A Popover can be set to initially open on page load by setting `[popoverOpen]="true"` on the trigger
+element, like so:
+
+```html
+<button [bitPopoverTriggerFor]="myPopover" [popoverOpen]="true">Open Popover</button>
+```
+
+## Positions
+
+The Popover component uses the following list of default "positions" to determine where to position
+the Popover overlay.
+
+1. right-start ---> "Open the Popover to the RIGHT of the trigger and align the START of the Popover
+   with the trigger"
+2. right-center
+3. right-end
+4. left-start
+5. left-center
+6. left-end
+7. below-start
+8. below-center
+9. below-end
+10. above-start
+11. above-center
+12. above-end
+
+The order here matters. If position 1 fits within the viewport, it will be used. If it does not, the
+Popover component will try position 2, and so forth. This cascading behavior ensures that if the
+user resizes the screen, the Popover component will find the best way to reposition itself.
+
+### Example
+
+Suppose you have a trigger element on the right side of the page. The `right-start` position will
+not work because there is not enough space to open the Popover to the right. The same is true for
+`right-center` and `right-end`.
+
+The first position that "fits" is `left-start`, and therefore that is where the Popover will open.
+
+<Canvas of={stories.LeftStart} />
+
+### Manually Setting a Position
+
+You can manually set the initial position of the Popover by binding a `[position]` input on the
+Popover's trigger element, such as:
+
+```html
+<button [bitPopoverTriggerFor]="myPopover" [position]="'above-end'">Open Popover</button>
+```
+
+<Canvas of={stories.AboveEnd} />
+
+Note that if the user resizes the page and the Popover no longer fits in the viewport, the Popover
+component will fall back to the list of default positions to find the best position.
+
+To test this out, open the Popopver in the example above and then slowly resize your browser window
+horizontally to make it smaller. When the Popover no longer fits the `above-end` position, it will
+jump down below the trigger, using `below-center`, because that is the first position that fits
+based on the list of default positions.

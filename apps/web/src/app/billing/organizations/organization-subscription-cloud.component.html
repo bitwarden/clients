@@ -1,0 +1,276 @@
+<app-header></app-header>
+
+<ng-container *ngIf="loading">
+  <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+
+<bit-container *ngIf="showSubscription; else hideSubscription">
+  <ng-container *ngIf="sub && !loading">
+    <app-subscription-status
+      [organizationSubscriptionResponse]="sub"
+      (reinstatementRequested)="reinstate()"
+      *ngIf="!userOrg.isFreeOrg"
+    ></app-subscription-status>
+    <ng-container *ngIf="userOrg.canEditSubscription">
+      <div class="tw-flex-col">
+        <strong class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300"
+          >{{ "details" | i18n
+          }}<span
+            class="tw-ml-3"
+            *ngIf="customerDiscount?.percentOff > 0 && !isSecretsManagerTrial()"
+            bitBadge
+            variant="success"
+            >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
+          ></strong
+        >
+        <bit-table>
+          <ng-template body>
+            <ng-container *ngIf="subscription && !userOrg.isFreeOrg">
+              <tr bitRow *ngFor="let i of subscriptionLineItems">
+                <td
+                  bitCell
+                  [ngClass]="{ 'tw-pl-20': i.addonSubscriptionItem }"
+                  class="tw-align-middle"
+                >
+                  <span *ngIf="!i.addonSubscriptionItem">{{ i.productName | i18n }} -</span>
+                  {{ i.name }} {{ i.quantity > 1 ? "&times;" + i.quantity : "" }} &#64;
+                  {{ i.amount | currency: "$" }}
+                </td>
+                <td bitCell class="tw-text-right">
+                  <ng-container
+                    *ngIf="
+                      sub?.customerDiscount?.appliesTo?.includes(i.productId);
+                      else calculateElse
+                    "
+                  >
+                    {{ "freeForOneYear" | i18n }}
+                  </ng-container>
+                  <ng-template #calculateElse>
+                    <div class="tw-flex tw-flex-col">
+                      <span>
+                        {{ i.quantity * i.amount | currency: "$" }} /{{ i.interval | i18n }}
+                      </span>
+                      <span
+                        *ngIf="customerDiscount?.percentOff && !isSecretsManagerTrial()"
+                        class="tw-line-through !tw-text-muted"
+                        >{{
+                          calculateTotalAppliedDiscount(i.quantity * i.amount) | currency: "$"
+                        }}
+                        / {{ "year" | i18n }}</span
+                      >
+                    </div>
+                  </ng-template>
+                </td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="userOrg.isFreeOrg">
+              <tr bitRow *ngIf="userOrg.usePasswordManager">
+                <td bitCell>{{ "passwordManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
+                <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
+              </tr>
+              <tr bitRow *ngIf="userOrg.useSecretsManager">
+                <td bitCell>{{ "secretsManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
+                <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
+              </tr>
+            </ng-container>
+          </ng-template>
+        </bit-table>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="userOrg.canEditSubscription">
+      <div class="tw-mt-5">
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          (click)="changePlan()"
+          *ngIf="showChangePlanButton"
+        >
+          {{ "changeBillingPlan" | i18n }}
+        </button>
+        <app-change-plan
+          [organizationId]="organizationId"
+          [currentPlan]="sub.plan"
+          [preSelectedProductTier]="preSelectedProductTier"
+          (onChanged)="closeChangePlan()"
+          (onCanceled)="closeChangePlan()"
+          *ngIf="showChangePlan"
+        ></app-change-plan>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="showSecretsManagerSubscribe">
+      <div class="tw-mt-7">
+        <sm-subscribe-standalone
+          [plan]="sub.plan"
+          [organization]="userOrg"
+          [customerDiscount]="customerDiscount"
+          (onSubscribe)="subscriptionAdjusted()"
+        ></sm-subscribe-standalone>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="userOrg.canEditSubscription">
+      <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+      <p bitTypography="body1" *ngIf="customerDiscount?.id === 'sm-standalone'">
+        {{ "smStandaloneTrialSeatCountUpdateMessageFragment1" | i18n }}
+        {{ "passwordManager" | i18n }}
+        {{ "smStandaloneTrialSeatCountUpdateMessageFragment2" | i18n }}
+        <a href="https://bitwarden.com/contact/" target="_blank" rel="noreferrer"
+          >{{ "contactSupportShort" | i18n }}.
+        </a>
+      </p>
+      <p bitTypography="body1">{{ subscriptionDesc }}</p>
+      <ng-container
+        *ngIf="
+          subscription &&
+          canAdjustSeats &&
+          !subscription.cancelled &&
+          !subscriptionMarkedForCancel &&
+          (!customerDiscount || customerDiscount.id != 'sm-standalone')
+        "
+      >
+        <h3 bitTypography="h3" class="tw-mt-7">{{ "passwordManager" | i18n }}</h3>
+        <app-adjust-subscription
+          [seatPrice]="seatPrice"
+          [organizationId]="organizationId"
+          [interval]="billingInterval"
+          [currentSeatCount]="seats"
+          [maxAutoscaleSeats]="maxAutoscaleSeats"
+          (onAdjusted)="subscriptionAdjusted()"
+        >
+        </app-adjust-subscription>
+      </ng-container>
+      <button
+        bitButton
+        buttonType="danger"
+        type="button"
+        [bitAction]="removeSponsorship"
+        *ngIf="isSponsoredSubscription"
+      >
+        {{ "removeSponsorship" | i18n }}
+      </button>
+      <ng-container *ngIf="!customerDiscount || customerDiscount.id != 'sm-standalone'">
+        <h4 bitTypography="h4" class="tw-mt-9">{{ "storage" | i18n }}</h4>
+        <p bitTypography="body1">
+          {{ "subscriptionStorage" | i18n: sub.maxStorageGb || 0 : sub.storageName || "0 MB" }}
+        </p>
+        <bit-progress [barWidth]="storagePercentage" bgColor="success"></bit-progress>
+        <ng-container
+          *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
+        >
+          <div class="tw-mt-3">
+            <div class="tw-flex tw-space-x-2">
+              <button
+                bitButton
+                buttonType="secondary"
+                type="button"
+                [bitAction]="adjustStorage(true)"
+              >
+                {{ "addStorage" | i18n }}
+              </button>
+              <button
+                bitButton
+                buttonType="secondary"
+                type="button"
+                [bitAction]="adjustStorage(false)"
+              >
+                {{ "removeStorage" | i18n }}
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="showAdjustSecretsManager">
+        <h3 bitTypography="h3" class="tw-mt-9">{{ "secretsManager" | i18n }}</h3>
+        <app-sm-adjust-subscription
+          [organizationId]="organizationId"
+          [options]="smOptions"
+          (onAdjusted)="subscriptionAdjusted()"
+        ></app-sm-adjust-subscription>
+      </ng-container>
+    </ng-container>
+    <ng-container *ngTemplateOutlet="setupSelfHost"></ng-container>
+    <ng-container *ngIf="userOrg.canEditSubscription">
+      <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
+      <p bitTypography="body1">
+        {{ "additionalOptionsDesc" | i18n }}
+      </p>
+      <div class="tw-flex tw-space-x-2">
+        <button
+          bitButton
+          buttonType="danger"
+          (click)="cancelSubscription()"
+          type="button"
+          *ngIf="subscription && !subscription.cancelled && !subscriptionMarkedForCancel"
+        >
+          {{ "cancelSubscription" | i18n }}
+        </button>
+      </div>
+    </ng-container>
+  </ng-container>
+</bit-container>
+<ng-template #hideSubscription>
+  <bit-container *ngIf="!loading">
+    <ng-container
+      *ngIf="
+        organizationIsManagedByConsolidatedBillingMSP;
+        else organizationIsNotManagedByConsolidatedBillingMSP
+      "
+    >
+      <h2 bitTypography="h2">{{ "manageSubscription" | i18n }}</h2>
+      <p bitTypography="body1" *ngIf="userOrg.isProviderUser; else isOrganizationOwner">
+        {{ "manageSubscriptionFromThe" | i18n }}
+        <a [routerLink]="['/providers', userOrg.providerId, 'manage-client-organizations']">{{
+          "providerPortal" | i18n
+        }}</a
+        >.
+      </p>
+      <ng-template #isOrganizationOwner>
+        <p>
+          {{ "billingManagedByProvider" | i18n: userOrg.providerName }}.
+          {{ "billingContactProviderForAssistance" | i18n }}.
+        </p>
+      </ng-template>
+      <ng-container *ngTemplateOutlet="setupSelfHost"></ng-container>
+    </ng-container>
+    <ng-template #organizationIsNotManagedByConsolidatedBillingMSP>
+      <div class="tw-flex tw-flex-col tw-items-center tw-text-info">
+        <bit-icon [icon]="subscriptionHiddenIcon"></bit-icon>
+        <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: userOrg.providerName }}</p>
+        <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
+      </div>
+    </ng-template>
+  </bit-container>
+</ng-template>
+
+<ng-template #setupSelfHost>
+  <ng-container *ngIf="userOrg.hasReseller && resellerSeatsRemainingMessage">
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+    <p bitTypography="body1">{{ resellerSeatsRemainingMessage }}</p>
+  </ng-container>
+  <ng-container *ngIf="showSelfHost">
+    <h2 bitTypography="h2" class="tw-mt-7">
+      {{ "selfHostingTitleProper" | i18n }}
+    </h2>
+    <p bitTypography="body1">
+      {{ "toHostBitwardenOnYourOwnServer" | i18n }}
+    </p>
+    <div class="tw-flex tw-space-x-2">
+      <button bitButton buttonType="secondary" type="button" (click)="downloadLicense()">
+        {{ "downloadLicense" | i18n }}
+      </button>
+      <button
+        *ngIf="canUseBillingSync"
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="manageBillingSync()"
+      >
+        {{ (hasBillingSyncToken ? "viewBillingToken" : "setUpBillingSync") | i18n }}
+      </button>
+    </div>
+  </ng-container>
+</ng-template>

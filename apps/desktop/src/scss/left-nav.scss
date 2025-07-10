@@ -116,6 +116,7 @@
           color: themed("primaryColor");
           font-weight: bold;
         }
+        max-width: 90%;
       }
 
       .edit-button {
@@ -140,6 +141,8 @@
     @include themify($themes) {
       color: themed("headingButtonColor");
     }
+
+    margin-right: 0.25rem;
 
     &:hover,
     &:focus {

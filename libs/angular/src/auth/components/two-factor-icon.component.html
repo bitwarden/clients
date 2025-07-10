@@ -1,0 +1,16 @@
+<ng-container>
+  <!-- TOTP Authenticator -->
+  <bit-icon [icon]="Icons.TOTPIcon" *ngIf="provider == 0"></bit-icon>
+  <!-- Email -->
+  <bit-icon [icon]="Icons.EmailIcon" *ngIf="provider == 1"></bit-icon>
+  <!-- Webauthn -->
+  <bit-icon [icon]="Icons.WebAuthnIcon" *ngIf="provider == 7"></bit-icon>
+  <!-- Recovery Code -->
+  <bit-icon [icon]="Icons.RecoveryCodeIcon" *ngIf="provider == 'rc'"></bit-icon>
+  <!-- Other 2FA Types (Duo, Yubico, U2F as PNG) -->
+  <img
+    [class]="'mfaType' + provider"
+    [alt]="name"
+    *ngIf="provider == 2 || provider == 3 || provider == 4 || provider == 5 || provider == 6"
+  />
+</ng-container>

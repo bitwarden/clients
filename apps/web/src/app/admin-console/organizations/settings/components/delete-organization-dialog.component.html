@@ -1,0 +1,40 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [loading]="!loaded">
+    <span bitDialogTitle>{{ "deleteOrganization" | i18n }}</span>
+    <div bitDialogContent>
+      <bit-callout type="warning">
+        {{ "deletingOrganizationIsPermanentWarning" | i18n: organization?.name }}
+      </bit-callout>
+      <p id="organizationDeleteDescription">
+        <ng-container
+          *ngIf="
+            deleteOrganizationRequestType === 'InvalidFamiliesForEnterprise';
+            else regularDelete
+          "
+        >
+          {{ "orgCreatedSponsorshipInvalid" | i18n }}
+        </ng-container>
+        <ng-template #regularDelete>
+          <ng-container *ngIf="organizationContentSummary.totalItemCount > 0">
+            {{ "deletingOrganizationContentWarning" | i18n: organization?.name }}
+            <ul>
+              <li *ngFor="let type of organizationContentSummary.itemCountByType">
+                {{ type.count }} {{ type.localizationKey | i18n }}
+              </li>
+            </ul>
+            {{ "deletingOrganizationActiveUserAccountsWarning" | i18n }}
+          </ng-container>
+        </ng-template>
+      </p>
+      <app-user-verification formControlName="secret"> </app-user-verification>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="danger" [disabled]="!loaded">
+        {{ "deleteOrganization" | i18n }}
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

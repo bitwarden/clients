@@ -9,7 +9,7 @@ describe("IconComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [BitIconComponent],
+      imports: [BitIconComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(BitIconComponent);

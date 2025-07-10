@@ -1,0 +1,11 @@
+<bit-callout
+  type="warning"
+  icon="bwi-external-link bwi-rotate-270 bwi-fw"
+  title="{{ 'sendFileCalloutHeader' | i18n }}"
+  (click)="popOutWindow()"
+  *ngIf="showFilePopoutMessage"
+>
+  <div *ngIf="showChromiumFileWarning">{{ "sendLinuxChromiumFileWarning" | i18n }}</div>
+  <div *ngIf="showFirefoxFileWarning">{{ "sendFirefoxFileWarning" | i18n }}</div>
+  <div *ngIf="showSafariFileWarning">{{ "sendSafariFileWarning" | i18n }}</div>
+</bit-callout>

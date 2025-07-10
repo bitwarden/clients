@@ -1,4 +1,6 @@
-import { Meta, Story } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
+
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 
 import { AvatarComponent } from "./avatar.component";
 
@@ -13,46 +15,65 @@ export default {
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A16994",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=16329-26525&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
 
-const Template: Story<AvatarComponent> = (args: AvatarComponent) => ({
-  props: args,
-});
+type Story = StoryObj<AvatarComponent>;
 
-export const Default = Template.bind({});
-Default.args = {
-  color: "#175ddc",
+export const Default: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: `
+        <bit-avatar ${formatArgsForCodeSnippet<AvatarComponent>(args)}></bit-avatar>
+      `,
+    };
+  },
+  args: {
+    color: "#175ddc",
+  },
 };
 
-export const Large = Template.bind({});
-Large.args = {
-  size: "large",
+export const Large: Story = {
+  ...Default,
+  args: {
+    size: "large",
+  },
 };
 
-export const Small = Template.bind({});
-Small.args = {
-  size: "small",
+export const Small: Story = {
+  ...Default,
+  args: {
+    size: "small",
+  },
 };
 
-export const LightBackground = Template.bind({});
-LightBackground.args = {
-  color: "#d2ffcf",
+export const LightBackground: Story = {
+  ...Default,
+  args: {
+    color: "#d2ffcf",
+  },
 };
 
-export const Border = Template.bind({});
-Border.args = {
-  border: true,
+export const Border: Story = {
+  ...Default,
+  args: {
+    border: true,
+  },
 };
 
-export const ColorByID = Template.bind({});
-ColorByID.args = {
-  id: 236478,
+export const ColorByID: Story = {
+  ...Default,
+  args: {
+    id: "236478",
+  },
 };
 
-export const ColorByText = Template.bind({});
-ColorByText.args = {
-  text: "Jason Doe",
+export const ColorByText: Story = {
+  ...Default,
+  args: {
+    text: "Jason Doe",
+  },
 };

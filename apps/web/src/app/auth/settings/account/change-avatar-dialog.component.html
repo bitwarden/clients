@@ -1,0 +1,58 @@
+<bit-dialog dialogSize="large" [title]="'customizeAvatar' | i18n">
+  <ng-container bitDialogContent>
+    <div class="tw-text-center" *ngIf="loading">
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+      {{ "loading" | i18n }}
+    </div>
+    <p class="tw-text-lg">{{ "pickAnAvatarColor" | i18n }}</p>
+    <div class="tw-flex tw-flex-wrap tw-justify-center tw-gap-8">
+      <ng-container *ngFor="let c of defaultColorPalette">
+        <selectable-avatar
+          appStopClick
+          (select)="setSelection(c.color)"
+          [selected]="c.selected"
+          [title]="c.name"
+          text="{{ profile | userName }}"
+          [color]="c.color"
+          [border]="true"
+        >
+        </selectable-avatar>
+      </ng-container>
+      <span>
+        <span
+          [tabIndex]="0"
+          (keyup.enter)="showCustomPicker()"
+          (click)="showCustomPicker()"
+          title="{{ 'customColor' | i18n }}"
+          [ngClass]="{
+            '!tw-outline-[3px] tw-outline-primary-600 hover:tw-outline-[3px] hover:tw-outline-primary-600':
+              customColorSelected,
+          }"
+          class="tw-relative tw-flex tw-size-24 tw-cursor-pointer tw-place-content-center tw-rounded-full tw-border tw-border-solid tw-border-secondary-600 tw-outline tw-outline-0 tw-outline-offset-1 hover:tw-outline-1 hover:tw-outline-primary-300 focus:tw-outline-2 focus:tw-outline-primary-600"
+          [style.background-color]="customColor$ | async"
+        >
+          <i
+            [style.color]="customTextColor$ | async"
+            class="bwi bwi-pencil !tw-text-muted tw-m-auto tw-text-3xl"
+          ></i>
+          <input
+            tabindex="-1"
+            class="tw-absolute tw-bottom-0 tw-right-0 tw-size-px tw-border-none tw-bg-transparent tw-opacity-0"
+            #colorPicker
+            type="color"
+            [ngModel]="customColor$ | async"
+            (ngModelChange)="customColor$.next($event)"
+          />
+        </span>
+      </span>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" buttonType="primary" [disabled]="loading" [bitAction]="submit">
+      {{ "save" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

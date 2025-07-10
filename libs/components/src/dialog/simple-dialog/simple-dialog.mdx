@@ -1,0 +1,51 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./simple-dialog.stories";
+
+<Meta of={stories} />
+
+```ts
+import { DialogModule, DialogService } from "@bitwarden/components";
+```
+
+# Simple Dialogs
+
+Simple Dialogs are used throughout the app for simple alert or confirmation actions such as
+speedbumps.
+
+For dialogs with a high number of interactive elements such as a form or content exceeding 384px,
+use the [Dialog component](?path=/docs/component-library-dialogs-dialog--docs).
+
+<Primary />
+<Controls />
+
+## Configurable Simple Dialog
+
+The Simple Dialog contains the following configuration points:
+
+- `title`: string
+- `content`: string
+- `type`: SimpleDialogType
+- `icon`: string – if empty, infer from type
+- `acceptButtonText`: string – if empty, default to "Yes"
+- `cancelButtonText`: string – if empty, default to "No", unless acceptButtonText is overridden, in
+  which case default to "Cancel"
+
+To increase consistency, the simple dialog service supports some automation for setting the `icon`
+and `color` based on the defined type. See the following for how properties will be configured when
+the simple dialog's type is specified.
+
+| type    | icon name                | icon                                         | color       |
+| ------- | ------------------------ | -------------------------------------------- | ----------- |
+| primary | bwi-business             | <i class="bwi bwi-business"></i>             | primary-600 |
+| success | bwi-star                 | <i class="bwi bwi-star"></i>                 | success-600 |
+| info    | bwi-info-circle          | <i class="bwi bwi-info-circle"></i>          | info-600    |
+| warning | bwi-exclamation-triangle | <i class="bwi bwi-exclamation-triangle"></i> | warning-600 |
+| danger  | bwi-error                | <i class="bwi bwi-error"></i>                | danger-600  |
+
+## Scrolling Content
+
+Simple dialogs can support scrolling content if necessary, but typically with larger quantities of
+content a [Dialog component](?path=/docs/component-library-dialogs-dialog--docs).
+
+<Canvas of={stories.ScrollingContent} />

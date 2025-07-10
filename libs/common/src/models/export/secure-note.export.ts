@@ -1,6 +1,8 @@
-import { SecureNoteType } from "../../enums/secureNoteType";
-import { SecureNote as SecureNoteDomain } from "../domain/secure-note";
-import { SecureNoteView } from "../view/secure-note.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { SecureNoteType } from "../../vault/enums";
+import { SecureNote as SecureNoteDomain } from "../../vault/models/domain/secure-note";
+import { SecureNoteView } from "../../vault/models/view/secure-note.view";
 
 export class SecureNoteExport {
   static template(): SecureNoteExport {

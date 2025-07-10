@@ -1,1 +1,21 @@
-<router-outlet></router-outlet>
+<ng-template #loadingState>
+  <!-- This is the same html from index.html which presents the bitwarden logo and loading spinny properly
+   when the body has the layout_frontend class. Having this match the index allows for a duplicative yet seamless
+   loading state here for process reloading. -->
+  <div class="tw-p-8 tw-flex">
+    <img class="new-logo-themed" alt="Bitwarden" />
+    <div class="spinner-container tw-justify-center">
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
+        title="Loading"
+        aria-hidden="true"
+      ></i>
+    </div>
+  </div>
+</ng-template>
+
+<ng-container *ngIf="!loading; else loadingState">
+  <router-outlet></router-outlet>
+</ng-container>
+
+<bit-toast-container></bit-toast-container>

@@ -1,0 +1,78 @@
+<popup-page [loading]="loading">
+  <popup-header slot="header" pageTitle="{{ 'accountActions' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+      <app-current-account></app-current-account>
+    </ng-container>
+  </popup-header>
+
+  <ng-container *ngIf="availableAccounts$ | async as availableAccounts">
+    <bit-section [disableMargin]="!enableAccountSwitching">
+      <ng-container *ngFor="let availableAccount of availableAccounts; first as isFirst">
+        <div *ngIf="availableAccount.isActive" [ngClass]="{ 'tw-mb-6': enableAccountSwitching }">
+          <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
+        </div>
+
+        <ng-container *ngIf="enableAccountSwitching">
+          <bit-section-header *ngIf="isFirst">
+            <h2 bitTypography="h6">{{ "availableAccounts" | i18n }}</h2>
+          </bit-section-header>
+
+          <div *ngIf="!availableAccount.isActive">
+            <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!--
+          If the user has not reached the account limit, the last 'availableAccount' will have an 'id' of
+          'SPECIAL_ADD_ACCOUNT_ID'. Since we don't want to count this as one of the actual accounts,
+          we check to make sure the 'id' of the last 'availableAccount' is not equal to 'SPECIAL_ADD_ACCOUNT_ID'
+      -->
+      <p
+        class="tw-text-sm tw-text-muted"
+        *ngIf="
+          availableAccounts.length >= accountLimit &&
+          availableAccounts[availableAccounts.length - 1].id !== specialAddAccountId
+        "
+      >
+        {{ "accountLimitReached" | i18n }}
+      </p>
+    </bit-section>
+  </ng-container>
+
+  <div class="tw-mt-8" *ngIf="currentAccount$ | async as currentAccount">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6" class="tw-font-semibold">
+          {{ "options" | i18n }}
+        </h2>
+      </bit-section-header>
+
+      <bit-item>
+        <button
+          type="button"
+          bit-item-content
+          (click)="lock(currentAccount.id)"
+          [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
+          [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
+        >
+          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
+          {{ "lockNow" | i18n }}
+        </button>
+      </bit-item>
+      <bit-item>
+        <button type="button" bit-item-content (click)="logOut(currentAccount.id)">
+          <i slot="start" class="bwi bwi-sign-out tw-text-lg tw-text-main" aria-hidden="true"></i>
+          {{ "logOut" | i18n }}
+        </button>
+      </bit-item>
+      <bit-item *ngIf="showLockAll$ | async">
+        <button type="button" bit-item-content (click)="lockAll()">
+          <i slot="start" class="bwi bwi-lock tw-text-lg tw-text-main" aria-hidden="true"></i>
+          {{ "lockAll" | i18n }}
+        </button>
+      </bit-item>
+    </bit-section>
+  </div>
+</popup-page>

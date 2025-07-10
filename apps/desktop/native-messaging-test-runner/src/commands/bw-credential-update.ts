@@ -1,10 +1,13 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import "module-alias/register";
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { NativeMessagingVersion } from "@bitwarden/common/enums/nativeMessagingVersion";
+import { NativeMessagingVersion } from "@bitwarden/common/enums";
 
+// eslint-disable-next-line no-restricted-imports
 import { CredentialUpdatePayload } from "../../../src/models/native-messaging/encrypted-message-payloads/credential-update-payload";
 import { LogUtils } from "../log-utils";
 import NativeMessageService from "../native-message.service";
@@ -43,13 +46,15 @@ const argv: any = yargs(hideBin(process.argv))
 
 const { name, username, password, uri, credentialId } = argv;
 
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   const nativeMessageService = new NativeMessageService(NativeMessagingVersion.One);
   // Handshake
   LogUtils.logInfo("Sending Handshake");
   const handshakeResponse = await nativeMessageService.sendHandshake(
     config.testRsaPublicKey,
-    config.applicationName
+    config.applicationName,
   );
 
   if (!handshakeResponse.status) {

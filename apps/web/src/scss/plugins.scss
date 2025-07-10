@@ -12,7 +12,7 @@
 }
 
 #web-authn-frame {
-  height: 290px;
+  height: 40px;
   @include themify($themes) {
     background: themed("imgLoading") 0 0 no-repeat;
   }
@@ -24,45 +24,33 @@
   }
 }
 
-#hcaptcha_iframe {
-  border: none;
-  transition: height 0.25s linear;
-  width: 100%;
-}
-
-.list-group-2fa {
-  .logo-2fa {
-    min-width: 100px;
-  }
-}
-
 @each $mfaType in $mfaTypes {
   .mfaType#{$mfaType} {
     content: url("../images/two-factor/" + $mfaType + ".png");
-    max-width: 100px;
+    max-width: 120px;
+  }
+}
+
+.mfaType0 {
+  @include themify($themes) {
+    content: url("../images/two-factor/0.png");
+    max-width: 120px;
+    max-height: 62px;
   }
 }
 
 .mfaType1 {
   @include themify($themes) {
     content: url("../images/two-factor/1" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
+    max-width: 120px;
+    max-height: 62px;
   }
 }
 
 .mfaType7 {
   @include themify($themes) {
     content: url("../images/two-factor/7" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-  }
-}
-
-.recovery-code-img {
-  @include themify($themes) {
-    content: url("../images/two-factor/rc" + themed("mfaLogoSuffix"));
-    max-width: 100px;
-    max-height: 45px;
+    max-width: 120px;
   }
 }
 
@@ -100,6 +88,13 @@
   border: none;
 }
 
+// hide duplicate paypal iframe
+.braintree-sheet__content--button
+  .braintree-sheet__button--paypal
+  iframe.zoid-prerender-frame.zoid-invisible {
+  display: none !important;
+}
+
 [data-braintree-id="upper-container"]::before {
   @include themify($themes) {
     background-color: themed("backgroundColor");
@@ -127,101 +122,5 @@
 .paypal-button-text {
   @include themify($themes) {
     color: themed("textColor");
-  }
-}
-
-// SweetAlert2
-
-[class*="swal2-"] {
-  &:not(.swal2-container, .swal2-confirm, .swal2-cancel, .swal2-deny) {
-    @include themify($themes) {
-      background-color: themed("backgroundColor");
-      color: themed("textColor");
-    }
-  }
-}
-
-.swal2-container {
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-.swal2-popup {
-  @include themify($themes) {
-    background-color: themed("backgroundColor");
-    color: themed("textColor");
-  }
-  border: $modal-content-border-width solid #9a9a9a;
-  @include border-radius($modal-content-border-radius);
-  padding: 15px 0 0;
-  width: 34em; // slightly bigger than the hardcoded 478px in v1.
-
-  .swal2-header {
-    padding: 0 15px;
-  }
-
-  .swal2-icon {
-    border: none;
-    height: auto;
-    margin: 0 auto;
-    width: auto;
-  }
-
-  .swal2-content {
-    font-size: $font-size-base;
-    padding-bottom: 15px;
-    @include themify($themes) {
-      border-bottom: $modal-footer-border-width solid themed("separator");
-    }
-  }
-
-  i.swal-custom-icon {
-    display: block;
-    font-size: 35px;
-    margin: 0 auto;
-  }
-
-  .swal2-title {
-    font-size: $font-size-lg;
-    margin: 0;
-    padding: 10px 0 15px;
-    @include themify($themes) {
-      color: themed("textHeadingColor");
-    }
-  }
-
-  .swal2-content {
-    font-size: $font-size-base;
-    padding: 0 15px 15px;
-    @include themify($themes) {
-      color: themed("textColor");
-    }
-  }
-
-  .swal2-actions {
-    @include border-radius($modal-content-border-radius);
-    display: flex;
-    flex-direction: row;
-    font-size: $font-size-base;
-    justify-content: flex-start;
-    margin: 0;
-    padding: 15px;
-    @include themify($themes) {
-      background-color: themed("backgroundColor");
-    }
-
-    button {
-      margin-right: 10px;
-      @extend .btn;
-    }
-  }
-
-  .swal2-validation-message {
-    margin: 0 -15px;
-  }
-}
-
-date-input-polyfill {
-  &[data-open="true"] {
-    z-index: 10000 !important;
   }
 }

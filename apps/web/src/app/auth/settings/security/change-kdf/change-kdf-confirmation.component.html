@@ -1,0 +1,33 @@
+<form [formGroup]="form" [bitSubmit]="submit" autocomplete="off">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "changeKdf" | i18n }}
+    </span>
+
+    <span bitDialogContent>
+      <bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
+      <bit-form-field>
+        <bit-label>{{ "masterPass" | i18n }}</bit-label>
+        <input bitInput type="password" formControlName="masterPassword" appAutofocus />
+        <button
+          type="button"
+          bitIconButton
+          bitSuffix
+          bitPasswordInputToggle
+          [(toggled)]="showPassword"
+        ></button>
+        <bit-hint>
+          {{ "confirmIdentity" | i18n }}
+        </bit-hint></bit-form-field
+      >
+    </span>
+    <ng-container bitDialogFooter>
+      <button bitButton buttonType="primary" type="submit" bitFormButton>
+        <span>{{ "changeKdf" | i18n }}</span>
+      </button>
+      <button bitButton buttonType="secondary" type="button" bitFormButton bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,0 +1,196 @@
+import { Meta, Story, Source, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./table.stories";
+
+<Meta of={stories} />
+
+# Table
+
+The table component provides a comprehensive way to display, sort and filter data. It consists of
+two portions, a UI component called `bit-table` and the underlying data source `TableDataSource`.
+This documentation will initially focus on the UI portion before covering the data source.
+
+<Primary />
+
+<Controls />
+
+## UI Component
+
+The UI component consists of a couple of elements.
+
+- `bit-table`: The main component that creates a native table element and applies the table styling.
+- `header`: A container for the table header.
+- `body`: A container for the table body.
+- `bitCell`: A cell within the table. Used for both headers and content.
+
+### Guidelines
+
+- Always include a row or column header with your table; this allows screen readers to better
+  contextualize the data.
+- Avoid spanning data across cells.
+- When a cell contains an interactive element, the whole cell should be selectable and trigger the
+  action not just the element the cell contains.
+- Be sure to make repeating actions unique by associating them with the object they relate to.
+  Example: if there are multiple “Edit” buttons on a table, a screen reader should read “Edit,
+  Netflix” for an edit option for a Netflix item.
+- Use [Virtual Scrolling](#virtual-scrolling) for large data sets.
+- For bulk menu options, display a 3 dot menu in the header. When multiple items are selected, the
+  bulk menu will contain actions that can be completed in bulk for the selected items.
+  - Note, this may result in some menu actions being hidden at times if they are not applicable to
+    the selected item
+  - Clicking on a row’s 3 dot menu will continue to result in actions specific to just that row's
+    item
+
+### Usage
+
+The below code is the minimum required to create a table. However we strongly advise you to use the
+`dataSource` input to provide a data source for your table. This allows you to easily sort data.
+
+```html
+<bit-table>
+  <ng-container header>
+    <tr>
+      <th bitCell>Header 1</th>
+      <th bitCell>Header 2</th>
+      <th bitCell>Header 3</th>
+    </tr>
+  </ng-container>
+  <ng-template body>
+    <tr bitRow>
+      <td bitCell>Cell 1</td>
+      <td bitCell>Cell 2</td>
+      <td bitCell>Cell 3</td>
+    </tr>
+  </ng-template>
+</bit-table>
+```
+
+## Data Source
+
+Bitwarden provides a data source for tables that can be used in place of a traditional data array.
+The `TableDataSource` implements sorting and filtering capabilities. This allows the `bitTable`
+component to focus on rendering while offloading the data management to the data source.
+
+```ts
+// External data source
+const data: T[];
+
+const dataSource = new TableDataSource<T>();
+dataSource.data = data;
+```
+
+We use the `dataSource` as an input to the `bit-table` component, and access the rows to render
+within the `ng-template`which provides access to the rows using `let-rows$`.
+
+```html
+<bit-table [dataSource]="dataSource">
+  <ng-container header>
+    <tr>
+      <th bitCell bitSortable="id" default>Id</th>
+      <th bitCell bitSortable="name">Name</th>
+      <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+    </tr>
+  </ng-container>
+  <ng-template body let-rows$>
+    <tr bitRow *ngFor="let r of rows$ | async">
+      <td bitCell>{{ r.id }}</td>
+      <td bitCell>{{ r.name }}</td>
+      <td bitCell>{{ r.other }}</td>
+    </tr>
+  </ng-template>
+</bit-table>
+```
+
+### Sorting
+
+We provide a simple component for displaying sortable column headers. The `bitSortable` component
+wires up to the `TableDataSource` and will automatically sort the data when clicked and display an
+indicator for which column is currently sorted. The default sorting can be specified by setting the
+`default`.
+
+```html
+<th bitCell bitSortable="id" default>Id</th>
+<th bitCell bitSortable="name" default>Name</th>
+```
+
+For default sorting in descending order, set default="desc"
+
+```html
+<th bitCell bitSortable="name" default="desc">Name</th>
+```
+
+It's also possible to define a custom sorting function by setting the `fn` input.
+
+```ts
+// Basic sort function
+const sortFn = (a: T, b: T) => (a.id > b.id ? 1 : -1);
+
+// Direction aware sort function
+const sortByName = (a: T, b: T, direction?: SortDirection) => {
+  const result = a.name.localeCompare(b.name);
+  return direction === "asc" ? result : -result;
+};
+```
+
+### Filtering
+
+Filtering is supported by passing a filter predicate to `filter`.
+
+```ts
+dataSource.filter = (data) => data.orgType === "family";
+```
+
+Rudimentary string filtering is supported out of the box with `TableDataSource.simpleStringFilter`.
+It works by converting each entry into a string of it's properties. The provided string is then
+compared against the filter value using a simple `indexOf` check. For convenience, you can also just
+pass a string directly.
+
+```ts
+dataSource.filter = TableDataSource.simpleStringFilter("search value");
+// or
+dataSource.filter = "search value";
+```
+
+### Virtual Scrolling
+
+It's heavily advised to use virtual scrolling if you expect the table to have any significant amount
+of data. This is done by using the `bit-table-scroll` component instead of the `bit-table`
+component. This component behaves slightly different from the `bit-table` component. Instead of
+using the `*ngFor` directive to render the rows, you provide a `bitRowDef` template that will be
+used for rendering the rows.
+
+Due to limitations in the Angular Component Dev Kit you must provide an `rowSize` which corresponds
+to the height of each row. If the height of the rows are not uniform, you should set an explicit row
+height and align vertically.
+
+```html
+<bit-table-scroll [dataSource]="dataSource" rowSize="47">
+  <ng-container header>
+    <th bitCell bitSortable="id" default>Id</th>
+    <th bitCell bitSortable="name">Name</th>
+    <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
+  </ng-container>
+  <ng-template bitRowDef let-row>
+    <td bitCell>{{ row.id }}</td>
+    <td bitCell>{{ row.name }}</td>
+    <td bitCell>{{ row.other }}</td>
+  </ng-template>
+</bit-table-scroll>
+```
+
+#### Deprecated approach
+
+Before `bit-table-scroll` was introduced, virtual scroll in tables was implemented manually via
+constructs from Angular CDK. This included wrapping the table with a `cdk-virtual-scroll-viewport`
+and targeting with `bit-layout`'s scroll container with the `bitScrollLayout` directive.
+
+This pattern is deprecated in favor of `bit-table-scroll`.
+
+## Accessibility
+
+- Always include a row or column header with your table; this allows assistive technology to better
+  contextualize the data
+- Avoid spanning data across cells
+- Be sure to make repeating actions unique by associating them with the object they relate to
+  - **Example:** if there are multiple “Edit” buttons on a table, a screen reader should read “Edit,
+    Netflix” for an edit option for a Netflix item.

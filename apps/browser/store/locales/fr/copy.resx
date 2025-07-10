@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,58 +118,77 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – Gestionnaire de mots de passe gratuit</value>
+    <value>Gestionnaire de mots de passe Bitwarden</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Un gestionnaire de mots de passe sécurisé et gratuit pour tous vos appareils</value>
+    <value>À la maison, au travail ou en déplacement, Bitwarden sécurise facilement tous vos mots de passe, clés d'accès et informations sensibles.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. est la société mère de 8bit Solutions LLC.
+    <value>Reconnu comme le meilleur gestionnaire de mots de passe par PCMag, WIRED, The Verge, CNET, G2, et bien d'autres !
 
-NOMMÉ MEILLEUR GESTIONNAIRE DE MOTS DE PASSE PAR THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET, ET PLUS ENCORE.
+SÉCURISEZ VOTRE VIE NUMÉRIQUE
+Sécurisez votre vie numérique et protégez-vous contre les brèches de données en générant et en enregistrant des mots de passe uniques et forts pour chaque compte. Conservez tout dans un coffre chiffré de bout en bout auquel vous êtes le seul à avoir accès.
 
-Gérez, stockez, sécurisez et partagez un nombre illimité de mots de passe sur un nombre illimité d'appareils, où que vous soyez. Bitwarden fournit des solutions de gestion de mots de passe open source à tout le monde, que ce soit à la maison, au travail ou en déplacement.
+ACCÉDER À VOS DONNÉES, PARTOUT, À TOUT MOMENT ET SUR N'IMPORTE QUEL APPAREIL
+Gérez, stockez, sécurisez et partagez facilement un nombre illimité de mots de passe sur un nombre illimité d'appareils, sans aucune restriction.
 
-Générez des mots de passe forts, uniques et aléatoires basés sur des exigences de sécurité pour chaque site web que vous fréquentez.
+TOUT LE MONDE DEVRAIT DISPOSER DES OUTILS NÉCESSAIRES POUR ASSURER SA SÉCURITÉ EN LIGNE
+Utilisez Bitwarden gratuitement, sans publicité ni vente de données. Bitwarden estime que tout le monde devrait avoir la possibilité de rester en sécurité en ligne. Les plans Premium et Familles permettent d'accéder à des fonctionnalités avancées.
 
-Bitwarden Send transmet rapidement des informations chiffrées --- fichiers et texte --- directement à quiconque.
+RESPONSABILISEZ VOS ÉQUIPES AVEC BITWARDEN
+Les plans Équipes et Entreprises sont dotées de fonctionnalités professionnelles. Citons par exemple l'intégration SSO, l'auto-hébergement, l'intégration de l'annuaire et le SCIM provisioning, les politiques globales de sécurité, l'accès API, les journaux d'événements, etc.
 
-Bitwarden propose les plans Teams et Enterprise pour les entreprises afin que vous puissiez partager des mots de passe en toute sécurité avec vos collègues.
+Utilisez Bitwarden pour sécuriser votre personnel et partager des informations sensibles avec vos collègues.
 
-Pourquoi choisir Bitwarden :
 
-Un chiffrement de classe internationale
-Les mots de passe sont protégés par un chiffrement avancé de bout en bout (AES-256 bit, salted hashtag, et PBKDF2 SHA-256) afin que vos données restent sécurisées et privées.
+D'autres raisons de choisir Bitwarden :
 
-Générateur de mots de passe intégré
-Générez des mots de passe forts, uniques et aléatoires en fonction des exigences de sécurité pour chaque site web que vous fréquentez.
+Chiffrement de classe mondiale
+Les mots de passe sont protégés par un cryptage avancé de bout en bout (AES-256 bits, hachage salé et PBKDF2 SHA-256) afin que vos données restent sécurisées et privées.
 
-Traductions mondiales
-Les traductions de Bitwarden existent dans 40 langues et ne cessent de croître, grâce à notre communauté mondiale.
+Chiffrement de classe mondiale
+Les mots de passe sont protégés par un cryptage avancé de bout en bout (AES-256 bits, hashtag salé et PBKDF2 SHA-256) afin que vos données restent sécurisées et privées.
+
+Audits de tierces parties
+Bitwarden effectue régulièrement des audits de sécurité complets avec des sociétés tierces de sécurité renommées. Ces audits annuels comprennent des évaluations du code source et des tests de pénétration sur les IP, les serveurs et les applications web de Bitwarden.
+
+2FA avancé
+Sécurisez votre connexion à l'aide d'un authentificateur tiers, de codes envoyés par courriel ou d'identifiants FIDO2 WebAuthn tels qu'une clé de sécurité matérielle ou une clé d'identificatio (passkey).
+
+Bitwarden Send
+Transmettez des données directement à d'autres personnes tout en maintenant une sécurité cryptée de bout en bout et en limitant l'exposition.
+
+Générateur intégré
+Créez des mots de passe longs, complexes et distincts et des noms d'utilisateur uniques pour chaque site que vous visitez. Intégration avec des fournisseurs d'alias de courriels pour plus de confidentialité.
+
+Traductions globales
+Il existe des traductions de Bitwarden dans plus de 60 langues, traduites par la communauté mondiale via Crowdin.
 
 Applications multiplateformes
-Sécurisez et partagez des données sensibles dans votre coffre-fort Bitwarden à partir de n'importe quel navigateur, appareil mobile ou système d'exploitation de bureau, et plus encore.
-</value>
+Sécurisez et partagez des données sensibles dans votre coffre Bitwarden à partir de n'importe quel navigateur, appareil mobile ou système d'exploitation de bureau, et plus encore.
+
+Bitwarden sécurise bien plus que les mots de passe
+Les solutions de gestion de bout en bout des identifiants chiffrés de Bitwarden permettent aux organisations de tout sécuriser, y compris les secrets des développeurs et les expériences de clés de passe. Visitez Bitwarden.com pour en savoir plus sur Bitwarden Secrets Manager et Bitwarden Passwordless.dev !</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Un gestionnaire de mots de passe sécurisé et gratuit pour tous vos appareils</value>
+    <value>À la maison, au travail ou en déplacement, Bitwarden sécurise facilement tous vos mots de passe, clés d'accès et informations sensibles.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchroniser et accéder à votre coffre depuis plusieurs appareils</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Gérer tous vos identifiants depuis un coffre sécurisé</value>
+    <value>Gérer tous vos identifiants et mots de passe depuis un coffre sécurisé</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Remplissage automatique et rapide de vos identifiants sur n'importe quel site que vous visitez</value>
+    <value>Préremplir automatiquement et rapidement vos identifiants de connexion sur tous les sites web que vous visitez</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>Votre coffre est également facilement accessible depuis le menu contextuel</value>
+    <value>Votre coffre est également facilement accessible à partir du menu contextuel</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Générer automatiquement des mots de passe forts, aléatoires et sécurisés</value>
+    <value>Générer automatiquement des mots de passe robustes, aléatoires et sécurisés</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Vos informations sont gérées de manière sécurisée grâce à un chiffrement AES-256 bit</value>
+    <value>Vos informations sont gérées en toute sécurité en utilisant un chiffrement AES-256 bit</value>
   </data>
 </root>

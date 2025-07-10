@@ -1,0 +1,34 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading$ | async">
+    <span bitDialogTitle
+      >{{ "enablePasskeyEncryption" | i18n }}
+      <span *ngIf="credential" class="tw-text-sm tw-normal-case tw-text-muted">{{
+        credential.name
+      }}</span>
+    </span>
+    <ng-container bitDialogContent>
+      <ng-container *ngIf="!credential">
+        <i class="bwi bwi-spinner bwi-spin tw-ml-1" aria-hidden="true"></i>
+      </ng-container>
+
+      <ng-container *ngIf="credential">
+        <p bitTypography="body1">{{ "useForVaultEncryptionInfo" | i18n }}</p>
+
+        <ng-container formGroupName="userVerification">
+          <app-user-verification
+            formControlName="secret"
+            [(invalidSecret)]="invalidSecret"
+          ></app-user-verification>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "submit" | i18n }}
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

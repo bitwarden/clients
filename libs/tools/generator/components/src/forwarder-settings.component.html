@@ -1,0 +1,28 @@
+<form [formGroup]="settings" class="tw-container">
+  <bit-form-field *ngIf="displayDomain">
+    <bit-label>{{ "forwarderDomainName" | i18n }}</bit-label>
+    <input
+      bitInput
+      formControlName="domain"
+      type="text"
+      placeholder="example.com"
+      (change)="save('domain')"
+    />
+    <bit-hint>{{ "forwarderDomainNameHint" | i18n }}</bit-hint>
+  </bit-form-field>
+  <bit-form-field *ngIf="displayToken">
+    <bit-label>{{ "apiKey" | i18n }}</bit-label>
+    <input bitInput formControlName="token" type="password" (change)="save('password')" />
+    <button
+      type="button"
+      bitIconButton
+      bitSuffix
+      bitPasswordInputToggle
+      (change)="save('token')"
+    ></button>
+  </bit-form-field>
+  <bit-form-field *ngIf="displayBaseUrl" disableMargin>
+    <bit-label>{{ "selfHostBaseUrl" | i18n }}</bit-label>
+    <input bitInput formControlName="baseUrl" type="text" (change)="save('baseUrl')" />
+  </bit-form-field>
+</form>

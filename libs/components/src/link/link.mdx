@@ -1,0 +1,44 @@
+import { Meta, Story, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./link.stories";
+
+<Meta of={stories} />
+
+```ts
+import { LinkModule } from "@bitwarden/components";
+```
+
+<Title>Link / Text button</Title>
+<Description />
+
+<Primary />
+<Controls />
+
+## Variants
+
+You can use one of the following variants by providing it as the `linkType` input:
+
+- `primary` - most common, uses brand color
+- `secondary` - matches the main text color
+- `contrast` - for high contrast against a dark background (or a light background in dark mode)
+- `light` - always a light color, even in dark mode
+
+## Sizes
+
+If you want to display a link with a smaller text size, apply the `tw-text-sm` class. This will
+match the `body2` variant of the Typography directive.
+
+## With icons
+
+Text Links/buttons can have icons on left or the right.
+
+To indicate a new or add action, the <i class="bwi bwi-plus-circle"></i> icon on is used on the
+left.
+
+An angle icon, <i class="bwi bwi-angle-right"></i>, is used on the left to indicate an expand to
+show/hide additional content.
+
+## Accessibility
+
+- Make sure to only use the Link on backgrounds that maintain the WCAG color contrast ratios.
+- Be sure to select the correct element type (anchor or button) for the intended action.

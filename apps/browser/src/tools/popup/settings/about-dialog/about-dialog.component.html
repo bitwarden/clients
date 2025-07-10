@@ -1,0 +1,53 @@
+<bit-simple-dialog>
+  <div bitDialogIcon>
+    <i class="bwi bwi-shield bwi-3x" aria-hidden="true"></i>
+  </div>
+  <div bitDialogTitle>Bitwarden</div>
+  <div bitDialogContent>
+    <p>&copy; Bitwarden Inc. 2015-{{ year }}</p>
+
+    <div #version>
+      <p>{{ "version" | i18n }}: {{ version$ | async }}</p>
+      <p>SDK: {{ sdkVersion$ | async }}</p>
+      <ng-container *ngIf="data$ | async as data">
+        <p *ngIf="data.isCloud">
+          {{ "serverVersion" | i18n }}: {{ data.serverConfig?.version }}
+          <span *ngIf="!data.serverConfig.isValid()">
+            ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
+          </span>
+        </p>
+
+        <ng-container *ngIf="!data.isCloud">
+          <ng-container *ngIf="data.serverConfig.server">
+            <p>
+              {{ "serverVersion" | i18n }} <small>({{ "thirdParty" | i18n }})</small>:
+              {{ data.serverConfig?.version }}
+              <span *ngIf="!data.serverConfig.isValid()">
+                ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
+              </span>
+            </p>
+            <div>
+              <small>{{ "thirdPartyServerMessage" | i18n: data.serverConfig.server?.name }}</small>
+            </div>
+          </ng-container>
+
+          <p *ngIf="!data.serverConfig.server">
+            {{ "serverVersion" | i18n }} <small>({{ "selfHostedServer" | i18n }})</small>:
+            {{ data.serverConfig?.version }}
+            <span *ngIf="!data.serverConfig.isValid()">
+              ({{ "lastSeenOn" | i18n: (data.serverConfig.utcDate | date: "mediumDate") }})
+            </span>
+          </p>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">
+      {{ "close" | i18n }}
+    </button>
+    <button bitButton type="button" (click)="copyVersion()">
+      {{ "copy" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

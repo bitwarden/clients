@@ -1,8 +1,16 @@
-<sm-header></sm-header>
+<app-header>
+  <bit-search
+    [placeholder]="'searchProjects' | i18n"
+    [(ngModel)]="search"
+    class="tw-w-80"
+  ></bit-search>
+  <sm-new-menu></sm-new-menu>
+</app-header>
 <sm-projects-list
   (newProjectEvent)="openNewProjectDialog()"
   (editProjectEvent)="openEditProject($event)"
   (deleteProjectEvent)="openDeleteProjectDialog($event)"
   [projects]="projects$ | async"
+  [search]="search"
 >
 </sm-projects-list>

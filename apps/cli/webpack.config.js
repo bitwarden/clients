@@ -1,6 +1,5 @@
 const path = require("path");
 const webpack = require("webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
@@ -23,7 +22,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new CopyWebpackPlugin({
     patterns: [{ from: "./src/locales", to: "locales" }],
   }),
@@ -39,8 +37,10 @@ const plugins = [
     contextRegExp: /node-fetch/,
   }),
   new webpack.EnvironmentPlugin({
+    ENV: ENV,
     BWCLI_ENV: ENV,
     FLAGS: envConfig.flags,
+    DEV_FLAGS: envConfig.devFlags,
   }),
   new webpack.IgnorePlugin({
     resourceRegExp: /canvas/,
@@ -71,6 +71,7 @@ const webpackConfig = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: { rules: moduleRules },
   plugins: plugins,
@@ -80,6 +81,9 @@ const webpackConfig = {
       allowlist: [/@bitwarden/],
     }),
   ],
+  experiments: {
+    asyncWebAssembly: true,
+  },
 };
 
 module.exports = webpackConfig;

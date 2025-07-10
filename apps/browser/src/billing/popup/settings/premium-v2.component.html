@@ -1,0 +1,60 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'premiumMembership' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <div class="tw-flex tw-flex-col tw-p-2">
+    <h2 class="tw-font-bold">{{ "premiumFeatures" | i18n }}</h2>
+    <bit-section>
+      <bit-card>
+        <div class="tw-flex tw-flex-col tw-p-2">
+          <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words tw-mb-0">
+            <li>
+              {{ "ppremiumSignUpStorage" | i18n }}
+            </li>
+            <li>
+              {{ "premiumSignUpTwoStepOptions" | i18n }}
+            </li>
+            <li>
+              {{ "premiumSignUpEmergency" | i18n }}
+            </li>
+            <li>
+              {{ "ppremiumSignUpReports" | i18n }}
+            </li>
+            <li>
+              {{ "ppremiumSignUpTotp" | i18n }}
+            </li>
+            <li>
+              {{ "ppremiumSignUpSupport" | i18n }}
+            </li>
+            <li>
+              {{ "ppremiumSignUpFuture" | i18n }}
+            </li>
+          </ul>
+        </div>
+        <p class="tw-mt-5 tw-mb-0">{{ priceString }}</p>
+      </bit-card>
+    </bit-section>
+    <button bitButton type="submit" buttonType="primary" (click)="purchase()" class="tw-mb-3">
+      <b>{{ "premiumPurchase" | i18n }}</b>
+      <i class="bwi bwi-external-link" aria-hidden="true"></i>
+    </button>
+    <button
+      #refreshBtn
+      type="button"
+      (click)="refresh()"
+      [disabled]="$any(refreshBtn).loading()"
+      [appApiAction]="refreshPromise"
+      bitButton
+    >
+      <span [hidden]="$any(refreshBtn).loading()">{{ "premiumRefresh" | i18n }}</span>
+      <i
+        class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
+        [hidden]="!$any(refreshBtn).loading()"
+        aria-hidden="true"
+      ></i>
+    </button>
+  </div>
+</popup-page>

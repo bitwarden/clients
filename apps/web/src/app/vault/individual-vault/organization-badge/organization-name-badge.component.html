@@ -1,0 +1,13 @@
+<button
+  bitBadge
+  type="button"
+  [disabled]="disabled"
+  [style.color]="textColor"
+  [style.background-color]="color"
+  appA11yTitle="{{ organizationName }}"
+  routerLink
+  [queryParams]="{ organizationId: organizationIdLink }"
+  queryParamsHandling="merge"
+>
+  {{ name | ellipsis: 13 }}
+</button>

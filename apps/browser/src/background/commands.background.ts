@@ -1,13 +1,18 @@
-import { AuthService } from "@bitwarden/common/abstractions/auth.service";
-import { PasswordGenerationService } from "@bitwarden/common/abstractions/passwordGeneration.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeout.service";
-import { AuthenticationStatus } from "@bitwarden/common/enums/authenticationStatus";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
+import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BrowserApi } from "../browser/browserApi";
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
+import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { BrowserApi } from "../platform/browser/browser-api";
 
 import MainBackground from "./main.background";
-import LockedVaultPendingNotificationsItem from "./models/lockedVaultPendingNotificationsItem";
 
 export default class CommandsBackground {
   private isSafari: boolean;
@@ -15,27 +20,24 @@ export default class CommandsBackground {
 
   constructor(
     private main: MainBackground,
-    private passwordGenerationService: PasswordGenerationService,
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutService: VaultTimeoutService,
-    private authService: AuthService
+    private authService: AuthService,
+    private generatePasswordToClipboard: () => Promise<void>,
   ) {
     this.isSafari = this.platformUtilsService.isSafari();
     this.isVivaldi = this.platformUtilsService.isVivaldi();
   }
 
-  async init() {
-    BrowserApi.messageListener(
-      "commands.background",
-      async (msg: any, sender: chrome.runtime.MessageSender, sendResponse: any) => {
-        if (msg.command === "unlockCompleted" && msg.data.target === "commands.background") {
-          await this.processCommand(
-            msg.data.commandToRetry.msg.command,
-            msg.data.commandToRetry.sender
-          );
-        }
+  init() {
+    BrowserApi.messageListener("commands.background", (msg: any) => {
+      if (msg.command === "unlockCompleted" && msg.data.target === "commands.background") {
+        this.processCommand(
+          msg.data.commandToRetry.message.command,
+          msg.data.commandToRetry.sender,
+        ).catch((error) => this.main.logService.error(error));
       }
-    );
+    });
 
     if (chrome && chrome.commands) {
       chrome.commands.onCommand.addListener(async (command: string) => {
@@ -49,8 +51,23 @@ export default class CommandsBackground {
       case "generate_password":
         await this.generatePasswordToClipboard();
         break;
-      case "autofill_login":
-        await this.autoFillLogin(sender ? sender.tab : null);
+      case ExtensionCommand.AutofillLogin:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillCommand,
+        );
+        break;
+      case ExtensionCommand.AutofillCard:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillCard,
+        );
+        break;
+      case ExtensionCommand.AutofillIdentity:
+        await this.triggerAutofillCommand(
+          sender ? sender.tab : null,
+          ExtensionCommand.AutofillIdentity,
+        );
         break;
       case "open_popup":
         await this.openPopup();
@@ -63,26 +80,27 @@ export default class CommandsBackground {
     }
   }
 
-  private async generatePasswordToClipboard() {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    const password = await this.passwordGenerationService.generatePassword(options);
-    this.platformUtilsService.copyToClipboard(password, { window: window });
-    this.passwordGenerationService.addHistory(password);
-  }
-
-  private async autoFillLogin(tab?: chrome.tabs.Tab) {
+  private async triggerAutofillCommand(
+    tab?: chrome.tabs.Tab,
+    commandSender?: ExtensionCommandType,
+  ) {
     if (!tab) {
       tab = await BrowserApi.getTabFromCurrentWindowId();
     }
 
-    if (tab == null) {
+    if (tab == null || !commandSender) {
       return;
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsItem = {
+      const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          msg: { command: "autofill_login" },
+          message: {
+            command:
+              commandSender === ExtensionCommand.AutofillCommand
+                ? ExtensionCommand.AutofillLogin
+                : commandSender,
+          },
           sender: { tab: tab },
         },
         target: "commands.background",
@@ -90,14 +108,14 @@ export default class CommandsBackground {
       await BrowserApi.tabSendMessageData(
         tab,
         "addToLockedVaultPendingNotifications",
-        retryMessage
+        retryMessage,
       );
 
-      BrowserApi.tabSendMessageData(tab, "promptForLogin");
+      await openUnlockPopout(tab);
       return;
     }
 
-    await this.main.collectPageDetailsForContentScript(tab, "autofill_cmd");
+    await this.main.collectPageDetailsForContentScript(tab, commandSender);
   }
 
   private async openPopup() {
@@ -106,6 +124,6 @@ export default class CommandsBackground {
       return;
     }
 
-    this.main.openPopup();
+    await this.main.openPopup();
   }
 }

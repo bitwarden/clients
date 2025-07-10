@@ -1,0 +1,49 @@
+.bit-popover-arrow {
+  @apply tw-absolute tw-z-10 tw-h-4 tw-w-4 tw-rotate-45 tw-border-solid tw-bg-background;
+}
+
+.bit-popover-right .bit-popover-arrow {
+  @apply tw-left-1 -tw-translate-x-1/2 tw-rounded-bl-sm tw-border-b tw-border-l tw-border-b-secondary-300 tw-border-l-secondary-300;
+}
+
+.bit-popover-left .bit-popover-arrow {
+  @apply tw-right-1 tw-translate-x-1/2 tw-rounded-tr-sm tw-border-r tw-border-t tw-border-r-secondary-300 tw-border-t-secondary-300;
+}
+
+.bit-popover-right-start .bit-popover-arrow,
+.bit-popover-left-start .bit-popover-arrow {
+  @apply tw-top-6 -tw-translate-y-1/2;
+}
+
+.bit-popover-right-center .bit-popover-arrow,
+.bit-popover-left-center .bit-popover-arrow {
+  @apply tw-top-1/2 -tw-translate-y-1/2;
+}
+
+.bit-popover-right-end .bit-popover-arrow,
+.bit-popover-left-end .bit-popover-arrow {
+  @apply tw-bottom-6 tw-translate-y-1/2;
+}
+
+.bit-popover-below .bit-popover-arrow {
+  @apply tw-top-1 -tw-translate-y-1/2 tw-rounded-tl-sm tw-border-l tw-border-t tw-border-l-secondary-300 tw-border-t-secondary-300;
+}
+
+.bit-popover-above .bit-popover-arrow {
+  @apply tw-bottom-1 tw-translate-y-1/2 tw-rounded-br-sm tw-border-b tw-border-r tw-border-b-secondary-300 tw-border-r-secondary-300;
+}
+
+.bit-popover-below-start .bit-popover-arrow,
+.bit-popover-above-start .bit-popover-arrow {
+  @apply tw-left-6 -tw-translate-x-1/2;
+}
+
+.bit-popover-below-center .bit-popover-arrow,
+.bit-popover-above-center .bit-popover-arrow {
+  @apply tw-left-1/2 -tw-translate-x-1/2;
+}
+
+.bit-popover-below-end .bit-popover-arrow,
+.bit-popover-above-end .bit-popover-arrow {
+  @apply tw-right-6 tw-translate-x-1/2;
+}

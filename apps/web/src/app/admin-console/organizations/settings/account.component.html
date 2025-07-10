@@ -1,0 +1,96 @@
+<app-header></app-header>
+<bit-container>
+  <div *ngIf="loading">
+    <i
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+  <form *ngIf="org && !loading" [bitSubmit]="submit" [formGroup]="formGroup">
+    <div class="tw-grid tw-grid-cols-2 tw-gap-5">
+      <div>
+        <bit-form-field>
+          <bit-label>{{ "organizationName" | i18n }}</bit-label>
+          <input bitInput id="orgName" type="text" formControlName="orgName" />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "billingEmail" | i18n }}</bit-label>
+          <input bitInput id="billingEmail" formControlName="billingEmail" type="email" />
+        </bit-form-field>
+      </div>
+      <div>
+        <bit-avatar [text]="org.name" [id]="org.id" size="large"></bit-avatar>
+        <app-account-fingerprint
+          [fingerprintMaterial]="organizationId"
+          [publicKeyBuffer]="publicKeyBuffer"
+          fingerprintLabel="{{ 'yourOrganizationsFingerprint' | i18n }}"
+        >
+        </app-account-fingerprint>
+      </div>
+    </div>
+    <button type="submit" bitButton bitFormButton buttonType="primary">
+      {{ "save" | i18n }}
+    </button>
+  </form>
+  <ng-container *ngIf="canUseApi">
+    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "apiKey" | i18n }}</h1>
+    <p bitTypography="body1">
+      {{ "apiKeyDesc" | i18n }}
+      <a bitLink href="https://docs.bitwarden.com" target="_blank" rel="noreferrer">
+        {{ "learnMoreAboutApi" | i18n }}
+      </a>
+    </p>
+    <div class="tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="secondary" (click)="viewApiKey()">
+        {{ "viewApiKey" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="rotateApiKey()">
+        {{ "rotateApiKey" | i18n }}
+      </button>
+    </div>
+  </ng-container>
+  <form
+    *ngIf="org && !loading"
+    [bitSubmit]="submitCollectionManagement"
+    [formGroup]="collectionManagementFormGroup"
+  >
+    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "collectionManagement" | i18n }}</h1>
+    <p bitTypography="body1">{{ "collectionManagementDesc" | i18n }}</p>
+    <bit-form-control>
+      <bit-label>{{ "allowAdminAccessToAllCollectionItemsDesc" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="allowAdminAccessToAllCollectionItems" />
+    </bit-form-control>
+    <bit-form-control>
+      <bit-label>{{ "limitCollectionCreationDesc" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="limitCollectionCreation" />
+    </bit-form-control>
+    <bit-form-control>
+      <bit-label>{{ "limitCollectionDeletionDesc" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="limitCollectionDeletion" />
+    </bit-form-control>
+    <bit-form-control>
+      <bit-label>{{ "limitItemDeletionDescription" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="limitItemDeletion" />
+    </bit-form-control>
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      id="collectionManagementSubmitButton"
+    >
+      {{ "save" | i18n }}
+    </button>
+  </form>
+
+  <app-danger-zone>
+    <button type="button" bitButton buttonType="danger" (click)="deleteOrganization()">
+      {{ "deleteOrganization" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="danger" [bitAction]="purgeVault">
+      {{ "purgeVault" | i18n }}
+    </button>
+  </app-danger-zone>
+</bit-container>

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,49 +118,66 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – 免费密码管理器</value>
+    <value>Bitwarden 密码管理器</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>安全免费的跨平台密码管理器</value>
+    <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. 是 8bit Solutions LLC 的母公司。
+    <value>被 PCMag、WIRED、The Verge、CNET、G2 等评为最佳的密码管理器！
 
-被 THE VERGE、U.S. NEWS &amp; WORLD REPORT、CNET 等评为最佳的密码管理器。
+保护您的数字生活
+通过为每个账户生成并保存唯一而强大的密码，保护您的数字生活并防止数据泄露。所有内容保存在只有您可以访问的端对端加密的密码库中。
 
-从任何地方，不限制设备，管理、存储、保护和共享无限的密码。Bitwarden 为每个人提供开源的密码管理解决方案，无论是在家里，在工作中，还是在旅途中。
+随时随地在任何设备上访问您的数据
+不受任何限制，跨无限数量的设备，轻松地管理、存储、保护和分享不限数量的密码。
 
-基于安全要求，为您经常访问的每个网站生成强大、唯一和随机的密码。
+每个人都应该拥有的保持在线安全的工具
+使用 Bitwarden 是免费的，没有广告，不会出售数据。Bitwarden 相信每个人都应该拥有保持在线安全的能力。高级计划提供了对高级功能的访问。
 
-Bitwarden Send 快速传输加密的信息---文件和文本---直接给任何人。
+使用 Bitwarden 为您的团队提供支持
+团队计划和企业计划具有专业的商业功能。例如 SSO 集成、自托管、目录集成，以及 SCIM 配置、全局策略、API 访问、事件日志等。
 
-Bitwarden 为公司提供团队和企业计划，因此您可以安全地与同事共享密码。
+使用 Bitwarden 保护您的劳动成果，并与同事共享敏感信息。
 
-为何选择 Bitwarden：
 
-世界级的加密技术
-密码受到先进的端到端加密（AES-256 位、盐化标签和 PBKDF2 SHA-256）的保护，为您的数据保持安全和隐密。
+选择 Bitwarden 的更多理由：
 
-内置密码生成器
-基于安全要求，为您经常访问的每个网站生成强大、唯一和随机的密码。
+世界级加密
+密码受到先进的端对端加密（AES-256 位、加盐哈希标签和 PBKDF2 SHA-256）保护，使您的数据保持安全和私密。
 
-全球翻译 
-Bitwarden 的翻译有 40 种语言，而且还在不断增加，感谢我们的全球社区。
+第三方审计
+Bitwarden 定期与知名的安全公司进行全面的第三方安全审计。这些年度审计包括对 Bitwarden IP、服务器和 Web 应用程序的源代码评估和渗透测试。
 
-跨平台应用程序 
-从任何浏览器、移动设备或桌面操作系统，以及更多的地方，在您的 Bitwarden 密码库中保护和分享敏感数据。</value>
+高级 2FA
+使用第三方验证器、电子邮件代码或 FIDO2 WebAuthn 凭据（例如硬件安全密钥或通行密钥）保护您的登录。
+
+Bitwarden Send
+直接传输数据给他人，同时保持端对端加密的安全性并防止暴露。
+
+内置生成器
+为您访问的每个网站创建足够长、足够复杂且唯一的密码和用户名。与电子邮件别名提供商集成，增加隐私保护。
+
+全球翻译
+Bitwarden 的翻译涵盖 60 多种语言，由全球社区使用 Crowdin 翻译。
+
+跨平台应用程序
+从任何浏览器、移动设备或桌面操作系统中安全地访问和共享 Bitwarden 密码库中的敏感数据。
+
+Bitwarden 保护的不仅仅是密码
+Bitwarden 的端对端加密凭据管理解决方案使组织能够保护所有内容，包括开发人员机密和通行密钥体验。访问 Bitwarden.com 进一步了解 Bitwarden Secrets Manager 和 Bitwarden Passwordless.dev！</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>安全免费的跨平台密码管理器</value>
+    <value>无论是在家中、工作中还是在旅途中，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>从多台设备同步和访问密码库</value>
+    <value>在多个设备间同步和访问您的密码库</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>在一个安全的密码库中管理您所有的登录信息和密码</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>在您访问的任何网站中快速自动填充登录项目</value>
+    <value>在您访问的任何网站中快速自动填充登录凭据</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
     <value>您也可以通过右击菜单快捷方便地访问密码库</value>

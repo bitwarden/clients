@@ -1,8 +1,39 @@
-<sm-header title="project" searchTitle="searchProjects"></sm-header>
-
-<bit-tab-nav-bar label="Main">
-  <bit-tab-link [route]="['secrets']">Secrets</bit-tab-link>
-  <bit-tab-link [route]="['access']">Access</bit-tab-link>
-</bit-tab-nav-bar>
-
+<app-header *ngIf="project$ | async as project" [title]="project.name" icon="bwi-collection">
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="['..']" icon="bwi-angle-left">{{ "projects" | i18n }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+  <bit-tab-nav-bar label="Main" slot="tabs">
+    <bit-tab-link [route]="['secrets']">
+      {{ "secrets" | i18n }}
+      <div slot="end" class="tw-text-muted">
+        {{ projectCounts?.secrets }}
+      </div>
+    </bit-tab-link>
+    <ng-container *ngIf="project.write">
+      <bit-tab-link [route]="['people']">
+        {{ "people" | i18n }}
+        <div slot="end" class="tw-text-muted">
+          {{ projectCounts?.people }}
+        </div>
+      </bit-tab-link>
+      <bit-tab-link [route]="['machine-accounts']">
+        {{ "machineAccounts" | i18n }}
+        <div slot="end" class="tw-text-muted">
+          {{ projectCounts?.serviceAccounts }}
+        </div>
+      </bit-tab-link>
+    </ng-container>
+  </bit-tab-nav-bar>
+  <sm-new-menu></sm-new-menu>
+  <button
+    type="button"
+    slot="secondary"
+    bitButton
+    buttonType="secondary"
+    (click)="openEditDialog()"
+    *ngIf="project.write"
+  >
+    {{ "editProject" | i18n }}
+  </button>
+</app-header>
 <router-outlet></router-outlet>

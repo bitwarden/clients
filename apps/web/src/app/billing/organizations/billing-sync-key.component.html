@@ -1,0 +1,40 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "manageBillingTokenSync" | i18n }}
+    </span>
+    <div bitDialogContent>
+      <p>{{ "billingSyncKeyDesc" | i18n }}</p>
+      <bit-form-field>
+        <bit-label>
+          {{ "billingSyncKey" | i18n }}
+        </bit-label>
+        <input
+          bitInput
+          id="billingSyncKey"
+          type="text"
+          formControlName="billingSyncKey"
+          appAutofocus
+          appInputVerbatim
+        />
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton bitDialogClose type="button">
+        {{ "cancel" | i18n }}
+      </button>
+      <button
+        class="tw-ml-auto"
+        type="button"
+        buttonType="danger"
+        bitIconButton="bwi-trash"
+        bitFormButton
+        [bitAction]="deleteConnection"
+        appA11yTitle="{{ 'delete' | i18n }}"
+      ></button>
+    </ng-container>
+  </bit-dialog>
+</form>

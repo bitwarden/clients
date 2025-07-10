@@ -1,0 +1,92 @@
+import { Meta, Primary, Controls, Canvas } from "@storybook/addon-docs";
+
+import * as stories from "./section.stories";
+
+<Meta of={stories} />
+
+```ts
+import { SectionComponent, SectionHeaderComponent } from "@bitwarden/components";
+```
+
+# Section
+
+Sections are simple containers that apply a responsive bottom margin and utilize the semantic
+`section` HTML element.
+
+```html
+<bit-section>
+  <div>Lots of amazing content!</div>
+</bit-section>
+```
+
+To remove the bottom margin (for example, if the section is the last item on the page), you can pass
+the `disableMargin` input.
+
+```html
+<bit-section disableMargin></bit-section>
+```
+
+<Canvas of={stories.Default} />
+
+## Section Header
+
+Sections often contain a heading. Use `bit-section-header` inside of the `bit-section`.
+
+```html
+<bit-section>
+  <bit-section-header>
+    <h1 bitTypography="h1">I'm a section header</h1>
+  </bit-section-header>
+  <div>Section content here!</div>
+</bit-section>
+```
+
+### Section Header Padding
+
+When placed inside of a section with a `bit-card` or `bit-item` as the immediate next sibling (or
+nested in the immediate next sibling), the section header will automatically apply bottom and x-axis
+padding to align the header with the border radius of the card/item.
+
+```html
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h6">I'm a section header</h2>
+    <button bitIconButton="bwi-star" size="small" slot="end"></button>
+  </bit-section-header>
+  <bit-card>
+    <h3 bitTypography="h3">I'm card content</h3>
+  </bit-card>
+</bit-section>
+```
+
+<Canvas of={stories.HeaderWithPadding} />
+
+If placed inside of a section without a `bit-card` or `bit-item`, or with a `bit-card`/`bit-item`
+that is not a descendant of the immediate next sibling, the padding is not applied.
+
+<Canvas of={stories.HeaderWithoutPadding} />
+
+### Section Header Content Slots
+
+`bit-section-header` contains the following slots to help position the content:
+
+| Slot         | Description                     |
+| ------------ | ------------------------------- |
+| default      | title text of the header        |
+| `slot="end"` | placed at the end of the header |
+
+#### Default slot
+
+Anything passed to the default slot will display as part of the title. The title should be a
+`bitTypography` element, usually an `h2` styled as an `h6`.
+
+Title suffixes (typically an icon or icon button) can be added as well. A gap is automatically
+applied between the children of the default slot.
+
+<Canvas of={stories.HeaderVariants} />
+
+#### End slot
+
+The `end` slot will typically be used for text or an icon button.
+
+<Canvas of={stories.HeaderEndSlotVariants} />

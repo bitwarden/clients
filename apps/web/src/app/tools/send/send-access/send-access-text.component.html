@@ -1,0 +1,26 @@
+<bit-callout *ngIf="send.text.hidden" type="info">{{ "sendHiddenByDefault" | i18n }}</bit-callout>
+<bit-form-field [formGroup]="formGroup">
+  <textarea id="text" bitInput rows="8" name="Text" formControlName="sendText" readonly></textarea>
+</bit-form-field>
+<div class="tw-mb-3">
+  <button
+    bitButton
+    type="button"
+    buttonType="secondary"
+    [block]="true"
+    (click)="toggleText()"
+    *ngIf="send.text.hidden"
+  >
+    <i
+      class="bwi bwi-lg"
+      aria-hidden="true"
+      [ngClass]="{ 'bwi-eye': !showText, 'bwi-eye-slash': showText }"
+    ></i>
+    {{ "toggleVisibility" | i18n }}
+  </button>
+</div>
+<div class="tw-mb-3">
+  <button bitButton type="button" buttonType="primary" [block]="true" (click)="copyText()">
+    <i class="bwi bwi-clone" aria-hidden="true"></i> {{ "copyValue" | i18n }}
+  </button>
+</div>

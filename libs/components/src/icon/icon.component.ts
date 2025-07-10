@@ -1,24 +1,30 @@
-import { Component, HostBinding, Input } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import { Component, Input } from "@angular/core";
+import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 import { Icon, isIcon } from "./icon";
 
 @Component({
   selector: "bit-icon",
+  host: {
+    "[attr.aria-hidden]": "!ariaLabel",
+    "[attr.aria-label]": "ariaLabel",
+    "[innerHtml]": "innerHtml",
+  },
   template: ``,
 })
 export class BitIconComponent {
-  @Input() icon: Icon;
+  innerHtml: SafeHtml | null = null;
 
-  @HostBinding()
-  protected get innerHtml() {
-    if (!isIcon(this.icon)) {
-      return "";
+  @Input() set icon(icon: Icon) {
+    if (!isIcon(icon)) {
+      return;
     }
 
-    const svg = this.icon.svg;
-    return this.domSanitizer.bypassSecurityTrustHtml(svg);
+    const svg = icon.svg;
+    this.innerHtml = this.domSanitizer.bypassSecurityTrustHtml(svg);
   }
+
+  @Input() ariaLabel: string | undefined = undefined;
 
   constructor(private domSanitizer: DomSanitizer) {}
 }

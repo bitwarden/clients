@@ -1,0 +1,29 @@
+{
+  "name": "@bitwarden/desktop-napi",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "build": "napi build --platform --js false",
+    "test": "cargo test"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@napi-rs/cli": "2.18.4"
+  },
+  "napi": {
+    "name": "desktop_napi",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-gnu",
+        "i686-pc-windows-msvc",
+        "armv7-unknown-linux-gnueabihf",
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-musl",
+        "aarch64-pc-windows-msvc"
+      ]
+    }
+  }
+}

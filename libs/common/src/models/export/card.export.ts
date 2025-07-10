@@ -1,6 +1,10 @@
-import { Card as CardDomain } from "../domain/card";
-import { EncString } from "../domain/enc-string";
-import { CardView } from "../view/card.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { EncString } from "../../platform/models/domain/enc-string";
+import { Card as CardDomain } from "../../vault/models/domain/card";
+import { CardView } from "../../vault/models/view/card.view";
+
+import { safeGetString } from "./utils";
 
 export class CardExport {
   static template(): CardExport {
@@ -46,20 +50,11 @@ export class CardExport {
       return;
     }
 
-    if (o instanceof CardView) {
-      this.cardholderName = o.cardholderName;
-      this.brand = o.brand;
-      this.number = o.number;
-      this.expMonth = o.expMonth;
-      this.expYear = o.expYear;
-      this.code = o.code;
-    } else {
-      this.cardholderName = o.cardholderName?.encryptedString;
-      this.brand = o.brand?.encryptedString;
-      this.number = o.number?.encryptedString;
-      this.expMonth = o.expMonth?.encryptedString;
-      this.expYear = o.expYear?.encryptedString;
-      this.code = o.code?.encryptedString;
-    }
+    this.cardholderName = safeGetString(o.cardholderName);
+    this.brand = safeGetString(o.brand);
+    this.number = safeGetString(o.number);
+    this.expMonth = safeGetString(o.expMonth);
+    this.expYear = safeGetString(o.expYear);
+    this.code = safeGetString(o.code);
   }
 }

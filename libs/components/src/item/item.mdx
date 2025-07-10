@@ -1,0 +1,165 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./item.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ItemModule } from "@bitwarden/components";
+```
+
+# Item
+
+`<bit-item>` is a horizontal card that contains one or more interactive actions.
+
+It is a generic container that can be used for either standalone content, an alternative to tables,
+or to list nav links.
+
+<Canvas of={stories.Default} />
+
+<br />
+
+Items used within a parent `bit-layout` component will not have a border radius, since the
+`bit-layout` background is white.
+
+<Canvas of={stories.WithoutBorderRadius} />
+
+<br />
+<br />
+
+## Primary Content
+
+The primary content of an item is supplied by `bit-item-content`.
+
+### Content Types
+
+The content can be a button, anchor, or static container.
+
+```html
+<bit-item>
+  <a bit-item-content routerLink="..."> Hi, I am a link. </a>
+</bit-item>
+
+<bit-item>
+  <button bit-item-content (click)="...">And I am a button.</button>
+</bit-item>
+
+<bit-item>
+  <bit-item-content> I'm just static :( </bit-item-content>
+</bit-item>
+```
+
+<Canvas of={stories.ContentTypes} />
+
+### Content Slots
+
+`bit-item-content` contains the following slots to help position the content:
+
+| Slot                      | Description                                                                                               |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| default                   | primary text or arbitrary content; fan favorite                                                           |
+| `slot="secondary"`        | supporting text; under the default slot                                                                   |
+| `slot="start"`            | commonly an icon or avatar; before the default slot                                                       |
+| `slot="default-trailing"` | commonly a badge; default content that should not be truncated and is placed right after the default slot |
+| `slot="end"`              | commonly an icon; placed at the far end after the default slot                                            |
+
+- Note: There is also an `end` slot within `bit-item` itself. Place
+  [interactive secondary actions](#secondary-actions) there, and place non-interactive content (such
+  as icons) in `bit-item-content`
+
+```html
+<bit-item>
+  <button bit-item-content type="button">
+    <bit-avatar slot="start" text="Foo"></bit-avatar>
+    foo&#64;bitwarden.com
+    <span bitBadge variant="primary" slot="default-trailing">Auto-fill</span>
+    <ng-container slot="secondary">
+      <div>Bitwarden.com</div>
+      <div><em>locked</em></div>
+    </ng-container>
+    <i slot="end" class="bwi bwi-lock" aria-hidden="true"></i>
+  </button>
+</bit-item>
+```
+
+<Canvas of={stories.ContentSlots} />
+
+## Secondary Actions
+
+Secondary interactive actions can be placed in the item through the `"end"` slot, outside of
+`bit-item-content`.
+
+Each action must be wrapped by `<bit-item-action>`.
+
+Actions are commonly icon buttons or badge buttons.
+
+```html
+<bit-item>
+  <button bit-item-content>...</button>
+
+  <ng-container slot="end">
+    <bit-item-action>
+      <button type="button" bitBadge variant="primary">Auto-fill</button>
+    </bit-item-action>
+    <bit-item-action>
+      <button type="button" bitIconButton="bwi-clone" aria-label="Copy"></button>
+    </bit-item-action>
+    <bit-item-action>
+      <button type="button" bitIconButton="bwi-ellipsis-v" aria-label="Options"></button>
+    </bit-item-action>
+  </ng-container>
+</bit-item>
+```
+
+## Text Overflow Behavior
+
+The default behavior for long text is to truncate it. However, you have the option of changing it to
+wrap instead if that is what the design calls for.
+
+This can be changed by passing `[truncate]="false"` to the `bit-item-content`.
+
+```html
+<bit-item>
+  <bit-item-content [truncate]="false">
+    Long text goes here!
+    <ng-container slot="secondary">This could also be very long text</ng-container>
+  </bit-item-content>
+</bit-item>
+```
+
+### Truncation (Default)
+
+<Canvas of={stories.TextOverflowTruncate} />
+
+### Wrap
+
+<Canvas of={stories.TextOverflowWrap} />
+
+## Item Groups
+
+Groups of items can be associated by wrapping them in the `<bit-item-group>`.
+
+<Canvas of={stories.MultipleActionList} />
+
+<Canvas of={stories.SingleActionList} />
+
+### A11y
+
+Keyboard nav is currently disabled due to a bug when used within a virtual scroll viewport.
+
+Item groups utilize arrow-based keyboard navigation
+([further reading here](https://www.w3.org/WAI/ARIA/apg/patterns/grid/examples/layout-grids/#kbd_label)).
+
+Use `aria-label` or `aria-labelledby` to give groups an accessible name.
+
+```html
+<bit-item-group aria-label="My Items">
+  <bit-item>...</bit-item>
+  <bit-item>...</bit-item>
+  <bit-item>...</bit-item>
+</bit-item-group>
+```
+
+### Virtual Scrolling
+
+<Canvas of={stories.VirtualScrolling} />

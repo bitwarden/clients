@@ -1,4 +1,3 @@
----
 name: Release Browser
 run-name: Release Browser ${{ inputs.release_type }}
 
@@ -22,12 +21,14 @@ defaults:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
-      release-version: ${{ steps.version.outputs.version }}
+      release_version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Branch check
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
@@ -41,7 +42,7 @@ jobs:
 
       - name: Check Release Version
         id: version
-        uses: bitwarden/gh-actions/release-version-check@ea9fab01d76940267b4147cc1c4542431246b9f6
+        uses: bitwarden/gh-actions/release-version-check@main
         with:
           release-type: ${{ github.event.inputs.release_type }}
           project-type: ts
@@ -52,11 +53,13 @@ jobs:
 
   locales-test:
     name: Locales Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: setup
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Testing locales - extName length
         run: |
@@ -86,24 +89,16 @@ jobs:
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - setup
       - locales-test
+    permissions:
+      contents: write
     steps:
-      - name: Create GitHub deployment
-        uses: chrnorm/deployment-action@1b599fe41a0ef1f95191e7f2eec4743f2d7dfc48
-        id: deployment
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          initial-status: 'in_progress'
-          environment: 'Browser - Production'
-          description: 'Deployment ${{ needs.setup.outputs.release-version }} from branch ${{ github.ref_name }}'
-          task: release
-
       - name: Download latest Release build artifacts
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@850faad0cf6c02a8c0dc46eddde2363fbd6c373a
+        uses: bitwarden/gh-actions/download-artifacts@main
         with:
           workflow: build-browser.yml
           workflow_conclusion: success
@@ -114,13 +109,13 @@ jobs:
                       dist-firefox-*.zip,
                       dist-edge-*.zip'
 
-      - name: Dry Run - Download latest master build artifacts
+      - name: Dry Run - Download latest build artifacts
         if: ${{ github.event.inputs.release_type == 'Dry Run' }}
-        uses: bitwarden/gh-actions/download-artifacts@850faad0cf6c02a8c0dc46eddde2363fbd6c373a
+        uses: bitwarden/gh-actions/download-artifacts@main
         with:
           workflow: build-browser.yml
           workflow_conclusion: success
-          branch: master
+          branch: main
           artifacts: 'browser-source-*.zip,
                       dist-chrome-*.zip,
                       dist-opera-*.zip,
@@ -129,7 +124,7 @@ jobs:
 
       - name: Rename build artifacts
         env:
-          PACKAGE_VERSION: ${{ needs.setup.outputs.release-version }}
+          PACKAGE_VERSION: ${{ needs.setup.outputs.release_version }}
         run: |
           mv browser-source.zip browser-source-$PACKAGE_VERSION.zip
           mv dist-chrome.zip dist-chrome-$PACKAGE_VERSION.zip
@@ -139,32 +134,16 @@ jobs:
 
       - name: Create release
         if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        uses: ncipollo/release-action@40bb172bd05f266cf9ba4ff965cb61e9ee5f6d01
+        uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
         with:
-          artifacts: 'browser-source-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-chrome-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-opera-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-firefox-${{ needs.setup.outputs.release-version }}.zip,
-                      dist-edge-${{ needs.setup.outputs.release-version }}.zip'
+          artifacts: 'browser-source-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-chrome-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-opera-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-firefox-${{ needs.setup.outputs.release_version }}.zip,
+                      dist-edge-${{ needs.setup.outputs.release_version }}.zip'
           commit: ${{ github.sha }}
-          tag: "browser-v${{ needs.setup.outputs.release-version }}"
-          name: "Browser v${{ needs.setup.outputs.release-version }}"
+          tag: "browser-v${{ needs.setup.outputs.release_version }}"
+          name: "Browser v${{ needs.setup.outputs.release_version }}"
           body: "<insert release notes here>"
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
-
-      - name: Update deployment status to Success
-        if: ${{ success() }}
-        uses: chrnorm/deployment-status@07b3930847f65e71c9c6802ff5a402f6dfb46b86
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'success'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
-
-      - name: Update deployment status to Failure
-        if: ${{ failure() }}
-        uses: chrnorm/deployment-status@07b3930847f65e71c9c6802ff5a402f6dfb46b86
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          state: 'failure'
-          deployment-id: ${{ steps.deployment.outputs.deployment_id }}

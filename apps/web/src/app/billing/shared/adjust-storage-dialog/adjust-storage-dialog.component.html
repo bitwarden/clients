@@ -1,0 +1,34 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [title]="title">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ body }}</p>
+      <div class="tw-grid tw-grid-cols-12">
+        <bit-form-field class="tw-col-span-7">
+          <bit-label>{{ storageFieldLabel }}</bit-label>
+          <input bitInput type="number" formControlName="storage" />
+          <bit-hint *ngIf="dialogParams.type === 'Add'">
+            <!-- Total: 10 GB × $0.50 = $5.00 /month -->
+            <strong>{{ "total" | i18n }}</strong>
+            {{ this.formGroup.value.storage }} GB &times; {{ this.price | currency: "$" }} =
+            {{ this.price * this.formGroup.value.storage | currency: "$" }} /
+            {{ this.cadence | i18n }}
+          </bit-hint>
+        </bit-form-field>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "submit" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        [bitDialogClose]="ResultType.Closed"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

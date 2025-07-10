@@ -1,0 +1,107 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle> Self-hosted environment</span>
+    <ng-container bitDialogContent>
+      <bit-form-field>
+        <bit-label>{{ "baseUrl" | i18n }}</bit-label>
+        <input
+          id="self_hosted_env_settings_form_input_base_url"
+          bitInput
+          type="text"
+          formControlName="baseUrl"
+          appAutofocus
+          appInputVerbatim
+        />
+        <bit-hint>{{ "selfHostedBaseUrlHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      <button bitLink linkType="primary" type="button" (click)="showCustomEnv = !showCustomEnv">
+        <i
+          class="bwi bwi-fw bwi-sm"
+          [ngClass]="{ 'bwi-angle-right': !showCustomEnv, 'bwi-angle-down': showCustomEnv }"
+          aria-hidden="true"
+        ></i>
+        {{ "customEnvironment" | i18n }}
+      </button>
+
+      <ng-container *ngIf="showCustomEnv">
+        <p bitTypography="body1" class="tw-text-muted tw-mt-3">
+          {{ "selfHostedCustomEnvHeader" | i18n }}
+        </p>
+
+        <bit-form-field>
+          <bit-label>{{ "webVaultUrl" | i18n }}</bit-label>
+          <input
+            id="self_hosted_env_settings_form_input_web_vault_url"
+            bitInput
+            type="text"
+            formControlName="webVaultUrl"
+            appInputVerbatim
+          />
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "apiUrl" | i18n }}</bit-label>
+          <input
+            id="self_hosted_env_settings_form_input_api_url"
+            bitInput
+            type="text"
+            formControlName="apiUrl"
+            appInputVerbatim
+          />
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "identityUrl" | i18n }}</bit-label>
+          <input
+            id="self_hosted_env_settings_form_input_identity_url"
+            bitInput
+            type="text"
+            formControlName="identityUrl"
+            appInputVerbatim
+          />
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "notificationsUrl" | i18n }}</bit-label>
+          <input
+            id="self_hosted_env_settings_form_input_notifications_url"
+            bitInput
+            type="text"
+            formControlName="notificationsUrl"
+            appInputVerbatim
+          />
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "iconsUrl" | i18n }}</bit-label>
+          <input
+            id="self_hosted_env_settings_form_input_icons_url"
+            bitInput
+            type="text"
+            formControlName="iconsUrl"
+            appInputVerbatim
+          />
+        </bit-form-field>
+      </ng-container>
+
+      <span
+        *ngIf="showErrorSummary"
+        class="tw-block tw-text-danger tw-mt-2"
+        aria-live="assertive"
+        role="alert"
+      >
+        <i class="bwi bwi-error"></i> {{ "selfHostedEnvFormInvalid" | i18n }}
+      </span>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
+
+      <button type="button" bitButton bitFormButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,0 +1,21 @@
+<div [formGroup]="checkboxes">
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      [formControlName]="parentId"
+      [indeterminate]="parentIndeterminate"
+    />
+    <bit-label>{{ parentId | i18n }}</bit-label>
+  </bit-form-control>
+  <div class="tw-ml-4">
+    <ng-container *ngFor="let c of checkboxes.controls | keyvalue; trackBy: key">
+      <div *ngIf="c.key != parentId">
+        <bit-form-control>
+          <input type="checkbox" bitCheckbox [formControl]="c.value" (change)="onChildCheck()" />
+          <bit-label>{{ c.key | i18n }}</bit-label>
+        </bit-form-control>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ (hasBillingToken ? "viewBillingToken" : "generateBillingToken") | i18n }}
+    </span>
+    <div bitDialogContent>
+      <app-user-verification formControlName="verification" *ngIf="!clientSecret">
+      </app-user-verification>
+
+      <ng-container *ngIf="clientSecret && showRotateScreen">
+        <p>{{ "rotateBillingSyncTokenTitle" | i18n }}</p>
+        <bit-callout type="warning">
+          {{ "rotateBillingSyncTokenWarning" | i18n }}
+        </bit-callout>
+      </ng-container>
+
+      <div *ngIf="clientSecret && !showRotateScreen">
+        <p>{{ "copyPasteBillingSync" | i18n }}</p>
+        <bit-form-field>
+          <bit-label>{{ "billingSyncKey" | i18n }}</bit-label>
+          <input
+            bitInput
+            id="clientSecret"
+            type="text"
+            [value]="clientSecret"
+            class="tw-font-mono"
+            disabled
+          />
+          <button
+            bitIconButton="bwi-clone"
+            bitSuffix
+            type="button"
+            showToast
+            [valueLabel]="'billingSyncKey' | i18n"
+            [appCopyClick]="clientSecret"
+            [appA11yTitle]="'copyValue' | i18n"
+          ></button>
+        </bit-form-field>
+        <div class="tw-mt-2 tw-text-sm tw-text-muted" *ngIf="showLastSyncText">
+          <b class="tw-font-semibold">{{ "lastSync" | i18n }}:</b>
+          {{ lastSyncDate | date: "medium" }}
+        </div>
+        <div class="tw-mt-2 tw-text-sm tw-text-danger" *ngIf="showAwaitingSyncText">
+          <i class="bwi bwi-error"></i>
+          {{
+            (daysBetween === 1 ? "awaitingSyncSingular" : "awaitingSyncPlural") | i18n: daysBetween
+          }}
+        </div>
+      </div>
+    </div>
+    <ng-container bitDialogFooter>
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        *ngIf="!clientSecret || showRotateScreen"
+      >
+        {{ submitButtonText }}
+      </button>
+      <button bitButton bitDialogClose type="button" *ngIf="!showRotateScreen">
+        {{ "close" | i18n }}
+      </button>
+      <button bitButton type="button" *ngIf="showRotateScreen" (click)="cancelRotate()">
+        {{ "cancel" | i18n }}
+      </button>
+      <button
+        bitButton
+        type="button"
+        *ngIf="clientSecret && !showRotateScreen"
+        (click)="rotateToken()"
+      >
+        {{ "rotateToken" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

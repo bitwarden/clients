@@ -1,0 +1,41 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./tabs.stories";
+import * as dialogStories from "../dialog/dialog/dialog.stories";
+
+<Meta of={stories} />
+
+# Tabs
+
+The tab navigation and content tabs share the same styling. The tab navigation uses links to
+navigate between pages, whereas the tab list uses `<buttons>` to toggle content on a single page.
+
+Tabs should be displayed on the `background-alt` color, with their content area set to background
+and 1rem of padding on the left and right.
+
+<Primary />
+<Controls />
+
+## Content Tabs
+
+<Canvas of={stories.ContentTabs} />
+
+## Navigation Tabs
+
+<Canvas of={stories.NavigationTabs} />
+
+## Content tabs in dialogs
+
+Tabs can be used in dialogs to separate related content.
+
+<Canvas of={dialogStories.TabContent} />
+
+## Accessibility
+
+**Navigation tabs** are implemented using the `<nav>` element and `<a>` for each tab.
+
+**Content tabs** should be implemented with the `tablist` role and:
+
+- Use `<button>` for the tab elements
+- Set `aria-selected` for each tab; “true” for selected and “false” for unselected
+- See WCAG for more: https://www.w3.org/TR/wai-aria-practices/examples/tabs/tabs-1/tabs.html

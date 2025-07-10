@@ -1,0 +1,23 @@
+{
+  "name": "@bitwarden/ui-common",
+  "version": "0.0.0",
+  "description": "Low-level utilities for Angular applications",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/clients"
+  },
+  "license": "GPL-3.0",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./setup-jest": {
+      "import": "./src/setup-jest.ts"
+    }
+  }
+}

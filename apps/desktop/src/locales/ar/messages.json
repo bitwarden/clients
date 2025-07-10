@@ -3,7 +3,7 @@
     "message": "Bitwarden"
   },
   "filters": {
-    "message": "فلاتر"
+    "message": "عوامل التصفية"
   },
   "allItems": {
     "message": "كافة العناصر"
@@ -23,8 +23,14 @@
   "typeIdentity": {
     "message": "الهوية"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "typeSecureNote": {
     "message": "ملاحظة آمنة"
+  },
+  "typeSshKey": {
+    "message": "مفتاح SSH"
   },
   "folders": {
     "message": "مجلدات"
@@ -33,7 +39,7 @@
     "message": "مجموعات"
   },
   "searchVault": {
-    "message": "البحث في الخزنة"
+    "message": "البحث في الخزانة"
   },
   "addItem": {
     "message": "إضافة عنصر"
@@ -59,6 +65,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "مرحبًا بعودتك"
   },
   "moveToOrgDesc": {
     "message": "اختر المؤسسة التي ترغب في نقل هذا العنصر إليها. يؤدي الانتقال إلى مؤسسة إلى نقل ملكية العنصر إلى تلك المؤسسة. لن تكون المالك المباشر لهذا العنصر بعد نقله."
@@ -174,6 +183,81 @@
   "address": {
     "message": "العنوان"
   },
+  "sshPrivateKey": {
+    "message": "مفتاح خاص"
+  },
+  "sshPublicKey": {
+    "message": "مفتاح عام"
+  },
+  "sshFingerprint": {
+    "message": "بصمة الأصبع"
+  },
+  "sshKeyAlgorithm": {
+    "message": "نوع المفتاح"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "أُنشئ مفتاح SSH جديد"
+  },
+  "sshKeyWrongPassword": {
+    "message": "كلمة المرور التي أدخلتها غير صحيحة."
+  },
+  "importSshKey": {
+    "message": "استيراد"
+  },
+  "confirmSshKeyPassword": {
+    "message": "تأكيد كلمة المرور"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "أدخل كلمة المرور لمفتاح SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "أدخل كلمة المرور"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "الرجاء فتح المخزن الخاص بك للموافقة على طلب مفتاح SSH."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "انتهت مهلة طلب مفتاح SSH."
+  },
+  "enableSshAgent": {
+    "message": "تمكين وكيل SSH"
+  },
+  "enableSshAgentDesc": {
+    "message": "تمكين وكيل SSH لتوقيع طلبات SSH مباشرة من خزانة Bitwarden الخاص بك."
+  },
+  "enableSshAgentHelp": {
+    "message": "وكيل SSH هو خدمة موجهة للمطورين تسمح لك بتوقيع طلبات SSH مباشرة من مخزن Bitwarden الخاص بك."
+  },
+  "sshAgentPromptBehavior": {
+    "message": "Ask for authorization when using SSH agent"
+  },
+  "sshAgentPromptBehaviorDesc": {
+    "message": "Choose how to handle SSH-agent authorization requests."
+  },
+  "sshAgentPromptBehaviorHelp": {
+    "message": "Remember SSH authorizations"
+  },
+  "sshAgentPromptBehaviorAlways": {
+    "message": "Always"
+  },
+  "sshAgentPromptBehaviorNever": {
+    "message": "Never"
+  },
+  "sshAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
   "premiumRequired": {
     "message": "مطلوب اشتراك بريميوم"
   },
@@ -185,6 +269,20 @@
   },
   "error": {
     "message": "خطأ"
+  },
+  "decryptionError": {
+    "message": "خطأ في فك التشفير"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه"
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "فريق نجاح العملاء",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "لتجنب فقدان بيانات إضافية.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "january": {
     "message": "يناير"
@@ -236,7 +334,10 @@
     "message": "السيدة"
   },
   "ms": {
-    "message": "آنسة"
+    "message": "الآنسة"
+  },
+  "mx": {
+    "message": "ماكس"
   },
   "dr": {
     "message": "د"
@@ -253,9 +354,6 @@
   "other": {
     "message": "أخرى"
   },
-  "generatePassword": {
-    "message": "توليد كلمة المرور"
-  },
   "type": {
     "message": "نوع"
   },
@@ -266,7 +364,7 @@
     "message": "الاسم الأوسط"
   },
   "lastName": {
-    "message": "اسم العائلة"
+    "message": "اللقب"
   },
   "fullName": {
     "message": "الاسم الكامل"
@@ -310,6 +408,70 @@
   "authenticatorKeyTotp": {
     "message": "مفتاح المصادقة (TOTP)"
   },
+  "authenticatorKey": {
+    "message": "Authenticator key"
+  },
+  "autofillOptions": {
+    "message": "Autofill options"
+  },
+  "websiteUri": {
+    "message": "Website (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Website (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Website added"
+  },
+  "addWebsite": {
+    "message": "Add website"
+  },
+  "deleteWebsite": {
+    "message": "Delete website"
+  },
+  "owner": {
+    "message": "Owner"
+  },
+  "addField": {
+    "message": "Add field"
+  },
+  "editField": {
+    "message": "Edit field"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Are you sure you want to permanently delete this attachment?"
+  },
+  "fieldType": {
+    "message": "Field type"
+  },
+  "fieldLabel": {
+    "message": "Field label"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "textHelpText": {
+    "message": "Use text fields for data like security questions"
+  },
+  "hiddenHelpText": {
+    "message": "Use hidden fields for sensitive data like a password"
+  },
+  "checkBoxHelpText": {
+    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+  },
+  "linkedHelpText": {
+    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+  },
+  "linkedLabelHelpText": {
+    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  },
   "folder": {
     "message": "المجلد"
   },
@@ -334,6 +496,9 @@
   "cfTypeLinked": {
     "message": "مرتبط",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "cfTypeCheckbox": {
+    "message": "Checkbox"
   },
   "linkedValue": {
     "message": "القيمة المرتبطة",
@@ -391,6 +556,16 @@
   "copyPassword": {
     "message": "نسخ كلمة المرور"
   },
+  "regenerateSshKey": {
+    "message": "تجديد مفتاح SSH"
+  },
+  "copySshPrivateKey": {
+    "message": "نسخ المفتاح الخاص SSH"
+  },
+  "copyPassphrase": {
+    "message": "نسخ عبارة المرور",
+    "description": "Copy passphrase to clipboard"
+  },
   "copyUri": {
     "message": "نسخ الرابط"
   },
@@ -400,17 +575,55 @@
   "length": {
     "message": "الطول"
   },
+  "passwordMinLength": {
+    "message": "الحد الأدنى لطول كلمة المرور"
+  },
   "uppercase": {
-    "message": "أحرف كبيرة (A-Z)"
+    "message": "أحرف كبيرة (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "أحرف صغيرة (a-z)"
+    "message": "أحرف صغيرة (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "الأرقام (0-9)"
+    "message": "الأرقام (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
     "message": "أحرف خاصة (!@#$%^&*)"
+  },
+  "include": {
+    "message": "تضمين",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "تضمين أحرف كبيرة",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "تضمين أحرف صغيرة",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "تضمين الأرقام",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "تضمين أحرف خاصة",
+    "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "عدد الكلمات"
@@ -436,7 +649,16 @@
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
-    "message": "تجنب الأحرف الغامضة"
+    "message": "تجنب الأحرف الغامضة",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "تجنب الأحرف الغامضة",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "طُبقت متطلبات السياسة العامة في المؤسسة على خيارات المولدات الخاصة بك.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchCollection": {
     "message": "بحث عن مجموعة"
@@ -472,29 +694,59 @@
   "maxFileSize": {
     "message": "الحجم الأقصى للملف هو 500 ميجابايت."
   },
-  "updateKey": {
-    "message": "لا يمكنك استخدام هذه الميزة حتى تقوم بتحديث مفتاح التشفير الخاص بك."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "editedFolder": {
-    "message": "تم تعديل المجلد"
+    "message": "تم حفظ المجلد"
   },
   "addedFolder": {
-    "message": "مجلد مضاف"
+    "message": "تمت إضافة المجلد"
   },
   "deleteFolderConfirmation": {
     "message": "هل أنت متأكد من حذف هذا المجلد؟"
   },
   "deletedFolder": {
-    "message": "المجلد المحذوف"
+    "message": "تم حذف المجلد"
   },
   "loginOrCreateNewAccount": {
-    "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزنتك الآمنة."
+    "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزانتك الآمنة."
   },
   "createAccount": {
     "message": "إنشاء حساب"
   },
+  "newToBitwarden": {
+    "message": "جديد على Bitwarden؟"
+  },
+  "setAStrongPassword": {
+    "message": "تعيين كلمة مرور قوية"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "إنهاء إنشاء حسابك عن طريق تعيين كلمة مرور"
+  },
   "logIn": {
     "message": "تسجيل الدخول"
+  },
+  "logInToBitwarden": {
+    "message": "تسجيل الدخول إلى Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني."
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "Enter the code from your authenticator app"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "Press your YubiKey to authenticate"
+  },
+  "logInWithPasskey": {
+    "message": "تسجيل الدخول باستخدام مفتاح المرور"
+  },
+  "loginWithDevice": {
+    "message": "تسجيل الدخول بالجهاز"
+  },
+  "useSingleSignOn": {
+    "message": "استخدام تسجيل دخول واحد"
   },
   "submit": {
     "message": "إرسال"
@@ -514,14 +766,69 @@
   "masterPassHint": {
     "message": "تلميح كلمة المرور الرئيسية (اختياري)"
   },
+  "masterPassHintText": {
+    "message": "إذا نسيت كلمة المرور الخاصة بك، يمكن إرسال تلميح كلمة المرور إلى بريدك الإلكتروني. $CURRENT$/$MAXIMUM$ الحد الأقصى للحرف.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "masterPassword": {
+    "message": "كلمة المرور الرئيسية"
+  },
+  "masterPassImportant": {
+    "message": "لا يمكن استعادة كلمة المرور الرئيسية إذا نسيتها!"
+  },
+  "confirmMasterPassword": {
+    "message": "تأكيد كلمة المرور الرئيسية"
+  },
+  "masterPassHintLabel": {
+    "message": "تلميح كلمة المرور الرئيسية"
+  },
+  "passwordStrengthScore": {
+    "message": "Password strength score $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "joinOrganization": {
+    "message": "الانضمام إلى المؤسسة"
+  },
+  "joinOrganizationName": {
+    "message": "انضم إلى $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "إنهاء الانضمام إلى هذه المؤسسة عن طريق تعيين كلمة مرور رئيسية."
+  },
   "settings": {
     "message": "الإعدادات"
   },
-  "passwordHint": {
-    "message": "تلميح كلمة المرور"
+  "accountEmail": {
+    "message": "البريد الالكترونى للحساب"
   },
-  "enterEmailToGetHint": {
-    "message": "أدخل عنوان البريد الإلكتروني لحسابك لتلقي تلميحات كلمة المرور الرئيسية."
+  "requestHint": {
+    "message": "طلب تلميح"
+  },
+  "requestPasswordHint": {
+    "message": "طلب تلميح كلمة المرور"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
   "getMasterPasswordHint": {
     "message": "احصل على تلميح لكلمة المرور الرئيسية"
@@ -539,13 +846,32 @@
     "message": "مطلوب إعادة كتابة كلمة المرور الرئيسية."
   },
   "masterPasswordMinlength": {
-    "message": "يجب أن تكون كلمة المرور الرئيسية أكثر من 8 أحرف."
+    "message": "كلمة المرور الرئيسية يجب أن تكون على الأقل $VALUE$ حرفاً.",
+    "description": "The Master Password must be at least a specific number of characters long.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "سجلتَ الدخول بنجاح"
+  },
+  "youMayCloseThisWindow": {
+    "message": "يمكنك إغلاق هذه النافذة"
   },
   "masterPassDoesntMatch": {
     "message": "لا يتطابق تأكيد كلمة المرور مع كلمة المرور."
   },
   "newAccountCreated": {
     "message": "تم إنشاء حسابك الجديد! يمكنك الآن تسجيل الدخول."
+  },
+  "newAccountCreated2": {
+    "message": "أنشئ حسابك الجديد!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "لقد قمت بتسجيل الدخول!"
   },
   "masterPassSent": {
     "message": "لقد أرسلنا لك رسالة بريد إلكتروني تحتوي على تلميحات كلمة المرور الرئيسية."
@@ -577,23 +903,17 @@
   "verificationCodeRequired": {
     "message": "رمز التحقق مطلوب."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "تم إلغاء المصادقة أو استغرقت وقتا طويلا. الرجاء المحاولة مرة أخرى."
+  },
+  "openInNewTab": {
+    "message": "Open in new tab"
+  },
   "invalidVerificationCode": {
     "message": "رمز التحقق غير صالح"
   },
   "continue": {
     "message": "متابعة"
-  },
-  "enterVerificationCodeApp": {
-    "message": "أدخل رمز التحقق من 6 أرقام من تطبيق المصادقة الخاص بك."
-  },
-  "enterVerificationCodeEmail": {
-    "message": "أدخل رمز التحقق المكون من 6 أرقام الذي تم إرساله إلى $EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
   },
   "verificationCodeEmailSent": {
     "message": "تم إرسال رسالة التحقق إلى $EMAIL$.",
@@ -604,17 +924,15 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "تذكرني"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "Don't ask again on this device for 30 days"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "إرسال رمز التحقق إلى البريد الإلكتروني مرة أخرى"
+  "selectAnotherMethod": {
+    "message": "Select another method",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "استخدام طريقة أخرى لتسجيل الدخول بخطوتين"
-  },
-  "insertYubiKey": {
-    "message": "أدخل YubiKey الخاص بك في منفذ USB في كمبيوترك، ثم لمس الزر."
+  "useYourRecoveryCode": {
+    "message": "Use your recovery code"
   },
   "insertU2f": {
     "message": "أدخل مفتاح الأمان الخاص بك في منفذ USB كمبيوترك، إذا كان يحتوي على زر، إلمسه."
@@ -628,23 +946,32 @@
   "authenticatorAppTitle": {
     "message": "تطبيق المصادقة"
   },
-  "authenticatorAppDesc": {
-    "message": "استخدام تطبيق مصادقة (مثل Authy أو Google Authenticator) لإنشاء رموز تحقق مستندة إلى الوقت.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "أدخل رمز تم إنشاؤه بواسطة تطبيق مصادقة مثل Bitwarden Authenticer.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
+  "yubiKeyTitleV2": {
     "message": "مفتاح أمان YubiKey OTP"
   },
   "yubiKeyDesc": {
     "message": "استخدم YubiKey للوصول إلى حسابك. يعمل مع YubiKey 4 ،4 Nano ،4C، وأجهزة NEO."
   },
-  "duoDesc": {
-    "message": "التحقق باستخدام نظام الحماية الثنائي باستخدام تطبيق Duo Mobile أو الرسائل القصيرة أو المكالمة الهاتفية أو مفتاح الأمان U2F.",
+  "duoDescV2": {
+    "message": "أدخل الرمز الذي تم إنشاؤه بواسطة نظام حماية Duo.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
     "message": "تحقق من خلال نظام الحماية الثنائي لمؤسستك باستخدام تطبيق Duo Mobile أو الرسائل القصيرة أو المكالمة الهاتفية أو مفتاح الأمان U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
+  },
+  "verifyYourIdentity": {
+    "message": "Verify your Identity"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+  },
+  "continueLoggingIn": {
+    "message": "Continue logging in"
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
@@ -655,8 +982,8 @@
   "emailTitle": {
     "message": "البريد الإلكتروني"
   },
-  "emailDesc": {
-    "message": "سيتم إرسال رمز التحقق إليك بالبريد الإلكتروني."
+  "emailDescV2": {
+    "message": "أدخل رمزا أرسل إلى بريدك الإلكتروني."
   },
   "loginUnavailable": {
     "message": "تسجيل الدخول غير متاح"
@@ -670,20 +997,36 @@
   "twoStepOptions": {
     "message": "خيارات تسجيل الدخول بخطوتين"
   },
+  "selectTwoStepLoginMethod": {
+    "message": "Select two-step login method"
+  },
   "selfHostedEnvironment": {
     "message": "البيئة المستضافة ذاتيا"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "حدد عنوان URL الأساسي لتثبيت Bitwarden المستضاف محليًا."
+  "selfHostedBaseUrlHint": {
+    "message": "حدد عنوان URL الأساسي لمحالّك التي استضافت تثبيت Bitwarden على سبيل المثال: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "للتكوين المتقدم، يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "يجب عليك إضافة رابط الخادم الأساسي أو على الأقل بيئة مخصصة."
   },
   "customEnvironment": {
     "message": "بيئة مخصصة"
   },
-  "customEnvironmentFooter": {
-    "message": "للمستخدمين المتقدمين. يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
-  },
   "baseUrl": {
     "message": "رابط الخادم"
+  },
+  "authenticationTimeout": {
+    "message": "مهلة المصادقة"
+  },
+  "authenticationSessionTimedOut": {
+    "message": "انتهت مهلة جَلسة المصادقة. يرجى إعادة بَدْء عملية تسجيل الدخول."
+  },
+  "selfHostBaseUrl": {
+    "message": "رابط خادم الاستضافة الذاتية",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "رابط خادم API"
@@ -712,6 +1055,9 @@
   "no": {
     "message": "لا"
   },
+  "location": {
+    "message": "Location"
+  },
   "overwritePassword": {
     "message": "الكتابة فوق كلمة المرور"
   },
@@ -724,8 +1070,23 @@
   "loggedOut": {
     "message": "الخروج"
   },
+  "loggedOutDesc": {
+    "message": "لقد خرجتَ من حسابك."
+  },
   "loginExpired": {
     "message": "انتهت صلاحية جلسة الدخول."
+  },
+  "restartRegistration": {
+    "message": "إعادة تشغيل التسجيل"
+  },
+  "expiredLink": {
+    "message": "رابط منتهي الصلاحية"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "الرجاء إعادة تشغيل التسجيل أو محاولة تسجيل الدخول."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "قد يكون لديك حساب بالفعل"
   },
   "logOutConfirmation": {
     "message": "هل أنت متأكد من أنك تريد تسجيل الخروج؟"
@@ -739,9 +1100,6 @@
   "addNewItem": {
     "message": "إضافة عنصر جديد"
   },
-  "addNewFolder": {
-    "message": "إضافة مجلد جديد"
-  },
   "view": {
     "message": "عرض"
   },
@@ -752,13 +1110,16 @@
     "message": "تحميل..."
   },
   "lockVault": {
-    "message": "قفل الخزنة"
+    "message": "قفل الخزانة"
   },
   "passwordGenerator": {
     "message": "مولّد كلمة المرور"
   },
   "contactUs": {
     "message": "اتصل بنا"
+  },
+  "helpAndFeedback": {
+    "message": "المساعدة والملاحظات"
   },
   "getHelp": {
     "message": "الحصول على المساعدة"
@@ -773,13 +1134,16 @@
     "message": "تابعنا"
   },
   "syncVault": {
-    "message": "مزامنة الخزنة"
+    "message": "مزامنة الخزانة"
   },
   "changeMasterPass": {
     "message": "تغيير كلمة المرور الرئيسية"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "يمكنك تغيير كلمة المرور الرئيسية من خزنة الويب في bitwarden.com. هل تريد زيارة الموقع الآن؟"
+  "continueToWebApp": {
+    "message": "متابعة إلى تطبيق الويب؟"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "عبارة بصمة الإصبع",
@@ -790,7 +1154,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "اذهب لخزنة الوب"
+    "message": "اذهب لخزانة الوب"
   },
   "getMobileApp": {
     "message": "احصل على تطبيق الهاتف المحمول"
@@ -805,7 +1169,19 @@
     "message": "فشلت المزامنة"
   },
   "yourVaultIsLocked": {
-    "message": "خزنتك مقفلة. تحقق من هويتك للمتابعة."
+    "message": "خزانتك مقفلة. تحقق من هويتك للمتابعة."
+  },
+  "yourAccountIsLocked": {
+    "message": "حسابك مقفل"
+  },
+  "or": {
+    "message": "أو"
+  },
+  "unlockWithBiometrics": {
+    "message": "فتح باستخدام القياسات الحيوية"
+  },
+  "unlockWithMasterPassword": {
+    "message": "فتح بكلمة مرور رئيسية"
   },
   "unlock": {
     "message": "فتح"
@@ -827,16 +1203,19 @@
     "message": "كلمة المرور الرئيسية غير صالحة"
   },
   "twoStepLoginConfirmation": {
-    "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزنة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
+    "message": "تسجيل الدخول بخطوتين يجعل حسابك أكثر أمنا من خلال مطالبتك بالتحقق من تسجيل الدخول باستخدام جهاز آخر مثل مفتاح الأمان، تطبيق المصادقة، الرسائل القصيرة، المكالمة الهاتفية، أو البريد الإلكتروني. يمكن تمكين تسجيل الدخول بخطوتين على خزانة الويب bitwarden.com. هل تريد زيارة الموقع الآن؟"
   },
   "twoStepLogin": {
     "message": "تسجيل الدخول بخطوتين"
   },
   "vaultTimeout": {
-    "message": "مهلة الخزنة"
+    "message": "مهلة الخزانة"
+  },
+  "vaultTimeout1": {
+    "message": "المهلة"
   },
   "vaultTimeoutDesc": {
-    "message": "اختر وقت انتهاء مهلة خزنتك وقم بتنفيذ الإجراء المحدد."
+    "message": "اختر وقت انتهاء مهلة خزانتك وقم بتنفيذ الإجراء المحدد."
   },
   "immediately": {
     "message": "فورًا"
@@ -1039,6 +1418,9 @@
     "message": "نسخ الرقم",
     "description": "Copy credit card number"
   },
+  "copyEmail": {
+    "message": "نسخ البريد الإلكتروني"
+  },
   "copySecurityCode": {
     "message": "نسخ رمز الأمان",
     "description": "Copy credit card security code (CVV)"
@@ -1064,14 +1446,14 @@
   "premiumSignUpStorage": {
     "message": "1 جيغابايت وحدة تخزين مشفرة لمرفقات الملفات."
   },
-  "premiumSignUpTwoStep": {
-    "message": "خيارات تسجيل الدخول الإضافية من خطوتين مثل YubiKey و FIDO U2F و Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "خيارات تسجيل الدخول بخطوتين المملوكة مثل YubiKey و Duo."
   },
   "premiumSignUpReports": {
-    "message": "نظافة كلمة المرور، صحة الحساب، وتقارير خرق البيانات للحفاظ على سلامة خزنتك."
+    "message": "نظافة كلمة المرور، صحة الحساب، وتقارير خرق البيانات للحفاظ على سلامة خزانتك."
   },
   "premiumSignUpTotp": {
-    "message": "مورد رمز التحقق (2FA) لتسجيل الدخول في خزنتك."
+    "message": "مورد رمز التحقق (2FA) لتسجيل الدخول في خزانتك."
   },
   "premiumSignUpSupport": {
     "message": "أولوية دعم العملاء."
@@ -1082,8 +1464,8 @@
   "premiumPurchase": {
     "message": "شراء العضوية المميزة"
   },
-  "premiumPurchaseAlert": {
-    "message": "يمكنك شراء العضوية المتميزة على bitwarden.com على خزانة الويب. هل تريد زيارة الموقع الآن؟"
+  "premiumPurchaseAlertV2": {
+    "message": "يمكنك شراء Premium من إعدادات حسابك على تطبيق Bitwarden على شبكة الإنترنت."
   },
   "premiumCurrentMember": {
     "message": "أنت عضو مميز!"
@@ -1106,12 +1488,30 @@
   "passwordHistory": {
     "message": "سجل كلمة المرور"
   },
+  "generatorHistory": {
+    "message": "سجل المولد"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "محو سجل المولد"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "إذا تابعت، سيتم حذف جميع الإدخالات بشكل دائم من سجل المولد. هل أنت متيقِّن من أنك تريد المتابعة؟"
+  },
   "clear": {
     "message": "مسح",
     "description": "To clear something out. example: To clear browser history."
   },
   "noPasswordsInList": {
     "message": "لا توجد كلمات مرور للعرض."
+  },
+  "clearHistory": {
+    "message": "مسح السجل"
+  },
+  "nothingToShow": {
+    "message": "لا يوجد شيء لعرضه"
+  },
+  "nothingGeneratedRecently": {
+    "message": "لم تقم بتوليد أي شيء مؤخرًا"
   },
   "undo": {
     "message": "تراجع"
@@ -1186,6 +1586,15 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "تم النسخ بنجاح"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "خطأ في تحديث رمز الوصول"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "لم يُعثر على رمز تحديث أو مفاتيح API. الرجاء محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى."
   },
   "help": {
     "message": "المساعدة"
@@ -1274,55 +1683,60 @@
     "message": "تم تحديث كلمة المرور",
     "description": "ex. Date this password was updated"
   },
+  "exportFrom": {
+    "message": "تصدير من"
+  },
   "exportVault": {
-    "message": "تصدير الخزنة"
+    "message": "تصدير الخزانة"
   },
   "fileFormat": {
     "message": "صيغة الملف"
   },
-  "hCaptchaUrl": {
-    "message": "رابط hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
+  "fileEncryptedExportWarningDesc": {
+    "message": "سيكون تصدير الملف هذا محميًا بكلمة مرور وسيتطلب كلمة مرور الملف لفك تشفيره."
   },
-  "loadAccessibilityCookie": {
-    "message": "تحميل ملف تعريف الارتباط الخاص بإمكانية الوصول"
+  "filePassword": {
+    "message": "كلمة مرور الملف"
   },
-  "registerAccessibilityUser": {
-    "message": "تسجيل كمستخدم مع إمكانية الوصول في",
-    "description": "ex. Register as an accessibility user at hcaptcha.com"
+  "exportPasswordDescription": {
+    "message": "ستُستخدم كلمة المرور هذه لتصدير واستيراد هذا الملف"
   },
-  "copyPasteLink": {
-    "message": "نسخ وصق الرابط المرسل إلى بريدك الإلكتروني أدناه"
+  "accountRestrictedOptionDescription": {
+    "message": "استخدم مفتاح تشفير حسابك، مشتقة من اسم المستخدم في حسابك وكلمة المرور الرئيسية، لتشفير التصدير وتقييد الاستيراد إلى حساب Bitwarden الحالي فقط."
   },
-  "enterhCaptchaUrl": {
-    "message": "أدخل عنوان URL لتحميل ملف تعريف الارتباط للوصول إلى hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
+  "passwordProtected": {
+    "message": "كلمة المرور محمية"
   },
-  "hCaptchaUrlRequired": {
-    "message": "مطلوب عنوان hCaptcha",
-    "description": "hCaptcha is the name of a website, should not be translated"
+  "passwordProtectedOptionDescription": {
+    "message": "تعيين كلمة مرور للملف لتشفير التصدير واستيراده إلى أي حساب Bitwarden باستخدام كلمة المرور لفك التشفير."
   },
-  "invalidUrl": {
-    "message": "الرابط غير صالح"
+  "exportTypeHeading": {
+    "message": "نوع التصدير"
+  },
+  "accountRestricted": {
+    "message": "الحساب مقيد"
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "\"كلمة مرور الملف\" و \"تأكيد كلمة مرور الملف\" غير متطابقين."
   },
   "done": {
     "message": "تم"
-  },
-  "accessibilityCookieSaved": {
-    "message": "تم حفظ ملف تعريف الارتباط الخاص بإمكانية الوصول!"
-  },
-  "noAccessibilityCookieSaved": {
-    "message": "لم يحفظ ملف تعريف الارتباط الخاص بإمكانية الوصول"
   },
   "warning": {
     "message": "تحذير",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "confirmVaultExport": {
-    "message": "تأكيد تصدير الخزنة"
+    "message": "تأكيد تصدير الخزانة"
   },
   "exportWarningDesc": {
-    "message": "يحتوي هذا التصدير على بيانات خزنتك بتنسيق غير مشفر. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه مباشرة بعد انتهائك من استخدامه."
+    "message": "يحتوي هذا التصدير على بيانات خزانتك بتنسيق غير مشفر. لا يجب عليك تخزين أو إرسال الملف الذي تم تصديره عبر قنوات غير آمنة (مثل البريد الإلكتروني). احذفه مباشرة بعد انتهائك من استخدامه."
   },
   "encExportKeyWarningDesc": {
     "message": "يقوم هذا التصدير بتشفير بياناتك باستخدام مفتاح تشفير حسابك. إذا قمت بتدوير مفتاح تشفير حسابك يجب عليك التصدير مرة أخرى لأنك لن تتمكن من فك تشفير ملف التصدير هذا."
@@ -1376,8 +1790,17 @@
   "invalidPin": {
     "message": "رمز PIN غير صالح."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "العديد من محاولات إدخال رقم التعريف الشخصي غير الصالحة. تسجيل الخروج."
+  },
   "unlockWithWindowsHello": {
     "message": "فتح مع Windows Hello"
+  },
+  "additionalWindowsHelloSettings": {
+    "message": "إعدادات Windows Hello إضافية"
+  },
+  "unlockWithPolkit": {
+    "message": "فتح مع مصادقة النظام"
   },
   "windowsHelloConsentMessage": {
     "message": "تحقق من Bitwarden."
@@ -1385,26 +1808,47 @@
   "unlockWithTouchId": {
     "message": "فتح بواسطة معرف اللمس"
   },
+  "additionalTouchIdSettings": {
+    "message": "إعدادات معرف اللمس الإضافية"
+  },
   "touchIdConsentMessage": {
-    "message": "فتح خزنتك"
+    "message": "فتح خزانتك"
   },
   "autoPromptWindowsHello": {
     "message": "اسأل عن Windows Hello عند التشغيل"
   },
+  "autoPromptPolkit": {
+    "message": "طلب مصادقة النظام عند التشغيل"
+  },
   "autoPromptTouchId": {
     "message": "اطلب معرف اللمس عند التشغيل"
   },
-  "lockWithMasterPassOnRestart": {
+  "requirePasswordOnStart": {
+    "message": "يتطلب كلمة مرور أو رقم التعريف الشخصي عند بدء التطبيق"
+  },
+  "requirePasswordWithoutPinOnStart": {
+    "message": "Require password on app start"
+  },
+  "recommendedForSecurity": {
+    "message": "موصى به للأمان."
+  },
+  "lockWithMasterPassOnRestart1": {
     "message": "قفل مع كلمة المرور الرئيسية عند إعادة تشغيل"
   },
   "deleteAccount": {
     "message": "حذف الحساب"
   },
   "deleteAccountDesc": {
-    "message": "تابع أدناه لحذف حسابك وجميع بيانات خزنتك."
+    "message": "تابع أدناه لحذف حسابك وجميع بيانات خزانتك."
   },
   "deleteAccountWarning": {
     "message": "حذف حسابك دائم. لا يمكن التراجع عنه."
+  },
+  "cannotDeleteAccount": {
+    "message": "لا يمكن حذف الحساب"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "لا يمكن إكمال هذا الإجراء لأن حسابك مملوك من قبل منظمة. اتصل بمسؤول مؤسستك للحصول على تفاصيل إضافية."
   },
   "accountDeleted": {
     "message": "تم حذف الحساب"
@@ -1459,17 +1903,20 @@
     "message": "واحدة أو أكثر من سياسات المؤسسة تؤثر على إعدادات المولدات الخاصة بك."
   },
   "vaultTimeoutAction": {
-    "message": "إجراء مهلة الخزنة"
+    "message": "إجراء مهلة الخزانة"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "الخزنة المقفلة تتطلب إعادة إدخال كلمة المرور الرئيسية الخاصة بك للوصول إليها مرة أخرى."
+    "message": "الخزانة المقفلة تتطلب إعادة إدخال كلمة المرور الرئيسية الخاصة بك للوصول إليها مرة أخرى."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "تسجيل الخروج من الخزنة يتطلب إعادة المصادقة للوصول إليها مرة أخرى."
+    "message": "تسجيل الخروج من الخزانة يتطلب إعادة المصادقة للوصول إليها مرة أخرى."
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "أعدنّ طريقة إلغاء القُفْل لتغيير إجراء مهلة المخزن الخاص بك."
   },
   "lock": {
     "message": "قفل",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "سلة المهملات",
@@ -1487,12 +1934,6 @@
   "permanentlyDeletedItem": {
     "message": "تم حذف العنصر بشكل دائم"
   },
-  "restoreItem": {
-    "message": "استعادة العنصر"
-  },
-  "restoreItemConfirmation": {
-    "message": "هل أنت متأكد من أنك تريد استعادة هذا العنصر؟"
-  },
   "restoredItem": {
     "message": "العنصر المستعاد"
   },
@@ -1500,7 +1941,7 @@
     "message": "حُذف نهائيًا"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزنتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
+    "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزانتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "تأكيد إجراء المهلة"
@@ -1511,8 +1952,81 @@
   "setMasterPassword": {
     "message": "تعيين كلمة المرور الرئيسية"
   },
-  "ssoCompleteRegistration": {
-    "message": "من أجل إكمال تسجيل الدخول باستخدام SSO، يرجى تعيين كلمة مرور رئيسية للوصول وحماية خزنتك."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "تم تحديث أذونات مؤسستك ، مما يتطلب عليك تعيين كلمة مرور رئيسية.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "تتطلب مؤسستك تعيين كلمة مرور رئيسية.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "من $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Learn more about authenticators"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "premium": {
+    "message": "Premium",
+    "description": "Premium membership"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Free organizations cannot use attachments"
+  },
+  "singleFieldNeedsAttention": {
+    "message": "1 field needs your attention."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ fields need your attention.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
+  },
+  "verificationRequired": {
+    "message": "التحقق مطلوب",
+    "description": "Default title for the user verification dialog."
+  },
+  "currentMasterPass": {
+    "message": "كلمة المرور الرئيسية الحالية"
   },
   "newMasterPass": {
     "message": "كلمة المرور الرئيسية الجديدة"
@@ -1562,6 +2076,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "كلمة المرور الرئيسية الجديدة لا تفي بمتطلبات السياسة العامة."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "احصل على المشورة والإعلانات وفرص البحث من Bitwarden في صندوق الوارد الخاص بك."
+  },
+  "unsubscribe": {
+    "message": "إلغاء الاشتراك"
+  },
+  "atAnyTime": {
+    "message": "في أي وقت."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "من خلال المتابعة، أنت توافق على"
+  },
+  "and": {
+    "message": "و"
+  },
   "acceptPolicies": {
     "message": "من خلال تحديد هذا المربع فإنك توافق على ما يلي:"
   },
@@ -1571,8 +2100,8 @@
   "enableBrowserIntegration": {
     "message": "السماح بتكامل المتصفح"
   },
-  "enableBrowserIntegrationDesc": {
-    "message": "يتم استخدام تكامل المتصفح للقياسات الحيوية في المتصفح."
+  "enableBrowserIntegrationDesc1": {
+    "message": "تستخدم للسماح بفتح القفل الحيوي في المتصفحات غير Safari."
   },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "السماح بدمج متصفح DuckDuckGo"
@@ -1582,6 +2111,12 @@
   },
   "browserIntegrationUnsupportedTitle": {
     "message": "تكامل المتصفح غير مدعوم"
+  },
+  "browserIntegrationErrorTitle": {
+    "message": "خطأ في تمكين تكامل المتصفح"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "حدث خطأ أثناء تمكين دمج المتصفح."
   },
   "browserIntegrationMasOnlyDesc": {
     "message": "للأسف، لا يتم دعم تكامل المتصفح إلا في إصدار متجر تطبيقات ماك في الوقت الحالي."
@@ -1597,6 +2132,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "أضف طبقة أمان إضافية عن طريق طلب تأكيد عبارة بصمة الإصبع عند إنشاء رابط بين سطح المكتب الخاص بك والمتصفح. هذا يتطلب إجراء المستخدم والتحقق في كل مرة يتم فيها إنشاء اتصال."
+  },
+  "enableHardwareAcceleration": {
+    "message": "استخدام تسارع العتاد"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "بشكل افتراضي هذا الإعداد مفعل. أوقف التشغيل فقط إذا واجهت مشاكل في الرسوم البيانية. إعادة التشغيل مطلوبة."
   },
   "approve": {
     "message": "الموافقة"
@@ -1628,14 +2169,35 @@
   "biometricsNotEnabledDesc": {
     "message": "القياسات الحيوية للمتصفح تتطلب القياسات الحيوية لسطح المكتب ليتم تمكينها في الإعدادات أولاً."
   },
+  "biometricsManualSetupTitle": {
+    "message": "الإعداد التلقائي غير متوفر"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "بسبب طريقة التثبيت، لا يمكن تمكين دعم القياسات الحيوية تلقائياً. هل ترغب في فتح الوثائق حول كيفية القيام بذلك يدوياً؟"
+  },
   "personalOwnershipSubmitError": {
     "message": "بسبب سياسة المؤسسة، يمنع عليك حفظ العناصر في خزانتك الشخصية. غيّر خيار الملكية إلى مؤسسة واختر من المجموعات المتاحة."
+  },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "Your new password cannot be the same as your current password."
   },
   "hintEqualsPassword": {
     "message": "لا يمكن أن يكون تلميح كلمة المرور نفس كلمة المرور الخاصة بك."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "تؤثر سياسة مؤسسة على خيارات الملكية الخاصة بك."
+  },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "لقد حالت سياسة المؤسسة دون استيراد العناصر إلى خزانتك الشخصية."
+  },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact information"
   },
   "allSends": {
     "message": "كل الإرسالات",
@@ -1656,7 +2218,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "myVault": {
-    "message": "خزنتي"
+    "message": "خزانتي"
   },
   "text": {
     "message": "نص"
@@ -1800,6 +2362,12 @@
   "webAuthnAuthenticate": {
     "message": "مصادقة WebAuthn"
   },
+  "readSecurityKey": {
+    "message": "Read security key"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "Awaiting security key interaction..."
+  },
   "hideEmail": {
     "message": "إخفاء عنوان البريد الإلكتروني الخاص بي من المستلمين."
   },
@@ -1808,6 +2376,9 @@
   },
   "emailVerificationRequired": {
     "message": "التحقق من البريد الإلكتروني مطلوب"
+  },
+  "emailVerifiedV2": {
+    "message": "تم التحقق من البريد الإلكتروني"
   },
   "emailVerificationRequiredDesc": {
     "message": "يجب عليك التحقق من بريدك الإلكتروني لاستخدام هذه الميزة."
@@ -1821,6 +2392,9 @@
   "passwordConfirmationDesc": {
     "message": "هذا الإجراء محمي. للاستمرار، يرجى إعادة إدخال كلمة المرور الرئيسية للتحقق من هويتك."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
+  },
   "updatedMasterPassword": {
     "message": "كلمة المرور الرئيسية المحدثة"
   },
@@ -1830,14 +2404,56 @@
   "updateMasterPasswordWarning": {
     "message": "تم تغيير كلمة المرور الرئيسية الخاصة بك مؤخرًا من قبل مسؤول في مؤسستك. من أجل الوصول إلى الخزانة، يجب عليك تحديثها الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
   },
+  "updateWeakMasterPasswordWarning": {
+    "message": "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزانة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "لقد قامت مؤسستك بتعطيل تشفير الجهاز الموثوق به. الرجاء تعيين كلمة مرور رئيسية للوصول إلى خزانك."
+  },
+  "tryAgain": {
+    "message": "حاول مرة أخرى"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "التحقق مطلوب لهذا الإجراء. قم بتعيين رمز PIN للمتابعة."
+  },
+  "setPin": {
+    "message": "تعيين رقم التعريف الشخصي"
+  },
+  "verifyWithBiometrics": {
+    "message": "التحقق بواسطة القياسات الحيوية"
+  },
+  "awaitingConfirmation": {
+    "message": "في انتظار تأكيد"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "لا يمكن إكمال القياسات الحيوية."
+  },
+  "needADifferentMethod": {
+    "message": "هل تحتاج إلى طريقة مختلفة؟"
+  },
+  "useMasterPassword": {
+    "message": "استخدام كلمة المرور الرئيسية"
+  },
+  "usePin": {
+    "message": "استخدام PIN"
+  },
+  "useBiometrics": {
+    "message": "استخدام المقاييس الحيوية"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "أدخِل رمز التحقق الذي أرسل إلى بريدك الإلكتروني."
+  },
+  "resendCode": {
+    "message": "إعادة إرسال الرمز"
+  },
   "hours": {
     "message": "ساعات"
   },
   "minutes": {
     "message": "دقائق"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "سياسات مؤسستك تؤثر على مهلة خزانتك. الحد الأقصى المسموح به لمهلة الخزنة هو $HOURS$ ساعة و $MINUTES$ دقيقة",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ ساعة و $MINUTES$ دقيقة كحد أقصى.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1849,8 +2465,37 @@
       }
     }
   },
+  "vaultTimeoutPolicyWithActionInEffect": {
+    "message": "سياسات مؤسستك تؤثر على مهلة خزانتك. الحد الأقصى المسموح به لمهلة الخزانة هو $HOURS$ ساعة(ساعات) و $MINUTES$ دقيقة(دقائق). يتم تعيين إجراء مهلة المخزن الخاص بك إلى $ACTION$.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      },
+      "action": {
+        "content": "$3",
+        "example": "Lock"
+      }
+    }
+  },
+  "vaultTimeoutActionPolicyInEffect": {
+    "message": "لقد حددت سياسات مؤسستك إجراء مهلة الخزانة الخاصة بك إلى $ACTION$.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Lock"
+      }
+    }
+  },
   "vaultTimeoutTooLarge": {
-    "message": "مهلة خزنتك تتجاوز القيود التي تضعها مؤسستك."
+    "message": "مهلة خزانتك تتجاوز القيود التي تضعها مؤسستك."
+  },
+  "inviteAccepted": {
+    "message": "تم قبول الدعوة"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "التسجيل التلقائي"
@@ -1859,7 +2504,7 @@
     "message": "هذه المؤسسة لديها سياسة الشركة التي ستقوم تلقائياً بتسجيلك في إعادة تعيين كلمة المرور. التسجيل سيسمح لمسؤولي المؤسسة بتغيير كلمة المرور الرئيسية الخاصة بك."
   },
   "vaultExportDisabled": {
-    "message": "تصدير الخزنة معطل"
+    "message": "تصدير الخزانة معطل"
   },
   "personalVaultExportPolicyInEffect": {
     "message": "واحدة أو أكثر من سياسات المؤسسة تمنعك من تصدير خزانتك الشخصية."
@@ -1873,14 +2518,14 @@
   "removedMasterPassword": {
     "message": "تمت إزالة كلمة المرور الرئيسية."
   },
-  "convertOrganizationEncryptionDesc": {
-    "message": "يستخدم $ORGANIZATION$ SSO مع خادم مفتاح الاستضافة الذاتية. لم تعد هناك حاجة إلى كلمة مرور رئيسية لتسجيل الدخول لأعضاء هذه المؤسسة.",
-    "placeholders": {
-      "organization": {
-        "content": "$1",
-        "example": "My Org Name"
-      }
-    }
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
   },
   "leaveOrganization": {
     "message": "مغادرة المؤسسة"
@@ -1895,7 +2540,7 @@
     "message": "خطأ في موصل المفتاح: تأكد من أن موصل المفتاح متاح ويعمل بشكل صحيح."
   },
   "lockAllVaults": {
-    "message": "قفل جميع الخزنات"
+    "message": "قفل جميع الخزانات"
   },
   "accountLimitReached": {
     "message": "لا يمكن تسجيل دخول أكثر من 5 حسابات في نفس الوقت."
@@ -1921,6 +2566,9 @@
   "switchAccount": {
     "message": "تبديل الحساب"
   },
+  "alreadyHaveAccount": {
+    "message": "لديك حساب بالفعل؟"
+  },
   "options": {
     "message": "الخيارات"
   },
@@ -1928,10 +2576,10 @@
     "message": "انتهت مهلة جلستك. يرجى العودة ومحاولة تسجيل الدخول مرة أخرى."
   },
   "exportingPersonalVaultTitle": {
-    "message": "تصدير الخزنة الشخصية"
+    "message": "تصدير الخزانة الشخصية"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "سيتم تصدير فقط عناصر الخزنة الشخصية المرتبطة بـ $EMAIL$. لن يتم إدراج عناصر خزنة المؤسسة.",
+  "exportingIndividualVaultDescription": {
+    "message": "سيتم تصدير عناصر المخزن الفردية المرتبطة بـ $EMAIL$ فقط. لن يتم إدراج عناصر مخزن المؤسسة. سيتم تصدير معلومات المنتج فقط ولن تشمل المرفقات المرتبطة بها.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1939,14 +2587,39 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingOrganizationVaultTitle": {
+    "message": "تصدير خزانة المؤسسة"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "فقط مستودع المؤسسة المرتبط بـ $ORGANIZATION$ سيتم تصديره. لن يتم إدراج العناصر في المستودعات الفردية أو المنظمات الأخرى.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "locked": {
     "message": "مقفل"
+  },
+  "yourVaultIsLockedV2": {
+    "message": "المخزن الخاص بك مقفل"
   },
   "unlocked": {
     "message": "غير مقفل"
   },
   "generator": {
-    "message": "المولّد"
+    "message": "المولّد",
+    "description": "Short for 'credential generator'."
   },
   "whatWouldYouLikeToGenerate": {
     "message": "ما الذي ترغب في توليده؟"
@@ -1959,6 +2632,64 @@
   },
   "generateUsername": {
     "message": "إنشاء اسم المستخدم"
+  },
+  "generateEmail": {
+    "message": "إنشاء بريد إلكتروني"
+  },
+  "usernameGenerator": {
+    "message": "Username generator"
+  },
+  "generatePassword": {
+    "message": "توليد كلمة المرور"
+  },
+  "generatePassphrase": {
+    "message": "توليد عبارة المرور"
+  },
+  "passwordGenerated": {
+    "message": "Password generated"
+  },
+  "passphraseGenerated": {
+    "message": "Passphrase generated"
+  },
+  "usernameGenerated": {
+    "message": "Username generated"
+  },
+  "emailGenerated": {
+    "message": "Email generated"
+  },
+  "spinboxBoundariesHint": {
+    "message": "يجب أن تكون القيمة بين $MIN$ و $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " استخدم أحرف $RECOMMENDED$ أو أكثر لإنشاء كلمة مرور قوية.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " استخدم كلمات $RECOMMENDED$ أو أكثر لإنشاء عبارة مرور قوية.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "نوع اسم المستخدم"
@@ -1976,6 +2707,18 @@
   "catchallEmailDesc": {
     "message": "استخدم علبة البريد الإلكتروني الشاملة التي تم تكوينها في نطاقك."
   },
+  "useThisEmail": {
+    "message": "Use this email"
+  },
+  "useThisPassword": {
+    "message": "Use this password"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "Use this username"
+  },
   "random": {
     "message": "عشوائي"
   },
@@ -1989,7 +2732,7 @@
     "message": "الخدمة"
   },
   "allVaults": {
-    "message": "جميع الخزنات"
+    "message": "جميع الخزانات"
   },
   "searchOrganization": {
     "message": "البحث عن مؤسسة"
@@ -2002,6 +2745,140 @@
   },
   "forwardedEmailDesc": {
     "message": "إنشاء بريد إلكتروني مستعار مع خدمة إعادة توجيه خارجية."
+  },
+  "forwarderDomainName": {
+    "message": "نطاق البريد الإلكتروني",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "اختر نطاق مدعوم من قبل الخدمة المحددة",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ خطأ: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "أنشئ بواسطة Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "الموقع: $WEBSITE$. أنشئ بواسطة Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "رمز API غير صالح $SERVICENAME$",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "رمز API غير صالح $SERVICENAME$: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "غير قادر على الحصول على معرف البريد الإلكتروني المحجوب $SERVICENAME$.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "نطاق $SERVICENAME$ غير صالح.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "رابط $SERVICENAME$ غير صالح.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "حدث خطأ $SERVICENAME$ غير معروف.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "وكيل مجهول: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "اسم المضيف",
@@ -2025,23 +2902,14 @@
   "neverLockWarning": {
     "message": "هل أنت متأكد من أنك تريد استخدام خيار \"مطلقا\"؟ إعداد خيارات القفل إلى \"مطلقا\" يخزن مفتاح تشفير المستودع الخاص بك على جهازك. إذا كنت تستخدم هذا الخيار، يجب أن تتأكد من الحفاظ على حماية جهازك بشكل صحيح."
   },
-  "cardBrandMir": {
-    "message": "Mir"
-  },
   "vault": {
-    "message": "الخزنة"
+    "message": "الخزانة"
   },
   "loginWithMasterPassword": {
     "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
   },
-  "loggingInAs": {
-    "message": "تسجيل الدخول كـ"
-  },
   "rememberEmail": {
     "message": "تذكر البريد الإلكتروني"
-  },
-  "notYou": {
-    "message": "ليس أنت؟"
   },
   "newAroundHere": {
     "message": "جديد هنا؟"
@@ -2057,5 +2925,1054 @@
   },
   "logInWithAnotherDevice": {
     "message": "تسجيل الدخول باستخدام جهاز آخر"
+  },
+  "loginInitiated": {
+    "message": "بَدْء تسجيل الدخول"
+  },
+  "logInRequestSent": {
+    "message": "Request sent"
+  },
+  "notificationSentDevice": {
+    "message": "تم إرسال إشعار إلى جهازك."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "أُرسل إشعار إلى جهازك"
+  },
+  "notificationSentDevicePart1": {
+    "message": "Unlock Bitwarden on your device or on the "
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "web app"
+  },
+  "notificationSentDevicePart2": {
+    "message": "Make sure the Fingerprint phrase matches the one below before approving."
+  },
+  "needAnotherOptionV1": {
+    "message": "هل تحتاج إلى خيار آخر؟"
+  },
+  "fingerprintMatchInfo": {
+    "message": "الرجاء التأكد من أن المخزن الخاص بك غير مقفل وأن عبارة بصمة الإصبع تطابق الجهاز الآخر."
+  },
+  "fingerprintPhraseHeader": {
+    "message": "عبارة بصمة الإصبع"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "سيتم إعلامك بمجرد الموافقة على الطلب"
+  },
+  "needAnotherOption": {
+    "message": "تسجيل الدخول باستخدام الجهاز يجب أن يتم إعداده في إعدادات تطبيق Bitwarden. هل تحتاج إلى خيار آخر؟"
+  },
+  "viewAllLogInOptions": {
+    "message": "عرض جميع خيارات تسجيل الدخول"
+  },
+  "viewAllLoginOptions": {
+    "message": "عرض جميع خيارات تسجيل الدخول"
+  },
+  "resendNotification": {
+    "message": "إعادة إرسال الإشعار"
+  },
+  "toggleCharacterCount": {
+    "message": "تبديل عدد الأحرف",
+    "description": "'Character count' describes a feature that displays a number next to each character of the password."
+  },
+  "areYouTryingToAccessYourAccount": {
+    "message": "Are you trying to access your account?"
+  },
+  "accessAttemptBy": {
+    "message": "Access attempt by $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "deviceType": {
+    "message": "نوع الجهاز"
+  },
+  "ipAddress": {
+    "message": "عنوان IP"
+  },
+  "time": {
+    "message": "الوقت"
+  },
+  "confirmAccess": {
+    "message": "Confirm access"
+  },
+  "denyAccess": {
+    "message": "Deny access"
+  },
+  "logInConfirmedForEmailOnDevice": {
+    "message": "تم تأكيد تسجيل الدخول لـ $EMAIL$ في $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "iOS"
+      }
+    }
+  },
+  "youDeniedALogInAttemptFromAnotherDevice": {
+    "message": "لقد رفضت محاولة تسجيل الدخول من جهاز آخر. إذا كان هذا بالفعل أنت ، حاول تسجيل الدخول مرة أخرى باستخدام الجهاز."
+  },
+  "justNow": {
+    "message": "للتو الآن"
+  },
+  "requestedXMinutesAgo": {
+    "message": "طلب قبل $MINUTES$ دقائق",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "loginRequestHasAlreadyExpired": {
+    "message": "لقد انتهت صلاحية طلب تسجيل الدخول."
+  },
+  "thisRequestIsNoLongerValid": {
+    "message": "هذا الطلب لم يعد صالحًا."
+  },
+  "confirmAccessAttempt": {
+    "message": "Confirm access attempt for $EMAIL$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "logInRequested": {
+    "message": "طلب تسجيل الدخول"
+  },
+  "accountAccessRequested": {
+    "message": "Account access requested"
+  },
+  "creatingAccountOn": {
+    "message": "إنشاء الحساب في"
+  },
+  "checkYourEmail": {
+    "message": "تحقق من بريدك الإلكتروني"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "اتبع الرابط الموجود في البريد الإلكتروني المرسل إلى"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "واستمر في إنشاء حسابك."
+  },
+  "noEmail": {
+    "message": "لا يوجد بريد إلكتروني؟"
+  },
+  "goBack": {
+    "message": "الرجوع إلى الخلف"
+  },
+  "toEditYourEmailAddress": {
+    "message": "لتحرير عنوان بريدك الإلكتروني."
+  },
+  "exposedMasterPassword": {
+    "message": "كلمة المرور الرئيسية مكشوفة"
+  },
+  "exposedMasterPasswordDesc": {
+    "message": "كلمة المرور موجودة في خرق البيانات. استخدم كلمة مرور فريدة لحماية حسابك. هل أنت متأكد من أنك تريد استخدام كلمة مرور مكشوفة؟"
+  },
+  "weakAndExposedMasterPassword": {
+    "message": "كلمة المرور الرئيسية ضعيفة ومكشوفة"
+  },
+  "weakAndBreachedMasterPasswordDesc": {
+    "message": "كلمة مرور ضعيفة محددة وموجودة في خرق البيانات. استخدم كلمة مرور قوية وفريدة لحماية حسابك. هل أنت متأكد من أنك تريد استخدام كلمة المرور هذه؟"
+  },
+  "checkForBreaches": {
+    "message": "تحقق من خروقات البيانات المعروفة لكلمة المرور هذه"
+  },
+  "loggedInExclamation": {
+    "message": "سجلت دخولك!"
+  },
+  "important": {
+    "message": "مهم:"
+  },
+  "accessing": {
+    "message": "الوصول"
+  },
+  "accessTokenUnableToBeDecrypted": {
+    "message": "لقد قمت بتسجيل الخروج لأنه لا يمكن فك تشفير الرمز المميز الخاص بك. الرجاء تسجيل الدخول مرة أخرى لحل هذه المشكلة."
+  },
+  "refreshTokenSecureStorageRetrievalFailure": {
+    "message": "لقد قمت بتسجيل الخروج لأنه تعذر استرداد رمز التحديث الخاص بك. الرجاء تسجيل الدخول مرة أخرى لحل هذه المشكلة."
+  },
+  "masterPasswordHint": {
+    "message": "لا يمكن استعادة كلمة المرور الرئيسية إذا نسيتها!"
+  },
+  "characterMinimum": {
+    "message": "$LENGTH$ حرف أدنى",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "windowsBiometricUpdateWarning": {
+    "message": "يوصي Bitwarden بتحديث إعدادات القياسات الحيوية الخاصة بك لطلب كلمة المرور الرئيسية (أو PIN) عند فتح القفل الأول. هل ترغب في تحديث إعداداتك الآن؟"
+  },
+  "windowsBiometricUpdateWarningTitle": {
+    "message": "تحديث الإعدادات الموصى بها"
+  },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "تذكر هذا الجهاز لجعل تسجيلات الدخول في المستقبل سلسة"
+  },
+  "deviceApprovalRequired": {
+    "message": "موافقة الجهاز مطلوبة. حدد خيار الموافقة أدناه:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "موافقة الجهاز مطلوبة"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "حدد خِيار الموافقة أدناه"
+  },
+  "rememberThisDevice": {
+    "message": "تذكر هذا الجهاز"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "إلغاء تحديد عند استخدام جهاز عام"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "الموافقة من جهازك الآخر"
+  },
+  "requestAdminApproval": {
+    "message": "طلب موافقة المشرف"
+  },
+  "region": {
+    "message": "المنطقة"
+  },
+  "ssoIdentifierRequired": {
+    "message": "معرف الـSSO للمؤسسة مطلوب."
+  },
+  "eu": {
+    "message": "الاتحاد الأوروبي",
+    "description": "European Union"
+  },
+  "selfHostedServer": {
+    "message": "استضافة ذاتية"
+  },
+  "accessDenied": {
+    "message": "غير مسموح بالدخول. ليس لديك الصلاحية لعرض هذه الصفحة."
+  },
+  "accountSuccessfullyCreated": {
+    "message": "تم إنشاء الحساب بنجاح!"
+  },
+  "adminApprovalRequested": {
+    "message": "طلبت موافقة المسؤول"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "تم إرسال طلبك إلى المشرف الخاص بك."
+  },
+  "troubleLoggingIn": {
+    "message": "مشكلة في تسجيل الدخول؟"
+  },
+  "loginApproved": {
+    "message": "تمت الموافقة على تسجيل الدخول"
+  },
+  "userEmailMissing": {
+    "message": "البريد الإلكتروني للمستخدم مفقود"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "لم يتم العثور على البريد الإلكتروني للمستخدم الحالي. يتم تسجيل الخروج."
+  },
+  "deviceTrusted": {
+    "message": "الجهاز موثوق به"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
+  "inputRequired": {
+    "message": "الإدخال مطلوب."
+  },
+  "required": {
+    "message": "مطلوب"
+  },
+  "search": {
+    "message": "بحث"
+  },
+  "inputMinLength": {
+    "message": "الإدخال يجب أن يكون على الأقل $COUNT$ حرفاً.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "الإدخال يجب أن لا يتجاوز أحرف $COUNT$ في الطول.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "الأحرف التالية غير مسموح بها: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "يجب أن تكون قيمة الإدخال على الأقل $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "يجب ألا تتجاوز قيمة الإدخال $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 أو أكثر من رسائل البريد الإلكتروني غير صالحة"
+  },
+  "inputTrimValidator": {
+    "message": "الإدخال يجب أن لا يحتوي على مساحة بيضاء فقط.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "الإدخال ليس عنوان بريد إلكتروني."
+  },
+  "fieldsNeedAttention": {
+    "message": "الحقل (الحقول) $COUNT$ أعلاه بحاجة إلى اهتمامك.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- اختيار --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- اكتب للنصفية --"
+  },
+  "multiSelectLoading": {
+    "message": "استرداد الخيارات..."
+  },
+  "multiSelectNotFound": {
+    "message": "لم يتم العثور على عناصر"
+  },
+  "multiSelectClearAll": {
+    "message": "امسح الكل"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ المزيد",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "قائمة فرعية"
+  },
+  "toggleSideNavigation": {
+    "message": "تبديل التنقل الجانبي"
+  },
+  "skipToContent": {
+    "message": "تخطي إلى المحتوى"
+  },
+  "typePasskey": {
+    "message": "مفتاح المرور"
+  },
+  "passkeyNotCopied": {
+    "message": "لن يتم نسخ مفتاح المرور"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "لن يتم نسخ مفتاح المرور إلى العنصر المستنسخ. هل تريد الاستمرار في استنساخ هذا العنصر؟"
+  },
+  "aliasDomain": {
+    "message": "الاسم البديل للنطاق"
+  },
+  "importData": {
+    "message": "استيراد البيانات",
+    "description": "Used for the desktop menu item and the header of the import dialog"
+  },
+  "importError": {
+    "message": "خطأ في الاستيراد"
+  },
+  "importErrorDesc": {
+    "message": "حدثت مشكلة في البيانات التي حاولت استيرادها. الرجاء حل الأخطاء المدرجة أدناه في الملف المصدر الخاص بك وحاول مرة أخرى."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "قم بحل الأخطاء أدناه ثم حاول مرة أخرى."
+  },
+  "description": {
+    "message": "الوصف"
+  },
+  "importSuccess": {
+    "message": "تم استيراد البيانات بنجاح"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "تم استيراد مجموع العناصر $AMOUNT$.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "total": {
+    "message": "المجموع"
+  },
+  "importWarning": {
+    "message": "أنت تستورد البيانات إلى $ORGANIZATION$. قد يتم مشاركة بياناتك مع أعضاء هذه المؤسسة. هل تريد المتابعة؟",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "خطأ في الاتصال بخدمة Duo. استخدم طريقة تسجيل الدخول بخطوتين مختلفة أو اتصل بـ Duo للمساعدة."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك."
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "Follow the steps below to finish logging in."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
+  "launchDuo": {
+    "message": "تشغيل دوو في المتصفح"
+  },
+  "importFormatError": {
+    "message": "لم يتم تنسيق البيانات بشكل صحيح. الرجاء التحقق من ملف الاستيراد الخاص بك وحاول مرة أخرى."
+  },
+  "importNothingError": {
+    "message": "لم يتم استيراد أي شيء."
+  },
+  "importEncKeyError": {
+    "message": "خطأ في فك تشفير الملف المصدر. مفتاح التشفير الخاص بك لا يتطابق مع مفتاح التشفير المستخدم عند تصدير البيانات."
+  },
+  "invalidFilePassword": {
+    "message": "كلمة مرور الملف غير صالحة، الرجاء استخدام كلمة المرور التي أدخلتها عند إنشاء ملف التصدير."
+  },
+  "destination": {
+    "message": "الوجهة"
+  },
+  "learnAboutImportOptions": {
+    "message": "تعرف على خيارات الاستيراد الخاصة بك"
+  },
+  "selectImportFolder": {
+    "message": "تحديد المجلد"
+  },
+  "selectImportCollection": {
+    "message": "اختر مجموعة"
+  },
+  "importTargetHint": {
+    "message": "حدد هذا الخيار إذا كنت تريد نقل محتويات الملف المستورد إلى $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "الملف يحتوي على عناصر غير معينة."
+  },
+  "selectFormat": {
+    "message": "حدد تنسيق ملف الاستيراد"
+  },
+  "selectImportFile": {
+    "message": "حدد ملف الاستيراد"
+  },
+  "chooseFile": {
+    "message": "اختيار ملف"
+  },
+  "noFileChosen": {
+    "message": "لم يتم اختيار ملف"
+  },
+  "orCopyPasteFileContents": {
+    "message": "او قم بنسخ ولصق محتويات مِلَفّ الاستيراد"
+  },
+  "instructionsFor": {
+    "message": "تعليمات $NAME$",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "تأكيد تصدير الخزانة"
+  },
+  "confirmVaultImportDesc": {
+    "message": "هذا الملف محمي بكلمة مرور. الرجاء إدخال كلمة مرور الملف لاستيراد البيانات."
+  },
+  "confirmFilePassword": {
+    "message": "تأكيد كلمة مرور الملف"
+  },
+  "exportSuccess": {
+    "message": "تم تصدير بيانات المخزن"
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "تم إلغاء المصادقة المتعددة"
+  },
+  "noLastPassDataFound": {
+    "message": "لم يتم العثور على بيانات LastPass"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "اسم المستخدم أو كلمة المرور غير صحيحة"
+  },
+  "incorrectPassword": {
+    "message": "كلمة سر خاطئة"
+  },
+  "incorrectCode": {
+    "message": "رمز غير صحيح"
+  },
+  "incorrectPin": {
+    "message": "رمز PIN غير صحيح"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "فشلت المصادقة المتعددة العوامل"
+  },
+  "includeSharedFolders": {
+    "message": "تضمين المجلدات المشتركة"
+  },
+  "lastPassEmail": {
+    "message": "بريد LastPass الإلكتروني"
+  },
+  "importingYourAccount": {
+    "message": "استيراد حسابك..."
+  },
+  "lastPassMFARequired": {
+    "message": "مطلوب المصادقة متعددة العوامل من LastPass"
+  },
+  "lastPassMFADesc": {
+    "message": "أدخل رمز المرور الخاص بك لمرة واحدة من تطبيق المصادقة الخاص بك"
+  },
+  "lastPassOOBDesc": {
+    "message": "الموافقة على طلب تسجيل الدخول في تطبيق المصادقة الخاص بك أو إدخال رمز مرور لمرة واحدة."
+  },
+  "passcode": {
+    "message": "رمز المرور"
+  },
+  "lastPassMasterPassword": {
+    "message": "كلمة المرور الرئيسية لـ LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "مطلوب مصادقة LastPass"
+  },
+  "awaitingSSO": {
+    "message": "في انتظار مصادقة SSO"
+  },
+  "awaitingSSODesc": {
+    "message": "الرجاء الاستمرار في تسجيل الدخول باستخدام بيانات اعتماد الشركة الخاصة بك."
+  },
+  "seeDetailedInstructions": {
+    "message": "راجع التعليمات المفصلة في موقع المساعدة الخاص بنا في",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "استيراد مباشرة من LastPass"
+  },
+  "importFromCSV": {
+    "message": "استيراد من CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "حاول مرة أخرى أو ابحث عن بريد إلكتروني من LastPass للتحقق منك."
+  },
+  "collection": {
+    "message": "مجموعات"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB الخاص بك، ثم المس الزر."
+  },
+  "commonImportFormats": {
+    "message": "تنسيقات مشتركة",
+    "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "success": {
+    "message": "نجاح"
+  },
+  "troubleshooting": {
+    "message": "استكشاف الأخطاء وإصلاحها"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "تعطيل تسارع العتاد وإعادة التشغيل"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "تمكين تسارع العتاد وإعادة التشغيل"
+  },
+  "removePasskey": {
+    "message": "إزالة مفتاح المرور"
+  },
+  "passkeyRemoved": {
+    "message": "تمت إزالة كلمة المرور"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "خطأ في تعيين مجموعة الأهداف."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "خطأ في تعيين مجلد الهدف."
+  },
+  "viewItemsIn": {
+    "message": "عرض العناصر في $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "العودة إلى $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "رجوع",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "إزالة $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "data": {
+    "message": "البيانات"
+  },
+  "fileSends": {
+    "message": "إرسال الملف"
+  },
+  "textSends": {
+    "message": "إرسال النص"
+  },
+  "ssoError": {
+    "message": "لم يُعثر على أي منفذ مجاني لتسجيل الدخول."
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Use the generator",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "to create a strong unique password",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextNotEnabledLocally": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "additionalOptions": {
+    "message": "Additional options"
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
+  "lastEdited": {
+    "message": "Last edited"
+  },
+  "upload": {
+    "message": "Upload"
+  },
+  "authorize": {
+    "message": "السماح"
+  },
+  "deny": {
+    "message": "رفض"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "تأكيد استخدام مفتاح SSH"
+  },
+  "agentForwardingWarningTitle": {
+    "message": "Warning: Agent Forwarding"
+  },
+  "agentForwardingWarningText": {
+    "message": "This request comes from a remote device that you are logged into"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "يطلب الوصول إلى"
+  },
+  "sshkeyApprovalMessageSuffix": {
+    "message": "in order to"
+  },
+  "sshActionLogin": {
+    "message": "authenticate to a server"
+  },
+  "sshActionSign": {
+    "message": "sign a message"
+  },
+  "sshActionGitSign": {
+    "message": "sign a git commit"
+  },
+  "unknownApplication": {
+    "message": "تطبيق"
+  },
+  "invalidSshKey": {
+    "message": "مفتاح SSH غير صالح"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "نوع مفتاح SSH غير معتمد"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "استيراد المفتاح من الحافظة"
+  },
+  "sshKeyImported": {
+    "message": "SSH key imported successfully"
+  },
+  "fileSavedToDevice": {
+    "message": "تم حفظ الملف على الجهاز. إدارة من تنزيلات جهازك."
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+  },
+  "confirmWindowStillVisibleTitle": {
+    "message": "Confirm window still visible"
+  },
+  "confirmWindowStillVisibleContent": {
+    "message": "Please confirm that the window is still visible."
+  },
+  "updateBrowserOrDisableFingerprintDialogTitle": {
+    "message": "Extension update required"
+  },
+  "updateBrowserOrDisableFingerprintDialogMessage": {
+    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+  },
+  "changeAtRiskPassword": {
+    "message": "Change at-risk password"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "move": {
+    "message": "Move"
+  },
+  "newFolder": {
+    "message": "New folder"
+  },
+  "folderName": {
+    "message": "Folder Name"
+  },
+  "folderHintText": {
+    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "assignToCollections": {
+    "message": "Assign to collections"
+  },
+  "assignToTheseCollections": {
+    "message": "Assign to these collections"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "noCollectionsAssigned": {
+    "message": "No collections have been assigned"
+  },
+  "assign": {
+    "message": "Assign"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Select collections to assign"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "nothingSelected": {
+    "message": "You have not selected anything."
+  },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "movedItemsToOrg": {
+    "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    },
+    "personalItemsTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        }
+      }
+    },
+    "personalItemWithOrgTransferWarningSingular": {
+      "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+      "placeholders": {
+        "org": {
+          "content": "$1",
+          "example": "Organization name"
+        }
+      }
+    },
+    "personalItemsWithOrgTransferWarningPlural": {
+      "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+      "placeholders": {
+        "personal_items_count": {
+          "content": "$1",
+          "example": "2"
+        },
+        "org": {
+          "content": "$2",
+          "example": "Organization name"
+        }
+      }
+    }
   }
 }

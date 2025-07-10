@@ -1,7 +1,7 @@
 import { BrowserWindow, dialog, MenuItemConstructorOptions, shell } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { isMacAppStore, isWindowsStore } from "../../utils";
 
@@ -15,14 +15,15 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   get items(): MenuItemConstructorOptions[] {
-    return [
-      this.premiumMembership,
-      this.changeMasterPassword,
-      this.twoStepLogin,
-      this.fingerprintPhrase,
-      this.separator,
-      this.deleteAccount,
-    ];
+    const items = [this.premiumMembership];
+    if (this._hasMasterPassword) {
+      items.push(this.changeMasterPassword);
+    }
+    items.push(this.twoStepLogin);
+    items.push(this.fingerprintPhrase);
+    items.push(this.separator);
+    items.push(this.deleteAccount);
+    return items;
   }
 
   private readonly _i18nService: I18nService;
@@ -30,19 +31,22 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _webVaultUrl: string;
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
+  private readonly _hasMasterPassword: boolean;
 
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
     webVaultUrl: string,
     window: BrowserWindow,
-    isLocked: boolean
+    isLocked: boolean,
+    hasMasterPassword: boolean,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._webVaultUrl = webVaultUrl;
     this._window = window;
     this._isLocked = isLocked;
+    this._hasMasterPassword = hasMasterPassword;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -61,15 +65,17 @@ export class AccountMenu implements IMenubarMenu {
       id: "changeMasterPass",
       click: async () => {
         const result = await dialog.showMessageBox(this._window, {
-          title: this.localize("changeMasterPass"),
-          message: this.localize("changeMasterPass"),
-          detail: this.localize("changeMasterPasswordConfirmation"),
-          buttons: [this.localize("yes"), this.localize("no")],
+          title: this.localize("continueToWebApp"),
+          message: this.localize("continueToWebApp"),
+          detail: this.localize("changeMasterPasswordOnWebConfirmation"),
+          buttons: [this.localize("continue"), this.localize("cancel")],
           cancelId: 1,
           defaultId: 0,
           noLink: true,
         });
         if (result.response === 0) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           shell.openExternal(this._webVaultUrl);
         }
       },
@@ -92,6 +98,8 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           shell.openExternal(this._webVaultUrl);
         }
       },

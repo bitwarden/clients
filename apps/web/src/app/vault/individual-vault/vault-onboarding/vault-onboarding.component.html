@@ -1,0 +1,45 @@
+<div
+  *ngIf="isNewAccount && showOnboarding && onboardingTasks$ | async as onboardingTasks"
+  class="tw-mb-6"
+>
+  <app-onboarding
+    *ngIf="onboardingTasks"
+    [title]="'getStarted' | i18n"
+    (dismiss)="hideOnboarding()"
+  >
+    <app-onboarding-task
+      [title]="'createAnAccount' | i18n"
+      [completed]="onboardingTasks.createAccount"
+      [isDisabled]="true"
+    ></app-onboarding-task>
+
+    <app-onboarding-task
+      [title]="'importData' | i18n"
+      icon="bwi-import"
+      [route]="['/tools/import']"
+      [completed]="onboardingTasks.importData"
+    >
+      <p class="tw-pl-1">
+        {{ "onboardingImportDataDetailsPartOne" | i18n }}
+        <button type="button" bitLink (click)="emitToAddCipher()">
+          {{ "onboardingImportDataDetailsLoginLink" | i18n }}
+        </button>
+        <span>
+          {{ "onboardingImportDataDetailsPartTwoNoOrgs" | i18n }}
+        </span>
+      </p>
+    </app-onboarding-task>
+
+    <app-onboarding-task
+      [title]="'installBrowserExtension' | i18n"
+      icon="bwi-cli"
+      (click)="navigateToExtension()"
+      route="[]"
+      [completed]="onboardingTasks.installExtension"
+    >
+      <span class="tw-pl-1">
+        {{ "installBrowserExtensionDetails" | i18n }}
+      </span>
+    </app-onboarding-task>
+  </app-onboarding>
+</div>

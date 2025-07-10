@@ -1,0 +1,302 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [disablePadding]="!loading" dialogSize="large">
+    <span bitDialogTitle>
+      {{ title }}
+      <span
+        class="tw-text-sm tw-normal-case tw-text-muted"
+        *ngIf="!loading && editParams$ && (editParams$ | async)?.name"
+        >{{ (editParams$ | async)?.name }}</span
+      >
+      <span bitBadge variant="secondary" *ngIf="isRevoked">{{ "revoked" | i18n }}</span>
+    </span>
+    <div bitDialogContent>
+      <ng-container *ngIf="loading">
+        <i
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </ng-container>
+      <bit-tab-group
+        *ngIf="!loading && organization$ | async as organization"
+        [(selectedIndex)]="tabIndex"
+      >
+        <bit-tab [label]="'role' | i18n">
+          <ng-container *ngIf="!editMode">
+            <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
+              <bit-label>{{ "email" | i18n }}</bit-label>
+              <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
+
+              <bit-hint *ngIf="remaining.seats > 1">{{
+                "inviteMultipleEmailDesc" | i18n: remaining.seats
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 1">{{
+                "inviteSingleEmailDesc" | i18n
+              }}</bit-hint>
+
+              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
+            </bit-form-field>
+          </ng-container>
+          <bit-radio-group formControlName="type">
+            <bit-label>
+              {{ "memberRole" | i18n }}
+              <a
+                bitLink
+                target="_blank"
+                rel="noreferrer"
+                appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
+                href="https://bitwarden.com/help/user-types-access-control/"
+                slot="end"
+              >
+                <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+              </a>
+            </bit-label>
+            <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
+              <bit-label>{{ "user" | i18n }}</bit-label>
+              <bit-hint>{{ "userDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button id="userTypeAdmin" [value]="organizationUserType.Admin">
+              <bit-label>{{ "admin" | i18n }}</bit-label>
+              <bit-hint>{{ "adminDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button id="userTypeOwner" [value]="organizationUserType.Owner">
+              <bit-label>{{ "owner" | i18n }}</bit-label>
+              <bit-hint>{{ "ownerDesc" | i18n }}</bit-hint>
+            </bit-radio-button>
+            <bit-radio-button
+              id="userTypeCustom"
+              [value]="organizationUserType.Custom"
+              [disabled]="!organization.useCustomPermissions || null"
+            >
+              <bit-label>{{ "custom" | i18n }}</bit-label>
+              <bit-hint>
+                <ng-container *ngIf="!organization.useCustomPermissions; else enterprise">
+                  <p>
+                    {{ "customDescNonEnterpriseStart" | i18n
+                    }}<a
+                      bitLink
+                      href="https://bitwarden.com/contact/"
+                      target="_blank"
+                      rel="noreferrer"
+                      >{{ "customDescNonEnterpriseLink" | i18n }}</a
+                    >{{ "customDescNonEnterpriseEnd" | i18n }}
+                  </p>
+                </ng-container>
+                <ng-template #enterprise>
+                  <p>{{ "customDesc" | i18n }}</p>
+                </ng-template>
+              </bit-hint>
+            </bit-radio-button>
+          </bit-radio-group>
+          <ng-container *ngIf="customUserTypeSelected">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
+              <div class="tw-col-span-4">
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
+                  <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
+                </bit-form-control>
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
+                  <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
+                </bit-form-control>
+                <bit-form-control>
+                  <input type="checkbox" bitCheckbox formControlName="accessReports" />
+                  <bit-label>{{ "accessReports" | i18n }}</bit-label>
+                </bit-form-control>
+              </div>
+              <div class="tw-col-span-4">
+                <app-nested-checkbox
+                  parentId="manageAllCollections"
+                  [checkboxes]="permissionsGroup.controls.manageAllCollectionsGroup"
+                >
+                </app-nested-checkbox>
+              </div>
+              <div class="tw-col-span-4">
+                <div class="tw-mb-3">
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="manageGroups" />
+                    <bit-label>{{ "manageGroups" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="manageSso" />
+                    <bit-label>{{ "manageSso" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="managePolicies" />
+                    <bit-label>{{ "managePolicies" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input
+                      id="manageUsers"
+                      type="checkbox"
+                      bitCheckbox
+                      formControlName="manageUsers"
+                      (change)="handleDependentPermissions()"
+                    />
+                    <bit-label>{{ "manageUsers" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input
+                      type="checkbox"
+                      bitCheckbox
+                      formControlName="manageResetPassword"
+                      (change)="handleDependentPermissions()"
+                    />
+                    <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
+                  </bit-form-control>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="organization.useSecretsManager">
+            <h3 class="tw-mt-4">
+              {{ "secretsManager" | i18n }}
+              <a
+                bitLink
+                target="_blank"
+                rel="noreferrer"
+                appA11yTitle="{{ 'learnMore' | i18n }}"
+                href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
+              >
+                <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+              </a>
+            </h3>
+            <p class="tw-text-muted">{{ "secretsManagerAccessDescription" | i18n }}</p>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                [disabled]="isOnSecretsManagerStandalone"
+                bitCheckbox
+                formControlName="accessSecretsManager"
+              />
+              <bit-label>
+                {{ "userAccessSecretsManagerGA" | i18n }}
+              </bit-label>
+            </bit-form-control>
+          </ng-container>
+          <bit-form-field *ngIf="isExternalIdVisible">
+            <bit-label>{{ "externalId" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="externalId" />
+            <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+
+          <bit-form-field *ngIf="isSsoExternalIdVisible">
+            <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="ssoExternalId" />
+            <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+        </bit-tab>
+        <bit-tab *ngIf="organization.useGroups" [label]="'groups' | i18n">
+          <div class="tw-mb-6">
+            {{
+              (restrictEditingSelf$ | async)
+                ? ("restrictedGroupAccess" | i18n)
+                : ("groupAccessUserDesc" | i18n)
+            }}
+          </div>
+          <bit-access-selector
+            formControlName="groups"
+            [items]="groupAccessItems"
+            [columnHeader]="'groups' | i18n"
+            [selectorLabelText]="'selectGroups' | i18n"
+            [emptySelectionText]="'noGroupsAdded' | i18n"
+            [hideMultiSelect]="restrictEditingSelf$ | async"
+          ></bit-access-selector>
+        </bit-tab>
+        <bit-tab [label]="'collections' | i18n">
+          <div class="tw-mb-6" *ngIf="restrictEditingSelf$ | async">
+            {{ "cannotAddYourselfToCollections" | i18n }}
+          </div>
+          <div
+            *ngIf="
+              !(restrictEditingSelf$ | async) &&
+              (organization.useGroups || !(canAssignAccessToAnyCollection$ | async))
+            "
+            class="tw-mb-6"
+          >
+            <span *ngIf="organization.useGroups">
+              {{ "userPermissionOverrideHelperDesc" | i18n }}
+            </span>
+            <span *ngIf="!(canAssignAccessToAnyCollection$ | async)">
+              {{ "restrictedCollectionAssignmentDesc" | i18n }}
+            </span>
+          </div>
+          <bit-access-selector
+            [permissionMode]="PermissionMode.Edit"
+            formControlName="access"
+            [showGroupColumn]="organization.useGroups"
+            [items]="collectionAccessItems"
+            [columnHeader]="'collection' | i18n"
+            [selectorLabelText]="'selectCollections' | i18n"
+            [emptySelectionText]="'noCollectionsAdded' | i18n"
+            [hideMultiSelect]="restrictEditingSelf$ | async"
+          ></bit-access-selector
+        ></bit-tab>
+      </bit-tab-group>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading">
+        {{ "save" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        (click)="cancel()"
+        [disabled]="loading"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+      <div class="tw-flex tw-gap-2 tw-ml-auto">
+        <button
+          *ngIf="editMode && isRevoked"
+          type="button"
+          bitButton
+          bitFormButton
+          buttonType="secondary"
+          [bitAction]="restore"
+          [disabled]="loading"
+        >
+          {{ "restore" | i18n }}
+        </button>
+        <button
+          *ngIf="editMode && !isRevoked"
+          type="button"
+          bitButton
+          bitFormButton
+          buttonType="secondary"
+          [bitAction]="revoke"
+          [disabled]="loading"
+        >
+          {{ "revoke" | i18n }}
+        </button>
+        <button
+          *ngIf="this.editMode && !(editParams$ | async)?.managedByOrganization"
+          type="button"
+          buttonType="danger"
+          bitButton
+          bitFormButton
+          [bitAction]="remove"
+          [disabled]="loading"
+        >
+          {{ "remove" | i18n }}
+        </button>
+        <button
+          *ngIf="this.editMode && (editParams$ | async)?.managedByOrganization"
+          type="button"
+          buttonType="danger"
+          bitButton
+          bitFormButton
+          [bitAction]="delete"
+          [disabled]="loading"
+        >
+          {{ "delete" | i18n }}
+        </button>
+      </div>
+    </ng-container>
+  </bit-dialog>
+</form>

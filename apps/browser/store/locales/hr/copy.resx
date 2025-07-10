@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,40 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - besplatni upravitelj lozinki</value>
+    <value>Bitwarden upravitelj lozinki</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Siguran i besplatan upravitelj lozinki za sve vaše uređaje</value>
+    <value>Kod kuće, na poslu ili u pokretu, Bitwarden štiti sve tvoje lozinke, pristupne ključeve i osjetljive informacije.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. je vlasnik tvrtke 8bit Solutions LLC.
+    <value>PCMag, WIRED, The Verge, CNET, G2 i drugi su prepoznali Bitwarden kao najbolji upravitelj lozinki!
 
-THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET I DRUGI ODABRALI SU BITWARDEN NAJBOLJIM UPRAVITELJEM LOZINKI. 
+OSIGURAJ SVOJ DIGITALNI ŽIVOT
+Osiguraj svoj digitalni život i zaštiti se od povrede podataka generiranjem i spremanjem jedinstvenih, jakih lozinki za svaki račun. Održavaj sve u end-to-end šifriranom trezoru lozinki kojem samo ti možete pristupiti.
 
-Upravljajte, spremajte, osigurajte i dijelite neograničen broj lozinki na neograničenom broju uređaja bilo gdje. Bitwarden omogućuje upravljanje lozinkama, bazirano na otvorenom kodu, svima, bilo kod kuće, na poslu ili u pokretu.
+PRISTUPI SVOJIM PODACIMA, BILO GDJE, BILO KAD, NA BILO KOJEM UREĐAJU
+Jednostavno upravljaj, pohrani, zaštiti i dijeli neograničen broj lozinki na neograničenom broju uređaja bez ograničenja.
 
-Generirajte jake, jedinstvene i nasumične lozinke bazirane na sigurnosnim zahtjevima za svaku web stranicu koju često posjećujete.
+SVATKO BI TREBAO IMATI ALATE ZA SIGURNOST NA MREŽI
+Koristi Bitwarden besplatno, bez oglasa ili prodaje osobnoh podataka. Bitwarden vjeruje da bi svatko trebao imati mogućnost ostati siguran na internetu. Premium planovi nude pristup naprednim značajkama.
 
-Bitwarden Send omoguzćuje jednostavno i brzo slanje šifriranih podataka --- datoteki ili teksta -- direktno, bilo kome.
+OSNAŽI SVOJE TIMOVE UZ BITWARDEN
+Planovi za Teams i Enterprise dolaze s profesionalnim poslovnim značajkama. Neki primjeri uključuju SSO integraciju, vlastiti poslužitelj, integraciju imenika i SCIM pružanje usluga, globalna pravila, API pristup, zapisnike događaja i još mnogo toga.
 
-Bitwarden nudi Teams i Enterprise planove za tvrtke kako biste sigurno mogli dijeliti lozinke s kolegama na poslu.
+Koristi Bitwarden da osiguraš svoje zaposlenike i podijeliš osjetljive podatke s kolegama.
 
-Zašto odabrati Bitwarden?
 
-Svjetski priznata enkripcija
-Lozinke su zaštićene naprednim end-to-end šifriranjem (AES-256 bit, salted hashtag i PBKDF2 SHA-256) kako bi vaši osobni podaci ostali sigurni i samo vaši.
+Više razloga za odabir Bitwardena:
 
-Ugrađen generator lozinki
-Generirajte jake, jedinstvene i nasumične lozinke bazirane na sigurnosnim zahtjevima za svako web mjesto koje često posjećujete.
+Enkripcija svjetske razine
+Lozinke su zaštićene naprednom end-to-end enkripcijom (AES-256 bit, salted hashtag i PBKDF2 SHA-256) tako da tvoji podaci ostaju sigurni i privatni.
 
-Svjetski dostupan 
-Bitwarden je, zahvaljujući našoj globalnoj zajednici, dostupan na više od 40 jezika.
+Revizije treće strane
+Bitwarden je redovito podložan opsežnim sigurnosnim revizijama treće strane s poznatim sigurnosnim tvrtkama. Ove godišnje revizije uključuju procjene izvornog koda i testiranje penetracije preko Bitwarden IP adresa, poslužitelja i web aplikacija.
 
-Podržani svi OS
-Osigurajte i sigurno dijelite osjetljive podatke sadržane u vašem Bitwarden trezoru iz bilo kojeg preglednika, mobilnog uređaja ili stolnog računala s bilo kojim OS.</value>
+Napredni 2FA
+Osiguraj svoju prijavu autentifikatorom treće strane, kodovima poslanim e-poštom ili FIDO2 WebAuthn vjerodajnicama kao što je hardverski sigurnosni ključ ili pristupni ključ.
+
+Bitwarden Send
+Prenesi podatke izravno drugima uz održavanje end-to-end kriptirane sigurnosti i ograničavanje izloženosti.
+
+Ugrađeni generator
+Stvori dugačke, složene i jasne lozinke i jedinstvena korisnička imena za svaku stranicu koju posjetiš. Integriraj s pružateljima aliasa e-pošte za dodatnu privatnost.
+
+Globalni prijevodi
+Bitwarden je uz pomoć globalne zajednice putem Crowdina prevedan na više od 60 jezika, uključujući hrvatski.
+
+Višeplatformske aplikacije
+Zaštiti i dijeli osjetljive podatke unutar svog Bitwarden trezora s bilo kojeg preglednika, mobilnog uređaja ili OS-a stolnog računala i više.
+
+Bitwarden osigurava više od samih lozinki
+End-to-end kriptirana rješenja za upravljanje vjerodajnicama iz Bitwardena osnažuju organizacije da osiguraju sve, uključujući razvojne tajne i iskustva s pristupnim ključem. Posjetite Bitwarden.com kako biste saznali više o Bitwarden Secrets Manageru i Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Siguran i besplatan upravitelj lozinki za sve tvoje uređaje</value>
+    <value>Kod kuće, na poslu ili u pokretu, Bitwarden štiti sve tvoje lozinke, pristupne ključeve i osjetljive informacije.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sinkroniziraj i pristupi svojem trezoru s više uređaja</value>

@@ -1,0 +1,138 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Component Library/Async Actions/In Forms/Documentation" />
+
+# Async Actions In Forms
+
+These directives should be used when building forms with buttons that trigger long running tasks in
+the background, eg. Submit or Delete buttons. For buttons that are not associated with a form see
+[Standalone Async Actions](?path=/story/component-library-async-actions-standalone-documentation--page).
+
+There are two separately supported use-cases: Submit buttons and standalone form buttons (eg. Delete
+buttons).
+
+## Usage: Submit buttons
+
+Adding async actions to submit buttons requires the following 3 steps
+
+### 1. Add a handler to your `Component`
+
+A handler is a function that returns a promise or an observable. Functions that return `void` are
+also supported which is useful because `return;` can be used to abort an action.
+
+**NOTE:** Defining the handlers as arrow-functions assigned to variables is mandatory if the handler
+needs access to the parent component using the variable `this`.
+
+**NOTE:** `formGroup.invalid` will always return `true` after the first `await` operation, event if
+the form is not actually invalid. This is due to the form getting disabled by the `bitSubmit`
+directive while waiting for the async action to complete.
+
+**NOTE:** Handlers do not need to check if any previous requests have finished because the
+directives have built in protection against users attempting to trigger new actions before the
+previous ones have finished.
+
+```ts
+@Component({...})
+class Component {
+  formGroup = this.formBuilder.group({...});
+
+  // submit can also return Observable instead of Promise
+  submit = async () => {
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    await this.keyService.encrypt(/* ... */);
+
+    // `formGroup.invalid` will always return `true` here
+
+    await this.apiService.post(/* ... */);
+  }
+}
+```
+
+### 2. Add directive to the `form` element
+
+Add the `bitSubmit` directive and supply the handler defined in step 1.
+
+**NOTE:** The `directive` is defined using the input syntax: `[input]="handler"`. This is different
+from how submit handlers are usually defined with the output syntax `(ngSubmit)="handler()"`.
+
+**NOTE:** `[bitSubmit]` is used instead of `(ngSubmit)`. Using both is not supported.
+
+```html
+<form [formGroup]="formGroup" [bitSubmit]="submit">...</form>
+```
+
+### 3. Add directive to the `type="submit"` button
+
+Add both `bitButton` and `bitFormButton` directives to the button.
+
+**NOTE:** A summary of what each directive does can be found inside the source code.
+
+```html
+<button type="submit" bitButton bitFormButton>{{ "submit" | i18n }}</button>
+```
+
+## Usage: Standalone form buttons
+
+Adding async actions to standalone form buttons requires the following 3 steps.
+
+### 1. Add a handler to your `Component`
+
+A handler is a function that returns a promise or an observable. Functions that return `void` are
+also supported which is useful for aborting an action.
+
+**NOTE:** Defining the handlers as arrow-functions assigned to variables is mandatory if the handler
+needs access to the parent component using the variable `this`.
+
+**NOTE:** Handlers do not need to check if any previous requests have finished because the
+directives have built in protection against users attempting to trigger new actions before the
+previous ones have finished.
+
+```ts
+@Component({...})
+class Component {
+  formGroup = this.formBuilder.group({...});
+
+  submit = async () => {
+    // contents of this handler are not relevant for this example
+    // as this handler will not be trigger by standalone buttons using
+    // `bitAction`
+  }
+
+  // action can also return Observable instead of Promise
+  handler = async () => {
+    await this.apiService.post(/* ... */);
+  };
+}
+```
+
+### 2. Add directive to the `form` element
+
+The `bitSubmit` directive is required because of its coordinating role inside of a form.
+
+```html
+<form [formGroup]="formGroup" [bitSubmit]="submit">...</form>
+```
+
+### 3. Add directives to the `button` element
+
+Add `bitButton`, `bitFormButton`, `bitAction` directives to the button. Make sure to supply a
+handler.
+
+**NOTE:** A summary of what each directive does can be found inside the source code.
+
+```html
+<button type="button" bitFormButton bitButton [bitAction]="handler">Do action</button>
+<button type="button" bitFormButton bitIconButton="bwi-star" [bitAction]="handler"></button>
+```
+
+## `[bitSubmit]` Disabled Form Submit
+
+If you need your form to be able to submit even when the form is disabled, then add
+`[allowDisabledFormSubmit]="true"` to your `<form>`
+
+```html
+<form [formGroup]="formGroup" [bitSubmit]="submit" [allowDisabledFormSubmit]="true">...</form>
+```

@@ -1,0 +1,34 @@
+<div class="tw-mr-[5px] tw-mt-1">
+  <button
+    *ngIf="currentAccount$ | async as currentAccount; else defaultButton"
+    type="button"
+    class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1"
+    (click)="currentAccountClicked()"
+  >
+    <span class="tw-sr-only"> {{ "bitwardenAccount" | i18n }} {{ currentAccount.email }}</span>
+    <bit-avatar
+      [id]="currentAccount.id"
+      [text]="currentAccount.name"
+      [color]="currentAccount.avatarColor"
+      size="small"
+      aria-hidden="true"
+      class="[&>img]:tw-block"
+    ></bit-avatar>
+  </button>
+  <ng-template #defaultButton>
+    <button
+      type="button"
+      routerLink="/account-switcher"
+      class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1"
+    >
+      <span class="tw-sr-only">{{ "switchAccounts" | i18n }}</span>
+      <bit-avatar
+        [text]="'&hellip;'"
+        [color]="'#6795E8'"
+        size="small"
+        aria-hidden="true"
+        class="[&>img]:tw-block"
+      ></bit-avatar>
+    </button>
+  </ng-template>
+</div>

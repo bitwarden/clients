@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -121,38 +121,54 @@
     <value>Bitwarden – Bezplatný správca hesiel</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Bezpečný a bezplatný správca hesiel pre všetky vaše zariadenia</value>
+    <value>Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. je materská spoločnosť spoločnosti 8bit Solutions LLC.
+    <value>PCMag, WIRED, The Verge, CNET, G2 a ďalšie časopisy ho uznali za najlepšieho správcu hesiel!
 
-OHODNOTENÝ AKO NAJLEPŠÍ SPRÁVCA HESIEL V THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET A ĎALŠÍMI.
+ZABEZPEČTE SVOJ DIGITÁLNY ŽIVOT
+Zabezpečte svoj digitálny život a chráňte sa pred únikmi údajov vytváraním a ukladaním jedinečných, silných hesiel pre každý účet. Všetko uchovávajte v trezore so šifrovaním end-to-end, ku ktorému máte prístup len vy.
 
-Spravujte, ukladajte, zabezpečte a zdieľajte neobmedzený počet hesiel naprieč neobmedzeným počtom zariadení odkiaľkoľvek. Bitwarden ponúka open source riešenie na správu hesiel komukoľvek, kdekoľvek doma, v práci alebo na ceste.
+PRÍSTUP K ÚDAJOM KDEKOĽVEK, KEDYKOĽVEK A NA AKOMKOĽVEK ZARIADENÍ
+Jednoducho spravujte, ukladajte, zabezpečujte a zdieľajte neobmedzený počet hesiel v neobmedzenom počte zariadení bez obmedzení.
 
-Vygenerujte si silné, unikátne a náhodné heslá podľa bezpečnostných požiadaviek na každej stránke, ktorú navštevujete.
+KAŽDÝ BY MAL MAŤ NÁSTROJE NA ZAISTENIE BEZPEČNOSTI ONLINE
+Využívajte Bitwarden zadarmo bez reklám a predaja údajov. Bitwarden verí, že každý by mal mať možnosť zostať v bezpečí online. Prémiové balíky ponúkajú prístup k pokročilým funkciám.
 
-Bitwarden Send rýchlo prenesie šifrované informácie -- súbory a text -- priamo komukoľvek.
+POSILNITE SVOJE TÍMY POMOCOU APLIKÁCIE BITWARDEN
+Plány pre tímy a podniky sú vybavené profesionálnymi obchodnými funkciami. Niektoré príklady zahŕňajú integráciu SSO, vlastný hosting, integráciu adresárov a poskytovanie SCIM, globálne politiky, prístup k API, protokoly udalostí a ďalšie.
 
-Bitwarden ponúka Teams a Enterprise paušály pre firmy, aby ste mohli bezpečne zdieľať hesla s kolegami.
+Použite Bitwarden na zabezpečenie svojich zamestnancov a zdieľanie citlivých informácií s kolegami.
 
-Prečo si vybrať Bitwarden:
+Ďalšie dôvody, prečo si vybrať Bitwarden:
 
-Svetová trieda v šifrovaní
-Heslá sú chránené pokročilým end-to-end šifrovaním (AES-256 bit, salted hash a PBKDF2 SHA-256), takže Vaše dáta zostanú bezpečné a súkromné.
+Šifrovanie na svetovej úrovni
+Heslá sú chránené pokročilým šifrovaním end-to-end (AES-256 bitov, kryptografická soľ a PBKDF2 SHA-256), takže vaše údaje zostanú bezpečné a súkromné.
 
-Vstavaný generátor hesiel
-Vygenerujte si silné, unikátne a náhodné heslá podľa bezpečnostných požiadaviek na každej stránke, ktorú navštevujete.
+Audity tretích strán
+Bitwarden pravidelne vykonáva komplexné bezpečnostné audity tretími stranami s významnými bezpečnostnými firmami. Tieto ročné audity zahŕňajú posúdenie zdrojového kódu a penetračné testy na IP adresách, serveroch a webových aplikáciách Bitwardenu.
 
-Svetová lokalizácia
-Vďaka našej globálnej komunite má Bitwarden neustále rastúcu lokalizáciu už do 40 jazykov.
+Pokročilé 2FA
+Zabezpečte svoje prihlásenie pomocou overovateľa tretej strany, e-mailových kódov alebo poverení FIDO2 WebAuthn, ako je hardvérový bezpečnostný kľúč alebo prístupový kľúč.
 
-Aplikácie pre rôzne platformy
-Zabezpečte a zdieľajte súkromné dáta prostredníctvom Bitwarden trezora z ktoréhokoľvek prehliadača, mobilného zariadenia, alebo stolného počítača a ďalších.
+Bitwarden Send
+Prenášajte údaje priamo ostatným pri zachovaní zabezpečenia šifrovaného end-to-end a obmedzení odhalenia.
+
+Zabudovaný generátor
+Vytvárajte dlhé, zložité a odlišné heslá a jedinečné používateľské mená pre každú navštívenú stránku. Integrácia s poskytovateľmi e-mailových aliasov na zabezpečenie dodatočného súkromia.
+
+Globálne preklady
+Preklady Bitwardenu existujú pre viac ako 60 jazykov, ktoré prekladá globálna komunita prostredníctvom Crowdinu.
+
+Multiplatformové aplikácie
+Zabezpečte a zdieľajte citlivé údaje v rámci svojho trezora Bitwarden z akéhokoľvek prehliadača, mobilného zariadenia alebo desktopového operačného systému a ďalších.
+
+Bitwarden zabezpečuje viac ako len heslá
+Riešenia na komplexnú správu šifrovaných poverení od Bitwardenu umožňujú organizáciám zabezpečiť všetko vrátane tajomstiev vývojárov a skúseností s prístupovými kľúčmi. Navštívte Bitwarden.com a dozviete sa viac o Bitwarden Secrets Manager a Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Bezpečný a bezplatný správca hesiel pre všetky vaše zariadenia</value>
+    <value>Bitwarden zabezpečí všetky vaše heslá, prístupové kľúče a citlivé informácie doma, v práci alebo na cestách.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchronizujte a pristupujte k vášmu trezoru z viacerých zariadení</value>

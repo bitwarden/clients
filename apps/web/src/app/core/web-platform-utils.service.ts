@@ -1,12 +1,12 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import Swal, { SweetAlertIcon } from "sweetalert2";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ClientType } from "@bitwarden/common/enums/clientType";
-import { DeviceType } from "@bitwarden/common/enums/deviceType";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 @Injectable()
 export class WebPlatformUtilsService implements PlatformUtilsService {
@@ -15,7 +15,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   constructor(
     private i18nService: I18nService,
     private messagingService: MessagingService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   getDevice(): DeviceType {
@@ -34,6 +34,13 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
       this.browserCache = DeviceType.EdgeBrowser;
     } else if (navigator.userAgent.indexOf(" Vivaldi/") !== -1) {
       this.browserCache = DeviceType.VivaldiBrowser;
+    } else if (
+      // We are only detecting DuckDuckGo browser on macOS currently, as
+      // it is not presenting the Ddg suffix on Windows. DuckDuckGo users
+      // on Windows will be detected as Edge.
+      navigator.userAgent.indexOf("Ddg") !== -1
+    ) {
+      this.browserCache = DeviceType.DuckDuckGoBrowser;
     } else if (
       navigator.userAgent.indexOf(" Safari/") !== -1 &&
       navigator.userAgent.indexOf("Chrome") === -1
@@ -83,6 +90,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return this.getDevice() === DeviceType.SafariBrowser;
   }
 
+  isWebKit(): boolean {
+    return true;
+  }
+
   isMacAppStore(): boolean {
     return false;
   }
@@ -120,11 +131,20 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return true;
   }
 
+  supportsAutofill(): boolean {
+    return false;
+  }
+
+  // Safari support for blob downloads is inconsistent and requires workarounds
+  supportsFileDownloads(): boolean {
+    return !(this.getDevice() === DeviceType.SafariBrowser);
+  }
+
   showToast(
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: any
+    options?: any,
   ): void {
     this.messagingService.send("showToast", {
       text: text,
@@ -134,70 +154,15 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     });
   }
 
-  async showDialog(
-    body: string,
-    title?: string,
-    confirmText?: string,
-    cancelText?: string,
-    type?: string,
-    bodyIsHtml = false,
-    target?: string
-  ) {
-    let iconClasses: string = null;
-    if (type != null) {
-      // If you add custom types to this part, the type to SweetAlertIcon cast below needs to be changed.
-      switch (type) {
-        case "success":
-          iconClasses = "bwi-check text-success";
-          break;
-        case "warning":
-          iconClasses = "bwi-exclamation-triangle text-warning";
-          break;
-        case "error":
-          iconClasses = "bwi-error text-danger";
-          break;
-        case "info":
-          iconClasses = "bwi-info-circle text-info";
-          break;
-        default:
-          break;
-      }
-    }
-
-    const bootstrapModal = document.querySelector("div.modal");
-    if (bootstrapModal != null) {
-      bootstrapModal.removeAttribute("tabindex");
-    }
-
-    const iconHtmlStr =
-      iconClasses != null ? `<i class="swal-custom-icon bwi ${iconClasses}"></i>` : undefined;
-    const confirmed = await Swal.fire({
-      heightAuto: false,
-      buttonsStyling: false,
-      icon: type as SweetAlertIcon, // required to be any of the SweetAlertIcons to output the iconHtml.
-      iconHtml: iconHtmlStr,
-      text: bodyIsHtml ? null : body,
-      html: bodyIsHtml ? body : null,
-      titleText: title,
-      showCancelButton: cancelText != null,
-      cancelButtonText: cancelText,
-      showConfirmButton: true,
-      confirmButtonText: confirmText == null ? this.i18nService.t("ok") : confirmText,
-      target: target != null ? target : "body",
-    });
-
-    if (bootstrapModal != null) {
-      bootstrapModal.setAttribute("tabindex", "-1");
-    }
-
-    return confirmed.value;
-  }
-
   isDev(): boolean {
     return process.env.NODE_ENV === "development";
   }
 
   isSelfHost(): boolean {
+    return WebPlatformUtilsService.isSelfHost();
+  }
+
+  static isSelfHost(): boolean {
     return process.env.ENV.toString() === "selfhosted";
   }
 
@@ -210,10 +175,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     } else if (options && options.doc) {
       doc = options.doc;
     }
-    if ((win as any).clipboardData && (win as any).clipboardData.setData) {
-      // IE specific code path to prevent textarea being shown while dialog is visible.
-      (win as any).clipboardData.setData("Text", text);
-    } else if (doc.queryCommandSupported && doc.queryCommandSupported("copy")) {
+    if (doc.queryCommandSupported && doc.queryCommandSupported("copy")) {
       const textarea = doc.createElement("textarea");
       textarea.textContent = text;
       // Prevent scrolling to bottom of page in MS Edge.
@@ -246,15 +208,11 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     throw new Error("Cannot read from clipboard on web.");
   }
 
-  supportsBiometric() {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric() {
-    return Promise.resolve(false);
-  }
-
   supportsSecureStorage() {
     return false;
+  }
+
+  getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
   }
 }

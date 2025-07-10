@@ -1,0 +1,115 @@
+name: Auto-reply to Discussions
+
+on:
+  discussion:
+    types: created
+
+jobs:
+  reply:
+    name: Auto-reply
+    runs-on: ubuntu-22.04
+    permissions:
+      discussions: write
+      contents: read
+
+    steps:
+      - name: Get discussion label and template name
+        id: discussion-label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const discussion = context.payload.discussion;
+            const template_name = discussion.category.slug;
+            const label = discussion.labels?.[0]?.name ?? '';
+            console.log('Discussion label:', label);
+            console.log('Discussion category slug:', template_name);
+
+            core.setOutput('label', label);
+            core.setOutput('template_name', template_name);
+
+      - name: Get selected topic
+        id: get_selected_topic
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          result-encoding: string
+          script: |
+            try {
+              const body = context.payload.discussion.body;
+              const match = body.match(/### Select Topic Area\n\n(.*?)\n\n/);
+              console.log('Match:', match);
+              console.log('Match1:', match[1]);
+              return match ? match[1].trim() : "";
+            } catch (error) {
+              console.error('Error getting selected topic:', error);
+              return "";
+            }
+
+      - name: Reply or close Discussion
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          TEMPLATE_NAME: ${{ steps.discussion-label.outputs.template_name }}
+          TOPIC: ${{ steps.get_selected_topic.outputs.result }}
+        with:
+          script: |
+            async function addComment(discussionId, body) {
+              await github.graphql(`
+                mutation AddDiscussionComment($discussionId: ID!, $body: String!) {
+                  addDiscussionComment(input: {discussionId: $discussionId, body: $body}) {
+                    comment {
+                      id
+                    }
+                  }
+                }
+              `, {
+                discussionId,
+                body
+              });
+            }
+
+            async function closeDiscussion(discussionId) {
+              await github.graphql(`
+                mutation {
+                  closeDiscussion(input: {discussionId: "${discussionId}"}) {
+                    discussion {
+                      id
+                    }
+                  }
+                }
+              `);
+              console.log('♻️ Closing discussion');
+            }
+
+            const discussion = context.payload.discussion;
+            const isFeatureRequest = process.env.TEMPLATE_NAME === 'feature-request';
+            const isTopicEmpty = !process.env.TOPIC || process.env.TOPIC.trim() === ''; // topic step may have failed
+            const isCodeTopic = process.env.TOPIC.includes('Code Contribution Proposal');
+            const shouldClose = isFeatureRequest || (!isTopicEmpty && !isCodeTopic);
+
+            console.log('Template name:', process.env.TEMPLATE_NAME);
+            console.log('Topic:', process.env.TOPIC);
+            console.log('isTopicEmpty:', isTopicEmpty);
+            console.log('isCodeTopic:', isCodeTopic);
+            console.log('shouldClose:', shouldClose);
+
+            if (shouldClose) {
+              const closeMessage =
+                "Thank you for your contribution! GitHub Discussions is specifically for [proposing code](https://contributing.bitwarden.com/) that you would like to write for the Bitwarden codebase. Since this post does not appear to include a proposal, it will be closed. If you believe this was done in error or have any questions, please feel free to reach out to us!\n\n" +
+                "- :bulb: For feature requests and general discussions, please visit the [Bitwarden Community Forums](https://community.bitwarden.com/).\n" +
+                "- :information_source: For questions and support, visit the [Bitwarden Help Center](https://bitwarden.com/help/).\n" +
+                "- :bug: To report a potential bug, please visit the appropriate repository: [Server](https://github.com/bitwarden/server/issues) | [Clients](https://github.com/bitwarden/clients/issues) | [iOS](https://github.com/bitwarden/ios/issues) | [Android](https://github.com/bitwarden/android/issues).";
+
+              await addComment(discussion.node_id, closeMessage);
+              await closeDiscussion(discussion.node_id);
+              return;
+            }
+
+            const replyMessage =
+              ":sparkles: Thank you for your code contribution proposal! While the Bitwarden team reviews your submission, we encourage you to check out our [contribution guidelines](https://contributing.bitwarden.com/).\n\n" +
+              "Please ensure that your code contribution includes a detailed description of what you would like to contribute, along with any relevant screenshots and links to existing feature requests. This information helps us gather feedback from the community and Bitwarden team members before you start writing code.\n\n" +
+              "To keep discussions focused, posts that do not include a proposal for a code contribution will be removed.\n\n" +
+              "- :bulb: For feature requests and general discussion, please visit the [Bitwarden Community Forums](https://community.bitwarden.com/).\n" +
+              "- :information_source: For questions and support, visit the [Bitwarden Help Center](https://bitwarden.com/help/).\n" +
+              "- :bug: To report a potential bug, please visit the corresponding repo. [Server](https://github.com/bitwarden/server/issues) | [Clients](https://github.com/bitwarden/clients/issues) | [iOS](https://github.com/bitwarden/ios/issues) | [Android](https://github.com/bitwarden/android/issues)\n\n" +
+              "Thank you for contributing to Bitwarden!";
+
+            await addComment(discussion.node_id, replyMessage);

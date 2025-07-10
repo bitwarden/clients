@@ -1,4 +1,4 @@
-import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { BadgeModule } from "../badge";
 
@@ -13,42 +13,106 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      declarations: [ToggleGroupComponent, ToggleComponent],
-      imports: [BadgeModule],
+      imports: [BadgeModule, ToggleGroupComponent, ToggleComponent],
     }),
   ],
   parameters: {
     design: {
       type: "figma",
-      url: "https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881%3A17157",
+      url: "https://www.figma.com/design/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?node-id=1881-17157&t=b5tDKylm5sWm2yKo-4",
     },
   },
 } as Meta;
 
-const Template: Story<ToggleGroupComponent> = (args: ToggleGroupComponent) => ({
-  props: args,
-  template: `
-    <bit-toggle-group [(selected)]="selected" aria-label="People list filter">
-      <bit-toggle value="all">
-        All <span bitBadge badgeType="info">3</span>
-      </bit-toggle>
+type Story = StoryObj<ToggleGroupComponent>;
 
-      <bit-toggle value="invited">
-        Invited
-      </bit-toggle>
+export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-toggle-group [(selected)]="selected" aria-label="People list filter">
+        <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
 
-      <bit-toggle value="accepted">
-        Accepted <span bitBadge badgeType="info">2</span>
-      </bit-toggle>
+        <bit-toggle value="invited"> Invited </bit-toggle>
 
-      <bit-toggle value="deactivated">
-        Deactivated
-      </bit-toggle>
-    </bit-toggle-group>
-  `,
-});
+        <bit-toggle value="accepted"> Accepted <span bitBadge variant="info">2</span> </bit-toggle>
 
-export const Default = Template.bind({});
-Default.args = {
-  selected: "all",
+        <bit-toggle value="deactivated"> Deactivated </bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: "all",
+  },
+};
+
+export const FullWidth: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        [fullWidth]="fullWidth"
+      >
+        <bit-toggle value="all"> All <span bitBadge variant="info">3</span> </bit-toggle>
+
+        <bit-toggle value="invited"> Invited </bit-toggle>
+
+        <bit-toggle value="accepted"> Accepted <span bitBadge variant="info">2</span> </bit-toggle>
+
+        <bit-toggle value="deactivated"> Deactivated </bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: "all",
+    fullWidth: true,
+  },
+};
+
+export const LabelWrap: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <code>fullWidth=false</code>
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        class="tw-max-w-[500px] tw-overflow-hidden tw-border tw-border-solid tw-border-danger-600 tw-py-3"
+      >
+        <bit-toggle value="all"> All</bit-toggle>
+
+        <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
+
+        <bit-toggle value="accepted">
+          Accepted the invitation<span bitBadge variant="info">2</span>
+        </bit-toggle>
+
+        <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
+      </bit-toggle-group>
+      <br />
+      <code>fullWidth=true</code>
+      <bit-toggle-group
+        [(selected)]="selected"
+        aria-label="People list filter"
+        class="tw-max-w-[500px] tw-overflow-hidden tw-border tw-border-solid tw-border-danger-600 tw-py-3"
+        [fullWidth]="fullWidth"
+      >
+        <bit-toggle value="all"> All</bit-toggle>
+
+        <bit-toggle value="invited"> Invited to a cool party with cool people </bit-toggle>
+
+        <bit-toggle value="accepted">
+          Accepted the invitation<span bitBadge variant="info">2</span>
+        </bit-toggle>
+
+        <bit-toggle value="deactivated">Deactivatedinvitationswraplabel</bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: "all",
+    fullWidth: true,
+  },
 };

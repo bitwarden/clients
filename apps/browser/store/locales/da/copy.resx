@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Gratis adgangskodemanager</value>
+    <value>Bitwarden Adgangskodehåndtering</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>En sikker og gratis adgangskodemanager til alle dine enheder</value>
+    <value>Hjemme, på arbejde eller på farten sikrer Bitwarden nemt alle adgangskoder, adgangskort og sensitive oplysninger.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. er moderselskab for 8bit Solutions LLC.
+    <value>Anerkendt som den bedste adgangskodehåndtering af PCMag, WIRED, The Verge, CNET, G2 og flere!
 
-UDNÆVNT BEDSTE PASSWORD MANAGER AF THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET OG FLERE.
+SIKR DIT DIGITALE LIV
+Sikr dit digitale liv og vær beskyttet mod dataindbrud ved at generere og gemme unikke, stærke adgangskoder til hver konto. Vedligehold alt i en ende-til-ende krypteret adgangskodeboks, som kun du har adgang til.
 
-Administrér, gem, sikr og del adgangskoder ubegrænset på tværs af enheder hvor som helst. Bitwarden leverer open source adgangskodeadministrationsløsninger til alle, hvad enten det er hjemme, på arbejdspladsen eller på farten.
+FÅ ADGANG TIL DATAENE, hvor som helst, når som helst, PÅ ENHVER ENHED
+Håndtér, gem, beskyt og del nemt et ubegrænset antal adgangskoder på tværs af et ubegrænset antal enheder uden restriktioner.
 
-Generér stærke, unikke og tilfældige adgangskoder baseret på sikkerhedskrav til hvert websted, du besøger.
+ALLE BØR HAVE VÆRKTØJERNE TIL AT KUNNE VÆRE SIKKER ONLINE
+Brug Bitwarden gratis uden annoncer eller salgsdata. Bitwarden mener, at alle bør have muligheden for at forblive sikre online. Premium-abonnementer giver adgang til avancerede funktioner.
 
-Bitwarden Send overfører hurtigt krypterede oplysninger --- filer og almindelig tekst - direkte til enhver.
+STYRK DINE HOLD MED BITWARDEN
+Abonnementer til Teams og Enterprise kommer med professionelle forretningsfunktioner, f.eks. SSO-integration, selvhosting, katalogintegration og SCIM-klargøring, globale politikker, API-adgang, hændelseslogfiler og mere.
 
-Bitwarden tilbyder Teams og Enterprise-planer for virksomheder, så du sikkert kan dele adgangskoder med kolleger.
+Brug Bitwarden til at sikre arbejdsstyrken og dele sensitive oplysninger med kolleger.
 
-Hvorfor vælge Bitwarden:
+
+Flere grunde til at vælge Bitwarden:
 
 Kryptering i verdensklasse
-Adgangskoder er beskyttet med avanceret end-to-end-kryptering (AES-256 bit, saltet hashing og PBKDF2 SHA-256), så dine data forbliver sikre og private.
+Adgangskoder er beskyttet med avanceret ende-til-ende-kryptering (AES-256 bit, saltet hashtag og PBKDF2 SHA-256), så dataene forbliver sikre og private.
 
-Indbygget adgangskodegenerator
-Generér stærke, unikke og tilfældige adgangskoder baseret på sikkerhedskrav til hvert websted, du besøger.
+Tredjepartsrevisioner
+Bitwarden udfører regelmæssigt omfattende tredjeparts sikkerhedsrevisioner med velrenommerede sikkerhedsfirmaer. Disse årlige revisioner inkluderer kildekodevurderinger og penetrationstest på tværs af Bitwarden IP'er, servere og webapplikationer.
+
+Avanceret 2FA
+Sikre dit login med en tredjepartsgodkendelse, e-mailede koder eller FIDO2 WebAuthn-legitimationsoplysninger, såsom en hardwaresikkerhedsnøgle eller adgangsnøgle.
+
+Bitwarden Send
+Overfør data direkte til andre, mens ende-til-ende krypteret sikkerhed opretholdes og begrænser eksponeringen.
+
+Indbygget generator
+Opret lange, komplekse og distinkte adgangskoder og unikke brugernavne til hvert websted, som besøges. Integrér med udbydere af e-mailalias for yderligere fortrolighed.
 
 Globale oversættelser
-Bitwarden findes på 40 sprog, og flere kommer til, takket være vores globale fællesskab.
+Bitwarden-lokaliseringer findes til flere end 60 sprog, oversat af det globale fællesskab via Crowdin.
 
 Applikationer på tværs af platforme
-Beskyt og del følsomme data i din Bitwarden boks fra enhver browser, mobilenhed eller desktop OS og mere.
+Sikr og del følsomme data i Bitwarden Vault fra enhver webbrowser, mobilenhed eller computer-OS og mere.
+
+Bitwarden sikrer mere end blot adgangskoder
+Ende-til-ende krypterede legitimationshåndteringsløsninger fra Bitwarden giver organisationer mulighed for at sikre alt, herunder udviklerhemmeligheder og adgangsnøgleoplevelser. Besøg Bitwarden.com for at læse mere om Bitwarden Secrets Manager og Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>En sikker og gratis adgangskodemanager til alle dine enheder</value>
+    <value>Hjemme, på arbejde eller på farten sikrer Bitwarden nemt alle adgangskoder, adgangskort og sensitive oplysninger.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synkroniser og få adgang til din boks fra flere enheder</value>

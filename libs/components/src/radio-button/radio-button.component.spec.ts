@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -15,24 +15,23 @@ describe("RadioButton", () => {
   let testAppComponent: TestApp;
   let radioButton: HTMLInputElement;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     mockGroupComponent = new MockedButtonGroupComponent();
 
     TestBed.configureTestingModule({
-      imports: [RadioButtonModule],
-      declarations: [TestApp],
+      imports: [TestApp],
       providers: [
         { provide: RadioGroupComponent, useValue: mockGroupComponent },
         { provide: I18nService, useValue: new I18nMockService({}) },
       ],
     });
 
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     fixture.detectChanges();
     testAppComponent = fixture.debugElement.componentInstance;
     radioButton = fixture.debugElement.query(By.css("input[type=radio]")).nativeElement;
-  }));
+  });
 
   it("should emit value when clicking on radio button", () => {
     testAppComponent.value = "value";
@@ -67,12 +66,13 @@ describe("RadioButton", () => {
 
 class MockedButtonGroupComponent implements Partial<RadioGroupComponent> {
   onInputChange = jest.fn();
-  selected = null;
+  selected: unknown = null;
 }
 
 @Component({
   selector: "test-app",
-  template: ` <bit-radio-button [value]="value">Element</bit-radio-button>`,
+  template: `<bit-radio-button [value]="value"><bit-label>Element</bit-label></bit-radio-button>`,
+  imports: [RadioButtonModule],
 })
 class TestApp {
   value?: string;

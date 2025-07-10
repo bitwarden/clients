@@ -1,0 +1,123 @@
+<app-header>
+  <button *ngIf="!loading" type="button" buttonType="primary" bitButton (click)="addDomain()">
+    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+  </button>
+</app-header>
+
+<p bitTypography="body1" class="tw-text-main tw-w-2/5">
+  {{ "claimedDomainsDesc" | i18n }}
+  <a
+    bitLink
+    target="_blank"
+    rel="noreferrer"
+    appA11yTitle="{{ 'learnMore' | i18n }}"
+    href="https://bitwarden.com/help/claimed-accounts/"
+    slot="end"
+  >
+    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+  </a>
+</p>
+
+<ng-container *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <ng-container *ngIf="orgDomains$ | async as orgDomains">
+    <div class="tw-flex tw-flex-row">
+      <bit-table class="tw-w-full tw-table-auto">
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+            <th bitCell>{{ "lastChecked" | i18n }}</th>
+            <th bitCell class="tw-text-right">{{ "options" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          <tr bitRow *ngFor="let orgDomain of orgDomains; index as i">
+            <td bitCell>
+              <button
+                bitLink
+                type="button"
+                linkType="primary"
+                (click)="editDomain(orgDomain)"
+                appA11yTitle="{{ 'editDomain' | i18n }}"
+              >
+                {{ orgDomain.domainName }}
+              </button>
+            </td>
+            <td bitCell>
+              <span *ngIf="!orgDomain?.verifiedDate" bitBadge variant="warning">{{
+                "domainStatusUnderVerification" | i18n
+              }}</span>
+              <span *ngIf="orgDomain?.verifiedDate" bitBadge variant="success">{{
+                "domainStatusClaimed" | i18n
+              }}</span>
+            </td>
+            <td bitCell class="tw-text-muted">
+              {{ orgDomain.lastCheckedDate | date: "medium" }}
+            </td>
+
+            <td bitCell class="tw-text-right">
+              <button
+                [bitMenuTriggerFor]="orgDomainOptions"
+                class="tw-border-none tw-bg-transparent tw-text-main"
+                type="button"
+                appA11yTitle="{{ 'options' | i18n }}"
+              >
+                <i class="bwi bwi-ellipsis-v bwi-lg" aria-hidden="true"></i>
+              </button>
+              <bit-menu #orgDomainOptions>
+                <button bitMenuItem (click)="copyDnsTxt(orgDomain.txt)" type="button">
+                  <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+                  {{ "copyDnsTxtRecord" | i18n }}
+                </button>
+                <button
+                  bitMenuItem
+                  (click)="verifyDomain(orgDomain.id, orgDomain.domainName)"
+                  type="button"
+                >
+                  <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+                  {{ "claimDomain" | i18n }}
+                </button>
+                <button bitMenuItem (click)="deleteDomain(orgDomain.id)" type="button">
+                  <span class="tw-text-danger">
+                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                    {{ "remove" | i18n }}
+                  </span>
+                </button>
+              </bit-menu>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    </div>
+
+    <div
+      class="tw-mt-6 tw-flex tw-flex-col tw-items-center tw-justify-center"
+      *ngIf="orgDomains?.length == 0"
+    >
+      <img src="../../images/domain-verification/domain.svg" class="tw-mb-4" alt="" />
+
+      <div class="tw-mb-2 tw-flex tw-flex-row tw-justify-center">
+        <span class="tw-text-lg tw-font-bold">{{ "noDomains" | i18n }}</span>
+      </div>
+
+      <div class="tw-mb-4 tw-flex tw-flex-row tw-justify-center">
+        <span>
+          {{ "noDomainsSubText" | i18n }}
+        </span>
+      </div>
+
+      <button type="button" buttonType="secondary" bitButton (click)="addDomain()">
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i> {{ "newDomain" | i18n }}
+      </button>
+    </div>
+  </ng-container>
+</ng-container>

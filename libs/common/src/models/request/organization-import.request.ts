@@ -16,7 +16,7 @@ export class OrganizationImportRequest {
           overwriteExisting: boolean;
           largeImport: boolean;
         }
-      | ImportDirectoryRequest
+      | ImportDirectoryRequest,
   ) {
     if (model instanceof ImportDirectoryRequest) {
       this.groups = model.groups.map((g) => new OrganizationImportGroupRequest(g));

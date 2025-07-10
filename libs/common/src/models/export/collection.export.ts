@@ -1,6 +1,12 @@
-import { Collection as CollectionDomain } from "../domain/collection";
-import { EncString } from "../domain/enc-string";
-import { CollectionView } from "../view/collection.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
+
+import { EncString } from "../../platform/models/domain/enc-string";
+
+import { safeGetString } from "./utils";
 
 export class CollectionExport {
   static template(): CollectionExport {
@@ -36,11 +42,7 @@ export class CollectionExport {
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
     this.organizationId = o.organizationId;
-    if (o instanceof CollectionView) {
-      this.name = o.name;
-    } else {
-      this.name = o.name?.encryptedString;
-    }
+    this.name = safeGetString(o.name);
     this.externalId = o.externalId;
   }
 }

@@ -1,21 +1,23 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { CipherService } from "@bitwarden/common/abstractions/cipher.service";
-import { CollectionService } from "@bitwarden/common/abstractions/collection.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import {
-  isNotProviderUser,
-  OrganizationService,
-} from "@bitwarden/common/abstractions/organization/organization.service.abstraction";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { OrganizationUserStatusType } from "@bitwarden/common/enums/organizationUserStatusType";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { Organization } from "@bitwarden/common/models/domain/organization";
-import { CipherView } from "@bitwarden/common/models/view/cipher.view";
-import { CollectionView } from "@bitwarden/common/models/view/collection.view";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Checkable, isChecked } from "@bitwarden/common/types/checkable";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 @Directive()
 export class ShareComponent implements OnInit, OnDestroy {
@@ -38,7 +40,8 @@ export class ShareComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     private logService: LogService,
-    protected organizationService: OrganizationService
+    protected organizationService: OrganizationService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -54,27 +57,28 @@ export class ShareComponent implements OnInit, OnDestroy {
     const allCollections = await this.collectionService.getAllDecrypted();
     this.writeableCollections = allCollections.map((c) => c).filter((c) => !c.readOnly);
 
-    this.organizations$ = this.organizationService.organizations$.pipe(
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
+    this.organizations$ = this.organizationService.memberOrganizations$(userId).pipe(
       map((orgs) => {
         return orgs
-          .filter(
-            (o) =>
-              o.enabled && o.status === OrganizationUserStatusType.Confirmed && isNotProviderUser(o)
-          )
+          .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
           .sort(Utils.getSortFunction(this.i18nService, "name"));
-      })
+      }),
     );
 
     this.organizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (this.organizationId == null && orgs.length > 0) {
         this.organizationId = orgs[0].id;
+        this.filterCollections();
       }
     });
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
-    this.cipher = await cipherDomain.decrypt();
-
-    this.filterCollections();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
+    this.cipher = await this.cipherService.decrypt(cipherDomain, activeUserId);
   }
 
   filterCollections() {
@@ -83,7 +87,7 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.collections = [];
     } else {
       this.collections = this.writeableCollections.filter(
-        (c) => c.organizationId === this.organizationId
+        (c) => c.organizationId === this.organizationId,
       );
     }
   }
@@ -94,26 +98,27 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectOneCollection")
+        this.i18nService.t("selectOneCollection"),
       );
       return;
     }
 
-    const cipherDomain = await this.cipherService.get(this.cipherId);
-    const cipherView = await cipherDomain.decrypt();
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
+    const cipherView = await this.cipherService.decrypt(cipherDomain, activeUserId);
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
       orgs.find((o) => o.id === this.organizationId)?.name ?? this.i18nService.t("organization");
 
     try {
       this.formPromise = this.cipherService
-        .shareWithServer(cipherView, this.organizationId, selectedCollectionIds)
+        .shareWithServer(cipherView, this.organizationId, selectedCollectionIds, activeUserId)
         .then(async () => {
           this.onSharedCipher.emit();
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("movedItemToOrg", cipherView.name, orgName)
+            this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
           );
         });
       await this.formPromise;

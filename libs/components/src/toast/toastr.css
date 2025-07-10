@@ -1,0 +1,27 @@
+@import "./toast.tokens.css";
+@import "ngx-toastr/toastr";
+
+/* Override all default styles from `ngx-toaster` */
+.toast-container .ngx-toastr {
+  all: unset;
+  display: block;
+  width: var(--bit-toast-width);
+
+  /* Needed to make hover states work in Electron, since the toast appears in the draggable region. */
+  -webkit-app-region: no-drag;
+}
+
+/* Disable hover styles */
+.toast-container .ngx-toastr:hover {
+  box-shadow: none;
+}
+
+.toast-container.toast-bottom-full-width .ngx-toastr {
+  width: var(--bit-toast-width-full);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.toast-container.toast-top-full-width {
+  top: var(--bit-toast-top);
+}

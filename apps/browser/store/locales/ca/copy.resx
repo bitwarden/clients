@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Administrador de contrasenyes gratuït</value>
+    <value>Bitwarden - Gestor de contrasenyes</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Administrador de contrasenyes segur i gratuït per a tots els vostres dispositius</value>
+    <value>A casa, a la feina o en moviment, Bitwarden protegeix totes les contrasenyes, claus de pas i informació sensible.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. és la companyia matriu de solucions de 8 bits LLC.
+    <value>Reconegut com el millor gestor de contrasenyes per PCMag, WIRED, The Verge, CNET, G2 i més!
 
-Nomenada Millor gestor de contrasenyes per THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET, AND MORE.
+ASSEGURA LA TEUA VIDA DIGITAL
+Assegureu-vos la vostra vida digital i protegiu-vos de les violacions de dades generant i desant contrasenyes úniques i fortes per a cada compte. Mantingueu-ho tot en una caixa de contrasenyes xifrada d'extrem a extrem a la qual només podeu accedir.
 
-Gestioneu, emmagatzemeu, segures i compartiu contrasenyes il·limitades a través de dispositius il·limitats des de qualsevol lloc. Bitwarden lliura solucions de gestió de contrasenyes de codi obert a tothom, ja siga a casa, a la feina o sobre la marxa.
+ACCEDEIX A LES SEUES DADES, ON, EN QUALSEVOL MOMENT, EN QUALSEVOL DISPOSITIU
+Gestiona, emmagatzema, protegeix i comparteix fàcilment contrasenyes il·limitades en dispositius il·limitats sense restriccions.
 
-Genereu contrasenyes fortes, úniques i aleatòries basades en els requisits de seguretat per a cada lloc web que freqüenteu.
+TOTHOM HA DE TENIR LES EINES PER ESTAR SEGURETAT EN LÍNIA
+Utilitzeu Bitwarden de forma gratuïta sense anuncis ni dades de venda. Bitwarden creu que tothom hauria de tenir la capacitat de mantenir-se segur en línia. Els plans Prèmium ofereixen accés a funcions avançades.
 
-Bitwarden Send transmet ràpidament informació xifrada --- Fitxers i text complet - directament a qualsevol persona.
+EMPODERA ELS TEUS EQUIPS AMB BITWARDEN
+Els plans per a equips i empreses inclouen funcions empresarials professionals. Alguns exemples inclouen integració SSO, autoallotjament, integració de directoris i subministrament SCIM, polítiques globals, accés a API, registres d'esdeveniments i molt més.
 
-Bitwarden ofereix equips i plans empresarials per a empreses perquè pugueu compartir amb seguretat contrasenyes amb els companys.
+Utilitzeu Bitwarden per protegir la vostra força de treball i compartir informació crítica amb els companys.
 
-Per què triar Bitwarden:
+
+Més raons per a triar Bitwarden:
 
 Xifratge de classe mundial
-Les contrasenyes estan protegides amb un xifratge avançat fi-a-fi (AES-256 bit, salted hashtag, and PBKDF2 SHA-256), de manera que les vostres dades es mantenen segures i privades.
+Les contrasenyes estan protegides amb un xifratge avançat d'extrem a extrem (AES-256 bits, hashtag salat i PBKDF2 SHA-256) perquè les vostres dades es mantinguen segures i privades.
 
-Generador de contrasenyes integrat
-Genereu contrasenyes fortes, úniques i aleatòries basades en els requisits de seguretat per a cada lloc web que freqüenteu.
+Auditories de tercers
+Bitwarden realitza regularment auditories de seguretat exhaustives de tercers amb empreses de seguretat notables. Aquestes auditories anuals inclouen avaluacions del codi font i proves de penetració a les IP, servidors i aplicacions web de Bitwarden.
+
+2FA avançat
+Assegureu el vostre inici de sessió amb un autenticador de tercers, codis enviats per correu electrònic o credencials FIDO2 WebAuthn, com ara una clau de seguretat de maquinari o una clau de pas.
+
+Bitwarden Enviar
+Transmet dades directament a altres, mantenint la seguretat xifrada d'extrem a extrem i limitant l'exposició.
+
+Generador incorporat
+Creeu contrasenyes llargues, complexes i diferents i noms d'usuari únics per a cada lloc que visiteu. Integració amb proveïdors d'àlies de correu electrònic per obtenir més privadesa.
 
 Traduccions globals
-Les traduccions de Bitwarden existeixen en 40 idiomes i creixen, gràcies a la nostra comunitat global.
+Les traduccions de Bitwarden existeixen per a més de 60 idiomes, traduïdes per la comunitat global mitjançant Crowdin.
 
-Aplicacions de plataforma creuada
-Assegureu-vos i compartiu dades sensibles a la vostra caixa forta de Bitwarden des de qualsevol navegador, dispositiu mòbil o S.O. d'escriptori, i molt més.
+Aplicacions multiplataforma
+Assegureu-vos i compartiu dades confidencials a la vostra caixa forta Bitwarden des de qualsevol navegador, dispositiu mòbil o sistema operatiu d'escriptori i molt més.
+
+Bitwarden assegura més que només contrasenyes
+Les solucions de gestió de credencials xifrades d'extrem a extrem de Bitwarden permeten a les organitzacions protegir-ho tot, inclosos els secrets dels desenvolupadors i les experiències de clau de pas. Visiteu Bitwarden.com per obtenir més informació sobre Bitwarden gestor de secrets i Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Administrador de contrasenyes segur i gratuït per a tots els vostres dispositius</value>
+    <value>A casa, a la feina o en moviment, Bitwarden protegeix totes les contrasenyes, claus de pas i informació sensible.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sincronitzeu i accediu a la vostra caixa forta des de diversos dispositius</value>

@@ -1,0 +1,130 @@
+<div *ngIf="!projects" class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
+  <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+</div>
+
+<bit-no-items *ngIf="projects?.length == 0">
+  <ng-container slot="title">{{ "projectsNoItemsTitle" | i18n }}</ng-container>
+  <ng-container slot="description">{{ "projectsNoItemsMessage" | i18n }}</ng-container>
+  <button
+    type="button"
+    slot="button"
+    bitButton
+    buttonType="secondary"
+    (click)="newProjectEvent.emit()"
+  >
+    <i class="bwi bwi-plus" aria-hidden="true"></i>
+    {{ "newProject" | i18n }}
+  </button>
+</bit-no-items>
+
+<bit-table *ngIf="projects?.length >= 1" [dataSource]="dataSource">
+  <ng-container header>
+    <tr>
+      <th bitCell class="tw-w-0" *ngIf="showMenus">
+        <label class="!tw-mb-0 tw-flex tw-w-fit tw-gap-2 !tw-font-bold !tw-text-muted">
+          <input
+            type="checkbox"
+            (change)="$event ? toggleAll() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+          />
+          {{ "all" | i18n }}
+        </label>
+      </th>
+      <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+      <th bitCell bitSortable="revisionDate" *ngIf="showMenus">{{ "lastEdited" | i18n }}</th>
+      <th
+        bitCell
+        class="tw-w-0"
+        [ngClass]="{ 'tw-invisible': !(hasWriteAccessOnSelected$ | async) }"
+      >
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          buttonType="main"
+          [bitMenuTriggerFor]="tableMenu"
+          [title]="'options' | i18n"
+          [attr.aria-label]="'options' | i18n"
+          *ngIf="showMenus"
+        ></button>
+      </th>
+    </tr>
+  </ng-container>
+  <ng-template body let-rows$>
+    <tr bitRow *ngFor="let project of rows$ | async">
+      <td bitCell *ngIf="showMenus">
+        <input
+          type="checkbox"
+          (change)="$event ? selection.toggle(project.id) : null"
+          [checked]="selection.isSelected(project.id)"
+        />
+      </td>
+      <td bitCell>
+        <div class="tw-flex tw-items-center tw-gap-4 tw-break-all">
+          <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
+          <div>
+            <a
+              *ngIf="project.linkable"
+              bitLink
+              [routerLink]="['/sm', project.organizationId, 'projects', project.id]"
+              >{{ project.name }}</a
+            >
+            <span *ngIf="!project.linkable">{{ project.name }}</span>
+            <div class="tw-text-sm tw-text-muted tw-block">
+              {{ project.id }}
+              <button
+                type="button"
+                bitIconButton="bwi-clone"
+                buttonType="main"
+                size="small"
+                [title]="'copyUuid' | i18n"
+                [attr.aria-label]="'copyUuid' | i18n"
+                (click)="copyProjectUuidToClipboard(project.id)"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </td>
+      <td bitCell class="tw-whitespace-nowrap" *ngIf="showMenus">
+        {{ project.revisionDate | date: "medium" }}
+      </td>
+      <td bitCell>
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          buttonType="main"
+          [bitMenuTriggerFor]="projectMenu"
+          [title]="'options' | i18n"
+          [attr.aria-label]="'options' | i18n"
+          *ngIf="showMenus"
+        ></button>
+      </td>
+      <bit-menu #projectMenu>
+        <a bitMenuItem [routerLink]="['/sm', project.organizationId, 'projects', project.id]">
+          <i class="bwi bwi-fw bwi-eye" aria-hidden="true"></i>
+          {{ "viewProject" | i18n }}
+        </a>
+        <button
+          *ngIf="project.write"
+          type="button"
+          bitMenuItem
+          (click)="editProjectEvent.emit(project.id)"
+        >
+          <i class="bwi bwi-fw bwi-pencil" aria-hidden="true"></i>
+          {{ "editProject" | i18n }}
+        </button>
+        <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
+          <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
+          <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>
+        </button>
+      </bit-menu>
+    </tr>
+  </ng-template>
+</bit-table>
+
+<bit-menu #tableMenu>
+  <button type="button" bitMenuItem (click)="bulkDeleteProjects()">
+    <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
+    <span class="tw-text-danger">{{ "deleteProjects" | i18n }}</span>
+  </button>
+</bit-menu>

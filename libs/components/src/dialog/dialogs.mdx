@@ -1,0 +1,65 @@
+import { Meta, Canvas, Source } from "@storybook/addon-docs";
+
+import * as stories from "./dialog.service.stories";
+
+<Meta title="Component Library/Dialogs" />
+
+```ts
+import { DialogModule } from "@bitwarden/components";
+```
+
+# Dialog
+
+Dialogs are used throughout the app to help the user focus on a specific action.
+
+Use the main [Dialog Component](?path=/docs/component-library-dialogs-dialog--docs). when content
+exceeds 384px width or there are a high number of interactive elements needed. **Example:** The web
+app's edit vault item form dialog
+
+For alerts or simple confirmation actions, like speedbumps, use the
+[Simple Dialog](?path=/docs/component-library-dialogs-simple-dialog--docs).
+
+Dialogs's should be used sparingly as they do call extra attention to themselves and can be
+interruptive if overused.
+
+For non-blocking, supplementary content, open dialogs as a
+[Drawer](?path=/story/component-library-dialogs-service--drawer) (requires `bit-layout`).
+
+## Placement
+
+Dialogs should be centered vertically and horizontally on screen. Dialogs height should expand to
+fit its content until there are 2rems of margin on the top/bottom of the dialog; in this case, the
+dialog should become scrollable.
+
+A backdrop should be used to hide the content below the dialog. Use `#000000` with `30% opacity`.
+
+<Canvas of={stories.Default} />
+
+## Accessibility
+
+### Component behavior
+
+- Dialog include `role="dialog"`
+- The Dialog title is an `<h1>`
+- A user should not be able to tab focus outside of the Dialog until it has been closed.
+- Clicking outside the dialog or clicking escape should close the dialog (this prevents a keyboard
+  trap)
+
+### Required per implementation
+
+The triggering button should indicate to assistive technology that additional content will open or
+appear when the trigger is selected. Consider using `aria-haspopup="true"`
+
+Dialog title should be announced by a screen reader when launched. Consider using `aria-labelledby`
+or `aria-label`
+
+When opened, focus should follow the visual order of the popover’s focusable content. Typically
+focus is moved to the close button, but it is acceptable to move focus to the first interactive
+element after close since a user may not want to close the dialog immediately if there are
+additional interactive elements. See
+[WCAG Focus Order success criteria](https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html)
+
+Once closed, focus should remain on the element which triggered the Dialog.
+
+**Note:** If a Simple Dialog is triggered from a main Dialog, be sure to make sure focus is moved to
+the Simple Dialog.

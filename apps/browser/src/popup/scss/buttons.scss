@@ -26,6 +26,11 @@
     }
   }
 
+  &.callout-half {
+    font-weight: bold;
+    max-width: 50%;
+  }
+
   &:hover:not([disabled]) {
     cursor: pointer;
 

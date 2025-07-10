@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,54 +118,72 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - مدير كلمات مرور مجاني</value>
+    <value>مدير كلمات المرور بتواردن</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>مدير كلمات مرور مجاني وآمن لجميع أجهزتك</value>
+    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>شركة Bitwarden, Inc هي الشركة الأم لشركة 8bit Solutions LLC.
+    <value>مُعترف به كأفضل مدير كلمات مرور من قِبل PCMag وWIRED وThe Verge وCNET وG2 وغيرها!
 
-تم تصنيف Bitwarden كأفصل مدير كلمات مرور بواسطة كل من The Verge، U.S News &amp; World Report، CNET، وغيرهم.
+أمّن حياتك الرقمية
 
-قم بادراة وحفظ وتأمين كلمات المرور الخاصة بك، ومشاركتها بين اجهزتك من اي مكان.
-يوفر Bitwarden حل مفتوح المصدر لادارة كلمات المرور للجميع، سواء في المنزل، في العمل او في اي مكان.
+أمّن حياتك الرقمية واحمِ بياناتك من الاختراقات بإنشاء كلمات مرور فريدة وقوية وحفظها لكل حساب. احفظ كل شيء في مخزن كلمات مرور مشفّر من البداية إلى النهاية، لا يمكن لأحد الوصول إليه سواك.
 
-قم بانشاء كلمات مرور قوية وفريدة وعشوائية حسب متطلبات الأمان للصفحات التي تزورها.
+الوصول إلى بياناتك، من أي مكان، وفي أي وقت، وعلى أي جهاز
 
-يوفر Bitwarden Send امكانية ارسال البيانات --- النصوص والملفات --- بطريقة مشفرة وسريعة لأي شخص.
+يمكنك بسهولة إدارة كلمات مرور غير محدودة وتخزينها وتأمينها ومشاركتها عبر عدد غير محدود من الأجهزة دون قيود.
 
-يوفر Bitwarden خطط خاصة للفرق والشركات والمؤسسات لتمكنك من مشاركة كلمات المرور مع زملائك في العمل.
+يجب أن يمتلك الجميع الأدوات اللازمة للبقاء آمنًا على الإنترنت
 
-لماذا قد تختار Bitwarden:
+استخدم بيتواردن مجانًا دون إعلانات أو بيع بيانات. تؤمن بيتواردن بحق الجميع في البقاء آمنًا على الإنترنت. توفر الباقات المميزة إمكانية الوصول إلى ميزات متقدمة.
 
-تشفير على مستوى عالمي
-كلمات المرور محمية بتشفير متقدم تام (end-to-end encryption) من نوعية AES-256 bit، مع salted hashing، و PBKDF2 SHA-256. كل هذا لابقاء بياناتك محمية وخاصة.
+عزز قدرات فرقك مع بتواردن
+تأتي باقاتنا للفرق والمؤسسات مزودة بميزات احترافية للأعمال. من الأمثلة على ذلك تكامل SSO، والاستضافة الذاتية، وتكامل الدليل، وتوفير SCIM، والسياسات العالمية، والوصول إلى واجهة برمجة التطبيقات، وسجلات الأحداث، والمزيد.
 
-مولد كلمات المرور المدمج
-قم بانشاء كلمات مرور قوية وفريدة وعشوائية حسب متطلبات الأمان للصفحات التي تزورها.
+استخدم بيتواردن لتأمين فريق عملك ومشاركة المعلومات الحساسة مع زملائك.
 
-الترجمات العالمية
-يتوفر Bitwarden باكثر من 40 لغة، وتتنامى الترجمات بفضل مجتمعنا العالمي.
+أسباب إضافية لاختيار بتواردن:
+
+تشفير عالمي المستوى
+كلمات المرور محمية بتشفير متقدم من البداية إلى النهاية (AES-256 بت، وهاشتاج مُملح، وPBKDF2 SHA-256) لضمان أمان بياناتك وخصوصيتها.
+
+عمليات تدقيق خارجية
+تُجري بيتواردن بانتظام عمليات تدقيق أمنية شاملة من جهات خارجية بالتعاون مع شركات أمنية مرموقة. تشمل هذه العمليات السنوية تقييمات لشفرة المصدر واختبارات اختراق عبر عناوين IP وخوادم وتطبيقات الويب الخاصة بـبتواردن.
+
+مصادقة ثنائية متقدمة
+أمّن تسجيل دخولك باستخدام مُصادق خارجي، أو رموز مُرسلة عبر البريد الإلكتروني، أو بيانات اعتماد FIDO2 WebAuthn مثل مفتاح أمان الأجهزة أو كلمة المرور.
+
+إرسال بتواردن
+انقل البيانات مباشرةً إلى الآخرين مع الحفاظ على أمان مشفّر من البداية إلى النهاية والحد من التعرض.
+
+مولد مدمج
+أنشئ كلمات مرور طويلة ومعقدة ومميزة وأسماء مستخدمين فريدة لكل موقع تزوره. تكامل مع مزودي أسماء البريد الإلكتروني المستعارة لمزيد من الخصوصية.
+
+ترجمات عالمية
+تتوفر ترجمات بتواردن لأكثر من 60 لغة، مترجمة من قِبل المجتمع العالمي عبر Crowdin.
 
 تطبيقات متعددة المنصات
-قم بحماية ومشاركة بياناتاك الحساسة عبر خزنة Bitwarden من اي متصفح ويب، او هاتف ذكي، او جهاز كمبيوتر، وغيرها.
+أمّن بياناتك الحساسة وشاركها داخل مخزن بتواردن من أي متصفح أو جهاز محمول أو نظام تشغيل سطح مكتب، وغير ذلك الكثير.
+
+يؤمن بتواردن أكثر من مجرد كلمات مرور
+تُمكّن حلول إدارة بيانات الاعتماد المشفرة من البداية إلى النهاية من بتواردن المؤسسات من تأمين كل شيء، بما في ذلك أسرار المطورين وتجارب مفاتيح المرور. تفضل بزيارة Bitwarden.com لمعرفة المزيد عن المدير السري لبتواردن وBitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>مدير كلمات مرور مجاني وآمن لجميع أجهزتك</value>
+    <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم بتواردن بتأمين جميع كلمات المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>مزامنة خزنتك والوصول إليها من عدة أجهزة</value>
+    <value>مزامنة خزانتك والوصول إليها من عدة أجهزة</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>إدارة جميع تسجيلات الدخول وكلمات المرور الخاصة بك من خزنة آمنة</value>
+    <value>إدارة جميع تسجيلات الدخول وكلمات المرور الخاصة بك من خزانة آمنة</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>قم بملء بيانات تسجيل الدخول تلقائياً وبسرعة في أي موقع تزوره</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>يمكنك الوصول الى خزنتك بسهولة من قائمة النقر بالزر الأيمن</value>
+    <value>يمكنك الوصول الى خزانتك بسهولة من قائمة النقر بالزر الأيمن</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>إنشاء كلمات مرور قوية، وعشوائية، وآمنة، تلقائيًا</value>

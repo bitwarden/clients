@@ -1,0 +1,42 @@
+<app-header></app-header>
+<bit-container>
+  <div *ngIf="loading">
+    <i
+      class="bwi bwi-spinner bwi-spin tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+  <form *ngIf="provider && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+      <div class="tw-col-span-6">
+        <bit-form-field>
+          <bit-label>{{ "providerName" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="providerName" [disabled]="selfHosted" />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "billingEmail" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="providerBillingEmail"
+            [disabled]="selfHosted"
+          />
+        </bit-form-field>
+      </div>
+      <div class="tw-col-span-6">
+        <bit-avatar [text]="provider.name" [id]="provider.id" size="large"></bit-avatar>
+      </div>
+    </div>
+    <button type="submit" bitFormButton bitButton buttonType="primary">
+      {{ "save" | i18n }}
+    </button>
+  </form>
+
+  <app-danger-zone>
+    <button type="button" bitButton buttonType="danger" (click)="deleteProvider()">
+      {{ "deleteProvider" | i18n }}
+    </button>
+  </app-danger-zone>
+</bit-container>

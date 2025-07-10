@@ -11,12 +11,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
       multi: true,
     },
   ],
+  standalone: false,
 })
 export class TrueFalseValueDirective implements ControlValueAccessor {
-  @Input() trueValue = true;
-  @Input() falseValue = false;
+  @Input() trueValue: boolean | string = true;
+  @Input() falseValue: boolean | string = false;
 
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+  constructor(
+    private elementRef: ElementRef,
+    private renderer: Renderer2,
+  ) {}
 
   @HostListener("change", ["$event"])
   onHostChange(ev: any) {

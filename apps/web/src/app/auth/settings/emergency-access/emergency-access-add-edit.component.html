@@ -1,0 +1,69 @@
+<form [formGroup]="addEditForm" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle>
+      <app-premium-badge *ngIf="readOnly"></app-premium-badge>
+      {{ title }}
+      <small class="tw-text-muted" *ngIf="params.name">{{ params.name }}</small>
+    </span>
+    <ng-container bitDialogContent>
+      <ng-container *ngIf="!editMode">
+        <p bitTypography="body1">{{ "inviteEmergencyContactDesc" | i18n }}</p>
+        <bit-form-field>
+          <bit-label>{{ "email" | i18n }}</bit-label>
+          <input bitInput formControlName="email" />
+        </bit-form-field>
+      </ng-container>
+      <bit-radio-group formControlName="emergencyAccessType" [block]="true">
+        <bit-label>
+          {{ "userAccess" | i18n }}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            bitLink
+            linkType="primary"
+            appA11yTitle="{{ 'learnMoreAboutUserAccess' | i18n }}"
+            href="https://bitwarden.com/help/emergency-access/#user-access"
+            slot="end"
+          >
+            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          </a>
+        </bit-label>
+        <bit-radio-button id="emergencyTypeView" [value]="emergencyAccessType.View">
+          <bit-label>{{ "view" | i18n }}</bit-label>
+          <bit-hint>{{ "viewDesc" | i18n }}</bit-hint>
+        </bit-radio-button>
+
+        <bit-radio-button id="emergencyTypeTakeover" [value]="emergencyAccessType.Takeover">
+          <bit-label>{{ "takeover" | i18n }}</bit-label>
+          <bit-hint>{{ "takeoverDesc" | i18n }}</bit-hint>
+        </bit-radio-button>
+      </bit-radio-group>
+
+      <bit-form-field class="tw-w-1/2 tw-relative tw-px-2.5">
+        <bit-label>{{ "waitTime" | i18n }}</bit-label>
+        <bit-select formControlName="waitTime">
+          <bit-option *ngFor="let o of waitTimes" [value]="o.value" [label]="o.name"></bit-option>
+        </bit-select>
+        <bit-hint class="tw-text-sm">{{ "waitTimeDesc" | i18n }}</bit-hint>
+      </bit-form-field>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" buttonType="primary" bitButton bitFormButton [disabled]="readOnly">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton bitFormButton buttonType="secondary" type="button" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitFormButton
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        buttonType="danger"
+        [bitAction]="delete"
+        *ngIf="editMode"
+        appA11yTitle="{{ 'delete' | i18n }}"
+      ></button>
+    </ng-container>
+  </bit-dialog>
+</form>

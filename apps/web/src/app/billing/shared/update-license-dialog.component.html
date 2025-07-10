@@ -1,0 +1,41 @@
+<form [formGroup]="updateLicenseForm" [bitSubmit]="submitLicenseDialog">
+  <bit-dialog dialogSize="default" [title]="'updateLicense' | i18n">
+    <ng-container bitDialogContent>
+      <bit-form-field>
+        <bit-label>{{ "licenseFile" | i18n }}</bit-label>
+        <div>
+          <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+            {{ "chooseFile" | i18n }}
+          </button>
+          {{ licenseFile ? licenseFile.name : ("noFileChosen" | i18n) }}
+        </div>
+        <input
+          bitInput
+          #fileSelector
+          type="file"
+          formControlName="file"
+          (change)="setSelectedFile($event)"
+          hidden
+          class="tw-hidden"
+        />
+        <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_premium_license.json" }}</bit-hint>
+      </bit-form-field>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" buttonType="primary" bitButton bitFormButton>
+        {{ "submit" | i18n }}
+      </button>
+      <button
+        bitButton
+        *ngIf="showCancel"
+        bitFormButton
+        buttonType="secondary"
+        type="button"
+        bitDialogClose
+        [bitAction]="cancel"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

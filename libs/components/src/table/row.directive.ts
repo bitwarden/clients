@@ -4,7 +4,7 @@ import { Directive, HostBinding, Input } from "@angular/core";
   selector: "tr[bitRow]",
 })
 export class RowDirective {
-  @Input() alignContent: "top" | "middle" | "bottom" | "baseline" = "baseline";
+  @Input() alignContent: "top" | "middle" | "bottom" | "baseline" = "middle";
 
   get alignmentClass(): string {
     switch (this.alignContent) {
@@ -25,7 +25,7 @@ export class RowDirective {
       "tw-border-b",
       "tw-border-secondary-300",
       "tw-border-solid",
-      "hover:tw-bg-background-alt",
+      "hover:tw-bg-hover-default",
       "last:tw-border-0",
       this.alignmentClass,
     ];

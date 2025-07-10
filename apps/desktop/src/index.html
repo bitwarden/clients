@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' 'unsafe-inline';
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline';
         img-src 'self' data: *; child-src *; frame-src *; connect-src *;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bitwarden</title>
     <base href="" />
   </head>
-  <body class="layout_frontend">
+  <body>
     <app-root>
       <div id="loading"><i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i></div>
     </app-root>

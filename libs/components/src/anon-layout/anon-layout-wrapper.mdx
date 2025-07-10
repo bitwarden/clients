@@ -1,0 +1,24 @@
+import { Meta, Story, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./anon-layout-wrapper.stories";
+
+<Meta of={stories} />
+
+# Anon Layout Wrapper
+
+## Anon Layout Wrapper Component
+
+The auth owned `AnonLayoutWrapperComponent` orchestrates routing configuration data and feeds it
+into the `AnonLayoutComponent`. See the `Anon Layout` storybook for full documentation on how to use
+the `AnonLayoutWrapperComponent`.
+
+## Default Example with all 3 outlets used
+
+<Story of={stories.DefaultContentExample} />
+
+## Dynamic Anon Layout Wrapper Content Example
+
+This example demonstrates a child component using the `DefaultAnonLayoutWrapperDataService` to
+dynamically set the content of the `AnonLayoutWrapperComponent`.
+
+<Story of={stories.DynamicContentExample} />

@@ -1,0 +1,113 @@
+<h2 bitTypography="h2">{{ "encKeySettings" | i18n }}</h2>
+<bit-callout type="warning">{{ "kdfSettingsChangeLogoutWarning" | i18n }}</bit-callout>
+<p bitTypography="body1">
+  {{ "higherKDFIterations" | i18n }}
+</p>
+<p bitTypography="body1">
+  {{
+    "kdfToHighWarningIncreaseInIncrements"
+      | i18n: (isPBKDF2(kdfConfig) ? ("incrementsOf100,000" | i18n) : ("smallIncrements" | i18n))
+  }}
+</p>
+<form [formGroup]="formGroup" autocomplete="off">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <div class="tw-col-span-6">
+      <bit-form-field>
+        <bit-label
+          >{{ "kdfAlgorithm" | i18n }}
+          <a
+            class="tw-ml-auto"
+            bitLink
+            href="https://bitwarden.com/help/kdf-algorithms"
+            target="_blank"
+            rel="noreferrer"
+            appA11yTitle="{{ 'learnMoreAboutEncryptionAlgorithms' | i18n }}"
+            slot="end"
+          >
+            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+          </a>
+        </bit-label>
+        <bit-select formControlName="kdf">
+          <bit-option
+            *ngFor="let option of kdfOptions"
+            [value]="option.value"
+            [label]="option.name"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+      <bit-form-field formGroupName="kdfConfig" *ngIf="isArgon2(kdfConfig)">
+        <bit-label>{{ "kdfMemory" | i18n }}</bit-label>
+        <input
+          bitInput
+          formControlName="memory"
+          type="number"
+          [min]="ARGON2_MEMORY.min"
+          [max]="ARGON2_MEMORY.max"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-col-span-6">
+      <div class="tw-mb-0">
+        <bit-form-field formGroupName="kdfConfig" *ngIf="isPBKDF2(kdfConfig)">
+          <bit-label>
+            {{ "kdfIterations" | i18n }}
+            <a
+              bitLink
+              class="tw-ml-auto"
+              href="https://bitwarden.com/help/what-encryption-is-used/#changing-kdf-iterations"
+              target="_blank"
+              rel="noreferrer"
+              appA11yTitle="{{ 'learnMoreAboutKDFIterations' | i18n }}"
+              slot="end"
+            >
+              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+            </a>
+          </bit-label>
+          <input
+            bitInput
+            type="number"
+            formControlName="iterations"
+            [min]="PBKDF2_ITERATIONS.min"
+            [max]="PBKDF2_ITERATIONS.max"
+          />
+          <bit-hint>{{ "kdfIterationRecommends" | i18n }}</bit-hint>
+        </bit-form-field>
+        <ng-container *ngIf="isArgon2(kdfConfig)">
+          <bit-form-field formGroupName="kdfConfig">
+            <bit-label>
+              {{ "kdfIterations" | i18n }}
+            </bit-label>
+            <input
+              bitInput
+              type="number"
+              formControlName="iterations"
+              [min]="ARGON2_ITERATIONS.min"
+              [max]="ARGON2_ITERATIONS.max"
+            />
+          </bit-form-field>
+          <bit-form-field formGroupName="kdfConfig">
+            <bit-label>
+              {{ "kdfParallelism" | i18n }}
+            </bit-label>
+            <input
+              bitInput
+              type="number"
+              formControlName="parallelism"
+              [min]="ARGON2_PARALLELISM.min"
+              [max]="ARGON2_PARALLELISM.max"
+            />
+          </bit-form-field>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <button
+    (click)="openConfirmationModal()"
+    type="button"
+    buttonType="primary"
+    bitButton
+    bitFormButton
+  >
+    {{ "changeKdf" | i18n }}
+  </button>
+</form>

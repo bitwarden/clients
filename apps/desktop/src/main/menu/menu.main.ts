@@ -1,8 +1,13 @@
 import { app, Menu } from "electron";
+import { firstValueFrom } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { Main } from "../../main";
+import { VersionMain } from "../../platform/main/version.main";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { UpdaterMain } from "../updater.main";
 import { WindowMain } from "../window.main";
 
 import { MenuUpdateRequest } from "./menu.updater";
@@ -11,13 +16,15 @@ import { Menubar } from "./menubar";
 const cloudWebVaultUrl = "https://vault.bitwarden.com";
 
 export class MenuMain {
-  private i18nService: I18nService;
-  private windowMain: WindowMain;
-
-  constructor(private main: Main) {
-    this.i18nService = main.i18nService;
-    this.windowMain = main.windowMain;
-  }
+  constructor(
+    private i18nService: I18nService,
+    private messagingService: MessagingService,
+    private environmentService: EnvironmentService,
+    private windowMain: WindowMain,
+    private updaterMain: UpdaterMain,
+    private desktopSettingsService: DesktopSettingsService,
+    private versionMain: VersionMain,
+  ) {}
 
   async init() {
     this.initContextMenu();
@@ -31,28 +38,23 @@ export class MenuMain {
   private async setMenu(updateRequest?: MenuUpdateRequest) {
     Menu.setApplicationMenu(
       new Menubar(
-        this.main.i18nService,
-        this.main.messagingService,
-        this.main.updaterMain,
+        this.i18nService,
+        this.messagingService,
+        this.desktopSettingsService,
+        this.updaterMain,
         this.windowMain,
         await this.getWebVaultUrl(),
         app.getVersion(),
-        updateRequest
-      ).menu
+        await firstValueFrom(this.desktopSettingsService.hardwareAcceleration$),
+        this.versionMain,
+        updateRequest,
+      ).menu,
     );
   }
 
   private async getWebVaultUrl() {
-    let webVaultUrl = cloudWebVaultUrl;
-    const urlsObj: any = await this.main.stateService.getEnvironmentUrls();
-    if (urlsObj != null) {
-      if (urlsObj.base != null) {
-        webVaultUrl = urlsObj.base;
-      } else if (urlsObj.webVault != null) {
-        webVaultUrl = urlsObj.webVault;
-      }
-    }
-    return webVaultUrl;
+    const env = await firstValueFrom(this.environmentService.environment$);
+    return env.getWebVaultUrl() ?? cloudWebVaultUrl;
   }
 
   private initContextMenu() {

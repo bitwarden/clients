@@ -3,31 +3,34 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { InfiniteScrollModule } from "ngx-infinite-scroll";
-import { ToastrModule } from "ngx-toastr";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   AsyncActionsModule,
   AvatarModule,
+  BadgeListModule,
   BadgeModule,
   ButtonModule,
   CalloutModule,
+  CheckboxModule,
+  ColorPasswordModule,
+  ContainerComponent,
   DialogModule,
   FormFieldModule,
   IconButtonModule,
   IconModule,
-  MenuModule,
   LinkModule,
-  NavigationModule,
+  MenuModule,
+  MultiSelectModule,
+  ProgressModule,
+  RadioButtonModule,
+  SectionComponent,
+  SelectModule,
   TableModule,
   TabsModule,
-  ColorPasswordModule,
+  ToggleGroupModule,
+  TypographyModule,
 } from "@bitwarden/components";
-
-// Register the locales for the application
-import "./locales";
-import { WebI18nPipe } from "../core/web-i18n.pipe";
 
 /**
  * This NgModule should contain the most basic shared directives, pipes, and components. They
@@ -42,60 +45,72 @@ import { WebI18nPipe } from "../core/web-i18n.pipe";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
-    // Component library
+    // Component library modules
+    // Only add components that are used almost everywhere in the application
     AsyncActionsModule,
     AvatarModule,
+    BadgeListModule,
     BadgeModule,
     ButtonModule,
     CalloutModule,
+    CheckboxModule,
+    ColorPasswordModule,
+    ContainerComponent,
     DialogModule,
     FormFieldModule,
     IconButtonModule,
     IconModule,
+    LinkModule,
     MenuModule,
-    NavigationModule,
+    MultiSelectModule,
+    ProgressModule,
+    RadioButtonModule,
+    SectionComponent,
     TableModule,
     TabsModule,
-    LinkModule,
-    ColorPasswordModule,
+    ToggleGroupModule,
+    TypographyModule,
 
     // Web specific
   ],
-  declarations: [WebI18nPipe],
   exports: [
     CommonModule,
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    InfiniteScrollModule,
     RouterModule,
-    ToastrModule,
     JslibModule,
 
     // Component library
     AsyncActionsModule,
     AvatarModule,
+    BadgeListModule,
     BadgeModule,
     ButtonModule,
     CalloutModule,
+    CheckboxModule,
+    ColorPasswordModule,
+    ContainerComponent,
     DialogModule,
     FormFieldModule,
     IconButtonModule,
     IconModule,
+    LinkModule,
     MenuModule,
-    NavigationModule,
+    MultiSelectModule,
+    ProgressModule,
+    RadioButtonModule,
+    SectionComponent,
+    SelectModule,
     TableModule,
     TabsModule,
-    LinkModule,
-    ColorPasswordModule,
+    ToggleGroupModule,
+    TypographyModule,
 
     // Web specific
-    WebI18nPipe,
   ],
   providers: [DatePipe],
   bootstrap: [],

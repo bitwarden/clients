@@ -1,0 +1,12 @@
+<bit-item>
+  <button bit-item-content type="button" (click)="openAttachments()">
+    {{ "attachments" | i18n }}
+    <span *ngIf="!canAccessAttachments" bitBadge variant="success" slot="default-trailing">
+      {{ "premium" | i18n }}
+    </span>
+    <ng-container slot="end">
+      <i class="bwi bwi-popout" aria-hidden="true" *ngIf="openAttachmentsInPopout"></i>
+      <i class="bwi bwi-angle-right" aria-hidden="true" *ngIf="!openAttachmentsInPopout"></i>
+    </ng-container>
+  </button>
+</bit-item>

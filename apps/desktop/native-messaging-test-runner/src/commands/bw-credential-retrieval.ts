@@ -3,7 +3,7 @@ import "module-alias/register";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
-import { NativeMessagingVersion } from "@bitwarden/common/enums/nativeMessagingVersion";
+import { NativeMessagingVersion } from "@bitwarden/common/enums";
 
 import { LogUtils } from "../log-utils";
 import NativeMessageService from "../native-message.service";
@@ -18,13 +18,15 @@ const argv: any = yargs(hideBin(process.argv)).option("uri", {
 
 const { uri } = argv;
 
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   const nativeMessageService = new NativeMessageService(NativeMessagingVersion.One);
   // Handshake
   LogUtils.logInfo("Sending Handshake");
   const handshakeResponse = await nativeMessageService.sendHandshake(
     config.testRsaPublicKey,
-    config.applicationName
+    config.applicationName,
   );
 
   if (!handshakeResponse.status) {

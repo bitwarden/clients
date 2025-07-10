@@ -1,7 +1,9 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, EventEmitter, Input, Output } from "@angular/core";
 
-import { Organization } from "@bitwarden/common/models/domain/organization";
-import { ITreeNodeObject } from "@bitwarden/common/models/domain/tree-node";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { DisplayMode } from "../models/display-mode";
 import { TopLevelTreeNode } from "../models/top-level-tree-node.model";
@@ -13,7 +15,7 @@ export class OrganizationFilterComponent {
   @Input() collapsedFilterNodes: Set<string>;
   @Input() organizations: Organization[];
   @Input() activeFilter: VaultFilter;
-  @Input() activePersonalOwnershipPolicy: boolean;
+  @Input() activeOrganizationDataOwnership: boolean;
   @Input() activeSingleOrganizationPolicy: boolean;
 
   @Output() onNodeCollapseStateChange: EventEmitter<ITreeNodeObject> =
@@ -24,12 +26,12 @@ export class OrganizationFilterComponent {
     let displayMode: DisplayMode = "organizationMember";
     if (this.organizations == null || this.organizations.length < 1) {
       displayMode = "noOrganizations";
-    } else if (this.activePersonalOwnershipPolicy && !this.activeSingleOrganizationPolicy) {
-      displayMode = "personalOwnershipPolicy";
-    } else if (!this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
+    } else if (this.activeOrganizationDataOwnership && !this.activeSingleOrganizationPolicy) {
+      displayMode = "organizationDataOwnershipPolicy";
+    } else if (!this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
       displayMode = "singleOrganizationPolicy";
-    } else if (this.activePersonalOwnershipPolicy && this.activeSingleOrganizationPolicy) {
-      displayMode = "singleOrganizationAndPersonalOwnershipPolicies";
+    } else if (this.activeOrganizationDataOwnership && this.activeSingleOrganizationPolicy) {
+      displayMode = "singleOrganizationAndOrganizatonDataOwnershipPolicies";
     }
 
     return displayMode;

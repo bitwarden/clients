@@ -1,0 +1,19 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>
+    {{ "verifyBrowserTitle" | i18n }}
+  </span>
+  <span bitDialogContent>
+    <p>{{ "verifyBrowserDesc" | i18n }}</p>
+    <p>
+      <strong>{{ params.fingerprint.join("-") }}</strong>
+    </p>
+  </span>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" [bitDialogClose]="true">
+      {{ "approve" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

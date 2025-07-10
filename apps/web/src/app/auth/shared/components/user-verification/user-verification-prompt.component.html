@@ -1,0 +1,20 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>{{ modalTitle | i18n }}</span>
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ confirmDescription | i18n }}</p>
+      <app-user-verification
+        [(invalidSecret)]="invalidSecret"
+        formControlName="secret"
+      ></app-user-verification>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ confirmButtonText | i18n }}
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

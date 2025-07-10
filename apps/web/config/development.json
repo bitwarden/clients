@@ -7,10 +7,20 @@
     "proxyApi": "http://localhost:4000",
     "proxyIdentity": "http://localhost:33656",
     "proxyEvents": "http://localhost:46273",
-    "proxyNotifications": "http://localhost:61840"
+    "proxyNotifications": "http://localhost:61840",
+    "wsConnectSrc": "ws://localhost:61840"
   },
-  "flags": {
-    "secretsManager": true,
-    "showPasswordless": true
+  "additionalRegions": [
+    {
+      "key": "LOCAL",
+      "domain": "localhost",
+      "urls": {
+        "webVault": "https://localhost:8080"
+      }
+    }
+  ],
+  "flags": {},
+  "devFlags": {
+    "showRiskInsightsDebug": false
   }
 }

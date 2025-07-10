@@ -1,0 +1,16 @@
+<form [bitSubmit]="submit" [formGroup]="formGroup">
+  <app-callout type="warning">{{ "deleteAccountWarning" | i18n }}</app-callout>
+  <p bitTypography="body1" class="tw-text-center">
+    <strong>{{ email }}</strong>
+  </p>
+  <p bitTypography="body1">{{ "deleteRecoverConfirmDesc" | i18n }}</p>
+  <hr />
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" bitButton bitFormButton buttonType="danger" [block]="true">
+      {{ "deleteAccount" | i18n }}
+    </button>
+    <a bitButton buttonType="secondary" routerLink="/login" [block]="true">
+      {{ "cancel" | i18n }}
+    </a>
+  </div>
+</form>

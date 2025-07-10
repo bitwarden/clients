@@ -1,0 +1,18 @@
+<bit-simple-dialog>
+  <span bitDialogTitle>
+    {{ "verifyNativeMessagingConnectionTitle" | i18n: data.applicationName }}:
+  </span>
+  <span bitDialogContent>
+    {{ "verifyNativeMessagingConnectionDesc" | i18n }}
+    <br />
+    {{ "verifyNativeMessagingConnectionWarning" | i18n }}
+  </span>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" [bitDialogClose]="true">
+      {{ "yes" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">
+      {{ "no" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

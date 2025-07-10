@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "files": ["src/polyfills.ts", "src/main.ts", "src/theme.ts"],
+  "include": [
+    "src/connectors/*.ts",
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
+  ]
+}

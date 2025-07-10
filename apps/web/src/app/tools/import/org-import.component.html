@@ -1,0 +1,21 @@
+<app-header></app-header>
+
+<bit-container>
+  <tools-import
+    (formDisabled)="this.disabled = $event"
+    (formLoading)="this.loading = $event"
+    (onSuccessfulImport)="this.onSuccessfulImport($event)"
+    organizationId="{{ routeOrgId }}"
+  ></tools-import>
+  <button
+    [disabled]="disabled"
+    [loading]="loading"
+    form="import_form_importForm"
+    bitButton
+    type="submit"
+    bitFormButton
+    buttonType="primary"
+  >
+    {{ "importData" | i18n }}
+  </button>
+</bit-container>

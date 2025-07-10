@@ -1,0 +1,165 @@
+<ng-container *ngIf="verificationType === 'client'">
+  <div class="tw-flex tw-flex-col">
+    <!-- Master password -->
+    <ng-container
+      *ngIf="
+        userVerificationOptions.client.masterPassword &&
+        activeClientVerificationOption == ActiveClientVerificationOption.MasterPassword
+      "
+    >
+      <ng-container *ngTemplateOutlet="masterPasswordFormField"></ng-container>
+    </ng-container>
+
+    <!-- PIN -->
+    <ng-container
+      *ngIf="
+        userVerificationOptions.client.pin &&
+        activeClientVerificationOption == ActiveClientVerificationOption.Pin
+      "
+    >
+      <bit-form-field disableMargin>
+        <bit-label>{{ "pin" | i18n }}</bit-label>
+        <input
+          bitInput
+          id="pin"
+          type="password"
+          name="pin"
+          [formControl]="secret"
+          appAutofocus
+          appInputVerbatim
+        />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+        <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+      </bit-form-field>
+    </ng-container>
+
+    <!-- Biometrics -->
+    <ng-container
+      *ngIf="
+        userVerificationOptions.client.biometrics &&
+        activeClientVerificationOption == ActiveClientVerificationOption.Biometrics
+      "
+    >
+      <div class="tw-flex tw-flex-col tw-items-center">
+        <bit-icon [icon]="Icons.UserVerificationBiometricsIcon" class="tw-mb-4"></bit-icon>
+        <p class="tw-font-bold tw-mb-1">{{ "verifyWithBiometrics" | i18n }}</p>
+        <div *ngIf="!biometricsVerificationFailed">
+          <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+          {{ "awaitingConfirmation" | i18n }}
+        </div>
+      </div>
+
+      <bit-callout type="danger" *ngIf="biometricsVerificationFailed">
+        {{ "couldNotCompleteBiometrics" | i18n }}
+        <button bitLink type="button" linkType="primary" (click)="verifyUserViaBiometrics()">
+          {{ "tryAgain" | i18n }}
+        </button>
+      </bit-callout>
+    </ng-container>
+
+    <!-- Alternate verification options if user has more than 1 -->
+    <div
+      class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-mt-2"
+      *ngIf="hasMultipleClientVerificationOptions"
+    >
+      <p class="tw-mb-1">{{ "needADifferentMethod" | i18n }}</p>
+
+      <button
+        *ngIf="
+          userVerificationOptions.client.biometrics &&
+          activeClientVerificationOption !== ActiveClientVerificationOption.Biometrics
+        "
+        type="button"
+        class="tw-mb-1"
+        bitLink
+        linkType="primary"
+        (click)="activeClientVerificationOption = ActiveClientVerificationOption.Biometrics"
+      >
+        {{ "useBiometrics" | i18n }}
+      </button>
+
+      <button
+        *ngIf="
+          userVerificationOptions.client.pin &&
+          activeClientVerificationOption !== ActiveClientVerificationOption.Pin
+        "
+        type="button"
+        class="tw-mb-1"
+        bitLink
+        linkType="primary"
+        (click)="activeClientVerificationOption = ActiveClientVerificationOption.Pin"
+      >
+        {{ "usePin" | i18n }}
+      </button>
+
+      <button
+        *ngIf="
+          userVerificationOptions.client.masterPassword &&
+          activeClientVerificationOption !== ActiveClientVerificationOption.MasterPassword
+        "
+        type="button"
+        bitLink
+        linkType="primary"
+        (click)="activeClientVerificationOption = ActiveClientVerificationOption.MasterPassword"
+      >
+        {{ "useMasterPassword" | i18n }}
+      </button>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="verificationType === 'server'">
+  <ng-container *ngIf="userVerificationOptions.server.masterPassword">
+    <ng-container *ngTemplateOutlet="masterPasswordFormField"></ng-container>
+  </ng-container>
+  <ng-container *ngIf="userVerificationOptions.server.otp">
+    <div class="tw-mb-6" *ngIf="!sentInitialCode">
+      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+    </div>
+
+    <div class="tw-mb-6" *ngIf="sentInitialCode">
+      {{ "enterVerificationCodeSentToEmail" | i18n }}
+
+      <p class="tw-mb-0">
+        <button bitLink type="button" linkType="primary" (click)="requestOTP()">
+          {{ "resendCode" | i18n }}
+        </button>
+
+        <span class="tw-ml-2 tw-text-success" role="alert" @sent *ngIf="sentCode">
+          <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+          {{ "codeSent" | i18n }}
+        </span>
+      </p>
+    </div>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        id="verificationCode"
+        name="verificationCode"
+        [formControl]="secret"
+        appInputVerbatim
+      />
+      <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+    </bit-form-field>
+  </ng-container>
+</ng-container>
+
+<ng-template #masterPasswordFormField>
+  <bit-form-field disableMargin>
+    <bit-label>{{ "masterPass" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="masterPassword"
+      type="password"
+      name="MasterPasswordHash"
+      [formControl]="secret"
+      appAutofocus
+      appInputVerbatim
+    />
+    <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+  </bit-form-field>
+</ng-template>

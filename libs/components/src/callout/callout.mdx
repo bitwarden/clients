@@ -1,0 +1,70 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./callout.stories";
+
+```ts
+import { CalloutModule } from "@bitwarden/components";
+```
+
+<Meta of={stories} />
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Styles
+
+Icons should remain consistent across these types. Do not change the icon without consulting a
+designer. Use the following guidelines to help choose the correct type of callout.
+
+### Success
+
+Use the success callout to communicate a positive messaging to the user.
+
+**Example:** a positive report results shows a success callout.
+
+The success callout may also be used for the information related to a premium membership. In this
+case, replace the icon with <i class="bwi bwi-star" title="bwi-star" aria-label="bwi-star"></i>
+
+<Canvas of={stories.Success} />
+
+### Info
+
+Use an info callout to call attention to important information the user should be aware of, but has
+low risk of the user receiving and unintended or irreversible results if they do not read the
+information.
+
+**Example:** in the Domain Claiming modal, an info callout is used to tell the user the domain will
+automatically be checked.
+
+<Canvas of={stories.Info} />
+
+### Warning
+
+Use a warning callout if the user is about to perform an action that may have unintended or
+irreversible results.
+
+**Example:** the warning callout is used before the change master password and encryption key form
+to alert the user that they will be logged out.
+
+<Canvas of={stories.Warning} />
+
+### Danger
+
+Use the danger callout to communicate an action the user is about to take is dangerous and typically
+not reversible.
+
+The danger callout can also be used to alert the user of an error or errors, such as a server side
+errors after form submit or failed communication request.
+
+<Canvas of={stories.Danger} />
+
+## Accessibility
+
+Use the `role=”alert”` only if the callout is appearing on a page after the user takes an action. If
+the content is static, do not use the alert role. This will cause a screen reader to announce the
+callout content on page load.
+
+Ensure the title's color contrast remains WCAG compliant with the callout's background.

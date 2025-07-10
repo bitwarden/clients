@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,40 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>ಬಿಟ್ವರ್ಡ್ – ಉಚಿತ ಪಾಸ್ವರ್ಡ್ ನಿರ್ವಾಹಕ</value>
+    <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>ನಿಮ್ಮ ಎಲ್ಲಾ ಸಾಧನಗಳಿಗೆ ಸುರಕ್ಷಿತ ಮತ್ತು ಉಚಿತ ಪಾಸ್‌ವರ್ಡ್ ನಿರ್ವಾಹಕ</value>
+    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>ಬಿಟ್ವಾರ್ಡೆನ್, ಇಂಕ್. 8 ಬಿಟ್ ಸೊಲ್ಯೂಷನ್ಸ್ ಎಲ್ಎಲ್ ಸಿ ಯ ಮೂಲ ಕಂಪನಿಯಾಗಿದೆ.
+    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
 
-ವರ್ಜ್, ಯು.ಎಸ್. ನ್ಯೂಸ್ &amp; ವರ್ಲ್ಡ್ ರಿಪೋರ್ಟ್, ಸಿನೆಟ್ ಮತ್ತು ಹೆಚ್ಚಿನದರಿಂದ ಉತ್ತಮ ಪಾಸ್‌ವರ್ಡ್ ವ್ಯವಸ್ಥಾಪಕ ಎಂದು ಹೆಸರಿಸಲಾಗಿದೆ.
+SECURE YOUR DIGITAL LIFE
+Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
 
-ಎಲ್ಲಿಂದಲಾದರೂ ಅನಿಯಮಿತ ಸಾಧನಗಳಲ್ಲಿ ಅನಿಯಮಿತ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ, ಸಂಗ್ರಹಿಸಿ, ಸುರಕ್ಷಿತಗೊಳಿಸಿ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಿ. ಮನೆಯಲ್ಲಿ, ಕೆಲಸದಲ್ಲಿ ಅಥವಾ ಪ್ರಯಾಣದಲ್ಲಿರಲಿ ಪ್ರತಿಯೊಬ್ಬರಿಗೂ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಓಪನ್ ಸೋರ್ಸ್ ಪಾಸ್‌ವರ್ಡ್ ನಿರ್ವಹಣಾ ಪರಿಹಾರಗಳನ್ನು ನೀಡುತ್ತದೆ.
+ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
+Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
 
-ನೀವು ಆಗಾಗ್ಗೆ ಪ್ರತಿ ವೆಬ್‌ಸೈಟ್‌ಗೆ ಸುರಕ್ಷತಾ ಅವಶ್ಯಕತೆಗಳನ್ನು ಆಧರಿಸಿ ಬಲವಾದ, ಅನನ್ಯ ಮತ್ತು ಯಾದೃಚ್ pass ಿಕ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ರಚಿಸಿ.
+EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
+Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
 
-ಬಿಟ್‌ವಾರ್ಡೆನ್ ಕಳುಹಿಸಿ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಮಾಹಿತಿಯನ್ನು ತ್ವರಿತವಾಗಿ ರವಾನಿಸುತ್ತದೆ --- ಫೈಲ್‌ಗಳು ಮತ್ತು ಸರಳ ಪಠ್ಯ - ನೇರವಾಗಿ ಯಾರಿಗಾದರೂ.
+EMPOWER YOUR TEAMS WITH BITWARDEN
+Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
 
-ಬಿಟ್‌ವಾರ್ಡೆನ್ ಕಂಪೆನಿಗಳಿಗೆ ತಂಡಗಳು ಮತ್ತು ಎಂಟರ್‌ಪ್ರೈಸ್ ಯೋಜನೆಗಳನ್ನು ನೀಡುತ್ತದೆ ಆದ್ದರಿಂದ ನೀವು ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ಸಹೋದ್ಯೋಗಿಗಳೊಂದಿಗೆ ಸುರಕ್ಷಿತವಾಗಿ ಹಂಚಿಕೊಳ್ಳಬಹುದು.
+Use Bitwarden to secure your workforce and share sensitive information with colleagues.
 
-ಬಿಟ್‌ವಾರ್ಡೆನ್ ಅನ್ನು ಏಕೆ ಆರಿಸಬೇಕು:
 
-ವಿಶ್ವ ದರ್ಜೆಯ ಗೂ ry ಲಿಪೀಕರಣ
-ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ಸುಧಾರಿತ ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ (ಎಇಎಸ್ -256 ಬಿಟ್, ಉಪ್ಪುಸಹಿತ ಹ್ಯಾಶ್‌ಟ್ಯಾಗ್ ಮತ್ತು ಪಿಬಿಕೆಡಿಎಫ್ 2 ಎಸ್‌ಎಚ್‌ಎ -256) ನೊಂದಿಗೆ ರಕ್ಷಿಸಲಾಗಿದೆ ಆದ್ದರಿಂದ ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತ ಮತ್ತು ಖಾಸಗಿಯಾಗಿರುತ್ತದೆ.
+More reasons to choose Bitwarden:
 
-ಅಂತರ್ನಿರ್ಮಿತ ಪಾಸ್ವರ್ಡ್ ಜನರೇಟರ್
-ನೀವು ಆಗಾಗ್ಗೆ ಪ್ರತಿ ವೆಬ್‌ಸೈಟ್‌ಗೆ ಸುರಕ್ಷತಾ ಅವಶ್ಯಕತೆಗಳನ್ನು ಆಧರಿಸಿ ಬಲವಾದ, ಅನನ್ಯ ಮತ್ತು ಯಾದೃಚ್ pass ಿಕ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ರಚಿಸಿ.
+World-Class Encryption
+Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashtag, and PBKDF2 SHA-256) so your data stays secure and private.
 
-ಜಾಗತಿಕ ಅನುವಾದಗಳು
-ಬಿಟ್ವಾರ್ಡೆನ್ ಅನುವಾದಗಳು 40 ಭಾಷೆಗಳಲ್ಲಿ ಅಸ್ತಿತ್ವದಲ್ಲಿವೆ ಮತ್ತು ಬೆಳೆಯುತ್ತಿವೆ, ನಮ್ಮ ಜಾಗತಿಕ ಸಮುದಾಯಕ್ಕೆ ಧನ್ಯವಾದಗಳು.
+3rd-party Audits
+Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
 
-ಕ್ರಾಸ್ ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು
-ಯಾವುದೇ ಬ್ರೌಸರ್, ಮೊಬೈಲ್ ಸಾಧನ, ಅಥವಾ ಡೆಸ್ಕ್‌ಟಾಪ್ ಓಎಸ್ ಮತ್ತು ಹೆಚ್ಚಿನವುಗಳಿಂದ ನಿಮ್ಮ ಬಿಟ್‌ವಾರ್ಡನ್ ವಾಲ್ಟ್‌ನಲ್ಲಿ ಸೂಕ್ಷ್ಮ ಡೇಟಾವನ್ನು ಸುರಕ್ಷಿತಗೊಳಿಸಿ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಿ.</value>
+Advanced 2FA
+Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+
+Bitwarden Send
+Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+
+Built-in Generator
+Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+
+Global Translations
+Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+
+Cross-Platform Applications
+Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+
+Bitwarden secures more than just passwords
+End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>ನಿಮ್ಮ ಎಲ್ಲಾ ಸಾಧನಗಳಿಗೆ ಸುರಕ್ಷಿತ ಮತ್ತು ಉಚಿತ ಪಾಸ್‌ವರ್ಡ್ ನಿರ್ವಾಹಕ</value>
+    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>ಅನೇಕ ಸಾಧನಗಳಿಂದ ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸಿಂಕ್ ಮಾಡಿ ಮತ್ತು ಪ್ರವೇಶಿಸಿ</value>

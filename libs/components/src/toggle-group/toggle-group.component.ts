@@ -1,23 +1,33 @@
-import { Component, EventEmitter, HostBinding, Input, Output } from "@angular/core";
+import {
+  booleanAttribute,
+  Component,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
+} from "@angular/core";
 
 let nextId = 0;
 
 @Component({
   selector: "bit-toggle-group",
   templateUrl: "./toggle-group.component.html",
-  preserveWhitespaces: false,
 })
-export class ToggleGroupComponent {
+export class ToggleGroupComponent<TValue = unknown> {
   private id = nextId++;
   name = `bit-toggle-group-${this.id}`;
 
-  @Input() selected?: unknown;
-  @Output() selectedChange = new EventEmitter<unknown>();
+  @Input({ transform: booleanAttribute }) fullWidth?: boolean;
+  @Input() selected?: TValue;
+  @Output() selectedChange = new EventEmitter<TValue>();
 
   @HostBinding("attr.role") role = "radiogroup";
-  @HostBinding("class") classList = ["tw-flex"];
+  @HostBinding("class")
+  get classList() {
+    return ["tw-flex"].concat(this.fullWidth ? ["tw-w-full", "[&>*]:tw-flex-1"] : []);
+  }
 
-  onInputInteraction(value: unknown) {
+  onInputInteraction(value: TValue) {
     this.selected = value;
     this.selectedChange.emit(value);
   }

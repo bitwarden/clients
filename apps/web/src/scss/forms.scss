@@ -20,7 +20,7 @@ input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: -cancel-button;
 }
 
-label:not(.form-check-label):not(.btn),
+label:not(.form-check-label):not(.btn):not(:has(bit-label)),
 label.bold {
   font-weight: 600;
   @include themify($themes) {
@@ -96,34 +96,6 @@ label.form-check-label,
 input[type="radio"],
 input[type="checkbox"] {
   cursor: pointer;
-}
-
-.form-control.stripe-form-control {
-  padding-top: 0.55rem;
-
-  &.is-focused {
-    outline: 0;
-    @include themify($themes) {
-      background-color: themed("inputBackgroundColor");
-      border-color: themed("inputBorderColor");
-      box-shadow: 0 0 0 $input-focus-width
-        rgba(mix(color-yiq(themed("primary")), themed("primary"), 15%), 0.5);
-      color: themed("inputTextColor");
-    }
-
-    &.is-invalid {
-      opacity: 0.75;
-      @include themify($themes) {
-        box-shadow: 0 0 0 $input-focus-width themed("danger");
-      }
-    }
-  }
-
-  &.is-invalid {
-    @include themify($themes) {
-      border-color: themed("danger");
-    }
-  }
 }
 
 .dropdown-menu,
@@ -222,10 +194,6 @@ input[type="checkbox"] {
     font-weight: normal;
     text-transform: uppercase;
   }
-}
-
-.error-summary {
-  margin-top: 1rem;
 }
 
 .error-inline {

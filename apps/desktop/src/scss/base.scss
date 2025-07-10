@@ -16,7 +16,10 @@ body {
 
 body {
   color: $text-color;
-  background-color: $background-color-alt2;
+
+  // We initially rely on electron to provide the appropriate background color.
+  // This ensures the background color while reloading is correct to avoid a jarring missmatch.
+  background-color: transparent;
 
   @include themify($themes) {
     color: themed("textColor");
@@ -63,9 +66,9 @@ a {
   }
 }
 
-input,
+input:not(bit-form-field input),
 select,
-textarea {
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");
@@ -143,4 +146,9 @@ div:not(.modal)::-webkit-scrollbar-thumb,
 .ml-auto,
 .mx-auto {
   margin-left: auto !important;
+}
+
+.vault-v2 button:not([bitbutton]):not([biticonbutton]) i.bwi,
+a i.bwi {
+  margin-right: 0.25rem;
 }

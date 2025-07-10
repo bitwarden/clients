@@ -1,0 +1,43 @@
+<bit-nav-group
+  *ngIf="activeOrganization$ | async as activeOrganization"
+  [text]="activeOrganization.name"
+  [ariaLabel]="['organization' | i18n, activeOrganization.name].join(' ')"
+  icon="bwi-business"
+  [route]="['../', activeOrganization.id]"
+  [routerLinkActiveOptions]="{ exact: true }"
+  [(open)]="open"
+>
+  <i
+    slot="end"
+    *ngIf="!activeOrganization.enabled"
+    class="bwi bwi-exclamation-triangle tw-my-auto"
+    [attr.aria-label]="'organizationIsDisabled' | i18n"
+    appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
+  ></i>
+  <ng-container *ngIf="organizations$ | async as organizations">
+    <bit-nav-item
+      *ngFor="let org of organizations"
+      [text]="org.name"
+      [ariaLabel]="['organization' | i18n, org.name].join(' ')"
+      [route]="['../', org.id]"
+      (mainContentClicked)="toggle()"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="handleUnpaidSubscription(org)"
+    >
+      <i
+        slot="end"
+        *ngIf="org.enabled == false"
+        class="bwi bwi-exclamation-triangle"
+        [attr.aria-label]="'organizationIsDisabled' | i18n"
+        appA11yTitle="{{ 'organizationIsDisabled' | i18n }}"
+      ></i>
+    </bit-nav-item>
+  </ng-container>
+  <bit-nav-item
+    *ngIf="!hideNewButton"
+    icon="bwi-plus"
+    [text]="'newOrganization' | i18n"
+    route="/create-organization"
+  ></bit-nav-item>
+  <bit-nav-divider></bit-nav-divider>
+</bit-nav-group>

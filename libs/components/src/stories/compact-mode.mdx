@@ -1,0 +1,45 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
+
+import * as itemStories from "../item/item.stories";
+import * as popupLayoutStories from "../../../../apps/browser/src/platform/popup/layout/popup-layout.stories";
+
+<Meta title="Documentation/Compact Mode" />
+
+# Compact Mode
+
+The Bitwarden browser extension has a global compact mode setting for users who prefer a more
+information-dense UI.
+
+## Tailwind
+
+Component authors can hook into this setting with the `bit-compact` Tailwind variant. In the
+following example, the paragraph's padding is reduced when compact mode is enabled.
+
+```html
+<p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+
+<div class="tw-bit-compact">
+  <p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+</div>
+```
+
+<p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+
+<div class="tw-bit-compact">
+  <p class="tw-bg-primary-100 tw-p-4 bit-compact:tw-p-0.5">Lorem impsum doggo dolor...</p>
+</div>
+
+## Service
+
+To get/set compact mode in TypeScript, the `CompactModeService` exposes a `enabled$` observable.
+However, styling with the Tailwind variant should be used when possible as it is more performant.
+
+## Examples
+
+### [Popup Layout](?path=/story/browser-popup-layout--compact-mode)
+
+<Story autoplay={true} of={popupLayoutStories.CompactMode} />
+
+### [Item](?path=/story/component-library-item--compact-mode)
+
+<Canvas of={itemStories.CompactMode} />

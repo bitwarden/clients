@@ -1,0 +1,128 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Documentation/Colors" />
+
+export const Row = (name) => (
+  <tr class="tw-h-16">
+    <td class="!tw-border-none">{name}</td>
+    <td class={"tw-bg-" + name + " !tw-border-secondary-300"}></td>
+  </tr>
+);
+
+export const Table = (args) => (
+  <table class={"border tw-table-auto !tw-text-main " + args.class}>
+    <thead>
+      <tr>
+        <th class="tw-w-40">General usage</th>
+        <th class="tw-w-20"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {Row("background")}
+      {Row("background-alt")}
+      {Row("background-alt2")}
+      {Row("background-alt3")}
+      {Row("background-alt4")}
+    </tbody>
+    <tbody>
+      {Row("primary-100")}
+      {Row("primary-300")}
+      {Row("primary-600")}
+      {Row("primary-700")}
+    </tbody>
+    <tbody>
+      {Row("secondary-100")}
+      {Row("secondary-300")}
+      {Row("secondary-500")}
+      {Row("secondary-600")}
+      {Row("secondary-700")}
+    </tbody>
+    <tbody>
+      {Row("success-100")}
+      {Row("success-600")}
+      {Row("success-700")}
+    </tbody>
+    <tbody>
+      {Row("danger-100")}
+      {Row("danger-600")}
+      {Row("danger-700")}
+    </tbody>
+    <tbody>
+      {Row("warning-100")}
+      {Row("warning-600")}
+      {Row("warning-700")}
+    </tbody>
+    <tbody>
+      {Row("info-100")}
+      {Row("info-600")}
+      {Row("info-700")}
+    </tbody>
+    <tbody>
+      {Row("notification-100")}
+      {Row("notification-600")}
+    </tbody>
+    <tbody>
+      {Row("illustration-outline")}
+      {Row("illustration-bg-primary")}
+      {Row("illustration-bg-secondary")}
+      {Row("illustration-bg-tertiary")}
+      {Row("illustration-tertiary")}
+      {Row("illustration-logo")}
+    </tbody>
+
+    <thead>
+      <tr>
+        <th>Text</th>
+        <th class="tw-w-20"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {Row("text-main")}
+      {Row("text-muted")}
+      {Row("text-contrast")}
+      {Row("text-alt2")}
+      {Row("text-code")}
+    </tbody>
+
+  </table>
+);
+
+<style>
+  {`
+table {
+  border-spacing: 0.5rem;
+  border-collapse: separate !important;
+}
+
+tr {
+  background: none !important;
+  border: none !important;
+}
+
+td, th {
+  color: inherit !important;
+}
+
+th {
+  border: none !important;
+}
+  `}
+</style>
+
+# Colors
+
+Tailwind traditionally has a very large color palette. Bitwarden has their own more limited color
+palette instead.
+
+This has a couple of advantages:
+
+- Promotes consistency across the application.
+- Easier to maintain and make adjustments.
+- Allows us to support more than two themes light & dark, should it be needed.
+
+Below are all the permited colors. Please consult design before considering adding a new color.
+
+<div class="tw-flex tw-space-x-4">
+  <Table />
+  <Table class="theme_dark tw-bg-background" />
+</div>

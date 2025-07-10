@@ -135,3 +135,11 @@
     color: themed("tableColorHover");
   }
 }
+
+// Restrict app-vault-icon in new bit-table to max height of 24px
+// Can be removed when app-vault-icon is migrated to use Tailwind
+bit-table td app-vault-icon img {
+  @extend .rounded;
+  @extend .img-fluid;
+  max-height: 24px;
+}

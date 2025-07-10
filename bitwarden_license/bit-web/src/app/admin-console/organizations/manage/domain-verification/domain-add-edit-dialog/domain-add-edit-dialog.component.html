@@ -1,0 +1,78 @@
+<form
+  [formGroup]="domainForm"
+  [bitSubmit]="data.orgDomain ? verifyDomain : saveDomain"
+  [allowDisabledFormSubmit]="true"
+>
+  <bit-dialog [dialogSize]="'default'" [disablePadding]="false">
+    <span bitDialogTitle>
+      <span *ngIf="!data.orgDomain">{{ "newDomain" | i18n }}</span>
+      <span *ngIf="data.orgDomain">
+        {{ "claimDomain" | i18n }}
+      </span>
+
+      <span *ngIf="data.orgDomain" class="tw-text-xs tw-text-muted">
+        {{ data.orgDomain.domainName }}
+      </span>
+
+      <span *ngIf="data?.orgDomain && !data.orgDomain?.verifiedDate" bitBadge variant="warning">
+        {{ "domainStatusUnderVerification" | i18n }}
+      </span>
+      <span *ngIf="data?.orgDomain && data?.orgDomain?.verifiedDate" bitBadge variant="success">
+        {{ "domainStatusClaimed" | i18n }}
+      </span>
+    </span>
+    <div bitDialogContent>
+      <bit-form-field>
+        <bit-label>{{ "domainName" | i18n }}</bit-label>
+        <input bitInput appAutofocus formControlName="domainName" [showErrorsWhenDisabled]="true" />
+        <bit-hint>{{ "claimDomainNameInputHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      <bit-form-field *ngIf="data?.orgDomain">
+        <bit-label>{{ "dnsTxtRecord" | i18n }}</bit-label>
+        <input bitInput formControlName="txt" />
+        <bit-hint>{{ "dnsTxtRecordInputHint" | i18n }}</bit-hint>
+        <button
+          type="button"
+          bitSuffix
+          bitIconButton="bwi-clone"
+          appA11yTitle="{{ 'copyDnsTxtRecord' | i18n }}"
+          (click)="copyDnsTxt()"
+        ></button>
+      </bit-form-field>
+
+      <bit-callout
+        *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate"
+        type="info"
+        title="{{ 'automaticClaimedDomains' | i18n | uppercase }}"
+      >
+        {{ "automaticDomainClaimProcess" | i18n }}
+      </bit-callout>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        <span *ngIf="!data?.orgDomain">{{ "next" | i18n }}</span>
+        <span *ngIf="data?.orgDomain && !data?.orgDomain?.verifiedDate">{{
+          "claimDomain" | i18n
+        }}</span>
+        <span *ngIf="data?.orgDomain?.verifiedDate">{{ "reclaimDomain" | i18n }}</span>
+      </button>
+      <button bitButton buttonType="secondary" (click)="dialogRef.close()" type="button">
+        {{ "cancel" | i18n }}
+      </button>
+
+      <button
+        *ngIf="data.orgDomain"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        buttonType="danger"
+        size="default"
+        title="{{ 'delete' | i18n }}"
+        aria-label="Delete"
+        [bitAction]="deleteDomain"
+        type="submit"
+        bitFormButton
+      ></button>
+    </ng-container>
+  </bit-dialog>
+</form>

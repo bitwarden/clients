@@ -1,0 +1,87 @@
+<form [formGroup]="groupForm" [bitSubmit]="submit">
+  <bit-dialog [disablePadding]="!loading" dialogSize="large">
+    <span bitDialogTitle>
+      {{ title }}
+      <span *ngIf="editMode" class="tw-text-sm tw-normal-case tw-text-muted">{{
+        group?.name
+      }}</span>
+    </span>
+    <div bitDialogContent>
+      <div *ngIf="loading">
+        <i
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </div>
+
+      <bit-tab-group *ngIf="!loading" [(selectedIndex)]="tabIndex">
+        <bit-tab label="{{ 'groupInfo' | i18n }}">
+          <bit-form-field>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input bitInput appAutofocus type="text" formControlName="name" />
+            <bit-hint>{{ "characterMaximum" | i18n: 100 }}</bit-hint>
+          </bit-form-field>
+          <bit-form-field *ngIf="isExternalIdVisible">
+            <bit-label>{{ "externalId" | i18n }}</bit-label>
+            <input bitInput type="text" formControlName="externalId" />
+            <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+        </bit-tab>
+
+        <bit-tab label="{{ 'members' | i18n }}">
+          <p>
+            {{ "editGroupMembersDesc" | i18n }}
+            <span *ngIf="cannotAddSelfToGroup$ | async">
+              {{ "restrictedGroupAccessDesc" | i18n }}
+            </span>
+          </p>
+          <bit-access-selector
+            formControlName="members"
+            [items]="members"
+            [showMemberRoles]="true"
+            [permissionMode]="PermissionMode.Hidden"
+            [columnHeader]="'member' | i18n"
+            [selectorLabelText]="'selectMembers' | i18n"
+            [emptySelectionText]="'noMembersAdded' | i18n"
+          ></bit-access-selector>
+        </bit-tab>
+
+        <bit-tab label="{{ 'collections' | i18n }}">
+          <p>
+            {{ "editGroupCollectionsDesc" | i18n }}
+            <span *ngIf="!(canAssignAccessToAnyCollection$ | async)">
+              {{ "restrictedCollectionAssignmentDesc" | i18n }}
+            </span>
+          </p>
+          <bit-access-selector
+            formControlName="collections"
+            [items]="collections"
+            [permissionMode]="PermissionMode.Edit"
+            [columnHeader]="'collection' | i18n"
+            [selectorLabelText]="'selectCollections' | i18n"
+            [emptySelectionText]="'noCollectionsAdded' | i18n"
+          ></bit-access-selector>
+        </bit-tab>
+      </bit-tab-group>
+    </div>
+    <ng-container bitDialogFooter>
+      <button bitButton buttonType="primary" bitFormButton type="submit">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Canceled">
+        {{ "cancel" | i18n }}
+      </button>
+      <button
+        class="tw-ml-auto"
+        type="button"
+        buttonType="danger"
+        bitIconButton="bwi-trash"
+        bitFormButton
+        [bitAction]="delete"
+        [appA11yTitle]="'delete' | i18n"
+      ></button>
+    </ng-container>
+  </bit-dialog>
+</form>

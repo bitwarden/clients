@@ -1,0 +1,40 @@
+<form [formGroup]="updateLicenseForm" [bitSubmit]="submit">
+  <bit-form-field>
+    <bit-label *ngIf="showAutomaticSyncAndManualUpload">{{ "licenseFile" | i18n }}</bit-label>
+    <div class="tw-pb-1 tw-pt-2">
+      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+        {{ "chooseFile" | i18n }}
+      </button>
+      {{ this.licenseFile ? this.licenseFile.name : ("noFileChosen" | i18n) }}
+    </div>
+    <input
+      bitInput
+      #fileSelector
+      type="file"
+      formControlName="file"
+      (change)="setSelectedFile($event)"
+      hidden
+      class="tw-hidden"
+    />
+    <bit-hint>{{
+      "licenseFileDesc"
+        | i18n
+          : (!organizationId
+              ? "bitwarden_premium_license.json"
+              : "bitwarden_organization_license.json")
+    }}</bit-hint>
+  </bit-form-field>
+  <button type="submit" buttonType="primary" bitButton bitFormButton>
+    {{ "submit" | i18n }}
+  </button>
+  <button
+    bitButton
+    *ngIf="showCancel"
+    bitFormButton
+    buttonType="secondary"
+    type="button"
+    [bitAction]="cancel"
+  >
+    {{ "cancel" | i18n }}
+  </button>
+</form>

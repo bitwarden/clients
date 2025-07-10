@@ -1,4 +1,3 @@
----
 name: 'Close stale issues and PRs'
 on:
   workflow_dispatch:
@@ -8,10 +7,15 @@ on:
 jobs:
   stale:
     name: 'Check for stale issues and PRs'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    permissions:
+      actions: write
+      contents: read
+      issues: write
+      pull-requests: write
     steps:
       - name: 'Run stale action'
-        uses: actions/stale@3cc123766321e9f15a6676375c154ccffb12a358  # v5.0.0
+        uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
         with:
           stale-issue-label: 'needs-reply'
           stale-pr-label: 'needs-changes'
@@ -27,4 +31,4 @@ jobs:
 
             If you’re still working on this, please respond here after you’ve made the changes we’ve requested and our team will re-open it for further review.
 
-            Please make sure to resolve any conflicts with the master branch before requesting another review.
+            Please make sure to resolve any conflicts with the main branch before requesting another review.

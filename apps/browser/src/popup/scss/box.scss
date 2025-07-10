@@ -18,39 +18,6 @@
     }
   }
 
-  .box-header-expandable {
-    padding: 10px 5px;
-    margin: 0 5px;
-    text-transform: uppercase;
-    display: flex;
-    width: calc(100% - 10px);
-    box-sizing: border-box;
-    align-items: center;
-    border-radius: $border-radius;
-
-    @include themify($themes) {
-      color: themed("headingColor");
-    }
-
-    &:hover,
-    &:focus-visible,
-    &.active {
-      @include themify($themes) {
-        background-color: themed("boxBackgroundHoverColor");
-      }
-    }
-
-    .icon {
-      display: flex;
-      align-items: center;
-      margin-right: 5px;
-
-      @include themify($themes) {
-        color: themed("headingColor");
-      }
-    }
-  }
-
   .box-content {
     @include themify($themes) {
       background-color: themed("backgroundColor");
@@ -82,6 +49,10 @@
       padding-top: 10px;
       padding-bottom: 10px;
       margin: 5px;
+    }
+
+    &.row-top-padding {
+      padding-top: 10px;
     }
   }
 
@@ -115,11 +86,14 @@
   &.list {
     margin: 10px 0 20px 0;
     .box-content {
+      .virtual-scroll-item {
+        display: inline-block;
+        width: 100%;
+      }
+
       .box-content-row {
-        padding: 5px 10px;
         text-decoration: none;
         border-radius: $border-radius;
-        margin: 5px;
         // background-color: $background-color;
 
         @include themify($themes) {
@@ -193,35 +167,6 @@
       }
     }
   }
-
-  &.only-list {
-    margin-bottom: 0;
-
-    .box-content {
-      border-bottom: none;
-    }
-  }
-
-  &.full-list {
-    margin: 0;
-
-    .box-content {
-      border: none;
-    }
-  }
-}
-
-.stacked-boxes {
-  display: flex;
-  flex-direction: column;
-}
-
-.box-section-divider {
-  border-top: 1px solid #000000;
-
-  @include themify($themes) {
-    border-color: themed("borderColor");
-  }
 }
 
 .box-content-row {
@@ -230,14 +175,10 @@
   position: relative;
   z-index: 1;
   border-radius: $border-radius;
-  margin: 8px 5px;
+  margin: 3px 5px;
 
   @include themify($themes) {
     background-color: themed("boxBackgroundColor");
-  }
-
-  &.no-bg {
-    background-color: rgba(0, 0, 0, 0) !important;
   }
 
   &:last-child {
@@ -334,7 +275,8 @@
     }
   }
 
-  .img-right {
+  .img-right,
+  .txt-right {
     float: right;
     margin-left: 10px;
   }
@@ -347,6 +289,7 @@
   &.box-content-row-flex,
   .box-content-row-flex,
   &.box-content-row-checkbox,
+  &.box-content-row-link,
   &.box-content-row-input,
   &.box-content-row-slider,
   &.box-content-row-multi {
@@ -391,6 +334,7 @@
   }
 
   &.box-content-row-checkbox,
+  &.box-content-row-link,
   &.box-content-row-input,
   &.box-content-row-slider {
     padding-top: 10px;
@@ -589,15 +533,6 @@
     }
   }
 
-  .row-sub-label {
-    margin: 0 15px;
-    white-space: nowrap;
-
-    @include themify($themes) {
-      color: themed("mutedColor");
-    }
-  }
-
   .icon {
     display: flex;
     justify-content: center;
@@ -617,68 +552,6 @@
       border-radius: $border-radius;
       max-height: 20px;
       max-width: 20px;
-    }
-  }
-
-  &.totp {
-    .totp-code {
-      font-family: $font-family-monospace;
-      font-size: 1.1em;
-    }
-
-    .totp-countdown {
-      margin: 3px 3px 0 0;
-      display: block;
-      user-select: none;
-
-      .totp-sec {
-        font-size: 0.85em;
-        position: absolute;
-        line-height: 32px;
-        width: 32px;
-        text-align: center;
-      }
-
-      svg {
-        width: 32px;
-        height: 32px;
-        transform: rotate(-90deg);
-      }
-
-      .totp-circle {
-        fill: none;
-
-        @include themify($themes) {
-          stroke: themed("totpStrokeColor");
-        }
-
-        &.inner {
-          stroke-width: 3;
-          stroke-dasharray: 78.6;
-          stroke-dashoffset: 0;
-        }
-
-        &.outer {
-          stroke-width: 2;
-          stroke-dasharray: 88;
-          stroke-dashoffset: 0;
-        }
-      }
-    }
-
-    &.low {
-      .totp-sec,
-      .totp-code {
-        @include themify($themes) {
-          color: themed("dangerColor");
-        }
-      }
-
-      .totp-circle {
-        @include themify($themes) {
-          stroke: themed("dangerColor");
-        }
-      }
     }
   }
 
@@ -728,12 +601,6 @@
       }
     }
   }
-}
-
-.truncate-box {
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .truncate {

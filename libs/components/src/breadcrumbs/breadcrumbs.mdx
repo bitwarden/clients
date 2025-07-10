@@ -1,0 +1,55 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./breadcrumbs.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BreadcrumbsModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Display
+
+Breadcrumbs display above the page title. The current page should not appear as a breadcrumb link.
+See [Header with Breadcrumbs](?path=/story/web-header--with-breadcrumbs).
+
+### Top Level
+
+When a user is 1 level deep into a tree, the top level is displayed as a single link above the page
+title.
+
+<Canvas of={stories.TopLevel} />
+
+### Second Level
+
+When a user is 2 or more levels deep into a tree, the top level is displayed followed by an
+
+<i class="bwi bwi-angle-right"></i> icon, and the following pages.
+
+<Canvas of={stories.SecondLevel} />
+
+### Overflow
+
+When a user is several levels deep into a tree, the top level or 2 are displayed followed by an
+
+<i class="bwi bwi-ellipsis-h"> </i> icon button, and then the page directly above the current page.
+
+When the user selects the <i class="bwi bwi-ellipsis-h"></i> icon button, a menu opens displaying
+the pages between the top level and the previous page.
+
+<Canvas of={stories.Overflow} />
+
+### Small screens
+
+If a screen's width is not large enough to display the full breadcrumb path, display a link to the
+previous page and an <i class="bwi bwi-angle-right"></i> icon to take the user back to the previous
+page.
+
+`TODO:` [Jira add stories](https://bitwarden.atlassian.net/browse/CL-102) for responsive screen
+width/small screens

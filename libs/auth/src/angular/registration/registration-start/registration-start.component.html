@@ -1,0 +1,96 @@
+<ng-container *ngIf="state === RegistrationStartState.USER_DATA_ENTRY">
+  <form [formGroup]="formGroup" [bitSubmit]="submit">
+    <auth-registration-env-selector
+      (selectedRegionChange)="handleSelectedRegionChange($event)"
+    ></auth-registration-env-selector>
+
+    <bit-form-field>
+      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+      <input
+        id="register-start_form_input_email"
+        bitInput
+        type="email"
+        formControlName="email"
+        [attr.readonly]="emailReadonly ? true : null"
+      />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input id="register-start_form_input_name" bitInput type="text" formControlName="name" />
+    </bit-form-field>
+
+    <bit-form-control *ngIf="!isSelfHost">
+      <input
+        id="register-start-form-input-receive-marketing-emails"
+        type="checkbox"
+        bitCheckbox
+        formControlName="receiveMarketingEmails"
+      />
+      <bit-label for="register-start-form-input-receive-marketing-emails">
+        {{ "receiveMarketingEmailsV2" | i18n }}
+        <a
+          bitLink
+          linkType="primary"
+          href="https://bitwarden.com/email-preferences"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {{ "unsubscribe" | i18n }}
+        </a>
+        {{ "atAnyTime" | i18n }}
+      </bit-label>
+    </bit-form-control>
+
+    <button
+      [block]="true"
+      type="submit"
+      buttonType="primary"
+      bitButton
+      bitFormButton
+      class="tw-mb-3"
+    >
+      {{ "continue" | i18n }}
+    </button>
+
+    <p bitTypography="helper" class="tw-text-main tw-text-xs tw-mb-0">
+      {{ "byContinuingYouAgreeToThe" | i18n }}
+      <a
+        bitLink
+        linkType="primary"
+        href="https://bitwarden.com/terms/"
+        target="_blank"
+        rel="noreferrer"
+        >{{ "termsOfService" | i18n }}</a
+      >
+      {{ "and" | i18n }}
+      <a
+        bitLink
+        linkType="primary"
+        href="https://bitwarden.com/privacy/"
+        target="_blank"
+        rel="noreferrer"
+        >{{ "privacyPolicy" | i18n }}</a
+      >
+    </p>
+
+    <bit-error-summary *ngIf="showErrorSummary" [formGroup]="formGroup"></bit-error-summary></form
+></ng-container>
+
+<ng-container *ngIf="state === RegistrationStartState.CHECK_EMAIL">
+  <div class="tw-flex tw-flex-col tw-items-center tw-justify-center">
+    <p bitTypography="body1" class="tw-text-center tw-mb-3 tw-text-main" id="follow_the_link_body">
+      {{ "followTheLinkInTheEmailSentTo" | i18n }}
+      <span class="tw-font-bold">{{ email.value }}</span>
+      {{ "andContinueCreatingYourAccount" | i18n }}
+    </p>
+
+    <p bitTypography="helper" class="tw-text-center tw-text-main">
+      {{ "noEmail" | i18n }}
+      <a bitLink linkType="primary" class="tw-cursor-pointer" tabindex="0" (click)="goBack()">
+        {{ "goBack" | i18n }}
+      </a>
+      {{ "toEditYourEmailAddress" | i18n }}
+    </p>
+  </div>
+</ng-container>

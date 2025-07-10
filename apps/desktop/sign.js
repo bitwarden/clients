@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports, no-console */
 
 exports.default = async function (configuration) {
   if (parseInt(process.env.ELECTRON_BUILDER_SIGN) === 1 && configuration.path.slice(-4) == ".exe") {
@@ -16,7 +16,7 @@ exports.default = async function (configuration) {
         `${configuration.path}`,
       {
         stdio: "inherit",
-      }
+      },
     );
   }
 };

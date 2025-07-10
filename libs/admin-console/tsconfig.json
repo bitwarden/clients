@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base",
+  "include": ["src", "spec", "../../libs/common/custom-matchers.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

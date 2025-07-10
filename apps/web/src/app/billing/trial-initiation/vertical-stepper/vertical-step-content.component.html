@@ -1,0 +1,47 @@
+<!-- eslint-disable tailwindcss/no-custom-classname -->
+<div class="tw-m-2.5 tw-h-16 tw-text-center">
+  <button
+    type="button"
+    (click)="selectStep()"
+    [disabled]="disabled"
+    class="tw-flex tw-w-full tw-items-center tw-border-none tw-bg-transparent"
+    [ngClass]="{
+      'hover:tw-bg-secondary-100': !disabled && step.editable,
+    }"
+    [attr.aria-expanded]="selected"
+  >
+    <span
+      class="tw-mr-3.5 tw-w-9 tw-rounded-full tw-font-bold tw-leading-9"
+      *ngIf="!step.completed"
+      [ngClass]="{
+        'tw-bg-primary-600 tw-text-contrast': selected,
+        'tw-bg-secondary-300 tw-text-main': !selected && !disabled && step.editable,
+        'tw-bg-transparent tw-text-muted': disabled,
+      }"
+    >
+      {{ stepNumber }}
+    </span>
+    <span
+      class="tw-mr-3.5 tw-w-9 tw-rounded-full tw-bg-primary-600 tw-font-bold tw-leading-9 tw-text-contrast"
+      *ngIf="step.completed"
+    >
+      <i class="bwi bwi-fw bwi-check tw-p-1" aria-hidden="true"></i>
+    </span>
+    <div
+      class="tw-txt-main tw-mt-3.5 tw-h-12 tw-text-left tw-leading-snug"
+      [ngClass]="{
+        'tw-font-bold': selected,
+      }"
+    >
+      <p
+        class="main-label text tw-mb-1 tw-text-main"
+        [ngClass]="{
+          'tw-mt-1': !step.subLabel,
+        }"
+      >
+        {{ step.label }}
+      </p>
+      <p class="sub-label small tw-text-muted">{{ step.subLabel }}</p>
+    </div>
+  </button>
+</div>

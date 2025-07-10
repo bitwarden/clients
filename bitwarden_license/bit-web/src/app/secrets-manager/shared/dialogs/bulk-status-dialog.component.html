@@ -1,0 +1,33 @@
+<bit-dialog dialogSize="default">
+  <ng-container bitDialogTitle>
+    <span>{{ data.title | i18n }}</span>
+    <span class="tw-text-sm tw-normal-case tw-text-muted">
+      {{ data.details.length }}
+      {{ data.subTitle | i18n }}
+    </span>
+  </ng-container>
+
+  <div bitDialogContent>
+    {{ data.message | i18n }}
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ data.columnTitle | i18n }}</th>
+          <th bitCell>{{ "error" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        <tr bitRow *ngFor="let detail of data.details">
+          <td bitCell>{{ detail.name }}</td>
+          <td bitCell>{{ detail.errorMessage }}</td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" bitDialogClose type="button">
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

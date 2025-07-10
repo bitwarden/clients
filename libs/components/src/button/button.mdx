@@ -1,0 +1,136 @@
+import {
+  Markdown,
+  Meta,
+  Canvas,
+  Primary,
+  Controls,
+  Title,
+  Description,
+} from "@storybook/addon-docs";
+
+import * as stories from "./button.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ButtonModule } from "@bitwarden/components";
+```
+
+<Title />
+
+### Default / Secondary
+
+<Primary />
+
+<Controls />
+
+## Guidelines
+
+### Choosing the `<a>` or `<button>`
+
+Buttons can use either the `<a>` or `<button>` tags. Choose which based on the action the button
+takes:
+
+- If navigating to a new page, use `<a>`
+- If taking an action on the current page use `<button>`
+- If the button launches a dialog, use `<button>`
+
+### Groups
+
+Groups of buttons should be separated by a `0.5` rem gap. Usually accomplished by using the
+`tw-gap-2` class in the button group container.
+
+Groups within page content, dialog footers or forms should have the `primary` call to action placed
+to left. Groups in headers and navigational areas should have the `primary` call to action on the
+right.
+
+## Styles
+
+There are 3 main styles for the button: Primary, Secondary, and Danger.
+
+### Default / Secondary
+
+The secondary styling(shown above) should be used for secondary calls to action. An action is
+"secondary" if it relates indirectly to the purpose of a page. There may be multiple secondary
+buttons next to each other; however, generally there should only be 1 or 2 calls to action per page.
+
+### Primary
+
+Use the primary button styling for all Primary call to actions. An action is "primary" if it relates
+to the main purpose of a page. There should never be 2 primary styled buttons next to each other.
+
+<Canvas of={stories.Primary} />
+
+### Danger
+
+Use the danger styling only in settings when the user may perform a permanent destructive action.
+
+<Canvas of={stories.Danger} />
+
+## Disabled UI
+
+<Canvas of={stories.Disabled} />
+
+## Block
+
+Typically button widths expand with their text. In some causes though buttons may need to be block
+where the width is fixed and the text wraps to 2 lines if exceeding the button’s width.
+
+<Canvas of={stories.Block} />
+
+## With Icon
+
+To ensure consistent icon spacing, the icon should have .5rem spacing on left or right(depending on
+placement).
+
+> NOTE: Use logical css properties to ensure LTR/RTL support.
+
+**If icon is placed before button label**
+
+```html
+<i class="bwi bwi-plus tw-me-2"></i>
+```
+
+**If icon is placed after button label**
+
+```html
+<i class="bwi bwi-plus tw-ms-2"></i>
+```
+
+<Canvas of={stories.WithIcon} />
+
+## Accessibility
+
+Please follow these guidelines to ensure that buttons are accessible to all users.
+
+### Color contrast
+
+All button styles are WCAG compliant when displayed on `background` and `background-alt` colors. To
+use a button on a different background, double check that the color contrast is sufficient in both
+the light and dark themes.
+
+### Loading Buttons
+
+Include an `aria-label` attribute that defaults to "loading" but can be configurable per
+implementation. On click, the screen reader should announce the `aria-label`. Once the action is
+completed, use another messaging pattern to alert the user that the action is complete (example:
+success toast).
+
+### Submit and async actions
+
+Both submit and async action buttons use a loading button state while an action is taken. If your
+button is performing a long running task in the background like a server API call, be sure to review
+the [Async Actions Directive](?path=/story/component-library-async-actions-overview--page).
+
+<Canvas of={stories.Loading} />
+
+### appA11yTitle
+
+`appA11yTitle` is a directive that auto assigns the same string to the `title` and `aria-label`
+attributes.
+
+When a button uses accessible content (e.i. actual text), DO NOT include this as it adds redundant
+content for someone using assistive technology.
+
+`appA11yTitle` should only be used if the element it applies to does not include accessible text,
+e.i. an icon.

@@ -1,4 +1,5 @@
-import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import {
   FormControl,
@@ -8,16 +9,16 @@ import {
   AbstractControl,
 } from "@angular/forms";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { DialogService } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogRef, DIALOG_DATA, DialogService, ToastService } from "@bitwarden/components";
 
+import { ProjectListView } from "../../models/view/project-list.view";
 import {
   BulkOperationStatus,
   BulkStatusDetails,
   BulkStatusDialogComponent,
-} from "../../layout/dialogs/bulk-status-dialog.component";
-import { ProjectListView } from "../../models/view/project-list.view";
+} from "../../shared/dialogs/bulk-status-dialog.component";
 import { ProjectService } from "../project.service";
 
 export interface ProjectDeleteOperation {
@@ -25,8 +26,8 @@ export interface ProjectDeleteOperation {
 }
 
 @Component({
-  selector: "sm-project-delete-dialog",
   templateUrl: "./project-delete-dialog.component.html",
+  standalone: false,
 })
 export class ProjectDeleteDialogComponent implements OnInit {
   formGroup = new FormGroup({
@@ -39,14 +40,15 @@ export class ProjectDeleteDialogComponent implements OnInit {
     private projectService: ProjectService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
     if (!(this.data.projects?.length >= 1)) {
       this.dialogRef.close();
       throw new Error(
-        "The project delete dialog was not called with the appropriate operation values."
+        "The project delete dialog was not called with the appropriate operation values.",
       );
     }
   }
@@ -85,7 +87,11 @@ export class ProjectDeleteDialogComponent implements OnInit {
     }
 
     const message = this.data.projects.length === 1 ? "deleteProjectToast" : "deleteProjectsToast";
-    this.platformUtilsService.showToast("success", null, this.i18nService.t(message));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(message),
+    });
   }
 
   openBulkStatusDialog(bulkStatusResults: BulkOperationStatus[]) {

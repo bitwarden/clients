@@ -1,0 +1,100 @@
+<h2 bitTypography="h2">
+  {{ "logInWithPasskey" | i18n }}
+  <span class="tw-inline-flex tw-gap-1 tw-align-middle">
+    <ng-container *ngIf="hasData">
+      <span
+        *ngIf="requireSsoPolicyEnabled"
+        bitBadge
+        variant="secondary"
+        class="tw-max-w-full !tw-align-middle"
+      >
+        {{ "off" | i18n }} - {{ "ssoLoginIsRequired" | i18n }}
+      </span>
+      <ng-container *ngIf="!requireSsoPolicyEnabled">
+        <span *ngIf="hasCredentials" bitBadge variant="success" class="!tw-align-middle">
+          {{ "on" | i18n }}
+        </span>
+        <span *ngIf="!hasCredentials" bitBadge variant="secondary" class="!tw-align-middle">
+          {{ "off" | i18n }}
+        </span>
+      </ng-container>
+    </ng-container>
+    <span bitBadge variant="warning" class="!tw-align-middle">{{ "beta" | i18n }}</span>
+  </span>
+  <ng-container *ngIf="loading">
+    <i class="bwi bwi-spinner bwi-spin tw-ml-1" aria-hidden="true"></i>
+  </ng-container>
+</h2>
+<p bitTypography="body1">
+  {{ "loginWithPasskeyInfo" | i18n }}
+  <a bitLink href="https://bitwarden.com/help/login-with-passkeys">{{
+    "learnMoreAboutPasswordless" | i18n
+  }}</a>
+</p>
+
+<table *ngIf="hasCredentials" class="tw-mb-5">
+  <tr *ngFor="let credential of credentials">
+    <td class="tw-p-2 tw-pl-0 tw-font-semibold">{{ credential.name }}</td>
+    <td class="tw-p-2 tw-pr-10 tw-text-left">
+      <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Enabled">
+        <i class="bwi bwi-lock-encrypted"></i>
+        <span bitTypography="body1" class="tw-text-muted">{{ "usedForEncryption" | i18n }}</span>
+      </ng-container>
+      <ng-container *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Supported">
+        <button
+          type="button"
+          bitLink
+          [disabled]="loading"
+          [attr.aria-label]="('enablePasskeyEncryption' | i18n) + ' ' + credential.name"
+          (click)="enableEncryption(credential.id)"
+        >
+          <i class="bwi bwi-lock-encrypted"></i>
+          {{ "enablePasskeyEncryption" | i18n }}
+        </button>
+      </ng-container>
+      <span
+        *ngIf="credential.prfStatus === WebauthnLoginCredentialPrfStatus.Unsupported"
+        bitTypography="body1"
+        class="tw-text-muted"
+      >
+        {{ "encryptionNotSupported" | i18n }}
+      </span>
+    </td>
+    <td class="tw-py-2">
+      <button
+        type="button"
+        bitLink
+        [disabled]="loading"
+        [attr.aria-label]="('remove' | i18n) + ' ' + credential.name"
+        (click)="deleteCredential(credential.id)"
+      >
+        {{ "remove" | i18n }}
+      </button>
+    </td>
+  </tr>
+</table>
+
+<p bitTypography="body2" *ngIf="limitReached">{{ "passkeyLimitReachedInfo" | i18n }}</p>
+
+<ng-container *ngIf="hasData && !limitReached && !requireSsoPolicyEnabled">
+  <button
+    *ngIf="hasCredentials"
+    type="button"
+    bitButton
+    [disabled]="loading"
+    (click)="createCredential()"
+  >
+    {{ "newPasskey" | i18n }}
+  </button>
+
+  <button
+    *ngIf="!hasCredentials"
+    type="button"
+    bitButton
+    [attr.aria-label]="('enable' | i18n) + ' ' + ('logInWithPasskey' | i18n)"
+    [disabled]="loading"
+    (click)="createCredential()"
+  >
+    {{ "enable" | i18n }}
+  </button>
+</ng-container>

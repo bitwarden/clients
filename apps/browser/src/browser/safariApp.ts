@@ -1,4 +1,4 @@
-import { BrowserApi } from "./browserApi";
+import { BrowserApi } from "../platform/browser/browser-api";
 
 export class SafariApp {
   static sendMessageToApp(command: string, data: any = null, resolveNow = false): Promise<any> {
@@ -19,7 +19,7 @@ export class SafariApp {
         },
         (response: any) => {
           resolve(response);
-        }
+        },
       );
     });
   }

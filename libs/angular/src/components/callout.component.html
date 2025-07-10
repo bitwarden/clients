@@ -1,14 +1,5 @@
-<div
-  #callout
-  class="callout callout-{{ calloutStyle }}"
-  [ngClass]="{ clickable: clickable }"
-  [attr.role]="useAlertRole ? 'alert' : null"
->
-  <h3 class="callout-heading" *ngIf="title">
-    <i class="bwi {{ icon }}" *ngIf="icon" aria-hidden="true"></i>
-    {{ title }}
-  </h3>
-  <div class="enforced-policy-options" *ngIf="enforcedPolicyOptions">
+<bit-callout [icon]="icon" [title]="title" [type]="$any(type)" [useAlertRole]="useAlertRole">
+  <div class="tw-pl-7 tw-m-0" *ngIf="enforcedPolicyOptions">
     {{ enforcedPolicyMessage }}
     <ul>
       <li *ngIf="enforcedPolicyOptions?.minComplexity > 0">
@@ -32,4 +23,4 @@
     </ul>
   </div>
   <ng-content></ng-content>
-</div>
+</bit-callout>

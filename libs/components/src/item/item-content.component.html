@@ -1,0 +1,36 @@
+<div class="tw-flex tw-gap-2 tw-items-center tw-w-full tw-min-w-0">
+  <ng-content select="[slot=start]"></ng-content>
+
+  <div class="tw-flex tw-flex-col tw-items-start tw-text-start tw-w-full tw-truncate [&_p]:tw-mb-0">
+    <div
+      bitTypography="body2"
+      class="tw-text-main tw-truncate tw-inline-flex tw-items-center tw-gap-1.5 tw-w-full"
+    >
+      <div
+        [ngClass]="{
+          'tw-truncate': truncate,
+          'tw-text-wrap tw-overflow-auto tw-break-words': !truncate,
+        }"
+      >
+        <ng-content></ng-content>
+      </div>
+      <div class="tw-flex-grow">
+        <ng-content select="[slot=default-trailing]"></ng-content>
+      </div>
+    </div>
+    <div
+      bitTypography="helper"
+      class="tw-text-muted tw-w-full"
+      [ngClass]="{
+        'tw-truncate': truncate,
+        'tw-text-wrap tw-overflow-auto tw-break-words': !truncate,
+      }"
+    >
+      <ng-content select="[slot=secondary]"></ng-content>
+    </div>
+  </div>
+</div>
+
+<div class="tw-flex tw-gap-2 tw-items-center" #endSlot [hidden]="!endSlotHasChildren()">
+  <ng-content select="[slot=end]"></ng-content>
+</div>

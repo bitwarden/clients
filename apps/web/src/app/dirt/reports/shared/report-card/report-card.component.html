@@ -1,0 +1,26 @@
+<a
+  class="tw-block tw-h-full tw-max-w-72 tw-overflow-hidden tw-rounded tw-border tw-border-solid tw-border-secondary-300 !tw-text-main tw-transition-all hover:tw-scale-105 hover:tw-no-underline focus:tw-outline-none focus:tw-ring focus:tw-ring-primary-700 focus:tw-ring-offset-2"
+  [routerLink]="route"
+>
+  <div class="tw-relative">
+    <div
+      class="tw-flex tw-h-28 tw-bg-background-alt2 tw-text-center tw-text-primary-300"
+      [ngClass]="{ 'tw-grayscale': disabled }"
+    >
+      <div class="tw-m-auto"><bit-icon [icon]="icon" aria-hidden="true"></bit-icon></div>
+    </div>
+    <div class="tw-p-5" [ngClass]="{ 'tw-grayscale': disabled }">
+      <h3 class="tw-mb-4 tw-text-xl tw-font-bold">{{ title }}</h3>
+      <p class="tw-mb-0">{{ description }}</p>
+    </div>
+    <span
+      bitBadge
+      [variant]="requiresPremium ? 'success' : 'primary'"
+      class="tw-absolute tw-left-2 tw-top-2 tw-leading-none"
+      *ngIf="disabled"
+    >
+      <ng-container *ngIf="requiresPremium">{{ "premium" | i18n }}</ng-container>
+      <ng-container *ngIf="!requiresPremium">{{ "upgrade" | i18n }}</ng-container>
+    </span>
+  </div>
+</a>

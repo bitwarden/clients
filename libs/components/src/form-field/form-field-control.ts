@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export type InputTypes =
   | "text"
   | "password"
@@ -5,7 +7,10 @@ export type InputTypes =
   | "datetime-local"
   | "email"
   | "checkbox"
-  | "search";
+  | "search"
+  | "file"
+  | "date"
+  | "time";
 
 export abstract class BitFormFieldControl {
   ariaDescribedBy: string;
@@ -16,5 +21,6 @@ export abstract class BitFormFieldControl {
   error: [string, any];
   type?: InputTypes;
   spellcheck?: boolean;
+  readOnly?: boolean;
   focus?: () => void;
 }

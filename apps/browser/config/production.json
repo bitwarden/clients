@@ -1,3 +1,5 @@
 {
-  "flags": {}
+  "flags": {
+    "accountSwitching": true
+  }
 }

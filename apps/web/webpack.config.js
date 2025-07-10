@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const { AngularWebpackPlugin } = require("@ngtools/webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackInjector = require("html-webpack-injector");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -31,7 +30,7 @@ const moduleRules = [
     test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
     exclude: /loading(|-white).svg/,
     generator: {
-      filename: "fonts/[name][ext]",
+      filename: "fonts/[name].[contenthash][ext]",
     },
     type: "asset/resource",
   },
@@ -50,7 +49,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "sass-loader",
+      "resolve-url-loader",
+      {
+        loader: "sass-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -60,7 +65,13 @@ const moduleRules = [
         loader: MiniCssExtractPlugin.loader,
       },
       "css-loader",
-      "postcss-loader",
+      "resolve-url-loader",
+      {
+        loader: "postcss-loader",
+        options: {
+          sourceMap: true,
+        },
+      },
     ],
   },
   {
@@ -69,8 +80,8 @@ const moduleRules = [
       {
         loader: "babel-loader",
         options: {
-          configFile: false,
-          plugins: ["@angular/compiler-cli/linker/babel"],
+          configFile: "../../babel.config.json",
+          cacheDirectory: NODE_ENV !== "production",
         },
       },
     ],
@@ -79,50 +90,56 @@ const moduleRules = [
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
   },
+  {
+    test: /argon2(-simd)?\.wasm$/,
+    loader: "base64-loader",
+    type: "javascript/auto",
+  },
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({
     template: "./src/index.html",
     filename: "index.html",
-    chunks: ["theme_head", "app/polyfills", "app/vendor", "app/main"],
+    chunks: ["theme_head", "app/polyfills", "app/vendor", "app/main", "styles"],
   }),
   new HtmlWebpackInjector(),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/duo.html",
-    filename: "duo-connector.html",
-    chunks: ["connectors/duo"],
-  }),
-  new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn.html",
     filename: "webauthn-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-mobile.html",
     filename: "webauthn-mobile-connector.html",
-    chunks: ["connectors/webauthn"],
+    chunks: ["connectors/webauthn", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/webauthn-fallback.html",
     filename: "webauthn-fallback-connector.html",
-    chunks: ["connectors/webauthn-fallback"],
+    chunks: ["connectors/webauthn-fallback", "styles"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/connectors/sso.html",
     filename: "sso-connector.html",
-    chunks: ["connectors/sso"],
+    chunks: ["connectors/sso", "styles"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha.html",
-    filename: "captcha-connector.html",
-    chunks: ["connectors/captcha"],
+    template: "./src/connectors/redirect.html",
+    filename: "redirect-connector.html",
+    chunks: ["connectors/redirect", "styles"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/connectors/captcha-mobile.html",
-    filename: "captcha-mobile-connector.html",
-    chunks: ["connectors/captcha"],
+    template: "./src/connectors/duo-redirect.html",
+    filename: "duo-redirect-connector.html",
+    chunks: ["connectors/duo-redirect", "styles"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/404.html",
+    filename: "404.html",
+    chunks: ["styles"],
+    // 404 page is a wildcard, this ensures it uses absolute paths.
+    publicPath: "/",
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -131,8 +148,6 @@ const plugins = [
       { from: "./src/favicon.ico" },
       { from: "./src/browserconfig.xml" },
       { from: "./src/app-id.json" },
-      { from: "./src/404.html" },
-      { from: "./src/404", to: "404" },
       { from: "./src/images", to: "images" },
       { from: "./src/locales", to: "locales" },
       { from: "../../node_modules/qrious/dist/qrious.min.js", to: "scripts" },
@@ -162,9 +177,11 @@ const plugins = [
     BRAINTREE_KEY: envConfig["braintreeKey"] ?? "",
     PAYPAL_CONFIG: envConfig["paypal"] ?? {},
     FLAGS: envConfig["flags"] ?? {},
+    DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
+    ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
   }),
   new AngularWebpackPlugin({
-    tsConfigPath: "tsconfig.json",
+    tsconfig: "tsconfig.build.json",
     entryModule: "src/app/app.module#AppModule",
     sourceMap: true,
   }),
@@ -184,38 +201,44 @@ const devServer =
           },
         },
         // host: '192.168.1.9',
-        proxy: {
-          "/api": {
+        proxy: [
+          {
+            context: ["/api"],
             target: envConfig.dev?.proxyApi,
             pathRewrite: { "^/api": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/identity": {
+          {
+            context: ["/identity"],
             target: envConfig.dev?.proxyIdentity,
             pathRewrite: { "^/identity": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/events": {
+          {
+            context: ["/events"],
             target: envConfig.dev?.proxyEvents,
             pathRewrite: { "^/events": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/notifications": {
+          {
+            context: ["/notifications"],
             target: envConfig.dev?.proxyNotifications,
             pathRewrite: { "^/notifications": "" },
             secure: false,
             changeOrigin: true,
+            ws: true,
           },
-          "/icons": {
+          {
+            context: ["/icons"],
             target: envConfig.dev?.proxyIcons,
             pathRewrite: { "^/icons": "" },
             secure: false,
             changeOrigin: true,
           },
-        },
+        ],
         headers: (req) => {
           if (!req.originalUrl.includes("connector.html")) {
             return {
@@ -223,6 +246,7 @@ const devServer =
                 default-src 'self'
                 ;script-src
                   'self'
+                  'wasm-unsafe-eval'
                   'sha256-ryoU+5+IUZTuUyTElqkrQGBJXr1brEv6r2CA62WUw8w='
                   https://js.stripe.com
                   https://js.braintreegateway.com
@@ -231,10 +255,11 @@ const devServer =
                   'self'
                   https://assets.braintreegateway.com
                   https://*.paypal.com
-                  'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
-                  'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='
-                  'sha256-or0p3LaHetJ4FRq+flVORVFFNsOjQGWrDvX8Jf7ACWg='
-                  'sha256-Oca9ZYU1dwNscIhdNV7tFBsr4oqagBhZx9/p4w8GOcg='
+                  ${"'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='" /* date input polyfill */}
+                  ${"'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='" /* date input polyfill */}
+                  ${"'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='" /* ng-select */}
+                  ${"'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='" /* cdk-virtual-scroll */}
+                  ${"'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='" /* cdk-visually-hidden */}
                 ;img-src
                   'self'
                   data:
@@ -243,6 +268,9 @@ const devServer =
                   https://www.paypalobjects.com
                   https://q.stripe.com
                   https://haveibeenpwned.com
+                ;media-src
+                  'self'
+                  https://assets.bitwarden.com
                 ;child-src
                   'self'
                   https://js.stripe.com
@@ -257,13 +285,15 @@ const devServer =
                   https://*.duosecurity.com
                 ;connect-src
                   'self'
+                  ${envConfig.dev.wsConnectSrc ?? ""}
                   wss://notifications.bitwarden.com
                   https://notifications.bitwarden.com
                   https://cdn.bitwarden.net
                   https://api.pwnedpasswords.com
-                  https://2fa.directory/api/v3/totp.json
+                  https://api.2fa.directory/v3/totp.json
                   https://api.stripe.com
                   https://www.paypal.com
+                  https://api.sandbox.braintreegateway.com
                   https://api.braintreegateway.com
                   https://client-analytics.braintreegateway.com
                   https://*.braintree-api.com
@@ -271,8 +301,9 @@ const devServer =
                   http://127.0.0.1:10000
                   https://app.simplelogin.io/api/alias/random/new
                   https://quack.duckduckgo.com/api/email/addresses
-                  https://app.anonaddy.com/api/v1/aliases
+                  https://app.addy.io/api/v1/aliases
                   https://api.fastmail.com
+                  https://api.forwardemail.net
                   http://localhost:5000
                 ;object-src
                   'self'
@@ -290,6 +321,7 @@ const devServer =
           overlay: {
             errors: true,
             warnings: false,
+            runtimeErrors: false,
           },
         },
       };
@@ -298,15 +330,31 @@ const webpackConfig = {
   mode: NODE_ENV,
   devtool: "source-map",
   devServer: devServer,
+  target: "web",
   entry: {
     "app/polyfills": "./src/polyfills.ts",
     "app/main": "./src/main.ts",
     "connectors/webauthn": "./src/connectors/webauthn.ts",
     "connectors/webauthn-fallback": "./src/connectors/webauthn-fallback.ts",
-    "connectors/duo": "./src/connectors/duo.ts",
     "connectors/sso": "./src/connectors/sso.ts",
-    "connectors/captcha": "./src/connectors/captcha.ts",
-    theme_head: "./src/theme.js",
+    "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
+    "connectors/redirect": "./src/connectors/redirect.ts",
+    styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
+    theme_head: "./src/theme.ts",
+  },
+  cache:
+    NODE_ENV === "production"
+      ? false
+      : {
+          type: "filesystem",
+          allowCollectingMemory: true,
+          cacheDirectory: path.resolve(__dirname, "../../node_modules/.cache/webpack"),
+          buildDependencies: {
+            config: [__filename],
+          },
+        },
+  snapshot: {
+    unmanagedPaths: [path.resolve(__dirname, "../../node_modules/@bitwarden/")],
   },
   optimization: {
     splitChunks: {
@@ -320,6 +368,7 @@ const webpackConfig = {
         },
       },
     },
+    minimize: NODE_ENV === "production",
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -339,22 +388,28 @@ const webpackConfig = {
     extensions: [".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
-    alias: {
-      sweetalert2: require.resolve("sweetalert2/dist/sweetalert2.js"),
-      "#sweetalert2": require.resolve("sweetalert2/src/sweetalert2.scss"),
-    },
     fallback: {
       buffer: false,
       util: require.resolve("util/"),
       assert: false,
       url: false,
+      fs: false,
+      process: false,
+      path: require.resolve("path-browserify"),
     },
   },
   output: {
     filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
-  module: { rules: moduleRules },
+  module: {
+    noParse: /argon2(-simd)?\.wasm$/,
+    rules: moduleRules,
+  },
+  experiments: {
+    asyncWebAssembly: true,
+  },
   plugins: plugins,
 };
 

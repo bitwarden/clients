@@ -1,0 +1,110 @@
+<app-header></app-header>
+<bit-container>
+  <ng-container *ngIf="!firstLoaded && loading">
+    <i class="bwi bwi-spinner bwi-spin tw-text-muted" title="{{ 'loading' | i18n }}"></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </ng-container>
+  <ng-container *ngIf="firstLoaded && !loading">
+    <app-provider-subscription-status
+      [subscription]="subscription"
+    ></app-provider-subscription-status>
+    <ng-container>
+      <div class="tw-flex-col">
+        <strong
+          class="tw-block tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+          >{{ "details" | i18n }} &#160;<span
+            bitBadge
+            variant="success"
+            *ngIf="subscription.discountPercentage"
+            >{{ "providerDiscount" | i18n: subscription.discountPercentage }}</span
+          >
+        </strong>
+        <bit-table>
+          <ng-template body>
+            <ng-container *ngIf="subscription">
+              <tr bitRow *ngFor="let i of activePlans">
+                <td bitCell class="tw-pl-0 tw-py-3">
+                  {{ getFormattedPlanName(i.planName) }} {{ "orgSeats" | i18n }} ({{
+                    getFormattedPlanNameCadence(i.cadence) | i18n
+                  }}) {{ "&times;" }}{{ getFormattedSeatCount(i.seatMinimum, i.purchasedSeats) }}
+                  &#64;
+                  {{
+                    getFormattedCost(
+                      i.cost,
+                      i.seatMinimum,
+                      i.purchasedSeats,
+                      subscription.discountPercentage
+                    ) | currency: "$"
+                  }}
+                </td>
+                <td bitCell class="tw-text-right tw-py-3">
+                  {{ ((100 - subscription.discountPercentage) / 100) * i.cost | currency: "$" }} /
+                  {{ getBillingCadenceLabel(i) | i18n }}
+                  <div *ngIf="subscription.discountPercentage">
+                    <bit-hint class="tw-text-sm tw-line-through">
+                      {{ i.cost | currency: "$" }} / {{ getBillingCadenceLabel(i) | i18n }}
+                    </bit-hint>
+                  </div>
+                </td>
+              </tr>
+
+              <tr bitRow>
+                <td bitCell class="tw-pl-0 tw-py-3"></td>
+                <td bitCell class="tw-text-right">
+                  <span class="tw-font-bold">Total:</span> {{ totalCost | currency: "$" }} /
+                  {{
+                    getBillingCadenceLabel(activePlans.length > 0 ? activePlans[0] : null) | i18n
+                  }}
+                </td>
+              </tr>
+            </ng-container>
+          </ng-template>
+        </bit-table>
+      </div>
+    </ng-container>
+    <!-- Account Credit -->
+    <bit-section>
+      <h2 bitTypography="h2">
+        {{ "accountCredit" | i18n }}
+      </h2>
+      <p class="tw-text-lg tw-font-bold">{{ subscription.accountCredit | currency: "$" }}</p>
+      <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
+    </bit-section>
+    <!-- Payment Method -->
+    <bit-section>
+      <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
+      <p *ngIf="!subscription.paymentSource" bitTypography="body1">
+        {{ "noPaymentMethod" | i18n }}
+      </p>
+      <ng-container *ngIf="subscription.paymentSource">
+        <app-verify-bank-account
+          *ngIf="subscription.paymentSource.needsVerification"
+          [onSubmit]="verifyBankAccount"
+          (submitted)="load()"
+        >
+        </app-verify-bank-account>
+        <p>
+          <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
+          {{ subscription.paymentSource.description }}
+          <span *ngIf="subscription.paymentSource.needsVerification"
+            >- {{ "unverified" | i18n }}</span
+          >
+        </p>
+      </ng-container>
+      <button type="button" bitButton buttonType="secondary" [bitAction]="updatePaymentMethod">
+        {{ updatePaymentSourceButtonText }}
+      </button>
+    </bit-section>
+    <!-- Tax Information -->
+    <bit-section>
+      <h2 bitTypography="h2" class="tw-mt-16">{{ "taxInformation" | i18n }}</h2>
+      <p>{{ "taxInformationDesc" | i18n }}</p>
+      <app-manage-tax-information
+        *ngIf="subscription.taxInformation"
+        [startWith]="TaxInformation.from(subscription.taxInformation)"
+        [onSubmit]="updateTaxInformation"
+        (taxInformationUpdated)="load()"
+      />
+    </bit-section>
+  </ng-container>
+</bit-container>

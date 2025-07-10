@@ -1,7 +1,11 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+
+import { isDev } from "../../utils";
 
 import { IMenubarMenu } from "./menubar";
 
@@ -13,7 +17,7 @@ export class ViewMenu implements IMenubarMenu {
   }
 
   get items(): MenuItemConstructorOptions[] {
-    return [
+    const items = [
       this.searchVault,
       this.separator,
       this.generator,
@@ -26,8 +30,13 @@ export class ViewMenu implements IMenubarMenu {
       this.toggleFullscreen,
       this.separator,
       this.reload,
-      this.toggleDevTools,
     ];
+
+    if (isDev()) {
+      items.push(this.toggleDevTools);
+    }
+
+    return items;
   }
 
   private readonly _i18nService: I18nService;
@@ -67,7 +76,7 @@ export class ViewMenu implements IMenubarMenu {
   private get passwordHistory(): MenuItemConstructorOptions {
     return {
       id: "passwordHistory",
-      label: this.localize("passwordHistory"),
+      label: this.localize("generatorHistory"),
       click: () => this.sendMessage("openPasswordHistory"),
       enabled: !this._isLocked,
     };

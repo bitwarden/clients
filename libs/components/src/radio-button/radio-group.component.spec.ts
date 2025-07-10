@@ -1,9 +1,9 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -16,14 +16,13 @@ describe("RadioGroupComponent", () => {
   let buttonElements: RadioButtonComponent[];
   let radioButtons: HTMLInputElement[];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, RadioButtonModule],
-      declarations: [TestApp],
+      imports: [TestApp],
       providers: [{ provide: I18nService, useValue: new I18nMockService({}) }],
     });
 
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     fixture.detectChanges();
     testAppComponent = fixture.debugElement.componentInstance;
@@ -35,7 +34,7 @@ describe("RadioGroupComponent", () => {
       .map((e) => e.nativeElement);
 
     fixture.detectChanges();
-  }));
+  });
 
   it("should select second element when setting selected to second", async () => {
     testAppComponent.selected = "second";
@@ -73,6 +72,7 @@ describe("RadioGroupComponent", () => {
       <bit-radio-button value="third">Third</bit-radio-button>
     </bit-radio-group>
   `,
+  imports: [FormsModule, RadioButtonModule],
 })
 class TestApp {
   selected?: string;

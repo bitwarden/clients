@@ -1,8 +1,24 @@
-import { Component, HostBinding, Input } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgClass } from "@angular/common";
+import {
+  Component,
+  computed,
+  ElementRef,
+  HostBinding,
+  inject,
+  Input,
+  model,
+  Signal,
+} from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { debounce, interval } from "rxjs";
 
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
+import { FocusableElement } from "../shared/focusable-element";
+import { ariaDisableElement } from "../utils";
 
-export type IconButtonType = ButtonType | "contrast" | "main" | "muted";
+export type IconButtonType = ButtonType | "contrast" | "main" | "muted" | "light";
 
 const focusRing = [
   // Workaround for box-shadow with transparent offset issue:
@@ -14,10 +30,10 @@ const focusRing = [
   "before:tw-content-['']",
   "before:tw-block",
   "before:tw-absolute",
-  "before:-tw-inset-[3px]",
-  "before:tw-rounded-md",
+  "before:-tw-inset-[2px]",
+  "before:tw-rounded-lg",
   "before:tw-transition",
-  "before:tw-ring",
+  "before:tw-ring-2",
   "before:tw-ring-transparent",
   "focus-visible:tw-z-10",
 ];
@@ -30,9 +46,6 @@ const styles: Record<IconButtonType, string[]> = {
     "hover:tw-bg-transparent-hover",
     "hover:tw-border-text-contrast",
     "focus-visible:before:tw-ring-text-contrast",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
     ...focusRing,
   ],
   main: [
@@ -40,35 +53,30 @@ const styles: Record<IconButtonType, string[]> = {
     "!tw-text-main",
     "tw-border-transparent",
     "hover:tw-bg-transparent-hover",
-    "hover:tw-border-text-main",
-    "focus-visible:before:tw-ring-text-main",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
     ...focusRing,
   ],
   muted: [
     "tw-bg-transparent",
     "!tw-text-muted",
     "tw-border-transparent",
+    "aria-expanded:tw-bg-text-muted",
+    "aria-expanded:!tw-text-contrast",
     "hover:tw-bg-transparent-hover",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-transparent",
-    "disabled:hover:tw-bg-transparent",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
+    "aria-expanded:hover:tw-bg-secondary-700",
+    "aria-expanded:hover:tw-border-secondary-700",
     ...focusRing,
   ],
   primary: [
-    "tw-bg-primary-500",
+    "tw-bg-primary-600",
     "!tw-text-contrast",
-    "tw-border-primary-500",
-    "hover:tw-bg-primary-700",
-    "hover:tw-border-primary-700",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-primary-500",
-    "disabled:hover:tw-bg-primary-500",
+    "tw-border-primary-600",
+    "hover:tw-bg-primary-600",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
     ...focusRing,
   ],
   secondary: [
@@ -77,27 +85,68 @@ const styles: Record<IconButtonType, string[]> = {
     "tw-border-text-muted",
     "hover:!tw-text-contrast",
     "hover:tw-bg-text-muted",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-text-muted",
-    "disabled:hover:tw-bg-transparent",
-    "disabled:hover:!tw-text-muted",
-    "disabled:hover:tw-border-text-muted",
+    "focus-visible:before:tw-ring-primary-600",
     ...focusRing,
   ],
   danger: [
     "tw-bg-transparent",
-    "!tw-text-danger",
-    "tw-border-danger-500",
-    "hover:!tw-text-contrast",
-    "hover:tw-bg-danger-500",
-    "focus-visible:before:tw-ring-primary-700",
-    "disabled:tw-opacity-60",
-    "disabled:hover:tw-border-danger-500",
-    "disabled:hover:tw-bg-transparent",
-    "disabled:hover:!tw-text-danger",
-    "disabled:hover:tw-border-danger-500",
+    "!tw-text-danger-600",
+    "tw-border-transparent",
+    "hover:!tw-text-danger-600",
+    "hover:tw-bg-transparent",
+    "hover:tw-border-primary-600",
+    "focus-visible:before:tw-ring-primary-600",
     ...focusRing,
+  ],
+  light: [
+    "tw-bg-transparent",
+    "!tw-text-alt2",
+    "tw-border-transparent",
+    "hover:tw-bg-transparent-hover",
+    "hover:tw-border-text-alt2",
+    "focus-visible:before:tw-ring-text-alt2",
+    ...focusRing,
+  ],
+  unstyled: [],
+};
+
+const disabledStyles: Record<IconButtonType, string[]> = {
+  contrast: [
+    "aria-disabled:tw-opacity-60",
+    "aria-disabled:hover:tw-border-transparent",
+    "aria-disabled:hover:tw-bg-transparent",
+  ],
+  main: [
+    "aria-disabled:!tw-text-secondary-300",
+    "aria-disabled:hover:tw-border-transparent",
+    "aria-disabled:hover:tw-bg-transparent",
+  ],
+  muted: [
+    "aria-disabled:!tw-text-secondary-300",
+    "aria-disabled:hover:tw-border-transparent",
+    "aria-disabled:hover:tw-bg-transparent",
+  ],
+  primary: [
+    "aria-disabled:tw-opacity-60",
+    "aria-disabled:hover:tw-border-primary-600",
+    "aria-disabled:hover:tw-bg-primary-600",
+  ],
+  secondary: [
+    "aria-disabled:tw-opacity-60",
+    "aria-disabled:hover:tw-border-text-muted",
+    "aria-disabled:hover:tw-bg-transparent",
+    "aria-disabled:hover:!tw-text-muted",
+  ],
+  danger: [
+    "aria-disabled:!tw-text-secondary-300",
+    "aria-disabled:hover:tw-border-transparent",
+    "aria-disabled:hover:tw-bg-transparent",
+    "aria-disabled:hover:!tw-text-secondary-300",
+  ],
+  light: [
+    "aria-disabled:tw-opacity-60",
+    "aria-disabled:hover:tw-border-transparent",
+    "aria-disabled:hover:tw-bg-transparent",
   ],
   unstyled: [],
 };
@@ -108,16 +157,29 @@ const sizes: Record<IconButtonSize, string[]> = {
   default: ["tw-px-2.5", "tw-py-1.5"],
   small: ["tw-leading-none", "tw-text-base", "tw-p-1"],
 };
+/**
+  * Icon buttons are used when no text accompanies the button. It consists of an icon that may be updated to any icon in the `bwi-font`, a `title` attribute, and an `aria-label`.
 
+  * The most common use of the icon button is in the banner, toast, and modal components as a close button. It can also be found in tables as the 3 dot option menu, or on navigation list items when there are options that need to be collapsed into a menu.
+
+  * Similar to the main button components, spacing between multiple icon buttons should be .5rem.
+ */
 @Component({
   selector: "button[bitIconButton]:not(button[bitButton])",
   templateUrl: "icon-button.component.html",
-  providers: [{ provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent }],
+  providers: [
+    { provide: ButtonLikeAbstraction, useExisting: BitIconButtonComponent },
+    { provide: FocusableElement, useExisting: BitIconButtonComponent },
+  ],
+  imports: [NgClass],
+  host: {
+    "[attr.aria-disabled]": "disabledAttr()",
+  },
 })
-export class BitIconButtonComponent implements ButtonLikeAbstraction {
+export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
   @Input("bitIconButton") icon: string;
 
-  @Input() buttonType: IconButtonType;
+  @Input() buttonType: IconButtonType = "main";
 
   @Input() size: IconButtonSize = "default";
 
@@ -126,29 +188,65 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction {
       "tw-font-semibold",
       "tw-border",
       "tw-border-solid",
-      "tw-rounded",
+      "tw-rounded-lg",
       "tw-transition",
       "hover:tw-no-underline",
       "focus:tw-outline-none",
     ]
-      .concat(styles[this.buttonType ?? "main"])
-      .concat(sizes[this.size]);
+      .concat(styles[this.buttonType])
+      .concat(sizes[this.size])
+      .concat(this.showDisabledStyles() || this.disabled() ? disabledStyles[this.buttonType] : []);
   }
 
   get iconClass() {
     return [this.icon, "!tw-m-0"];
   }
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    const disabled = this.disabled != null && this.disabled !== false;
-    return disabled || this.loading ? true : null;
+  protected disabledAttr = computed(() => {
+    const disabled = this.disabled() != null && this.disabled() !== false;
+    return disabled || this.loading() ? true : null;
+  });
+
+  /**
+   * Determine whether it is appropriate to display the disabled styles. We only want to show
+   * the disabled styles if the button is truly disabled, or if the loading styles are also
+   * visible.
+   *
+   * We can't use `disabledAttr` for this, because it returns `true` when `loading` is `true`.
+   * We only want to show disabled styles during loading if `showLoadingStyles` is `true`.
+   */
+  protected showDisabledStyles = computed(() => {
+    return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
+  });
+
+  loading = model(false);
+
+  /**
+   * Determine whether it is appropriate to display a loading spinner. We only want to show
+   * a spinner if it's been more than 75 ms since the `loading` state began. This prevents
+   * a spinner "flash" for actions that are synchronous/nearly synchronous.
+   *
+   * We can't use `loading` for this, because we still need to disable the button during
+   * the full `loading` state. I.e. we only want the spinner to be debounced, not the
+   * loading state.
+   *
+   * This pattern of converting a signal to an observable and back to a signal is not
+   * recommended. TODO -- find better way to use debounce with signals (CL-596)
+   */
+  protected showLoadingStyle = toSignal(
+    toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
+  );
+
+  disabled = model<boolean>(false);
+
+  getFocusTarget() {
+    return this.elementRef.nativeElement;
   }
 
-  @Input() loading = false;
-  @Input() disabled = false;
+  private elementRef = inject(ElementRef);
 
-  setButtonType(value: "primary" | "secondary" | "danger" | "unstyled") {
-    this.buttonType = value;
+  constructor() {
+    const element = this.elementRef.nativeElement;
+    ariaDisableElement(element, this.disabledAttr as Signal<boolean | undefined>);
   }
 }

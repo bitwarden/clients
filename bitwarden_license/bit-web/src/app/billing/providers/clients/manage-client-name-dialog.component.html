@@ -1,0 +1,24 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle class="tw-font-semibold">
+      {{ "updateName" | i18n }}
+      <small class="tw-text-muted">{{ dialogParams.organization.name }}</small>
+    </span>
+    <div bitDialogContent>
+      <bit-form-field>
+        <bit-label>
+          {{ "organizationName" | i18n }}
+        </bit-label>
+        <input type="text" bitInput formControlName="name" />
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton buttonType="primary" type="submit">
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -1,0 +1,294 @@
+name: Publish Desktop
+run-name: Publish Desktop ${{ inputs.publish_type }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_type:
+        description: 'Publish Options'
+        required: true
+        default: 'Publish'
+        type: choice
+        options:
+          - Publish
+          - Dry Run
+      version:
+        description: 'Version to publish (default: latest desktop release)'
+        required: true
+        type: string
+        default: latest
+      electron_rollout_percentage:
+        description: 'Staged Rollout Percentage for Electron'
+        required: true
+        default: '10'
+        type: string
+      snap_publish:
+        description: 'Publish to Snap store'
+        required: true
+        default: true
+        type: boolean
+      choco_publish:
+        description: 'Publish to Chocolatey store'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-22.04
+    outputs:
+      release_version: ${{ steps.version.outputs.version }}
+      release_channel: ${{ steps.release_channel.outputs.channel }}
+      tag_name: ${{ steps.version.outputs.tag_name }}
+      deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    steps:
+      - name: Branch check
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-desktop" ]]; then
+            echo "==================================="
+            echo "[!] Can only publish from the 'rc' or 'hotfix-rc-desktop' branches"
+            echo "==================================="
+            exit 1
+          fi
+
+      - name: Check Publish Version
+        id: version
+        run: |
+          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
+            TAG_NAME=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("desktop")) | .tag_name' | head -1 | cut -d '"' -f 2)
+            VERSION=$(echo $TAG_NAME | sed "s/desktop-v//")
+            echo "Latest Released Version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            echo "Tag name: $TAG_NAME"
+            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "Release Version: ${{ inputs.version }}"
+            echo "version=${{ inputs.version }}"
+
+            $TAG_NAME="desktop-v${{ inputs.version }}"
+
+            echo "Tag name: $TAG_NAME"
+            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get Version Channel
+        id: release_channel
+        run: |
+          case "${{ steps.version.outputs.version }}" in
+            *"alpha"*)
+              echo "channel=alpha" >> $GITHUB_OUTPUT
+              echo "[!] We do not yet support 'alpha'"
+              exit 1
+              ;;
+            *"beta"*)
+              echo "channel=beta" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "channel=latest" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Create GitHub deployment
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
+        id: deployment
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          initial-status: 'in_progress'
+          environment: 'Desktop - Production'
+          description: 'Deployment ${{ steps.version.outputs.version }} to channel ${{ steps.release_channel.outputs.channel }} from branch ${{ github.ref_name }}'
+          task: release
+
+  electron-blob:
+    name: Electron blob publish
+    runs-on: ubuntu-22.04
+    needs: setup
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
+    steps:
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "aws-electron-access-id,
+            aws-electron-access-key,
+            aws-electron-bucket-name"
+
+      - name: Create artifacts directory
+        run: mkdir -p apps/desktop/artifacts
+
+      - name: Download artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        working-directory: apps/desktop/artifacts
+        run: gh release download ${{ env._RELEASE_TAG }} -R bitwarden/clients
+
+      - name: Set staged rollout percentage
+        env:
+          RELEASE_CHANNEL: ${{ needs.setup.outputs.release_channel }}
+          ROLLOUT_PCT: ${{ inputs.electron_rollout_percentage }}
+        run: |
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}.yml
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-linux.yml
+          echo "stagingPercentage: ${ROLLOUT_PCT}" >> apps/desktop/artifacts/${RELEASE_CHANNEL}-mac.yml
+
+      - name: Publish artifacts to S3
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.retrieve-secrets.outputs.aws-electron-access-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.retrieve-secrets.outputs.aws-electron-access-key }}
+          AWS_DEFAULT_REGION: 'us-west-2'
+          AWS_S3_BUCKET_NAME: ${{ steps.retrieve-secrets.outputs.aws-electron-bucket-name }}
+        working-directory: apps/desktop/artifacts
+        run: |
+          aws s3 cp ./ $AWS_S3_BUCKET_NAME/desktop/ \
+          --acl "public-read" \
+          --recursive \
+          --quiet
+
+      - name: Update deployment status to Success
+        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'success'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
+
+      - name: Update deployment status to Failure
+        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'failure'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
+
+  snap:
+    name: Deploy Snap
+    runs-on: ubuntu-22.04
+    needs: setup
+    if: inputs.snap_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "snapcraft-store-token"
+
+      - name: Install Snap
+        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641 # v2.1.1
+
+      - name: Setup
+        run: mkdir dist
+        working-directory: apps/desktop
+
+      - name: Download artifacts
+        working-directory: apps/desktop/dist
+        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden_${{ env._PKG_VERSION }}_amd64.snap
+
+      - name: Deploy to Snap Store
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
+        run: |
+          snapcraft upload bitwarden_${{ env._PKG_VERSION }}_amd64.snap --release stable
+          snapcraft logout
+        working-directory: apps/desktop/dist
+
+  choco:
+    name: Deploy Choco
+    runs-on: windows-2022
+    needs: setup
+    if: inputs.choco_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+      _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Print Environment
+        run: |
+          dotnet --version
+          dotnet nuget --version
+
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "cli-choco-api-key"
+
+      - name: Setup Chocolatey
+        run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
+        env:
+          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
+
+      - name: Make dist dir
+        run: New-Item -ItemType directory -Path ./dist
+        working-directory: apps/desktop
+
+      - name: Download artifacts
+        working-directory: apps/desktop/dist
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden.${{ env._PKG_VERSION }}.nupkg
+
+      - name: Push to Chocolatey
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: choco push --source=https://push.chocolatey.org/
+        working-directory: apps/desktop/dist
+
+  update-deployment:
+    name: Update Deployment Status
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - electron-blob
+      - snap
+      - choco
+    if: ${{ always() && inputs.publish_type != 'Dry Run' }}
+    steps:
+      - name: Check if any job failed
+        if: contains(needs.*.result, 'failure')
+        run: exit 1
+
+      - name: Update deployment status to Success
+        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'success'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
+
+      - name: Update deployment status to Failure
+        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'failure'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}

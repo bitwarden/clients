@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,60 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - 무료 비밀번호 관리자</value>
+    <value>Bitwarden 비밀번호 관리자</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>당신의 모든 기기에서 사용할 수 있는, 안전한 무료 비밀번호 관리자</value>
+    <value>집에서도, 직장에서도, 이동 중에도 Bitwarden은 비밀번호, 패스키, 민감 정보를 쉽게 보호합니다.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc.은 8bit Solutions LLC.의 모회사입니다.
+    <value>PCMag, WIRED, The Verge, CNET, G2 등에서 최고의 비밀번호 관리자 선정!
 
-VERGE, U.S. NEWS, WORLD REPORT, CNET 등에서 최고의 비밀번호 관리자라고 평가했습니다!
+디지털 라이프를 안전하게 보호하세요
+모든 계정을 위한 강력하고 고유한 비밀번호를 생성하고 저장하여, 데이터 유출로부터 안전하게 보호하세요. 오직 사용자만 접근할 수 있는 엔드투엔드 방식으로 암호화된 비밀번호 보관함에서 모든 것을 관리하세요.
 
-관리하고, 보관하고, 보호하고, 어디에서든 어떤 기기에서나 무제한으로 비밀번호를 공유하세요. Bitwarden은 모두에게 오픈소스 비밀번호 관리 솔루션을 제공합니다.
+어디서든, 언제든, 어떤 기기에서든 접근 가능
+무제한의 비밀번호들을 관리, 저장, 보호, 공유하며 무제한의 기기에서 손쉽게 이용하세요.
 
-강하고, 독특하고, 랜덤한 비밀번호를 모든 웹사이트의 보안 요구사항에 따라 생성할 수 있습니다.
+모두가 온라인 안전을 위한 도구를 가져야 합니다.
+광고나 데이터 판매 없이 Bitwarden을 무료로 이용하세요. Bitwarden은 모두가 안전한 온라인 환경을 누릴 권리가 있다고 믿습니다. 프리미엄 플랜을 통해 고급 기능도 이용 가능합니다.
 
-Bitwarden Send는 빠르게 암호화된 파일과 텍스트를 모두에게 전송할 수 있습니다.
+Bitwarden으로 팀을 강화하세요
+팀 및 사업용 플랜은 전문 비즈니스 기능을 제공합니다. 예를 들어 SSO 통합, 자체 호스팅, 디렉토리 통합 및 SCIM 프로비저닝, 글로벌 정책, API 접근, 이벤트 로그 등을 포함합니다.
+(SSO: 1회 사용자 인증으로 다수의 앱, 웹에 접근, 인증할 수 있는 통합 로그인 솔루션)
 
-Bitwarden은 회사들을 위해 팀과 기업 플랜을 제공해서 동료에게 안전하게 비밀번호를 공유할 수 있습니다.
+Bitwarden을 사용하여 직원을 보호하고 동료들과 민감한 정보를 안전하게 공유하세요.
 
-Bitwarden을 선택하는 이유:
 
-세계 최고의 암호화
-비밀번호는 고급 종단간 암호화 (AES-256 bit, salted hashtag, 그리고 PBKDF2 SHA-256)을 이용하여 보호되기 때문에 데이터를 안전하게 보관할 수 있습니다.
+Bitwarden을 선택해야 하는 이유
 
-내장 비밀번호 생성기
-강하고, 독특하고, 랜덤한 비밀번호를 모든 웹사이트의 보안 요구사항에 따라 생성할 수 있습니다.
+세계적 수준의 암호화
+고급 엔드 투 엔드 암호화(AES-256 비트, 솔팅된 해시 태그, PBKDF2 SHA-256)로 비밀번호를 보호하여 데이터의 보안과 개인 정보를 유지합니다.
 
-언어 지원
-Bitwarden 번역은 전 세계의 커뮤니티 덕분에 40개의 언어를 지원하고 더 성장하고 있습니다.
+제3자를 통한 보안 감사
+Bitwarden은 저명한 보안 회사와 함께 정기적인 제3자 보안 감사를 수행합니다. 연례 감사에는 소스 코드 평가와 Bitwarden IP, 서버, 웹 애플리케이션에 대한 침투 테스트가 포함됩니다.
+
+고급 2단계 인증(2FA)
+타사 인증 앱, 이메일 코드 또는 하드웨어 보안 키나 패스키와 같은 FIDO2 WebAuthn 자격 증명을 통해 로그인 보안을 강화하세요.
+
+Bitwarden의 데이터 전송 방식
+엔드투엔드 암호화를 유지하면서 데이터를 직접 다른 사람에게 전송하여 노출을 최소화합니다.
+
+내장된 비밀번호 및 사용자 이름 생성자
+긴, 복잡하고 고유한 비밀번호와 각 사이트에 사용할 고유 사용자 이름을 생성하세요. 이메일명 제공업체와 통합하여 추가적인 개인 정보 보호를 제공합니다.
+
+글로벌 번역
+Bitwarden은 Crowdin 글로벌 커뮤니티를 통해 한국어를 포함한 60개 이상의 언어로 번역되어 있습니다.
 
 크로스 플랫폼 애플리케이션
-Bitwarden 보관함에 있는 민감한 정보를 어떠한 브라우저, 모바일 기기, 데스크톱 OS 등을 이용하여 보호하고 공유하세요.
+모든 브라우저, 모바일 기기, 데스크톱 OS 등 다양한 환경에서 Bitwarden 보관함 내의 중요한 데이터를 안전하게 관리하고 공유하세요.
+
+비밀번호 이상의 보안을 제공합니다
+Bitwarden의 엔드투엔드 암호화된 신용 증명 관리 솔루션은 개발자 비밀과 패스키 경험을 포함한 모든 것을 보호하도록 조직을 지원합니다.
+Bitwarden 의 Secrets Manager 및Passwordless.dev에 대해 자세히 알아보려면 Bitwarden.com 을 방문하세요!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>당신의 모든 기기에서 사용할 수 있는, 안전한 무료 비밀번호 관리자</value>
+    <value>집에서도, 직장에서도, 이동 중에도 Bitwarden은 비밀번호, 패스키, 민감 정보를 쉽게 보호합니다.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>여러 기기에서 보관함에 접근하고 동기화할 수 있습니다.</value>

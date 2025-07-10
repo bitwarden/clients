@@ -1,22 +1,9 @@
 {
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "module": "ES2020",
-    "target": "ES2016",
-    "allowJs": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/angular/*": ["../../libs/angular/src/*"]
-    }
-  },
-  "angularCompilerOptions": {
-    "strictTemplates": true,
-    "preserveWhitespaces": true
-  },
-  "include": ["src", "../../libs/common/src/services/**/*.worker.ts"]
+  "extends": "../../tsconfig.base",
+  "include": [
+    "src",
+    "../../libs/common/src/autofill/constants",
+    "../../libs/common/custom-matchers.d.ts",
+    "../../libs/common/src/key-management/crypto/services/encrypt.worker.ts"
+  ]
 }

@@ -1,0 +1,152 @@
+<app-layout>
+  <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
+    <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
+    <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
+    <bit-nav-group
+      icon="bwi-filter"
+      *ngIf="organization.useRiskInsights && organization.canAccessReports"
+      [text]="'accessIntelligence' | i18n"
+      route="access-intelligence"
+    >
+      <bit-nav-item
+        [text]="'riskInsights' | i18n"
+        route="access-intelligence/risk-insights"
+      ></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-item
+      icon="bwi-collection-shared"
+      [text]="'collections' | i18n"
+      route="vault"
+      *ngIf="canShowVaultTab(organization)"
+    >
+    </bit-nav-item>
+
+    <ng-container *ngIf="canShowMembersTab(organization)">
+      <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">
+        <bit-nav-group icon="bwi-user" [text]="'members' | i18n" route="members">
+          <bit-nav-item
+            [text]="'members' | i18n"
+            route="members"
+            [routerLinkActiveOptions]="{ exact: true }"
+          ></bit-nav-item>
+          <bit-nav-item
+            [text]="'sponsoredFamilies' | i18n"
+            route="members/sponsored-families"
+          ></bit-nav-item>
+        </bit-nav-group>
+      </ng-container>
+      <ng-template #regularMembersItem>
+        <bit-nav-item icon="bwi-user" [text]="'members' | i18n" route="members"></bit-nav-item>
+      </ng-template>
+    </ng-container>
+
+    <bit-nav-item
+      icon="bwi-users"
+      [text]="'groups' | i18n"
+      route="groups"
+      *ngIf="canShowGroupsTab(organization)"
+    ></bit-nav-item>
+    <bit-nav-group
+      icon="bwi-sliders"
+      [text]="getReportTabLabel(organization) | i18n"
+      route="reporting"
+      *ngIf="canShowReportsTab(organization)"
+    >
+      <bit-nav-item
+        [text]="'eventLogs' | i18n"
+        route="reporting/events"
+        *ngIf="
+          (organization.canAccessEventLogs && organization.useEvents) ||
+          (organization.isOwner && (isBreadcrumbEventLogsEnabled$ | async))
+        "
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'reports' | i18n"
+        route="reporting/reports"
+        *ngIf="organization.canAccessReports"
+      ></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-group
+      icon="bwi-billing"
+      [text]="'billing' | i18n"
+      route="billing"
+      *ngIf="canShowBillingTab(organization)"
+    >
+      <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
+      <ng-container *ngIf="(showPaymentAndHistory$ | async) && (organizationIsUnmanaged$ | async)">
+        <bit-nav-item [text]="'paymentMethod' | i18n" route="billing/payment-method"></bit-nav-item>
+        <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
+      </ng-container>
+    </bit-nav-group>
+    <bit-nav-item
+      icon="bwi-msp"
+      [text]="'integrations' | i18n"
+      route="integrations"
+      *ngIf="integrationPageEnabled$ | async"
+    ></bit-nav-item>
+    <bit-nav-group
+      icon="bwi-cog"
+      [text]="'settings' | i18n"
+      route="settings"
+      *ngIf="canShowSettingsTab(organization)"
+    >
+      <bit-nav-item
+        [text]="'organizationInfo' | i18n"
+        route="settings/account"
+        *ngIf="organization.isOwner"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'policies' | i18n"
+        route="settings/policies"
+        *ngIf="canShowPoliciesTab$ | async"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'twoStepLogin' | i18n"
+        route="settings/two-factor"
+        *ngIf="organization.use2fa && organization.isOwner"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'importData' | i18n"
+        route="settings/tools/import"
+        *ngIf="organization.canAccessImport"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'exportVault' | i18n"
+        route="settings/tools/export"
+        *ngIf="canAccessExport$ | async"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'claimedDomains' | i18n"
+        route="settings/domain-verification"
+        *ngIf="organization?.canManageDomainVerification"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'singleSignOn' | i18n"
+        route="settings/sso"
+        *ngIf="organization.canManageSso"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'deviceApprovals' | i18n"
+        route="settings/device-approvals"
+        *ngIf="organization.canManageDeviceApprovals"
+      ></bit-nav-item>
+      <bit-nav-item
+        [text]="'scim' | i18n"
+        route="settings/scim"
+        *ngIf="organization.canManageScim"
+      ></bit-nav-item>
+    </bit-nav-group>
+  </app-side-nav>
+
+  <ng-container *ngIf="organization$ | async as organization">
+    <bit-banner
+      *ngIf="organization.isProviderUser"
+      [showClose]="false"
+      class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    >
+      {{ "accessingUsingProvider" | i18n: organization.providerName }}
+    </bit-banner>
+  </ng-container>
+
+  <router-outlet></router-outlet>
+</app-layout>

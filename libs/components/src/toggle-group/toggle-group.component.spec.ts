@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ToggleGroupModule } from "./toggle-group.module";
@@ -8,16 +8,15 @@ import { ToggleComponent } from "./toggle.component";
 describe("Button", () => {
   let fixture: ComponentFixture<TestApp>;
   let testAppComponent: TestApp;
-  let buttonElements: ToggleComponent[];
+  let buttonElements: ToggleComponent<unknown>[];
   let radioButtons: HTMLInputElement[];
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ToggleGroupModule],
-      declarations: [TestApp],
+      imports: [TestApp],
     });
 
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonElements = fixture.debugElement
@@ -28,7 +27,7 @@ describe("Button", () => {
       .map((e) => e.nativeElement);
 
     fixture.detectChanges();
-  }));
+  });
 
   it("should select second element when setting selected to second", () => {
     testAppComponent.selected = "second";
@@ -63,6 +62,7 @@ describe("Button", () => {
       <bit-toggle value="third">Third</bit-toggle>
     </bit-toggle-group>
   `,
+  imports: [ToggleGroupModule],
 })
 class TestApp {
   selected?: string;

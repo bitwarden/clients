@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 
-import { FileDownloadService } from "@bitwarden/common/abstractions/fileDownload/fileDownload.service";
-import { FileDownloadBuilder } from "@bitwarden/common/abstractions/fileDownload/fileDownloadBuilder";
-import { FileDownloadRequest } from "@bitwarden/common/abstractions/fileDownload/fileDownloadRequest";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { FileDownloadBuilder } from "@bitwarden/common/platform/abstractions/file-download/file-download.builder";
+import { FileDownloadRequest } from "@bitwarden/common/platform/abstractions/file-download/file-download.request";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 @Injectable()
 export class WebFileDownloadService implements FileDownloadService {
@@ -12,13 +12,12 @@ export class WebFileDownloadService implements FileDownloadService {
   download(request: FileDownloadRequest): void {
     const builder = new FileDownloadBuilder(request);
     const a = window.document.createElement("a");
-    if (builder.downloadMethod === "save") {
-      a.download = request.fileName;
-    } else if (!this.platformUtilsService.isSafari()) {
+    if (!this.platformUtilsService.supportsFileDownloads()) {
+      a.rel = "noreferrer";
       a.target = "_blank";
     }
     a.href = URL.createObjectURL(builder.blob);
-    a.style.position = "fixed";
+    a.download = request.fileName;
     window.document.body.appendChild(a);
     a.click();
     window.document.body.removeChild(a);

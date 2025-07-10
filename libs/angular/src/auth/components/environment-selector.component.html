@@ -1,0 +1,84 @@
+<ng-container
+  *ngIf="{
+    selectedRegion: selectedRegion$ | async,
+  } as data"
+>
+  <div class="tw-text-sm tw-text-muted tw-leading-7 tw-font-normal tw-pl-4">
+    {{ "accessing" | i18n }}:
+    <button
+      type="button"
+      (click)="toggle(null)"
+      cdkOverlayOrigin
+      #trigger="cdkOverlayOrigin"
+      aria-haspopup="dialog"
+      aria-controls="cdk-overlay-container"
+    >
+      <span class="tw-text-primary-600 tw-text-sm tw-font-semibold">
+        <ng-container *ngIf="data.selectedRegion; else fallback">
+          {{ data.selectedRegion.domain }}
+        </ng-container>
+        <ng-template #fallback>
+          {{ "selfHostedServer" | i18n }}
+        </ng-template>
+      </span>
+      <i class="bwi bwi-fw bwi-sm bwi-angle-down" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="trigger"
+    [cdkConnectedOverlayOpen]="isOpen"
+    [cdkConnectedOverlayPositions]="overlayPosition"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+    (backdropClick)="isOpen = false"
+    (detach)="close()"
+  >
+    <div class="tw-box-content">
+      <div
+        class="tw-bg-background tw-w-full tw-shadow-md tw-p-2 tw-rounded-md"
+        data-testid="environment-selector-dialog"
+        [@transformPanel]="'open'"
+        cdkTrapFocus
+        cdkTrapFocusAutoCapture
+        role="dialog"
+        aria-modal="true"
+      >
+        <ng-container *ngFor="let region of availableRegions; let i = index">
+          <button
+            type="button"
+            class="tw-text-main tw-w-full tw-text-left tw-py-0 tw-border tw-border-transparent tw-transition-all tw-duration-200 tw-ease-in-out tw-pr-2 tw-rounded-md"
+            (click)="toggle(region.key)"
+            [attr.aria-pressed]="data.selectedRegion === region ? 'true' : 'false'"
+            [attr.data-testid]="'environment-selector-dialog-item-' + i"
+          >
+            <i
+              class="bwi bwi-fw bwi-sm bwi-check"
+              style="padding-bottom: 1px"
+              aria-hidden="true"
+              [style.visibility]="data.selectedRegion === region ? 'visible' : 'hidden'"
+            ></i>
+            <span>{{ region.domain }}</span>
+          </button>
+          <br />
+        </ng-container>
+        <button
+          type="button"
+          class="tw-text-main tw-w-full tw-text-left tw-py-0 tw-pr-2 tw-border tw-border-transparent tw-transition-all tw-duration-200 tw-ease-in-out tw-rounded-md"
+          (click)="toggle(ServerEnvironmentType.SelfHosted)"
+          [attr.aria-pressed]="data.selectedRegion ? 'false' : 'true'"
+          data-testid="environment-selector-dialog-item-self-hosted"
+        >
+          <i
+            class="bwi bwi-fw bwi-sm bwi-check"
+            style="padding-bottom: 1px"
+            aria-hidden="true"
+            [style.visibility]="data.selectedRegion ? 'hidden' : 'visible'"
+          ></i>
+          <span>{{ "selfHostedServer" | i18n }}</span>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ng-container>

@@ -1,10 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { Directive, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { Subject, firstValueFrom } from "rxjs";
+import { first, switchMap, takeUntil } from "rxjs/operators";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 @Directive()
 export abstract class BaseAcceptComponent implements OnInit {
@@ -17,48 +21,60 @@ export abstract class BaseAcceptComponent implements OnInit {
   protected failedShortMessage = "inviteAcceptFailedShort";
   protected failedMessage = "inviteAcceptFailed";
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     protected router: Router,
     protected platformUtilService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected route: ActivatedRoute,
-    protected stateService: StateService
+    protected authService: AuthService,
   ) {}
 
   abstract authedHandler(qParams: Params): Promise<void>;
+
   abstract unauthedHandler(qParams: Params): Promise<void>;
 
-  ngOnInit() {
-    // eslint-disable-next-line rxjs/no-async-subscribe
-    this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      let error = this.requiredParameters.some((e) => qParams?.[e] == null || qParams[e] === "");
-      let errorMessage: string = null;
-      if (!error) {
-        this.authed = await this.stateService.getIsAuthenticated();
+  async ngOnInit() {
+    this.route.queryParams
+      .pipe(
+        first(),
+        switchMap(async (qParams) => {
+          let error = this.requiredParameters.some(
+            (e) => qParams?.[e] == null || qParams[e] === "",
+          );
+          let errorMessage: string = null;
+          if (!error) {
+            this.email = qParams.email;
 
-        if (this.authed) {
-          try {
-            await this.authedHandler(qParams);
-          } catch (e) {
-            error = true;
-            errorMessage = e.message;
+            const status = await firstValueFrom(this.authService.activeAccountStatus$);
+            if (status !== AuthenticationStatus.LoggedOut) {
+              try {
+                await this.authedHandler(qParams);
+              } catch (e) {
+                error = true;
+                errorMessage = e.message;
+              }
+            } else {
+              await this.unauthedHandler(qParams);
+            }
           }
-        } else {
-          this.email = qParams.email;
-          await this.unauthedHandler(qParams);
-        }
-      }
 
-      if (error) {
-        const message =
-          errorMessage != null
-            ? this.i18nService.t(this.failedShortMessage, errorMessage)
-            : this.i18nService.t(this.failedMessage);
-        this.platformUtilService.showToast("error", null, message, { timeout: 10000 });
-        this.router.navigate(["/"]);
-      }
+          if (error) {
+            const message =
+              errorMessage != null
+                ? this.i18nService.t(this.failedShortMessage, errorMessage)
+                : this.i18nService.t(this.failedMessage);
+            this.platformUtilService.showToast("error", null, message, { timeout: 10000 });
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["/"]);
+          }
 
-      this.loading = false;
-    });
+          this.loading = false;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 }

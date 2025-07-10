@@ -6,21 +6,6 @@
   }
 }
 
-.modal-footer-content {
-  border: none;
-  border-radius: none;
-  @include themify($themes) {
-    background-color: themed("footerBackgroundColor");
-  }
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-clip: padding-box;
-  outline: 0;
-}
-
 .modal-dialog {
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 0.3rem;
@@ -97,12 +82,6 @@
 .close {
   @include themify($themes) {
     color: themed("textColor");
-  }
-}
-
-#totpImage {
-  @include themify($themes) {
-    filter: themed("imgFilter");
   }
 }
 

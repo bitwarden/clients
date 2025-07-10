@@ -1,13 +1,19 @@
----
+# This workflow will run in the context of the source of the PR.
+# On a PR from a fork, the workflow will not have access to secrets, and so any parts of the build that require secrets will not run.
+# If additional artifacts are needed, the failed "build-web-target.yml" workflow held up by the check-run should be re-run.
+
 name: Build Web
 
 on:
   pull_request:
+    types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
       - 'cf-pages'
     paths:
       - 'apps/web/**'
+      - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
       - '!*.md'
@@ -15,286 +21,217 @@ on:
       - '.github/workflows/build-web.yml'
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'rc'
       - 'hotfix-rc-web'
     paths:
       - 'apps/web/**'
+      - 'bitwarden_license/bit-common/**'
+      - 'bitwarden_license/bit-web/**'
       - 'libs/**'
       - '*'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-web.yml'
+  release:
+    types: [published]
+  workflow_call:
+    inputs: {}
   workflow_dispatch:
     inputs:
       custom_tag_extension:
         description: "Custom image tag extension"
         required: false
+      sdk_branch:
+        description: "Custom SDK branch"
+        required: false
+        type: string
+
+env:
+  _AZ_REGISTRY: bitwardenprod.azurecr.io
+  _GITHUB_PR_REPO_NAME: ${{ github.event.pull_request.head.repo.full_name }}
+
+permissions: {}
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        working-directory: apps/web
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.value }}
+      node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Get GitHub sha as version
         id: version
         run: echo "value=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
-  build-artifacts:
-    name: Build artifacts
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-    env:
-      _VERSION: ${{ needs.setup.outputs.version }}
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check secrets
+        id: check-secrets
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        run: |
+          has_secrets=${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL != '' }}
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+
+
+  build-containers:
+    name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
+    runs-on: ubuntu-24.04
+    permissions:
+      security-events: write
+      id-token: write
+    needs: setup
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - name: "selfhosted-open-source"
-            npm_command: "dist:oss:selfhost"
-          - name: "cloud-COMMERCIAL"
-            npm_command: "dist:bit:cloud"
-          - name: "selfhosted-COMMERCIAL"
-            npm_command: "dist:bit:selfhost"
-          - name: "cloud-QA"
-            npm_command: "build:bit:qa"
-          - name: "ee"
-            npm_command: "build:bit:ee"
-
+          - artifact_name: selfhosted-open-source
+            image_name: web-oss
+            npm_command: dist:oss:selfhost
+          - artifact_name: cloud-COMMERCIAL
+            image_name: web-cloud
+            npm_command: dist:bit:cloud
+          - artifact_name: selfhosted-COMMERCIAL
+            image_name: web
+            npm_command: dist:bit:selfhost
+          - artifact_name: cloud-QA
+            image_name: web-qa-cloud
+            npm_command: build:bit:qa
+            git_metadata: true
+          - artifact_name: ee
+            image_name: web-ee
+            npm_command: build:bit:ee
+            git_metadata: true
+          - artifact_name: cloud-euprd
+            image_name: web-euprd
+            npm_command: build:bit:euprd
+          - artifact_name: cloud-euqa
+            image_name: web-euqa
+            npm_command: build:bit:euqa
+            git_metadata: true
+          - artifact_name: cloud-usdev
+            image_name: web-usdev
+            npm_command: build:bit:usdev
+            git_metadata: true
+    env:
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      _VERSION: ${{ needs.setup.outputs.version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
-
-      - name: Set up Node
-        uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93  # v3.4.1
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: "16"
+          ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Print environment
+      - name: Get Latest Server Version
+        id: latest-server-version
+        uses: bitwarden/gh-actions/get-release-version@main
+        with:
+          repository: bitwarden/server
+          trim: false
+
+      - name: Set Server Ref
+        id: set-server-ref
         run: |
-          whoami
-          node --version
-          npm --version
-          gulp --version
-          docker --version
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
+          SERVER_REF="${{ steps.latest-server-version.outputs.version }}"
+          echo "Latest server release version: $SERVER_REF"
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            SERVER_REF="$GITHUB_REF"
+          elif [[ "$GITHUB_REF" == "refs/heads/rc" ]]; then
+            SERVER_REF="$GITHUB_REF"
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            SERVER_REF="refs/heads/main"
+          fi
+          echo "Server ref: $SERVER_REF"
+          echo "server_ref=$SERVER_REF" >> $GITHUB_OUTPUT
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Check out Server repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          path: server
+          repository: bitwarden/server
+          ref: ${{ steps.set-server-ref.outputs.server_ref }}
 
-      - name: Setup QA metadata
+      - name: Check Branch to Publish
+        env:
+          PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
+        id: publish-branch-check
+        run: |
+          IFS="," read -a publish_branches <<< $PUBLISH_BRANCHES
+
+          if [[ " ${publish_branches[*]} " =~ " ${GITHUB_REF:11} " ]]; then
+            echo "is_publish_branch=true" >> $GITHUB_ENV
+          else
+            echo "is_publish_branch=false" >> $GITHUB_ENV
+          fi
+
+      - name: Add Git metadata to build version
         working-directory: apps/web
-        if: matrix.name == 'cloud-QA'
+        if: matrix.git_metadata
         run: |
           VERSION=$( jq -r ".version" package.json)
           jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
           mv package.json.tmp package.json
 
-      - name: Build ${{ matrix.name }}
-        working-directory: apps/web
-        run: npm run ${{ matrix.npm_command }}
-
-      - name: Package artifact
-        working-directory: apps/web
-        run: zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
-
-      - name: Upload ${{ matrix.name }} artifact
-        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535  # v3.0.0
+      ########## Set up Docker ##########
+      - name: Set up Docker
+        uses: docker/setup-docker-action@b60f85385d03ac8acfca6d9996982511d8620a19 # v4.3.0
         with:
-          name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
-          path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
-          if-no-files-found: error
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
 
-  build-commercial-selfhost-image:
-    name: Build self-host docker image
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-      - build-artifacts
-    env:
-      _VERSION: ${{ needs.setup.outputs.version }}
+      - name: Set up QEMU emulators
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
-      - name: Setup DCT
-        if: github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/rc' ||
-          github.ref == 'refs/heads/hotfix-rc-web'
-        id: setup-dct
-        uses: bitwarden/gh-actions/setup-docker-trust@a8c384a05a974c05c48374c818b004be221d43ff
+      ########## ACRs ##########
+      - name: Login to Prod Azure
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
-          azure-creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
-          azure-keyvault-name: "bitwarden-prod-kv"
+          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
 
-      - name: Download selfhosted-COMMERCIAL artifact
-        uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
-        with:
-          name: web-${{ env._VERSION }}-selfhosted-COMMERCIAL.zip
-          path: apps/web
+      - name: Log into Prod container registry
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
 
-      - name: Extract artifact
-        working-directory: apps/web
-        run: unzip web-${{ env._VERSION }}-selfhosted-COMMERCIAL.zip
-
-      - name: Build Docker image
-        working-directory: apps/web
-        run: docker build -t bitwarden/web .
-
-      - name: Tag rc branch
-        if: github.ref == 'refs/heads/rc'
-        run: docker tag bitwarden/web bitwarden/web:rc
-
-      - name: Tag dev
-        if: github.ref == 'refs/heads/master'
-        run: docker tag bitwarden/web bitwarden/web:dev
-
-      - name: Tag hotfix branch
-        if: github.ref == 'refs/heads/hotfix-rc-web'
-        run: docker tag bitwarden/web bitwarden/web:hotfix-rc-web
-
-      - name: List Docker images
-        if: github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/rc' ||
-          github.ref == 'refs/heads/hotfix-rc-web'
-        run: docker images
-
-      - name: Push rc image
-        if: github.ref == 'refs/heads/rc'
-        run: docker push bitwarden/web:rc
-        env:
-          DOCKER_CONTENT_TRUST: 1
-          DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: ${{ steps.setup-dct.outputs.dct-delegate-repo-passphrase }}
-
-      - name: Push dev image
-        if: github.ref == 'refs/heads/master'
-        run: docker push bitwarden/web:dev
-        env:
-          DOCKER_CONTENT_TRUST: 1
-          DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: ${{ steps.setup-dct.outputs.dct-delegate-repo-passphrase }}
-
-      - name: Push hotfix image
-        if: github.ref == 'refs/heads/hotfix-rc-web'
-        run: docker push bitwarden/web:hotfix-rc-web
-        env:
-          DOCKER_CONTENT_TRUST: 1
-          DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: ${{ steps.setup-dct.outputs.dct-delegate-repo-passphrase }}
-
-      - name: Log out of Docker
-        if: github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/rc' ||
-          github.ref == 'refs/heads/hotfix-rc-web'
+      ########## Generate image tag and build Docker image ##########
+      - name: Generate container image tag
+        id: tag
         run: |
-          docker logout
-          echo "DOCKER_CONTENT_TRUST=0" >> $GITHUB_ENV
-
-      - name: Login to Azure - QA Subscription
-        uses: Azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010  # v1.1
-        with:
-          creds: ${{ secrets.AZURE_QA_KV_CREDENTIALS }}
-
-      - name: Login to Azure ACR
-        run: az acr login -n bitwardenqa
-
-      - name: Tag and Push to Azure QA ACR
-        env:
-          REGISTRY: bitwardenqa.azurecr.io
-        run: |
-          if [[ $(grep "pull" <<< "${GITHUB_REF}") ]]; then
-            IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" || "${GITHUB_EVENT_NAME}" == "pull_request_target" ]]; then
+            IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s/[^a-zA-Z0-9]/-/g") # Sanitize branch name to alphanumeric only
           else
-            IMAGE_TAG=$(echo "${GITHUB_REF:11}" | sed "s#/#-#g")
+            IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
           fi
 
-          if [[ "$IMAGE_TAG" == "master" ]]; then
+          if [[ "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
+            SANITIZED_REPO_NAME=$(echo "$_GITHUB_PR_REPO_NAME" | sed "s/[^a-zA-Z0-9]/-/g") # Sanitize repo name to alphanumeric only
+            IMAGE_TAG=$SANITIZED_REPO_NAME-$IMAGE_TAG # Add repo name to the tag
+            IMAGE_TAG=${IMAGE_TAG:0:128}  # Limit to 128 characters, as that's the max length for Docker image tags
+          fi
+
+          if [[ "$IMAGE_TAG" == "main" ]]; then
             IMAGE_TAG=dev
-          fi
-
-          docker tag bitwarden/web \
-            $REGISTRY/web-sh:$IMAGE_TAG
-
-          docker push $REGISTRY/web-sh:$IMAGE_TAG
-
-      - name: Log out of Docker
-        run: docker logout
-
-  build-containers:
-    name: Build Docker images for bitwardenqa
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-      - build-artifacts
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact_name: cloud-QA
-            image_name: web
-          - artifact_name: ee
-            image_name: web-ee
-    env:
-      _VERSION: ${{ needs.setup.outputs.version }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2
-
-      - name: Login to Azure
-        uses: Azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010  # v1.1
-        with:
-          creds: ${{ secrets.AZURE_QA_KV_CREDENTIALS }}
-
-      - name: Log into container registry
-        run: az acr login -n bitwardenqa
-
-      - name: Download ${{ matrix.artifact_name }} artifact
-        uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741
-        with:
-          name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
-          path: apps/web
-
-      - name: Extract artifact
-        working-directory: apps/web
-        run: unzip web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
-
-      - name: Build Docker image
-        working-directory: apps/web
-        run: |
-          docker --version
-          docker build -t bitwardenqa.azurecr.io/${{ matrix.image_name }} .
-
-      - name: Get image tag
-        id: image-tag
-        run: |
-          if [[ $(grep "pull" <<< "${GITHUB_REF}") ]]; then
-            IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
-          else
-            IMAGE_TAG=$(echo "${GITHUB_REF:11}" | sed "s#/#-#g")
           fi
 
           TAG_EXTENSION=${{ github.event.inputs.custom_tag_extension }}
@@ -303,122 +240,199 @@ jobs:
             IMAGE_TAG=$IMAGE_TAG-$TAG_EXTENSION
           fi
 
-          echo "value=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Tag image
+      ########## Build Image ##########
+      - name: Generate image full name
+        id: image-name
         env:
-          IMAGE_TAG: ${{ steps.image-tag.outputs.value }}
-          IMAGE_NAME: ${{ matrix.image_name }}
-        run: docker tag bitwardenqa.azurecr.io/$IMAGE_NAME "bitwardenqa.azurecr.io/$IMAGE_NAME:$IMAGE_TAG"
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          PROJECT_NAME: ${{ matrix.image_name }}
+        run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Tag dev
-        if: github.ref == 'refs/heads/master'
-        env:
-          IMAGE_NAME: ${{ matrix.image_name }}
-        run: docker tag bitwardenqa.azurecr.io/$IMAGE_NAME "bitwardenqa.azurecr.io/$IMAGE_NAME:dev"
+      - name: Build Docker image
+        id: build-container
+        uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d # v6.12.0
+        with:
+          build-args: |
+            NODE_VERSION=${{ env._NODE_VERSION }}
+            NPM_COMMAND=${{ matrix.npm_command }}
+          context: .
+          file: apps/web/Dockerfile
+          load: true
+          platforms: |
+            linux/amd64,
+            linux/arm/v7,
+            linux/arm64
+          push: false
+          tags: ${{ steps.image-name.outputs.name }}
 
-      - name: Push image
+      - name: Push images
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
-          IMAGE_TAG: ${{ steps.image-tag.outputs.value }}
-          IMAGE_NAME: ${{ matrix.image_name }}
-        run: docker push "bitwardenqa.azurecr.io/$IMAGE_NAME:$IMAGE_TAG"
+          IMAGE_NAME: ${{ steps.image-name.outputs.name }}
+        run: docker push $IMAGE_NAME
 
-      - name: Push dev images
-        if: github.ref == 'refs/heads/master'
+      - name: Zip project
+        working-directory: apps/web
         env:
-          IMAGE_NAME: ${{ matrix.image_name }}
-        run: docker push "bitwardenqa.azurecr.io/$IMAGE_NAME:dev"
+          IMAGE_NAME: ${{ steps.image-name.outputs.name }}
+        run: |
+          mkdir build
+          docker run --rm --volume $(pwd)/build:/temp --entrypoint bash \
+            $IMAGE_NAME -c "cp -r ./ /temp"
+
+          zip -r web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip build
+
+      - name: Upload ${{ matrix.artifact_name }} artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
+          path: apps/web/web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
+          if-no-files-found: error
+
+      - name: Install Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+
+      - name: Sign image with Cosign
+        if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+        env:
+          DIGEST: ${{ steps.build-container.outputs.digest }}
+          TAGS: ${{ steps.image-name.outputs.name }}
+        run: |
+          IFS="," read -a tags <<< "${TAGS}"
+          images=""
+          for tag in "${tags[@]}"; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
+
+      - name: Scan Docker image
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        id: container-scan
+        uses: anchore/scan-action@2c901ab7378897c01b8efaa2d0c9bf519cc64b9e # v6.2.0
+        with:
+          image: ${{ steps.image-name.outputs.name }}
+          fail-build: false
+          output-format: sarif
+
+      - name: Upload Grype results to GitHub
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: github/codeql-action/upload-sarif@d68b2d4edb4189fd2a5366ac14e72027bd4b37dd # v3.28.2
+        with:
+          sarif_file: ${{ steps.container-scan.outputs.sarif }}
+          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
       - name: Log out of Docker
-        run: docker logout
+        run: docker logout $_AZ_REGISTRY
+
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/master'
-    needs:
-      - build-artifacts
-    runs-on: ubuntu-22.04
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+    needs: build-containers
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b  # v3.0.2  # v2.3.4
+      - name: Check out repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Login to Azure
-        uses: Azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010  # v1.1
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@c3b3285993151c5af47cefcb3b9134c28ab479af
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          keyvault: "bitwarden-prod-kv"
+          keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@ecd7eb0ef6f3cfa16293c79e9cbc4bc5b5fd9c49  # v1.4.9
+        uses: crowdin/github-action@f214c8723025f41fc55b2ad26e67b60b80b1885d # v2.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
           CROWDIN_PROJECT_ID: "308189"
         with:
           config: apps/web/crowdin.yml
-          crowdin_branch_name: master
+          crowdin_branch_name: main
           upload_sources: true
           upload_translations: false
+
+
+  trigger-web-vault-deploy:
+    name: Trigger web vault deploy
+    if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    needs: build-containers
+    steps:
+      - name: Login to Azure - CI Subscription
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve github PAT secrets
+        id: retrieve-secret-pat
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Trigger web vault deploy using GitHub Run ID
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'bitwarden',
+              repo: 'clients',
+              workflow_id: 'deploy-web.yml',
+              ref: 'main',
+              inputs: {
+                'environment': 'USDEV',
+                'build-web-run-id': '${{ github.run_id }}'
+              }
+            })
 
 
   check-failures:
     name: Check for failures
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
-      - cloc
       - setup
-      - build-artifacts
-      - build-commercial-selfhost-image
       - build-containers
       - crowdin-push
+      - trigger-web-vault-deploy
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/rc') }}
-        env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
-          SETUP_STATUS: ${{ needs.setup.result }}
-          ARTIFACT_STATUS: ${{ needs.build-artifacts.result }}
-          BUILD_SELFHOST_STATUS: ${{ needs.build-commercial-selfhost-image.result }}
-          BUILD_CONTAINERS_STATUS: ${{ needs.build-containers.result }}
-          CROWDIN_PUSH_STATUS: ${{ needs.crowdin-push.result }}
-        run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$ARTIFACT_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_SELFHOST_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_CONTAINERS_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$CROWDIN_PUSH_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: |
+          github.event_name != 'pull_request_target'
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web')
+          && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - Prod Subscription
-        uses: Azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010  # v1.1
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         if: failure()
         with:
-          creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
         if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@c3b3285993151c5af47cefcb3b9134c28ab479af
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          keyvault: "bitwarden-prod-kv"
+          keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"
 
       - name: Notify Slack on failure
-        uses: act10ns/slack@da3191ebe2e67f49b46880b4633f5591a96d1d33  # v1.5.1
+        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}

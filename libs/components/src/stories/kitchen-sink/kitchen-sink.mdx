@@ -1,0 +1,11 @@
+import { Meta, Story } from "@storybook/addon-docs";
+
+import * as stories from "./kitchen-sink.stories";
+
+<Meta of={stories} />
+
+# Kitchen Sink
+
+The purpose of this story is to compose together all of our components. When snapshot tests run,
+we'll be able to spot-check visual changes in a more app-like environment than just the isolated
+stories. The stories for the Kitchen Sink exist to be tested by the Chromatic UI tests.

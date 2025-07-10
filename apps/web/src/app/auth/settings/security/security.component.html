@@ -1,0 +1,14 @@
+<app-header>
+  <bit-tab-nav-bar slot="tabs">
+    <ng-container *ngIf="showChangePassword">
+      <bit-tab-link [route]="changePasswordRoute">{{ "masterPassword" | i18n }}</bit-tab-link>
+    </ng-container>
+    <bit-tab-link route="two-factor">{{ "twoStepLogin" | i18n }}</bit-tab-link>
+    <bit-tab-link route="device-management">{{ "devices" | i18n }}</bit-tab-link>
+    <bit-tab-link route="security-keys">{{ "keys" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<bit-container>
+  <router-outlet></router-outlet>
+</bit-container>

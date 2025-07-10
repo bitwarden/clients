@@ -1,0 +1,63 @@
+<bit-menu #menu ariaRole="dialog" [ariaLabel]="'switchProducts' | i18n">
+  <div class="tw-px-4 tw-py-2" *ngIf="products$ | async as products">
+    <!-- Bento options -->
+    <!-- grid-template-columns is dynamic so we can collapse empty columns  -->
+    <section
+      [ngStyle]="{
+        '--num-products': products.bento.length,
+        'grid-template-columns': 'repeat(min(var(--num-products,1),3),auto)',
+      }"
+      class="tw-grid tw-gap-2"
+    >
+      <a
+        *ngFor="let product of products.bento"
+        [routerLink]="product.appRoute"
+        [ngClass]="
+          product.isActive
+            ? 'tw-bg-primary-600 tw-font-bold !tw-text-contrast tw-ring-offset-2 hover:tw-bg-primary-600'
+            : ''
+        "
+        class="tw-group/product-link tw-flex tw-h-24 tw-w-28 tw-flex-col tw-items-center tw-justify-center tw-rounded tw-p-1 tw-text-primary-600 tw-outline-none hover:tw-bg-background-alt hover:tw-text-primary-700 hover:tw-no-underline focus-visible:!tw-ring-2 focus-visible:!tw-ring-primary-700"
+        ariaCurrentWhenActive="page"
+      >
+        <i class="bwi {{ product.icon }} tw-text-4xl !tw-m-0 !tw-mb-1"></i>
+        <span
+          class="tw-max-w-24 tw-text-center tw-text-sm tw-leading-snug group-hover/product-link:tw-underline"
+          >{{ product.name }}</span
+        >
+      </a>
+    </section>
+
+    <!-- Other options -->
+    <section
+      *ngIf="products.other.length > 0"
+      class="tw-mt-4 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-t-text-muted tw-p-2 tw-pb-0"
+    >
+      <span class="tw-mb-1 tw-text-xs tw-text-muted">{{ "moreFromBitwarden" | i18n }}</span>
+      <span *ngFor="let product of products.other">
+        <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
+        <a
+          *ngIf="!product.marketingRoute.external"
+          bitLink
+          [routerLink]="product.marketingRoute.route"
+        >
+          <span class="tw-flex tw-items-center tw-font-normal">
+            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
+          </span>
+        </a>
+        <!-- <a> for when the marketing route is external -->
+        <a
+          *ngIf="product.marketingRoute.external"
+          bitLink
+          [href]="product.marketingRoute.route"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span class="tw-flex tw-items-center tw-font-normal">
+            <i class="bwi bwi-fw {{ product.icon }} tw-m-0 !tw-mr-3"></i>{{ product.name }}
+          </span>
+        </a>
+      </span>
+    </section>
+  </div>
+</bit-menu>

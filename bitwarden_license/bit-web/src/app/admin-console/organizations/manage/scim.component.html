@@ -1,0 +1,72 @@
+<app-header></app-header>
+
+<p bitTypography="body1">
+  {{ "scimIntegrationDescription" | i18n }}
+  <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/"
+    ><i class="bwi bwi-question-circle"></i
+  ></a>
+</p>
+
+<div *ngIf="loading">
+  <i
+    class="bwi bwi-spinner bwi-spin tw-text-muted"
+    title="{{ 'loading' | i18n }}"
+    aria-hidden="true"
+  ></i>
+  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+</div>
+<form [bitSubmit]="submit" [formGroup]="formData" *ngIf="!loading">
+  <bit-form-control>
+    <input type="checkbox" bitCheckbox [formControl]="enabled" />
+    <bit-label>{{ "scimEnabledCheckboxDesc" | i18n }}</bit-label>
+    <bit-hint>{{ "scimEnabledCheckboxDescHelpText" | i18n }}</bit-hint>
+  </bit-form-control>
+  <bit-form-field *ngIf="showScimSettings">
+    <bit-label>{{ "scimUrl" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="endpointUrl" />
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-clone"
+      [bitAction]="copyScimUrl"
+      [appA11yTitle]="'copyScimUrl' | i18n"
+    ></button>
+  </bit-form-field>
+
+  <bit-form-field *ngIf="showScimSettings">
+    <bit-label>{{ "scimApiKey" | i18n }}</bit-label>
+    <input
+      bitInput
+      [type]="showScimKey ? 'text' : 'password'"
+      formControlName="clientSecret"
+      id="clientSecret"
+    />
+    <button
+      type="button"
+      bitSuffix
+      [bitIconButton]="showScimKey ? 'bwi-eye-slash' : 'bwi-eye'"
+      [bitAction]="toggleScimKey"
+      [appA11yTitle]="'toggleVisibility' | i18n"
+    ></button>
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-generate"
+      [bitAction]="rotateScimKey"
+      bitFormButton
+      [appA11yTitle]="'rotateScimKey' | i18n"
+    ></button>
+    <button
+      type="button"
+      bitSuffix
+      bitIconButton="bwi-clone"
+      [bitAction]="copyScimKey"
+      [appA11yTitle]="'copyScimKey' | i18n"
+    ></button>
+    <bit-hint>{{ "scimApiKeyHelperText" | i18n }}</bit-hint>
+  </bit-form-field>
+
+  <button type="submit" buttonType="primary" bitButton bitFormButton>
+    {{ "save" | i18n }}
+  </button>
+</form>

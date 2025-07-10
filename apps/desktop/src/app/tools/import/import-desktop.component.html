@@ -1,0 +1,26 @@
+<bit-dialog #dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>{{ "importData" | i18n }}</span>
+  <ng-container bitDialogContent>
+    <tools-import
+      (formLoading)="this.loading = $event"
+      (formDisabled)="this.disabled = $event"
+      (onSuccessfulImport)="this.onSuccessfulImport($event)"
+    ></tools-import>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button
+      [disabled]="disabled"
+      [loading]="loading"
+      form="import_form_importForm"
+      bitButton
+      type="submit"
+      bitFormButton
+      buttonType="primary"
+    >
+      {{ "importData" | i18n }}
+    </button>
+    <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

@@ -1,3 +1,5 @@
+config/local.json
+
 # Safari
 dist-safari
 !src/safari/safari/app/popup/index.html

@@ -1,0 +1,60 @@
+<section [formGroup]="itemDetailsForm" class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
+    <button
+      *ngIf="!config.hideIndividualVaultFields"
+      slot="end"
+      type="button"
+      size="small"
+      [bitIconButton]="favoriteIcon"
+      role="checkbox"
+      [attr.aria-checked]="itemDetailsForm.value.favorite"
+      [appA11yTitle]="'favorite' | i18n"
+      (click)="toggleFavorite()"
+    ></button>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "itemName" | i18n }}</bit-label>
+      <input bitInput formControlName="name" />
+    </bit-form-field>
+    <bit-form-field *ngIf="showOwnership">
+      <bit-label>{{ "owner" | i18n }}</bit-label>
+      <bit-select formControlName="organizationId">
+        <bit-option
+          *ngIf="showOrganizationDataOwnershipOption"
+          [value]="null"
+          [label]="userEmail$ | async"
+        ></bit-option>
+        <bit-option
+          *ngFor="let org of organizations"
+          [value]="org.id"
+          [label]="org.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
+    <ng-container *ngIf="showCollectionsControl">
+      <bit-form-field class="tw-w-full" [disableMargin]="config.hideIndividualVaultFields">
+        <bit-label>{{ "collections" | i18n }}</bit-label>
+        <bit-multi-select
+          class="tw-w-full"
+          formControlName="collectionIds"
+          [baseItems]="collectionOptions"
+        ></bit-multi-select>
+        <bit-hint *ngIf="readOnlyCollectionsNames.length > 0" data-testid="view-only-hint">
+          {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionsNames.join(", ") }}
+        </bit-hint>
+      </bit-form-field>
+    </ng-container>
+    <bit-form-field *ngIf="!config.hideIndividualVaultFields" disableMargin>
+      <bit-label>{{ "folder" | i18n }}</bit-label>
+      <bit-select formControlName="folderId">
+        <bit-option
+          *ngFor="let folder of config.folders"
+          [value]="folder.id"
+          [label]="folder.name"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
+  </bit-card>
+</section>

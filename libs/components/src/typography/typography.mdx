@@ -1,0 +1,25 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
+
+import * as stories from "./typography.stories";
+
+<Meta of={stories} />
+
+```ts
+import { TypographyModule } from "@bitwarden/components";
+```
+
+# Typography
+
+The `bitTypography` directive applies text styles to its host element.
+
+```html
+<h1 bitTypography="h1">H1</h1>
+```
+
+For headings, note that the semantic element and the text style may not always be in sync:
+
+```html
+<h2 bitTypography="h5">Semantically, I am an h2, but I use h5 styles.</h2>
+```
+
+<Canvas of={stories.Default} />

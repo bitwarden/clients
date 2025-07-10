@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,40 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Gratis wachtwoordbeheer</value>
+    <value>Bitwarden Wachtwoordbeheerder</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Een veilige en gratis oplossing voor wachtwoordbeheer voor al je apparaten</value>
+    <value>Thuis, op het werk of onderweg, Bitwarden beveiligt eenvoudig al je wachtwoorden, sleutels en gevoelige informatie.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. is het moederbedrijf van 8bit Solutions LLC.
+    <value>Erkend als de beste wachtwoordmanager door PCMag, WIRED, The Verge, CNET, G2 en meer!
 
-BESTE WACHTWOORDBEHEERDER VOLGENS THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET EN ANDEREN.
+BEVEILIG JE DIGITALE LEVEN
+Beveilig je digitale leven en bescherm je tegen datalekken door unieke, sterke wachtwoorden te genereren en op te slaan voor elke account. Bewaar alles in een end-to-end versleutelde wachtwoordkluis waar alleen jij toegang toe hebt.
 
-Beheer, bewaar, beveilig en deel een onbeperkt aantal wachtwoorden op een onbeperkt aantal apparaten, waar je ook bent. Bitwarden levert open source wachtwoordbeheeroplossingen voor iedereen, of dat nu thuis, op het werk of onderweg is.
+OVERAL EN ALTIJD TOEGANG TOT JE GEGEVENS, OP ELK APPARAAT
+Beheer, bewaar, beveilig en deel een onbeperkt aantal wachtwoorden op een onbeperkt aantal apparaten zonder beperkingen.
 
-Genereer sterke, unieke en willekeurige wachtwoorden op basis van beveiligingsvereisten voor elke website die je bezoekt.
+IEDEREEN ZOU DE MIDDELEN MOETEN HEBBEN OM VEILIG ONLINE TE BLIJVEN
+Gebruik Bitwarden gratis, zonder advertenties of verkoop van gegevens. Bitwarden vindt dat iedereen de mogelijkheid moet hebben om veilig online te zijn. Premium abonnementen bieden toegang tot geavanceerde functies.
 
-Bitwarden Send verzendt snel versleutelde informatie --- bestanden en platte tekst -- rechtstreeks naar iedereen.
+VERSTERK JE TEAMS MET BITWARDEN
+Abonnementen voor Teams en Enterprise worden geleverd met professionele zakelijke functies. Enkele voorbeelden zijn SSO-integratie, zelf hosten, directory-integratie en SCIM provisioning, globaal beleid, API-toegang, gebeurtenislogboeken en meer.
 
-Bitwarden biedt Teams- en Enterprise-abonnementen voor bedrijven, zodat je veilig wachtwoorden kunt delen met collega's.
+Gebruik Bitwarden om je medewerkers te beveiligen en gevoelige informatie te delen met collega's.
 
-Waarom Bitwarden:
 
-Versleuteling van wereldklasse
-Wachtwoorden worden beschermd met geavanceerde end-to-end-codering (AES-256 bit, salted hashtag en PBKDF2 SHA-256) zodat jouw gegevens veilig en privé blijven.
+Meer redenen om voor Bitwarden te kiezen:
 
-Ingebouwde wachtwoordgenerator
-Genereer sterke, unieke en willekeurige wachtwoorden op basis van beveiligingsvereisten voor elke website die je bezoekt.
+Encryptie van wereldklasse
+Wachtwoorden worden beschermd met geavanceerde end-to-end versleuteling (AES-256 bit, salted hashtag en PBKDF2 SHA-256) zodat je gegevens veilig en privé blijven.
+
+Audits door derde partijen
+Bitwarden voert regelmatig uitgebreide beveiligingsaudits uit bij gerenommeerde beveiligingsbedrijven. Deze jaarlijkse audits omvatten broncodebeoordelingen en penetratietests voor Bitwarden IP's, servers en webapplicaties.
+
+Geavanceerde 2FA
+Beveilig je login met een authenticator van derden, codes per e-mail of FIDO2 WebAuthn referenties zoals een hardware beveiligingssleutel of passkey.
+
+Bitwarden Send
+Verstuur gegevens rechtstreeks naar anderen met behoud van end-to-end versleutelde beveiliging en beperking van blootstelling.
+
+Ingebouwde generator
+Maak lange, complexe en duidelijke wachtwoorden en unieke gebruikersnamen voor elke site die je bezoekt. Integreer met e-mail alias providers voor extra privacy.
 
 Wereldwijde vertalingen
-Bitwarden-vertalingen bestaan ​​in 40 talen en groeien dankzij onze wereldwijde community.
+Bitwarden vertalingen bestaan voor meer dan 60 talen, vertaald door de wereldwijde gemeenschap via Crowdin.
 
-Platformoverschrijdende toepassingen
-Beveilig en deel gevoelige gegevens binnen uw Bitwarden Vault vanuit elke browser, mobiel apparaat of desktop-besturingssysteem, en meer.</value>
+Platformoverkoepelende applicaties
+Beveilig en deel gevoelige gegevens in je Bitwarden Vault vanuit elke browser, mobiel apparaat of desktop OS, en meer.
+
+Bitwarden beveiligt meer dan alleen wachtwoorden
+Met de end-to-end versleutelde oplossingen voor referentiebeheer van Bitwarden kunnen organisaties alles beveiligen, inclusief ontwikkelaarsgeheimen en ervaringen met wachtwoorden. Bezoek Bitwarden.com voor meer informatie over Bitwarden Secrets Manager en Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Een veilige en gratis oplossing voor wachtwoordbeheer voor al uw apparaten</value>
+    <value>Thuis, op het werk of onderweg, Bitwarden beveiligt eenvoudig al je wachtwoorden, sleutels en gevoelige informatie.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Synchroniseer en gebruik je kluis op meerdere apparaten</value>

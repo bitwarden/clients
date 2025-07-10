@@ -1,5 +1,4 @@
-.btn-primary,
-.swal2-confirm {
+.btn-primary {
   @include themify($themes) {
     background-color: themed("btnPrimary");
     border-color: themed("btnPrimary");
@@ -37,8 +36,7 @@
   }
 }
 
-.btn-secondary,
-.swal2-cancel {
+.btn-secondary {
   @include themify($themes) {
     background-color: themed("btnSecondary");
     border-color: themed("btnSecondaryBorder");
@@ -103,8 +101,7 @@
   }
 }
 
-.btn-danger,
-.swal2-deny {
+.btn-danger {
   @include themify($themes) {
     background-color: themed("btnDanger");
     border-color: themed("btnDanger");
@@ -175,6 +172,7 @@
   }
 
   &:disabled:not(.manual),
+  &[aria-disabled="true"]:not(.manual),
   &.loading {
     .bwi-spinner {
       display: flex;
@@ -186,7 +184,8 @@
   }
 }
 
-button.no-btn {
+button.no-btn,
+a.no-btn {
   background: transparent;
   border: none;
   padding: 0;
@@ -200,18 +199,4 @@ button.no-btn {
     box-shadow: none;
     color: inherit;
   }
-}
-
-button.header-expandable {
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: inherit;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-}
-
-/* special case for Send options */
-h3 button.header-expandable .bwi {
-  line-height: 1.5;
 }

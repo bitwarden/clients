@@ -25,6 +25,6 @@ export function b64Decode(str: string, spaceAsPlus = false) {
       .call(atob(str), (c: string) => {
         return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
       })
-      .join("")
+      .join(""),
   );
 }

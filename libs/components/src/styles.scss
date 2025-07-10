@@ -1,5 +1,5 @@
 $icomoon-font-path: "../fonts/";
-$card-icons-base: "../images/cards/";
+$card-icons-base: "../../src/billing/images/cards/";
 
 @import "../../angular/src/scss/webfonts.css";
 @import "./variables";
@@ -47,3 +47,15 @@ $card-icons-base: "../images/cards/";
 @import "bootstrap/scss/_print";
 
 @import "multi-select/scss/bw.theme.scss";
+
+// Workaround for https://bitwarden.atlassian.net/browse/CL-110
+.sbdocs-preview pre.prismjs {
+  color: white;
+}
+
+.sb-show-main app-current-account button {
+  border: none;
+  background-color: transparent;
+  padding-inline: 0px;
+  padding-block: 0px;
+}

@@ -1,0 +1,67 @@
+diff --git a/node_modules/argon2-browser/lib/argon2.js b/node_modules/argon2-browser/lib/argon2.js
+index ffa77a5..98b2f13 100644
+--- a/node_modules/argon2-browser/lib/argon2.js
++++ b/node_modules/argon2-browser/lib/argon2.js
+@@ -78,16 +78,27 @@
+         if (global.loadArgon2WasmBinary) {
+             return global.loadArgon2WasmBinary();
+         }
++
++        const simd = checkIfSIMDSupported();
++
+         if (typeof require === 'function') {
+-            return Promise.resolve(require('../dist/argon2.wasm')).then(
+-                (wasmModule) => {
+-                    return decodeWasmBinary(wasmModule);
+-                }
+-            );
++            if (simd) {
++                return Promise.resolve(require('../dist/argon2-simd.wasm')).then(
++                    (wasmModule) => {
++                        return decodeWasmBinary(wasmModule);
++                    }
++                );
++            } else {
++                return Promise.resolve(require('../dist/argon2.wasm')).then(
++                    (wasmModule) => {
++                        return decodeWasmBinary(wasmModule);
++                    }
++                );
++            }
+         }
+         const wasmPath =
+             global.argon2WasmPath ||
+-            'node_modules/argon2-browser/dist/argon2.wasm';
++            'node_modules/argon2-browser/dist/argon2' + (simd? "-simd" : "") + '.wasm';
+         return fetch(wasmPath)
+             .then((response) => response.arrayBuffer())
+             .then((ab) => new Uint8Array(ab));
+@@ -351,7 +362,28 @@
+             loadModule._module.unloadRuntime();
+             delete loadModule._promise;
+             delete loadModule._module;
++            if (typeof require !== 'undefined') {
++                delete require.cache[require.resolve('../dist/argon2.js')]
++            }
++        }
++    }
++
++    // ref: https://stackoverflow.com/a/47880734/1090359
++    // ref: https://github.com/GoogleChromeLabs/wasm-feature-detect/blob/main/src/detectors/simd/module.wat (translated with wat2wasm)
++    function checkIfSIMDSupported() {
++        try {
++            if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
++                const module = new WebAssembly.Module(
++                    Uint8Array.of(0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7b, 0x03, 0x02, 0x01, 0x00, 0x0a, 0x0a, 0x01, 0x08, 0x00, 0x41, 0x00, 0xfd, 0x0f, 0xfd, 0x62, 0x0b)
++                );
++                if (module instanceof WebAssembly.Module) {
++                    return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
++                }
++            }
++        } catch {
++            return false;
+         }
++        return false;
+     }
+ 
+     return {

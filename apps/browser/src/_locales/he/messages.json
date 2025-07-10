@@ -2,25 +2,46 @@
   "appName": {
     "message": "Bitwarden"
   },
+  "appLogoLabel": {
+    "message": "הלוגו של Bitwarden"
+  },
   "extName": {
-    "message": "Bitwarden - מנהל סיסמאות חינמי",
+    "message": "מנהל הסיסמאות Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "מנהל סיסמאות חינמי ומאובטח עבור כל המכשירים שלך.",
-    "description": "Extension description"
+    "message": "בבית, בעבודה, או בדרך, Bitwarden מאבטח בקלות את כל הסיסמאות, מפתחות הגישה, והמידע הרגיש שלך",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "צור חשבון חדש או התחבר כדי לגשת לכספת המאובטחת שלך."
   },
+  "inviteAccepted": {
+    "message": "ההזמנה התקבלה"
+  },
   "createAccount": {
     "message": "צור חשבון"
   },
-  "login": {
-    "message": "התחבר"
+  "newToBitwarden": {
+    "message": "חדש ב־Bitwarden?"
+  },
+  "logInWithPasskey": {
+    "message": "כניסה עם מפתח גישה"
+  },
+  "useSingleSignOn": {
+    "message": "השתמש בכניסה יחידה"
+  },
+  "welcomeBack": {
+    "message": "ברוך שובך"
+  },
+  "setAStrongPassword": {
+    "message": "הגדר סיסמה חזקה"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "סיים ליצור את החשבון שלך על ידי הגדרת סיסמה"
   },
   "enterpriseSingleSignOn": {
-    "message": "כניסה ארגונית אחידה"
+    "message": "כניסה יחידה ארגונית"
   },
   "cancel": {
     "message": "בטל"
@@ -43,11 +64,48 @@
   "masterPassHintDesc": {
     "message": "ניתן להשתמש ברמז לסיסמה הראשית אם שכחת אותה."
   },
+  "masterPassHintText": {
+    "message": "אם תשכח את הסיסמה שלך, הרמז לסיסמה יכול להישלח לדוא\"ל שלך. $CURRENT$/$MAXIMUM$ תווים לכל היותר.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
   "reTypeMasterPass": {
     "message": "הקלד שוב סיסמה ראשית"
   },
   "masterPassHint": {
-    "message": "רמז לסיסמה ראשית (אופציונאלי)"
+    "message": "רמז לסיסמה הראשית (אופציונלי)"
+  },
+  "passwordStrengthScore": {
+    "message": "ציון חוזק סיסמה $SCORE$",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "joinOrganization": {
+    "message": "הצטרף לארגון"
+  },
+  "joinOrganizationName": {
+    "message": "הצטרף אל $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "סיים להצטרף לארגון זה על ידי הגדרת סיסמה ראשית."
   },
   "tab": {
     "message": "לשונית"
@@ -59,7 +117,7 @@
     "message": "הכספת שלי"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "כל הכספות"
   },
   "tools": {
     "message": "כלים"
@@ -68,13 +126,16 @@
     "message": "הגדרות"
   },
   "currentTab": {
-    "message": "לשונית נוכחית"
+    "message": "כרטיסיה נוכחית"
   },
   "copyPassword": {
     "message": "העתק סיסמה"
   },
+  "copyPassphrase": {
+    "message": "העתק ביטוי סיסמה"
+  },
   "copyNote": {
-    "message": "העתק פתק"
+    "message": "העתק הערה"
   },
   "copyUri": {
     "message": "העתק שורת כתובת"
@@ -88,38 +149,122 @@
   "copySecurityCode": {
     "message": "העתק קוד אבטחה"
   },
+  "copyName": {
+    "message": "העתק שם"
+  },
+  "copyCompany": {
+    "message": "העתק חברה"
+  },
+  "copySSN": {
+    "message": "העתק מספר תעודת זהות"
+  },
+  "copyPassportNumber": {
+    "message": "העתק מספר דרכון"
+  },
+  "copyLicenseNumber": {
+    "message": "העתק מספר רישיון"
+  },
+  "copyPrivateKey": {
+    "message": "העתק מפתח פרטי"
+  },
+  "copyPublicKey": {
+    "message": "העתק מפתח ציבורי"
+  },
+  "copyFingerprint": {
+    "message": "העתק טביעת אצבע"
+  },
+  "copyCustomField": {
+    "message": "העתק $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "העתק אתר אינטרנט"
+  },
+  "copyNotes": {
+    "message": "העתק הערות"
+  },
+  "copy": {
+    "message": "העתק",
+    "description": "Copy to clipboard"
+  },
+  "fill": {
+    "message": "מילוי",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
+  },
   "autoFill": {
-    "message": "השלמה אוטומטית"
+    "message": "מילוי אוטומטי"
+  },
+  "autoFillLogin": {
+    "message": "מילוי כניסה אוטומטי"
+  },
+  "autoFillCard": {
+    "message": "מילוי כרטיס אוטומטי"
+  },
+  "autoFillIdentity": {
+    "message": "מילוי זהות אוטומטי"
+  },
+  "fillVerificationCode": {
+    "message": "מילוי קוד אימות"
+  },
+  "fillVerificationCodeAria": {
+    "message": "מילוי קוד אימות",
+    "description": "Aria label for the heading displayed the inline menu for totp code autofill"
   },
   "generatePasswordCopied": {
-    "message": "צור סיסמה (העתק)"
+    "message": "צור סיסמה (והעתק)"
   },
   "copyElementIdentifier": {
-    "message": "Copy custom field name"
+    "message": "העתק שם שדה מותאם אישית"
   },
   "noMatchingLogins": {
-    "message": "לא נמצאו פרטי כניסה תואמים."
+    "message": "אין כניסות תואמות"
+  },
+  "noCards": {
+    "message": "אין כרטיסים"
+  },
+  "noIdentities": {
+    "message": "אין זהויות"
+  },
+  "addLoginMenu": {
+    "message": "הוסף כניסה"
+  },
+  "addCardMenu": {
+    "message": "הוסף כרטיס"
+  },
+  "addIdentityMenu": {
+    "message": "הוסף זהות"
   },
   "unlockVaultMenu": {
-    "message": "שחרור הכספת שלך"
+    "message": "פתח את הכספת שלך"
   },
   "loginToVaultMenu": {
     "message": "כניסה לכספת שלך"
   },
   "autoFillInfo": {
-    "message": "לא נמצאו פרטי כניסה להשלמה אוטומטית בלשונית הנוכחית בדפדפן."
+    "message": "לא נמצאו כניסות למילוי אוטומטי בכרטיסיית הדפדפן הנוכחית."
   },
   "addLogin": {
-    "message": "הוסף פרטי כניסה"
+    "message": "הוסף כניסה"
   },
   "addItem": {
     "message": "הוסף פריט"
   },
-  "passwordHint": {
-    "message": "רמז לסיסמה"
+  "accountEmail": {
+    "message": "דוא\"ל חשבון"
   },
-  "enterEmailToGetHint": {
-    "message": "הכנס את פרטי האימייל שלך לקבלת רמז עבור הסיסמה הראשית."
+  "requestHint": {
+    "message": "בקש רמז"
+  },
+  "requestPasswordHint": {
+    "message": "בקש רמז לסיסמה"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
   },
   "getMasterPasswordHint": {
     "message": "הצג את הרמז לסיסמה הראשית"
@@ -128,13 +273,13 @@
     "message": "המשך"
   },
   "sendVerificationCode": {
-    "message": "שליחת קוד אימות לדוא״ל שלך"
+    "message": "שלח קוד אימות לדוא\"ל שלך"
   },
   "sendCode": {
-    "message": "שליחת קוד"
+    "message": "שלח קוד"
   },
   "codeSent": {
-    "message": "קוד נשלח"
+    "message": "הקוד נשלח"
   },
   "verificationCode": {
     "message": "קוד אימות"
@@ -142,14 +287,32 @@
   "confirmIdentity": {
     "message": "יש לאשר את זהותך כדי להמשיך."
   },
-  "account": {
-    "message": "חשבון"
-  },
   "changeMasterPassword": {
     "message": "החלף סיסמה ראשית"
   },
+  "continueToWebApp": {
+    "message": "להמשיך אל יישום רשת?"
+  },
+  "continueToWebAppDesc": {
+    "message": "גלה עוד תכונות של חשבון ה־Bitwarden שלך ביישום הרשת."
+  },
+  "continueToHelpCenter": {
+    "message": "להמשיך אל מרכז העזרה?"
+  },
+  "continueToHelpCenterDesc": {
+    "message": "למד עוד אודות אופן השימוש ב־Bitwarden במרכז העזרה."
+  },
+  "continueToBrowserExtensionStore": {
+    "message": "להמשיך אל חנות הרחבות דפדפן?"
+  },
+  "continueToBrowserExtensionStoreDesc": {
+    "message": "עזור לאחרים לגלות אם Bitwarden מתאים להם. בקר בחנות הרחבות הדפדפן שלך והשאר דירוג עכשיו."
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "אתה יכול לשנות את הסיסמה הראשית שלך ביישום הרשת של Bitwarden."
+  },
   "fingerprintPhrase": {
-    "message": "סיסמת טביעת אצבע",
+    "message": "ביטוי טביעת אצבע",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
@@ -157,13 +320,49 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "התחברות בשני-שלבים"
+    "message": "כניסה דו־שלבית"
   },
   "logOut": {
-    "message": "התנתק"
+    "message": "צא"
+  },
+  "aboutBitwarden": {
+    "message": "אודות Bitwarden"
   },
   "about": {
     "message": "אודות"
+  },
+  "moreFromBitwarden": {
+    "message": "עוד מאת Bitwarden"
+  },
+  "continueToBitwardenDotCom": {
+    "message": "להמשיך אל bitwarden.com?"
+  },
+  "bitwardenForBusiness": {
+    "message": "Bitwarden לעסקים"
+  },
+  "bitwardenAuthenticator": {
+    "message": "מאמת Bitwarden"
+  },
+  "continueToAuthenticatorPageDesc": {
+    "message": "מאמת Bitwarden מאפשר לך לאחסן מפתחות מאמת וליצור קודי TOTP עבור זרימת אימות דו־שלבית. למד עוד באתר האינטרנט bitwarden.com"
+  },
+  "bitwardenSecretsManager": {
+    "message": "מנהל הסודות של Bitwarden"
+  },
+  "continueToSecretsManagerPageDesc": {
+    "message": "אחסן, נהל, ושתף בבטחה סודות מפתח עם מנהל הסודות של Bitwarden. למד עוד באתר האינטרנט bitwarden.com."
+  },
+  "passwordlessDotDev": {
+    "message": "Passwordless.dev"
+  },
+  "continueToPasswordlessDotDevPageDesc": {
+    "message": "צור חוויית כניסה חלקה ובטוחה חופשית מסיסמאות מסורתיות עם Passwordless.dev. למד עוד באתר האינטרנט bitwarden.com."
+  },
+  "freeBitwardenFamilies": {
+    "message": "Bitwarden למשפחות בחינם"
+  },
+  "freeBitwardenFamiliesPageDesc": {
+    "message": "אתה זכאי ל־Bitwarden למשפחות בחינם. ממש הצעה זו היום ביישום הרשת."
   },
   "version": {
     "message": "גירסה"
@@ -172,7 +371,7 @@
     "message": "שמור"
   },
   "move": {
-    "message": "Move"
+    "message": "העבר"
   },
   "addFolder": {
     "message": "הוסף תיקייה"
@@ -182,6 +381,33 @@
   },
   "editFolder": {
     "message": "ערוך תיקייה"
+  },
+  "editFolderWithName": {
+    "message": "ערוך תיקייה: $FOLDERNAME$",
+    "placeholders": {
+      "foldername": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "newFolder": {
+    "message": "תיקייה חדשה"
+  },
+  "folderName": {
+    "message": "שם תיקייה"
+  },
+  "folderHintText": {
+    "message": "צור תיקייה מקוננת על ידי הוספת שם תיקיית האב ואחריו “/”. דוגמה: חברתי/פורומים"
+  },
+  "noFoldersAdded": {
+    "message": "לא נוספו תיקיות"
+  },
+  "createFoldersToOrganize": {
+    "message": "צור תיקיות כדי לארגן את פריטי הכספת שלך"
+  },
+  "deleteFolderPermanently": {
+    "message": "האם אתה בטוח שברצונך למחוק תיקייה זו לצמיתות?"
   },
   "deleteFolder": {
     "message": "מחק תיקייה"
@@ -193,7 +419,16 @@
     "message": "אין תיקיות להצגה."
   },
   "helpFeedback": {
-    "message": "עזרה ומשוב"
+    "message": "עזרה & משוב"
+  },
+  "helpCenter": {
+    "message": "מרכז העזרה של Bitwarden"
+  },
+  "communityForums": {
+    "message": "גלה את פורומי קהילת Bitwarden"
+  },
+  "contactSupport": {
+    "message": "פנה לתמיכת Bitwarden"
   },
   "sync": {
     "message": "סנכרן"
@@ -205,20 +440,20 @@
     "message": "סנכרון אחרון:"
   },
   "passGen": {
-    "message": "יוצר הסיסמאות"
+    "message": "מחולל הסיסמאות"
   },
   "generator": {
     "message": "מייצר",
-    "description": "Short for 'Password Generator'."
+    "description": "Short for 'credential generator'."
   },
   "passGenInfo": {
     "message": "צור אוטומטית סיסמאות חזקות ויחודיות עבור פרטי הכניסה שלך."
   },
-  "bitWebVault": {
-    "message": "כספת באתר Bitwarden"
+  "bitWebVaultApp": {
+    "message": "יישום הרשת של Bitwarden"
   },
   "importItems": {
-    "message": "יבא פריטים"
+    "message": "ייבא פריטים"
   },
   "select": {
     "message": "בחר"
@@ -226,8 +461,23 @@
   "generatePassword": {
     "message": "צור סיסמה"
   },
+  "generatePassphrase": {
+    "message": "צור ביטוי סיסמה"
+  },
+  "passwordGenerated": {
+    "message": "נוצרה סיסמה"
+  },
+  "passphraseGenerated": {
+    "message": "נוצר ביטוי סיסמה"
+  },
+  "usernameGenerated": {
+    "message": "נוצר שם משתמש"
+  },
+  "emailGenerated": {
+    "message": "נוצר דוא\"ל"
+  },
   "regeneratePassword": {
-    "message": "צור סיסמה חדשה"
+    "message": "צור סיסמה מחדש"
   },
   "options": {
     "message": "אפשרויות"
@@ -235,20 +485,40 @@
   "length": {
     "message": "אורך"
   },
-  "uppercase": {
-    "message": "Uppercase (A-Z)"
+  "include": {
+    "message": "כלול",
+    "description": "Card header for password generator include block"
   },
-  "lowercase": {
-    "message": "Lowercase (a-z)"
+  "uppercaseDescription": {
+    "message": "כלול תווי אות גדולה",
+    "description": "Tooltip for the password generator uppercase character checkbox"
   },
-  "numbers": {
-    "message": "Numbers (0-9)"
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
   },
-  "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)"
+  "lowercaseDescription": {
+    "message": "כלול תווי אות קטנה",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "כלול מספרים",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "כלול תווים מיוחדים",
+    "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
-    "message": "מספר מילים"
+    "message": "מספר המילים"
   },
   "wordSeparator": {
     "message": "מפריד מילים"
@@ -258,16 +528,21 @@
     "description": "Make the first letter of a work uppercase."
   },
   "includeNumber": {
-    "message": "כלול מספרים"
+    "message": "כלול מספר"
   },
   "minNumbers": {
-    "message": "מינימום ספרות"
+    "message": "מינימום מספרים"
   },
   "minSpecial": {
-    "message": "מינימום תוים מיוחדים"
+    "message": "מינימום מיוחדים"
   },
-  "avoidAmbChar": {
-    "message": "המנע מאותיות ותוים דומים"
+  "avoidAmbiguous": {
+    "message": "הימנע מתווים דו־משמעיים",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "דרישות מדיניות ארגונית הוחלו על אפשרויות המחולל שלך.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
     "message": "חיפוש בכספת"
@@ -290,14 +565,29 @@
   "password": {
     "message": "סיסמה"
   },
+  "totp": {
+    "message": "סוד מאמת"
+  },
   "passphrase": {
     "message": "משפט סיסמה"
   },
   "favorite": {
     "message": "מועדף"
   },
+  "unfavorite": {
+    "message": "הסר ממועדפים"
+  },
+  "itemAddedToFavorites": {
+    "message": "פריט נוסף למועדפים"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "פריט הוסר מהמועדפים"
+  },
   "notes": {
     "message": "הערות"
+  },
+  "privateNote": {
+    "message": "הערה פרטית"
   },
   "note": {
     "message": "הערה"
@@ -317,11 +607,23 @@
   "launch": {
     "message": "הפעל"
   },
+  "launchWebsite": {
+    "message": "פתח אתר"
+  },
+  "launchWebsiteName": {
+    "message": "פתח אתר $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "website": {
     "message": "אתר"
   },
   "toggleVisibility": {
-    "message": "הצג או הסתר"
+    "message": "שנה מצב נראות"
   },
   "manage": {
     "message": "נהל"
@@ -329,20 +631,50 @@
   "other": {
     "message": "אחר"
   },
-  "rateExtension": {
-    "message": "דירוג הרחבה"
+  "unlockMethods": {
+    "message": "אפשרויות ביטול נעילה"
   },
-  "rateExtensionDesc": {
-    "message": "אם נהנית מהתוכנה, בבקשה דרג את התוכנה וכתוב דירוג עם חוות דעת טובה!"
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "הגדר שיטת ביטול נעילה כדי לשנות את פעולת פסק הזמן לכספת שלך."
+  },
+  "unlockMethodNeeded": {
+    "message": "הגדר שיטת ביטול נעילה בהגדרות"
+  },
+  "sessionTimeoutHeader": {
+    "message": "פסק זמן להפעלה"
+  },
+  "vaultTimeoutHeader": {
+    "message": "פסק זמן לכספת"
+  },
+  "otherOptions": {
+    "message": "אפשרויות אחרות"
+  },
+  "rateExtension": {
+    "message": "דרג את ההרחבה"
   },
   "browserNotSupportClipboard": {
     "message": "הדפדפן שלך לא תומך בהעתקה ללוח. אנא העתק בצורה ידנית."
   },
-  "verifyIdentity": {
-    "message": "אימות זהות"
+  "verifyYourIdentity": {
+    "message": "אמת את זהותך"
+  },
+  "weDontRecognizeThisDevice": {
+    "message": "אנחנו לא מזהים את המכשיר הזה. הזן את הקוד שנשלח לדוא\"ל שלך כדי לאמת את זהותך."
+  },
+  "continueLoggingIn": {
+    "message": "המשך להיכנס"
   },
   "yourVaultIsLocked": {
-    "message": "הכספת שלך נעולה. הזן את הסיסמה הראשית שלך כדי להמשיך."
+    "message": "הכספת שלך נעולה. אמת את זהותך כדי להמשיך."
+  },
+  "yourVaultIsLockedV2": {
+    "message": "הכספת שלך נעולה"
+  },
+  "yourAccountIsLocked": {
+    "message": "החשבון שלך נעול"
+  },
+  "or": {
+    "message": "או"
   },
   "unlock": {
     "message": "בטל נעילה"
@@ -364,10 +696,16 @@
     "message": "סיסמה ראשית שגויה"
   },
   "vaultTimeout": {
-    "message": "משך זמן מירבי עבור חיבור לכספת"
+    "message": "פסק זמן לכספת"
+  },
+  "vaultTimeout1": {
+    "message": "פסק זמן"
   },
   "lockNow": {
     "message": "נעל עכשיו"
+  },
+  "lockAll": {
+    "message": "נעל הכל"
   },
   "immediately": {
     "message": "באופן מיידי"
@@ -403,7 +741,7 @@
     "message": "4 שעות"
   },
   "onLocked": {
-    "message": "בזמן נעילת המערכת"
+    "message": "בנעילת המערכת"
   },
   "onRestart": {
     "message": "בהפעלת הדפדפן מחדש"
@@ -413,6 +751,18 @@
   },
   "security": {
     "message": "אבטחה"
+  },
+  "confirmMasterPassword": {
+    "message": "אמת סיסמה ראשית"
+  },
+  "masterPassword": {
+    "message": "סיסמה ראשית"
+  },
+  "masterPassImportant": {
+    "message": "הסיסמה הראשית שלך לא ניתנת לשחזור אם אתה שוכח אותה!"
+  },
+  "masterPassHintLabel": {
+    "message": "רמז לסיסמה הראשית"
   },
   "errorOccurred": {
     "message": "אירעה שגיאה"
@@ -424,13 +774,20 @@
     "message": "כתובת אימייל לא תקינה."
   },
   "masterPasswordRequired": {
-    "message": "Master password is required."
+    "message": "נדרשת סיסמה ראשית."
   },
   "confirmMasterPasswordRequired": {
-    "message": "Master password retype is required."
+    "message": "נדרשת הזנה מחדש של הסיסמה הראשית."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least 8 characters long."
+    "message": "סיסמה ראשית חייבת להיות לפחות באורך $VALUE$ תווים.",
+    "description": "The Master Password must be at least a specific number of characters long.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
   },
   "masterPassDoesntMatch": {
     "message": "שדה אימות סיסמה ראשית לא תואם."
@@ -438,11 +795,26 @@
   "newAccountCreated": {
     "message": "החשבון שלך נוצר בהצלחה! כעת ניתן להכנס למערכת."
   },
+  "newAccountCreated2": {
+    "message": "החשבון החדש שלך נוצר!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "אתה נכנסת!"
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "נכנסת בהצלחה"
+  },
+  "youMayCloseThisWindow": {
+    "message": "אתה רשאי לסגור חלון זה"
+  },
   "masterPassSent": {
     "message": "שלחנו לך אימייל עם רמז לסיסמה הראשית."
   },
   "verificationCodeRequired": {
     "message": "נדרש קוד אימות."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "האימות בוטל או לקח זמן רב מדי. נא לנסות שוב."
   },
   "invalidVerificationCode": {
     "message": "קוד אימות שגוי"
@@ -458,13 +830,76 @@
     }
   },
   "autofillError": {
-    "message": "לא הצלחנו לבצע פעולת השלמה האוטומטית בעמוד זה. אנא העתק והדבק את המידע הנחוץ בצורה ידנית."
+    "message": "לא ניתן למלא אוטומטית את הפריט שנבחר בעמוד זה. העתק והדבק את המידע במקום זאת."
+  },
+  "totpCaptureError": {
+    "message": "אי אפשר לסרוק קוד QR מהעמוד הנוכחי"
+  },
+  "totpCaptureSuccess": {
+    "message": "מפתח המאמת נוסף"
+  },
+  "totpCapture": {
+    "message": "סרוק קוד QR מאמת מהעמוד הנוכחי"
+  },
+  "totpHelperTitle": {
+    "message": "הפוך את האימות הדו־שלבי לחלק"
+  },
+  "totpHelper": {
+    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. העתק והדבק את המפתח לשדה זה."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden יכול לאחסון ולמלא קודים של אימות דו־שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "למד עוד על מאמתים"
+  },
+  "copyTOTP": {
+    "message": "העתק קוד מאמת (TOTP)"
   },
   "loggedOut": {
     "message": "בוצעה יציאה"
   },
+  "loggedOutDesc": {
+    "message": "יצאת מהחשבון שלך."
+  },
   "loginExpired": {
     "message": "תוקף החיבור שלך הסתיים."
+  },
+  "logIn": {
+    "message": "היכנס"
+  },
+  "logInToBitwarden": {
+    "message": "היכנס אל Bitwarden"
+  },
+  "enterTheCodeSentToYourEmail": {
+    "message": "הזן את הקוד שנשלח לדוא\"ל שלך"
+  },
+  "enterTheCodeFromYourAuthenticatorApp": {
+    "message": "הזן את הקוד מיישום המאמת שלך"
+  },
+  "pressYourYubiKeyToAuthenticate": {
+    "message": "לחץ על ה־YubiKey שלך כדי לאמת"
+  },
+  "duoTwoFactorRequiredPageSubtitle": {
+    "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך. עקוב אחר השלבים למטה כדי לסיים להיכנס."
+  },
+  "followTheStepsBelowToFinishLoggingIn": {
+    "message": "עקוב אחר השלבים למטה כדי לסיים להיכנס."
+  },
+  "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
+    "message": "Follow the steps below to finish logging in with your security key."
+  },
+  "restartRegistration": {
+    "message": "התחל הרשמה מחדש"
+  },
+  "expiredLink": {
+    "message": "קישור פג תוקף"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "נא להתחיל הרשמה מחדש או לנסות להיכנס."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "ייתכן שכבר יש לך חשבון"
   },
   "logOutConfirmation": {
     "message": "האם אתה בטוח שברצונך להתנתק?"
@@ -475,6 +910,9 @@
   "no": {
     "message": "לא"
   },
+  "location": {
+    "message": "מיקום"
+  },
   "unexpectedError": {
     "message": "אירעה שגיאה לא צפויה."
   },
@@ -482,28 +920,28 @@
     "message": "דרוש שם."
   },
   "addedFolder": {
-    "message": "נוספה תיקייה"
-  },
-  "changeMasterPass": {
-    "message": "החלף סיסמה ראשית"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "באפשרותך לשנות את הסיסמה הראשית שלך דרך הכספת באתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
+    "message": "תיקייה נוספה"
   },
   "twoStepLoginConfirmation": {
-    "message": "התחברות בשני-שלבים הופכת את החשבון שלך למאובטח יותר בכך שאתה נדרש לוודא בכל כניסה בעזרת מכשיר אחר כדוגמת מפתח אבטחה, תוכנת אימות, SMS, שיחת טלפון, או אימייל. ניתן להפעיל את \"התחברות בשני-שלבים\" בכספת שבאתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
+    "message": "כניסה דו־שלבית הופכת את החשבון שלך למאובטח יותר בכך שאתה נדרש לאמת את הכניסה שלך עם מכשיר אחר כמו מפתח אבטחה, יישום מאמת, מסרון, שיחת טלפון, או דוא\"ל. ניתן להגדיר כניסה דו־שלבית בכספת הרשת bitwarden.com. האם ברצונך לבקר באתר כעת?"
+  },
+  "twoStepLoginConfirmationContent": {
+    "message": "הפוך את החשבון שלך למאובטח יותר על ידי הגדרת כניסה דו־שלבית ביישום הרשת של Bitwarden."
+  },
+  "twoStepLoginConfirmationTitle": {
+    "message": "להמשיך אל יישום הרשת?"
   },
   "editedFolder": {
-    "message": "תיקייה שנערכה"
+    "message": "תיקייה נשמרה"
   },
   "deleteFolderConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק את התיקייה?"
   },
   "deletedFolder": {
-    "message": "תיקייה שנמחקה"
+    "message": "תיקייה נמחקה"
   },
   "gettingStartedTutorial": {
-    "message": "מדריך שימוש ראשוני"
+    "message": "מדריך תחילת עבודה"
   },
   "gettingStartedTutorialVideo": {
     "message": "צפה במדריך השימוש הראשוני כדי ללמוד איך לנצל את המקסימום שהתוסף לדפדפן יכול להציע."
@@ -518,7 +956,7 @@
     "message": "הסיסמה הועתקה"
   },
   "uri": {
-    "message": "כתובת"
+    "message": "URI"
   },
   "uriPosition": {
     "message": "כתובת $POSITION$",
@@ -533,17 +971,21 @@
   "newUri": {
     "message": "כתובת חדשה"
   },
+  "addDomain": {
+    "message": "הוסף דומיין",
+    "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
+  },
   "addedItem": {
-    "message": "פריט שהתווסף"
+    "message": "הפריט נוסף"
   },
   "editedItem": {
-    "message": "פריט שנערך"
+    "message": "הפריט נשמר"
   },
   "deleteItemConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק פריט זה?"
   },
   "deletedItem": {
-    "message": "פריט נשלח לסל המחזור"
+    "message": "פריט נשלח לאשפה"
   },
   "overwritePassword": {
     "message": "דרוס סיסמה"
@@ -552,10 +994,10 @@
     "message": "האם אתה בטוח שברצונך לדרוס את הסיסמה הנוכחית?"
   },
   "overwriteUsername": {
-    "message": "Overwrite username"
+    "message": "דרוס שם משתמש"
   },
   "overwriteUsernameConfirmation": {
-    "message": "Are you sure you want to overwrite the current username?"
+    "message": "האם אתה בטוח שברצונך לדרוס את שם המשתמש הנוכחי?"
   },
   "searchFolder": {
     "message": "חפש תיקייה"
@@ -571,25 +1013,43 @@
     "description": "This is the folder for uncategorized items"
   },
   "enableAddLoginNotification": {
-    "message": "Ask to add login"
+    "message": "בקש לשמור כניסה"
+  },
+  "vaultSaveOptionsTitle": {
+    "message": "שמור בהגדרות כספת"
   },
   "addLoginNotificationDesc": {
-    "message": "ההודעה \"שמור פרטי כניסה\" מופיעה בכל פעם שתכנס לאתר חדש בפעם הראשונה."
+    "message": "בקש להוסיף פריט אם לא נמצא פריט בכספת שלך."
+  },
+  "addLoginNotificationDescAlt": {
+    "message": "בקש להוסיף פריט אם לא נמצא פריט בכספת שלך. חל על כל החשבונות המחוברים."
+  },
+  "showCardsInVaultViewV2": {
+    "message": "הצג תמיד כרטיסים כהצעות מילוי אוטומטי בתצוגת כספת"
   },
   "showCardsCurrentTab": {
-    "message": "Show cards on Tab page"
+    "message": "הצג כרטיסים בעמוד הכרטיסיות"
   },
   "showCardsCurrentTabDesc": {
-    "message": "List card items on the Tab page for easy auto-fill."
+    "message": "רשום פריטי כרטיס בעמוד הכרטיסיות עבור מילוי אוטומטי קל."
+  },
+  "showIdentitiesInVaultViewV2": {
+    "message": "הצג תמיד זהויות כהצעות למילוי אוטומטי בתצוגת כספת"
   },
   "showIdentitiesCurrentTab": {
-    "message": "Show identities on Tab page"
+    "message": "הצג זהויות בעמוד הכרטיסיות"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "List identity items on the Tab page for easy auto-fill."
+    "message": "הצג פריטי זהות בעמוד הכרטיסיות עבור מילוי אוטומטי קל."
+  },
+  "clickToAutofillOnVault": {
+    "message": "לחץ על פריטים כדי למלא אוטומטית בתצוגת כספת"
+  },
+  "clickToAutofill": {
+    "message": "לחץ על פריטים בהצעות למילוי אוטומטי כדי למלא"
   },
   "clearClipboard": {
-    "message": "נקה לוח העתקות",
+    "message": "נקה לוח העתקה",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
@@ -600,38 +1060,173 @@
     "message": "האם ברצונך שתוכנת Bitwarden תזכור סיסמה זו עבורך?"
   },
   "notificationAddSave": {
-    "message": "כן, שמור עכשיו"
+    "message": "שמור"
+  },
+  "notificationViewAria": {
+    "message": "View $ITEMNAME$, opens in new window",
+    "placeholders": {
+      "itemName": {
+        "content": "$1"
+      }
+    },
+    "description": "Aria label for the view button in notification bar confirmation message"
+  },
+  "notificationNewItemAria": {
+    "message": "New Item, opens in new window",
+    "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
+  },
+  "notificationEditTooltip": {
+    "message": "Edit before saving",
+    "description": "Tooltip and Aria label for edit button on cipher item"
+  },
+  "newNotification": {
+    "message": "New notification"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "notificationLoginSaveConfirmation": {
+    "message": "saved to Bitwarden.",
+    "description": "Shown to user after item is saved."
+  },
+  "notificationLoginUpdatedConfirmation": {
+    "message": "updated in Bitwarden.",
+    "description": "Shown to user after item is updated."
+  },
+  "selectItemAriaLabel": {
+    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
+    "placeholders": {
+      "itemType": {
+        "content": "$1"
+      },
+      "itemName": {
+        "content": "$2"
+      }
+    }
+  },
+  "saveAsNewLoginAction": {
+    "message": "שמור ככניסה חדשה",
+    "description": "Button text for saving login details as a new entry."
+  },
+  "updateLoginAction": {
+    "message": "עדכן כניסה",
+    "description": "Button text for updating an existing login entry."
+  },
+  "unlockToSave": {
+    "message": "Unlock to save this login",
+    "description": "User prompt to take action in order to save the login they just entered."
+  },
+  "saveLogin": {
+    "message": "Save login",
+    "description": "Prompt asking the user if they want to save their login details."
+  },
+  "updateLogin": {
+    "message": "Update existing login",
+    "description": "Prompt asking the user if they want to update an existing login entry."
+  },
+  "loginSaveSuccess": {
+    "message": "כניסה נשמרה",
+    "description": "Message displayed when login details are successfully saved."
+  },
+  "loginUpdateSuccess": {
+    "message": "כניסה עודכנה",
+    "description": "Message displayed when login details are successfully updated."
+  },
+  "loginUpdateTaskSuccess": {
+    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "loginUpdateTaskSuccessAdditional": {
+    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "placeholders": {
+      "organization": {
+        "content": "$1"
+      },
+      "task_count": {
+        "content": "$2"
+      }
+    },
+    "description": "Shown to user after login is updated."
+  },
+  "nextSecurityTaskAction": {
+    "message": "Change next password",
+    "description": "Message prompting user to undertake completion of another security task."
+  },
+  "saveFailure": {
+    "message": "שגיאה בשמירה",
+    "description": "Error message shown when the system fails to save login details."
+  },
+  "saveFailureDetails": {
+    "message": "או לא! לא יכלנו לשמור זאת. נסה להזין את הפרטים באופן ידני.",
+    "description": "Detailed error message shown when saving login details fails."
   },
   "enableChangedPasswordNotification": {
-    "message": "Ask to update existing login"
+    "message": "שאל אם לעדכן פרטי כניסה קיימת"
   },
   "changedPasswordNotificationDesc": {
-    "message": "Ask to update a login's password when a change is detected on a website."
+    "message": "שאל אם לעדכן סיסמת כניסה כאשר זוהה שינוי באתר אינטרנט."
+  },
+  "changedPasswordNotificationDescAlt": {
+    "message": "שאל אם לעדכן סיסמת כניסה כאשר זוהה שינוי באתר אינטרנט. חל על כל החשבונות המחוברים."
+  },
+  "enableUsePasskeys": {
+    "message": "שאל אם לשמור ולהשתמש במפתחות גישה"
+  },
+  "usePasskeysDesc": {
+    "message": "שאל אם לשמור מפתחות גישה חדשים או להיכנס עם מפתחות גישה השמורים בכספת שלך. חל על כל המשתמשים המחוברים."
   },
   "notificationChangeDesc": {
     "message": "האם ברצונך לעדכן את הסיסמה הזו בתוכנת Bitwarden?"
   },
   "notificationChangeSave": {
-    "message": "כן, עדכן עכשיו"
+    "message": "עדכן"
+  },
+  "notificationUnlockDesc": {
+    "message": "בטל נעילת כספת ה־Bitwarden שלך כדי להשלים את בקשת המילוי האוטומטי."
+  },
+  "notificationUnlock": {
+    "message": "בטל נעילה"
+  },
+  "additionalOptions": {
+    "message": "אפשרויות נוספות"
   },
   "enableContextMenuItem": {
-    "message": "Show context menu options"
+    "message": "הצג אפשרויות תפריט הקשר"
   },
   "contextMenuItemDesc": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. "
+    "message": "השתמש בלחיצה משנית כדי לגשת לחילול סיסמה וכניסות תואמות עבור אתר האינטרנט."
+  },
+  "contextMenuItemDescAlt": {
+    "message": "השתמש בלחיצה משנית כדי לגשת לחילול סיסמה וכניסות תואמות עבור אתר האינטרנט. חל על כל החשבונות המחוברים."
   },
   "defaultUriMatchDetection": {
-    "message": "ברירת מחדל לזיהוי התאמת כתובות",
-    "description": "Default URI match detection for auto-fill."
+    "message": "ברירת מחדל לזיהוי התאמת URI",
+    "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "בחר את שיטת ברירת המחדל עבור זיהוי התאמת כתובות כשמבצעים פעולות השלמה אוטומטית."
+    "message": "בחר את דרך ברירת המחדל לטיפול בזיהוי התאמת URI עבור כניסות כשמבצעים פעולות כגון מילוי אוטומטי."
   },
   "theme": {
     "message": "ערכת נושא"
   },
   "themeDesc": {
     "message": "שנה את ערכת הצבע של האפליקציה."
+  },
+  "themeDescAlt": {
+    "message": "שנה את צבעי ערכת הנושא של היישום. חל על כל החשבונות המחוברים."
   },
   "dark": {
     "message": "כהה",
@@ -641,31 +1236,58 @@
     "message": "בהיר",
     "description": "Light color"
   },
-  "solarizedDark": {
-    "message": "Solarized dark",
-    "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
+  "exportFrom": {
+    "message": "ייצא מ־"
   },
   "exportVault": {
-    "message": "יצוא כספת"
+    "message": "ייצא כספת"
   },
   "fileFormat": {
-    "message": "פורמט קובץ"
+    "message": "פורמט הקובץ"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "קובץ ייצוא זה יהיה מוגן סיסמה ודורש את סיסמת הקובץ כדי לפענח."
+  },
+  "filePassword": {
+    "message": "סיסמת קובץ"
+  },
+  "exportPasswordDescription": {
+    "message": "סיסמה זו תשמש כדי לייצא ולייבא קובץ זה"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "השתמש במפתח הצפנת החשבון שלך, הנגזר משם המשתמש והסיסמה הראשית של חשבונך, כדי להצפין את הייצוא ולהגביל את הייבוא רק לחשבון Bitwarden הנוכחי."
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "הגדר סיסמת קובץ כדי להצפין את הייצוא ולייבא אותו לכל חשבון Bitwarden באמצעות הסיסמה לפענוח."
+  },
+  "exportTypeHeading": {
+    "message": "סוג ייצוא"
+  },
+  "accountRestricted": {
+    "message": "מוגבל חשבון"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "\"סיסמת קובץ\"  ו\"אשר סיסמת קובץ\" אינם תואמים."
   },
   "warning": {
     "message": "אזהרה",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
+  "warningCapitalized": {
+    "message": "אזהרה",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "confirmVaultExport": {
-    "message": "אישור ייצוא כספת"
+    "message": "אשר ייצוא כספת"
   },
   "exportWarningDesc": {
     "message": "הקובץ מכיל את פרטי הכספת שלך בפורמט לא מוצפן. מומלץ להעביר את הקובץ רק בדרכים מוצפנות, ומאוד לא מומלץ לשמור או לשלוח את הקובץ הזה בדרכים לא מוצפנות (כדוגמת סתם אימייל). מחק את הקובץ מיד לאחר שסיימת את השימוש בו."
   },
   "encExportKeyWarningDesc": {
-    "message": "ייצוא זה מצפין את המידע שלך באמצעות שימוש במפתח ההצפנה של חשבונך. אם אי-פעם תבצע החלפה (רוטציה) למפתח ההצפנה של חשבונך, עליך לבצע ייצוא זה שוב אחרת לא תוכל לפענח קובץ ייצוא זה."
+    "message": "ייצוא זה מצפין את הנתונים שלך באמצעות מפתח ההצפנה של חשבונך. אם אי פעם תבצע סיבוב למפתח ההצפנה של חשבונך, תצטרך לייצא שוב משום שלא תוכל לפענח קובץ ייצוא זה."
   },
   "encExportAccountWarningDesc": {
-    "message": "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account."
+    "message": "מפתחות הצפנת חשבון הם ייחודים לכל חשבון משתמש של Bitwarden, לכן אינך יכול לייבא ייצוא מוצפן אל תוך חשבון אחר."
   },
   "exportMasterPassword": {
     "message": "הזן את הסיסמה הראשית שלך עבור יצוא המידע מהכספת."
@@ -673,20 +1295,14 @@
   "shared": {
     "message": "משותף"
   },
-  "learnOrg": {
-    "message": "מידע על ארגונים"
-  },
-  "learnOrgConfirmation": {
-    "message": "Bitwarden allows you to share your vault items with others by using an organization. Would you like to visit the bitwarden.com website to learn more?"
+  "bitwardenForBusinessPageDesc": {
+    "message": "Bitwarden לעסקים מאפשר לך לשתף את פריטי הכספת שלך עם אחרים על ידי שימוש בארגון. למד עוד באתר האינטרנט bitwarden.com."
   },
   "moveToOrganization": {
-    "message": "Move to organization"
-  },
-  "share": {
-    "message": "שתף"
+    "message": "העבר לארגון"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ הועבר ל- $ORGNAME$",
+    "message": "$ITEMNAME$ הועבר אל $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -699,13 +1315,13 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved."
+    "message": "בחר ארגון שאליו ברצונך להעביר פריט זה. העברה אל ארגון מעבירה בעלות של הפריט אל אותו ארגון. לא תוכל להיות הבעלים הישיר של פריט זה ברגע שהוא הועבר."
   },
   "learnMore": {
     "message": "למידע נוסף"
   },
   "authenticatorKeyTotp": {
-    "message": "מפתח אימות (TOTP)"
+    "message": "מפתח מאמת (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "קוד אימות (TOTP)"
@@ -723,55 +1339,61 @@
     "message": "האם אתה בטוח שברצונך למחוק קובץ מצורף זה?"
   },
   "deletedAttachment": {
-    "message": "קובץ מצורף שנמחק"
+    "message": "הצרופה נמחקה"
   },
   "newAttachment": {
-    "message": "צרף קובץ חדש"
+    "message": "הוסף צרופה חדשה"
   },
   "noAttachments": {
     "message": "אין קבצים מצורפים."
   },
   "attachmentSaved": {
-    "message": "הקובץ המצורף נשמר."
+    "message": "הצרופה נשמרה"
   },
   "file": {
     "message": "קובץ"
   },
+  "fileToShare": {
+    "message": "קובץ לשיתוף"
+  },
   "selectFile": {
-    "message": "בחר קובץ."
+    "message": "בחר קובץ"
   },
   "maxFileSize": {
-    "message": "גודל הקובץ המירבי הוא 500 מגה."
+    "message": "גודל הקובץ המרבי הוא 500MB."
   },
   "featureUnavailable": {
-    "message": "יכולת זו לא זמינה"
+    "message": "התכונה אינה זמינה"
   },
-  "updateKey": {
-    "message": "לא ניתן להשתמש ביכולת זו עד שתעדכן את מפתח ההצפנה שלך."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
-    "message": "חשבון פרימיום"
+    "message": "חברות פרימיום"
   },
   "premiumManage": {
-    "message": "נהל חשבון"
+    "message": "נהל חברות"
   },
   "premiumManageAlert": {
     "message": "באפשרותך לנהל את החשבון שלך דרך הכספת באתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
   },
   "premiumRefresh": {
-    "message": "רענן פרטי חשבון"
+    "message": "רענן חברות"
   },
   "premiumNotCurrentMember": {
-    "message": "חשבונך אינו חשבון פרמיום כרגע."
+    "message": "אתה לא חבר פרימיום כרגע."
   },
   "premiumSignUpAndGet": {
-    "message": "צור חשבון פרמיום לשנה, וקבל:"
+    "message": "הירשם לחברות פרימיום וקבל:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 ג'יגה של מקום אחסון עבור קבצים מצורפים."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "אפשרויות כניסה דו שלבית מתקדמות כמו YubiKey, FIDO U2F, וגם Duo."
+  "premiumSignUpEmergency": {
+    "message": "גישת חירום."
+  },
+  "premiumSignUpTwoStepOptions": {
+    "message": "אפשרויות כניסה דו־שלבית קנייניות כגון YubiKey ו־Duo."
   },
   "ppremiumSignUpReports": {
     "message": "היגיינת סיסמאות, מצב בריאות החשבון, ודיווחים מעודכנים על פרצות חדשות בכדי לשמור על הכספת שלך בטוחה."
@@ -783,22 +1405,34 @@
     "message": "קדימות בתמיכה הטכנית."
   },
   "ppremiumSignUpFuture": {
-    "message": "כל יכולות הפרימיום העתידיות שנפתח. עוד יכולות מגיעות בקרוב!"
+    "message": "כל תכונות הפרימיום העתידיות. עוד מגיעות בקרוב!"
   },
   "premiumPurchase": {
     "message": "רכוש פרימיום"
   },
-  "premiumPurchaseAlert": {
-    "message": "באפשרותך לרכוש מנוי פרימיום בכספת באתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?"
+  "premiumPurchaseAlertV2": {
+    "message": "אתה יכול לרכוש פרימיום מהגדרות החשבון שלך ביישום הרשת של Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "אתה מנוי פרימיום!"
+    "message": "אתה חבר פרימיום!"
   },
   "premiumCurrentMemberThanks": {
     "message": "תודה על תמיכתך בBitwarden."
   },
+  "premiumFeatures": {
+    "message": "שדרג לפרימיום וקבל:"
+  },
   "premiumPrice": {
     "message": "הכל רק ב$PRICE$ לשנה!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "הכל רק ב־$PRICE$ לשנה!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -810,31 +1444,25 @@
     "message": "הרענון הושלם"
   },
   "enableAutoTotpCopy": {
-    "message": "Copy TOTP automatically"
+    "message": "העתק TOTP באופן אוטומטי"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "אם פרטי הכניסה שלך מקושרים לאפליקציית אימות, קוד האימות TOTP מועתק אוטומטית ללוח שלך ברגע שמתבצעת ההשלמה האוטומטית לטופס הכניסה."
+    "message": "אם לכניסה שלך יש מפתח מאמת, העתק את קוד האימות ה־TOTP ללוח ההעתקה שלך כאשר אתה ממלא אוטומטית את הכניסה."
   },
   "enableAutoBiometricsPrompt": {
-    "message": "Ask for biometrics on launch"
+    "message": "בקש זיהוי ביומטרי בפתיחה"
   },
   "premiumRequired": {
-    "message": "נדרש חשבון פרימיום"
+    "message": "נדרש פרימיום"
   },
   "premiumRequiredDesc": {
-    "message": "בכדי להשתמש ביכולת זו יש צורך בחשבון פרימיום."
+    "message": "נדרשת חברות פרימיום כדי להשתמש בתכונה זו."
   },
-  "enterVerificationCodeApp": {
-    "message": "הכנס את קוד האימות בן 6 הספרות מאפליקציית האימות שלך."
+  "authenticationTimeout": {
+    "message": "פסק זמן לאימות"
   },
-  "enterVerificationCodeEmail": {
-    "message": "הכנס את קוד האימות בן 6 הספרות שנשלח ל-$EMAIL$.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "example@gmail.com"
-      }
-    }
+  "authenticationSessionTimedOut": {
+    "message": "זמן אימות ההפעלה תם. נא להתחיל מחדש את תהליך הכניסה."
   },
   "verificationCodeEmailSent": {
     "message": "מייל אימות נשלח לכתובת $EMAIL$.",
@@ -845,63 +1473,67 @@
       }
     }
   },
-  "rememberMe": {
-    "message": "זכור אותי"
+  "dontAskAgainOnThisDeviceFor30Days": {
+    "message": "אל תשאל אותי שוב במכשיר זה למשך 30 יום"
   },
-  "sendVerificationCodeEmailAgain": {
-    "message": "שלח שוב קוד אימות לאימייל"
+  "selectAnotherMethod": {
+    "message": "בחר שיטה אחרת",
+    "description": "Select another two-step login method"
   },
-  "useAnotherTwoStepMethod": {
-    "message": "השתמש בשיטה אחרת עבור כניסה דו שלבית"
-  },
-  "insertYubiKey": {
-    "message": "הכנס את ה-YubiKey אל כניסת ה-USB במחשבך, ואז גע בכפתור שלו."
+  "useYourRecoveryCode": {
+    "message": "השתמש בקוד השחזור שלך"
   },
   "insertU2f": {
     "message": "הכנס את מפתח האבטחה שלך אל כניסת ה-USB במחשבך. אם יש לו כפתור, לחץ עליו."
   },
-  "webAuthnNewTab": {
-    "message": "To start the WebAuthn 2FA verification. Click the button below to open a new tab and follow the instructions provided in the new tab."
-  },
-  "webAuthnNewTabOpen": {
-    "message": "פתיחת לשונית חדשה"
+  "openInNewTab": {
+    "message": "פתח בכרטיסיה חדשה"
   },
   "webAuthnAuthenticate": {
-    "message": "Authenticate WebAuthn"
+    "message": "אמת WebAuthn"
+  },
+  "readSecurityKey": {
+    "message": "קרא מפתח אבטחה"
+  },
+  "awaitingSecurityKeyInteraction": {
+    "message": "ממתין לאינטראקציה עם מפתח אבטחה..."
   },
   "loginUnavailable": {
-    "message": "פרטי כניסה לא זמינים"
+    "message": "כניסה לא זמינה"
   },
   "noTwoStepProviders": {
-    "message": "כניסה דו-שלבית פעילה בחשבון זה, אך אף אחד מספקי הכניסה הדו-שלבית לא נתמכים בדפדפן זה."
+    "message": "לחשבון זה מוגדרת כניסה דו־שלבית, עם זאת, אף אחד מהספקים הדו־שלביים שהוגדרו אינו נתמך על ידי דפדפן זה."
   },
   "noTwoStepProviders2": {
     "message": "אנא השתמש בדפדפן נתמך (כמו לדוגמא Chrome) ו\\או הוסף ספק כניסה דו-שלבית הנתמך בדפדפן זה (כמו לדוגמא אפליקצית אימות)."
   },
   "twoStepOptions": {
-    "message": "אפשרויות כניסה דו שלבית"
+    "message": "אפשרויות כניסה דו־שלבית"
+  },
+  "selectTwoStepLoginMethod": {
+    "message": "בחר שיטת כניסה דו־שלבית"
   },
   "recoveryCodeDesc": {
-    "message": "איבדת גישה לכל ספקי האימות הדו-שלבי שלך? השתמש בקוד השחזור בכדי לבטל את כל ספקי האימות הדו-שלבי דרך החשבון שלך."
+    "message": "איבדת גישה לכל הספקים הדו־גורמיים שלך? השתמש בקוד השחזור שלך כדי לכבות את כל הספקים הדו־גורמיים מהחשבון שלך."
   },
   "recoveryCodeTitle": {
     "message": "קוד שחזור"
   },
   "authenticatorAppTitle": {
-    "message": "אפליקציית אימות"
+    "message": "יישום מאמת"
   },
-  "authenticatorAppDesc": {
-    "message": "השתמש באפליקצית אימות (כמו לדוגמא Authy או Google Authenticator) לייצור סיסמאות אימות מבוססות זמן.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "הזן קוד שנוצר על ידי יישום מאמת כמו מאמת Bitwarden.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "מפתח אבטחה OTP של YubiKey"
+  "yubiKeyTitleV2": {
+    "message": "מפתח אבטחה OTP של Yubico"
   },
   "yubiKeyDesc": {
     "message": "השתמש בYubiKey עבור גישה לחשבון שלך. עובד עם YubiKey בגירסאות 4, 4C, 4Nano, ומכשירי NEO."
   },
-  "duoDesc": {
-    "message": "בצע אימות מול Duo Security באמצעות אפליקצית Duo לפלאפון, SMS, שיחת טלפון, או מפתח אבטחה U2F.",
+  "duoDescV2": {
+    "message": "הזן קוד שנוצר על ידי Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -912,73 +1544,147 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Use any WebAuthn compatible security key to access your account."
+    "message": "השתמש בכל מפתח אבטחה תואם WebAuthn כדי לגשת לחשבונך."
   },
   "emailTitle": {
     "message": "אימייל"
   },
-  "emailDesc": {
-    "message": "קודי אימות ישלחו לאימייל שלך."
+  "emailDescV2": {
+    "message": "הזן קוד שנשלח לדוא\"ל שלך."
   },
   "selfHostedEnvironment": {
-    "message": "סביבה על שרתים מקומיים"
+    "message": "סביבה באירוח עצמי"
   },
-  "selfHostedEnvironmentFooter": {
-    "message": "הזן את כתובת השרת המקומי של Bitwarden."
+  "selfHostedBaseUrlHint": {
+    "message": "ציין את בסיס ה־URL של התקנת Bitwarden באירוח מקומי שלך. דוגמה: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "עבור תצורה מתקדמת, באפשרותך לציין את בסיס ה־URL של כל שירות בנפרד."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "אתה מוכרח להוסיף או את בסיס ה־URL של השרת או לפחות סביבה מותאמת אישית אחת."
   },
   "customEnvironment": {
     "message": "סביבה מותאמת אישית"
   },
-  "customEnvironmentFooter": {
-    "message": "למשתמשים מתקדמים. באפשרותך לציין את כתובת השרת עבור כל שירות בנפרד."
-  },
   "baseUrl": {
     "message": "כתובת שרת"
   },
+  "selfHostBaseUrl": {
+    "message": "URL של שרת אירוח עצמי",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
-    "message": "כתובת שרת הAPI"
+    "message": "URL של שרת ה־API"
   },
   "webVaultUrl": {
-    "message": "כתובת שרת הכספת"
+    "message": "URL של שרת כספת הרשת"
   },
   "identityUrl": {
-    "message": "כתובת שרת הזהות"
+    "message": "URL של שרת הזהות"
   },
   "notificationsUrl": {
-    "message": "כתובת שרת הודעות"
+    "message": "URL של שרת ההודעות"
   },
   "iconsUrl": {
-    "message": "כתובת שרת אייקונים"
+    "message": "URL של שרת הסמלים"
   },
   "environmentSaved": {
-    "message": "כתובות הסביבה נשמרו."
+    "message": "כתובות URL של הסביבה נשמרו"
+  },
+  "showAutoFillMenuOnFormFields": {
+    "message": "הצג תפריט מילוי אוטומטי על שדות טופס",
+    "description": "Represents the message for allowing the user to enable the autofill overlay"
+  },
+  "autofillSuggestionsSectionTitle": {
+    "message": "הצעות למילוי אוטומטי"
+  },
+  "autofillSpotlightTitle": {
+    "message": "Easily find autofill suggestions"
+  },
+  "autofillSpotlightDesc": {
+    "message": "Turn off your browser's autofill settings, so they don't conflict with Bitwarden."
+  },
+  "turnOffBrowserAutofill": {
+    "message": "Turn off $BROWSER$ autofill",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "turnOffAutofill": {
+    "message": "Turn off autofill"
+  },
+  "showInlineMenuLabel": {
+    "message": "הצג הצעות למילוי אוטומטי על שדות טופס"
+  },
+  "showInlineMenuIdentitiesLabel": {
+    "message": "הצג זהויות כהצעות"
+  },
+  "showInlineMenuCardsLabel": {
+    "message": "הצג כרטיסים כהצעות"
+  },
+  "showInlineMenuOnIconSelectionLabel": {
+    "message": "הצג הצעות כאשר נבחר סמל"
+  },
+  "showInlineMenuOnFormFieldsDescAlt": {
+    "message": "חל על כל החשבונות המחוברים."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "כבה את הגדרות מנהל הסיסמאות המובנה של הדפדפן שלך כדי להימנע מקונפליקטים."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "ערוך הגדרות דפדפן."
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "כבוי",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "כאשר נבחר שדה (בפוקוס)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "כאשר נבחר סמל מילוי אוטומטי",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
+  "enableAutoFillOnPageLoadSectionTitle": {
+    "message": "מילוי אוטומטי בעת טעינת עמוד"
   },
   "enableAutoFillOnPageLoad": {
-    "message": "הפעל השלמה אוטומטית בזמן טעינת העמוד"
+    "message": "מילוי אוטומטי בעת טעינת עמוד"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "אם זוהה טופס כניסה, בצע אוטומטית מילוי-אוטומטי כשהעמוד נטען."
+    "message": "אם זוהה טופס כניסה, בצע מילוי אוטומטי כשהעמוד נטען."
   },
   "experimentalFeature": {
-    "message": "זוהי אופציה נסיונית. השימוש באופציה זו על אחריותך."
+    "message": "אתרים פרוצים או לא מהימנים יכולים לנצל מילוי אוטומטי בעת טעינת עמוד."
+  },
+  "learnMoreAboutAutofillOnPageLoadLinkText": {
+    "message": "למד עוד על סיכונים"
+  },
+  "learnMoreAboutAutofill": {
+    "message": "למד עוד על מילוי אוטומטי"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "הגדרת ברירת מחדל למילוי אוטומטי של פרטי התחברות"
+    "message": "הגדרת ברירת המחדל של מילוי אוטומטי לפריטי כניסה"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "לאחר הפעלת מילוי אוטומטי של פרטים בעת טעינת דפים, אפשר להפעיל או לכבות את האפשרות לפרטי התחברות ספציפיים. זו הגדרת ברירת המחדל לפרטי התחברות שלא הוגדרו בנפרד."
+    "message": "אתה יכול לכבות מילוי אוטומטי בעת טעינת עמוד עבור פריטי כניסה בודדים מתצוגת העריכה של הפריט."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "מילוי אוטומטי בעת טעינת דפים (אם מופעל בהגדרות)"
+    "message": "מילוי אוטומטי בעת טעינת עמוד (אם מוגדר באפשרויות)"
   },
   "autoFillOnPageLoadUseDefault": {
-    "message": "שימוש בהגדרות ברירת המחדל"
+    "message": "השתמש בהגדרת ברירת המחדל"
   },
   "autoFillOnPageLoadYes": {
-    "message": "מילוי אוטומטי אחרי טעינת דפים"
+    "message": "מילוי אוטומטי בעת טעינת עמוד"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Do not auto-fill on page load"
+    "message": "אל תמלא אוטומטית בעת טעינת עמוד"
   },
   "commandOpenPopup": {
     "message": "פתיחת כספת בחלונית צפה"
@@ -986,17 +1692,20 @@
   "commandOpenSidebar": {
     "message": "פתיחת כספת בסרגל צד"
   },
-  "commandAutofillDesc": {
-    "message": "השתמש בהשלמה-האוטומטית האחרונה שבוצעה באתר זה."
+  "commandAutofillLoginDesc": {
+    "message": "מלא אוטומטית את הכניסה האחרונה בה השתמשת עבור האתר הנוכחי"
+  },
+  "commandAutofillCardDesc": {
+    "message": "מלא אוטומטית את הכרטיס האחרון בו השתמשת עבור האתר הנוכחי"
+  },
+  "commandAutofillIdentityDesc": {
+    "message": "מלא אוטומטית את הזהות האחרונה בה השתמשת עבור האתר הנוכחי"
   },
   "commandGeneratePasswordDesc": {
     "message": "צור והעתק סיסמה רנדומלית חדשה."
   },
   "commandLockVaultDesc": {
     "message": "נעל את הכספת"
-  },
-  "privateModeWarning": {
-    "message": "המצב הפרטי הוא במסגרת ניסוי וחלק מהיכולות מוגבלות."
   },
   "customFields": {
     "message": "שדות מותאמים אישית"
@@ -1013,6 +1722,9 @@
   "dragToSort": {
     "message": "גרור כדי למיין"
   },
+  "dragToReorder": {
+    "message": "גרור כדי לסדר מחדש"
+  },
   "cfTypeText": {
     "message": "טקסט"
   },
@@ -1021,6 +1733,9 @@
   },
   "cfTypeBoolean": {
     "message": "אמת או שקר"
+  },
+  "cfTypeCheckbox": {
+    "message": "תיבת סימון"
   },
   "cfTypeLinked": {
     "message": "מקושר",
@@ -1037,16 +1752,19 @@
     "message": "דפדפן זה לא יכול לעבד בקשות U2F בחלון צף זה. האם ברצונך לפתוח את החלון הצף כחלון חדש רגיל כדי שתוכל להכנס באמצעות U2F?"
   },
   "enableFavicon": {
-    "message": "Show website icons"
+    "message": "הצג סמלי אתר אינטרנט"
   },
   "faviconDesc": {
-    "message": "Show a recognizable image next to each login."
+    "message": "הצג תמונה מוכרת ליד כל כניסה."
+  },
+  "faviconDescAlt": {
+    "message": "הצג תמונה מוכרת ליד כל כניסה. חל על כל החשבונות המחוברים."
   },
   "enableBadgeCounter": {
-    "message": "Show badge counter"
+    "message": "הצג מונה סמל"
   },
   "badgeCounterDesc": {
-    "message": "Indicate how many logins you have for the current web page."
+    "message": "מציין כמה כניסות יש לך עבור עמוד הרשת הנוכחי."
   },
   "cardholderName": {
     "message": "שם בעל הכרטיס"
@@ -1058,10 +1776,10 @@
     "message": "מותג"
   },
   "expirationMonth": {
-    "message": "תוקף אשראי - חודש"
+    "message": "חודש תפוגה"
   },
   "expirationYear": {
-    "message": "תוקף אשראי - שנה"
+    "message": "שנת תפוגה"
   },
   "expiration": {
     "message": "תוקף"
@@ -1123,6 +1841,9 @@
   "dr": {
     "message": "דוקטור"
   },
+  "mx": {
+    "message": "מיקס"
+  },
   "firstName": {
     "message": "שם פרטי"
   },
@@ -1142,13 +1863,13 @@
     "message": "חברה"
   },
   "ssn": {
-    "message": "מספר ביטוח לאומי"
+    "message": "מספר תעודת זהות"
   },
   "passportNumber": {
     "message": "מספר דרכון"
   },
   "licenseNumber": {
-    "message": "מספר רשיון"
+    "message": "מספר רישיון"
   },
   "email": {
     "message": "אימייל"
@@ -1190,7 +1911,7 @@
     "message": "פרטי התחברות"
   },
   "typeSecureNote": {
-    "message": "פתק מאובטח"
+    "message": "הערה מאובטחת"
   },
   "typeCard": {
     "message": "כרטיס"
@@ -1198,14 +1919,65 @@
   "typeIdentity": {
     "message": "זהות"
   },
+  "typeSshKey": {
+    "message": "מפתח SSH"
+  },
+  "typeNote": {
+    "message": "Note"
+  },
+  "newItemHeader": {
+    "message": "$TYPE$ חדש",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "ערוך $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "viewItemHeader": {
+    "message": "הצג $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "passwordHistory": {
     "message": "היסטוריית סיסמאות"
+  },
+  "generatorHistory": {
+    "message": "היסטוריית מחולל"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "נקה היסטוריית מחולל"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "אם תמשיך, כל הרשומות יימחקו לצמיתות מהיסטוריית המחולל. האם אתה בטוח שברצונך להמשיך?"
   },
   "back": {
     "message": "הקודם"
   },
   "collections": {
     "message": "אוספים"
+  },
+  "nCollections": {
+    "message": "$COUNT$ אוספים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "favorites": {
     "message": "מועדפים"
@@ -1226,7 +1998,10 @@
     "message": "פרטי התחברות"
   },
   "secureNotes": {
-    "message": "פתקים מאובטחים"
+    "message": "הערות מאובטחות"
+  },
+  "sshKeys": {
+    "message": "מפתחות SSH"
   },
   "clear": {
     "message": "נקה",
@@ -1251,8 +2026,12 @@
     "message": "שם בסיס הדומיין",
     "description": "Domain name. Ex. website.com"
   },
+  "baseDomainOptionRecommended": {
+    "message": "בסיס דומיין (מומלץ)",
+    "description": "Domain name. Ex. website.com"
+  },
   "domainName": {
-    "message": "שם תחום",
+    "message": "שם דומיין",
     "description": "Domain name. Ex. website.com"
   },
   "host": {
@@ -1271,14 +2050,14 @@
   },
   "matchDetection": {
     "message": "זיהוי התאמה",
-    "description": "URI match detection for auto-fill."
+    "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
     "message": "ברירת מחדל לזיהוי התאמות",
-    "description": "Default URI match detection for auto-fill."
+    "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
-    "message": "הצגה\\הסתרה של אפשרויות"
+    "message": "החלף מצב אפשרויות"
   },
   "toggleCurrentUris": {
     "message": "שנה מצב הצגת כתובות URI",
@@ -1301,6 +2080,15 @@
   "noPasswordsInList": {
     "message": "אין סיסמאות להצגה ברשימה."
   },
+  "clearHistory": {
+    "message": "נקה היסטוריה"
+  },
+  "nothingToShow": {
+    "message": "אין מה להראות"
+  },
+  "nothingGeneratedRecently": {
+    "message": "לא יצרת שום דבר לאחרונה"
+  },
   "remove": {
     "message": "הסר"
   },
@@ -1312,7 +2100,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "Created",
+    "message": "נוצר",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -1359,8 +2147,17 @@
   "unlockWithPin": {
     "message": "בטל נעילה עם קוד PIN"
   },
+  "setYourPinTitle": {
+    "message": "הגדר PIN"
+  },
+  "setYourPinButton": {
+    "message": "הגדר PIN"
+  },
   "setYourPinCode": {
     "message": "קבע קוד PIN לביטול נעילת Bitwarden. הגדרות הPIN יאופסו אם תבצע יציאה מהתוכנה."
+  },
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "נדרש קוד PIN."
@@ -1368,17 +2165,26 @@
   "invalidPin": {
     "message": "קוד PIN לא תקין."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "יותר מדי ניסיונות פסולים להזנת PIN. יוצא."
+  },
   "unlockWithBiometrics": {
     "message": "פתח נעילה עם זיהוי ביומטרי"
+  },
+  "unlockWithMasterPassword": {
+    "message": "בטל נעילה עם סיסמה ראשית"
   },
   "awaitDesktop": {
     "message": "ממתין לאישור משולחן העבודה"
   },
   "awaitDesktopDesc": {
-    "message": "אנא אשר בעזרת אמצעים ביומטרים באפליקציית Bitwarden של שולחן העבודה בכדי לאפשר אמצעים ביומטריים בדפדפן."
+    "message": "אנא אשר באמצעות זיהוי ביומטרי ביישום שולחן העבודה של Bitwarden בכדי להגדיר זיהוי ביומטרי עבור דפדפן."
   },
   "lockWithMasterPassOnRestart": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלת הדפדפן מחדש"
+  },
+  "lockWithMasterPassOnRestart1": {
+    "message": "דרוש סיסמה ראשית בעת הפעלה מחדש של הדפדפן"
   },
   "selectOneCollection": {
     "message": "עליך לבחור לפחות אוסף אחד."
@@ -1389,15 +2195,47 @@
   "clone": {
     "message": "שכפול"
   },
-  "passwordGeneratorPolicyInEffect": {
-    "message": "מדיניות ארגונית אחת או יותר משפיעה על הגדרות המחולל שלך."
+  "passwordGenerator": {
+    "message": "מחולל הסיסמאות"
+  },
+  "usernameGenerator": {
+    "message": "מחולל שם משתמש"
+  },
+  "useThisEmail": {
+    "message": "השתמש בדוא\"ל זה"
+  },
+  "useThisPassword": {
+    "message": "השתמש בסיסמה זו"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
+  },
+  "useThisUsername": {
+    "message": "השתמש בשם משתמש זה"
+  },
+  "securePasswordGenerated": {
+    "message": "סיסמה מאובטחת נוצרה! אל תשכח גם לעדכן את הסיסמה שלך באתר האינטרנט."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "השתמש במחולל",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "כדי ליצור סיסמה חזקה וייחודית",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "vaultCustomization": {
+    "message": "התאמה אישית של הכספת"
   },
   "vaultTimeoutAction": {
-    "message": "פעולה לביצוע בכספת בתום זמן החיבור"
+    "message": "פעולת פסק זמן לכספת"
+  },
+  "vaultTimeoutAction1": {
+    "message": "פעולת פסק זמן"
   },
   "lock": {
     "message": "נעילה",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "סל המחזור",
@@ -1407,40 +2245,70 @@
     "message": "חפש בסל המחזור"
   },
   "permanentlyDeleteItem": {
-    "message": "מחק לצמיתות פריט שנבחר"
+    "message": "מחק פריט לצמיתות"
   },
   "permanentlyDeleteItemConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק את הפריט הזה?"
   },
   "permanentlyDeletedItem": {
-    "message": "פריט שנמחק לצמיתות"
+    "message": "הפריט נמחק לצמיתות"
   },
   "restoreItem": {
     "message": "שחזר פריט"
   },
-  "restoreItemConfirmation": {
-    "message": "האם אתה בטוח שברצונך לשחזר פריט זה?"
-  },
   "restoredItem": {
-    "message": "פריט ששוחזר"
+    "message": "הפריט שוחזר"
+  },
+  "alreadyHaveAccount": {
+    "message": "כבר יש לך חשבון?"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "יציאה מהחשבון תסיר את כל הגישה לכספת ויידרש אימות מקוון לאחר משך הזמן שהוקצב. האם אתה בטוח שברצונך להשתמש בהגדרה זו?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "אישור פעולת אימות לאחר חוסר פעילות"
+    "message": "אישור פעולת פסק זמן"
   },
   "autoFillAndSave": {
-    "message": "בצע השלמה אוטומטית ושמור"
+    "message": "מלא אוטומטית ושמור"
+  },
+  "fillAndSave": {
+    "message": "מלא ושמור"
   },
   "autoFillSuccessAndSavedUri": {
-    "message": "בוצעה השלמה אוטומטית והכתובת נשמרה"
+    "message": "הפריט מולא אוטומטית וה־URI נשמר"
   },
   "autoFillSuccess": {
-    "message": "בוצעה השלמה אוטומטית"
+    "message": "הפריט מולא אוטומטית "
+  },
+  "insecurePageWarning": {
+    "message": "אזהרה: זהו עמוד HTTP לא מאובטח, וכל מידע שאתה שולח יכול באופן פוטנציאלי להיראות ולהשתנות על ידי אחרים. הכניסה הזאת נשמרה במקור בעמוד מאובטח (HTTPS)."
+  },
+  "insecurePageWarningFillPrompt": {
+    "message": "האם עדיין ברצונך להשלים כניסה זו?"
+  },
+  "autofillIframeWarning": {
+    "message": "הטופס מאורח על ידי דומיין שונה מה־URI של הכניסה השמורה שלך. בחר \"בסדר\" כדי למלא אוטומטית בכל זאת, או \"ביטול\" כדי לעצור."
+  },
+  "autofillIframeWarningTip": {
+    "message": "כדי למנוע אזהרה זו בעתיד, שמור את URI זה, $HOSTNAME$, בפריט כניסת Bitwarden שלך עבור אתר זה.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
   },
   "setMasterPassword": {
     "message": "הגדר סיסמה ראשית"
+  },
+  "currentMasterPass": {
+    "message": "סיסמה ראשית נוכחית"
+  },
+  "newMasterPass": {
+    "message": "סיסמה ראשית חדשה"
+  },
+  "confirmNewMasterPass": {
+    "message": "אמת סיסמה ראשית חדשה"
   },
   "masterPasswordPolicyInEffect": {
     "message": "אחד או יותר מאילוצי המדיניות של הארגון דורשים שהסיסמה הראשית שלך תעמוד בדרישות הבאות:"
@@ -1484,11 +2352,26 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "הסיסמה הראשית החדשה השלך לא עומדת בדרישות המדיניות."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך."
+  },
+  "unsubscribe": {
+    "message": "בטל הרשמה"
+  },
+  "atAnyTime": {
+    "message": "בכל זמן."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "על ידי המשך, אתה מסכים ל"
+  },
+  "and": {
+    "message": "ו"
+  },
   "acceptPolicies": {
     "message": "סימון תיבה זו מהווה את הסכמתך לתנאים הבאים:"
   },
   "acceptPoliciesRequired": {
-    "message": "Terms of Service and Privacy Policy have not been acknowledged."
+    "message": "תנאי השימוש ומדיניות הפרטיות לא הוכרו."
   },
   "termsOfService": {
     "message": "תנאי השירות"
@@ -1496,11 +2379,20 @@
   "privacyPolicy": {
     "message": "מדיניות הפרטיות"
   },
+  "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
+    "message": "לא ניתן להשתמש בסיסמה בתור רמז לסיסמה."
+  },
   "hintEqualsPassword": {
     "message": "רמז הסיסמה שלך לא יכול להיות זהה לסיסמה שלך."
   },
   "ok": {
     "message": "אישור"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "שגיאת רענון אסימון גישה"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "לא נמצאו אסימון רענון או מפתחות API. נא לנסות לצאת ולהיכנס חזרה."
   },
   "desktopSyncVerificationTitle": {
     "message": "אימות סנכרון מול שולחן העבודה"
@@ -1509,19 +2401,19 @@
     "message": "אנא ודא כי אפליקציית שולחן העבודה שלך מציגה את טביעת האצבע הזו: "
   },
   "desktopIntegrationDisabledTitle": {
-    "message": "אינטגרציית הדפדפן לא מופעלת"
+    "message": "שילוב הדפדפן אינו מוגדר"
   },
   "desktopIntegrationDisabledDesc": {
-    "message": "אינטגרציית הדפדפן לא מופעלת באפליקציית Bitwarden בשולחן העבודה. אנא אפשר זאת בהגדרות האפליקציה."
+    "message": "שילוב הדפדפן אינו מוגדר ביישום שולחן העבודה של Bitwarden. אנא הגדר אותו בהגדרות שבתוך יישום שולחן העבודה."
   },
   "startDesktopTitle": {
-    "message": "הפעל את אפליקציית Bitwarden בשולחן העבודה"
+    "message": "הפעל את יישום שולחן העבודה של Bitwarden"
   },
   "startDesktopDesc": {
-    "message": "יש להפעיל את אפליקציית Bitwarden בשולחן העבודה בכדי להשתמש בפונקציה זו."
+    "message": "יישום שולחן העבודה של Bitwarden צריך להיות מופעל לפני שניתן לבטל נעילה עם זיהוי ביומטרי."
   },
   "errorEnableBiometricTitle": {
-    "message": "לא ניתן להפעיל זיהוי ביומטרי"
+    "message": "לא ניתן להגדיר זיהוי ביומטרי"
   },
   "errorEnableBiometricDesc": {
     "message": "הפעולה בוטלה על ידי אפליקציית שולחן העבודה"
@@ -1538,17 +2430,41 @@
   "nativeMessagingWrongUserTitle": {
     "message": "חוסר התאמה בין חשבונות"
   },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "אי־התאמה של מפתח זיהוי ביומטרי"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "ביטול נעילה ביומטרי נכשל. מפתח הסוד הביומטרי נכשל בביטול נעילת הכספת. נא לנסות להגדיר זיהוי ביומטרי שוב."
+  },
   "biometricsNotEnabledTitle": {
-    "message": "אמצעי זיהוי ביומטרים לא מאופשרים"
+    "message": "זיהוי ביומטרי אינו מוגדר"
   },
   "biometricsNotEnabledDesc": {
-    "message": "בכדי להשתמש באמצעים ביומטרים בדפדפן יש לאפשר תכונה זו באפליקציה בשולחן העבודה."
+    "message": "זיהוי ביומטרי בדפדפן דורש שזיהוי ביומטרי בשולחן העבודה יהיה מוגדר בהגדרות קודם."
   },
   "biometricsNotSupportedTitle": {
     "message": "אמצעי זיהוי ביומטרים לא נתמכים"
   },
   "biometricsNotSupportedDesc": {
     "message": "מכשיר זה לא תומך בזיהוי ביומטרי בדפדפן."
+  },
+  "biometricsNotUnlockedTitle": {
+    "message": "המשתמש נעל או יצא"
+  },
+  "biometricsNotUnlockedDesc": {
+    "message": "נא לבטל נעילת משתמש זה ביישום שולחן העבודה ולנסות שוב."
+  },
+  "biometricsNotAvailableTitle": {
+    "message": "ביטול נעילה ביומטרי לא זמין"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "ביטול נעילה ביומטרי לא זמין כרגע. נא לנסות שוב מאוחר יותר."
+  },
+  "biometricsFailedTitle": {
+    "message": "זיהוי ביומטרי נכשל"
+  },
+  "biometricsFailedDesc": {
+    "message": "לא ניתן להשלים זיהוי ביומטרי, שקול להשתמש במפתח ראשי או לצאת. אם הדבר נמשך, אנא צור קשר עם תמיכת Bitwarden."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "הרשאה לא סופקה"
@@ -1557,133 +2473,317 @@
     "message": "ללא הרשאות לתקשר עם אפליקציית שולחן העבודה אין באפשרותנו לספק תמיכה באמצעים ביומטריים בדפדפן. אנא נסה שוב."
   },
   "nativeMessaginPermissionSidebarTitle": {
-    "message": "Permission request error"
+    "message": "שגיאת בקשת הרשאה"
   },
   "nativeMessaginPermissionSidebarDesc": {
-    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
+    "message": "לא ניתן לבצע את הפעולה בסרגל הצד, נא לנסות שוב את הפעולה בחלון הצץ או המוקפץ."
   },
   "personalOwnershipSubmitError": {
-    "message": "מדיניות הארגון מונעת ממך לשמור פריטים בכספת האישית. שנה את אפשרות הבעלות לארגוניות ובחר מתוך האוספים הזמינים."
+    "message": "בשל מדיניות ארגונית, אתה מוגבל מלשמור פריטים לכספת האישית שלך. שנה את אפשרות הבעלות לארגון ובחר מאוספים זמינים."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "מדיניות ארגונית משפיעה על אפשרויות הבעלות שלך."
   },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "מדיניות ארגון חסמה ייבוא פריטים אל תוך הכספת האישית שלך."
+  },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
+  "domainsTitle": {
+    "message": "דומיינים",
+    "description": "A category title describing the concept of web domains"
+  },
+  "blockedDomains": {
+    "message": "דומיינים חסומים"
+  },
+  "learnMoreAboutBlockedDomains": {
+    "message": "למד עוד על דומיינים חסומים"
+  },
   "excludedDomains": {
-    "message": "Excluded domains"
+    "message": "דומיינים מוחרגים"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden will not ask to save login details for these domains. You must refresh the page for changes to take effect."
+    "message": "Bitwarden לא יבקש לשמור פרטי כניסה עבור הדומיינים האלה. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
+  },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden לא יבקש לשמור פרטי כניסה עבור הדומיינים האלה עבור כל החשבונות המחוברים. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
+  },
+  "blockedDomainsDesc": {
+    "message": "לא יוצעו מילוי אוטומטי ותכונות קשורות אחרות עבור האתרים האלה. אתה מוכרח לרענן את העמוד כדי שהשינויים ייכנסו לתוקף."
+  },
+  "autofillBlockedNoticeV2": {
+    "message": "מילוי אוטומטי חסום עבור אתר זה."
+  },
+  "autofillBlockedNoticeGuidance": {
+    "message": "שנה זאת בהגדרות"
+  },
+  "change": {
+    "message": "שינוי"
+  },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
+  "changeButtonTitle": {
+    "message": "שנה סיסמה - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
+  },
+  "atRiskPasswords": {
+    "message": "סיסמאות בסיכון"
+  },
+  "atRiskPasswordDescSingleOrg": {
+    "message": "$ORGANIZATION$ מבקש/ת ממך לשנות סיסמה אחת בגלל שהיא בסיכון.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "atRiskPasswordsDescSingleOrgPlural": {
+    "message": "$ORGANIZATION$ מבקש/ת ממך לשנות $COUNT$ סיסמאות בגלל שהן בסיכון.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      },
+      "count": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskPasswordsDescMultiOrgPlural": {
+    "message": "הארגונים שלך מבקשים שתשנה $COUNT$ סיסמאות בגלל שהן בסיכון.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
+  },
+  "reviewAndChangeAtRiskPassword": {
+    "message": "סקור ושנה סיסמה אחת בסיכון"
+  },
+  "reviewAndChangeAtRiskPasswordsPlural": {
+    "message": "סקור ושנה $COUNT$ סיסמאות בסיכון",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "changeAtRiskPasswordsFaster": {
+    "message": "שנה סיסמאות בסיכון מהר יותר"
+  },
+  "changeAtRiskPasswordsFasterDesc": {
+    "message": "עדכן את ההגדרות שלך כך שתוכל למלא במהירות את הסיסמאות שלך וליצור חדשות"
+  },
+  "reviewAtRiskLogins": {
+    "message": "סקור כניסות בסיכון"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "סקור סיסמאות בסיכון"
+  },
+  "reviewAtRiskLoginsSlideDesc": {
+    "message": "סיסמאות הארגון שלך הן בסכנה בגלל שהן חלשות, משומשות, ו/או חשופות.",
+    "description": "Description of the review at-risk login slide on the at-risk password page carousel"
+  },
+  "reviewAtRiskLoginSlideImgAltPeriod": {
+    "message": "Illustration of a list of logins that are at-risk."
+  },
+  "generatePasswordSlideDesc": {
+    "message": "צור במהירות סיסמה חזקה וייחודית עם תפריט המילוי האוטומטי של Bitwarden באתר שבסיכון.",
+    "description": "Description of the generate password slide on the at-risk password page carousel"
+  },
+  "generatePasswordSlideImgAltPeriod": {
+    "message": "Illustration of the Bitwarden autofill menu displaying a generated password."
+  },
+  "updateInBitwarden": {
+    "message": "עדכן ב־Bitwarden"
+  },
+  "updateInBitwardenSlideDesc": {
+    "message": "Bitwarden אז ינחה אותך לעדכן את הסיסמה במנהל הסיסמאות.",
+    "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
+  },
+  "updateInBitwardenSlideImgAltPeriod": {
+    "message": "Illustration of a Bitwarden’s notification prompting the user to update the login."
+  },
+  "turnOnAutofill": {
+    "message": "הפעל מילוי אוטומטי"
+  },
+  "turnedOnAutofill": {
+    "message": "מילוי אוטומטי הופעל"
+  },
+  "dismiss": {
+    "message": "התעלם"
+  },
+  "websiteItemLabel": {
+    "message": "אתר אינטרנט $number$ (URI)",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "excludedDomainsInvalidDomain": {
-    "message": "$DOMAIN$ is not a valid domain",
+    "message": "$DOMAIN$ אינו דומיין חוקי",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "duckduckgo.com"
+      }
+    }
+  },
+  "blockedDomainsSavedSuccess": {
+    "message": "שינויי דומיין חסום נשמרו"
+  },
+  "excludedDomainsSavedSuccess": {
+    "message": "שינויי דומיין מוחרג נשמרו"
+  },
+  "limitSendViews": {
+    "message": "הגבל צפיות"
+  },
+  "limitSendViewsHint": {
+    "message": "אף אחד לא יכול לצפות בסֵנְד זה לאחר ההגעה למגבלה.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ צפיות נותרו",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
       }
     }
   },
   "send": {
-    "message": "Send",
+    "message": "סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "searchSends": {
-    "message": "Search Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "addSend": {
-    "message": "Add Send",
+  "sendDetails": {
+    "message": "פרטי סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
-    "message": "Text"
+    "message": "טקסט"
+  },
+  "sendTypeTextToShare": {
+    "message": "טקסט לשיתוף"
   },
   "sendTypeFile": {
-    "message": "File"
+    "message": "קובץ"
   },
   "allSends": {
-    "message": "All Sends",
+    "message": "כל הסֵנְדים",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "Max access count reached",
+    "message": "מספר הגישות המרבי הושג",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
-  "expired": {
-    "message": "Expired"
+  "hideTextByDefault": {
+    "message": "הסתר טקסט כברירת מחדל"
   },
-  "pendingDeletion": {
-    "message": "Pending deletion"
+  "expired": {
+    "message": "פג תוקף"
   },
   "passwordProtected": {
-    "message": "Password protected"
+    "message": "מוגן סיסמה"
+  },
+  "copyLink": {
+    "message": "העתק קישור"
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "העתק קישור סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "removePassword": {
-    "message": "Remove Password"
+    "message": "הסר סיסמה"
   },
   "delete": {
-    "message": "Delete"
+    "message": "מחק"
   },
   "removedPassword": {
-    "message": "Password removed"
+    "message": "הסיסמה הוסרה"
   },
   "deletedSend": {
-    "message": "Send deleted",
+    "message": "סֵנְד נמחק",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLink": {
-    "message": "Send link",
+    "message": "קישור סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
-    "message": "Disabled"
+    "message": "מושבת"
   },
   "removePasswordConfirmation": {
-    "message": "Are you sure you want to remove the password?"
+    "message": "האם אתה בטוח שברצונך להסיר את הסיסמה?"
   },
   "deleteSend": {
-    "message": "Delete Send",
+    "message": "מחק סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendConfirmation": {
-    "message": "Are you sure you want to delete this Send?",
+    "message": "האם אתה בטוח שברצונך למחוק סֵנְד זה?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deleteSendPermanentConfirmation": {
+    "message": "האם אתה בטוח שברצונך למחוק לצמיתות סֵנְד זה?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
-    "message": "Edit Send",
+    "message": "ערוך סֵנְד",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTypeHeader": {
-    "message": "What type of Send is this?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNameDesc": {
-    "message": "A friendly name to describe this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFileDesc": {
-    "message": "הקובץ שברצונך לשלוח."
   },
   "deletionDate": {
     "message": "תאריך מחיקה"
   },
-  "deletionDateDesc": {
-    "message": "The Send will be permanently deleted on the specified date and time.",
+  "deletionDateDescV2": {
+    "message": "סֵנְד זה יימחק לצמיתות בתאריך זה.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
     "message": "תאריך תפוגה"
   },
-  "expirationDateDesc": {
-    "message": "במידה ויוגדר, הגישה ל Send זה תושבת בתאריך ובשעה שהוגדרו.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "oneDay": {
-    "message": "יום אחד"
+    "message": "יום 1"
   },
   "days": {
     "message": "$DAYS$ ימים",
@@ -1697,151 +2797,191 @@
   "custom": {
     "message": "מותאם אישית"
   },
-  "maximumAccessCount": {
-    "message": "כמות גישות מרבית"
-  },
-  "maximumAccessCountDesc": {
-    "message": "במידה ויוגדר, משתמשים לא יוכלו יותר לגשת ל Send זה לאחר שמספר הגישות המרבי יושג.",
+  "sendPasswordDescV3": {
+    "message": "הוסף סיסמה אופציונלית עבור נמענים כדי לגשת לסֵנְד זה.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendPasswordDesc": {
-    "message": "Optionally require a password for users to access this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendNotesDesc": {
-    "message": "Private notes about this Send.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisableDesc": {
-    "message": "Deactivate this Send so that no one can access it.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendShareDesc": {
-    "message": "Copy this Send's link to clipboard upon save.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendTextDesc": {
-    "message": "The text you want to send."
-  },
-  "sendHideText": {
-    "message": "Hide this Send's text by default.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "currentAccessCount": {
-    "message": "Current access count"
   },
   "createSend": {
-    "message": "New Send",
+    "message": "סֵנְד חדש",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
-    "message": "New password"
+    "message": "סיסמה חדשה"
   },
   "sendDisabled": {
-    "message": "Send removed",
+    "message": "סֵנְד הוסר",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "Due to an enterprise policy, you are only able to delete an existing Send.",
+    "message": "בשל מדיניות ארגונית, אתה יכול למחוק רק סֵנְד קיים.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Send created",
+    "message": "סֵנְד נוצר",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdSendSuccessfully": {
+    "message": "סֵנְד נוצר בהצלחה!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresInHoursSingle": {
+    "message": "הסֵנְד יהיה זמין לכל אחד עם הקישור במשך השעה הבאה.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresInHours": {
+    "message": "הסֵנְד יהיה זמין לכל אחד עם הקישור במשך $HOURS$ השעות הבאות.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendExpiresInDaysSingle": {
+    "message": "הסֵנְד יהיה זמין לכל אחד עם הקישור במשך היום הבא.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresInDays": {
+    "message": "הסֵנְד יהיה זמין לכל אחד עם הקישור במשך $DAYS$ הימים הבאים.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendLinkCopied": {
+    "message": "קישור סֵנְד הועתק",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
-    "message": "Send saved",
+    "message": "סֵנְד נשמר",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendFilePopoutDialogText": {
+    "message": "להקפיץ הרחבה?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendFilePopoutDialogDesc": {
+    "message": "כדי ליצור קובץ סֵנְד, אתה צריך להקפיץ את ההרחבה לחלון חדש.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLinuxChromiumFileWarning": {
-    "message": "In order to choose a file, open the extension in the sidebar (if possible) or pop out to a new window by clicking this banner."
+    "message": "כדי לבחור קובץ, פתח את ההרחבה בסרגל הצד (אם ניתן) או הקפץ לחלון חדש על ידי לחיצת באנר זה."
   },
   "sendFirefoxFileWarning": {
-    "message": "In order to choose a file using Firefox, open the extension in the sidebar or pop out to a new window by clicking this banner."
+    "message": "כדי לבחור קובץ באמצעות Firefox, פתח את ההרחבה בסרגל הצד או הקפץ לחלון חדש על ידי לחיצת באנר זה."
   },
   "sendSafariFileWarning": {
-    "message": "In order to choose a file using Safari, pop out to a new window by clicking this banner."
+    "message": "כדי לבחור קובץ באמצעות Safari, הקפץ לחלון חדש על ידי לחיצת באנר זה."
+  },
+  "popOut": {
+    "message": "הקפץ"
   },
   "sendFileCalloutHeader": {
-    "message": "Before you start"
-  },
-  "sendFirefoxCustomDatePopoutMessage1": {
-    "message": "To use a calendar style date picker",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "click here",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
-  },
-  "sendFirefoxCustomDatePopoutMessage3": {
-    "message": "to pop out your window.",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker click here **to pop out your window.**'"
+    "message": "לפני שאתה מתחיל"
   },
   "expirationDateIsInvalid": {
-    "message": "The expiration date provided is not valid."
+    "message": "תאריך התפוגה שסופק אינו חוקי."
   },
   "deletionDateIsInvalid": {
-    "message": "The deletion date provided is not valid."
+    "message": "תאריך המחיקה שסופק אינו חוקי."
   },
   "expirationDateAndTimeRequired": {
-    "message": "An expiration date and time are required."
+    "message": "נדרשים תאריך וזמן תפוגה."
   },
   "deletionDateAndTimeRequired": {
-    "message": "A deletion date and time are required."
+    "message": "נדרשים תאריך וזמן מחיקה."
   },
   "dateParsingError": {
-    "message": "There was an error saving your deletion and expiration dates."
+    "message": "הייתה שגיאה בשמירת תאריכי המחיקה והתפוגה שלך."
   },
-  "hideEmail": {
-    "message": "Hide my email address from recipients."
-  },
-  "sendOptionsPolicyInEffect": {
-    "message": "One or more organization policies are affecting your Send options."
+  "hideYourEmail": {
+    "message": "הסתר את כתובת הדוא\"ל שלך מצופים."
   },
   "passwordPrompt": {
-    "message": "Master password re-prompt"
+    "message": "בקשה חוזרת של סיסמה ראשית"
   },
   "passwordConfirmation": {
-    "message": "Master password confirmation"
+    "message": "אישור סיסמה ראשית"
   },
   "passwordConfirmationDesc": {
-    "message": "This action is protected. To continue, please re-enter your master password to verify your identity."
+    "message": "פעולה זו מוגנת. כדי להמשיך, נא להזין שוב את הסיסמה הראשית שלך כדי לאמת את זהותך."
   },
   "emailVerificationRequired": {
-    "message": "Email verification required"
+    "message": "נדרש אימות דוא\"ל"
+  },
+  "emailVerifiedV2": {
+    "message": "דוא\"ל אומת"
   },
   "emailVerificationRequiredDesc": {
-    "message": "You must verify your email to use this feature. You can verify your email in the web vault."
+    "message": "עליך לאמת את הדוא\"ל שלך כדי להשתמש בתכונה זו. ניתן לאמת את הדוא\"ל שלך בכספת הרשת."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
-    "message": "Updated master password"
+    "message": "סיסמה ראשית עודכנה"
   },
   "updateMasterPassword": {
-    "message": "Update master password"
+    "message": "עדכן סיסמה ראשית"
   },
   "updateMasterPasswordWarning": {
-    "message": "Your master password was recently changed by an administrator in your organization. In order to access the vault, you must update it now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+    "message": "הסיסמה הראשית שלך שונתה לאחרונה על ידי מנהל הארגון שלך. כדי לגשת לכספת, עליך לעדכן אותה כעת. המשך התהליך יוציא אותך מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
+  },
+  "updateWeakMasterPasswordWarning": {
+    "message": "הסיסמה הראשית שלך אינה עומדת באחת או יותר מפוליסות הארגון שלך. כדי לגשת לכספת, אתה מוכרח לעדכן את הסיסמה הראשית שלך עכשיו. בהמשך תנותק מההפעלה הנוכחית שלך, מה שידרוש ממך להיכנס חזרה. הפעלות פעילות במכשירים אחרים עלולות להישאר פעילות למשך עד שעה אחת."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "הארגון שלך השבית הצפנת מכשיר מהימן. נא להגדיר סיסמה ראשית כדי לגשת לכספת שלך."
   },
   "resetPasswordPolicyAutoEnroll": {
-    "message": "Automatic enrollment"
+    "message": "רישום אוטומטי"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "This organization has an enterprise policy that will automatically enroll you in password reset. Enrollment will allow organization administrators to change your master password."
+    "message": "לארגון זה יש מדיניות ארגונית שתרשום אותך באופן אוטומטי לאיפוס סיסמה. הרישום יאפשר למנהלי הארגון לשנות את הסיסמה הראשית שלך."
   },
   "selectFolder": {
-    "message": "Select folder..."
+    "message": "בחר תיקייה..."
   },
-  "ssoCompleteRegistration": {
-    "message": "In order to complete logging in with SSO, please set a master password to access and protect your vault."
+  "noFoldersFound": {
+    "message": "לא נמצאו תיקיות",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "הרשאות הארגון שלך עודכנו, מה שמאלץ אותך להגדיר סיסמה ראשית.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "הארגון שלך דורש ממך להגדיר סיסמה ראשית.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "cardMetrics": {
+    "message": "מתוך $TOTAL$",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "verificationRequired": {
+    "message": "נדרש אימות",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
-    "message": "Hours"
+    "message": "שעות"
   },
   "minutes": {
-    "message": "Minutes"
+    "message": "דקות"
+  },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "דרישות מדיניות ארגונית הוחלו על אפשרויות פסק הזמן שלך"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies are affecting your vault timeout. Maximum allowed Vault Timeout is $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "פוליסות הארגון שלך הגדירו את פסק הזמן לכספת המרבי שלך ל־$HOURS$ שעות ו־$MINUTES$ דקות.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -1853,56 +2993,108 @@
       }
     }
   },
-  "vaultTimeoutTooLarge": {
-    "message": "הזמן הקצוב לכספת שלך חורג מהמגבלות שנקבעו על ידי הארגון שלך."
-  },
-  "vaultExportDisabled": {
-    "message": "Vault export unavailable"
-  },
-  "personalVaultExportPolicyInEffect": {
-    "message": "One or more organization policies prevents you from exporting your individual vault."
-  },
-  "copyCustomFieldNameInvalidElement": {
-    "message": "Unable to identify a valid form element. Try inspecting the HTML instead."
-  },
-  "copyCustomFieldNameNotUnique": {
-    "message": "No unique identifier found."
-  },
-  "convertOrganizationEncryptionDesc": {
-    "message": "$ORGANIZATION$ משתמשים ב־SSO עם שרת מפתחות באירוח עצמי. סיסמה ראשית לא נחוצה יותר לטובת כניסה לחברי הארגון.",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ שעות ו־$MINUTES$ דקות לכל היותר.",
     "placeholders": {
-      "organization": {
+      "hours": {
         "content": "$1",
-        "example": "My Org Name"
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
       }
     }
   },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "פסק זמן חורג את ההגבלה שהוגדרה על ידי הארגון שלך: $HOURS$ שעות ו־$MINUTES$ דקות לכל היותר",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyWithActionInEffect": {
+    "message": "פוליסות הארגון שלך משפיעות על פסק הזמן לכספת שלך. פסק זמן מרבי המותר הוא $HOURS$ שעות ו־$MINUTES$ דקות. פעולת פסק הזמן לכספת שלך מוגדרת ל$ACTION$.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      },
+      "action": {
+        "content": "$3",
+        "example": "Lock"
+      }
+    }
+  },
+  "vaultTimeoutActionPolicyInEffect": {
+    "message": "פוליסות הארגון שלך הגדירו את פעולת פסק הזמן לכספת שלך ל$ACTION$.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Lock"
+      }
+    }
+  },
+  "vaultTimeoutTooLarge": {
+    "message": "פסק הזמן לכספת שלך חורג מהמגבלות שנקבעו על ידי הארגון שלך."
+  },
+  "vaultExportDisabled": {
+    "message": "ייצוא כספת לא זמין"
+  },
+  "personalVaultExportPolicyInEffect": {
+    "message": "מדיניות ארגון אחת או יותר מונעת ממך מלייצא את הכספת האישית שלך."
+  },
+  "copyCustomFieldNameInvalidElement": {
+    "message": "לא ניתן לזהות רכיב טופס חוקי. נסה לבדוק את ה־HTML במקום זאת."
+  },
+  "copyCustomFieldNameNotUnique": {
+    "message": "לא נמצא מזהה ייחודי."
+  },
+  "removeMasterPasswordForOrganizationUserKeyConnector": {
+    "message": "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator."
+  },
+  "organizationName": {
+    "message": "Organization name"
+  },
+  "keyConnectorDomain": {
+    "message": "Key Connector domain"
+  },
   "leaveOrganization": {
-    "message": "לעזוב את הארגון"
+    "message": "עזוב ארגון"
   },
   "removeMasterPassword": {
-    "message": "הסרת סיסמה ראשית"
+    "message": "הסר סיסמה ראשית"
   },
   "removedMasterPassword": {
-    "message": "הסיסמה הראשית הוסרה."
+    "message": "הסיסמה הראשית הוסרה"
   },
   "leaveOrganizationConfirmation": {
-    "message": "לעזוב את הארגון?"
+    "message": "האם אתה בטוח שברצונך לעזוב את הארגון הזה?"
   },
   "leftOrganization": {
     "message": "עזבת את הארגון."
   },
   "toggleCharacterCount": {
-    "message": "החלפת מצב ספירת תווים"
+    "message": "החלף מצב מונה תווים"
   },
   "sessionTimeout": {
-    "message": "Your session has timed out. Please go back and try logging in again."
+    "message": "זמן ההפעלה שלך תם. נא לחזור ולנסות להיכנס שוב."
   },
   "exportingPersonalVaultTitle": {
-    "message": "הכספת האישית מיוצאת"
+    "message": "מייצא כספת אישית"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "רק פריטי הכספת האישית שמשויכת אל $EMAIL$ ייוצאו. פריטי הכספת הארגוניים לא יהיו חלק מהייצוא.",
+  "exportingIndividualVaultDescription": {
+    "message": "רק פריטי הכספת האישית המשויכת עם $EMAIL$ ייוצאו. פריטי כספת ארגון לא יכללו. רק פרטי פריט כספת ייוצאו ולא יכללו צרופות משויכות.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1910,82 +3102,273 @@
       }
     }
   },
+  "exportingIndividualVaultWithAttachmentsDescription": {
+    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      }
+    }
+  },
+  "exportingOrganizationVaultTitle": {
+    "message": "מייצא כספת ארגון"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "רק כספת הארגון המשויכת עם $ORGANIZATION$ תיוצא. פריטים בכספת אישית או ארגונים אחרים לא יכללו.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
+      }
+    }
+  },
   "error": {
     "message": "שגיאה"
   },
-  "regenerateUsername": {
-    "message": "Regenerate username"
+  "decryptionError": {
+    "message": "שגיאת פענוח"
+  },
+  "couldNotDecryptVaultItemsBelow": {
+    "message": "Bitwarden לא יכל לפענח את פריט(י) הכספת המפורט(ים) להלן."
+  },
+  "contactCSToAvoidDataLossPart1": {
+    "message": "צור קשר עם הצלחת לקוחות",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
+  },
+  "contactCSToAvoidDataLossPart2": {
+    "message": "כדי למנוע אובדן נתונים נוסף.",
+    "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "generateUsername": {
-    "message": "Generate username"
+    "message": "צור שם משתמש"
   },
-  "usernameType": {
-    "message": "סוג שם משתמש"
+  "generateEmail": {
+    "message": "צור דוא\"ל"
+  },
+  "spinboxBoundariesHint": {
+    "message": "הערך חייב להיות בין $MIN$ ל־$MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " השתמש ב־$RECOMMENDED$ תווים או יותר כדי ליצור סיסמה חזקה.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " השתמש ב־$RECOMMENDED$ מילים או יותר כדי ליצור ביטוי סיסמה חזק.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "plusAddressedEmail": {
-    "message": "Plus addressed email",
+    "message": "דוא\"ל ממוען בפלוס",
     "description": "Username generator option that appends a random sub-address to the username. For example: address+subaddress@email.com"
   },
   "plusAddressedEmailDesc": {
-    "message": "Use your email provider's sub-addressing capabilities."
+    "message": "השתמש ביכולות מיעון משנה של ספק הדוא\"ל שלך."
   },
   "catchallEmail": {
-    "message": "Catch-all email"
+    "message": "דוא\"ל תופס־כל"
   },
   "catchallEmailDesc": {
-    "message": "Use your domain's configured catch-all inbox."
+    "message": "השתמש בתיבת דואר תפוס־כל המוגדרת בדומיין שלך."
   },
   "random": {
-    "message": "Random"
+    "message": "אקראי"
   },
   "randomWord": {
-    "message": "Random word"
+    "message": "מילה אקראית"
   },
   "websiteName": {
-    "message": "Website name"
-  },
-  "whatWouldYouLikeToGenerate": {
-    "message": "What would you like to generate?"
-  },
-  "passwordType": {
-    "message": "Password type"
+    "message": "שם אתר"
   },
   "service": {
-    "message": "Service"
+    "message": "שירות"
   },
   "forwardedEmail": {
-    "message": "כתובת דוא״ל להעברה"
+    "message": "כינוי דוא\"ל מועבר"
   },
   "forwardedEmailDesc": {
-    "message": "יצירת כינוי דוא״ל עם שירות העברה חיצוני."
+    "message": "צור כינוי דוא\"ל עם שירות העברה חיצוני."
+  },
+  "forwarderDomainName": {
+    "message": "דומיין דוא\"ל",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "בחר דומיין שנתמך על ידי השירות הנבחר",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ שגיאה: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "נוצר על ידי Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "אתר: $WEBSITE$. נוצר על ידי Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "אסימון API של $SERVICENAME$ לא חוקי",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "אסימון API של $SERVICENAME$ לא חוקי: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwaderInvalidOperation": {
+    "message": "$SERVICENAME$ סירב לבקשה שלך. נא ליצור קשר עם נותן השירות שלך עבור סיוע.",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ סירב לבקשה שלך: $ERRORMESSAGE$",
+    "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "לא ניתן להשיג מזהה חשבון דוא\"ל מסווה של $SERVICENAME$.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "דומיין $SERVICENAME$ לא חוקי.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "כתובת url של $SERVICENAME$ לא חוקית.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "התרחשה שגיאת $SERVICENAME$ לא ידועה.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "משלח לא ידוע: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "שם מארח",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
-    "message": "אסימון גישה ל־API"
+    "message": "אסימון גישת API"
   },
   "apiKey": {
     "message": "מפתח API"
   },
   "ssoKeyConnectorError": {
-    "message": "Key connector error: make sure key connector is available and working correctly."
+    "message": "שגיאת Key Connector: וודא שה־Key Connector זמין ופועל כראוי."
   },
   "premiumSubcriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "נדרש מנוי פרימיום"
   },
   "organizationIsDisabled": {
-    "message": "Organization suspended."
+    "message": "ארגון מושעה."
   },
   "disabledOrganizationFilterError": {
-    "message": "Items in suspended Organizations cannot be accessed. Contact your Organization owner for assistance."
-  },
-  "cardBrandMir": {
-    "message": "Mir"
+    "message": "לא ניתן לגשת לפריטים בארגון מושעה. פנה אל בעל הארגון שלך עבור סיוע."
   },
   "loggingInTo": {
-    "message": "Logging in to $DOMAIN$",
+    "message": "נכנס אל $DOMAIN$",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -1993,26 +3376,17 @@
       }
     }
   },
-  "settingsEdited": {
-    "message": "Settings have been edited"
-  },
-  "environmentEditedClick": {
-    "message": "Click here"
-  },
-  "environmentEditedReset": {
-    "message": "to reset to pre-configured settings"
-  },
   "serverVersion": {
-    "message": "Server version"
+    "message": "גרסת שרת"
   },
-  "selfHosted": {
-    "message": "Self-hosted"
+  "selfHostedServer": {
+    "message": "אירוח עצמי"
   },
   "thirdParty": {
-    "message": "Third-party"
+    "message": "צד שלישי"
   },
   "thirdPartyServerMessage": {
-    "message": "Connected to third-party server implementation, $SERVERNAME$. Please verify bugs using the official server, or report them to the third-party server.",
+    "message": "מחובר ליישום שרת צד שלישי, $SERVERNAME$. בבקשה אמת באגים בעזרת השרת הרשמי, או דווח אותם לשרת הצד שלישי.",
     "placeholders": {
       "servername": {
         "content": "$1",
@@ -2021,7 +3395,7 @@
     }
   },
   "lastSeenOn": {
-    "message": "last seen on: $DATE$",
+    "message": "נראה לאחרונה ב: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -2030,18 +3404,2043 @@
     }
   },
   "loginWithMasterPassword": {
-    "message": "Log in with master password"
-  },
-  "loggingInAs": {
-    "message": "Logging in as"
-  },
-  "notYou": {
-    "message": "Not you?"
+    "message": "כניסה עם סיסמה ראשית"
   },
   "newAroundHere": {
-    "message": "New around here?"
+    "message": "חדש כאן?"
   },
   "rememberEmail": {
-    "message": "Remember email"
+    "message": "זכור דוא\"ל"
+  },
+  "loginWithDevice": {
+    "message": "כניסה עם מכשיר"
+  },
+  "fingerprintPhraseHeader": {
+    "message": "ביטוי טביעת אצבע"
+  },
+  "fingerprintMatchInfo": {
+    "message": "נא לוודא שהכספת שלך פתוחה ושביטוי טביעת האצבע תואם את המכשיר האחר."
+  },
+  "resendNotification": {
+    "message": "שלח מחדש התראה"
+  },
+  "viewAllLogInOptions": {
+    "message": "הצג את כל אפשרויות הכניסה"
+  },
+  "notificationSentDevice": {
+    "message": "התראה נשלחה למכשיר שלך."
+  },
+  "notificationSentDevicePart1": {
+    "message": "בטל נעילת Bitwarden במכשיר שלך או ב"
+  },
+  "notificationSentDeviceAnchor": {
+    "message": "יישום רשת"
+  },
+  "notificationSentDevicePart2": {
+    "message": "וודא שביטוי טביעת האצבע תואם את זה שלמטה לפני שתאשר."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "התראה נשלחה למכשיר שלך"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "תקבל התראה כאשר הבקשה תאושר"
+  },
+  "needAnotherOptionV1": {
+    "message": "צריך אפשרות אחרת?"
+  },
+  "loginInitiated": {
+    "message": "הכניסה החלה"
+  },
+  "logInRequestSent": {
+    "message": "בקשה נשלחה"
+  },
+  "exposedMasterPassword": {
+    "message": "סיסמה ראשית חשופה"
+  },
+  "exposedMasterPasswordDesc": {
+    "message": "הסיסמה נמצאה בפרצת נתונים. השתמש בסיסמה ייחודית כדי להגן על חשבונך. האם אתה בטוח שברצונך להשתמש בסיסמה חשופה?"
+  },
+  "weakAndExposedMasterPassword": {
+    "message": "סיסמה ראשית חלשה וחשופה"
+  },
+  "weakAndBreachedMasterPasswordDesc": {
+    "message": "סיסמה חלשה זוהתה ונמצאה בפרצת נתונים. השתמש בסיסמה חזקה וייחודית כדי להגן על חשבונך. האם אתה בטוח שאתה רוצה להשתמש בסיסמה זו?"
+  },
+  "checkForBreaches": {
+    "message": "בדוק פרצות נתונים ידועות עבור סיסמה זו"
+  },
+  "important": {
+    "message": "חשוב:"
+  },
+  "masterPasswordHint": {
+    "message": "הסיסמה הראשית שלך לא ניתנת לשחזור אם אתה שוכח אותה!"
+  },
+  "characterMinimum": {
+    "message": "$LENGTH$ תווים לכל הפחות",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "autofillPageLoadPolicyActivated": {
+    "message": "פוליסות הארגון שלך הפעילו מילוי אוטומטי בעת טעינת עמוד."
+  },
+  "howToAutofill": {
+    "message": "כיצד למלא אוטומטית"
+  },
+  "autofillSelectInfoWithCommand": {
+    "message": "בחר פריט ממסך זה, בחר את קיצור הדרך $COMMAND$, או חקור אפשרויות אחרות בהגדרות.",
+    "placeholders": {
+      "command": {
+        "content": "$1",
+        "example": "CTRL+Shift+L"
+      }
+    }
+  },
+  "autofillSelectInfoWithoutCommand": {
+    "message": "בחר פריט ממסך זה, או חקור אפשרויות אחרות בהגדרות."
+  },
+  "gotIt": {
+    "message": "הבנתי"
+  },
+  "autofillSettings": {
+    "message": "הגדרות מילוי אוטומטי"
+  },
+  "autofillKeyboardShortcutSectionTitle": {
+    "message": "קיצור מילוי אוטומטי"
+  },
+  "autofillKeyboardShortcutUpdateLabel": {
+    "message": "שנה קיצור דרך"
+  },
+  "autofillKeyboardManagerShortcutsLabel": {
+    "message": "נהל קיצורי דרך"
+  },
+  "autofillShortcut": {
+    "message": "מקשי קיצור למילוי אוטומטי"
+  },
+  "autofillLoginShortcutNotSet": {
+    "message": "קיצור הדרך למילוי כניסה אוטומטי לא הוגדר. שנה זאת בהגדרות הדפדפן."
+  },
+  "autofillLoginShortcutText": {
+    "message": "קיצור הדרך למילוי כניסה אוטומטי הוא $COMMAND$. נהל את כל קיצורי הדרך בהדגרות הדפדפן.",
+    "placeholders": {
+      "command": {
+        "content": "$1",
+        "example": "CTRL+Shift+L"
+      }
+    }
+  },
+  "autofillShortcutTextSafari": {
+    "message": "קיצור דרך למילוי אוטומטי ברירת מחדל: $COMMAND$.",
+    "placeholders": {
+      "command": {
+        "content": "$1",
+        "example": "CTRL+Shift+L"
+      }
+    }
+  },
+  "opensInANewWindow": {
+    "message": "נפתח בחלון חדש"
+  },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "זכור מכשיר זה כדי להפוך כניסות עתידיות לחלקות"
+  },
+  "deviceApprovalRequired": {
+    "message": "נדרש אישור מכשיר. בחר אפשרות אישור למטה:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "נדרש אישור מכשיר"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "בחר אפשרות אישור למטה"
+  },
+  "rememberThisDevice": {
+    "message": "זכור מכשיר זה"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "בטל את הסימון אם אתה משתמש במכשיר ציבורי"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "אשר מהמכשיר האחר שלך"
+  },
+  "requestAdminApproval": {
+    "message": "בקש אישור מנהל"
+  },
+  "ssoIdentifierRequired": {
+    "message": "נדרש מזהה SSO של הארגון."
+  },
+  "creatingAccountOn": {
+    "message": "יוצר חשבון ב־"
+  },
+  "checkYourEmail": {
+    "message": "בדוק את הדוא\"ל שלך"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "עקוב אחר הקישור בדוא\"ל הנשלח אל"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "והמשך ליצור את החשבון שלך."
+  },
+  "noEmail": {
+    "message": "אין דוא\"ל?"
+  },
+  "goBack": {
+    "message": "חזור"
+  },
+  "toEditYourEmailAddress": {
+    "message": "כדי לערוך את כתובת הדוא\"ל שלך."
+  },
+  "eu": {
+    "message": "האיחוד האירופי",
+    "description": "European Union"
+  },
+  "accessDenied": {
+    "message": "גישה נדחתה. אין לך הרשאות כדי לצפות בעמוד זה."
+  },
+  "general": {
+    "message": "כללי"
+  },
+  "display": {
+    "message": "תצוגה"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "החשבון נוצר בהצלחה!"
+  },
+  "adminApprovalRequested": {
+    "message": "התבקש אישור מנהל"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "הבקשה שלך נשלחה למנהל שלך."
+  },
+  "troubleLoggingIn": {
+    "message": "בעיות בכניסה?"
+  },
+  "loginApproved": {
+    "message": "כניסה אושרה"
+  },
+  "userEmailMissing": {
+    "message": "חסר דוא\"ל משתמש"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "דוא\"ל משתמש פעיל לא נמצא. מוציא אותך."
+  },
+  "deviceTrusted": {
+    "message": "מכשיר מהימן"
+  },
+  "trustOrganization": {
+    "message": "Trust organization"
+  },
+  "trust": {
+    "message": "Trust"
+  },
+  "doNotTrust": {
+    "message": "Do not trust"
+  },
+  "organizationNotTrusted": {
+    "message": "Organization is not trusted"
+  },
+  "emergencyAccessTrustWarning": {
+    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+  },
+  "orgTrustWarning": {
+    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+  },
+  "orgTrustWarning1": {
+    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+  },
+  "trustUser": {
+    "message": "Trust user"
+  },
+  "sendsTitleNoItems": {
+    "message": "Send sensitive information safely",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsBodyNoItems": {
+    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inputRequired": {
+    "message": "נדרש קלט."
+  },
+  "required": {
+    "message": "נדרש"
+  },
+  "search": {
+    "message": "חיפוש"
+  },
+  "inputMinLength": {
+    "message": "אורך הקלט חייב להיות לפחות $COUNT$ תווים.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "אורך הקלט לא יעלה על $COUNT$ תווים.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "התווים הבאים אינם מותרים: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "ערך הקלט חייב להיות לפחות $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "ערך הקלט לא יעלה על $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "כתובת דוא\"ל 1 או יותר אינה חוקית"
+  },
+  "inputTrimValidator": {
+    "message": "אסור שקלט יכיל רק רווח לבן.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "קלט הוא לא כתובת דוא\"ל."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ שדות למעלה צריכים את תשומת לבך.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "singleFieldNeedsAttention": {
+    "message": "שדה 1 צריך את תשומת לבך."
+  },
+  "multipleFieldsNeedAttention": {
+    "message": "$COUNT$ שדות צריכים את תשומת לבך.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- בחר --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- הקלד כדי לסנן --"
+  },
+  "multiSelectLoading": {
+    "message": "מאחזר אפשרויות..."
+  },
+  "multiSelectNotFound": {
+    "message": "לא נמצאו פריטים"
+  },
+  "multiSelectClearAll": {
+    "message": "נקה הכל"
+  },
+  "plusNMore": {
+    "message": "+ עוד $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "תפריט משנה"
+  },
+  "toggleCollapse": {
+    "message": "שנה מצב כיווץ",
+    "description": "Toggling an expand/collapse state."
+  },
+  "aliasDomain": {
+    "message": "דומיין כינוי"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "פריטים עם בקשת סיסמה ראשית חוזרת לא ניתנים למילוי אוטומטי בעת טעינת עמוד. מילוי אוטומטי בעת טעינת נכבה.",
+    "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "מילוי אוטומטי בעת טעינת הוגדר להשתמש בהגדרת ברירת מחדל.",
+    "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "כבה בקשת סיסמה ראשית חוזרת כדי לערוך שדה זה",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "toggleSideNavigation": {
+    "message": "החלף מצב ניווט צדדי"
+  },
+  "skipToContent": {
+    "message": "דלג לתוכן"
+  },
+  "bitwardenOverlayButton": {
+    "message": "לחצן תפריט מילוי אוטומטי של Bitwarden",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "החלף מצב תפריט מילוי אוטומטי של Bitwaden",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "תפריט מילוי אוטומטי של Bitwaden",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "בטל את נעילת החשבון שלך כדי להציג כניסות תואמות",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockYourAccountToViewAutofillSuggestions": {
+    "message": "בטל את נעילת החשבון שלך כדי להציג הצעות למילוי אוטומטי",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "ביטול נעילת חשבון",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "unlockAccountAria": {
+    "message": "בטל את נעילת החשבון שלך, נפתח בחלון חדש",
+    "description": "Screen reader text (aria-label) for unlock account button in overlay"
+  },
+  "totpCodeAria": {
+    "message": "קוד אימות סיסמה חד פעמית מבוססת זמן",
+    "description": "Aria label for the totp code displayed in the inline menu for autofill"
+  },
+  "totpSecondsSpanAria": {
+    "message": "זמן נותר לפני שה־TOTP הנוכחי פג",
+    "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
+  },
+  "fillCredentialsFor": {
+    "message": "מלא אישורים עבור",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "שם משתמש חלקי",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "אין פריטים להצגה",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "פריט חדש",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "הוסף פריט כספת חדש",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "newLogin": {
+    "message": "כניסה חדשה",
+    "description": "Button text to display within inline menu when there are no matching items on a login field"
+  },
+  "addNewLoginItemAria": {
+    "message": "הוסף לכספת פריט כניסה חדש, נפתח בחלון חדש",
+    "description": "Screen reader text (aria-label) for new login button within inline menu"
+  },
+  "newCard": {
+    "message": "כרטיס חדש",
+    "description": "Button text to display within inline menu when there are no matching items on a credit card field"
+  },
+  "addNewCardItemAria": {
+    "message": "הוסף לכספת פריט כרטיס חדש, נפתח בחלון חדש",
+    "description": "Screen reader text (aria-label) for new card button within inline menu"
+  },
+  "newIdentity": {
+    "message": "זהות חדשה",
+    "description": "Button text to display within inline menu when there are no matching items on an identity field"
+  },
+  "addNewIdentityItemAria": {
+    "message": "הוסף לכספת פריט זהות חדש, נפתח בחלון חדש",
+    "description": "Screen reader text (aria-label) for new identity button within inline menu"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "תפריט מילוי אוטומטי של Bitwarden זמין. הקש על מקש החץ למטה כדי לבחור.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "הפעל"
+  },
+  "ignore": {
+    "message": "התעלם"
+  },
+  "importData": {
+    "message": "ייבא נתונים",
+    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
+  },
+  "importError": {
+    "message": "שגיאת ייבוא"
+  },
+  "importErrorDesc": {
+    "message": "הייתה בעיה עם הנתונים שאתה מנסה לייבא. נא לפתור את השגיאות הרשומות למטה בקובץ המקור שלך ולנסות שוב."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "פתור את השגיאות למטה ונסה שוב."
+  },
+  "description": {
+    "message": "תיאור"
+  },
+  "importSuccess": {
+    "message": "הנתונים יובאו בהצלחה"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "סך הכל יובאו $AMOUNT$ פריטים.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "tryAgain": {
+    "message": "נסה שוב"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "נדרש אימות עבור פעולה זו. הגדר PIN כדי להמשיך."
+  },
+  "setPin": {
+    "message": "הגדר PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "אמת עם זיהוי ביומטרי"
+  },
+  "awaitingConfirmation": {
+    "message": "ממתין לאישור"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "לא היה ניתן להשלים את הזיהוי הביומטרי."
+  },
+  "needADifferentMethod": {
+    "message": "זקוק לשיטה אחרת?"
+  },
+  "useMasterPassword": {
+    "message": "השתמש בסיסמה ראשית"
+  },
+  "usePin": {
+    "message": "השתמש ב־PIN"
+  },
+  "useBiometrics": {
+    "message": "השתמש בזיהוי ביומטרי"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "הזן את קוד האימות שנשלח לדוא\"ל שלך."
+  },
+  "resendCode": {
+    "message": "שלח קוד מחדש"
+  },
+  "total": {
+    "message": "סך הכל"
+  },
+  "importWarning": {
+    "message": "אתה מייבא נתונים אל $ORGANIZATION$. ייתכן שהנתונים שלך ישותפו עם חברים של הארגון הזה. האם אתה רוצה להמשיך?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "שגיאה בהתחברות עם השירות Duo. השתמש בשיטת כניסה דו־שלבית אחרת או פנה אל Duo לסיוע."
+  },
+  "duoRequiredForAccount": {
+    "message": "נדרשת כניסה דו־שלבית של Duo עבור החשבון שלך."
+  },
+  "popoutExtension": {
+    "message": "הקפץ הרחבה"
+  },
+  "launchDuo": {
+    "message": "פתח את Duo"
+  },
+  "importFormatError": {
+    "message": "הנתונים אינם מעוצבים כראוי. נא לבדוק את קובץ הייבוא שלך ולנסות שוב."
+  },
+  "importNothingError": {
+    "message": "לא יובא דבר."
+  },
+  "importEncKeyError": {
+    "message": "שגיאה בפענוח הקובץ המיוצא. מפתח ההצפנה שלך אינו תואם את מפתח ההצפנה המשמש לייצוא הנתונים."
+  },
+  "invalidFilePassword": {
+    "message": "סיסמת קובץ שגויה, נא להשתמש בסיסמה שהזנת כשיצרת את קובץ הייצוא."
+  },
+  "destination": {
+    "message": "יעד"
+  },
+  "learnAboutImportOptions": {
+    "message": "למד על אפשרויות הייבוא שלך"
+  },
+  "selectImportFolder": {
+    "message": "בחר תיקייה"
+  },
+  "selectImportCollection": {
+    "message": "בחר אוסף"
+  },
+  "importTargetHint": {
+    "message": "בחר באפשרות זו אם ברצונך להעביר את תוכן הקובץ המיובא אל $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "קובץ מכיל פריטים לא מוקצים."
+  },
+  "selectFormat": {
+    "message": "בחר את הפורמט של קובץ הייבוא"
+  },
+  "selectImportFile": {
+    "message": "בחר את קובץ הייבוא"
+  },
+  "chooseFile": {
+    "message": "בחר קובץ"
+  },
+  "noFileChosen": {
+    "message": "לא נבחר קובץ"
+  },
+  "orCopyPasteFileContents": {
+    "message": "או העתק/הדבק את תוכן קובץ הייבוא"
+  },
+  "instructionsFor": {
+    "message": "הוראות עבור $NAME$",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "אשר ייבוא כספת"
+  },
+  "confirmVaultImportDesc": {
+    "message": "קובץ זה מוגן סיסמה. נא להזין את סיסמת הקובץ כדי לייבא נתונים."
+  },
+  "confirmFilePassword": {
+    "message": "אשר סיסמת קובץ"
+  },
+  "exportSuccess": {
+    "message": "נתוני הכספת יוצאו"
+  },
+  "typePasskey": {
+    "message": "מפתח גישה"
+  },
+  "accessing": {
+    "message": "ניגש אל"
+  },
+  "loggedInExclamation": {
+    "message": "נכנסת!"
+  },
+  "passkeyNotCopied": {
+    "message": "מפתח גישה לא יועתק"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "מפתח הגישה לא יועתק לפריט המשוכפל. האם ברצונך להמשיך לשכפל פריט זה?"
+  },
+  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
+    "message": "נדרש אימות על ידי האתר היוזם. תכונה זו עדיין לא מיושמת עבור חשבונות ללא סיסמה ראשית."
+  },
+  "logInWithPasskeyQuestion": {
+    "message": "להיכנס עם מפתח גישה?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "מפתח גישה כבר קיים עבור יישום זה."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "לא נמצאו מפתחות גישה עבור יישום זה."
+  },
+  "noMatchingPasskeyLogin": {
+    "message": "אין לך כניסות תואמות עבור אתר זה."
+  },
+  "noMatchingLoginsForSite": {
+    "message": "אין כניסות תואמות עבור אתר זה"
+  },
+  "searchSavePasskeyNewLogin": {
+    "message": "חפש או שמור מפתח גישה ככניסה חדשה"
+  },
+  "confirm": {
+    "message": "אשר"
+  },
+  "savePasskey": {
+    "message": "שמור מפתח גישה"
+  },
+  "savePasskeyNewLogin": {
+    "message": "שמור מפתח גישה ככניסה חדשה"
+  },
+  "chooseCipherForPasskeySave": {
+    "message": "בחר כניסה אליה יישמר מפתח גישה זה"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "בחר מפתח גישה כדי להיכנס בעזרתו"
+  },
+  "passkeyItem": {
+    "message": "פריט מפתח גישה"
+  },
+  "overwritePasskey": {
+    "message": "לדרוס מפתח גישה?"
+  },
+  "overwritePasskeyAlert": {
+    "message": "פריט זה כבר מכיל מפתח גישה. האם אתה בטוח שברצונך לדרוס את מפתח הגישה הנוכחי?"
+  },
+  "featureNotSupported": {
+    "message": "תכונה עדיין לא נתמכת"
+  },
+  "yourPasskeyIsLocked": {
+    "message": "אימות נדרש כדי להשתמש במפתח גישה. אמת את זהותך כדי להמשיך."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "אימות רב־גורמי בוטל"
+  },
+  "noLastPassDataFound": {
+    "message": "לא נמצאו נתוני LastPass"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "שם משתמש או סיסמה שגויים"
+  },
+  "incorrectPassword": {
+    "message": "סיסמה שגויה"
+  },
+  "incorrectCode": {
+    "message": "קוד שגוי"
+  },
+  "incorrectPin": {
+    "message": "PIN שגוי"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "אימות רב־גורמי נכשל"
+  },
+  "includeSharedFolders": {
+    "message": "כלול תיקיות משותפות"
+  },
+  "lastPassEmail": {
+    "message": "דוא\"ל LastPass"
+  },
+  "importingYourAccount": {
+    "message": "מייבא את החשבון שלך..."
+  },
+  "lastPassMFARequired": {
+    "message": "נדרש אימות רב־גורמי של LastPass"
+  },
+  "lastPassMFADesc": {
+    "message": "הזן את קוד הגישה החד פעמי שלך מיישום האימות שלך"
+  },
+  "lastPassOOBDesc": {
+    "message": "אשר את בקשת הכניסה ביישום האימות שלך או הזן קוד גישה חד פעמי."
+  },
+  "passcode": {
+    "message": "קוד גישה"
+  },
+  "lastPassMasterPassword": {
+    "message": "סיסמה ראשית של LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "נדרש אימות של LastPass"
+  },
+  "awaitingSSO": {
+    "message": "ממתין לאימות SSO"
+  },
+  "awaitingSSODesc": {
+    "message": "נא להמשיך להיכנס באמצעות אישורי החברה שלך."
+  },
+  "seeDetailedInstructions": {
+    "message": "ראה הוראות מפורטות באתר העזרה שלנו ב־",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "ייבא ישירות מ־LastPass"
+  },
+  "importFromCSV": {
+    "message": "ייבא מ־CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "נסה שוב או חפש דוא\"ל מ־LastPass כדי לאמת שזה אתה."
+  },
+  "collection": {
+    "message": "אוסף"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "הכנס את ה־YubiKey המשויך עם חשבון ה־LastPass שלך אל תוך יציאת USB של המחשב שלך, לאחר מכן גע בכפתור שלו."
+  },
+  "switchAccount": {
+    "message": "החלף חשבון"
+  },
+  "switchAccounts": {
+    "message": "החלף חשבונות"
+  },
+  "switchToAccount": {
+    "message": "החלף לחשבון"
+  },
+  "activeAccount": {
+    "message": "חשבון פעיל"
+  },
+  "bitwardenAccount": {
+    "message": "חשבון Bitwarden"
+  },
+  "availableAccounts": {
+    "message": "חשבונות זמינים"
+  },
+  "accountLimitReached": {
+    "message": "הגעת למגבלת החשבונות. צא מחשבון כדי להוסיף אחד נוסף."
+  },
+  "active": {
+    "message": "פעיל"
+  },
+  "locked": {
+    "message": "נעול"
+  },
+  "unlocked": {
+    "message": "פתוח"
+  },
+  "server": {
+    "message": "שרת"
+  },
+  "hostedAt": {
+    "message": "מאורח אצל"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "השתמש במכשיר שלך או במפתח חומרה"
+  },
+  "justOnce": {
+    "message": "רק פעם אחת"
+  },
+  "alwaysForThisSite": {
+    "message": "תמיד עבור אתר זה"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ נוסף לרשימת הדומיינים המוחרגים.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "duckduckgo.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "פורמטים נפוצים",
+    "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "confirmContinueToBrowserSettingsTitle": {
+    "message": "להמשיך אל הגדרות הדפדפן?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
+  },
+  "confirmContinueToHelpCenter": {
+    "message": "להמשיך אל מרכז העזרה?",
+    "description": "Title for dialog which asks if the user wants to proceed to a relevant Help Center page"
+  },
+  "confirmContinueToHelpCenterPasswordManagementContent": {
+    "message": "שנה את הגדרות ניהול סיסמאות ומילוי אוטומטי של הדפדפן שלך.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser password management settings"
+  },
+  "confirmContinueToHelpCenterKeyboardShortcutsContent": {
+    "message": "אתה יכול לראות ולהגדיר קיצורי דרך להרחבות בהגדרות הדפדפן שלך.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the Help Center's page about browser keyboard shortcut settings"
+  },
+  "confirmContinueToBrowserPasswordManagementSettingsContent": {
+    "message": "שנה את הגדרות ניהול סיסמאות ומילוי אוטומטי של הדפדפן שלך.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's password management settings page"
+  },
+  "confirmContinueToBrowserKeyboardShortcutSettingsContent": {
+    "message": "אתה יכול לראות ולהגדיר קיצורי דרך להרחבות בהגדרות הדפדפן שלך.",
+    "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "להפוך את Bitwarden למנהל הסיסמאות ברירת המחדל שלך?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "התעלמות מאפשרות זו עלולה לגרום לקונפליקטים בין הצעות למילוי אוטומטי של Bitwarden לאלו של הדפדפן שלך.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "הפוך את Bitwaren למנהל הסיסמאות ברירת המחדל שלך",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "לא ניתן להגדיר את Bitwarden כמנהל הסיסמאות ברירת המחדל",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "אתה מוכרח להעניק הרשאות פרטיות של דפדפן ל־Bitwarden כדי להגדיר אותו כמנהל הסיסמאות ברירת המחדל.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "הפוך לברירת מחדל",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "האישורים נשמרו בהצלחה!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "passwordSaved": {
+    "message": "הסיסמה נשמרה!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "האישורים עודכנו בהצלחה!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "passwordUpdated": {
+    "message": "הסיסמה עודכנה!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "שגיאה בשמירת אישורים. בדוק מסוף עבור פרטים.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "הצלחה"
+  },
+  "removePasskey": {
+    "message": "הסר מפתח גישה"
+  },
+  "passkeyRemoved": {
+    "message": "מפתח גישה הוסר"
+  },
+  "autofillSuggestions": {
+    "message": "הצעות למילוי אוטומטי"
+  },
+  "itemSuggestions": {
+    "message": "פריטים מוצעים"
+  },
+  "autofillSuggestionsTip": {
+    "message": "שמור פריט כניסה עבור אתר זה כדי למלא אוטומטית"
+  },
+  "yourVaultIsEmpty": {
+    "message": "הכספת שלך ריקה"
+  },
+  "noItemsMatchSearch": {
+    "message": "אין פריטים שתואמים את החיפוש שלך"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "נקה מסננים או נסה ביטוי חיפוש אחר"
+  },
+  "copyInfoTitle": {
+    "message": "העתק פרטים - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "העתק פתק - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "moreOptionsLabel": {
+    "message": "עוד אפשרויות, $ITEMNAME$",
+    "description": "Aria label for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "moreOptionsTitle": {
+    "message": "עוד אפשרויות - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "viewItemTitle": {
+    "message": "הצג פריט - $ITEMNAME$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "viewItemTitleWithField": {
+    "message": "View item - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "autofillTitle": {
+    "message": "מילוי אוטומטי - $ITEMNAME$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitleWithField": {
+    "message": "Autofill - $ITEMNAME$ - $FIELD$",
+    "description": "Title for a button that autofills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      },
+      "field": {
+        "content": "$2",
+        "example": "Username"
+      }
+    }
+  },
+  "copyFieldValue": {
+    "message": "העתק $FIELD$, $VALUE$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "value": {
+        "content": "$2",
+        "example": "Foo"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "אין ערכים להעתקה"
+  },
+  "assignToCollections": {
+    "message": "הקצה לאוספים"
+  },
+  "copyEmail": {
+    "message": "העתק דוא\"ל"
+  },
+  "copyPhone": {
+    "message": "העתק טלפון"
+  },
+  "copyAddress": {
+    "message": "העתק כתובת"
+  },
+  "adminConsole": {
+    "message": "מסוף מנהל"
+  },
+  "accountSecurity": {
+    "message": "אבטחת החשבון"
+  },
+  "notifications": {
+    "message": "התראות"
+  },
+  "appearance": {
+    "message": "מראה"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "שגיאה בהקצאת אוסף יעד."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "שגיאה בהקצאת תיקיית יעד."
+  },
+  "viewItemsIn": {
+    "message": "הצג פריטים ב־$NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "חזרה אל $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "new": {
+    "message": "חדש"
+  },
+  "removeItem": {
+    "message": "הסר $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "itemsWithNoFolder": {
+    "message": "פריטים ללא תיקייה"
+  },
+  "itemDetails": {
+    "message": "פרטי הפריט"
+  },
+  "itemName": {
+    "message": "שם הפריט"
+  },
+  "organizationIsDeactivated": {
+    "message": "הארגון מושבת"
+  },
+  "owner": {
+    "message": "בעלים"
+  },
+  "selfOwnershipLabel": {
+    "message": "את/ה",
+    "description": "Used as a label to indicate that the user is the owner of an item."
+  },
+  "contactYourOrgAdmin": {
+    "message": "לא ניתן לגשת לפריטים של ארגונים מושבתים. פנה לבעל הארגון שלך עבור סיוע."
+  },
+  "additionalInformation": {
+    "message": "פרטים נוספים"
+  },
+  "itemHistory": {
+    "message": "היסטוריית פריט"
+  },
+  "lastEdited": {
+    "message": "נערך לאחרונה"
+  },
+  "ownerYou": {
+    "message": "בעלים: את/ה"
+  },
+  "linked": {
+    "message": "מקושר"
+  },
+  "copySuccessful": {
+    "message": "העתקה מוצלחת"
+  },
+  "upload": {
+    "message": "העלה"
+  },
+  "addAttachment": {
+    "message": "הוסף צרופה"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "גודל הקובץ המרבי הוא 500MB"
+  },
+  "deleteAttachmentName": {
+    "message": "מחק צרופה $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "הורד $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadBitwarden": {
+    "message": "Download Bitwarden"
+  },
+  "downloadBitwardenOnAllDevices": {
+    "message": "Download Bitwarden on all devices"
+  },
+  "getTheMobileApp": {
+    "message": "Get the mobile app"
+  },
+  "getTheMobileAppDesc": {
+    "message": "Access your passwords on the go with the Bitwarden mobile app."
+  },
+  "getTheDesktopApp": {
+    "message": "Get the desktop app"
+  },
+  "getTheDesktopAppDesc": {
+    "message": "Access your vault without a browser, then set up unlock with biometrics to expedite unlocking in both the desktop app and browser extension."
+  },
+  "downloadFromBitwardenNow": {
+    "message": "Download from bitwarden.com now"
+  },
+  "getItOnGooglePlay": {
+    "message": "Get it on Google Play"
+  },
+  "downloadOnTheAppStore": {
+    "message": "Download on the App Store"
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "האם אתה בטוח שברצונך למחוק לצמיתות צרופה זו?"
+  },
+  "premium": {
+    "message": "פרימיום"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "ארגונים חינמיים לא יכולים להשתמש בצרופות"
+  },
+  "filters": {
+    "message": "מסננים"
+  },
+  "filterVault": {
+    "message": "מסנן כספת"
+  },
+  "filterApplied": {
+    "message": "מסנן אחד הוחל"
+  },
+  "filterAppliedPlural": {
+    "message": "הוחלו $COUNT$ מסננים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "personalDetails": {
+    "message": "פרטים אישיים"
+  },
+  "identification": {
+    "message": "הזדהות"
+  },
+  "contactInfo": {
+    "message": "פרטי קשר"
+  },
+  "downloadAttachment": {
+    "message": "הורד - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Your File"
+      }
+    }
+  },
+  "cardNumberEndsWith": {
+    "message": "מספר הכרטיס מסתיים עם",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
+  },
+  "loginCredentials": {
+    "message": "אישורי כניסה"
+  },
+  "authenticatorKey": {
+    "message": "מפתח מאמת"
+  },
+  "autofillOptions": {
+    "message": "אפשרויות מילוי אוטומטי"
+  },
+  "websiteUri": {
+    "message": "אתר אינטרנט (URI)"
+  },
+  "websiteUriCount": {
+    "message": "אתר אינטרנט (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "אתר האינטרנט נוסף"
+  },
+  "addWebsite": {
+    "message": "הוסף אתר אינטרנט"
+  },
+  "deleteWebsite": {
+    "message": "מחק אתר אינטרנט"
+  },
+  "defaultLabel": {
+    "message": "ברירת מחדל ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "הצג זיהוי התאמה $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "הסתר זיהוי התאמה $WEBSITE$",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "למלא אוטומטית בעת טעינת עמוד?"
+  },
+  "cardExpiredTitle": {
+    "message": "כרטיס פג תוקף"
+  },
+  "cardExpiredMessage": {
+    "message": "אם חידשת אותו, עדכן את פרטי הכרטיס"
+  },
+  "cardDetails": {
+    "message": "פרטי כרטיס"
+  },
+  "cardBrandDetails": {
+    "message": "פרטי $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "enableAnimations": {
+    "message": "אפשר הנפשות"
+  },
+  "showAnimations": {
+    "message": "הצג הנפשות"
+  },
+  "addAccount": {
+    "message": "הוסף חשבון"
+  },
+  "loading": {
+    "message": "טוען"
+  },
+  "data": {
+    "message": "נתונים"
+  },
+  "passkeys": {
+    "message": "מפתחות גישה",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "סיסמאות",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "כניסה עם מפתח גישה",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
+  },
+  "assign": {
+    "message": "הקצה"
+  },
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "רק חברי ארגון עם גישה לאוספים אלה יוכלו לראות את הפריט."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "רק חברי ארגון עם גישה לאוספים אלה יוכלו לראות את הפריטים."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "בחרת ב־$TOTAL_COUNT$ פריטים. אינך יכול לעדכן $READONLY_COUNT$ מהפריטים בגלל שאין לך הרשאות עריכה.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "addField": {
+    "message": "הוסף שדה"
+  },
+  "add": {
+    "message": "הוסף"
+  },
+  "fieldType": {
+    "message": "סוג שדה"
+  },
+  "fieldLabel": {
+    "message": "תווית שדה"
+  },
+  "textHelpText": {
+    "message": "השתמש בשדות טקסט עבור נתונים כמו שאלות אבטחה"
+  },
+  "hiddenHelpText": {
+    "message": "השתמש בשדות נסתרים עבור מידע רגיש כמו סיסמה"
+  },
+  "checkBoxHelpText": {
+    "message": "השתמש בתיבות סימון אם תרצה למלא אוטומטית תיבת סימון של טופס, כמו זכור דוא\"ל"
+  },
+  "linkedHelpText": {
+    "message": "השתמש בשדה מקושר כאשר אתה חווה בעיות מילוי אוטומטי עם אתר מסוים."
+  },
+  "linkedLabelHelpText": {
+    "message": "הזן את מזהה ה־html, שם, תווית aria או מציין מיקום."
+  },
+  "editField": {
+    "message": "ערוך שדה"
+  },
+  "editFieldLabel": {
+    "message": "ערוך $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "deleteCustomField": {
+    "message": "מחק $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "fieldAdded": {
+    "message": "$LABEL$ נוסף",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "סדר מחדש את $LABEL$. השתמש במקש חץ כדי להעביר את הפריט למעלה או למטה.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderWebsiteUriButton": {
+    "message": "סדר מחדש כתובת URI של אתר. השתמש במקש חץ כדי להעביר את הפריט למעלה או למטה."
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ עבר למעלה, מיקום $INDEX$ מתוך $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "בחר אוספים להקצות"
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "פריט 1 יועבר לצמיתות לארגון הנבחר. לא תהיה יותר הבעלים של הפריט הזה."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ פריטים יועברו לצמיתות לארגון הנבחר. לא תהיה יותר הבעלים של הפריטים האלה.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "פריט 1 יועבר לצמיתות אל $ORG$. לא תהיה יותר הבעלים של הפריט הזה.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ פריטים יועברו לצמיתות אל $ORG$. לא תהיה יותר הבעלים של הפריטים האלה.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "אוספים הוקצו בהצלחה"
+  },
+  "nothingSelected": {
+    "message": "לא בחרת כלום."
+  },
+  "itemsMovedToOrg": {
+    "message": "פריטים הועברו אל $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "פריט הועבר אל $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ עבר למטה, מיקום $INDEX$ מתוך $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "itemLocation": {
+    "message": "מיקום פריט"
+  },
+  "fileSend": {
+    "message": "סֵנְד של קובץ"
+  },
+  "fileSends": {
+    "message": "סֵנְדים של קובץ"
+  },
+  "textSend": {
+    "message": "סֵנְד של טקסט"
+  },
+  "textSends": {
+    "message": "סֵנְדים של טקסט"
+  },
+  "accountActions": {
+    "message": "פעולות חשבון"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "הצג את מספר ההצעות למילוי כניסה אוטומטי בסמל ההרחבה"
+  },
+  "showQuickCopyActions": {
+    "message": "הצג פעולות העתקה מהירה בכספת"
+  },
+  "systemDefault": {
+    "message": "ברירת מחדל של המערכת"
+  },
+  "enterprisePolicyRequirementsApplied": {
+    "message": "דרישות מדיניות ארגונית הוחלו על הגדרה זו"
+  },
+  "sshPrivateKey": {
+    "message": "מפתח פרטי"
+  },
+  "sshPublicKey": {
+    "message": "מפתח ציבורי"
+  },
+  "sshFingerprint": {
+    "message": "טביעת אצבע"
+  },
+  "sshKeyAlgorithm": {
+    "message": "סוג מפתח"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA‏ 2048 סיביות"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA‏ 3072 סיביות"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA‏ 4096 סיביות"
+  },
+  "retry": {
+    "message": "נסה שוב"
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "פסק זמן מותאם אישית מינימלי הוא דקה 1."
+  },
+  "additionalContentAvailable": {
+    "message": "תוכן נוסף זמין"
+  },
+  "fileSavedToDevice": {
+    "message": "הקובץ נשמר למכשיר. נהל מהורדות המכשיר שלך."
+  },
+  "showCharacterCount": {
+    "message": "הצג מונה תווים"
+  },
+  "hideCharacterCount": {
+    "message": "הסתר מונה תווים"
+  },
+  "itemsInTrash": {
+    "message": "פריטים באשפה"
+  },
+  "noItemsInTrash": {
+    "message": "אין פריטים באשפה"
+  },
+  "noItemsInTrashDesc": {
+    "message": "פריטים שאתה מוחק יופיעו כאן ויימחקו לצמיתות לאחר 30 יום"
+  },
+  "trashWarning": {
+    "message": "פריטים שהיו באשפה יותר מ־30 יום יימחקו באופן אוטומטי"
+  },
+  "restore": {
+    "message": "שחזר"
+  },
+  "deleteForever": {
+    "message": "מחק לנצח"
+  },
+  "noEditPermissions": {
+    "message": "אין לך הרשאות לערוך פריט זה"
+  },
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "ביטול נעילה ביומטרי אינו זמין בגלל שביטול נעילה עם PIN או סיסמה נדרש תחילה."
+  },
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "ביטול נעילה ביומטרי אינו זמין כעת."
+  },
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "ביטול נעילה ביומטרי אינו זמין בשל קבצי מערכת המוגדרים באופן שגוי."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "ביטול נעילה ביומטרי אינו זמין בשל קבצי מערכת המוגדרים באופן שגוי."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "ביטול נעילה ביומטרי אינו זמין בגלל שיישום שולחן העבודה של Bitwarden סגור."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "ביטול נעילה ביומטרי אינו זמין בגלל שהוא לא מופעל עבור $EMAIL$ ביישום שולחן העבודה של Bitwarden.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
+    "message": "ביטול נעילה ביומטרי אינו זמין כעת מסיבה לא ידועה."
+  },
+  "unlockVault": {
+    "message": "Unlock your vault in seconds"
+  },
+  "unlockVaultDesc": {
+    "message": "You can customize your unlock and timeout settings to more quickly access your vault."
+  },
+  "unlockPinSet": {
+    "message": "Unlock PIN set"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
+  "authenticating": {
+    "message": "מאמת"
+  },
+  "fillGeneratedPassword": {
+    "message": "מלא סיסמה שנוצרה",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "סיסמה נוצרה מחדש",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveToBitwarden": {
+    "message": "Save to Bitwarden",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "רווח",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "טילדה",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "בקטיק",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "סימן קריאה",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "כרוכית",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "סולמית",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "סימן הדולר",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "סימן אחוז",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "קרט",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "אמפרסֵנְד",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "כוכבית",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "סוגר שמאלי",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "סוגר ימני",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "קו תחתון",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "מקף",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "פלוס",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "שוויון",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "סוגר מסולסל שמאלי",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "סוגר מסולסל ימני",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "סוגר מרובע שמאלי",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "סוגר מרובע ימני",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "צינור",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "לוכסן שמאלי",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "נקודתיים",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "נקודה ופסיק",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "מירכאה כפולה",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "מירכאה בודדת",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "קטן מ־",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "גדול מ־",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "פסיק",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "נקודה",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "סימן שאלה",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "לוכסן",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "אות קטנה"
+  },
+  "uppercaseAriaLabel": {
+    "message": "אות גדולה"
+  },
+  "generatedPassword": {
+    "message": "נוצרה סיסמה"
+  },
+  "compactMode": {
+    "message": "מצב קומפקטי"
+  },
+  "beta": {
+    "message": "בטא"
+  },
+  "extensionWidth": {
+    "message": "רוחב הרחבה"
+  },
+  "wide": {
+    "message": "רחב"
+  },
+  "extraWide": {
+    "message": "רחב במיוחד"
+  },
+  "sshKeyWrongPassword": {
+    "message": "הסיסמה שהזנת שגויה."
+  },
+  "importSshKey": {
+    "message": "ייבוא"
+  },
+  "confirmSshKeyPassword": {
+    "message": "אשר סיסמה"
+  },
+  "enterSshKeyPasswordDesc": {
+    "message": "הזן את הסיסמה עבור מפתח ה־SSH."
+  },
+  "enterSshKeyPassword": {
+    "message": "הזן סיסמה"
+  },
+  "invalidSshKey": {
+    "message": "מפתח ה־SSH אינו תקין"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "סוג מפתח ה־SSH אינו נתמך"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "ייבא מפתח מלוח ההעתקה"
+  },
+  "sshKeyImported": {
+    "message": "מפתח SSH יובא בהצלחה"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "אינך יכול להסיר אוספים עם הרשאות צפייה בלבד: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "updateDesktopAppOrDisableFingerprintDialogTitle": {
+    "message": "נא לעדכן את יישום שולחן העבודה שלך"
+  },
+  "updateDesktopAppOrDisableFingerprintDialogMessage": {
+    "message": "כדי להשתמש בביטול נעילה ביומטרי, נא לעדכן את יישום שולחן העבודה שלך, להשבית ביטול נעילה בעזרת טביעת אצבע בהגדרות שולחן העבודה."
+  },
+  "changeAtRiskPassword": {
+    "message": "שנה סיסמה בסיכון"
+  },
+  "settingsVaultOptions": {
+    "message": "Vault options"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "introCarouselLabel": {
+    "message": "Welcome to Bitwarden"
+  },
+  "securityPrioritized": {
+    "message": "Security, prioritized"
+  },
+  "securityPrioritizedBody": {
+    "message": "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you."
+  },
+  "quickLogin": {
+    "message": "Quick and easy login"
+  },
+  "quickLoginBody": {
+    "message": "Set up biometric unlock and autofill to log into your accounts without typing a single letter."
+  },
+  "secureUser": {
+    "message": "Level up your logins"
+  },
+  "secureUserBody": {
+    "message": "Use the generator to create and save strong, unique passwords for all your accounts."
+  },
+  "secureDevices": {
+    "message": "Your data, when and where you need it"
+  },
+  "secureDevicesBody": {
+    "message": "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps."
+  },
+  "nudgeBadgeAria": {
+    "message": "1 notification"
+  },
+  "emptyVaultNudgeTitle": {
+    "message": "Import existing passwords"
+  },
+  "emptyVaultNudgeBody": {
+    "message": "Use the importer to quickly transfer logins to Bitwarden without manually adding them."
+  },
+  "emptyVaultNudgeButton": {
+    "message": "Import now"
+  },
+  "hasItemsVaultNudgeTitle": {
+    "message": "Welcome to your vault!"
+  },
+  "hasItemsVaultNudgeBodyOne": {
+    "message": "Autofill items for the current page"
+  },
+  "hasItemsVaultNudgeBodyTwo": {
+    "message": "Favorite items for easy access"
+  },
+  "hasItemsVaultNudgeBodyThree": {
+    "message": "Search your vault for something else"
+  },
+  "newLoginNudgeTitle": {
+    "message": "Save time with autofill"
+  },
+  "newLoginNudgeBodyOne": {
+    "message": "Include a",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyBold": {
+    "message": "Website",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newLoginNudgeBodyTwo": {
+    "message": "so this login appears as an autofill suggestion.",
+    "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
+    "example": "Include a Website so this login appears as an autofill suggestion."
+  },
+  "newCardNudgeTitle": {
+    "message": "Seamless online checkout"
+  },
+  "newCardNudgeBody": {
+    "message": "With cards, easily autofill payment forms securely and accurately."
+  },
+  "newIdentityNudgeTitle": {
+    "message": "Simplify creating accounts"
+  },
+  "newIdentityNudgeBody": {
+    "message": "With identities, quickly autofill long registration or contact forms."
+  },
+  "newNoteNudgeTitle": {
+    "message": "Keep your sensitive data safe"
+  },
+  "newNoteNudgeBody": {
+    "message": "With notes, securely store sensitive data like banking or insurance details."
+  },
+  "newSshNudgeTitle": {
+    "message": "Developer-friendly SSH access"
+  },
+  "newSshNudgeBodyOne": {
+    "message": "Store your keys and connect with the SSH agent for fast, encrypted authentication.",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "newSshNudgeBodyTwo": {
+    "message": "Learn more about SSH agent",
+    "description": "Two part message",
+    "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
+  },
+  "generatorNudgeTitle": {
+    "message": "Quickly create passwords"
+  },
+  "generatorNudgeBodyOne": {
+    "message": "Easily create strong and unique passwords by clicking on",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyTwo": {
+    "message": "to help you keep your logins secure.",
+    "description": "Two part message",
+    "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
+  },
+  "generatorNudgeBodyAria": {
+    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "description": "Aria label for the body content of the generator nudge"
+  },
+  "noPermissionsViewPage": {
+    "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

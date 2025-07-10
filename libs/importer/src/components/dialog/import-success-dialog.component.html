@@ -1,0 +1,32 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "importSuccess" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <span>{{ "importSuccessNumberOfItems" | i18n: this.data.ciphers.length }}</span>
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ "type" | i18n }}</th>
+          <th bitCell>{{ "total" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>
+            <i class="bwi bwi-fw bwi-{{ r.icon }}" aria-hidden="true"></i>
+            {{ r.type | i18n }}
+          </td>
+          <td bitCell>{{ r.count }}</td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose buttonType="primary" type="button">
+      {{ "ok" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

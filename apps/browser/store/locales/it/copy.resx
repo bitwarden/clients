@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,57 +118,75 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – Gestore di password gratuito</value>
+    <value>Bitwarden Password Manager</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Un gestore di password sicuro e gratuito per tutti i tuoi dispositivi</value>
+    <value>A casa, al lavoro, o in viaggio, Bitwarden protegge facilmente tutte le tue password, passkey, e informazioni sensibili.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. è la società madre di 8bit Solutions LLC.
+    <value>Riconosciuto come il miglior password manager da PCMag, WIRED, The Verge, CNET, G2, e altri!
 
-NOMINATO MIGLIOR PASSWORD MANAGER DA THE VERGE, US NEWS &amp; WORLD REPORT, CNET E ALTRO.
+PROTEGGI LA TUA VITA DIGITALE
+Proteggi la tua vita digitale e proteggiti dalle violazioni dei dati generando e salvando password uniche e complesse per ogni account. Mantieni tutto in un archivio di password crittografato end-to-end a cui solo tu puoi accedere.
 
-Gestisci, archivia, proteggi e condividi password illimitate su dispositivi illimitati da qualsiasi luogo. Bitwarden offre soluzioni di gestione delle password open source a tutti, a casa, al lavoro o in viaggio.
+ACCEDI AI TUOI DATI, OVUNQUE, IN QUALSIASI MOMENTO, SU QUALSIASI DISPOSITIVO
+Gestisci, archivia, proteggi, e condividi facilmente password illimitate su un numero illimitato di dispositivi senza restrizioni.
 
-Genera password complesse, uniche e casuali in base ai requisiti di sicurezza per ogni sito web che frequenti.
+TUTTI DOVREBBERO POTER RIMANERE AL SICURO ONLINE
+Usa Bitwarden gratuitamente senza pubblicità o vendita di dati. Bitwarden ritiene che tutti dovrebbero avere la possibilità di rimanere al sicuro online. I piani premium offrono l'accesso a funzionalità avanzate.
 
-Bitwarden Send trasmette rapidamente informazioni cifrate --- file e testo in chiaro - direttamente a chiunque.
+POTENZIA I TUOI TEAM CON BITWARDEN
+I piani per Teams ed Enterprise includono funzionalità aziendali professionali. Alcuni esempi includono integrazione SSO, self-hosting, integrazione di directory e provisioning SCIM, politiche globali, accesso API, registri eventi, e altro.
 
-Bitwarden offre piani Teams ed Enterprise per le aziende in modo da poter condividere le password in modo sicuro con i colleghi.
+Utilizza Bitwarden per proteggere i tuoi dipendenti e condividere informazioni sensibili con i colleghi.
 
-Perché scegliere Bitwarden:
+
+Altri motivi per scegliere Bitwarden:
 
 Crittografia di livello mondiale
-Le password sono protette con cifratura end-to-end avanzata (AES-256 bit, hashtag con sale e PBKDF2 SHA-256) in modo che i tuoi dati rimangano al sicuro e privati.
+Le password sono protette con crittografia end-to-end avanzata (AES-256 bit, salted hashtag, e PBKDF2 SHA-256) in modo che i tuoi dati rimangano sicuri e privati.
 
-Generatore di password integrato
-Genera password complesse, uniche e casuali in base ai requisiti di sicurezza per ogni sito web che frequenti.
+Controlli di terze parti
+Bitwarden conduce regolarmente controlli di sicurezza completi di terze parti con importanti società di sicurezza. Questi controlli annuali includono valutazioni del codice sorgente e test di penetrazione su IP, server, e applicazioni web di Bitwarden.
+
+2FA avanzato
+Proteggi il tuo accesso con un autenticatore di terze parti, codici inviati via email, o credenziali FIDO2 WebAuthn come una chiave di sicurezza hardware o una passkey.
+
+Bitwarden Send
+Trasmetti dati sensibili direttamente ad altri mantenendo la sicurezza crittografata end-to-end e limitando l'esposizione.
+
+Generatore incorporato
+Crea password lunghe, complesse, e distinte e nomi utente univoci per ogni sito che visiti. Integrazione con fornitori di alias e-mail per una maggiore privacy.
 
 Traduzioni globali
-Le traduzioni di Bitwarden esistono in 40 lingue e sono in crescita, grazie alla nostra comunità globale.
+Le traduzioni di Bitwarden esistono per più di 60 lingue, tradotte dalla comunità globale tramite Crowdin.
 
-Applicazioni multipiattaforma
-Proteggi e condividi i dati sensibili all'interno del tuo Bitwarden Vault da qualsiasi browser, dispositivo mobile o sistema operativo desktop e altro ancora.</value>
+App multipiattaforma
+Proteggi e condividi i dati sensibili all'interno della tua cassaforte di Bitwarden da qualsiasi browser, dispositivo mobile, o sistema operativo desktop.
+
+Bitwarden protegge molto più che semplici password
+Le soluzioni di gestione delle credenziali crittografate end-to-end di Bitwarden consentono alle organizzazioni di proteggere tutto, compresi i segreti degli sviluppatori ed esperienze con le passkey. Visita Bitwarden.com per saperne di più su Bitwarden Secrets Manager e Bitwarden Passwordless.dev!
+</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Un gestore di password sicuro e gratuito per tutti i tuoi dispositivi</value>
+    <value>A casa, al lavoro, o in viaggio, Bitwarden protegge facilmente tutte le tue password, passkey, e informazioni sensibili.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sincronizza e accedi alla tua cassaforte da più dispositivi</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>Gestisci tutte le tue password ed i tuoi login da una cassaforte sicura</value>
+    <value>Gestisci tutte le tue password e i tuoi login da una cassaforte sicura</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Completa velocemente tutte le tue credenziali di accesso in qualunque sito tu visiti</value>
+    <value>Riempi velocemente le tue credenziali di accesso in qualunque sito visitato</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>La tua cassaforte è facilmente accessibile dal menu contestuale del tasto destro del mouse</value>
+    <value>La tua cassaforte è facilmente accessibile dal menu contestuale (tasto destro del mouse)</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>Genera automaticamente password complesse, casuali e sicure</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Le tue informazioni sono salvate in modo sicuro grazie all'algoritmo di cifratura AES-256</value>
+    <value>Le tue informazioni sono salvate in modo sicuro grazie all'algoritmo di crittografia AES-256</value>
   </data>
 </root>

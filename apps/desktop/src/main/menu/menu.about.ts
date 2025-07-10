@@ -1,7 +1,8 @@
 import { BrowserWindow, clipboard, dialog, MenuItemConstructorOptions } from "electron";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { VersionMain } from "../../platform/main/version.main";
 import { isMacAppStore, isSnapStore, isWindowsStore } from "../../utils";
 import { UpdaterMain } from "../updater.main";
 
@@ -22,17 +23,20 @@ export class AboutMenu implements IMenubarMenu {
   private readonly _updater: UpdaterMain;
   private readonly _window: BrowserWindow;
   private readonly _version: string;
+  private readonly _versionMain: VersionMain;
 
   constructor(
     i18nService: I18nService,
     version: string,
     window: BrowserWindow,
-    updater: UpdaterMain
+    updater: UpdaterMain,
+    versionMain: VersionMain,
   ) {
     this._i18nService = i18nService;
     this._updater = updater;
     this._version = version;
     this._window = window;
+    this._versionMain = versionMain;
   }
 
   private get separator(): MenuItemConstructorOptions {
@@ -53,8 +57,11 @@ export class AboutMenu implements IMenubarMenu {
       id: "aboutBitwarden",
       label: this.localize("aboutBitwarden"),
       click: async () => {
+        const sdkVersion = await this._versionMain.sdkVersion();
         const aboutInformation =
           this.localize("version", this._version) +
+          "\nSDK " +
+          sdkVersion +
           "\nShell " +
           process.versions.electron +
           "\nRenderer " +
@@ -83,6 +90,8 @@ export class AboutMenu implements IMenubarMenu {
   }
 
   private async checkForUpdate() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this._updater.checkForUpdate(true);
   }
 }

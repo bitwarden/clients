@@ -1,4 +1,4 @@
-$card-icons-base: "~@bitwarden/angular/src/images/cards/" !default;
+$card-icons-base: "~@bitwarden/angular/src/billing/images/cards/" !default;
 $card-icons: (
   "visa": $card-icons-base + "visa-light.png",
   "amex": $card-icons-base + "amex-light.png",
@@ -9,7 +9,6 @@ $card-icons: (
   "mastercard": $card-icons-base + "mastercard-light.png",
   "union-pay": $card-icons-base + "union_pay-light.png",
   "ru-pay": $card-icons-base + "ru_pay-light.png",
-  "mir": $card-icons-base + "mir-light.png",
 );
 
 $card-icons-dark: (
@@ -22,11 +21,10 @@ $card-icons-dark: (
   "mastercard": $card-icons-base + "mastercard-dark.png",
   "union-pay": $card-icons-base + "union_pay-dark.png",
   "ru-pay": $card-icons-base + "ru_pay-dark.png",
-  "mir": $card-icons-base + "mir-dark.png",
 );
 
 .credit-card-icon {
-  display: block; // Resolves the parent container being slighly to big
+  display: block; // Resolves the parent container being slightly to big
   height: 19px;
   width: 24px;
   background-size: contain;

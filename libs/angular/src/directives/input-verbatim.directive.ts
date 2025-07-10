@@ -1,16 +1,22 @@
-import { Directive, ElementRef, Input, Renderer2 } from "@angular/core";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Directive, ElementRef, Input, OnInit, Renderer2 } from "@angular/core";
 
 @Directive({
   selector: "[appInputVerbatim]",
+  standalone: false,
 })
-export class InputVerbatimDirective {
+export class InputVerbatimDirective implements OnInit {
   @Input() set appInputVerbatim(condition: boolean | string) {
     this.disableComplete = condition === "" || condition === true;
   }
 
   private disableComplete: boolean;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  constructor(
+    private el: ElementRef,
+    private renderer: Renderer2,
+  ) {}
 
   ngOnInit() {
     if (this.disableComplete && !this.el.nativeElement.hasAttribute("autocomplete")) {

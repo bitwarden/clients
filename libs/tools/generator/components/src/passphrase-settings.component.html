@@ -1,0 +1,58 @@
+<bit-section [disableMargin]="disableMargin">
+  <bit-section-header *ngIf="showHeader">
+    <h6 bitTypography="h6">{{ "options" | i18n }}</h6>
+  </bit-section-header>
+  <form [formGroup]="settings" class="tw-container">
+    <div class="tw-mb-4">
+      <bit-card>
+        <bit-form-field disableMargin>
+          <bit-label>{{ "numWords" | i18n }}</bit-label>
+          <input
+            bitInput
+            formControlName="numWords"
+            id="num-words"
+            type="number"
+            (change)="save('numWords')"
+          />
+          <bit-hint>{{ numWordsBoundariesHint$ | async }}</bit-hint>
+        </bit-form-field>
+      </bit-card>
+    </div>
+    <div>
+      <bit-card>
+        <bit-form-field>
+          <bit-label>{{ "wordSeparator" | i18n }}</bit-label>
+          <input
+            bitInput
+            formControlName="wordSeparator"
+            id="word-separator"
+            type="text"
+            [maxlength]="wordSeparatorMaxLength"
+            (change)="save('wordSeparator')"
+          />
+        </bit-form-field>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            formControlName="capitalize"
+            id="capitalize"
+            type="checkbox"
+            (change)="save('capitalize')"
+          />
+          <bit-label>{{ "capitalize" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control [disableMargin]="!policyInEffect">
+          <input
+            bitCheckbox
+            formControlName="includeNumber"
+            id="include-number"
+            type="checkbox"
+            (change)="save('includeNumber')"
+          />
+          <bit-label>{{ "includeNumber" | i18n }}</bit-label>
+        </bit-form-control>
+        <p *ngIf="policyInEffect" bitTypography="helper">{{ "generatorPolicyInEffect" | i18n }}</p>
+      </bit-card>
+    </div>
+  </form>
+</bit-section>

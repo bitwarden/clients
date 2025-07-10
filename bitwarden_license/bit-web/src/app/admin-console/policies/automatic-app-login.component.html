@@ -1,0 +1,14 @@
+<bit-form-control>
+  <input type="checkbox" id="enabled" bitCheckbox [formControl]="enabled" />
+  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+    <bit-form-field class="tw-col-span-12 !tw-mb-0">
+      <bit-label>{{ "automaticAppLoginIdpHostLabel" | i18n }}</bit-label>
+      <input bitInput type="text" min="0" formControlName="idpHost" />
+      <bit-hint>{{ "automaticAppLoginIdpHostDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+  </div>
+</div>

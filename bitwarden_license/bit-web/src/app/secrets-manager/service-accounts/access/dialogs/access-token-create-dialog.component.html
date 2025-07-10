@@ -10,21 +10,8 @@
     <div bitDialogContent>
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
-        <input bitInput formControlName="name" />
+        <input bitInput appAutofocus formControlName="name" />
       </bit-form-field>
-      <div class="tw-mb-6">
-        <bit-form-field class="tw-mb-0">
-          <bit-label>{{ "permissions" | i18n }}</bit-label>
-          <select bitInput disabled>
-            <option selected value="canRead">
-              {{ "canRead" | i18n }}
-            </option>
-          </select>
-        </bit-form-field>
-        <span class="tw-text-sm tw-text-muted">
-          {{ "accessTokenPermissionsBetaNotification" | i18n }}
-        </span>
-      </div>
       <sm-expiration-options
         formControlName="expirationDateControl"
         [expirationDayOptions]="expirationDayOptions"
@@ -32,13 +19,13 @@
       ></sm-expiration-options>
     </div>
 
-    <div bitDialogFooter class="tw-flex tw-gap-2">
+    <ng-container bitDialogFooter>
       <button class="tw-normal-case" type="submit" bitButton buttonType="primary" bitFormButton>
         {{ "createAccessToken" | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
         {{ "cancel" | i18n }}
       </button>
-    </div>
+    </ng-container>
   </bit-dialog>
 </form>

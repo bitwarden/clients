@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden – bezmaksas paroļu pārvaldnieks</value>
+    <value>Bitwarden paroļu pārvaldnieks</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Drošs bezmaksas paroļu pārvaldnieks visām Tavām ierīcēm</value>
+    <value>Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc. is the parent company of 8bit Solutions LLC.
+    <value>PCMag, WIRED, The Verge, CNET, G2 un vēl ir atzinuši Bitwarden kā labāko paroļu pārvaldnieku.
 
-NAMED BEST PASSWORD MANAGER BY THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET, AND MORE.
+AIZSARGĀ SAVU DIGITĀLO DZĪVI
+Aizsargā savu digitālo dzīvi un nodrošinies pret datu noplūdēm ar vienreizēju, spēcīgu paruļu izveidošanu un saglabāšanu katram kontam! Glabā visu pilnīgi šifrētā paroļu glabātavā, kurai vari piekļūt vienīgi Tu!
 
-Manage, store, secure, and share unlimited passwords across unlimited devices from anywhere. Bitwarden delivers open source password management solutions to everyone, whether at  home, at work, or on the go.
+PIEKĻŪSTI SAVIEM DATIEM JEBKUR, JEBKAD UN JEBKURĀ IERĪCĒ
+Viegla paroļu pārvaldīšana, glabāšana, nodrošināšana un kopīgošana bez ierobežojumiem dažādās ierīcēs.
 
-Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+IKVIENAM VAJADZĒTU IZMANTOT RĪKUS, LAI TIEŠSAISTĒ BŪTU DROŠI
+Bitwarden ir izmantojams bez maksas, reklāmām un datu pārdošanas. Bitwarden tic, ka ikvienam vajadzētu būt iespējai būt drošam tiešsaistē. Premium plāni sniedz piekļuvi papildu iespējām.
 
-Bitwarden Send quickly transmits encrypted information --- files and plaintext -- directly to anyone.
+SPĒCINI SAVAS KOMANDAS AR BITWARDEN
+Komandu un uzņēmumu plāni satur profesionālas uzņēmējdarbības iespējas. Piemēram, SSO iekļaušana, pašmitināšana, direktorijas iekļaušana un SCIM apgāde, visaptveroši nosacījumi, API piekļuve, notikumu žurnāli un vēl.
 
-Bitwarden offers Teams and Enterprise plans for companies so you can securely share passwords with colleagues.
+Izmanto bitwarden, lai drošinātu savu darbaspēku un kopīgotu jutīgu informāciju ar darbabiedriem!
 
-Why Choose Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Vairāk iemelsu, lai izvēlētos Bitwarden:
 
-Built-in Password Generator
-Generate strong, unique, and random passwords based on security requirements for every website you frequent.
+Pasaules klases šifrēšana
+Paroles ir aizsargātas ar sarežģītu pilnīgu šifrēšanu (AES-256 bitu, sālīts jaucējkods un PBKDF2 SHA-256), līdz ar to Tavi dati ir droši un privāti.
 
-Global Translations 
-Bitwarden translations exist in 40 languages and are growing, thanks to our global community.
+Trešo pušu pārbaudes
+Bitwarden pastāvīgi veic aptverošas trešo pušu drošības pārbaudes ar atzīstamiem drošības uzņēmumiem. Šīs ikgadējās pārbaudes iekļauj pirmkoda izvērtēšanu un ielaušanās pārbaudes dažādās Bitwarden IP adresēs, serveros un tīmekļa lietotnēs.
 
-Cross-Platform Applications 
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Papildu 2FA
+Aizsargā savu pieteikšanos ar trešo pušu autentificētāju, e-pastā nosūtītiem kodiem vai tādiem FIDO2 WebAuthn pieteikšanās datiem kā aparatūras drošības atslēgu vai piekļuves atslēgu!
+
+Bitwarden Send
+Datu pārsūtīšana citiem, saglabājot pilnīgu šifrēšanas drošību un ierobežojot atklāšanu.
+
+Iebūvēts veidotājs
+Izveido garas, sarežģītas un atšķirīgas paroles un vienreizējus lietotājvārdus katrai apmeklētajai vietnei! Papildu privātumam var apvienot ar e-pasta aizstājvārdu nodrošinātājiem.
+
+Vispasaules tulkojumi
+Bitwarden ir tulkots vairāk nekā 60 valodās ar vispasaules kopienas palīdzību tulkošanas rīkā Crowdin.
+
+Starpplatformu lietotnes
+Aizsargā un kopīgo jutīgus datus savā Bitwarden glabātavā jebkurā pārlūkā, mobilajā ierīcē vai darbvirsmas operētājsistēmā un vēl!
+
+Bitwarden aizsargā vairāk nekā tikai paroles
+Pilnīgas šifrēšanas pieteikšanās datu pārvaldības risinājumi no Bitwarden sniedz iespēju apvienībām aizsargāt visu, tajā skaitā izstrādātāju noslēpumus un piekļuves atslēgu pieredzes. Bitwarden.com ir ampeklējams, lai uzzinātu vairāk par Bitwarden noslēpumu pārvaldnieku un Bitwarden Passwordless.dev.
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Drošs bezmaksas paroļu pārvaldnieks visām Tavām ierīcēm</value>
+    <value>Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Sinhronizē un piekļūsti savai glabātavai no vairākām ierīcēm</value>
@@ -161,7 +178,7 @@ Secure and share sensitive data within your Bitwarden Vault from any browser, mo
     <value>Pārvaldi visus savus pierakstīšanās vienumus un paroles no drošas glabātavas</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Ātra automātiskā aizpilde Taviem pierakstīšanās datiem jebkurā lapā, ko apmeklē</value>
+    <value>Ātra pieteikšanās informācijas automātiskā aizildīšana jebkurā apmeklētajā tīmekļa vietnē</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
     <value>Tava glabātava ir arī ērti pieejama labā klikšķa izvēlnē</value>
@@ -170,6 +187,6 @@ Secure and share sensitive data within your Bitwarden Vault from any browser, mo
     <value>Automātiski veido spēcīgas, sarežģītas un drošas paroles</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>Tava informācija ir droši pārvaldīta, izmantojot AES-256 bitu šifrēšanu</value>
+    <value>Jūsu informācija ir droši pārvaldīta izmantojot AES-256 bitu šifrēšanu</value>
   </data>
 </root>

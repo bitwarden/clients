@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { DatePipe } from "@angular/common";
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import {
@@ -9,9 +11,12 @@ import {
   NG_VALUE_ACCESSOR,
   ValidationErrors,
   Validator,
+  ValidatorFn,
   Validators,
 } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 @Component({
   selector: "sm-expiration-options",
@@ -28,6 +33,7 @@ import { Subject, takeUntil } from "rxjs";
       useExisting: ExpirationOptionsComponent,
     },
   ],
+  standalone: false,
 })
 export class ExpirationOptionsComponent
   implements ControlValueAccessor, Validator, OnInit, OnDestroy
@@ -46,10 +52,13 @@ export class ExpirationOptionsComponent
 
   protected form = new FormGroup({
     expires: new FormControl("never", [Validators.required]),
-    expireDateTime: new FormControl("", [Validators.required]),
+    expireDateTime: new FormControl("", [Validators.required, this.expiresInFutureValidator()]),
   });
 
-  constructor(private datePipe: DatePipe) {}
+  constructor(
+    private datePipe: DatePipe,
+    private i18nService: I18nService,
+  ) {}
 
   async ngOnInit() {
     this.form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -74,7 +83,7 @@ export class ExpirationOptionsComponent
 
   validate(control: AbstractControl<any, any>): ValidationErrors {
     if (
-      (this.form.value.expires == "custom" && this.form.value.expireDateTime) ||
+      (this.form.value.expires == "custom" && !this.form.invalid) ||
       this.form.value.expires !== "custom"
     ) {
       return null;
@@ -110,5 +119,21 @@ export class ExpirationOptionsComponent
     const currentDate = new Date();
     currentDate.setDate(currentDate.getDate() + Number(this.form.value.expires));
     return currentDate;
+  }
+
+  expiresInFutureValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const enteredDate = new Date(control.value);
+
+      if (enteredDate > new Date()) {
+        return null;
+      } else {
+        return {
+          ValidationError: {
+            message: this.i18nService.t("expirationDateError"),
+          },
+        };
+      }
+    };
   }
 }

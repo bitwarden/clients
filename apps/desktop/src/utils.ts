@@ -1,5 +1,5 @@
-import { ipcRenderer } from "electron";
-
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export type RendererMenuItem = {
   label?: string;
   type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
@@ -10,7 +10,9 @@ export function invokeMenu(menu: RendererMenuItem[]) {
   const menuWithoutClick = menu.map((m) => {
     return { label: m.label, type: m.type };
   });
-  ipcRenderer.invoke("openContextMenu", { menu: menuWithoutClick }).then((i: number) => {
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  ipc.platform.openContextMenu(menuWithoutClick).then((i: number) => {
     if (i !== -1) {
       menu[i].click();
     }
@@ -25,8 +27,16 @@ export function isDev() {
   return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
 }
 
+export function isLinux() {
+  return process.platform === "linux";
+}
+
 export function isAppImage() {
-  return process.platform === "linux" && "APPIMAGE" in process.env;
+  return isLinux() && "APPIMAGE" in process.env;
+}
+
+export function isSnapStore() {
+  return isLinux() && process.env.SNAP_USER_DATA != null;
 }
 
 export function isMac() {
@@ -37,25 +47,39 @@ export function isMacAppStore() {
   return isMac() && process.mas === true;
 }
 
+export function isWindows() {
+  return process.platform === "win32";
+}
+
 export function isWindowsStore() {
-  const isWindows = process.platform === "win32";
+  const windows = isWindows();
   let windowsStore = process.windowsStore;
   if (
-    isWindows &&
+    windows &&
     !windowsStore &&
-    process.resourcesPath.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
+    process.resourcesPath?.indexOf("8bitSolutionsLLC.bitwardendesktop_") > -1
   ) {
     windowsStore = true;
   }
-  return isWindows && windowsStore === true;
+  return windows && windowsStore === true;
 }
 
-export function isSnapStore() {
-  return process.platform === "linux" && process.env.SNAP_USER_DATA != null;
+export function isFlatpak() {
+  return process.platform === "linux" && process.env.container != null;
 }
 
 export function isWindowsPortable() {
-  return process.platform === "win32" && process.env.PORTABLE_EXECUTABLE_DIR != null;
+  return isWindows() && process.env.PORTABLE_EXECUTABLE_DIR != null;
+}
+
+/**
+ * We block the browser integration on some unsupported platforms, which also
+ * blocks partially supported platforms (mac .dmg in dev builds) / prevents
+ * experimenting with the feature for QA. So this env var allows overriding
+ * the block.
+ */
+export function allowBrowserintegrationOverride() {
+  return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";
 }
 
 /**
@@ -73,8 +97,4 @@ export function cleanUserAgent(userAgent: string): string {
     .replace(userAgentItem("(", ")"), systemInformation)
     .replace(userAgentItem("Bitwarden", " "), "")
     .replace(userAgentItem("Electron", " "), "");
-}
-
-export async function getCookie(url: string, name: string): Promise<Electron.Cookie[]> {
-  return await ipcRenderer.invoke("getCookie", { url: url, name: name });
 }

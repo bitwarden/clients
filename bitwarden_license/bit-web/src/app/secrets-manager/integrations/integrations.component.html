@@ -1,0 +1,24 @@
+<app-header>
+  <sm-new-menu></sm-new-menu>
+</app-header>
+
+<section class="tw-mb-9">
+  <p bitTypography="body1">{{ "integrationsDesc" | i18n }}</p>
+  <app-integration-grid
+    [integrations]="integrations"
+    [tooltipI18nKey]="'smIntegrationTooltip'"
+    [ariaI18nKey]="'smIntegrationCardAriaLabel'"
+  ></app-integration-grid>
+</section>
+
+<section class="tw-mb-9">
+  <h2 bitTypography="h2">
+    {{ "sdks" | i18n }}
+  </h2>
+  <p bitTypography="body1">{{ "sdksDesc" | i18n }}</p>
+  <app-integration-grid
+    [integrations]="sdks"
+    [tooltipI18nKey]="'smSdkTooltip'"
+    [ariaI18nKey]="'smSdkAriaLabel'"
+  ></app-integration-grid>
+</section>

@@ -1,0 +1,86 @@
+<bit-banner
+  id="free-trial-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngFor="let organization of organizationsPaymentStatus; trackBy: trackBy; index as i"
+>
+  {{ freeTrialMessage(organization) }}
+  <a
+    bitLink
+    linkType="secondary"
+    (click)="navigateToPaymentMethod(organization?.organizationId)"
+    rel="noreferrer noopener"
+    class="tw-cursor-pointer"
+  >
+    {{ "clickHereToAddPaymentMethod" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
+  id="update-browser-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="warning"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.OutdatedBrowser)"
+  (onClose)="dismissBanner(VisibleVaultBanner.OutdatedBrowser)"
+>
+  {{ "updateBrowserDesc" | i18n }}
+  <a
+    bitLink
+    linkType="secondary"
+    target="_blank"
+    href="https://browser-update.org/update-browser.html"
+    rel="noreferrer noopener"
+  >
+    {{ "updateBrowser" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
+  id="kdf-settings-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="warning"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.KDFSettings)"
+  (onClose)="dismissBanner(VisibleVaultBanner.KDFSettings)"
+>
+  {{ "lowKDFIterationsBanner" | i18n }}
+  <a bitLink linkType="secondary" routerLink="/settings/security/security-keys">
+    {{ "changeKDFSettings" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
+  id="pending-auth-request-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="info"
+  icon="bwi-info-circle"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)"
+  (onClose)="dismissBanner(VisibleVaultBanner.PendingAuthRequest)"
+>
+  {{ "youHaveAPendingLoginRequest" | i18n }}
+  <a bitLink linkType="secondary" routerLink="/settings/security/device-management">
+    {{ "reviewLoginRequest" | i18n }}
+  </a>
+</bit-banner>
+
+<app-verify-email
+  id="verify-email-banner"
+  *ngIf="visibleBanners.includes(VisibleVaultBanner.VerifyEmail)"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  (onDismiss)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
+  (onVerified)="dismissBanner(VisibleVaultBanner.VerifyEmail)"
+></app-verify-email>
+
+<bit-banner
+  id="premium-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  *ngIf="premiumBannerVisible$ | async"
+  (onClose)="dismissBanner(VisibleVaultBanner.Premium)"
+>
+  {{ "premiumUpgradeUnlockFeatures" | i18n }}
+  <a bitLink linkType="secondary" routerLink="/settings/subscription/premium">
+    {{ "goPremium" | i18n }}
+  </a>
+</bit-banner>

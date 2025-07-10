@@ -1,0 +1,84 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs";
+
+import * as stories from "./dialog.stories";
+
+<Meta of={stories} />
+
+```ts
+import { DialogModule, DialogService } from "@bitwarden/components";
+```
+
+# Dialog
+
+Dialogs are used throughout the app to help the user focus on a specific action. Use this dialog
+component when content exceeds 384px width or there are a high number of interactive elements
+needed. **Example:** The web app's edit vault item form dialog
+
+For alerts or simple confirmation actions, like speedbumps, use the
+[Simple Dialog](?path=/docs/component-library-dialogs-simple-dialog--docs).
+
+Dialogs's should be used sparingly as they do call extra attention to themselves and can be
+interruptive if overused.
+
+<Primary />
+<Controls />
+
+## Size
+
+There are 3 main dialog sizes:
+
+### Large
+
+Use the large size for dialogs that have many interactive elements or tabbed content.
+
+**Tailwind styling:**
+
+`max-w-3xl` 48rem
+
+<Canvas of={stories.Large} />
+
+### Default
+
+Use the Default size for most dialogs that require some content and a few interactive elements.
+**Example:** master password confirmation dialog
+
+**Tailwind styling:**
+
+`max-w-xl` 36rem
+
+<Canvas of={stories.Default} />
+
+### Small
+
+**Tailwind styling:**
+
+`max-w-sm` 24rem
+
+<Canvas of={stories.Small} />
+
+## Long Title
+
+If a dialog's title is too long to fully display. It should be truncated and on hover shown in a
+tooltip.
+
+<Canvas of={stories.LongTitle} />
+
+## Loading
+
+Similar to a page loading state, a Dialog that takes more than a few seconds to load should use a
+loading state.
+
+<Canvas of={stories.Loading} />
+
+## Tab Content
+
+Use tabs to separate related content within a dialog.
+
+<Canvas of={stories.TabContent} />
+
+## Background Color
+
+The `background` input can be set to `alt` to change the background color. This is useful for
+dialogs that contain multiple card sections.
+
+<Canvas of={stories.WithCards} />

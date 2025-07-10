@@ -1,0 +1,45 @@
+<app-layout>
+  <app-side-nav variant="secondary" *ngIf="provider$ | async as provider">
+    <bit-nav-logo
+      [openIcon]="logo$ | async"
+      route="."
+      [label]="'providerPortal' | i18n"
+    ></bit-nav-logo>
+
+    <bit-nav-item
+      icon="bwi-provider"
+      [text]="clientsTranslationKey$ | async | i18n"
+      [route]="(isBillable | async) ? 'manage-client-organizations' : 'clients'"
+    ></bit-nav-item>
+    <bit-nav-group
+      icon="bwi-sliders"
+      [text]="'manage' | i18n"
+      route="manage"
+      *ngIf="showManageTab(provider)"
+    >
+      <bit-nav-item [text]="'members' | i18n" route="manage/members"></bit-nav-item>
+      <bit-nav-item
+        [text]="'eventLogs' | i18n"
+        route="manage/events"
+        *ngIf="provider.useEvents"
+      ></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-group
+      icon="bwi-billing"
+      [text]="'billing' | i18n"
+      route="billing"
+      *ngIf="canAccessBilling$ | async"
+    >
+      <bit-nav-item [text]="'subscription' | i18n" route="billing/subscription"></bit-nav-item>
+      <bit-nav-item [text]="'billingHistory' | i18n" route="billing/history"></bit-nav-item>
+    </bit-nav-group>
+    <bit-nav-item
+      icon="bwi-cog"
+      [text]="'settings' | i18n"
+      route="settings"
+      *ngIf="showSettingsTab(provider)"
+    ></bit-nav-item>
+  </app-side-nav>
+
+  <router-outlet></router-outlet>
+</app-layout>

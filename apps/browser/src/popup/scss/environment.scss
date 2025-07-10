@@ -1,15 +1,17 @@
 @import "variables.scss";
 
 html.browser_safari {
-  body {
-    height: 360px !important;
+  &.safari_height_fix {
+    body {
+      height: 360px !important;
 
-    &.body-xs {
-      height: 300px !important;
-    }
+      &.body-xs {
+        height: 300px !important;
+      }
 
-    &.body-full {
-      height: 100% !important;
+      &.body-full {
+        height: 100% !important;
+      }
     }
   }
 
@@ -37,9 +39,5 @@ html.browser_safari {
 
   &.theme_light app-root {
     border-color: #777777;
-  }
-
-  &.theme_nord app-root {
-    border-color: #2e3440;
   }
 }

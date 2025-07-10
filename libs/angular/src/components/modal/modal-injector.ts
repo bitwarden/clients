@@ -1,10 +1,21 @@
-import { InjectFlags, InjectionToken, Injector, Type } from "@angular/core";
+import { InjectFlags, InjectOptions, Injector, ProviderToken } from "@angular/core";
 
 export class ModalInjector implements Injector {
-  constructor(private _parentInjector: Injector, private _additionalTokens: WeakMap<any, any>) {}
+  constructor(
+    private _parentInjector: Injector,
+    private _additionalTokens: WeakMap<any, any>,
+  ) {}
 
-  get<T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T, flags?: InjectFlags): T;
-  get(token: any, notFoundValue?: any, flags?: any) {
+  get<T>(
+    token: ProviderToken<T>,
+    notFoundValue: undefined,
+    options: InjectOptions & { optional?: false },
+  ): T;
+  get<T>(token: ProviderToken<T>, notFoundValue: null, options: InjectOptions): T;
+  get<T>(token: ProviderToken<T>, notFoundValue?: T, options?: InjectOptions | InjectFlags): T;
+  get<T>(token: ProviderToken<T>, notFoundValue?: T, flags?: InjectFlags): T;
+  get(token: any, notFoundValue?: any): any;
+  get(token: any, notFoundValue?: any, flags?: any): any {
     return this._additionalTokens.get(token) ?? this._parentInjector.get<any>(token, notFoundValue);
   }
 }

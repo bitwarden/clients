@@ -1,0 +1,67 @@
+import { Description, Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs";
+
+import * as stories from "./avatar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { AvatarModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Size
+
+### Large: 64px
+
+<Canvas of={stories.Large} />
+
+### Default: 48px
+
+<Canvas of={stories.Default} />
+
+### Small 28px
+
+<Canvas of={stories.Small} />
+
+## Background color
+
+The Background color can be set 3 ways. The color is generated using the following order of
+priority:
+
+- Color
+- ID
+- Text, usually set to the user's Name field
+
+<Canvas of={stories.ColorByText} />
+Use the user 'ID' field if `Name` is not defined.
+<Canvas of={stories.ColorByID} />
+
+## Outline
+
+If the avatar is displayed on one of the theme's `background` color variables or is interactive,
+display the avatar with a 1 pixel `secondary-600` border to meet WCAG AA graphic contrast guidelines
+for interactive elements.
+
+<Canvas of={stories.Border} />
+
+## Avatar as a button
+
+The Avatar can be used as a button.
+
+Typically this is only in the navigation on client apps where account switching is used and in the
+web app for the account menu indicator.
+
+When the avatar is used as a button, the following states should be used:
+
+`TODO:` [Jira add stories](https://bitwarden.atlassian.net/browse/CL-101) for button avatars.
+[See Figma](https://www.figma.com/file/Zt3YSeb6E6lebAffrNLa0h/Tailwind-Component-Library?type=design&node-id=9730-31746&mode=design&t=IjDIHDb6FZl6bUQW-4)
+
+## Accessibility
+
+Avatar background color should have 3.1:1 contrast with it’s background; or include the
+`secondary-600` border Avatar text should have 4.5:1 contrast with the avatar background color

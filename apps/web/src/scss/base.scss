@@ -1,9 +1,10 @@
 html {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 body {
   min-width: 1010px;
+  position: relative;
 
   &.layout_frontend {
     @media (prefers-color-scheme: dark) {
@@ -90,14 +91,6 @@ img.logo-themed {
   margin-top: 20px;
 }
 
-.footer {
-  margin-top: 40px;
-  padding: 40px 0 40px 0;
-  @include themify($themes) {
-    border-top: 1px solid themed("separator");
-  }
-}
-
 hr,
 .dropdown-divider {
   @include themify($themes) {
@@ -173,9 +166,7 @@ code {
 }
 
 .btn:focus,
-.swal2-popup .swal2-actions button:focus,
 .btn.focus,
-.swal2-popup .swal2-actions button.focus,
 .form-control:focus {
   @include themify($themes) {
     box-shadow: 0 0 0 0.2rem themed("focus");
@@ -302,7 +293,7 @@ code {
   }
 }
 
-button i.bwi,
+button:not([bitbutton]):not([biticonbutton]) i.bwi,
 a i.bwi {
   margin-right: 0.25rem;
 }

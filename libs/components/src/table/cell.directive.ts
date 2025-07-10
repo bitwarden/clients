@@ -1,4 +1,4 @@
-import { HostBinding, Directive } from "@angular/core";
+import { Directive, HostBinding } from "@angular/core";
 
 @Directive({
   selector: "th[bitCell], td[bitCell]",

@@ -1,13 +1,14 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-
-import { WebI18nKey } from "@bitwarden/web-vault/app/core/web-i18n.service.implementation";
 
 import { AccessTokenView } from "../models/view/access-token.view";
 
 @Component({
   selector: "sm-access-list",
   templateUrl: "./access-list.component.html",
+  standalone: false,
 })
 export class AccessListComponent {
   @Input()
@@ -21,6 +22,7 @@ export class AccessListComponent {
   private _tokens: AccessTokenView[];
 
   @Output() newAccessTokenEvent = new EventEmitter();
+  @Output() revokeAccessTokensEvent = new EventEmitter<AccessTokenView[]>();
 
   protected selection = new SelectionModel<string>(true, []);
 
@@ -36,7 +38,8 @@ export class AccessListComponent {
       : this.selection.select(...this.tokens.map((s) => s.id));
   }
 
-  protected permission(token: AccessTokenView): WebI18nKey {
-    return "canRead";
+  protected revokeSelected() {
+    const selected = this.tokens.filter((s) => this.selection.selected.includes(s.id));
+    this.revokeAccessTokensEvent.emit(selected);
   }
 }

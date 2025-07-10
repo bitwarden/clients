@@ -1,5 +1,5 @@
 import { Component, DebugElement } from "@angular/core";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { ButtonModule } from "./index";
@@ -11,69 +11,17 @@ describe("Button", () => {
   let disabledButtonDebugElement: DebugElement;
   let linkDebugElement: DebugElement;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ButtonModule],
-      declarations: [TestApp],
+      imports: [TestApp],
     });
 
-    TestBed.compileComponents();
+    await TestBed.compileComponents();
     fixture = TestBed.createComponent(TestApp);
     testAppComponent = fixture.debugElement.componentInstance;
     buttonDebugElement = fixture.debugElement.query(By.css("button"));
     disabledButtonDebugElement = fixture.debugElement.query(By.css("button#disabled"));
     linkDebugElement = fixture.debugElement.query(By.css("a"));
-  }));
-
-  it("should apply classes based on type", () => {
-    testAppComponent.buttonType = "primary";
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-bg-primary-500")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-bg-primary-500")).toBe(true);
-
-    testAppComponent.buttonType = "secondary";
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-border-text-muted")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-border-text-muted")).toBe(true);
-
-    testAppComponent.buttonType = "danger";
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-border-danger-500")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-border-danger-500")).toBe(true);
-
-    testAppComponent.buttonType = "unstyled";
-    fixture.detectChanges();
-    expect(
-      Array.from(buttonDebugElement.nativeElement.classList).some((klass: string) =>
-        klass.startsWith("tw-bg")
-      )
-    ).toBe(false);
-    expect(
-      Array.from(linkDebugElement.nativeElement.classList).some((klass: string) =>
-        klass.startsWith("tw-bg")
-      )
-    ).toBe(false);
-
-    testAppComponent.buttonType = null;
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-border-text-muted")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-border-text-muted")).toBe(true);
-  });
-
-  it("should apply block when true and inline-block when false", () => {
-    testAppComponent.block = true;
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-block")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-block")).toBe(true);
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-inline-block")).toBe(false);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-inline-block")).toBe(false);
-
-    testAppComponent.block = false;
-    fixture.detectChanges();
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-inline-block")).toBe(true);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-inline-block")).toBe(true);
-    expect(buttonDebugElement.nativeElement.classList.contains("tw-block")).toBe(false);
-    expect(linkDebugElement.nativeElement.classList.contains("tw-block")).toBe(false);
   });
 
   it("should not be disabled when loading and disabled are false", () => {
@@ -86,23 +34,25 @@ describe("Button", () => {
     expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
-  it("should be disabled when disabled is true", () => {
+  it("should be aria-disabled and not html attribute disabled when disabled is true", () => {
     testAppComponent.disabled = true;
     fixture.detectChanges();
-
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(buttonDebugElement.nativeElement.disabled).toBeFalsy();
     // Anchor tags cannot be disabled.
   });
 
-  it("should be disabled when attribute disabled is true", () => {
-    expect(disabledButtonDebugElement.nativeElement.disabled).toBeTruthy();
+  it("should be aria-disabled not html attribute disabled when attribute disabled is true", () => {
+    fixture.detectChanges();
+    expect(disabledButtonDebugElement.attributes["aria-disabled"]).toBe("true");
+    expect(disabledButtonDebugElement.nativeElement.disabled).toBeFalsy();
   });
 
   it("should be disabled when loading is true", () => {
     testAppComponent.loading = true;
     fixture.detectChanges();
 
-    expect(buttonDebugElement.nativeElement.disabled).toBeTruthy();
+    expect(buttonDebugElement.attributes["aria-disabled"]).toBe("true");
   });
 });
 
@@ -132,10 +82,11 @@ describe("Button", () => {
 
     <button id="disabled" type="button" bitButton disabled>Button</button>
   `,
+  imports: [ButtonModule],
 })
 class TestApp {
-  buttonType: string;
-  block: boolean;
-  disabled: boolean;
-  loading: boolean;
+  buttonType?: string;
+  block?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
 }

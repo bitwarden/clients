@@ -1,0 +1,23 @@
+<form #form [formGroup]="formGroup" *ngIf="nameOnly">
+  <bit-form-field>
+    <bit-label>{{ "organizationName" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="name" />
+  </bit-form-field>
+</form>
+<form #form [formGroup]="formGroup" *ngIf="!nameOnly">
+  <h2>{{ "generalInformation" | i18n }}</h2>
+  <div class="tw-flex tw-w-full tw-space-x-4" *ngIf="createOrganization">
+    <bit-form-field class="tw-w-1/2">
+      <bit-label>{{ "organizationName" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="name" />
+    </bit-form-field>
+    <bit-form-field class="tw-w-1/2">
+      <bit-label>{{ "billingEmail" | i18n }}</bit-label>
+      <input bitInput type="email" formControlName="billingEmail" />
+    </bit-form-field>
+    <bit-form-field class="tw-w-1/2" *ngIf="isProvider">
+      <bit-label>{{ "clientOwnerEmail" | i18n }}</bit-label>
+      <input bitInput type="email" formControlName="clientOwnerEmail" />
+    </bit-form-field>
+  </div>
+</form>

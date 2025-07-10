@@ -1,0 +1,22 @@
+<app-header></app-header>
+
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <div class="tw-my-4 tw-max-w-xl">
+    <bit-callout type="info" title="{{ 'exportingOrganizationSecretDataTitle' | i18n }}">
+      {{ "exportingOrganizationSecretDataDescription" | i18n: orgName }}
+    </bit-callout>
+  </div>
+
+  <bit-form-field class="tw-max-w-sm">
+    <bit-label>{{ "fileFormat" | i18n }}</bit-label>
+    <select bitInput formControlName="format">
+      <option *ngFor="let format of exportFormats; let i = index" [value]="i">
+        {{ format.name }}
+      </option>
+    </select>
+  </bit-form-field>
+
+  <button bitButton bitFormButton type="submit" buttonType="primary">
+    {{ "exportData" | i18n }}
+  </button>
+</form>

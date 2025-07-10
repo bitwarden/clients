@@ -4,7 +4,6 @@
 
 .filter-heading {
   display: flex;
-  text-transform: uppercase;
   align-items: center;
 
   * {
@@ -26,20 +25,25 @@
     }
   }
 
-  button.filter-button {
-    &:hover,
-    &:focus,
-    &.active {
-      @include themify($themes) {
-        color: themed("linkColor") !important;
+  .filter-button {
+    h3,
+    button {
+      &:hover,
+      &:focus,
+      &.active {
+        @include themify($themes) {
+          color: themed("linkColor") !important;
+        }
       }
-    }
-    &.active {
-      font-weight: bold;
+      &.active {
+        font-weight: bold;
+      }
     }
   }
 
-  button.toggle-button {
+  button.toggle-button,
+  button.add-button {
+    margin-right: 0.25rem;
     &:hover,
     &:focus {
       @include themify($themes) {
@@ -95,6 +99,7 @@
   }
 
   .toggle-button {
+    margin-right: 0.25rem;
     &:hover,
     &:focus {
       @include themify($themes) {
@@ -137,73 +142,42 @@
     }
   }
 
-  .org-options {
+  .filter-options-icon {
     padding: 0 2px;
   }
 }
 
-.groupings {
-  .card {
-    #search {
-      margin-bottom: 1rem;
+.filter {
+  ul:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    @include themify($themes) {
+      color: themed("textHeadingColor");
+    }
+  }
+  .show-active {
+    display: none;
+  }
+  li.active {
+    > .show-active,
+    > div .show-active {
+      display: inline;
+    }
+  }
+  li.active {
+    > button:first-of-type,
+    > div button:first-of-type {
       @include themify($themes) {
-        background-color: themed("inputBackgroundColor");
-        border-color: themed("inputBorderColor");
-        color: themed("inputTextColor");
-      }
-
-      &::placeholder {
-        @include themify($themes) {
-          color: themed("inputPlaceholderColor");
-        }
+        color: themed("linkColor");
       }
     }
 
-    h3 {
-      font-weight: normal;
-      text-transform: uppercase;
+    > .bwi,
+    > div > .bwi {
       @include themify($themes) {
-        color: themed("textMuted");
-      }
-    }
-
-    ul:last-child {
-      margin-bottom: 0;
-    }
-
-    .card-body a {
-      @include themify($themes) {
-        color: themed("textHeadingColor");
-        font-weight: themed("linkWeight");
-      }
-
-      &:hover {
-        &.text-muted {
-        }
-      }
-    }
-    .show-active {
-      display: none;
-    }
-    li.active {
-      > .show-active,
-      > div .show-active {
-        display: inline;
-      }
-    }
-    li.active {
-      > button:first-of-type,
-      > div button:first-of-type {
-        @include themify($themes) {
-          color: themed("linkColor");
-        }
-      }
-
-      > .bwi,
-      > div > .bwi {
-        @include themify($themes) {
-          color: themed("linkColor");
-        }
+        color: themed("linkColor");
       }
     }
   }

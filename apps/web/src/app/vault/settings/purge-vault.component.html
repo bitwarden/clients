@@ -1,0 +1,19 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="default" [title]="'purgeVault' | i18n">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">
+        {{ (organizationId ? "purgeOrgVaultDesc" : "purgeVaultDesc") | i18n }}
+      </p>
+      <bit-callout type="warning">{{ "purgeVaultWarning" | i18n }}</bit-callout>
+      <app-user-verification formControlName="masterPassword"></app-user-verification>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton type="submit" buttonType="danger">
+        {{ "purgeVault" | i18n }}
+      </button>
+      <button bitButton bitFormButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

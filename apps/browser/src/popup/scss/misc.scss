@@ -103,16 +103,6 @@ p.lead {
   margin: 0 !important;
 }
 
-.no-vmargin {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-.no-vpad {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
 .display-block {
   display: block !important;
 }
@@ -211,22 +201,14 @@ p.lead {
 }
 
 #web-authn-frame {
-  background: url("../images/loading.svg") 0 0 no-repeat;
   width: 100%;
-  height: 310px;
-  margin-bottom: -10px;
+  height: 40px;
 
   iframe {
-    width: 100%;
-    height: 100%;
     border: none;
+    height: 100%;
+    width: 100%;
   }
-}
-
-#hcaptcha_iframe {
-  width: 100%;
-  border: none;
-  transition: height 0.25s linear;
 }
 
 body.linux-webauthn {
@@ -287,102 +269,6 @@ app-vault-icon,
   cursor: move;
 }
 
-.callout {
-  padding: 10px;
-  margin: 10px;
-  border: 1px solid #000000;
-  border-left-width: 5px;
-  border-radius: 3px;
-  @include themify($themes) {
-    border-color: themed("calloutBorderColor");
-    background-color: themed("calloutBackgroundColor");
-  }
-
-  .callout-heading {
-    margin-top: 0;
-  }
-
-  h3.callout-heading {
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-
-  &.callout-primary {
-    @include themify($themes) {
-      border-left-color: themed("primaryColor");
-    }
-
-    .callout-heading {
-      @include themify($themes) {
-        color: themed("primaryColor");
-      }
-    }
-  }
-
-  &.callout-info {
-    @include themify($themes) {
-      border-left-color: themed("infoColor");
-    }
-
-    .callout-heading {
-      @include themify($themes) {
-        color: themed("infoColor");
-      }
-    }
-  }
-
-  &.callout-danger {
-    @include themify($themes) {
-      border-left-color: themed("dangerColor");
-    }
-
-    .callout-heading {
-      @include themify($themes) {
-        color: themed("dangerColor");
-      }
-    }
-  }
-
-  &.callout-success {
-    @include themify($themes) {
-      border-left-color: themed("successColor");
-    }
-
-    .callout-heading {
-      @include themify($themes) {
-        color: themed("successColor");
-      }
-    }
-  }
-
-  &.callout-warning {
-    @include themify($themes) {
-      border-left-color: themed("warningColor");
-    }
-
-    .callout-heading {
-      @include themify($themes) {
-        color: themed("warningColor");
-      }
-    }
-  }
-
-  &.clickable {
-    &:hover,
-    &:focus,
-    &.active {
-      @include themify($themes) {
-        background-color: themed("boxBackgroundHoverColor");
-      }
-    }
-  }
-
-  .enforced-policy-options ul {
-    padding-left: 30px;
-    margin: 0;
-  }
-}
-
 input[type="password"]::-ms-reveal {
   display: none;
 }
@@ -402,7 +288,7 @@ input[type="password"]::-ms-reveal {
 // contrast against the background, so its inversion is also still readable)
 // and suppress user selection for most elements (to make it more app-like)
 
-::selection {
+:not(bit-form-field input)::selection {
   @include themify($themes) {
     color: themed("backgroundColor");
     background-color: themed("primaryAccentColor");
@@ -422,14 +308,12 @@ img,
 .callout,
 .row-label,
 .modal-title,
-.overlay-container,
-.swal2-container {
+.overlay-container {
   user-select: none;
-}
 
-app-about .modal-body > *,
-app-vault-view .box-footer {
-  user-select: auto;
+  &.user-select {
+    user-select: auto;
+  }
 }
 
 /* tweak for inconsistent line heights in cipher view */
@@ -452,6 +336,13 @@ html.force_redraw {
   animation: redraw 1s linear infinite;
 }
 
-.rounded-circle {
-  border-radius: 50% !important;
+/* override for vault icon in browser (pre extension refresh) */
+app-vault-icon:not(app-vault-list-items-container app-vault-icon) > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  float: left;
+  height: 36px;
+  width: 34px;
+  margin-left: -5px;
 }

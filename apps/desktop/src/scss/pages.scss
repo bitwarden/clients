@@ -1,8 +1,6 @@
 ﻿@import "variables.scss";
 
-#login-page,
 #lock-page,
-#sso-page,
 #set-password-page,
 #remove-password-page {
   display: flex;
@@ -25,10 +23,8 @@
   }
 }
 
-#accessibility-cookie-page,
 #register-page,
 #hint-page,
-#two-factor-page,
 #update-temp-password-page,
 #remove-password-page {
   padding-top: 20px;
@@ -46,11 +42,8 @@
   }
 }
 
-#accessibility-cookie-page,
-#login-page,
 #register-page,
 #hint-page,
-#two-factor-page,
 #lock-page,
 #update-temp-password-page {
   .content {
@@ -106,18 +99,6 @@
           margin-bottom: 0;
         }
       }
-    }
-  }
-}
-
-#sso-page {
-  .content {
-    width: 325px;
-
-    .box {
-      margin-top: 30px;
-      margin-bottom: 30px;
-      text-align: center;
     }
   }
 }
@@ -187,31 +168,21 @@
   }
 }
 
-#login-page {
-  flex-direction: column;
-  justify-content: unset;
-  padding-top: 20px;
-
-  .login-header {
-    align-self: flex-start;
-    padding: 1em;
-    font-size: 1.2em;
-    .environment-urls-settings-icon {
-      @include themify($themes) {
-        color: themed("mutedColor");
-      }
-
-      span {
-        visibility: hidden;
-      }
-
-      &:hover,
-      &:focus {
-        text-decoration: none;
-
+#login-approval-page {
+  .section-title {
+    padding: 20px;
+  }
+  .content {
+    padding: 16px;
+    .section {
+      margin-bottom: 30px;
+      code {
         @include themify($themes) {
-          color: themed("primaryColor");
+          color: themed("codeColor");
         }
+      }
+      h4.label {
+        font-weight: bold;
       }
     }
   }

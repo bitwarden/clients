@@ -1,0 +1,49 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Component Library/Form/Input Directive" />
+
+# Input
+
+`bitInput` is an Angular directive to be used on `<input>`, `<select>`, and `<textarea>` tags in
+order to provide standardized TailwindCss styling, error handling, and more. It is meant to be used
+within a `<bit-form-field>` custom component.
+
+## Basic Usage Example
+
+```html
+<bit-form-field>
+  <bit-label>...</bit-label>
+  <input bitInput formControlName="..." />
+  <bit-hint>...</bit-hint>
+</bit-form-field>
+```
+
+## Disabled `bitInput` and Error Handling
+
+If you would like to be able to still show errors when an input is disabled for specific validation
+scenarios, then set `[showErrorsWhenDisabled]="true"`
+
+```html
+<bit-form-field>
+  <bit-label>...</bit-label>
+  <input bitInput formControlName="..." [showErrorsWhenDisabled]="true" />
+  <bit-hint>...</bit-hint>
+</bit-form-field>
+```
+
+**NOTE:** Disabling a FormControl removes validation errors so you must manually set the errors
+after disabling:
+
+```ts
+  get exampleFormCtrl(): FormControl {
+    return this.form.controls.exampleFormControl as FormControl;
+  }
+
+...
+
+this.exampleFormCtrl.setErrors({
+  error: {
+    message: this.i18nService.t("...", this.exampleFormCtrl.value),
+  },
+});
+```

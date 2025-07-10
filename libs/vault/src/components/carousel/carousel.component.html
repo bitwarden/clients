@@ -1,0 +1,25 @@
+<section
+  aria-roledescription="carousel"
+  [attr.aria-label]="label"
+  [ngStyle]="{ minHeight: minHeight ?? undefined }"
+  class="tw-flex tw-flex-col"
+  #container
+>
+  <vault-carousel-content [content]="slides.get(selectedIndex)?.content"></vault-carousel-content>
+  <div
+    class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto tw-pt-4"
+    role="tablist"
+    (keydown)="keyManager.onKeydown($event)"
+    #carouselButtonWrapper
+  >
+    <vault-carousel-button
+      *ngFor="let slide of slides; let i = index"
+      [slide]="slide"
+      [isActive]="i === selectedIndex"
+      (onClick)="selectSlide(i)"
+    ></vault-carousel-button>
+  </div>
+  <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">
+    <ng-template cdkPortalOutlet></ng-template>
+  </div>
+</section>

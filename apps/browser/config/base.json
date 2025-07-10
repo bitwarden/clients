@@ -1,4 +1,7 @@
 {
-  "dev_flags": {},
-  "flags": {}
+  "devFlags": {},
+  "flags": {
+    "accountSwitching": false,
+    "sdk": true
+  }
 }

@@ -1,0 +1,233 @@
+name: Publish CLI
+run-name: Publish CLI ${{ inputs.publish_type }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_type:
+        description: 'Publish Options'
+        required: true
+        default: 'Initial Publish'
+        type: choice
+        options:
+          - Initial Publish
+          - Republish
+          - Dry Run
+      version:
+        description: 'Version to publish (default: latest cli release)'
+        required: true
+        type: string
+        default: latest
+      snap_publish:
+        description: 'Publish to Snap store'
+        required: true
+        default: true
+        type: boolean
+      choco_publish:
+        description: 'Publish to Chocolatey store'
+        required: true
+        default: true
+        type: boolean
+      npm_publish:
+        description: 'Publish to npm registry'
+        required: true
+        default: true
+        type: boolean
+
+defaults:
+  run:
+    working-directory: apps/cli
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-22.04
+    outputs:
+      release_version: ${{ steps.version-output.outputs.version }}
+      deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Branch check
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-cli" ]]; then
+            echo "==================================="
+            echo "[!] Can only publish from the 'rc' or 'hotfix-rc-cli' branches"
+            echo "==================================="
+            exit 1
+          fi
+
+      - name: Version output
+        id: version-output
+        run: |
+          if [[ "${{ inputs.version }}" == "latest" || "${{ inputs.version }}" == "" ]]; then
+            VERSION=$(curl  "https://api.github.com/repos/bitwarden/clients/releases" | jq -c '.[] | select(.tag_name | contains("cli")) | .tag_name' | head -1 | grep -ohE '20[0-9]{2}\.([1-9]|1[0-2])\.[0-9]+')
+            echo "Latest Released Version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Release Version: ${{ inputs.version }}"
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub deployment
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
+        id: deployment
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          initial-status: 'in_progress'
+          environment: 'CLI - Production'
+          description: 'Deployment ${{ steps.version-output.outputs.version }} from branch ${{ github.ref_name }}'
+          task: release
+
+  snap:
+    name: Deploy Snap
+    runs-on: ubuntu-22.04
+    needs: setup
+    if: inputs.snap_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "snapcraft-store-token"
+
+      - name: Install Snap
+        uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641  # v2.1.1
+
+      - name: Download artifacts
+        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bw_${{ env._PKG_VERSION }}_amd64.snap
+
+      - name: Publish Snap & logout
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
+        run: |
+          snapcraft upload bw_${{ env._PKG_VERSION }}_amd64.snap --release stable
+          snapcraft logout
+
+  choco:
+    name: Deploy Choco
+    runs-on: windows-2022
+    needs: setup
+    if: inputs.choco_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "cli-choco-api-key"
+
+      - name: Setup Chocolatey
+        run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
+        env:
+          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
+
+      - name: Make dist dir
+        run: New-Item -ItemType directory -Path ./dist
+
+      - name: Download artifacts
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
+        working-directory: apps/cli/dist
+
+      - name: Push to Chocolatey
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: choco push --source=https://push.chocolatey.org/
+        working-directory: apps/cli/dist
+
+  npm:
+    name: Publish NPM
+    runs-on: ubuntu-22.04
+    needs: setup
+    if: inputs.npm_publish
+    env:
+      _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Login to Azure
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "npm-api-key"
+
+      - name: Download and set up artifact
+        run: |
+          mkdir -p build
+          wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
+          unzip bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip -d build
+
+      - name: Setup NPM
+        run: |
+          echo 'registry="https://registry.npmjs.org/"' > ./.npmrc
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ./.npmrc
+        env:
+          NPM_TOKEN: ${{ steps.retrieve-secrets.outputs.npm-api-key }}
+
+      - name: Install Husky
+        run: npm install -g husky
+
+      - name: Publish NPM
+        if: ${{ inputs.publish_type != 'Dry Run' }}
+        run: npm publish --access public --regsitry=https://registry.npmjs.org/  --userconfig=./.npmrc
+
+  update-deployment:
+    name: Update Deployment Status
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - npm
+      - snap
+      - choco
+    if: ${{ always() && inputs.publish_type != 'Dry Run' }}
+    steps:
+      - name: Check if any job failed
+        if: contains(needs.*.result, 'failure')
+        run: exit 1
+
+      - name: Update deployment status to Success
+        if: ${{ inputs.publish_type != 'Dry Run' && success() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'success'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}
+
+      - name: Update deployment status to Failure
+        if: ${{ inputs.publish_type != 'Dry Run' && failure() }}
+        uses: chrnorm/deployment-status@9a72af4586197112e0491ea843682b5dc280d806 # v2.0.3
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          state: 'failure'
+          deployment-id: ${{ needs.setup.outputs.deployment_id }}

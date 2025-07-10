@@ -1,0 +1,41 @@
+<ng-container *ngIf="hasMasterPassword">
+  <bit-form-field disableMargin>
+    <bit-label>{{ "masterPass" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="masterPassword"
+      type="password"
+      name="MasterPasswordHash"
+      [formControl]="secret"
+      appAutofocus
+      appInputVerbatim
+    />
+    <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+  </bit-form-field>
+</ng-container>
+<ng-container *ngIf="!hasMasterPassword">
+  <div class="tw-mb-6">
+    <label class="tw-block">{{ "sendVerificationCode" | i18n }}</label>
+    <button type="button" bitButton buttonType="secondary" [bitAction]="requestOTP" appAutofocus>
+      {{ "sendCode" | i18n }}
+    </button>
+    <span class="tw-ml-2 tw-text-success" role="alert" @sent *ngIf="sentCode">
+      <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+      {{ "codeSent" | i18n }}
+    </span>
+  </div>
+
+  <bit-form-field disableMargin>
+    <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+    <input
+      bitInput
+      type="text"
+      id="verificationCode"
+      name="verificationCode"
+      [formControl]="secret"
+      appInputVerbatim
+    />
+    <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+  </bit-form-field>
+</ng-container>

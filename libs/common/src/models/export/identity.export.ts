@@ -1,6 +1,10 @@
-import { EncString } from "../domain/enc-string";
-import { Identity as IdentityDomain } from "../domain/identity";
-import { IdentityView } from "../view/identity.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { EncString } from "../../platform/models/domain/enc-string";
+import { Identity as IdentityDomain } from "../../vault/models/domain/identity";
+import { IdentityView } from "../../vault/models/view/identity.view";
+
+import { safeGetString } from "./utils";
 
 export class IdentityExport {
   static template(): IdentityExport {
@@ -94,44 +98,23 @@ export class IdentityExport {
       return;
     }
 
-    if (o instanceof IdentityView) {
-      this.title = o.title;
-      this.firstName = o.firstName;
-      this.middleName = o.middleName;
-      this.lastName = o.lastName;
-      this.address1 = o.address1;
-      this.address2 = o.address2;
-      this.address3 = o.address3;
-      this.city = o.city;
-      this.state = o.state;
-      this.postalCode = o.postalCode;
-      this.country = o.country;
-      this.company = o.company;
-      this.email = o.email;
-      this.phone = o.phone;
-      this.ssn = o.ssn;
-      this.username = o.username;
-      this.passportNumber = o.passportNumber;
-      this.licenseNumber = o.licenseNumber;
-    } else {
-      this.title = o.title?.encryptedString;
-      this.firstName = o.firstName?.encryptedString;
-      this.middleName = o.middleName?.encryptedString;
-      this.lastName = o.lastName?.encryptedString;
-      this.address1 = o.address1?.encryptedString;
-      this.address2 = o.address2?.encryptedString;
-      this.address3 = o.address3?.encryptedString;
-      this.city = o.city?.encryptedString;
-      this.state = o.state?.encryptedString;
-      this.postalCode = o.postalCode?.encryptedString;
-      this.country = o.country?.encryptedString;
-      this.company = o.company?.encryptedString;
-      this.email = o.email?.encryptedString;
-      this.phone = o.phone?.encryptedString;
-      this.ssn = o.ssn?.encryptedString;
-      this.username = o.username?.encryptedString;
-      this.passportNumber = o.passportNumber?.encryptedString;
-      this.licenseNumber = o.licenseNumber?.encryptedString;
-    }
+    this.title = safeGetString(o.title);
+    this.firstName = safeGetString(o.firstName);
+    this.middleName = safeGetString(o.middleName);
+    this.lastName = safeGetString(o.lastName);
+    this.address1 = safeGetString(o.address1);
+    this.address2 = safeGetString(o.address2);
+    this.address3 = safeGetString(o.address3);
+    this.city = safeGetString(o.city);
+    this.state = safeGetString(o.state);
+    this.postalCode = safeGetString(o.postalCode);
+    this.country = safeGetString(o.country);
+    this.company = safeGetString(o.company);
+    this.email = safeGetString(o.email);
+    this.phone = safeGetString(o.phone);
+    this.ssn = safeGetString(o.ssn);
+    this.username = safeGetString(o.username);
+    this.passportNumber = safeGetString(o.passportNumber);
+    this.licenseNumber = safeGetString(o.licenseNumber);
   }
 }

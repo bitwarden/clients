@@ -1,0 +1,51 @@
+import { Canvas, Controls, Description, Meta, Primary, Title } from "@storybook/addon-docs";
+
+import * as stories from "./banner.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BannerModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+<Primary />
+<Controls />
+
+## Types
+
+Icons should remain consistent across these types. Do not change the icon without consulting
+designers.
+
+Use the following guidelines to help choose the correct type of banner.
+
+### Premium
+
+<Canvas of={stories.Premium} />
+
+Used primarily to encourage user to upgrade to premium.
+
+### Info
+
+<Canvas of={stories.Info} />
+
+Used to communicate release notes, server maintenance or other informative event.
+
+### Warning
+
+<Canvas of={stories.Warning} />
+
+Used to alert the user of outdated info or versions.
+
+### Danger
+
+<Canvas of={stories.Danger} />
+
+Rarely used, but may be used to alert users over critical messages or very outdated versions.
+
+## Accessibility
+
+Banners sets the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
+announce the content prior to the test of the page. This behavior can be disabled by setting
+`[useAlertRole]="false"`.

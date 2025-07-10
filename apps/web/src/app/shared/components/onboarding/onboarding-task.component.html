@@ -1,0 +1,25 @@
+<ng-template #content>
+  <i class="bwi bwi-fw !tw-mr-4" [ngClass]="completed ? 'bwi-check tw-text-success' : icon"></i
+  ><span
+    [ngClass]="{
+      'tw-text-primary-700 tw-line-through tw-decoration-primary-700 tw-opacity-50': completed,
+    }"
+    >{{ title }}<i class="bwi bwi-angle-right tw-ml-1"></i
+  ></span>
+</ng-template>
+
+<li class="tw-list-none">
+  <a bitLink *ngIf="route" [routerLink]="route">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </a>
+  <button type="button" bitLink *ngIf="!route" [disabled]="isDisabled">
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+  </button>
+  <div
+    class="tw-ml-8 tw-mt-1 tw-text-sm"
+    [ngClass]="{ 'tw-opacity-50': completed }"
+    (click)="handleClick($event)"
+  >
+    <ng-content></ng-content>
+  </div>
+</li>

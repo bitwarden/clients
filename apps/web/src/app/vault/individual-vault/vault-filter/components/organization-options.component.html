@@ -1,0 +1,63 @@
+<ng-container *ngIf="!hideMenu">
+  <button
+    type="button"
+    [bitMenuTriggerFor]="optionsMenu"
+    class="filter-options-icon"
+    [attr.aria-label]="'organizationOptionsMenu' | i18n"
+  >
+    <i class="bwi bwi-ellipsis-v" aria-hidden="true"></i>
+  </button>
+  <bit-menu class="filter-organization-options" #optionsMenu>
+    <ng-container *ngIf="!loaded">
+      <i
+        class="bwi bwi-spinner bwi-spin tw-m-2 tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </ng-container>
+    <div
+      *ngIf="loaded"
+      class="tw-flex tw-min-w-[200px] tw-max-w-[300px] tw-flex-col"
+      [appApiAction]="actionPromise"
+    >
+      <button
+        type="button"
+        *ngIf="allowEnrollmentChanges(organization) && !organization.resetPasswordEnrolled"
+        bitMenuItem
+        (click)="toggleResetPasswordEnrollment(organization)"
+      >
+        <i class="bwi bwi-fw bwi-key" aria-hidden="true"></i>
+        {{ "enrollAccountRecovery" | i18n }}
+      </button>
+      <button
+        type="button"
+        *ngIf="allowEnrollmentChanges(organization) && organization.resetPasswordEnrolled"
+        bitMenuItem
+        (click)="toggleResetPasswordEnrollment(organization)"
+      >
+        <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
+        {{ "withdrawAccountRecovery" | i18n }}
+      </button>
+      <ng-container *ngIf="showSsoOptions(organization)">
+        <button
+          type="button"
+          *ngIf="organization.ssoBound; else linkSso"
+          bitMenuItem
+          (click)="unlinkSso(organization)"
+        >
+          {{ "unlinkSso" | i18n }}
+        </button>
+        <ng-template #linkSso>
+          <button type="button" bitMenuItem (click)="handleLinkSso(organization)">
+            {{ "linkSso" | i18n }}
+          </button>
+        </ng-template>
+      </ng-container>
+      <button *ngIf="showLeaveOrgOption" type="button" bitMenuItem (click)="leave(organization)">
+        <i class="bwi bwi-fw bwi-sign-out tw-text-danger" aria-hidden="true"></i>
+        <span class="tw-text-danger">{{ "leave" | i18n }}</span>
+      </button>
+    </div>
+  </bit-menu>
+</ng-container>

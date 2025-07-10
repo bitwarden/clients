@@ -1,14 +1,15 @@
-<bit-form-control inline>
+<bit-form-control [inline]="!block" disableMargin>
   <input
     type="radio"
     bitRadio
     [id]="inputId"
-    [name]="name"
-    [disabled]="disabled"
+    [disabled]="groupDisabled || disabled"
     [value]="value"
     [checked]="selected"
     (change)="onInputChange()"
     (blur)="onBlur()"
   />
-  <bit-label><ng-content></ng-content></bit-label>
+
+  <ng-content select="bit-label" ngProjectAs="bit-label"></ng-content>
+  <ng-content select="bit-hint" ngProjectAs="bit-hint"></ng-content>
 </bit-form-control>

@@ -1,0 +1,44 @@
+<bit-item *ngIf="account.id !== specialAccountAddId">
+  <button bit-item-content type="button" (click)="selectAccount(account.id)">
+    <bit-avatar
+      slot="start"
+      [id]="account.id"
+      [text]="account.name"
+      [color]="account.avatarColor"
+      size="small"
+      aria-hidden="true"
+    ></bit-avatar>
+
+    <span class="tw-sr-only" *ngIf="status.text === 'active'"> {{ "activeAccount" | i18n }}: </span>
+    <span class="tw-sr-only" *ngIf="status.text !== 'active'">
+      {{ "switchToAccount" | i18n }}
+    </span>
+    <div class="tw-max-w-64 tw-truncate">
+      {{ account.email }}
+    </div>
+
+    <ng-container slot="secondary">
+      <div class="tw-max-w-64 tw-truncate tw-text-sm">
+        <span class="tw-sr-only">{{ "hostedAt" | i18n }}</span>
+        {{ account.server }}
+      </div>
+
+      <div class="tw-text-sm tw-italic" [attr.aria-hidden]="status.text === 'active'">
+        <span class="tw-sr-only">(</span>
+        <span [ngClass]="status.text === 'active' ? 'tw-font-bold tw-text-success' : ''">{{
+          status.text
+        }}</span>
+        <span class="tw-sr-only">)</span>
+      </div>
+    </ng-container>
+
+    <i slot="end" class="bwi tw-text-lg" [ngClass]="status.icon" aria-hidden="true"></i>
+  </button>
+</bit-item>
+
+<bit-item *ngIf="account.id === specialAccountAddId">
+  <button type="button" bit-item-content (click)="selectAccount(account.id)">
+    <i slot="start" class="bwi bwi-plus tw-text-lg tw-text-main" aria-hidden="true"></i>
+    {{ account.name | i18n }}
+  </button>
+</bit-item>

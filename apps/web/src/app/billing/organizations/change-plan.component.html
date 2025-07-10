@@ -1,0 +1,26 @@
+<div
+  class="tw-relative tw-flex tw-flex-col tw-min-w-0 tw-rounded tw-border tw-border-solid tw-border-secondary-300"
+>
+  <div class="tw-flex-auto tw-p-5">
+    <button
+      bitIconButton="bwi-close"
+      buttonType="main"
+      type="button"
+      size="small"
+      class="tw-float-right"
+      appA11yTitle="{{ 'cancel' | i18n }}"
+      (click)="cancel()"
+    ></button>
+    <h2 bitTypography="h2">{{ "changeBillingPlan" | i18n }}</h2>
+    <p bitTypography="body1" class="tw-mb-0">{{ "changeBillingPlanUpgrade" | i18n }}</p>
+    <app-organization-plans
+      [showFree]="false"
+      [showCancel]="true"
+      [organizationId]="organizationId"
+      [currentPlan]="currentPlan"
+      [preSelectedProductTier]="preSelectedProductTier"
+      (onCanceled)="cancel()"
+    >
+    </app-organization-plans>
+  </div>
+</div>

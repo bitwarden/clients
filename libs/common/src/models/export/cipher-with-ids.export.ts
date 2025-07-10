@@ -1,5 +1,7 @@
-import { Cipher as CipherDomain } from "../domain/cipher";
-import { CipherView } from "../view/cipher.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
+import { CipherView } from "../../vault/models/view/cipher.view";
 
 import { CipherExport } from "./cipher.export";
 

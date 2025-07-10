@@ -1,0 +1,38 @@
+<div class="tw-container">
+  <h1 bitTypography="h1">{{ "sponsoredFamiliesOffer" | i18n }}</h1>
+  <div *ngIf="loading" class="tw-mt-5 tw-flex tw-justify-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+  <div *ngIf="!loading && badToken" class="tw-mt-5 tw-flex tw-justify-center">
+    <span>{{ "badToken" | i18n }}</span>
+  </div>
+  <form [bitSubmit]="submit" [formGroup]="formGroup" *ngIf="!loading && !badToken">
+    <p bitTypography="body1">{{ "acceptBitwardenFamiliesHelp" | i18n }}</p>
+    <bit-form-field class="tw-w-1/2">
+      <bit-label>{{ "sponsoredFamiliesSelectOffer" | i18n }}</bit-label>
+      <bit-select formControlName="selectedFamilyOrganizationId">
+        <bit-option value="" label="-- {{ 'select' | i18n }} --" disabled></bit-option>
+        <bit-option value="createNew" label="{{ 'newFamiliesOrganization' | i18n }}"></bit-option>
+        <bit-option
+          *ngFor="let o of existingFamilyOrganizations$ | async"
+          [label]="o.name"
+          [value]="o.id"
+        >
+        </bit-option>
+      </bit-select>
+    </bit-form-field>
+    <div *ngIf="showNewOrganization">
+      <app-organization-plans></app-organization-plans>
+    </div>
+    <div class="tw-w-1/2" *ngIf="!showNewOrganization">
+      <button bitButton buttonType="primary" bitFormButton type="submit">
+        {{ "acceptOffer" | i18n }}
+      </button>
+    </div>
+  </form>
+</div>

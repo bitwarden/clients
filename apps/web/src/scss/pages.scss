@@ -1,38 +1,4 @@
-app-generator {
-  #lengthRange {
-    width: 100%;
-  }
-
-  .card-generated {
-    .card-body {
-      @include themify($themes) {
-        background: themed("foregroundColor");
-      }
-      align-items: center;
-      display: flex;
-      flex-wrap: wrap;
-      font-family: $font-family-monospace;
-      font-size: $font-size-lg;
-      justify-content: center;
-      text-align: center;
-    }
-  }
-}
-
-app-password-generator-history {
-  .list-group-item {
-    line-height: 1;
-    @include themify($themes) {
-      background: themed("backgroundColor");
-    }
-
-    .password {
-      font-family: $font-family-monospace;
-    }
-  }
-}
-
-app-import {
+tools-import {
   textarea {
     height: 150px;
   }
@@ -146,57 +112,6 @@ app-sponsored-families {
     p {
       font-size: 1.5rem;
       margin: 10px 0 50px 0;
-    }
-  }
-}
-
-.collapsable-row {
-  display: flex;
-  padding-top: 15px;
-  i {
-    margin-top: 3px;
-  }
-  .filter-title {
-    padding-left: 5px;
-  }
-  &.active {
-    @include themify($themes) {
-      color: themed("primary");
-    }
-  }
-}
-
-.vault-filter-option {
-  padding-bottom: 3px;
-  &.active {
-    @include themify($themes) {
-      color: themed("primary");
-      font-weight: bold;
-    }
-  }
-  button.org-options {
-    background: none;
-    border: none;
-    padding: 0;
-
-    &:hover,
-    &:focus {
-      @include themify($themes) {
-        color: themed("iconHover") !important;
-        box-shadow: none;
-      }
-    }
-  }
-}
-
-.org-filter-heading {
-  @include themify($themes) {
-    color: themed("textColor");
-  }
-  &.active {
-    @include themify($themes) {
-      color: themed("primary");
-      font-weight: bold;
     }
   }
 }

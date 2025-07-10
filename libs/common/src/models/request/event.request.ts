@@ -1,4 +1,6 @@
-import { EventType } from "../../enums/eventType";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { EventType } from "../../enums";
 
 export class EventRequest {
   type: EventType;

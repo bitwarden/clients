@@ -1,0 +1,37 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle class="tw-font-semibold">
+      {{ "cancelSubscription" | i18n }}
+    </span>
+    <div bitDialogContent>
+      <p>{{ "sorryToSeeYouGo" | i18n }}</p>
+      <bit-form-field>
+        <bit-label>
+          {{ "selectCancellationReason" | i18n }}
+        </bit-label>
+        <select bitInput formControlName="reason">
+          <option *ngFor="let reason of reasons" [ngValue]="reason.value">
+            {{ reason.text }}
+          </option>
+        </select>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>
+          {{ "anyOtherFeedback" | i18n }}
+        </bit-label>
+        <textarea rows="4" bitInput formControlName="feedback"></textarea>
+        <bit-hint>{{
+          "charactersCurrentAndMaximum" | i18n: formGroup.value.feedback.length : MaxFeedbackLength
+        }}</bit-hint>
+      </bit-form-field>
+    </div>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton buttonType="primary" type="submit">
+        {{ "cancelSubscription" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+        {{ "close" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

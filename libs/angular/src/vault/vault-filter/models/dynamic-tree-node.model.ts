@@ -1,8 +1,8 @@
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
-import { CollectionView } from "@bitwarden/common/models/view/collection.view";
-import { FolderView } from "@bitwarden/common/models/view/folder.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
-export class DynamicTreeNode<T extends CollectionView | FolderView> {
+export class DynamicTreeNode<T extends ITreeNodeObject> {
   fullList: T[];
   nestedList: TreeNode<T>[];
 

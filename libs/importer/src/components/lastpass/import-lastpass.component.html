@@ -1,0 +1,16 @@
+<div [formGroup]="formGroup">
+  <bit-form-field>
+    <bit-label>{{ "lastPassEmail" | i18n }}</bit-label>
+    <input bitInput type="text" formControlName="email" />
+    <bit-hint>{{ emailHint$ | async }}</bit-hint>
+  </bit-form-field>
+  <bit-form-control>
+    <input
+      bitCheckbox
+      type="checkbox"
+      formControlName="includeSharedFolders"
+      id="import-lastpass_input_includeSharedFolders"
+    />
+    <bit-label>{{ "includeSharedFolders" | i18n }}</bit-label>
+  </bit-form-control>
+</div>

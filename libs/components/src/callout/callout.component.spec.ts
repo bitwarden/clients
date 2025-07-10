@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { CalloutComponent } from ".";
+import { CalloutComponent } from "./callout.component";
 
 describe("Callout", () => {
   let component: CalloutComponent;
@@ -12,7 +12,7 @@ describe("Callout", () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CalloutComponent],
+      imports: [CalloutComponent],
       providers: [
         {
           provide: I18nService,
@@ -33,8 +33,7 @@ describe("Callout", () => {
       component.type = "success";
       fixture.detectChanges();
       expect(component.title).toBeUndefined();
-      expect(component.icon).toBe("bwi-check");
-      expect(component.headerClass).toBe("!tw-text-success");
+      expect(component.icon).toBe("bwi-check-circle");
     });
 
     it("info", () => {
@@ -42,7 +41,6 @@ describe("Callout", () => {
       fixture.detectChanges();
       expect(component.title).toBeUndefined();
       expect(component.icon).toBe("bwi-info-circle");
-      expect(component.headerClass).toBe("!tw-text-info");
     });
 
     it("warning", () => {
@@ -50,7 +48,6 @@ describe("Callout", () => {
       fixture.detectChanges();
       expect(component.title).toBe("Warning");
       expect(component.icon).toBe("bwi-exclamation-triangle");
-      expect(component.headerClass).toBe("!tw-text-warning");
     });
 
     it("danger", () => {
@@ -58,7 +55,6 @@ describe("Callout", () => {
       fixture.detectChanges();
       expect(component.title).toBe("Error");
       expect(component.icon).toBe("bwi-error");
-      expect(component.headerClass).toBe("!tw-text-danger");
     });
   });
 });

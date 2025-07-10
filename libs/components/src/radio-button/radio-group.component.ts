@@ -1,13 +1,19 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgTemplateOutlet } from "@angular/common";
 import { Component, ContentChild, HostBinding, Input, Optional, Self } from "@angular/core";
-import { ControlValueAccessor, NgControl } from "@angular/forms";
+import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 
-import { BitLabel } from "../form-control/label.directive";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { BitLabel } from "../form-control/label.component";
 
 let nextId = 0;
 
 @Component({
   selector: "bit-radio-group",
   templateUrl: "radio-group.component.html",
+  imports: [NgTemplateOutlet, I18nPipe],
 })
 export class RadioGroupComponent implements ControlValueAccessor {
   selected: unknown;
@@ -21,8 +27,11 @@ export class RadioGroupComponent implements ControlValueAccessor {
     this._name = value;
   }
 
+  @Input() block = false;
+
   @HostBinding("attr.role") role = "radiogroup";
   @HostBinding("attr.id") @Input() id = `bit-radio-group-${nextId++}`;
+  @HostBinding("class") classList = ["tw-block", "tw-mb-4"];
 
   @ContentChild(BitLabel) protected label: BitLabel;
 
@@ -30,6 +39,10 @@ export class RadioGroupComponent implements ControlValueAccessor {
     if (ngControl != null) {
       ngControl.valueAccessor = this;
     }
+  }
+
+  get required() {
+    return this.ngControl?.control?.hasValidator(Validators.required) ?? false;
   }
 
   // ControlValueAccessor

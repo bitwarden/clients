@@ -6,6 +6,38 @@
   margin: 0;
 }
 
+html {
+  overflow: hidden;
+  min-height: 600px;
+  height: 100%;
+
+  &.body-sm {
+    min-height: 500px;
+  }
+
+  &.body-xs {
+    min-height: 400px;
+  }
+
+  &.body-xxs {
+    min-height: 300px;
+  }
+
+  &.body-3xs {
+    min-height: 240px;
+  }
+
+  &.body-full {
+    min-height: unset;
+    width: 100%;
+    height: 100%;
+
+    & body {
+      width: 100%;
+    }
+  }
+}
+
 html,
 body {
   font-family: $font-family-sans-serif;
@@ -15,8 +47,10 @@ body {
 }
 
 body {
-  width: 375px !important;
-  height: 600px !important;
+  width: 380px;
+  height: 100%;
+  position: relative;
+  min-height: inherit;
   overflow: hidden;
   color: $text-color;
   background-color: $background-color;
@@ -24,21 +58,6 @@ body {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("backgroundColor");
-  }
-
-  &.body-sm {
-    width: 375px !important;
-    height: 500px !important;
-  }
-
-  &.body-xs {
-    width: 375px !important;
-    height: 300px !important;
-  }
-
-  &.body-full {
-    width: 100% !important;
-    height: 100% !important;
   }
 }
 
@@ -66,7 +85,7 @@ img {
   border: none;
 }
 
-a {
+a:not(popup-page a, popup-tab-navigation a) {
   text-decoration: none;
 
   @include themify($themes) {
@@ -81,9 +100,9 @@ a {
   }
 }
 
-input,
-select,
-textarea {
+input:not(bit-form-field input, bit-search input),
+select:not(bit-form-field select),
+textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("inputBackgroundColor");
@@ -93,7 +112,7 @@ textarea {
 input,
 select,
 textarea,
-button {
+button:not(bit-chip-select button) {
   font-size: $font-size-base;
   font-family: $font-family-sans-serif;
 }
@@ -169,16 +188,28 @@ cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
   }
 }
 
-header {
-  min-height: 44px;
-  max-height: 44px;
+header:not(bit-callout header, bit-dialog header, popup-page header) {
+  height: 44px;
   display: flex;
-  border-bottom: 1px solid #000000;
 
-  @include themify($themes) {
-    color: themed("headerColor");
-    background-color: themed("headerBackgroundColor");
-    border-bottom-color: themed("headerBorderColor");
+  &:not(.no-theme) {
+    border-bottom: 1px solid #000000;
+
+    @include themify($themes) {
+      color: themed("headerColor");
+      background-color: themed("headerBackgroundColor");
+      border-bottom-color: themed("headerBorderColor");
+    }
+  }
+
+  .header-content {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .header-content > .right,
+  .header-content > .right > .right {
+    height: 100%;
   }
 
   .left,
@@ -212,7 +243,7 @@ header {
   }
 
   app-pop-out > button,
-  div > button,
+  div > button:not(app-current-account button):not(.home-acc-switcher-btn),
   div > a {
     border: none;
     padding: 0 10px;
@@ -222,14 +253,10 @@ header {
     justify-content: center;
     align-items: center;
     height: 100%;
+    white-space: pre;
 
-    @include themify($themes) {
-      color: themed("headerColor");
-      background-color: themed("headerBackgroundColor");
-    }
-
-    &:hover,
-    &:focus {
+    &:not(.home-acc-switcher-btn):hover,
+    &:not(.home-acc-switcher-btn):focus {
       @include themify($themes) {
         background-color: themed("headerBackgroundHoverColor");
         color: themed("headerColor");
@@ -239,6 +266,7 @@ header {
     &[disabled] {
       opacity: 0.65;
       cursor: default !important;
+      background-color: inherit !important;
     }
 
     i + span {
@@ -275,7 +303,7 @@ header {
       }
     }
 
-    input {
+    input:not(bit-form-field input) {
       width: 100%;
       margin: 0;
       border: none;
@@ -285,6 +313,14 @@ header {
       @include themify($themes) {
         background-color: themed("headerInputBackgroundColor");
         color: themed("headerInputColor");
+      }
+
+      &::selection {
+        @include themify($themes) {
+          // explicitly set text selection to invert foreground/background
+          background-color: themed("headerInputColor");
+          color: themed("headerInputBackgroundColor");
+        }
       }
 
       &:focus {
@@ -299,6 +335,19 @@ header {
       &::-webkit-input-placeholder {
         @include themify($themes) {
           color: themed("headerInputPlaceholderColor");
+        }
+      }
+      /** make the cancel button visible in both dark/light themes **/
+      &[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 15px;
+        width: 15px;
+        background-repeat: no-repeat;
+        mask-image: url("../images/close-button-white.svg");
+        -webkit-mask-image: url("../images/close-button-white.svg");
+        @include themify($themes) {
+          background-color: themed("headerInputColor");
         }
       }
     }
@@ -318,84 +367,8 @@ header {
   }
 }
 
-.no-bg {
-  background-color: transparent;
-}
-
-.no-pad {
-  padding: 0 !important;
-}
-
 .content {
   padding: 15px 5px;
-}
-
-.tabs {
-  width: 100%;
-  height: 55px;
-  border-top: 1px solid #000000;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: hidden;
-
-  @include themify($themes) {
-    background-color: themed("tabBackgroundColor");
-    border-top-color: themed("borderColor");
-  }
-
-  ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
-    li {
-      flex: 1;
-      display: inline-block;
-      padding: 0;
-      margin: 0;
-
-      a,
-      button {
-        text-align: center;
-        display: block;
-        padding: 7px 0;
-        text-decoration: none;
-        font-size: 12px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
-
-        @include themify($themes) {
-          color: themed("mutedColor");
-        }
-
-        &:hover,
-        &:focus {
-          @include themify($themes) {
-            background-color: themed("tabBackgroundHoverColor");
-          }
-        }
-
-        i {
-          display: block;
-          margin-bottom: 2px;
-          text-align: center;
-        }
-      }
-
-      &.active {
-        a,
-        button {
-          @include themify($themes) {
-            color: themed("primaryColor");
-          }
-        }
-      }
-    }
-  }
 }
 
 app-root {
@@ -408,33 +381,7 @@ app-root {
   }
 }
 
-@media only screen and (min-width: 601px) {
-  app-login header {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-
-  app-login main {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-
-  app-two-factor header {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-
-  app-two-factor main {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-
-  app-lock header {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-
-  app-lock main {
-    padding: 0 calc((100% - 500px) / 2);
-  }
-}
-
-main {
+main:not(popup-page main) {
   position: absolute;
   top: 44px;
   bottom: 0;
@@ -455,29 +402,6 @@ main {
     display: flex;
     flex-flow: column;
     height: calc(100% - 44px);
-
-    &.tab-page {
-      height: calc(100% - 99px);
-    }
-  }
-}
-
-.tab-page {
-  main {
-    bottom: 55px;
-  }
-
-  [type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 15px;
-    width: 15px;
-    background-repeat: no-repeat;
-    mask-image: url("../images/close-button-white.svg");
-    -webkit-mask-image: url("../images/close-button-white.svg");
-    @include themify($themes) {
-      background-color: themed("headerInputColor");
-    }
   }
 }
 
@@ -525,100 +449,4 @@ main {
 
 .cdk-virtual-scroll-content-wrapper {
   width: 100%;
-}
-
-.org-filter-content {
-  padding-bottom: 5px;
-  padding-left: 7px;
-  .org-filter {
-    @include themify($themes) {
-      background-color: themed("buttonBackgroundColor");
-    }
-    border-radius: $border-radius;
-    padding: 6px 10px;
-    width: auto;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .org-filter-text-container {
-      // src: https://css-tricks.com/snippets/css/truncate-string-with-ellipsis/
-      display: flex;
-      flex: 1;
-      min-width: 0;
-
-      .org-filter-text-name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-  }
-}
-.vault-select {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-
-  @include themify($themes) {
-    background-color: themed("boxBackgroundColor");
-  }
-  margin-right: 18px;
-  margin-top: 1px;
-  @include themify($themes) {
-    border: 1px solid themed("borderColor");
-  }
-  border-radius: $border-radius;
-  button {
-    border: none;
-    background: transparent;
-    width: auto;
-    max-width: 100%;
-
-    padding: 5px 10px;
-    text-align: start;
-    @include themify($themes) {
-      color: themed("textColor");
-    }
-
-    a {
-      @include themify($themes) {
-        color: themed("textColor");
-      }
-    }
-
-    &:hover {
-      @include themify($themes) {
-        background-color: themed("boxBackgroundHoverColor");
-      }
-    }
-
-    i.vault-select-prefix-icon {
-      margin-right: 5px;
-    }
-    i.vault-select-suffix-icon {
-      margin-left: 5px;
-    }
-
-    .vault-select-org-text-container {
-      display: flex;
-      flex: 1;
-      min-width: 0;
-      align-items: center;
-      .vault-select-org-name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-  }
-  .border {
-    @include themify($themes) {
-      background: themed("borderColor");
-    }
-    left: 10px;
-    width: calc(100% - 20px);
-    height: 1px;
-    position: relative;
-  }
 }

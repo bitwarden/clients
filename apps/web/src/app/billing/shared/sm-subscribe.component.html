@@ -1,0 +1,73 @@
+<div *ngIf="formGroup && selectedPlan != null" [formGroup]="formGroup">
+  <h3 bitTypography="h3">{{ "moreFromBitwarden" | i18n }}</h3>
+  <div class="tw-rounded-t tw-bg-background-alt3 tw-p-5">
+    <div class="tw-w-72">
+      <bit-icon [icon]="logo"></bit-icon>
+    </div>
+  </div>
+  <div
+    class="tw-rounded-b tw-border-x tw-border-b tw-border-t-0 tw-border-solid tw-border-secondary-300 tw-p-5"
+  >
+    <h4 bitTypography="h4">{{ "secretsManagerForPlan" | i18n: planName }}</h4>
+    <div class="tw-text-muted">
+      {{ "secretsManagerForPlanDesc" | i18n }}
+      <ul>
+        <li *ngIf="product == productTypes.Free">{{ "limitedUsers" | i18n: maxUsers }}</li>
+        <li>{{ "unlimitedSecrets" | i18n }}</li>
+        <li *ngIf="product == productTypes.Free; else unlimitedProjects">
+          {{ "projectsIncluded" | i18n: maxProjects }}
+        </li>
+        <ng-template #unlimitedProjects>
+          <li>{{ "unlimitedProjects" | i18n }}</li>
+        </ng-template>
+        <li>{{ "machineAccountsIncluded" | i18n: serviceAccountsIncluded }}</li>
+        <li *ngIf="product != productTypes.Free">
+          {{
+            "additionalMachineAccountCost" | i18n: (monthlyCostPerServiceAccount | currency: "$")
+          }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="tw-mb-5">
+      <span *ngIf="product != productTypes.Free; else freeForever">
+        {{ "costPerUser" | i18n: (monthlyCostPerUser | currency: "$") }} /{{ "month" | i18n }}
+      </span>
+      <ng-template #freeForever>
+        <span>{{ "freeForever" | i18n }}</span>
+      </ng-template>
+    </div>
+
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="enabled" />
+      <bit-label>{{ "subscribeToSecretsManager" | i18n }}</bit-label>
+      <bit-hint *ngIf="upgradeOrganization">{{ "addSecretsManagerUpgradeDesc" | i18n }}</bit-hint>
+    </bit-form-control>
+
+    <ng-container *ngIf="formGroup.value.enabled">
+      <div *ngIf="selectedPlan.SecretsManager.hasAdditionalSeatsOption" class="tw-w-1/2">
+        <bit-form-field>
+          <bit-label>{{ "userSeats" | i18n }}</bit-label>
+          <input bitInput formControlName="userSeats" type="number" />
+          <bit-hint>{{ "userSeatsHowManyDesc" | i18n }}</bit-hint>
+        </bit-form-field>
+      </div>
+      <div *ngIf="selectedPlan.SecretsManager.hasAdditionalServiceAccountOption" class="tw-w-1/2">
+        <bit-form-field>
+          <bit-label>{{ "additionalMachineAccounts" | i18n }}</bit-label>
+          <input bitInput formControlName="additionalServiceAccounts" type="number" />
+          <bit-hint>
+            {{ "includedMachineAccounts" | i18n: serviceAccountsIncluded }}
+            {{
+              "addAdditionalMachineAccounts" | i18n: (monthlyCostPerServiceAccount | currency: "$")
+            }}
+          </bit-hint>
+        </bit-form-field>
+      </div>
+
+      <button *ngIf="showSubmitButton" type="submit" bitButton buttonType="primary" bitFormButton>
+        {{ "save" | i18n }}
+      </button>
+    </ng-container>
+  </div>
+</div>

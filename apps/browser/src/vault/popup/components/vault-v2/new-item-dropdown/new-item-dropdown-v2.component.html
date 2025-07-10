@@ -1,0 +1,17 @@
+<button bitButton size="small" [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
+  <i class="bwi bwi-plus" aria-hidden="true"></i>
+  {{ "new" | i18n }}
+</button>
+<bit-menu #itemOptions>
+  @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {
+    <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(menuItem.type)">
+      <i [class]="`bwi ${menuItem.icon}`" slot="start" aria-hidden="true"></i>
+      {{ menuItem.labelKey | i18n }}
+    </a>
+  }
+  <bit-menu-divider></bit-menu-divider>
+  <button type="button" bitMenuItem (click)="openFolderDialog()">
+    <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
+    {{ "folder" | i18n }}
+  </button>
+</bit-menu>

@@ -1,11 +1,18 @@
----
 name: Lint
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize]
     branches-ignore:
       - 'l10n_master'
       - 'cf-pages'
+    paths-ignore:
+      - '.github/workflows/**'
+  push:
+    branches:
+      - 'main'
+      - 'rc'
+      - 'hotfix-rc-*'
     paths-ignore:
       - '.github/workflows/**'
   workflow_dispatch:
@@ -15,13 +22,16 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846  # v3.0.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Lint filenames (no capital characters)
         run: |
@@ -35,17 +45,60 @@ jobs:
             ! -path "*/.DS_Store" \
             ! -path "*/*locales/*" \
             ! -path "./.github/*" \
+            ! -path "*/README.md" \
+            ! -path "*/Cargo.toml" \
+            ! -path "*/Cargo.lock" \
+            ! -path "./apps/desktop/macos/*" \
             > tmp.txt
           diff <(sort .github/whitelist-capital-letters.txt) <(sort tmp.txt)
 
+      - name: Get Node Version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
       - name: Set up Node
-        uses: actions/setup-node@9ced9a43a244f3ac94f13bfd896db8c8f30da67a  # v3.0.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-          node-version: '16'
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint unowned dependencies
+        run: npm run lint:dep-ownership
 
       - name: Run linter
-        run: |
-          npm ci
-          npm run lint
+        run: npm run lint
+
+  rust:
+    name: Run Rust lint on ${{ matrix.os }}
+    runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-14
+          - windows-2022
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check Rust version
+        run: rustup --version
+
+      - name: Run cargo fmt
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo fmt --check
+
+      - name: Run Clippy
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo clippy --all-features --tests
+        env:
+          RUSTFLAGS: "-D warnings"

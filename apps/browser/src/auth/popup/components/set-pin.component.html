@@ -1,0 +1,37 @@
+<form [bitSubmit]="submit" [formGroup]="setPinForm">
+  <bit-dialog>
+    <div class="tw-font-semibold" bitDialogTitle>
+      {{ "setYourPinTitle" | i18n }}
+    </div>
+    <div bitDialogContent>
+      <p>
+        {{ "setPinCode" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label>{{ "pin" | i18n }}</bit-label>
+        <input class="tw-font-mono" bitInput type="password" formControlName="pin" />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+      </bit-form-field>
+      <label
+        class="tw-flex tw-items-start tw-gap-2"
+        *ngIf="showMasterPasswordOnClientRestartOption"
+      >
+        <input
+          class="tw-mt-1"
+          type="checkbox"
+          bitCheckbox
+          formControlName="requireMasterPasswordOnClientRestart"
+        />
+        <span>{{ "lockWithMasterPassOnRestart1" | i18n }}</span>
+      </label>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        <span>{{ "setYourPinButton" | i18n }}</span>
+      </button>
+      <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

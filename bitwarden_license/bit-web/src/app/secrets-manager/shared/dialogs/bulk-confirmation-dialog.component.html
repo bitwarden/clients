@@ -1,0 +1,38 @@
+<bit-dialog>
+  <ng-container bitDialogTitle>
+    {{ data.title | i18n }}
+  </ng-container>
+
+  <div bitDialogContent>
+    {{ data.message | i18n }}
+    <bit-table>
+      <ng-container header>
+        <tr>
+          <th bitCell>{{ data.columnTitle | i18n }}</th>
+          <th bitCell>{{ "description" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        <tr bitRow *ngFor="let detail of data.details">
+          <td bitCell>{{ detail.name }}</td>
+          <td bitCell>{{ detail.description | i18n }}</td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      bitFormButton
+      (click)="dialogRef.close(bulkConfirmationResult.Continue)"
+    >
+      {{ "continue" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" bitDialogClose type="button">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

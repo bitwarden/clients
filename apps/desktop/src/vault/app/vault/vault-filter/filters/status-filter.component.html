@@ -1,0 +1,49 @@
+<ng-container *ngIf="show">
+  <h2 class="sr-only">{{ "filters" | i18n }}</h2>
+  <ul class="filter-options">
+    <li class="filter-option" [ngClass]="{ active: activeFilter.status === 'all' }">
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter('all')"
+          [attr.aria-pressed]="activeFilter.status === 'all'"
+        >
+          <i class="bwi bwi-fw bwi-filter" aria-hidden="true"></i>&nbsp;{{ "allItems" | i18n }}
+        </button>
+      </span>
+    </li>
+    <li
+      class="filter-option"
+      *ngIf="!hideFavorites"
+      [ngClass]="{ active: activeFilter.status === 'favorites' }"
+    >
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter('favorites')"
+          [attr.aria-pressed]="activeFilter.status === 'favorites'"
+        >
+          <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>&nbsp;{{ "favorites" | i18n }}
+        </button>
+      </span>
+    </li>
+    <li
+      class="filter-option"
+      *ngIf="!hideTrash"
+      [ngClass]="{ active: activeFilter.status === 'trash' }"
+    >
+      <span class="filter-buttons">
+        <button
+          type="button"
+          class="filter-button"
+          (click)="applyFilter('trash')"
+          [attr.aria-pressed]="activeFilter.status === 'trash'"
+        >
+          <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>&nbsp;{{ "trash" | i18n }}
+        </button>
+      </span>
+    </li>
+  </ul>
+</ng-container>

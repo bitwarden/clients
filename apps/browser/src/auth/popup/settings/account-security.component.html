@@ -1,0 +1,128 @@
+<popup-page>
+  <popup-header slot="header" pageTitle="{{ 'accountSecurity' | i18n }}" showBackButton>
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+    </ng-container>
+  </popup-header>
+
+  <bit-spotlight
+    *ngIf="showAccountSecurityNudge$ | async"
+    [title]="'unlockVault' | i18n"
+    [subtitle]="'unlockVaultDesc' | i18n"
+    (onDismiss)="dismissAccountSecurityNudge()"
+    class="tw-mb-6"
+  ></bit-spotlight>
+  <div [formGroup]="form">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "unlockMethods" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-control [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)">
+          <input bitCheckbox id="biometric" type="checkbox" formControlName="biometric" />
+          <bit-label for="biometric" class="tw-whitespace-normal">{{
+            "unlockWithBiometrics" | i18n
+          }}</bit-label>
+          <bit-hint *ngIf="biometricUnavailabilityReason">
+            {{ biometricUnavailabilityReason }}
+          </bit-hint>
+        </bit-form-control>
+        <bit-form-control
+          class="tw-pl-5"
+          [disableMargin]="!((pinEnabled$ | async) || this.form.value.pin)"
+          *ngIf="this.form.value.biometric"
+        >
+          <input
+            bitCheckbox
+            id="autoBiometricsPrompt"
+            type="checkbox"
+            formControlName="enableAutoBiometricsPrompt"
+          />
+          <bit-label for="autoBiometricsPrompt" class="tw-whitespace-normal">{{
+            "enableAutoBiometricsPrompt" | i18n
+          }}</bit-label>
+        </bit-form-control>
+        <bit-form-control
+          [disableMargin]="!(this.form.value.pin && showMasterPasswordOnClientRestartOption)"
+          *ngIf="(pinEnabled$ | async) || this.form.value.pin"
+        >
+          <input bitCheckbox id="pin" type="checkbox" formControlName="pin" />
+          <bit-label for="pin" class="tw-whitespace-normal">{{ "unlockWithPin" | i18n }}</bit-label>
+        </bit-form-control>
+        <bit-form-control
+          class="tw-pl-5"
+          disableMargin
+          *ngIf="this.form.value.pin && showMasterPasswordOnClientRestartOption"
+        >
+          <input
+            bitCheckbox
+            id="pinEphemeral"
+            type="checkbox"
+            formControlName="pinLockWithMasterPassword"
+          />
+          <bit-label for="pinEphemeral" class="tw-whitespace-normal">{{
+            "lockWithMasterPassOnRestart1" | i18n
+          }}</bit-label>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "vaultTimeoutHeader" | i18n }}</h2>
+      </bit-section-header>
+
+      <bit-card>
+        <auth-vault-timeout-input
+          [vaultTimeoutOptions]="vaultTimeoutOptions"
+          [formControl]="form.controls.vaultTimeout"
+          ngDefaultControl
+        >
+        </auth-vault-timeout-input>
+
+        <bit-form-field disableMargin>
+          <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
+          <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
+            <bit-option
+              *ngFor="let action of availableVaultTimeoutActions"
+              [value]="action"
+              [label]="action | i18n"
+            >
+            </bit-option>
+          </bit-select>
+
+          <bit-hint *ngIf="!availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)">
+            {{ "unlockMethodNeededToChangeTimeoutActionDesc" | i18n }}<br />
+          </bit-hint>
+        </bit-form-field>
+
+        <bit-hint *ngIf="hasVaultTimeoutPolicy" class="tw-mt-4">
+          {{ "vaultTimeoutPolicyAffectingOptions" | i18n }}
+        </bit-hint>
+      </bit-card>
+    </bit-section>
+
+    <bit-section disableMargin>
+      <bit-section-header>
+        <h2 bitTypography="h6">{{ "otherOptions" | i18n }}</h2>
+      </bit-section-header>
+      <bit-item>
+        <button bit-item-content type="button" appStopClick (click)="openAcctFingerprintDialog()">
+          {{ "fingerprintPhrase" | i18n }}
+        </button>
+      </bit-item>
+      <bit-item>
+        <button bit-item-content type="button" appStopClick (click)="twoStep()">
+          {{ "twoStepLogin" | i18n }}
+          <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+        </button>
+      </bit-item>
+      <bit-item *ngIf="showChangeMasterPass">
+        <button bit-item-content type="button" appStopClick (click)="changePassword()">
+          {{ "changeMasterPassword" | i18n }}
+          <i slot="end" class="bwi bwi-external-link" aria-hidden="true"></i>
+        </button>
+      </bit-item>
+    </bit-section>
+  </div>
+</popup-page>

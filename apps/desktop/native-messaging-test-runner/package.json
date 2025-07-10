@@ -16,17 +16,14 @@
   "dependencies": {
     "@bitwarden/common": "file:../../../libs/common",
     "@bitwarden/node": "file:../../../libs/node",
-    "module-alias": "^2.2.2",
-    "node-ipc": "9.2.1",
-    "ts-node": "^10.9.1",
-    "uuid": "^8.3.2",
-    "yargs": "^17.5.1"
+    "module-alias": "2.2.3",
+    "ts-node": "10.9.2",
+    "uuid": "11.1.0",
+    "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^1.0.3",
-    "@types/node": "^18.6.5",
-    "@types/node-ipc": "9.2.0",
-    "typescript": "^4.7.4"
+    "@types/node": "22.15.3",
+    "typescript": "5.4.2"
   },
   "_moduleAliases": {
     "@bitwarden/common": "dist/libs/common/src",

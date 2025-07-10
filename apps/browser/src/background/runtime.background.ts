@@ -1,34 +1,63 @@
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { SystemService } from "@bitwarden/common/abstractions/system.service";
-import { Utils } from "@bitwarden/common/misc/utils";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { BrowserApi } from "../browser/browserApi";
-import { AutofillService } from "../services/abstractions/autofill.service";
-import { BrowserEnvironmentService } from "../services/browser-environment.service";
-import BrowserPlatformUtilsService from "../services/browserPlatformUtils.service";
+import { LockService } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
+import { BiometricsCommands } from "@bitwarden/key-management";
+
+// FIXME (PM-22628): Popup imports are forbidden in background
+// eslint-disable-next-line no-restricted-imports
+import {
+  closeUnlockPopout,
+  openSsoAuthResultPopout,
+  openTwoFactorAuthWebAuthnPopout,
+} from "../auth/popup/utils/auth-popout-window";
+import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { BrowserApi } from "../platform/browser/browser-api";
+import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
 import MainBackground from "./main.background";
-import LockedVaultPendingNotificationsItem from "./models/lockedVaultPendingNotificationsItem";
 
 export default class RuntimeBackground {
   private autofillTimeout: any;
   private pageDetailsToAutoFill: any[] = [];
   private onInstalledReason: string = null;
-  private lockedVaultPendingNotifications: LockedVaultPendingNotificationsItem[] = [];
+  private lockedVaultPendingNotifications: LockedVaultPendingNotificationsData[] = [];
 
   constructor(
     private main: MainBackground,
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
-    private i18nService: I18nService,
     private notificationsService: NotificationsService,
-    private systemService: SystemService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private processReloadSerivce: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
-    private logService: LogService
+    private logService: LogService,
+    private configService: ConfigService,
+    private messageListener: MessageListener,
+    private accountService: AccountService,
+    private readonly lockService: LockService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private browserInitialInstallService: BrowserInitialInstallService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -42,89 +71,71 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
-    const backgroundMessageListener = async (
+    const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: any
+      sendResponse: (response: any) => void,
     ) => {
-      await this.processMessage(msg, sender, sendResponse);
+      const messagesWithResponse = [
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
+        BiometricsCommands.CanEnableBiometricUnlock,
+        "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
+        "getUserPremiumStatus",
+      ];
+
+      if (messagesWithResponse.includes(msg.command)) {
+        this.processMessageWithSender(msg, sender).then(
+          (value) => sendResponse({ result: value }),
+          (error) => sendResponse({ error: { ...error, message: error.message } }),
+        );
+        return true;
+      }
+
+      void this.processMessageWithSender(msg, sender).catch((err) =>
+        this.logService.error(
+          `Error while processing message in RuntimeBackground '${msg?.command}'.`,
+          err,
+        ),
+      );
+      return false;
     };
 
+    this.messageListener.allMessages$
+      .pipe(
+        mergeMap(async (message: any) => {
+          try {
+            await this.processMessage(message);
+          } catch (err) {
+            this.logService.error(err);
+          }
+        }),
+      )
+      .subscribe();
+
+    // For messages that require the full on message interface
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
-    if (this.main.popupOnlyContext) {
-      (window as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
-    }
   }
 
-  async processMessage(msg: any, sender: any, sendResponse: any) {
+  // Messages that need the chrome sender and send back a response need to be registered in this method.
+  async processMessageWithSender(msg: any, sender: chrome.runtime.MessageSender) {
     switch (msg.command) {
-      case "loggedIn":
-      case "unlocked": {
-        let item: LockedVaultPendingNotificationsItem;
-
-        if (this.lockedVaultPendingNotifications?.length > 0) {
-          await BrowserApi.closeLoginTab();
-
-          item = this.lockedVaultPendingNotifications.pop();
-          if (item.commandToRetry.sender?.tab?.id) {
-            await BrowserApi.focusSpecifiedTab(item.commandToRetry.sender.tab.id);
-          }
-        }
-
-        await this.main.refreshBadge();
-        await this.main.refreshMenu(false);
-        this.notificationsService.updateConnection(msg.command === "unlocked");
-        this.systemService.cancelProcessReload();
-
-        if (item) {
-          await BrowserApi.tabSendMessageData(
-            item.commandToRetry.sender.tab,
-            "unlockCompleted",
-            item
-          );
-        }
-        break;
-      }
-      case "addToLockedVaultPendingNotifications":
-        this.lockedVaultPendingNotifications.push(msg.data);
-        break;
-      case "logout":
-        await this.main.logout(msg.expired, msg.userId);
-        break;
-      case "syncCompleted":
-        if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshBadge();
-            await this.main.refreshMenu();
-          }, 2000);
-        }
-        break;
-      case "openPopup":
-        await this.main.openPopup();
-        break;
-      case "promptForLogin":
-        await BrowserApi.createNewTab("popup/index.html?uilocation=popout", true, true);
-        break;
-      case "showDialogResolve":
-        this.platformUtilsService.resolveDialogPromise(msg.dialogId, msg.confirmed);
+      case "triggerAutofillScriptInjection":
+        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
         break;
-      case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
-        await this.main.refreshBadge();
-        await this.main.refreshMenu();
-        break;
-      case "bgReseedStorage":
-        await this.main.reseedStorage();
-        break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
           case "autofiller":
-          case "autofill_cmd": {
+          case ExtensionCommand.AutofillCommand: {
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            );
+            await this.accountService.setAccountActivity(activeUserId, new Date());
             const totpCode = await this.autofillService.doAutoFillActiveTab(
               [
                 {
@@ -133,11 +144,39 @@ export default class RuntimeBackground {
                   details: msg.details,
                 },
               ],
-              msg.sender === "autofill_cmd"
+              msg.sender === ExtensionCommand.AutofillCommand,
             );
             if (totpCode != null) {
-              this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+              this.platformUtilsService.copyToClipboard(totpCode);
             }
+            break;
+          }
+          case ExtensionCommand.AutofillCard: {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              msg.sender === ExtensionCommand.AutofillCard,
+              CipherType.Card,
+            );
+            break;
+          }
+          case ExtensionCommand.AutofillIdentity: {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              msg.sender === ExtensionCommand.AutofillIdentity,
+              CipherType.Identity,
+            );
             break;
           }
           case "contextMenu":
@@ -153,59 +192,180 @@ export default class RuntimeBackground {
             break;
         }
         break;
+      case BiometricsCommands.AuthenticateWithBiometrics: {
+        return await this.main.biometricsService.authenticateWithBiometrics();
+      }
+      case BiometricsCommands.GetBiometricsStatus: {
+        return await this.main.biometricsService.getBiometricsStatus();
+      }
+      case BiometricsCommands.UnlockWithBiometricsForUser: {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case BiometricsCommands.GetBiometricsStatusForUser: {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
+      }
+      case BiometricsCommands.CanEnableBiometricUnlock: {
+        return await this.main.biometricsService.canEnableBiometricUnlock();
+      }
+      case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
+        return await this.configService.getFeatureFlag(
+          FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
+        );
+      }
+      case "getUserPremiumStatus": {
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
+        const result = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeUserId),
+        );
+        return result;
+      }
+    }
+  }
+
+  async processMessage(msg: any) {
+    switch (msg.command) {
+      case "loggedIn":
+      case "unlocked": {
+        let item: LockedVaultPendingNotificationsData;
+
+        if (msg.command === "loggedIn") {
+          await this.main.initOverlayAndTabsBackground();
+          await this.sendBwInstalledMessageToVault();
+          await this.autofillService.reloadAutofillScripts();
+        }
+
+        if (this.lockedVaultPendingNotifications?.length > 0) {
+          item = this.lockedVaultPendingNotifications.pop();
+          await closeUnlockPopout();
+        }
+
+        this.processReloadSerivce.cancelProcessReload();
+
+        if (item) {
+          await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
+          await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
+          await BrowserApi.tabSendMessageData(
+            item.commandToRetry.sender.tab,
+            "unlockCompleted",
+            item,
+          );
+        }
+
+        // @TODO these need to happen last to avoid blocking `tabSendMessageData` above
+        // The underlying cause exists within `cipherService.getAllDecrypted` via
+        // `getAllDecryptedForUrl` and is anticipated to be refactored
+        await this.main.refreshMenu(false);
+
+        await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+        break;
+      }
+      case "addToLockedVaultPendingNotifications":
+        this.lockedVaultPendingNotifications.push(msg.data);
+        break;
+      case "lockVault":
+        await this.main.vaultTimeoutService.lock(msg.userId);
+        break;
+      case "lockAll":
+        {
+          await this.lockService.lockAll();
+          this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
+        }
+        break;
+      case "logout":
+        await this.main.logout(msg.expired, msg.userId);
+        break;
+      case "syncCompleted":
+        if (msg.successfully) {
+          setTimeout(async () => {
+            await this.main.refreshMenu();
+          }, 2000);
+          await this.configService.ensureConfigFetched();
+          await this.main.updateOverlayCiphers();
+
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+        }
+        break;
+      case "openPopup":
+        await this.openPopup();
+        break;
+      case VaultMessages.OpenAtRiskPasswords:
+        await this.main.openAtRisksPasswordsPage();
+        this.announcePopupOpen();
+        break;
+      case VaultMessages.OpenBrowserExtensionToUrl:
+        await this.main.openTheExtensionToPage(msg.url);
+        this.announcePopupOpen();
+        break;
+      case "bgUpdateContextMenu":
+      case "editedCipher":
+      case "addedCipher":
+      case "deletedCipher":
+        await this.main.refreshMenu();
+        break;
+      case "bgReseedStorage": {
+        await this.main.reseedStorage();
+        break;
+      }
       case "authResult": {
-        const vaultUrl = this.environmentService.getWebVaultUrl();
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const vaultUrl = env.getWebVaultUrl();
 
         if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
           return;
         }
 
-        try {
-          BrowserApi.createNewTab(
-            "popup/index.html?uilocation=popout#/sso?code=" +
-              encodeURIComponent(msg.code) +
-              "&state=" +
-              encodeURIComponent(msg.state)
-          );
-        } catch {
-          this.logService.error("Unable to open sso popout tab");
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
         }
         break;
       }
       case "webAuthnResult": {
-        const vaultUrl = this.environmentService.getWebVaultUrl();
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const vaultUrl = env.getWebVaultUrl();
 
         if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
           return;
         }
 
-        const params =
-          `webAuthnResponse=${encodeURIComponent(msg.data)};` +
-          `remember=${encodeURIComponent(msg.remember)}`;
-        BrowserApi.createNewTab(
-          `popup/index.html?uilocation=popout#/2fa;${params}`,
-          undefined,
-          false
-        );
+        await openTwoFactorAuthWebAuthnPopout(msg);
         break;
       }
       case "reloadPopup":
-        this.messagingService.send("reloadPopup");
+        if (isExternalMessage(msg)) {
+          this.messagingService.send("reloadPopup");
+        }
         break;
       case "emailVerificationRequired":
         this.messagingService.send("showDialog", {
-          dialogId: "emailVerificationRequired",
-          title: this.i18nService.t("emailVerificationRequired"),
-          text: this.i18nService.t("emailVerificationRequiredDesc"),
-          confirmText: this.i18nService.t("ok"),
+          title: { key: "emailVerificationRequired" },
+          content: { key: "emailVerificationRequiredDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
           type: "info",
         });
         break;
       case "getClickedElementResponse":
-        this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
+        this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
-      default:
+      case "switchAccount": {
+        await this.main.switchAccount(msg.userId);
         break;
+      }
+      case "clearClipboard": {
+        await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
+        break;
+      }
     }
   }
 
@@ -215,10 +375,11 @@ export default class RuntimeBackground {
       cipher: this.main.loginToAutoFill,
       pageDetails: this.pageDetailsToAutoFill,
       fillNewPassword: true,
+      allowTotpAutofill: true,
     });
 
     if (totpCode != null) {
-      this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
     // reset
@@ -228,17 +389,82 @@ export default class RuntimeBackground {
 
   private async checkOnInstalled() {
     setTimeout(async () => {
+      void this.autofillService.loadAutofillScriptsOnInstall();
+
       if (this.onInstalledReason != null) {
-        if (this.onInstalledReason === "install") {
-          BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+        if (
+          this.onInstalledReason === "install" &&
+          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
+        ) {
+          if (!devFlagEnabled("skipWelcomeOnInstall")) {
+            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+          }
+
+          await this.autofillSettingsService.setInlineMenuVisibility(
+            AutofillOverlayVisibility.OnFieldFocus,
+          );
 
           if (await this.environmentService.hasManagedEnvironment()) {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
+          await this.browserInitialInstallService.setExtensionInstalled(true);
         }
 
         this.onInstalledReason = null;
       }
     }, 100);
+  }
+
+  /** Returns the browser tabs that have the web vault open */
+  private async getBwTabs() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const vaultUrl = env.getWebVaultUrl();
+    const urlObj = new URL(vaultUrl);
+
+    return await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+  }
+
+  private async openPopup() {
+    await this.main.openPopup();
+  }
+
+  async sendBwInstalledMessageToVault() {
+    try {
+      const tabs = await this.getBwTabs();
+
+      if (!tabs?.length) {
+        return;
+      }
+
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-on-installed-message.js",
+          runAt: "document_end",
+        });
+      }
+    } catch (e) {
+      this.logService.error(`Error sending on installed message to vault: ${e}`);
+    }
+  }
+
+  /** Sends a message to each tab that the popup was opened */
+  private announcePopupOpen() {
+    const announceToAllTabs = async () => {
+      const isOpen = await this.platformUtilsService.isViewOpen();
+      const tabs = await this.getBwTabs();
+
+      if (isOpen && tabs.length > 0) {
+        // Send message to all vault tabs that the extension has opened
+        for (const tab of tabs) {
+          await BrowserApi.executeScriptInTab(tab.id, {
+            file: "content/send-popup-open-message.js",
+            runAt: "document_end",
+          });
+        }
+      }
+    };
+
+    // Give the popup a buffer to complete opening
+    setTimeout(announceToAllTabs, 100);
   }
 }

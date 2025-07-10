@@ -1,0 +1,16 @@
+/**
+ * Reset styles to be consistent with Bootstrap reset
+ * Reassess when Bootstrap is removed and Tailwind preflight is added
+*/
+
+fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+th {
+  text-align: inherit;
+  text-align: -webkit-match-parent;
+}

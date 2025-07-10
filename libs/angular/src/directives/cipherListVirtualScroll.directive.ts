@@ -16,7 +16,7 @@ export class CipherListVirtualScrollStrategy extends FixedSizeVirtualScrollStrat
     itemSize: number,
     minBufferPx: number,
     maxBufferPx: number,
-    checkItemSizeCallback: any
+    checkItemSizeCallback: any,
   ) {
     super(itemSize, minBufferPx, maxBufferPx);
     this.checkItemSizeCallback = checkItemSizeCallback;
@@ -54,13 +54,13 @@ export class CipherListVirtualScroll extends CdkFixedSizeVirtualScroll {
       this.itemSize,
       this.minBufferPx,
       this.maxBufferPx,
-      this.checkAndUpdateItemSize
+      this.checkAndUpdateItemSize,
     );
   }
 
   checkAndUpdateItemSize = () => {
     const sampleItem = document.querySelector(
-      "cdk-virtual-scroll-viewport .virtual-scroll-item"
+      "cdk-virtual-scroll-viewport .virtual-scroll-item",
     ) as HTMLElement;
     const newItemSize = sampleItem?.offsetHeight;
 
@@ -69,7 +69,7 @@ export class CipherListVirtualScroll extends CdkFixedSizeVirtualScroll {
       this._scrollStrategy.updateItemAndBufferSize(
         this.itemSize,
         this.minBufferPx,
-        this.maxBufferPx
+        this.maxBufferPx,
       );
     }
   };

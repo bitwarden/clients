@@ -1,0 +1,36 @@
+<form [formGroup]="licenseForm" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>{{ "downloadLicense" | i18n }}</span>
+    <ng-container bitDialogContent>
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+        <div class="tw-col-span-8">
+          <bit-form-field>
+            <bit-label
+              >{{ "enterInstallationId" | i18n }}
+              <a
+                bitLink
+                class="tw-ml-auto"
+                target="_blank"
+                rel="noreferrer"
+                appA11yTitle="{{ 'learnMore' | i18n }}"
+                href="https://bitwarden.com/help/licensing-on-premise/#organization-account-sharing"
+                slot="end"
+              >
+                <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+              </a>
+            </bit-label>
+            <input type="text" bitInput formControlName="installationId" />
+          </bit-form-field>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton buttonType="primary" type="submit">
+        {{ "submit" | i18n }}
+      </button>
+      <button bitButton [bitAction]="cancel" bitFormButton buttonType="secondary" type="button">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

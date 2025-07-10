@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import {
   AfterContentInit,
@@ -8,11 +10,18 @@ import {
   QueryList,
 } from "@angular/core";
 
+import { TabHeaderComponent } from "../shared/tab-header.component";
+import { TabListContainerDirective } from "../shared/tab-list-container.directive";
+
 import { TabLinkComponent } from "./tab-link.component";
 
 @Component({
   selector: "bit-tab-nav-bar",
   templateUrl: "tab-nav-bar.component.html",
+  host: {
+    class: "tw-block",
+  },
+  imports: [TabHeaderComponent, TabListContainerDirective],
 })
 export class TabNavBarComponent implements AfterContentInit {
   @ContentChildren(forwardRef(() => TabLinkComponent)) tabLabels: QueryList<TabLinkComponent>;

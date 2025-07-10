@@ -1,0 +1,210 @@
+import { Meta, Story, Canvas } from "@storybook/addon-docs";
+
+import * as stories from "./popup-layout.stories";
+
+<Meta of={stories} />
+
+# Popup Tab Navigation
+
+The popup tab navigation component composes together the popup page and the bottom tab navigation
+footer. This component is intended to be used a level _above_ each extension tab's page code.
+
+The navigation footer renders an array of nav buttons that are passed as an input. It uses the
+Angular router to determine which page is currently active, and styles the button appropriately.
+Clicking on the buttons will navigate to the correct route. The navigation footer has a max-width
+built in so that the page looks nice when the extension is popped out.
+
+Long button names will be ellipsed.
+
+Usage example:
+
+```html
+<popup-tab-navigation [navButtons]="[]">
+  <popup-page></popup-page>
+</popup-tab-navigation>
+```
+
+# Popup Page
+
+The popup page handles positioning a page's `header` and `footer` elements, and inserting the rest
+of the content into the `main` element with scroll. There is also a max-width built in so that the
+page looks nice when the extension is popped out.
+
+**Slots**
+
+- `header`
+  - Use `popup-header` component.
+  - Every page should have a header.
+- `footer`
+  - Use the `popup-footer` component.
+  - Not every page will have a footer.
+- `above-scroll-area`
+  - When the page content overflows, this content will be "stuck" to the top of the page upon
+    scrolling.
+- `full-width-notice`
+  - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
+    container margin or padding.
+- default
+  - Whatever content you want in `main`.
+
+**Inputs**
+
+- `loading`
+  - When `true`, displays a loading state overlay instead of the default content. Defaults to
+    `false`.
+- `loadingText`
+  - Custom text to be applied to the loading element for screenreaders only. Defaults to "Loading".
+- `disablePadding`
+  - When `true`, disables the padding of the scrollable region inside of `main`. You will need to
+    add your own padding to the element you place inside of this area.
+
+Basic usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header"></popup-header>
+  <div>This is content</div>
+  <popup-footer slot="footer"></popup-footer>
+</popup-page>
+```
+
+## Popup header
+
+**Args**
+
+- `pageTitle`: required
+  - Inserts title as an `h1`.
+- `showBackButton`: optional, defaults to `false`
+  - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
+    page in history.
+- `background`: optional
+  - `"default"` uses a white background
+  - `"alt"` uses a transparent background
+
+**Slots**
+
+- `end`
+  - Use to insert one or more interactive elements.
+  - The header handles the spacing between elements passed to the `end` slot.
+
+Usage example:
+
+```html
+<popup-header pageTitle="Test" showBackButton>
+  <ng-container slot="end">
+    <button></button>
+    <button></button>
+  </ng-container>
+</popup-header>
+```
+
+### Transparent header
+
+<Canvas of={stories.TransparentHeader} />
+
+Common interactive elements to insert into the `end` slot are:
+
+- `app-current-account`: shows current account and switcher
+- `app-pop-out`: shows popout button when the extension is not already popped out
+- "Add" button: this can be accomplished with the Button component and any custom functionality for
+  that particular page
+
+### Notice
+
+<Canvas of={stories.Notice} />
+
+Common interactive elements to insert into the `full-width-notice` slot are:
+
+- `bit-banner`: shows a full-width notice
+
+Usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n"> </popup-header>
+  <bit-banner slot="full-width-notice" bannerType="info" [showClose]="false">
+    This is an important note about these ciphers
+  </bit-banner>
+  <ng-container slot="above-scroll-area">
+    <app-vault-header-v2></app-vault-header-v2>
+  </ng-container>
+</popup-page>
+```
+
+## Popup footer
+
+Popup footer should be used when the page displays action buttons. It functions similarly to the
+Dialog footer in that the calling code is responsible for passing in the different buttons that need
+to be rendered.
+
+Usage example:
+
+```html
+<popup-footer>
+  <button bitButton buttonType="primary">Save</button>
+  <button bitButton buttonType="secondary">Cancel</button>
+</popup-footer>
+```
+
+# Page types
+
+There are a few types of pages that are used in the browser extension.
+
+View the story source code to see examples of how to construct these types of pages.
+
+## Extension Tab
+
+Example of wrapping an extension page in the `popup-tab-navigation` component.
+
+<Canvas of={stories.DefaultPopupTabNavigation} />
+
+## Extension Page
+
+Examples of using just the `popup-page` component, without and with a footer.
+
+<Canvas of={stories.PopupPage} />
+
+<Canvas of={stories.PopupPageWithFooter} />
+
+## Popped out
+
+When the browser extension is popped out, the "popout" button should not be passed to the header.
+
+<Canvas of={stories.PoppedOut} />
+
+## With Virtual Scroll
+
+If you are using a virtual scrolling container inside of the popup page, you'll want to apply the
+`bitScrollLayout` directive to the `cdk-virtual-scroll-viewport` element. This tells the virtual
+scroll viewport to use the popup page's scroll layout div as the scrolling container.
+
+See the code in the example below.
+
+<Canvas of={stories.WithVirtualScrollChild} />
+
+### Known Virtual Scroll Issues
+
+See [Virtual Scrolling](?path=/docs/documentation-virtual-scrolling--docs#known-footgun) for more
+information about how to structure virtual scrolling containers with layout components and avoid a
+known issue with template construction.
+
+# Other stories
+
+## Centered Content
+
+An example of how to center the default content.
+
+<Canvas of={stories.CenteredContent} />
+
+## Loading
+
+An example of what the loading state looks like.
+
+<Canvas of={stories.Loading} />
+
+## Tab Navigation with Berry
+
+An example of what it looks like to show a notification berry on one of the popup tab navigation
+buttons.
+
+<Canvas of={stories.PopupTabNavigationWithBerry} />

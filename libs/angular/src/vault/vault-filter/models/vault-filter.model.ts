@@ -1,5 +1,7 @@
-import { CipherType } from "@bitwarden/common/enums/cipherType";
-import { CipherView } from "@bitwarden/common/models/view/cipher.view";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherStatus } from "./cipher-status.model";
 

@@ -1,122 +1,96 @@
-<div class="page-header">
-  <h1>{{ "preferences" | i18n }}</h1>
-</div>
-<p>{{ "preferencesDesc" | i18n }}</p>
-<form (ngSubmit)="submit()" ngNativeValidate>
-  <div class="row">
-    <div class="col-6">
-      <app-vault-timeout-input
-        [vaultTimeouts]="vaultTimeouts"
-        [formControl]="vaultTimeout"
-        ngDefaultControl
+<app-header></app-header>
+
+<bit-container>
+  <p bitTypography="body1">{{ "preferencesDesc" | i18n }}</p>
+  <form [formGroup]="form" [bitSubmit]="submit" class="tw-w-1/2">
+    <bit-callout type="info" *ngIf="vaultTimeoutPolicyCallout | async as policy">
+      <span *ngIf="policy.timeout && policy.action">
+        {{
+          "vaultTimeoutPolicyWithActionInEffect"
+            | i18n: policy.timeout.hours : policy.timeout.minutes : (policy.action | i18n)
+        }}
+      </span>
+      <span *ngIf="policy.timeout && !policy.action">
+        {{ "vaultTimeoutPolicyInEffect" | i18n: policy.timeout.hours : policy.timeout.minutes }}
+      </span>
+      <span *ngIf="!policy.timeout && policy.action">
+        {{ "vaultTimeoutActionPolicyInEffect" | i18n: (policy.action | i18n) }}
+      </span>
+    </bit-callout>
+    <auth-vault-timeout-input
+      [vaultTimeoutOptions]="vaultTimeoutOptions"
+      [formControl]="form.controls.vaultTimeout"
+      ngDefaultControl
+    >
+    </auth-vault-timeout-input>
+    <ng-container *ngIf="availableVaultTimeoutActions$ | async as availableVaultTimeoutActions">
+      <bit-radio-group
+        formControlName="vaultTimeoutAction"
+        *ngIf="availableVaultTimeoutActions.length > 1"
       >
-      </app-vault-timeout-input>
-    </div>
-  </div>
-  <div class="form-group">
-    <label>{{ "vaultTimeoutAction" | i18n }}</label>
-    <div class="form-check form-check-block">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="vaultTimeoutAction"
-        id="vaultTimeoutActionLock"
-        value="lock"
-        [(ngModel)]="vaultTimeoutAction"
-      />
-      <label class="form-check-label" for="vaultTimeoutActionLock">
-        {{ "lock" | i18n }}
-        <small>{{ "vaultTimeoutActionLockDesc" | i18n }}</small>
-      </label>
-    </div>
-    <div class="form-check mt-2 form-check-block">
-      <input
-        class="form-check-input"
-        type="radio"
-        name="vaultTimeoutAction"
-        id="vaultTimeoutActionLogOut"
-        value="logOut"
-        [(ngModel)]="vaultTimeoutAction"
-        (ngModelChange)="vaultTimeoutActionChanged($event)"
-      />
-      <label class="form-check-label" for="vaultTimeoutActionLogOut">
-        {{ "logOut" | i18n }}
-        <small>{{ "vaultTimeoutActionLogOutDesc" | i18n }}</small>
-      </label>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <div class="d-flex">
-          <label for="locale">{{ "language" | i18n }}</label>
-          <a
-            class="ml-auto"
-            href="https://bitwarden.com/help/localization/"
-            target="_blank"
-            rel="noopener"
-            appA11yTitle="{{ 'learnMore' | i18n }}"
-          >
-            <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-          </a>
-        </div>
-        <select id="locale" name="Locale" [(ngModel)]="locale" class="form-control">
-          <option *ngFor="let o of localeOptions" [ngValue]="o.value">{{ o.name }}</option>
-        </select>
-        <small class="form-text text-muted">{{ "languageDesc" | i18n }}</small>
-      </div>
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="enableFavicons"
-        name="enableFavicons"
-        [(ngModel)]="enableFavicons"
-      />
-      <label class="form-check-label" for="enableFavicons">
-        {{ "enableFavicon" | i18n }}
-      </label>
-      <a
-        href="https://bitwarden.com/help/website-icons/"
-        target="_blank"
-        rel="noopener"
-        appA11yTitle="{{ 'learnMore' | i18n }}"
-      >
-        <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-      </a>
-    </div>
-    <small class="form-text text-muted">{{ "faviconDesc" | i18n }}</small>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="enableFullWidth"
-        name="enableFullWidth"
-        [(ngModel)]="enableFullWidth"
-      />
-      <label class="form-check-label" for="enableFullWidth">
-        {{ "enableFullWidth" | i18n }}
-      </label>
-    </div>
-    <small class="form-text text-muted">{{ "enableFullWidthDesc" | i18n }}</small>
-  </div>
-  <div class="row">
-    <div class="col-6">
-      <div class="form-group">
-        <label for="theme">{{ "theme" | i18n }}</label>
-        <select id="theme" name="theme" [(ngModel)]="theme" class="form-control">
-          <option *ngFor="let o of themeOptions" [ngValue]="o.value">{{ o.name }}</option>
-        </select>
-        <small class="form-text text-muted">{{ "themeDesc" | i18n }}</small>
-      </div>
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">
-    {{ "save" | i18n }}
-  </button>
-</form>
+        <bit-label>{{ "vaultTimeoutAction" | i18n }}</bit-label>
+        <bit-radio-button
+          *ngIf="availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock)"
+          id="vaultTimeoutActionLock"
+          [value]="VaultTimeoutAction.Lock"
+        >
+          <bit-label>{{ "lock" | i18n }}</bit-label>
+          <bit-hint>{{ "vaultTimeoutActionLockDesc" | i18n }}</bit-hint>
+        </bit-radio-button>
+        <bit-radio-button
+          *ngIf="availableVaultTimeoutActions.includes(VaultTimeoutAction.LogOut)"
+          id="vaultTimeoutActionLogOut"
+          [value]="VaultTimeoutAction.LogOut"
+        >
+          <bit-label>{{ "logOut" | i18n }}</bit-label>
+          <bit-hint>{{ "vaultTimeoutActionLogOutDesc" | i18n }}</bit-hint>
+        </bit-radio-button>
+      </bit-radio-group>
+    </ng-container>
+    <bit-form-field>
+      <bit-label
+        >{{ "language" | i18n }}
+        <a
+          bitLink
+          class="tw-float-right"
+          href="https://bitwarden.com/help/localization/"
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMoreAboutLocalization' | i18n }}"
+          slot="end"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </bit-label>
+      <bit-select formControlName="locale" id="locale">
+        <bit-option *ngFor="let o of localeOptions" [value]="o.value" [label]="o.name"></bit-option>
+      </bit-select>
+      <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-control>
+      <input type="checkbox" bitCheckbox formControlName="enableFavicons" />
+      <bit-label
+        >{{ "enableFavicon" | i18n }}
+        <a
+          bitLink
+          href="https://bitwarden.com/help/website-icons/"
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMoreAboutWebsiteIcons' | i18n }}"
+          slot="end"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </bit-label>
+      <bit-hint>{{ "faviconDesc" | i18n }}</bit-hint>
+    </bit-form-control>
+    <bit-form-field>
+      <bit-label>{{ "theme" | i18n }}</bit-label>
+      <bit-select formControlName="theme" id="theme">
+        <bit-option *ngFor="let o of themeOptions" [value]="o.value" [label]="o.name"></bit-option>
+      </bit-select>
+      <bit-hint>{{ "themeDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+    <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>
+  </form>
+</bit-container>

@@ -1,0 +1,33 @@
+import { Meta, Canvas, Source, Primary, Controls, Title, Description } from "@storybook/addon-docs";
+
+import * as stories from "./checkbox.stories";
+
+<Meta of={stories} />
+
+```ts
+import { CheckboxModule } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Stories
+
+### Default
+
+<Canvas of={stories.Default} />
+
+### Hint
+
+<Canvas of={stories.Hint} />
+
+### Custom
+
+<Canvas of={stories.Custom} />
+
+### Intermediate
+
+<Canvas of={stories.Indeterminate} />

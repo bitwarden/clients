@@ -6,6 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-size: 14px;
+html {
+  font-size: 16px;
 }

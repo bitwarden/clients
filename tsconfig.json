@@ -1,32 +1,18 @@
 {
-  "compilerOptions": {
-    "pretty": true,
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "target": "ES6",
-    "module": "ES2020",
-    "lib": ["es5", "es6", "es7", "dom"],
-    "sourceMap": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "declaration": false,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "resolveJsonModule": true,
-    "paths": {
-      "@bitwarden/common/*": ["./libs/common/src/*"],
-      "@bitwarden/angular/*": ["./libs/angular/src/*"],
-      "@bitwarden/node/*": ["./libs/node/src/*"],
-      "@bitwarden/components": ["./libs/components/src"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
-    },
-    "plugins": [
-      {
-        "transform": "typescript-transform-paths"
-      }
-    ]
-  },
-  "include": ["apps/web/src/**/*", "libs/*/src/**/*", "bitwarden_license/bit-web/src/**/*"],
-  "exclude": ["apps/web/src/**/*.spec.ts", "libs/*/src/**/*.spec.ts"]
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "apps/web/src/**/*",
+    "apps/browser/src/**/*",
+    "libs/*/src/**/*",
+    "libs/tools/send/**/src/**/*",
+    "libs/dirt/card/src/**/*",
+    "bitwarden_license/bit-web/src/**/*",
+    "bitwarden_license/bit-common/src/**/*"
+  ],
+  "exclude": [
+    "apps/web/src/**/*.spec.ts",
+    "apps/browser/src/**/*.spec.ts",
+    "libs/*/src/**/*.spec.ts",
+    "**/*.spec-util.ts"
+  ]
 }

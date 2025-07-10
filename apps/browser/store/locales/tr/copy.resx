@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -118,41 +118,56 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden - Ücretsiz Parola Yöneticisi</value>
+    <value>Bitwarden Parola Yöneticisi</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Tüm aygıtlarınız için güvenli ve ücretsiz bir parola yöneticisi</value>
+    <value>İster evde ister işte veya yolda olun; Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Bitwarden, Inc., 8bit Solutions LLC’nin ana şirketidir.
+    <value>PCMag, WIRED, The Verge, CNET, G2 ve daha fazlası tarafından en iyi şifre yöneticisi olarak kabul edildi!
 
-THE VERGE, U.S. NEWS &amp; WORLD REPORT, CNET VE BİRÇOK MEDYA KURULUŞUNA GÖRE EN İYİ PAROLA YÖNETİCİSİ.
+DİJİTAL HAYATINIZI GÜVENLİ HALE GETİRİN
+Her hesap için benzersiz, güçlü şifreler oluşturup kaydederek dijital hayatınızı güvence altına alın ve veri ihlallerine karşı koruyun. Her şeyi yalnızca sizin erişebileceğiniz uçtan uca şifrelenmiş bir şifre kasasında saklayın.
 
-Sınırsız sayıda parolayı istediğiniz kadar cihazda yönetin, saklayın, koruyun ve paylaşın. Bitwarden; herkesin evde, işte veya yolda kullanabileceği açık kaynaklı parola yönetim çözümleri sunuyor.
+VERİLERİNİZE HER YERDEN, HER ZAMAN, HER CİHAZDAN ERİŞİN
+Sınırsız sayıda cihazda sınırsız sayıda şifreyi kolayca yönetin, saklayın, koruyun ve paylaşın.
 
-Sık kullandığınız web siteleri için güvenlik gereksinimlerinize uygun, güçlü, benzersiz ve rastgele parolalar oluşturabilirsiniz.
+HERKESİN ÇEVRİMİÇİ GÜVENLİĞİ SAĞLAYACAK ARAÇLARA SAHİP OLMASI GEREKİR
+Bitwarden'ı reklamlar veya veri satışı olmadan ücretsiz olarak kullanın. Bitwarden, herkesin çevrimiçi güvenliğini sağlayabilmesi gerektiğine inanır. Premium planlar, gelişmiş özelliklere erişim sunar.
 
-Bitwarden Send, şifrelenmiş bilgileri (dosyalar ve düz metinler) herkese hızlı bir şekilde iletmenizi sağlıyor.
+BITWARDEN İLE EKİPLERİNİZE GÜÇ KATIN
+Takımlar ve Kurumsal planlar, profesyonel iş özellikleri ile birlikte gelir. Bazı örnekler arasında SSO entegrasyonu, kendi kendine barındırma, dizin entegrasyonu ve SCIM provizyonu, global politikalar, API erişimi, olay günlükleri ve daha fazlası bulunur.
 
-Bitwarden, parolaları iş arkadaşlarınızla güvenli bir şekilde paylaşabilmeniz için şirketlere yönelik Teams ve Enterprise paketleri de sunuyor.
+Bitwarden'ı kullanarak çalışanlarınızı güvence altına alın ve hassas bilgileri iş arkadaşlarınızla paylaşın.
 
-Neden Bitwarden?
+Bitwarden'ı seçmek için daha fazla neden:
 
-Üst düzey şifreleme
-Parolalarınız gelişmiş uçtan uca şifreleme (AES-256 bit, salted hashing ve PBKDF2 SHA-256) ile korunuyor, böylece verileriniz güvende ve gizli kalıyor.
+Dünya Standartlarında Şifreleme
+Şifreler, gelişmiş uçtan uca şifreleme (AES-256 bit, tuzlu hashtag ve PBKDF2 SHA-256) ile korunur, böylece verileriniz güvenli ve gizli kalır.
 
-Dahili parola oluşturucu
-Sık kullandığınız web siteleri için güvenlik gereksinimlerinize uygun, güçlü, benzersiz ve rastgele parolalar oluşturabilirsiniz.
+Üçüncü Taraf Denetimleri
+Bitwarden, tanınmış güvenlik firmalarıyla düzenli olarak kapsamlı üçüncü taraf güvenlik denetimleri gerçekleştirir. Bu yıllık denetimler, Bitwarden IP'leri, sunucuları ve web uygulamaları genelinde kaynak kodu değerlendirmeleri ve sızma testlerini içerir.
 
-Çeviriler
-Bitwarden 40 dilde kullanılabiliyor ve gönüllü topluluğumuz sayesinde çeviri sayısı giderek artıyor.
+Gelişmiş 2FA
+Üçüncü taraf kimlik doğrulayıcı, e-posta ile gönderilen kodlar veya donanım güvenlik anahtarı veya geçiş anahtarı gibi FIDO2 WebAuthn kimlik bilgileri ile girişinizi güvenli hale getirin.
 
-Her platformla uyumlu uygulamalar
-Bitwarden kasanızdaki hassas verilere her tarayıcıdan, mobil cihazdan veya masaüstü işletim sisteminden ulaşabilir ve onları paylaşabilirsiniz.
-</value>
+Bitwarden Send
+Uçtan uca şifreli güvenliği koruyarak ve maruz kalmayı sınırlayarak verileri doğrudan başkalarına aktarın.
+
+Yerleşik Oluşturucu
+Ziyaret ettiğiniz her site için uzun, karmaşık ve farklı şifreler ve benzersiz kullanıcı adları oluşturun. Ek gizlilik için e-posta takma ad sağlayıcılarıyla entegre edin.
+
+Küresel Çeviriler
+Bitwarden çevirileri, Crowdin aracılığıyla küresel topluluk tarafından 60'tan fazla dile çevrilmiştir.
+
+Çapraz Platform Uygulamaları
+Bitwarden Vault'unuzdaki hassas verileri herhangi bir tarayıcı, mobil cihaz, masaüstü işletim sistemi ve daha fazlasından güvenli bir şekilde paylaşın.
+
+Bitwarden, şifrelerden daha fazlasını güvence altına alır
+Bitwarden'ın uçtan uca şifrelenmiş kimlik bilgisi yönetimi çözümleri, kuruluşların geliştirici sırları ve anahtar deneyimleri dahil her şeyi güvence altına almasını sağlar. Bitwarden Secrets Manager ve Bitwarden Passwordless.dev hakkında daha fazla bilgi edinmek için Bitwarden.com adresini ziyaret edin!</value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Tüm cihazarınız için güvenli ve ücretsiz bir parola yöneticisi</value>
+    <value>İster evde ister işte veya yolda olun; Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Hesabınızı senkronize ederek kasanıza tüm cihazlarınızdan ulaşın</value>

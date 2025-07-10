@@ -1,0 +1,97 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large" [loading]="loading">
+    <span bitDialogTitle class="tw-font-semibold">
+      {{ "newClientOrganization" | i18n }}
+    </span>
+    <div bitDialogContent>
+      <p>{{ "createNewClientToManageAsProvider" | i18n }}</p>
+      <div class="tw-mb-3">
+        <span class="tw-text-lg tw-pr-1">{{ "selectAPlan" | i18n }}</span>
+        <span *ngIf="this.discountPercentage" bitBadge variant="success">{{
+          "providerDiscount" | i18n: this.discountPercentage
+        }}</span>
+      </div>
+      <ng-container>
+        <div class="tw-grid tw-grid-flow-col tw-auto-cols-[minmax(0,_2fr)] tw-gap-4 tw-mb-4">
+          <div
+            *ngFor="let planCard of planCards"
+            [ngClass]="planCard.getContainerClasses()"
+            (click)="selectPlan(planCard.name)"
+            tabindex="0"
+          >
+            <div class="tw-relative">
+              <div
+                *ngIf="planCard.selected"
+                class="tw-bg-primary-600 tw-text-center !tw-text-contrast tw-text-sm tw-font-bold tw-py-1 group-hover/plan-card-container:tw-bg-primary-700"
+              >
+                {{ "selected" | i18n }}
+              </div>
+              <div class="tw-pl-5 tw-py-4 tw-pr-4" [ngClass]="{ 'tw-pt-10': !planCard.selected }">
+                <h3 class="tw-text-2xl tw-font-bold tw-uppercase">{{ planCard.name }}</h3>
+                <span class="tw-text-2xl tw-font-semibold">{{
+                  planCard.getMonthlyCost() | currency: "$"
+                }}</span>
+                <span class="tw-text-sm tw-font-bold"
+                  >/ {{ planCard.getTimePerMemberLabel() | i18n }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      <div class="tw-grid tw-grid-flow-col tw-grid-cols-2 tw-gap-4">
+        <bit-form-field>
+          <bit-label>
+            {{ "organizationName" | i18n }}
+          </bit-label>
+          <input type="text" bitInput formControlName="organizationName" />
+          <bit-error-summary
+            *ngIf="
+              formGroup.controls.organizationName.errors?.['maxLength'] &&
+              formGroup.controls.organizationName.touched
+            "
+          >
+            {{ "organizationNameMaxLength" | i18n }}
+          </bit-error-summary>
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>
+            {{ "clientOwnerEmail" | i18n }}
+          </bit-label>
+          <input type="text" bitInput formControlName="clientOwnerEmail" />
+        </bit-form-field>
+      </div>
+      <div class="tw-grid tw-grid-flow-col tw-grid-cols-2 tw-gap-4">
+        <bit-form-field disableMargin>
+          <bit-label>
+            {{ "seats" | i18n }}
+          </bit-label>
+          <input type="number" bitInput formControlName="seats" min="1" />
+          <bit-hint
+            class="tw-text-muted tw-grid tw-grid-flow-col tw-gap-1 tw-grid-cols-1"
+            [ngClass]="{
+              'tw-grid-rows-1': additionalSeatsPurchased <= 0,
+              'tw-grid-rows-2': additionalSeatsPurchased > 0,
+            }"
+          >
+            <span class="tw-col-span-1"
+              >{{ unassignedSeats }} {{ "unassignedSeatsDescription" | i18n | lowercase }}</span
+            >
+            <span class="tw-col-span-1" *ngIf="additionalSeatsPurchased > 0"
+              >{{ additionalSeatsPurchased }}
+              {{ "purchaseSeatDescription" | i18n | lowercase }}</span
+            >
+          </bit-hint>
+        </bit-form-field>
+      </div>
+    </div>
+    <ng-container bitDialogFooter>
+      <button bitButton bitFormButton buttonType="primary" type="submit">
+        {{ "addOrganization" | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

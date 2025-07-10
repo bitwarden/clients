@@ -1,13 +1,33 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
 import { CellDirective } from "./cell.directive";
 import { RowDirective } from "./row.directive";
-import { TableComponent } from "./table.component";
+import { SortableComponent } from "./sortable.component";
+import { BitRowDef, TableScrollComponent } from "./table-scroll.component";
+import { TableBodyDirective, TableComponent } from "./table.component";
 
 @NgModule({
-  imports: [CommonModule],
-  declarations: [TableComponent, CellDirective, RowDirective],
-  exports: [TableComponent, CellDirective, RowDirective],
+  imports: [
+    CommonModule,
+    ScrollingModule,
+    BitRowDef,
+    CellDirective,
+    RowDirective,
+    SortableComponent,
+    TableBodyDirective,
+    TableComponent,
+    TableScrollComponent,
+  ],
+  exports: [
+    BitRowDef,
+    CellDirective,
+    RowDirective,
+    SortableComponent,
+    TableBodyDirective,
+    TableComponent,
+    TableScrollComponent,
+  ],
 })
 export class TableModule {}

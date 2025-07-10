@@ -1,11 +1,4 @@
-<bit-dialog dialogSize="default">
-  <ng-container bitDialogTitle>
-    <span>{{ "createAccessToken" | i18n }}</span>
-    <span class="tw-text-sm tw-normal-case tw-text-muted">
-      {{ data.subTitle }}
-    </span>
-  </ng-container>
-
+<bit-dialog dialogSize="default" [title]="'createAccessToken' | i18n" [subtitle]="data.subTitle">
   <div bitDialogContent>
     <bit-callout type="info" [title]="'accessTokenCallOutTitle' | i18n">
       {{ "downloadAccessToken" | i18n }}<br />
@@ -21,10 +14,10 @@
     {{ data.expirationDate === null ? ("never" | i18n) : (data.expirationDate | date: "medium") }}
   </div>
 
-  <div bitDialogFooter class="tw-flex tw-gap-2">
-    <button bitButton buttonType="primary" (click)="copyAccessToken()">
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="copyAccessToken()">
       <i class="bwi bwi-clone" aria-hidden="true"></i>
       {{ "copyToken" | i18n }}
     </button>
-  </div>
+  </ng-container>
 </bit-dialog>

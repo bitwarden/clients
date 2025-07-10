@@ -1,25 +1,40 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { NgClass } from "@angular/common";
 import { Component, Input, OnChanges } from "@angular/core";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
-import { Utils } from "@bitwarden/common/misc/utils";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-type SizeTypes = "large" | "default" | "small";
+type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 
 const SizeClasses: Record<SizeTypes, string[]> = {
+  xlarge: ["tw-h-24", "tw-w-24"],
   large: ["tw-h-16", "tw-w-16"],
   default: ["tw-h-10", "tw-w-10"],
   small: ["tw-h-7", "tw-w-7"],
+  xsmall: ["tw-h-6", "tw-w-6"],
 };
 
+/**
+  * Avatars display a unique color that helps a user visually recognize their logged in account.
+
+  * A variance in color across the avatar component is important as it is used in Account Switching as a
+  * visual indicator to recognize which of a personal or work account a user is logged into.
+*/
 @Component({
   selector: "bit-avatar",
-  template: `<img *ngIf="src" [src]="src" title="{{ text }}" [ngClass]="classList" />`,
+  template: `@if (src) {
+    <img [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+  }`,
+  imports: [NgClass],
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;
   @Input() color?: string;
   @Input() id?: string;
   @Input() text?: string;
+  @Input() title: string;
   @Input() size: SizeTypes = "default";
 
   private svgCharCount = 2;
@@ -37,7 +52,7 @@ export class AvatarComponent implements OnChanges {
   get classList() {
     return ["tw-rounded-full"]
       .concat(SizeClasses[this.size] ?? [])
-      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : []);
+      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-600"] : []);
   }
 
   private generate() {
@@ -72,8 +87,10 @@ export class AvatarComponent implements OnChanges {
     svg.appendChild(charObj);
     const html = window.document.createElement("div").appendChild(svg).outerHTML;
     const svgHtml = window.btoa(unescape(encodeURIComponent(html)));
+
+    // This is safe because the only user provided value, chars is set using `textContent`
     this.src = this.sanitizer.bypassSecurityTrustResourceUrl(
-      "data:image/svg+xml;base64," + svgHtml
+      "data:image/svg+xml;base64," + svgHtml,
     );
   }
 
@@ -111,9 +128,10 @@ export class AvatarComponent implements OnChanges {
     textTag.setAttribute("fill", Utils.pickTextColorBasedOnBgColor(color, 135, true));
     textTag.setAttribute(
       "font-family",
-      '"Open Sans","Helvetica Neue",Helvetica,Arial,' +
-        'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+      'Roboto,"Helvetica Neue",Helvetica,Arial,' +
+        'sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
     );
+    // Warning do not use innerHTML here, characters are user provided
     textTag.textContent = character;
     textTag.style.fontWeight = this.svgFontWeight.toString();
     textTag.style.fontSize = this.svgFontSize + "px";

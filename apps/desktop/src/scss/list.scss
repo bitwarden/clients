@@ -120,8 +120,12 @@
 
   .item-content {
     display: block;
+    overflow-x: hidden;
     .item-title {
       display: block;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       .title-badges {
         @include themify($themes) {
           color: themed("mutedColor");

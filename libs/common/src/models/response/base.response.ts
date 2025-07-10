@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 export abstract class BaseResponse {
   private response: any;
 
@@ -8,7 +10,7 @@ export abstract class BaseResponse {
   protected getResponseProperty(
     propertyName: string,
     response: any = null,
-    exactName = false
+    exactName = false,
   ): any {
     if (propertyName == null || propertyName === "") {
       throw new Error("propertyName must not be null/empty.");
