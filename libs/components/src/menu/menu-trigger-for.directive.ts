@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { hasModifierKey } from "@angular/cdk/keycodes";
 import { Overlay, OverlayConfig, OverlayRef } from "@angular/cdk/overlay";
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
@@ -76,6 +77,13 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.overlayRef.attach(templatePortal);
 
     this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
+      // Closing the menu is handled in this.destroyMenu, so we want to prevent the escape key
+      // from doing its normal default action, which would otherwise cause a parent component
+      // (like a dialog) or extension window to close
+      if (event?.key === "Escape" && !hasModifierKey(event)) {
+        event.preventDefault();
+      }
+
       if (["Tab", "Escape"].includes(event?.key)) {
         // Required to ensure tab order resumes correctly
         this.elementRef.nativeElement.focus();

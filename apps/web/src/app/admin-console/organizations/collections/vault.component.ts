@@ -78,8 +78,8 @@ import {
   DecryptionFailureDialogComponent,
   PasswordRepromptService,
 } from "@bitwarden/vault";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/services/organization-warnings.service";
-import { ResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/reseller-renewal-warning.component";
+import { OrganizationResellerRenewalWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components/organization-reseller-renewal-warning.component";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/warnings/services/organization-warnings.service";
 
 import { BillingNotificationService } from "../../../billing/services/billing-notification.service";
 import {
@@ -88,7 +88,7 @@ import {
 } from "../../../billing/services/reseller-warning.service";
 import { TrialFlowService } from "../../../billing/services/trial-flow.service";
 import { FreeTrial } from "../../../billing/types/free-trial";
-import { FreeTrialWarningComponent } from "../../../billing/warnings/free-trial-warning.component";
+import { OrganizationFreeTrialWarningComponent } from "../../../billing/warnings/components/organization-free-trial-warning.component";
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
 import {
@@ -125,7 +125,7 @@ import {
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
-import { getNestedCollectionTree, getFlatCollectionTree } from "./utils";
+import { getFlatCollectionTree, getNestedCollectionTree } from "./utils";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
@@ -150,8 +150,8 @@ enum AddAccessStatusType {
     SharedModule,
     BannerModule,
     NoItemsModule,
-    FreeTrialWarningComponent,
-    ResellerRenewalWarningComponent,
+    OrganizationFreeTrialWarningComponent,
+    OrganizationResellerRenewalWarningComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -749,10 +749,13 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToPaymentMethod() {
-    await this.router.navigate(
-      ["organizations", `${this.organization?.id}`, "billing", "payment-method"],
-      { state: { launchPaymentModalAutomatically: true } },
+    const managePaymentDetailsOutsideCheckout = await this.configService.getFeatureFlag(
+      FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout,
     );
+    const route = managePaymentDetailsOutsideCheckout ? "payment-details" : "payment-method";
+    await this.router.navigate(["organizations", `${this.organization?.id}`, "billing", route], {
+      state: { launchPaymentModalAutomatically: true },
+    });
   }
 
   addAccessToggle(e: AddAccessStatusType) {

@@ -17,6 +17,11 @@ export abstract class RegistrationFinishService {
   abstract getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null>;
 
   /**
+   * Returns the route the user is redirected to after a successful login.
+   */
+  abstract determineLoginSuccessRoute(): Promise<string>;
+
+  /**
    * Finishes the registration process by creating a new user account.
    *
    * @param email The email address of the user.

@@ -1,7 +1,7 @@
 {
   "name": "@bitwarden/cli",
   "description": "A secure and free password manager for all of your devices.",
-  "version": "2025.6.0",
+  "version": "2025.6.1",
   "keywords": [
     "bitwarden",
     "password",
@@ -64,7 +64,7 @@
     ]
   },
   "dependencies": {
-    "@koa/multer": "3.1.0",
+    "@koa/multer": "4.0.0",
     "@koa/router": "13.1.0",
     "argon2": "0.41.1",
     "big-integer": "1.6.52",

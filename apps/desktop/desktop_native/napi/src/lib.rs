@@ -166,6 +166,7 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
+    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -174,7 +175,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
     }
 
     #[napi(object)]
@@ -237,7 +238,7 @@ pub mod sshagent {
                                     .expect("should be able to send auth response to agent");
                             }
                             Err(e) => {
-                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {}", e);
+                                println!("[SSH Agent Native Module] calling UI callback promise was rejected: {e}");
                                 let _ = auth_response_tx_arc
                                     .lock()
                                     .await
@@ -246,7 +247,7 @@ pub mod sshagent {
                             }
                         },
                         Err(e) => {
-                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {}", e);
+                            println!("[SSH Agent Native Module] calling UI callback could not create promise: {e}");
                             let _ = auth_response_tx_arc
                                 .lock()
                                 .await

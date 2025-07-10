@@ -6,15 +6,19 @@ import {
   ChangeDetectorRef,
   Component,
   ContentChildren,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   inject,
   Input,
+  NgZone,
   Output,
   QueryList,
   ViewChild,
   ViewChildren,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { take } from "rxjs";
 
 import { ButtonModule } from "@bitwarden/components";
 
@@ -44,7 +48,7 @@ export class VaultCarouselComponent implements AfterViewInit {
   @Input({ required: true }) label = "";
 
   /**
-   * Emits the index of of the newly selected slide.
+   * Emits the index of the newly selected slide.
    */
   @Output() slideChange = new EventEmitter<number>();
 
@@ -82,6 +86,11 @@ export class VaultCarouselComponent implements AfterViewInit {
    */
   protected keyManager: FocusKeyManager<VaultCarouselButtonComponent> | null = null;
 
+  constructor(
+    private ngZone: NgZone,
+    private destroyRef: DestroyRef,
+  ) {}
+
   /** Set the selected index of the carousel. */
   protected selectSlide(index: number) {
     this.selectedIndex = index;
@@ -97,7 +106,9 @@ export class VaultCarouselComponent implements AfterViewInit {
     // Set the first carousel button as active, this avoids having to double tab the arrow keys on initial focus.
     this.keyManager.setFirstItemActive();
 
-    await this.setMinHeightOfCarousel();
+    this.ngZone.onStable.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      void this.setMinHeightOfCarousel();
+    });
   }
 
   /**
