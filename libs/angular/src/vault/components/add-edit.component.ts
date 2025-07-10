@@ -143,12 +143,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
       { name: "Visa", value: "Visa" },
       { name: "Mastercard", value: "Mastercard" },
       { name: "American Express", value: "Amex" },
-      { name: "Discover", value: "Discover" },
+      { name: "DinaCard", value: "DinaCard" },
       { name: "Diners Club", value: "Diners Club" },
+      { name: "Discover", value: "Discover" },
       { name: "JCB", value: "JCB" },
       { name: "Maestro", value: "Maestro" },
-      { name: "UnionPay", value: "UnionPay" },
+      { name: "Mir", value: "Mir" },
       { name: "RuPay", value: "RuPay" },
+      { name: "UnionPay", value: "UnionPay" },
       { name: i18nService.t("other"), value: "Other" },
     ];
     this.cardExpMonthOptions = [
