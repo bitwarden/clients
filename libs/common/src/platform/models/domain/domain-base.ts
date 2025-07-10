@@ -1,9 +1,9 @@
 import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 
-import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

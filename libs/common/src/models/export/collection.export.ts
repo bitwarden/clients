@@ -4,7 +4,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
 
-import { EncString } from "../../platform/models/domain/enc-string";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 
 import { safeGetString } from "./utils";
 
