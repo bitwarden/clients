@@ -48,7 +48,7 @@ export class NavGroupComponent extends NavBaseComponent {
   /**
    * Is `true` if the expanded content is visible
    */
-  open = model(false);
+  readonly open = model(false);
 
   /**
    * Automatically hide the nav group if there are no child buttons

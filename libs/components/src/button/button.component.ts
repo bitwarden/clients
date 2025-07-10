@@ -121,7 +121,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
 
   readonly block = input(false, { transform: booleanAttribute });
 
-  loading = model<boolean>(false);
+  readonly loading = model<boolean>(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
@@ -139,7 +139,7 @@ export class ButtonComponent implements ButtonLikeAbstraction {
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  disabled = model<boolean>(false);
+  readonly disabled = model<boolean>(false);
   private el = inject(ElementRef<HTMLButtonElement>);
 
   constructor() {

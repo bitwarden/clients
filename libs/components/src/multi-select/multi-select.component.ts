@@ -51,10 +51,10 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
-  baseItems = model<SelectItemView[]>();
+  readonly baseItems = model<SelectItemView[]>();
   // Defaults to native ng-select behavior - set to "true" to clear selected items on dropdown close
   readonly removeSelectedItems = input(false);
-  placeholder = model<string>();
+  readonly placeholder = model<string>();
   readonly loading = input(false);
   // TODO: Skipped for signal migration because:
   //  Your application code writes to the input. This prevents migration.

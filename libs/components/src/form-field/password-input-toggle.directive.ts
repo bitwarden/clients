@@ -26,7 +26,7 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   /**
    * Whether the input is toggled to show the password.
    */
-  toggled = model(false);
+  readonly toggled = model(false);
   @Output() toggledChange = new EventEmitter<boolean>();
 
   @HostBinding("attr.title") title = this.i18nService.t("toggleVisibility");

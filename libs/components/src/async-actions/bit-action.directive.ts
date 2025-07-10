@@ -38,7 +38,7 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
-  handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
+  readonly handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
 
   constructor(
     private buttonComponent: ButtonLikeAbstraction,

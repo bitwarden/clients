@@ -25,7 +25,7 @@ import { PopoverComponent } from "./popover.component";
   },
 })
 export class PopoverTriggerForDirective implements OnDestroy, AfterViewInit {
-  popoverOpen = model(false);
+  readonly popoverOpen = model(false);
 
   readonly popover = input<PopoverComponent>(undefined, { alias: "bitPopoverTriggerFor" });
 

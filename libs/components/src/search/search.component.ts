@@ -43,7 +43,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   // Use `type="text"` for Safari to improve rendering performance
   protected inputType = isBrowserSafariApi() ? ("text" as const) : ("search" as const);
 
-  disabled = model<boolean>();
+  readonly disabled = model<boolean>();
   readonly placeholder = input<string>();
   readonly autocomplete = input<string>();
 

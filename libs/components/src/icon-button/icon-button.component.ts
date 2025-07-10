@@ -177,11 +177,11 @@ const sizes: Record<IconButtonSize, string[]> = {
   },
 })
 export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableElement {
-  icon = model<string>(undefined, { alias: "bitIconButton" });
+  readonly icon = model<string>(undefined, { alias: "bitIconButton" });
 
   readonly buttonType = input<IconButtonType>("main");
 
-  size = model<IconButtonSize>("default");
+  readonly size = model<IconButtonSize>("default");
 
   @HostBinding("class") get classList() {
     return [
@@ -221,7 +221,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     return this.showLoadingStyle() || (this.disabledAttr() && this.loading() === false);
   });
 
-  loading = model(false);
+  readonly loading = model(false);
 
   /**
    * Determine whether it is appropriate to display a loading spinner. We only want to show
@@ -239,7 +239,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     toObservable(this.loading).pipe(debounce((isLoading) => interval(isLoading ? 75 : 0))),
   );
 
-  disabled = model<boolean>(false);
+  readonly disabled = model<boolean>(false);
 
   getFocusTarget() {
     return this.elementRef.nativeElement;

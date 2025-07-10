@@ -39,7 +39,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
 
   readonly title = input<string>();
   readonly subtitle = input<string>();
-  icon = model<Icon>();
+  readonly icon = model<Icon>();
   readonly showReadonlyHostname = input<boolean>(false);
   readonly hideLogo = input<boolean>(false);
   readonly hideFooter = input<boolean>(false);
@@ -51,7 +51,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    *
    * @default 'md'
    */
-  maxWidth = model<AnonLayoutMaxWidth>("md");
+  readonly maxWidth = model<AnonLayoutMaxWidth>("md");
 
   protected logo = BitwardenLogo;
   protected year: string;

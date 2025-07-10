@@ -31,7 +31,7 @@ const defaultIcon: Record<BannerType, string> = {
 export class BannerComponent implements OnInit {
   readonly bannerType = input<BannerType>("info");
 
-  icon = model<string>();
+  readonly icon = model<string>();
   readonly useAlertRole = input(true);
   readonly showClose = input(true);
 

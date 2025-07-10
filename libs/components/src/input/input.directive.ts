@@ -68,9 +68,9 @@ export class BitInputDirective implements BitFormFieldControl {
     return this.hasError ? true : undefined;
   }
 
-  type = model<InputTypes>();
+  readonly type = model<InputTypes>();
 
-  spellcheck = model<boolean>();
+  readonly spellcheck = model<boolean>();
 
   // TODO: Skipped for signal migration because:
   //  Accessor inputs cannot be migrated as they are too complex.

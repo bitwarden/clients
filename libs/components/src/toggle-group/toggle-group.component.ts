@@ -19,7 +19,7 @@ export class ToggleGroupComponent<TValue = unknown> {
   name = `bit-toggle-group-${this.id}`;
 
   readonly fullWidth = input<boolean, unknown>(undefined, { transform: booleanAttribute });
-  selected = model<TValue>();
+  readonly selected = model<TValue>();
   @Output() selectedChange = new EventEmitter<TValue>();
 
   @HostBinding("attr.role") role = "radiogroup";

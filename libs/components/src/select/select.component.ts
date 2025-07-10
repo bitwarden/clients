@@ -50,7 +50,7 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
-  items = model<Option<T>[] | undefined>();
+  readonly items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
   @Output() closed = new EventEmitter();
