@@ -3566,6 +3566,10 @@
     "message": "More about match detection",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+   "uriAdvancedOption":{
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "success": {
     "message": "Success"
   },
