@@ -2,14 +2,20 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 import { of, Subject } from "rxjs";
 
-import { AuthRequestApiService } from "@bitwarden/auth/common";
+import { AuthRequestApiServiceAbstraction } from "@bitwarden/auth/common";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DeviceView } from "@bitwarden/common/auth/abstractions/devices/views/device.view";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { DialogService, ToastService, TableModule, PopoverModule } from "@bitwarden/components";
+import {
+  DialogService,
+  ToastService,
+  TableModule,
+  PopoverModule,
+  LayoutComponent,
+} from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 import { VaultBannersService } from "../../../vault/individual-vault/vault-banners/services/vault-banners.service";
@@ -73,7 +79,7 @@ describe("DeviceManagementComponent", () => {
           },
         },
         {
-          provide: AuthRequestApiService,
+          provide: AuthRequestApiServiceAbstraction,
           useValue: {
             getAuthRequest: jest.fn().mockResolvedValue(mockDeviceResponse),
           },
@@ -113,6 +119,12 @@ describe("DeviceManagementComponent", () => {
           provide: ValidationService,
           useValue: {
             showError: jest.fn(),
+          },
+        },
+        {
+          provide: LayoutComponent,
+          useValue: {
+            mainContent: jest.fn(),
           },
         },
       ],

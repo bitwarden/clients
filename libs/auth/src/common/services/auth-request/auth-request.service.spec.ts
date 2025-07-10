@@ -10,23 +10,23 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
+import { DefaultAuthRequestApiService } from "./auth-request-api.service";
 import { AuthRequestService } from "./auth-request.service";
 
 describe("AuthRequestService", () => {
   let sut: AuthRequestService;
 
   const stateProvider = mock<StateProvider>();
-  let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
   const appIdService = mock<AppIdService>();
   const keyService = mock<KeyService>();
   const encryptService = mock<EncryptService>();
   const apiService = mock<ApiService>();
+  const authRequestApiService = mock<DefaultAuthRequestApiService>();
 
   let mockPrivateKey: Uint8Array;
   let mockPublicKey: Uint8Array;
@@ -34,17 +34,16 @@ describe("AuthRequestService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
 
     sut = new AuthRequestService(
       appIdService,
-      accountService,
       masterPasswordService,
       keyService,
       encryptService,
       apiService,
       stateProvider,
+      authRequestApiService,
     );
 
     mockPrivateKey = new Uint8Array(64);

@@ -145,14 +145,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
 
-      const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
-      if (cipherKey == null) {
+      try {
+        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
+        encKey = cipherKey;
+        bypassValidation = false;
+      } catch {
         model.name = "[error: cannot decrypt]";
         model.decryptionFailure = true;
         return model;
       }
-      encKey = cipherKey;
-      bypassValidation = false;
     }
 
     await this.decryptObj<Cipher, CipherView>(
@@ -292,6 +293,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const domain = new Cipher();
     const name = EncString.fromJSON(obj.name);
     const notes = EncString.fromJSON(obj.notes);
+    const creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     const deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);
     const attachments = obj.attachments?.map((a: any) => Attachment.fromJSON(a));
@@ -302,6 +304,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     Object.assign(domain, obj, {
       name,
       notes,
+      creationDate,
       revisionDate,
       deletedDate,
       attachments,
@@ -341,18 +344,23 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   toSdkCipher(): SdkCipher {
     const sdkCipher: SdkCipher = {
       id: this.id,
-      organizationId: this.organizationId,
-      folderId: this.folderId,
-      collectionIds: this.collectionIds || [],
+      organizationId: this.organizationId ?? undefined,
+      folderId: this.folderId ?? undefined,
+      collectionIds: this.collectionIds ?? [],
       key: this.key?.toJSON(),
       name: this.name.toJSON(),
       notes: this.notes?.toJSON(),
       type: this.type,
-      favorite: this.favorite,
-      organizationUseTotp: this.organizationUseTotp,
-      edit: this.edit,
-      permissions: this.permissions,
-      viewPassword: this.viewPassword,
+      favorite: this.favorite ?? false,
+      organizationUseTotp: this.organizationUseTotp ?? false,
+      edit: this.edit ?? true,
+      permissions: this.permissions
+        ? {
+            delete: this.permissions.delete,
+            restore: this.permissions.restore,
+          }
+        : undefined,
+      viewPassword: this.viewPassword ?? true,
       localData: this.localData
         ? {
             lastUsedDate: this.localData.lastUsedDate

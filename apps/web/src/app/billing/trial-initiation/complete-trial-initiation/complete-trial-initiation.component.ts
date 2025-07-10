@@ -4,7 +4,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { combineLatest, firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -52,7 +52,7 @@ export type InitiationPath =
 export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
-  inputPasswordFlow = InputPasswordFlow.AccountRegistration;
+  inputPasswordFlow = InputPasswordFlow.SetInitialPasswordAccountRegistration;
   initializing = true;
 
   /** Password Manager or Secrets Manager */
@@ -100,6 +100,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   protected readonly ProductType = ProductType;
   protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
     FeatureFlag.TrialPaymentOptional,
+  );
+  protected allowTrialLengthZero$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AllowTrialLengthZero,
   );
 
   constructor(
@@ -225,7 +228,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   async orgNameEntrySubmit(): Promise<void> {
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    if (isTrialPaymentOptional) {
+    /** Only skip payment if the flag is on AND trialLength > 0 */
+    if (isTrialPaymentOptional && this.trialLength > 0) {
       await this.createOrganizationOnTrial();
     } else {
       await this.conditionallyCreateOrganization();
@@ -332,6 +336,18 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
     return this.productTier;
   }
+
+  readonly showBillingStep$ = combineLatest([
+    this.trialPaymentOptional$,
+    this.allowTrialLengthZero$,
+  ]).pipe(
+    map(([trialPaymentOptional, allowTrialLengthZero]) => {
+      return (
+        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
+        (trialPaymentOptional && allowTrialLengthZero && this.trialLength === 0)
+      );
+    }),
+  );
 
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(): Promise<void> {
