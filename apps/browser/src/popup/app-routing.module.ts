@@ -15,6 +15,7 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
@@ -331,7 +332,15 @@ const routes: Routes = [
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
+    canActivate: [
+      canAccessFeature(
+        FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+        false,
+        `/change-password`,
+        false,
+      ),
+      authGuard,
+    ],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -554,6 +563,23 @@ const routes: Routes = [
           },
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      },
+      {
+        path: "change-password",
+        data: {
+          elevation: 1,
+          hideFooter: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+        ],
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
+          authGuard,
+        ],
       },
     ],
   },

@@ -1,0 +1,41 @@
+@let organization = organization$ | async;
+@if (organization) {
+  <app-organization-free-trial-warning
+    [organization]="organization"
+    (clicked)="changePaymentMethod()"
+  >
+  </app-organization-free-trial-warning>
+}
+<app-header></app-header>
+<bit-container>
+  @let view = view$ | async;
+  @if (!view) {
+    <ng-container>
+      <i
+        class="bwi bwi-spinner bwi-spin tw-text-muted"
+        title="{{ 'loading' | i18n }}"
+        aria-hidden="true"
+      ></i>
+      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+    </ng-container>
+  } @else {
+    <ng-container>
+      <app-display-payment-method
+        [owner]="view.organization"
+        [paymentMethod]="view.paymentMethod"
+        (updated)="setPaymentMethod($event)"
+      ></app-display-payment-method>
+
+      <app-display-billing-address
+        [owner]="view.organization"
+        [billingAddress]="view.billingAddress"
+        (updated)="setBillingAddress($event)"
+      ></app-display-billing-address>
+
+      <app-display-account-credit
+        [owner]="view.organization"
+        [credit]="view.credit"
+      ></app-display-account-credit>
+    </ng-container>
+  }
+</bit-container>
