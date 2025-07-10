@@ -4,12 +4,6 @@ import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function
 import { SendPasswordService } from "../abstractions/send-password.service";
 import { SendHashedPassword } from "../types/send-hashed-password.type";
 
-// TODO: remove this comment:
-// Code taken from send access.component.ts load method.
-
-/**
- * Service for managing passwords for sends.
- */
 export class DefaultSendPasswordService implements SendPasswordService {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 

@@ -1,5 +1,8 @@
 import { SendHashedPassword } from "../types/send-hashed-password.type";
 
+/**
+ * Service for managing passwords for sends.
+ */
 export abstract class SendPasswordService {
   /**
    * Hashes a raw send password using the provided key material
