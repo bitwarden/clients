@@ -193,13 +193,14 @@ export class CipherService implements CipherServiceAbstraction {
     this.clearCipherViewsForUser$.next(userId);
   }
 
-  async encrypt(
-    model: CipherView,
-    userId: UserId,
-    keyForCipherEncryption?: SymmetricCryptoKey,
-    keyForCipherKeyDecryption?: SymmetricCryptoKey,
-    originalCipher: Cipher = null,
-  ): Promise<EncryptionContext> {
+  /**
+   * Adjusts the cipher history for the given model by updating its history properties based on the original cipher.
+   * @param model The cipher model to adjust.
+   * @param userId The acting userId
+   * @param originalCipher The original cipher to compare against. If not provided, it will be fetched from the store.
+   * @private
+   */
+  private async adjustCipherHistory(model: CipherView, userId: UserId, originalCipher?: Cipher) {
     if (model.id != null) {
       if (originalCipher == null) {
         originalCipher = await this.get(model.id, userId);
@@ -209,6 +210,16 @@ export class CipherService implements CipherServiceAbstraction {
       }
       this.adjustPasswordHistoryLength(model);
     }
+  }
+
+  async encrypt(
+    model: CipherView,
+    userId: UserId,
+    keyForCipherEncryption?: SymmetricCryptoKey,
+    keyForCipherKeyDecryption?: SymmetricCryptoKey,
+    originalCipher: Cipher = null,
+  ): Promise<EncryptionContext> {
+    await this.adjustCipherHistory(model, userId, originalCipher);
 
     const sdkEncryptionEnabled =
       (await this.configService.getFeatureFlag(FeatureFlag.PM22136_SdkCipherEncryption)) &&
@@ -818,10 +829,13 @@ export class CipherService implements CipherServiceAbstraction {
     organizationId: string,
     collectionIds: string[],
     userId: UserId,
+    originalCipher?: Cipher,
   ): Promise<Cipher> {
     const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM22136_SdkCipherEncryption,
     );
+
+    await this.adjustCipherHistory(cipher, userId, originalCipher);
 
     let encCipher: EncryptionContext;
     if (sdkCipherEncryptionEnabled) {
