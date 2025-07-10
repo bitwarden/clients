@@ -34,6 +34,7 @@ export enum FeatureFlag {
   UseOrganizationWarningsService = "use-organization-warnings-service",
   AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
   PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
+  PM21821_ProviderPortalTakeover = "pm-21821-provider-portal-takeover",
 
   /* Data Insights and Reporting */
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
@@ -117,6 +118,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.AllowTrialLengthZero]: FALSE,
   [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
+  [FeatureFlag.PM21821_ProviderPortalTakeover]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
