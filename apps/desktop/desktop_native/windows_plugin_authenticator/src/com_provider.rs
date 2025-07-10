@@ -1,21 +1,11 @@
-/*
-    This file exposes safe functions and types for interacting with the experimental
-    Windows Plugin Authenticator API defined here:
-
-    https://github.com/microsoft/webauthn/blob/master/experimental/pluginauthenticator.h
-
-    The Factory pattern & COM interactions are based on the examples provided here:
-    - https://github.com/microsoft/windows-rs/blob/bb15076311bf185400ecd244d47596b8415450fa/crates/tests/libs/implement/tests/class_factory.rs
-    - https://github.com/microsoft/windows-rs/pull/3531
-    - https://kennykerr.ca/rust-getting-started/how-to-implement-com-interface.html
-    - https://github.com/bitwarden/clients/pull/10204/files#diff-a4de81fd5a2389d7b512dd37989a42a452fe36cbc1f32d16d5832880355d5669R106
-*/
-
+use std::ptr;
 use windows::Win32::System::Com::*;
-//use windows::{Foundation::*, Win32::System::Com::*};
-use windows_core::*;
+use windows_core::{implement, interface, IInspectable, IUnknown, Interface, HRESULT};
 
-use crate::util;
+use crate::assert::experimental_plugin_get_assertion;
+use crate::make_credential::experimental_plugin_make_credential;
+use crate::util::debug_log;
+use crate::webauthn::WEBAUTHN_CREDENTIAL_LIST;
 
 /// Used when creating and asserting credentials.
 /// Header File Name: _EXPERIMENTAL_WEBAUTHN_PLUGIN_OPERATION_REQUEST
@@ -55,7 +45,7 @@ pub struct ExperimentalWebAuthnPluginCancelOperationRequest {
 }
 
 #[interface("e6466e9a-b2f3-47c5-b88d-89bc14a8d998")]
-pub unsafe trait EXPERIMENTAL_IPluginAuthenticator: IUnknown {
+pub unsafe trait EXPERIMENTAL_IPluginAuthenticator: windows_core::IUnknown {
     fn EXPERIMENTAL_PluginMakeCredential(
         &self,
         request: *const ExperimentalWebAuthnPluginOperationRequest,
@@ -72,6 +62,59 @@ pub unsafe trait EXPERIMENTAL_IPluginAuthenticator: IUnknown {
     ) -> HRESULT;
 }
 
+pub unsafe fn parse_credential_list(credential_list: &WEBAUTHN_CREDENTIAL_LIST) -> Vec<Vec<u8>> {
+    let mut allowed_credentials = Vec::new();
+
+    if credential_list.cCredentials == 0 || credential_list.ppCredentials.is_null() {
+        debug_log("No credentials in credential list");
+        return allowed_credentials;
+    }
+
+    debug_log(&format!(
+        "Parsing {} credentials from credential list",
+        credential_list.cCredentials
+    ));
+
+    // ppCredentials is an array of pointers to WEBAUTHN_CREDENTIAL_EX
+    let credentials_array = std::slice::from_raw_parts(
+        credential_list.ppCredentials,
+        credential_list.cCredentials as usize,
+    );
+
+    for (i, &credential_ptr) in credentials_array.iter().enumerate() {
+        if credential_ptr.is_null() {
+            debug_log(&format!("WARNING: Credential {} is null, skipping", i));
+            continue;
+        }
+
+        let credential = &*credential_ptr;
+
+        if credential.cbId == 0 || credential.pbId.is_null() {
+            debug_log(&format!(
+                "WARNING: Credential {} has invalid ID, skipping",
+                i
+            ));
+            continue;
+        }
+
+        // Extract credential ID bytes
+        let credential_id_slice =
+            std::slice::from_raw_parts(credential.pbId, credential.cbId as usize);
+
+        allowed_credentials.push(credential_id_slice.to_vec());
+        debug_log(&format!(
+            "Parsed credential {}: {} bytes",
+            i, credential.cbId
+        ));
+    }
+
+    debug_log(&format!(
+        "Successfully parsed {} allowed credentials",
+        allowed_credentials.len()
+    ));
+    allowed_credentials
+}
+
 #[implement(EXPERIMENTAL_IPluginAuthenticator)]
 pub struct PluginAuthenticatorComObject;
 
@@ -84,9 +127,7 @@ impl EXPERIMENTAL_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Imp
         request: *const ExperimentalWebAuthnPluginOperationRequest,
         response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        //panic!("EXPERIMENTAL_PluginMakeCredential() called");
-        util::message(String::from("EXPERIMENTAL_PluginMakeCredential() called"));
-        HRESULT(0)
+        experimental_plugin_make_credential(request, response)
     }
 
     unsafe fn EXPERIMENTAL_PluginGetAssertion(
@@ -94,17 +135,14 @@ impl EXPERIMENTAL_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Imp
         request: *const ExperimentalWebAuthnPluginOperationRequest,
         response: *mut *mut ExperimentalWebAuthnPluginOperationResponse,
     ) -> HRESULT {
-        //panic!("EXPERIMENTAL_PluginGetAssertion() called");
-        util::message(String::from("EXPERIMENTAL_PluginGetAssertion() called"));
-        HRESULT(0)
+        experimental_plugin_get_assertion(request, response)
     }
 
     unsafe fn EXPERIMENTAL_PluginCancelOperation(
         &self,
-        request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
+        _request: *const ExperimentalWebAuthnPluginCancelOperationRequest,
     ) -> HRESULT {
-        //panic!("EXPERIMENTAL_PluginCancelOperation() called");
-        util::message(String::from("EXPERIMENTAL_PluginCancelOperation() called"));
+        debug_log("EXPERIMENTAL_PluginCancelOperation() called");
         HRESULT(0)
     }
 }
@@ -112,15 +150,15 @@ impl EXPERIMENTAL_IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Imp
 impl IClassFactory_Impl for Factory_Impl {
     fn CreateInstance(
         &self,
-        outer: Ref<IUnknown>,
-        iid: *const GUID,
+        _outer: windows_core::Ref<IUnknown>,
+        iid: *const windows_core::GUID,
         object: *mut *mut core::ffi::c_void,
-    ) -> Result<()> {
-        let unknown: IInspectable = PluginAuthenticatorComObject.into();    // TODO: IUnknown ?
+    ) -> windows_core::Result<()> {
+        let unknown: IInspectable = PluginAuthenticatorComObject.into(); // TODO: IUnknown ?
         unsafe { unknown.query(iid, object).ok() }
     }
 
-    fn LockServer(&self, lock: BOOL) -> Result<()> {
+    fn LockServer(&self, _lock: windows_core::BOOL) -> windows_core::Result<()> {
         Ok(())
     }
 }
