@@ -25,7 +25,7 @@
     "test:locales": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/test-locales.js",
     "lint:dep-ownership": "tsc --project ./scripts/tsconfig.json && node ./scripts/dist/dep-ownership.js",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d . --disableRoutesGraph",
-    "storybook": "ng run components:storybook",
+    "storybook": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:storybook",
     "build-storybook": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:build-storybook",
     "build-storybook:ci": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" ng run components:build-storybook --webpack-stats-json",
     "test-stories": "test-storybook --url http://localhost:6006",
@@ -97,7 +97,7 @@
     "copy-webpack-plugin": "13.0.0",
     "cross-env": "7.0.3",
     "css-loader": "7.1.2",
-    "electron": "36.3.1",
+    "electron": "36.4.0",
     "electron-builder": "26.0.12",
     "electron-log": "5.4.0",
     "electron-reload": "2.0.0-alpha.1",
@@ -160,10 +160,10 @@
     "@angular/platform-browser": "19.2.14",
     "@angular/platform-browser-dynamic": "19.2.14",
     "@angular/router": "19.2.14",
-    "@bitwarden/sdk-internal": "0.2.0-main.203",
+    "@bitwarden/sdk-internal": "0.2.0-main.225",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
-    "@koa/multer": "3.1.0",
+    "@koa/multer": "4.0.0",
     "@koa/router": "13.1.0",
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
@@ -210,7 +210,7 @@
     "tldts": "7.0.1",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
-    "zone.js": "0.15.0",
+    "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
   "overrides": {
@@ -231,7 +231,7 @@
     "*.ts": "eslint --cache --cache-strategy content --fix"
   },
   "engines": {
-    "node": "~20",
+    "node": "~22",
     "npm": "~10"
   }
 }
