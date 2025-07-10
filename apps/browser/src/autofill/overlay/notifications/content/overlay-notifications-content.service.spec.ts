@@ -4,9 +4,15 @@ import AutofillInit from "../../../content/autofill-init";
 import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import DomElementVisibilityService from "../../../services/dom-element-visibility.service";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
+import * as utils from "../../../utils";
+import { sendExtensionMessage } from "../../../utils";
 import { NotificationTypeData } from "../abstractions/overlay-notifications-content.service";
 
 import { OverlayNotificationsContentService } from "./overlay-notifications-content.service";
+
+jest.spyOn(utils, "sendExtensionMessage").mockImplementation((command: string) => {
+  return Promise.resolve(command === "notificationRefreshFlagValue" ? false : true);
+});
 
 describe("OverlayNotificationsContentService", () => {
   let overlayNotificationsContentService: OverlayNotificationsContentService;
@@ -17,6 +23,9 @@ describe("OverlayNotificationsContentService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
+    (utils.sendExtensionMessage as jest.Mock).mockImplementation((cmd: string) =>
+      Promise.resolve(cmd === "notificationRefreshFlagValue" ? false : true),
+    );
     domQueryService = mock<DomQueryService>();
     domElementVisibilityService = new DomElementVisibilityService();
     overlayNotificationsContentService = new OverlayNotificationsContentService();
@@ -45,8 +54,7 @@ describe("OverlayNotificationsContentService", () => {
     });
 
     it("applies correct styles when notificationRefreshFlag is true", async () => {
-      overlayNotificationsContentService["notificationRefreshFlag"] = true;
-
+      (sendExtensionMessage as jest.Mock).mockResolvedValue(true);
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
@@ -62,8 +70,6 @@ describe("OverlayNotificationsContentService", () => {
     });
 
     it("applies correct styles when notificationRefreshFlag is false", async () => {
-      overlayNotificationsContentService["notificationRefreshFlag"] = false;
-
       sendMockExtensionMessage({
         command: "openNotificationBar",
         data: {
@@ -208,10 +214,7 @@ describe("OverlayNotificationsContentService", () => {
 
       jest.advanceTimersByTime(150);
 
-      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
-        { command: "bgRemoveTabFromNotificationQueue" },
-        expect.any(Function),
-      );
+      expect(sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
     });
 
     it("closes the notification bar without a fadeout", () => {

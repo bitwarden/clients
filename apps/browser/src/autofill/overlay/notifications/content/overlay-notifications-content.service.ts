@@ -66,9 +66,6 @@ export class OverlayNotificationsContentService
 
   constructor() {
     void sendExtensionMessage("checkNotificationQueue");
-    void sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
-      this.notificationRefreshFlag = !!notificationRefreshFlag;
-    });
   }
 
   /**
@@ -84,11 +81,10 @@ export class OverlayNotificationsContentService
    *
    * @param message - The message containing the initialization data for the notification bar.
    */
-  private handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
+  private async handleOpenNotificationBarMessage(message: NotificationsExtensionMessage) {
     if (!message.data) {
       return;
     }
-
     const { type, typeData, params } = message.data;
 
     if (this.currentNotificationBarType && type !== this.currentNotificationBarType) {
@@ -103,6 +99,10 @@ export class OverlayNotificationsContentService
       launchTimestamp: typeData.launchTimestamp,
       params,
     };
+
+    await sendExtensionMessage("notificationRefreshFlagValue").then((notificationRefreshFlag) => {
+      this.notificationRefreshFlag = !!notificationRefreshFlag;
+    });
 
     if (globalThis.document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => this.openNotificationBar(initData));
