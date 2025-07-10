@@ -236,7 +236,7 @@ describe("DefaultCollectionService", () => {
 
       const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
-      expect(encryptedResult?.length).toBe(1);
+      expect(encryptedResult!.length).toBe(1);
       expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,
@@ -268,7 +268,7 @@ describe("DefaultCollectionService", () => {
       await collectionService.upsert(collection1, userId);
 
       const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
-      expect(encryptedResult?.length).toBe(1);
+      expect(encryptedResult!.length).toBe(1);
       expect(encryptedResult).toContainPartialObjects([
         {
           id: collection1.id,

@@ -436,7 +436,7 @@ export class VaultPopupListFiltersService {
           this.filters$.pipe(
             distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
           ),
-          this.collectionService.decryptedCollections$(userId).pipe(map((c) => c ?? [])),
+          this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
           this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),

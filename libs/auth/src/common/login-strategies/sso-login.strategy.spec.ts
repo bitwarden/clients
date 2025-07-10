@@ -139,7 +139,6 @@ describe("SsoLoginStrategy", () => {
       deviceTrustService,
       authRequestService,
       i18nService,
-      configService,
       accountService,
       masterPasswordService,
       keyService,
@@ -157,6 +156,7 @@ describe("SsoLoginStrategy", () => {
       vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
+      configService,
     );
     credentials = new SsoLoginCredentials(ssoCode, ssoCodeVerifier, ssoRedirectUrl, ssoOrgId);
   });

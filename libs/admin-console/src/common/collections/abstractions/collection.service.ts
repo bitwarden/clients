@@ -8,7 +8,7 @@ import { CollectionData, Collection, CollectionView } from "../models";
 
 export abstract class CollectionService {
   abstract encryptedCollections$: (userId: UserId) => Observable<Collection[] | null>;
-  abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[] | null>;
+  abstract decryptedCollections$: (userId: UserId) => Observable<CollectionView[]>;
   abstract upsert: (collection: CollectionData, userId: UserId) => Promise<any>;
   abstract replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   /**
@@ -17,7 +17,7 @@ export abstract class CollectionService {
   abstract decryptMany$: (
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
-  ) => Observable<CollectionView[] | null>;
+  ) => Observable<CollectionView[]>;
   abstract delete: (ids: CollectionId[], userId: UserId) => Promise<any>;
   abstract encrypt: (model: CollectionView, userId: UserId) => Promise<Collection>;
   /**

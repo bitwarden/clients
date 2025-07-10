@@ -188,7 +188,7 @@ export class DefaultCollectionService implements CollectionService {
     collections: Collection[] | null,
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Observable<CollectionView[]> {
-    if (collections?.length == 0 || collections === null || orgKeys === null) {
+    if (collections === null || collections.length == 0 || orgKeys === null) {
       return of([]);
     }
 
