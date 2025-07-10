@@ -9,6 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { ColorPasswordComponent, ColorPasswordModule, ItemModule } from "@bitwarden/components";
 
 import { PasswordHistoryViewComponent } from "./password-history-view.component";
@@ -54,8 +55,14 @@ describe("PasswordHistoryViewComponent", () => {
   });
 
   describe("history", () => {
-    const password1 = { password: "bad-password-1", lastUsedDate: new Date("09/13/2004") };
-    const password2 = { password: "bad-password-2", lastUsedDate: new Date("02/01/2004") };
+    const password1 = {
+      password: "bad-password-1",
+      lastUsedDate: new Date("09/13/2004"),
+    } as PasswordHistoryView;
+    const password2 = {
+      password: "bad-password-2",
+      lastUsedDate: new Date("02/01/2004"),
+    } as PasswordHistoryView;
 
     beforeEach(async () => {
       mockCipher.passwordHistory = [password1, password2];

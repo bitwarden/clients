@@ -132,7 +132,7 @@ describe("Field", () => {
       expect(Field.fromSdkField(cardField)!.linkedId).toBe(305);
 
       // Test Identity LinkedId
-      const identityFieldSdkField = {
+      const identityFieldSdkField: SdkField = {
         name: undefined,
         value: undefined,
         type: FieldType.Linked,

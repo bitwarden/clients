@@ -363,8 +363,11 @@ describe("DefaultCipherEncryptionService", () => {
       mockSdkClient
         .vault()
         .ciphers()
-        .decrypt.mockReturnValueOnce({ id: cipherId, name: "test-name-1" } as SdkCipherView)
-        .mockReturnValueOnce({ id: cipherId2, name: "test-name-2" } as SdkCipherView);
+        .decrypt.mockReturnValueOnce({
+          id: cipherId,
+          name: "test-name-1",
+        } as unknown as SdkCipherView)
+        .mockReturnValueOnce({ id: cipherId2, name: "test-name-2" } as unknown as SdkCipherView);
 
       jest
         .spyOn(CipherView, "fromSdkCipherView")
