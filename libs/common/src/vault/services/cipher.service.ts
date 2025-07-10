@@ -819,21 +819,44 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: string[],
     userId: UserId,
   ): Promise<Cipher> {
-    const attachmentPromises: Promise<any>[] = [];
-    if (cipher.attachments != null) {
-      cipher.attachments.forEach((attachment) => {
-        if (attachment.key == null) {
-          attachmentPromises.push(
-            this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
-          );
-        }
-      });
-    }
-    await Promise.all(attachmentPromises);
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
 
-    cipher.organizationId = organizationId;
-    cipher.collectionIds = collectionIds;
-    const encCipher = await this.encryptSharedCipher(cipher, userId);
+    let encCipher: EncryptionContext;
+    if (sdkCipherEncryptionEnabled) {
+      // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+      // cipher encryption key being used during the move to organization operation.
+      if (cipher.organizationId != null) {
+        throw new Error("Cipher is already associated with an organization.");
+      }
+
+      encCipher = await this.cipherEncryptionService.moveToOrganization(
+        cipher,
+        organizationId as OrganizationId,
+        userId,
+      );
+      encCipher.cipher.collectionIds = collectionIds;
+    } else {
+      // This old attachment logic is safe to remove after it is replaced in PM-22750; which will require fixing
+      // the attachment before sharing.
+      const attachmentPromises: Promise<any>[] = [];
+      if (cipher.attachments != null) {
+        cipher.attachments.forEach((attachment) => {
+          if (attachment.key == null) {
+            attachmentPromises.push(
+              this.shareAttachmentWithServer(attachment, cipher.id, organizationId),
+            );
+          }
+        });
+      }
+      await Promise.all(attachmentPromises);
+
+      cipher.organizationId = organizationId;
+      cipher.collectionIds = collectionIds;
+      encCipher = await this.encryptSharedCipher(cipher, userId);
+    }
+
     const request = new CipherShareRequest(encCipher);
     const response = await this.apiService.putShareCipher(cipher.id, request);
     const data = new CipherData(response, collectionIds);
@@ -847,16 +870,36 @@ export class CipherService implements CipherServiceAbstraction {
     collectionIds: string[],
     userId: UserId,
   ) {
+    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM22136_SdkCipherEncryption,
+    );
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
     for (const cipher of ciphers) {
-      cipher.organizationId = organizationId;
-      cipher.collectionIds = collectionIds;
-      promises.push(
-        this.encryptSharedCipher(cipher, userId).then((c) => {
-          encCiphers.push(c.cipher);
-        }),
-      );
+      if (sdkCipherEncryptionEnabled) {
+        // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+        // cipher encryption key being used during the move to organization operation.
+        if (cipher.organizationId != null) {
+          throw new Error("Cipher is already associated with an organization.");
+        }
+
+        promises.push(
+          this.cipherEncryptionService
+            .moveToOrganization(cipher, organizationId as OrganizationId, userId)
+            .then((encCipher) => {
+              encCipher.cipher.collectionIds = collectionIds;
+              encCiphers.push(encCipher.cipher);
+            }),
+        );
+      } else {
+        cipher.organizationId = organizationId;
+        cipher.collectionIds = collectionIds;
+        promises.push(
+          this.encryptSharedCipher(cipher, userId).then((c) => {
+            encCiphers.push(c.cipher);
+          }),
+        );
+      }
     }
     await Promise.all(promises);
     const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);
