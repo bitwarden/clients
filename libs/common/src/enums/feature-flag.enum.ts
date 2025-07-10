@@ -17,7 +17,6 @@ export enum FeatureFlag {
   /* Auth */
   PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
-  PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
@@ -34,6 +33,7 @@ export enum FeatureFlag {
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
   AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
+  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
 
   /* Data Insights and Reporting */
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
@@ -106,7 +106,6 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
-  [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
@@ -116,6 +115,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
   [FeatureFlag.AllowTrialLengthZero]: FALSE,
+  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
