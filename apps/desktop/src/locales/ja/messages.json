@@ -2407,6 +2407,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。"
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "あなたの組織は信頼できるデバイスの暗号化を無効化しました。保管庫にアクセスするにはマスターパスワードを設定してください。"
   },
@@ -3143,6 +3152,12 @@
   },
   "requestAdminApproval": {
     "message": "管理者の承認を要求する"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "region": {
     "message": "リージョン"

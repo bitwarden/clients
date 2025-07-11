@@ -2407,6 +2407,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu."
   },
+  "changePasswordWarning": {
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Vaše hlavné heslo nespĺňa požiadavky tejto organizácie. Ak chcete pokračovať, zmeňte hlavné heslo."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Vaša organizácia zakázala šifrovanie dôveryhodného zariadenia. Na prístup k trezoru nastavte hlavné heslo."
   },
@@ -3143,6 +3152,12 @@
   },
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nepodarilo sa dokončiť prihlásenie"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
   },
   "region": {
     "message": "Región"
