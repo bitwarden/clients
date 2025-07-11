@@ -18,11 +18,15 @@ jobs:
   rollout:
     name: Update Rollout Percentage
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
     steps:
-      - name: Login to Azure
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Retrieve secrets
         id: retrieve-secrets
@@ -32,6 +36,9 @@ jobs:
           secrets: "aws-electron-access-id,
             aws-electron-access-key,
             aws-electron-bucket-name"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Download channel update info files from S3
         env:
