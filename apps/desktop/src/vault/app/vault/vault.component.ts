@@ -246,17 +246,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
     );
     if (browserLoginApprovalFeatureFlag === true) {
-      const authRequests = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
-      // There is a chance that there is more than one auth request in the response we only show the most recent one
-      if (authRequests.length > 0) {
-        const mostRecentAuthRequest = authRequests.reduce((latest, current) => {
-          const latestDate = new Date(latest.creationDate).getTime();
-          const currentDate = new Date(current.creationDate).getTime();
-          return currentDate > latestDate ? current : latest;
-        });
-
+      const authRequests = await firstValueFrom(
+        this.authRequestService.getLatestPendingAuthRequest$(),
+      );
+      if (authRequests != null) {
         this.messagingService.send("openLoginApproval", {
-          notificationId: mostRecentAuthRequest.id,
+          notificationId: authRequests.id,
         });
       }
     } else {
