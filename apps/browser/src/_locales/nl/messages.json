@@ -1173,6 +1173,12 @@
     "message": "Oh nee! We konden dit niet opslaan. Probeer de gegevens handmatig in te voeren.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
+  },
   "enableChangedPasswordNotification": {
     "message": "Vraag om bijwerken bestaande login"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Verzoek verzonden"
   },
+  "masterPasswordChanged": {
+    "message": "Hoofdwachtwoord gewijzigd"
+  },
   "exposedMasterPassword": {
     "message": "Gelekt hoofdwachtwoord"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "ssoIdentifierRequired": {
     "message": "Organisatie SSO-identificatie vereist."
