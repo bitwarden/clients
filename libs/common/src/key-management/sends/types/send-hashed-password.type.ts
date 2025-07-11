@@ -1,6 +1,4 @@
 import { Opaque } from "type-fest";
 
-/**
- * Represents an opaque hashed send password as a base64 encoded string.
- */
-export type SendHashedPassword = Opaque<string, "SendHashedPassword">;
+export type SendHashedPassword = Opaque<Uint8Array, "SendHashedPassword">;
+export type SendPasswordKeyMaterial = Opaque<Uint8Array, "SendPasswordKeyMaterial">;
