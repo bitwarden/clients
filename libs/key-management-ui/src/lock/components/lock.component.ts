@@ -249,7 +249,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async handleActiveAccountChange(activeAccount: Account) {
     // this account may be unlocked, prevent any prompts so we can redirect to vault
-    if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
+    if (await this.keyService.hasUserKey(activeAccount.id)) {
       return;
     }
 

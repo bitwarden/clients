@@ -637,7 +637,15 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === CollectionAssignmentResult.Saved) {
-      await this.savedCipher(cipher);
+      const updatedCipher = await firstValueFrom(
+        // Fetch the updated cipher from the service
+        this.cipherService.cipherViews$(this.activeUserId as UserId).pipe(
+          filter((ciphers) => ciphers != null),
+          map((ciphers) => ciphers!.find((c) => c.id === cipher.id)),
+          filter((foundCipher) => foundCipher != null),
+        ),
+      );
+      await this.savedCipher(updatedCipher);
     }
   }
 
