@@ -2407,6 +2407,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
   },
+  "changePasswordWarning": {
+    "message": "Na het wijzigen van je wachtwoord moet je inloggen met je nieuwe wachtwoord. Actieve sessies op andere apparaten worden binnen één uur uitgelogd."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Wijzig je hoofdwachtwoord om je account te herstellen."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Je hoofdwachtwoord voldoet niet aan de eisen van deze organisatie. Wijzig je hoofdwachtwoord om door te gaan."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Je organisatie heeft het versleutelen van vertrouwde apparaten uitgeschakeld. Stel een hoofdwachtwoord in om toegang te krijgen tot je kluis."
   },
@@ -3143,6 +3152,12 @@
   },
   "requestAdminApproval": {
     "message": "Goedkeuring van beheerder vragen"
+  },
+  "unableToCompleteLogin": {
+    "message": "Kan login niet voltooien"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Je moet inloggen op een vertrouwd apparaat of je beheerder vragen om je een wachtwoord toe te wijzen."
   },
   "region": {
     "message": "Regio"

@@ -1173,6 +1173,12 @@
     "message": "Oh tidak! Kami tidak bisa menyimpan ini. Cobalah memasukkan rincian secara manual.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "Tanyakan untuk memperbarui masuk yang sudah ada"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Permintaan terkirim"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Kata Sandi Utama yang Terpapar"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Minta persetujuan admin"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Pengenal SSO organisasi diperlukan."
