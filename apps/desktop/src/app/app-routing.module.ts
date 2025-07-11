@@ -17,7 +17,6 @@ import {
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import {
   LoginComponent,
   LoginSecondaryContentComponent,
@@ -50,7 +49,6 @@ import { SetPasswordComponent } from "../auth/set-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
-import { VaultComponent } from "../vault/app/vault/vault.component";
 
 import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { SendComponent } from "./tools/send/send.component";
@@ -102,15 +100,11 @@ const routes: Routes = [
       },
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
-  ...featureFlaggedRoute({
-    defaultComponent: VaultComponent,
-    flaggedComponent: VaultV2Component,
-    featureFlag: FeatureFlag.PM18520_UpdateDesktopCipherForm,
-    routeOptions: {
-      path: "vault",
-      canActivate: [authGuard],
-    },
-  }),
+  {
+    path: "vault",
+    component: VaultV2Component,
+    canActivate: [authGuard],
+  },
   { path: "set-password", component: SetPasswordComponent },
   {
     path: "send",
