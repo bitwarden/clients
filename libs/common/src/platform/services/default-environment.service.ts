@@ -268,7 +268,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return new SelfHostedEnvironment(urls);
   }
 
-  async setCloudRegion(userId: UserId, region: CloudRegion) {
+  async setCloudRegion(userId: UserId | null, region: CloudRegion) {
     if (userId == null) {
       await this.globalCloudRegionState.update(() => region);
     } else {
@@ -276,7 +276,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
     }
   }
 
-  getEnvironment$(userId: UserId): Observable<Environment | undefined> {
+  getEnvironment$(userId: UserId): Observable<Environment> {
     return this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$.pipe(
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);

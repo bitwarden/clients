@@ -57,9 +57,9 @@ const environmentComparer = (previous: Environment, current: Environment) => {
 
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
-  private failedFetchFallbackSubject = new Subject<ServerConfig>();
+  private failedFetchFallbackSubject = new Subject<ServerConfig | null>();
 
-  serverConfig$: Observable<ServerConfig>;
+  serverConfig$: Observable<ServerConfig | null>;
 
   serverSettings$: Observable<ServerSettings>;
 
@@ -77,7 +77,7 @@ export class DefaultConfigService implements ConfigService {
       switchMap((environment) =>
         this.globalConfigFor$(environment.getApiUrl()).pipe(
           map((config) => {
-            return [config, null as UserId, environment] as const;
+            return [config, null as UserId | null, environment] as const;
           }),
         ),
       ),
@@ -186,8 +186,8 @@ export class DefaultConfigService implements ConfigService {
 
   // Updates the on-disk configuration with a newly retrieved configuration
   private async renewConfig(
-    existingConfig: ServerConfig,
-    userId: UserId,
+    existingConfig: ServerConfig | null,
+    userId: UserId | null,
     environment: Environment,
   ): Promise<void> {
     try {
@@ -228,13 +228,13 @@ export class DefaultConfigService implements ConfigService {
     }
   }
 
-  private globalConfigFor$(apiUrl: string): Observable<ServerConfig> {
+  private globalConfigFor$(apiUrl: string): Observable<ServerConfig | null> {
     return this.stateProvider
       .getGlobal(GLOBAL_SERVER_CONFIGURATIONS)
-      .state$.pipe(map((configs) => configs?.[apiUrl]));
+      .state$.pipe(map((configs) => configs?.[apiUrl] ?? null));
   }
 
-  private userConfigFor$(userId: UserId): Observable<ServerConfig> {
+  private userConfigFor$(userId: UserId): Observable<ServerConfig | null> {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 }
