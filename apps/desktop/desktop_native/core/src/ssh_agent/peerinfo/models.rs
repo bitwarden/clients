@@ -1,15 +1,16 @@
-use std::sync::{atomic::AtomicBool, Arc};
+use std::sync::{atomic::AtomicBool, Arc, Mutex};
 
 /**
 * Peerinfo represents the information of a peer process connecting over a socket.
 * This can be later extended to include more information (icon, app name) for the corresponding application.
 */
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PeerInfo {
     uid: u32,
     pid: u32,
     process_name: String,
     is_forwarding: Arc<AtomicBool>,
+    host_key: Arc<Mutex<Vec<u8>>>,
 }
 
 impl PeerInfo {
@@ -19,6 +20,7 @@ impl PeerInfo {
             pid,
             process_name,
             is_forwarding: Arc::new(AtomicBool::new(false)),
+            host_key: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -28,6 +30,7 @@ impl PeerInfo {
             pid: 0,
             process_name: "Unknown application".to_string(),
             is_forwarding: Arc::new(AtomicBool::new(false)),
+            host_key: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -51,5 +54,14 @@ impl PeerInfo {
     pub fn set_forwarding(&self, value: bool) {
         self.is_forwarding
             .store(value, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    pub fn set_host_key(&self, host_key: Vec<u8>) {
+        let mut host_key_lock = self.host_key.lock().expect("Mutex is not poisoned");
+        *host_key_lock = host_key;
+    }
+
+    pub fn host_key(&self) -> Vec<u8> {
+        self.host_key.lock().expect("Mutex is not poisoned").clone()
     }
 }

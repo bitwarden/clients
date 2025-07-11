@@ -44,6 +44,40 @@ describe("OverlayNotificationsContentService", () => {
       expect(bodyAppendChildSpy).not.toHaveBeenCalled();
     });
 
+    it("applies correct styles when notificationRefreshFlag is true", async () => {
+      overlayNotificationsContentService["notificationRefreshFlag"] = true;
+
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: "change",
+          typeData: mock<NotificationTypeData>(),
+        },
+      });
+      await flushPromises();
+
+      const barElement = overlayNotificationsContentService["notificationBarElement"]!;
+      expect(barElement.style.height).toBe("400px");
+      expect(barElement.style.right).toBe("0px");
+    });
+
+    it("applies correct styles when notificationRefreshFlag is false", async () => {
+      overlayNotificationsContentService["notificationRefreshFlag"] = false;
+
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: "change",
+          typeData: mock<NotificationTypeData>(),
+        },
+      });
+      await flushPromises();
+
+      const barElement = overlayNotificationsContentService["notificationBarElement"]!;
+      expect(barElement.style.height).toBe("82px");
+      expect(barElement.style.right).toBe("10px");
+    });
+
     it("closes the notification bar if the notification bar type has changed", async () => {
       overlayNotificationsContentService["currentNotificationBarType"] = "add";
       const closeNotificationBarSpy = jest.spyOn(
