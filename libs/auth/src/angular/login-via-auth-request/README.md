@@ -1,11 +1,22 @@
-# Authentication Flows Documentation
+# Login via Auth Request Documentation
+
+<br>
+
+**Table of Contents**
+
+> - [Standard Auth Request Flows](#standard-auth-request-flows)
+> - [Admin Auth Request Flow](#admin-auth-request-flow)
+> - [Summary Table](#summary-table)
+> - [State Management](#state-management)
+
+<br>
 
 ## Standard Auth Request Flows
 
 ### Flow 1: Unauthed user requests approval from device; Approving device has a masterKey in memory
 
 1. Unauthed user clicks "Login with device"
-2. Navigates to /login-with-device which creates a StandardAuthRequest
+2. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
 3. Receives approval from a device with authRequestPublicKey(masterKey)
 4. Decrypts masterKey
 5. Decrypts userKey
@@ -14,7 +25,7 @@
 ### Flow 2: Unauthed user requests approval from device; Approving device does NOT have a masterKey in memory
 
 1. Unauthed user clicks "Login with device"
-2. Navigates to /login-with-device which creates a StandardAuthRequest
+2. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
 3. Receives approval from a device with authRequestPublicKey(userKey)
 4. Decrypts userKey
 5. Proceeds to vault
@@ -34,9 +45,9 @@ get into this flow:
 ### Flow 3: Authed SSO TD user requests approval from device; Approving device has a masterKey in memory
 
 1. SSO TD user authenticates via SSO
-2. Navigates to /login-initiated
+2. Navigates to `/login-initiated`
 3. Clicks "Approve from your other device"
-4. Navigates to /login-with-device which creates a StandardAuthRequest
+4. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
 5. Receives approval from device with authRequestPublicKey(masterKey)
 6. Decrypts masterKey
 7. Decrypts userKey
@@ -46,22 +57,24 @@ get into this flow:
 ### Flow 4: Authed SSO TD user requests approval from device; Approving device does NOT have a masterKey in memory
 
 1. SSO TD user authenticates via SSO
-2. Navigates to /login-initiated
+2. Navigates to `/login-initiated`
 3. Clicks "Approve from your other device"
-4. Navigates to /login-with-device which creates a StandardAuthRequest
+4. Navigates to `/login-with-device` which creates a `StandardAuthRequest`
 5. Receives approval from device with authRequestPublicKey(userKey)
 6. Decrypts userKey
 7. Establishes trust (if required)
 8. Proceeds to vault
+
+<br>
 
 ## Admin Auth Request Flow
 
 ### Flow: Authed SSO TD user requests admin approval
 
 1. SSO TD user authenticates via SSO
-2. Navigates to /login-initiated
+2. Navigates to `/login-initiated`
 3. Clicks "Request admin approval"
-4. Navigates to /admin-approval-requested which creates an AdminAuthRequest
+4. Navigates to `/admin-approval-requested` which creates an `AdminAuthRequest`
 5. Receives approval from device with authRequestPublicKey(userKey)
 6. Decrypts userKey
 7. Establishes trust (if required)
@@ -70,20 +83,24 @@ get into this flow:
 **Note:** TDE users are required to be enrolled in admin account recovery, which gives the admin access to the user's
 userKey. This is how admins are able to send over the authRequestPublicKey(userKey) to the user to allow them to unlock.
 
+<br>
+
 ## Summary Table
 
-| Flow            | Auth Status | Clicks Button [active route]                        | Navigates to              | Approving device has masterKey in memory\*        |
-| --------------- | ----------- | --------------------------------------------------- | ------------------------- | ------------------------------------------------- |
-| Standard Flow 1 | unauthed    | "Login with device" [/login]                        | /login-with-device        | yes                                               |
-| Standard Flow 2 | unauthed    | "Login with device" [/login]                        | /login-with-device        | no                                                |
-| Standard Flow 3 | authed      | "Approve from your other device" [/login-initiated] | /login-with-device        | yes                                               |
-| Standard Flow 4 | authed      | "Approve from your other device" [/login-initiated] | /login-with-device        | no                                                |
-| Admin Flow      | authed      | "Request admin approval" [/login-initiated]         | /admin-approval-requested | NA - admin requests always send encrypted userKey |
+| Flow            | Auth Status | Clicks Button [active route]                          | Navigates to                | Approving device has masterKey in memory\*        |
+| --------------- | ----------- | ----------------------------------------------------- | --------------------------- | ------------------------------------------------- |
+| Standard Flow 1 | unauthed    | "Login with device" [`/login`]                        | `/login-with-device`        | yes                                               |
+| Standard Flow 2 | unauthed    | "Login with device" [`/login`]                        | `/login-with-device`        | no                                                |
+| Standard Flow 3 | authed      | "Approve from your other device" [`/login-initiated`] | `/login-with-device`        | yes                                               |
+| Standard Flow 4 | authed      | "Approve from your other device" [`/login-initiated`] | `/login-with-device`        | no                                                |
+| Admin Flow      | authed      | "Request admin approval"<br>[`/login-initiated`]      | `/admin-approval-requested` | NA - admin requests always send encrypted userKey |
 
 **Note:** The phrase "in memory" here is important. It is possible for a user to have a master password for their
 account, but not have a masterKey IN MEMORY for a specific device. For example, if a user registers an account with a
 master password, then joins an SSO TD org, then logs in to a device via SSO and admin auth request, they are now logged
 into that device but that device does not have masterKey IN MEMORY.
+
+<br>
 
 ## State Management
 
@@ -101,6 +118,8 @@ The cache is used to:
 1. Preserve authentication state during extension close
 2. Allow resumption of pending auth requests
 3. Enable processing of approved requests after extension close and reopen.
+
+<br>
 
 ### Component State Variables
 
@@ -149,6 +168,8 @@ protected flow = Flow.StandardAuthRequest
 - Affects UI rendering and request handling
 - Set based on route and authentication state
 
+<br>
+
 ### State Flow Examples
 
 #### Standard Auth Request Cache Flow
@@ -185,6 +206,8 @@ protected flow = Flow.StandardAuthRequest
    - Component checks for existing admin requests
    - Either resumes monitoring or starts new request
    - Clears state after successful approval
+
+<br>
 
 ### State Cleanup
 
