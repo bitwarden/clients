@@ -36,13 +36,13 @@
     "message": "Thư mục"
   },
   "collections": {
-    "message": "Các Bộ Sưu Tập"
+    "message": "Các bộ sưu tập"
   },
   "searchVault": {
     "message": "Tìm kiếm trong Kho"
   },
   "addItem": {
-    "message": "Thêm"
+    "message": "Thêm mục"
   },
   "shared": {
     "message": "Đã chia sẻ"
@@ -73,10 +73,10 @@
     "message": "Chọn một tổ chức mà bạn muốn chuyển mục này đến. Việc chuyển đến một tổ chức sẽ chuyển quyền sở hữu mục này cho tổ chức đó. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này khi đã chuyển."
   },
   "attachments": {
-    "message": "Đính kèm"
+    "message": "Tệp đính kèm"
   },
   "viewItem": {
-    "message": "Chi tiết"
+    "message": "Xem mục"
   },
   "name": {
     "message": "Tên"
@@ -85,7 +85,7 @@
     "message": "Đường dẫn (URI)"
   },
   "uriPosition": {
-    "message": "URL $POSITION$",
+    "message": "Đường dẫn $POSITION$",
     "description": "A listing of URIs. Ex: URI 1, URI 2, URI 3, etc.",
     "placeholders": {
       "position": {
@@ -104,10 +104,10 @@
     "message": "Mật khẩu"
   },
   "passphrase": {
-    "message": "Cụm từ mật khẩu"
+    "message": "Cụm mật khẩu"
   },
   "editItem": {
-    "message": "Chỉnh sửa"
+    "message": "Chỉnh sửa mục"
   },
   "emailAddress": {
     "message": "Địa chỉ email"
@@ -116,7 +116,7 @@
     "message": "Mã xác thực (TOTP)"
   },
   "website": {
-    "message": "Địa chỉ"
+    "message": "Trang web"
   },
   "notes": {
     "message": "Ghi chú"
@@ -132,10 +132,10 @@
     "description": "Copy value to clipboard"
   },
   "minimizeOnCopyToClipboard": {
-    "message": "Thu nhỏ sau khi sao chép vào khay nhớ tạm"
+    "message": "Thu nhỏ sau khi sao chép vào bộ nhớ tạm"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào khay nhớ tạm."
+    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào bộ nhớ tạm."
   },
   "toggleVisibility": {
     "message": "Bật/tắt khả năng hiển thị"
@@ -160,7 +160,7 @@
     "message": "Mã bảo mật"
   },
   "identityName": {
-    "message": "Tên danh tính"
+    "message": "Tên định danh"
   },
   "company": {
     "message": "Công ty"
@@ -172,7 +172,7 @@
     "message": "Số hộ chiếu"
   },
   "licenseNumber": {
-    "message": "Số giấy phép"
+    "message": "Số giấy phép lái xe"
   },
   "email": {
     "message": "Email"
@@ -184,16 +184,16 @@
     "message": "Địa chỉ"
   },
   "sshPrivateKey": {
-    "message": "Khóa riêng SSH"
+    "message": "Khóa riêng tư"
   },
   "sshPublicKey": {
-    "message": "Khóa công khai SSH"
+    "message": "Khóa công khai"
   },
   "sshFingerprint": {
-    "message": "Mã vân tay SSH"
+    "message": "Vân tay"
   },
   "sshKeyAlgorithm": {
-    "message": "Loại thuật toán"
+    "message": "Kiểu khoá"
   },
   "sshKeyAlgorithmED25519": {
     "message": "ED25519"
@@ -211,10 +211,10 @@
     "message": "Khóa SSH mới đã được tạo"
   },
   "sshKeyWrongPassword": {
-    "message": "Mật khẩu bạn đã nhập không chính xác."
+    "message": "Mật khẩu bạn đã nhập không đúng."
   },
   "importSshKey": {
-    "message": "Nhập khóa"
+    "message": "Nhập"
   },
   "confirmSshKeyPassword": {
     "message": "Xác nhận mật khẩu"
@@ -229,7 +229,7 @@
     "message": "Vui lòng mở khóa kho lưu trữ của bạn để phê duyệt yêu cầu khóa SSH."
   },
   "sshAgentUnlockTimeout": {
-    "message": "Hết thời gian chờ yêu cầu khóa SSH."
+    "message": "Yêu cầu khóa SSH đã hết thời gian."
   },
   "enableSshAgent": {
     "message": "Bật SSH agent"
@@ -446,13 +446,13 @@
     "message": "Chỉnh sửa trường"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Bạn có chắc muốn xóa vĩnh viễn tệp đính kèm này không?"
+    "message": "Bạn có chắc chắn muốn xóa vĩnh viễn tệp đính kèm này không?"
   },
   "fieldType": {
     "message": "Loại trường"
   },
   "fieldLabel": {
-    "message": "Nhãn trường"
+    "message": "Tiêu đề trường"
   },
   "add": {
     "message": "Thêm"
@@ -461,13 +461,13 @@
     "message": "Sử dụng các trường văn bản cho dữ liệu như câu hỏi bảo mật"
   },
   "hiddenHelpText": {
-    "message": "Sử dụng trường ẩn cho dữ liệu nhạy cảm như mật khẩu"
+    "message": "Sử dụng các trường ẩn để lưu dữ liệu nhạy cảm như mật khẩu"
   },
   "checkBoxHelpText": {
     "message": "Dùng các ô tích chọn nếu bạn muốn tự động điền vào ô tích chọn của biểu mẫu, chẳng hạn như ghi nhớ email"
   },
   "linkedHelpText": {
-    "message": "Sử dụng trường liên kết khi bạn gặp sự cố tự động điền trên một trang web cụ thể."
+    "message": "Sử dụng trường liên kết khi bạn gặp vấn đề với tính năng tự động điền trên một trang web cụ thể."
   },
   "linkedLabelHelpText": {
     "message": "Nhập html id, name, aria-label hoặc placeholder của các trường."
@@ -526,19 +526,19 @@
     "message": "Xoá tệp đính kèm"
   },
   "deleteItemConfirmation": {
-    "message": "Bạn có chắc muốn cho vào thùng rác?"
+    "message": "Bạn có chắc muốn cho nó vào thùng rác?"
   },
   "deletedItem": {
     "message": "Mục đã được cho vào thùng rác"
   },
   "overwritePasswordConfirmation": {
-    "message": "Bạn có chắc chắn muốn ghi đè mật khẩu hiện tại không?"
+    "message": "Bạn có chắc chắn muốn ghi đè lên mật khẩu hiện tại không?"
   },
   "overwriteUsername": {
     "message": "Ghi đè tên người dùng"
   },
   "overwriteUsernameConfirmation": {
-    "message": "Bạn có chắc muốn ghi đè lên tên người dùng hiện tại không?"
+    "message": "Bạn có chắc chắn muốn ghi đè lên tên người dùng hiện tại không?"
   },
   "noneFolder": {
     "message": "Chưa phân loại",
@@ -554,7 +554,7 @@
     "message": "Tạo lại mật khẩu"
   },
   "copyPassword": {
-    "message": "Sao chép Mật khẩu"
+    "message": "Sao chép mật khẩu"
   },
   "regenerateSshKey": {
     "message": "Tạo lại khóa SSH"
@@ -570,7 +570,7 @@
     "message": "Sao chép đường dẫn"
   },
   "copyVerificationCodeTotp": {
-    "message": "Sao chép Mã xác thực (TOTP)"
+    "message": "Sao chép mã xác thực (TOTP)"
   },
   "length": {
     "message": "Độ dài"
@@ -874,10 +874,10 @@
     "message": "Bạn đã đăng nhập thành công!"
   },
   "masterPassSent": {
-    "message": "Chúng tôi đã gửi cho bạn email có chứa gợi ý mật khẩu chính của bạn."
+    "message": "Chúng tôi đã gửi cho bạn một email chứa gợi ý mật khẩu chính của bạn."
   },
   "unexpectedError": {
-    "message": "Một lỗi bất ngờ đã xảy ra."
+    "message": "Đã xảy ra lỗi không mong muốn."
   },
   "itemInformation": {
     "message": "Thông tin mục"
@@ -916,7 +916,7 @@
     "message": "Tiếp tục"
   },
   "verificationCodeEmailSent": {
-    "message": "Email xác minh được gửi tới $EMAIL$.",
+    "message": "Email xác minh đã được gửi tới $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -935,33 +935,33 @@
     "message": "Sử dụng mã khôi phục của bạn"
   },
   "insertU2f": {
-    "message": "Lắp khóa bảo mật vào cổng USB của máy tính. Nếu nó có một nút, nhấn vào nó."
+    "message": "Cắm khóa bảo mật vào cổng USB của máy tính. Nếu có nút bấm, hãy nhấn vào nó."
   },
   "recoveryCodeDesc": {
-    "message": "Bạn mất quyền truy cập vào tất cả các dịch vụ xác thực hai bước? Sử dụng mã phục hồi của bạn để vô hiệu hóa tất cả các dịch vụ xác thực hai bước trong tài khoản của bạn."
+    "message": "Bạn đã mất quyền truy cập vào tất cả các dịch vụ xác thực 2 lớp? Sử dụng mã khôi phục để tắt tất cả các phương pháp xác thực hai lớp trong tài khoản của bạn."
   },
   "recoveryCodeTitle": {
-    "message": "Mã phục hồi"
+    "message": "Mã khôi phục"
   },
   "authenticatorAppTitle": {
-    "message": "Ứng dụng Authenticator"
+    "message": "Ứng dụng xác thực"
   },
   "authenticatorAppDescV2": {
     "message": "Nhập mã được tạo bởi ứng dụng xác thực như Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Khóa bảo mật OTP Yubico"
+    "message": "Khóa bảo mật Yubico OTP"
   },
   "yubiKeyDesc": {
-    "message": "Sử dụng YubiKey để truy cập tài khoản của bạn. Hoạt động với thiết bị YubiKey 4, 4 Nano, 4C và NEO."
+    "message": "Sử dụng YubiKey để truy cập tài khoản của bạn. Hỗ trợ các thiết bị YubiKey 4, 4 Nano, 4C và NEO."
   },
   "duoDescV2": {
     "message": "Nhập mã được tạo bởi Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Xác minh với Duo Security cho tổ chức của bạn sử dụng ứng dụng Duo Mobile, SMS, cuộc gọi điện thoại, hoặc khoá bảo mật U2F.",
+    "message": "Xác minh với Duo Security cho tổ chức của bạn bằng ứng dụng Duo Mobile, tin nhắn SMS, cuộc gọi điện thoại hoặc khóa bảo mật U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
@@ -986,10 +986,10 @@
     "message": "Nhập mã được gửi về email của bạn."
   },
   "loginUnavailable": {
-    "message": "Đăng nhập không được"
+    "message": "Không thể đăng nhập"
   },
   "noTwoStepProviders": {
-    "message": "Tài khoản này đã thiết lập xác minh hai bước. Tuy nhiên, thiết bị này không hỗ trợ dịch vụ xác minh hai bước đang sử dụng."
+    "message": "Tài khoản này đã kích hoạt đăng nhập 2 bước, tuy nhiên, thiết bị này không hỗ trợ dịch vụ xác thực hai lớp đang sử dụng."
   },
   "noTwoStepProviders2": {
     "message": "Vui lòng thêm các nhà cung cấp khác được hỗ trợ tốt hơn trên các thiết bị (chẳng hạn như một ứng dụng xác thực)."
