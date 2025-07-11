@@ -1141,7 +1141,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Bra jobbat! Du tog stegen för att göra dig och $ORGANISATION$ säkrare.",
+    "message": "Bra jobbat! Du tog stegen för att göra dig och $ORGANIZATION$ säkrare.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -3121,7 +3121,7 @@
     "message": "Exportera organisationsvalv"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Endast det organisationsvalv som är associerat med $ORGANISATION$ exporteras. Objekt i enskilda valv eller andra organisationer kommer inte att inkluderas.",
+    "message": "Endast det organisationsvalv som är associerat med $ORGANIZATION$ exporteras. Objekt i enskilda valv eller andra organisationer kommer inte att inkluderas.",
     "placeholders": {
       "organization": {
         "content": "$1",

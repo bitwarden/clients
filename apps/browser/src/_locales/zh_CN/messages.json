@@ -1174,10 +1174,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "更改您的主密码以完成账户恢复。"
   },
   "enableChangedPasswordNotification": {
     "message": "询问更新现有的登录"
@@ -3461,7 +3461,7 @@
     "message": "请求已发送"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "主密码已保存"
   },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
