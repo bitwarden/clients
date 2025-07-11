@@ -2407,6 +2407,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Tu contraseña maestra no cumple con una o más de las políticas de tu organización. Para acceder a la caja fuerte, debes actualizar tu contraseña maestra ahora. Proceder te desconectará de tu sesión actual, requiriendo que vuelva a iniciar sesión. Las sesiones activas en otros dispositivos pueden seguir estando activas durante hasta una hora."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
@@ -3144,6 +3153,12 @@
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "region": {
     "message": "Región"
   },
@@ -3373,13 +3388,13 @@
     "message": "Se requiere el inicio de sesión en dos pasos de Duo para tu cuenta."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
+    "message": "Se requiere el inicio de sesión en dos pasos de Duo en tu cuenta. Sigue los siguientes pasos para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Sigue los siguientes pasos para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Sigue los siguientes pasos para terminar de iniciar sesión con tu clave de seguridad."
   },
   "launchDuo": {
     "message": "Inicia Duo en el navegador"
@@ -3536,19 +3551,19 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "message": "La detección de coincidencias URI es la forma en que Bitwarden identifica las sugerencias de autocompletado.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Expresión regular\" es una opción avanzada con mayor riesgo de exponer credenciales.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"Empieza por\" es una opción avanzada con mayor riego de exponer credenciales.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Más sobre la detección de coincidencias",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "success": {
@@ -3729,7 +3744,7 @@
     "message": "Permitir captura de pantalla"
   },
   "allowScreenshotsDesc": {
-    "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
+    "message": "Permitir que la aplicación de escritorio de Bitwarden sea capturada en capturas de pantalla y vista en sesiones remotas de escritorio. Desactivar esto evitará el acceso a algunas pantallas externas."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "Confirmar ventana todavía visible"
@@ -3811,7 +3826,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Pago en línea fluido"
   },
   "newCardNudgeBody": {
     "message": "Con las tarjetas, autocompleta fácilmente formularios de pago de forma segura y precisa."
@@ -3848,10 +3863,10 @@
     "message": "Asignar a estas colecciones"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Solo los miembros de la organización con acceso a estas colecciones podrán ver el elemento."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Solo los miembros de la organización con acceso a estas colecciones podrán ver los elementos."
   },
   "noCollectionsAssigned": {
     "message": "No se han asignado colecciones"
@@ -3860,10 +3875,10 @@
     "message": "Asignar"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Solo los miembros de la organización con acceso a estas colecciones podrán ver los elementos."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Has seleccionado $TOTAL_COUNT$ elementos. No puedes actualizar $READONLY_COUNT$ de los elementos porque no tienes permisos de edición.",
     "placeholders": {
       "total_count": {
         "content": "$1",

@@ -1173,6 +1173,12 @@
     "message": "О, не! Запазването не беше успешно. Опитайте да въведете данните ръчно.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "След като промените паролата си, ще трябва да се впишете отново с новата си парола. Сесиите на други устройства също ще бъдат прекратени в рамките на един час."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Променете главната си парола, за да завършите възстановяването на акаунта."
+  },
   "enableChangedPasswordNotification": {
     "message": "Питане за обновяване на съществуващ запис"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Заявката е изпратена"
   },
+  "masterPasswordChanged": {
+    "message": "Главната парола е запазена"
+  },
   "exposedMasterPassword": {
     "message": "Разкрита главна парола"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Подаване на заявка за одобрение от администратор"
+  },
+  "unableToCompleteLogin": {
+    "message": "Вписването не може да бъде завършено"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Трябва да се впишете на доверено устройство или да помолите администратора си да Ви зададе парола."
   },
   "ssoIdentifierRequired": {
     "message": "Идентификаторът за еднократна идентификация на организация е задължителен."
