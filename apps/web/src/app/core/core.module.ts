@@ -10,6 +10,7 @@ import {
   OrganizationUserApiService,
   CollectionService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/components/device-management/default-device-management-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
@@ -37,6 +38,7 @@ import {
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
 import {
+  DeviceManagementComponentServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
 } from "@bitwarden/auth/common";
@@ -405,6 +407,11 @@ const safeProviders: SafeProvider[] = [
       UserKeyRotationService,
       RouterService,
     ],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
   }),
 ];
 

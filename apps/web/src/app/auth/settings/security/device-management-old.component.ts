@@ -45,10 +45,10 @@ interface DeviceTableData {
  */
 @Component({
   selector: "app-device-management",
-  templateUrl: "./device-management.component.html",
+  templateUrl: "./device-management-old.component.html",
   imports: [CommonModule, SharedModule, TableModule, PopoverModule],
 })
-export class DeviceManagementComponent {
+export class DeviceManagementOldComponent {
   protected dataSource = new TableDataSource<DeviceTableData>();
   protected currentDevice: DeviceView | undefined;
   protected loading = true;

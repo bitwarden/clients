@@ -49,6 +49,7 @@ import { AccountSwitcherComponent } from "../auth/popup/account-switching/accoun
 import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
+import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
@@ -260,6 +261,12 @@ const routes: Routes = [
   {
     path: "account-security",
     component: AccountSecurityComponent,
+    canActivate: [authGuard],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "device-management",
+    component: ExtensionDeviceManagementComponent,
     canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
