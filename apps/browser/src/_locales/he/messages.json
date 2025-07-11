@@ -1173,6 +1173,12 @@
     "message": "או לא! לא יכלנו לשמור זאת. נסה להזין את הפרטים באופן ידני.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "שאל אם לעדכן פרטי כניסה קיימת"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "בקשה נשלחה"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "סיסמה ראשית חשופה"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "בקש אישור מנהל"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "נדרש מזהה SSO של הארגון."

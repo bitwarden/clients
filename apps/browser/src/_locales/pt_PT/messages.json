@@ -1173,6 +1173,12 @@
     "message": "Oh não! Não conseguimos guardar isto. Tente introduzir os detalhes manualmente.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "Pedir para atualizar credencial existente"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Pedido enviado"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Palavra-passe mestra exposta"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Pedir aprovação do administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Não é possível concluir o início de sessão"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Tem de iniciar sessão num dispositivo de confiança ou pedir ao seu administrador que lhe atribua uma palavra-passe."
   },
   "ssoIdentifierRequired": {
     "message": "É necessário o identificador de SSO da organização."

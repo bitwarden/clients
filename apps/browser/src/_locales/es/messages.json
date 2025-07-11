@@ -881,13 +881,13 @@
     "message": "Pulsa tu YubiKey para identificarte"
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Se requiere inicio de sesión en dos pasos para tu cuenta. Sigue los pasos siguientes para terminar de iniciar sesión."
+    "message": "Se requiere el inicio de sesión en dos pasos de Duo en tu cuenta. Sigue los siguientes pasos para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Sigue los pasos de abajo para terminar de iniciar sesión."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Sigue los siguientes pasos de abajo para terminar de iniciar sesión con tu clave de seguridad."
+    "message": "Sigue los siguientes pasos para terminar de iniciar sesión con tu clave de seguridad."
   },
   "restartRegistration": {
     "message": "Reiniciar registro"
@@ -1172,6 +1172,12 @@
   "saveFailureDetails": {
     "message": "¡Oh no! No pudimos guardar esto. Intenta introducir los datos manualmente.",
     "description": "Detailed error message shown when saving login details fails."
+  },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
   },
   "enableChangedPasswordNotification": {
     "message": "Solicitar la actualización de los datos de inicio de sesión existentes"
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Solicitud enviada"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Contraseña maestra comprometida"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Solicitar aprobación del administrador"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Se requiere un identificador único de inicio de sesión de la organización."
