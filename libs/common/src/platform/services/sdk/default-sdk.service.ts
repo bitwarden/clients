@@ -24,6 +24,7 @@ import {
   TokenProvider,
 } from "@bitwarden/sdk-internal";
 
+import { ApiService } from "../../../abstractions/api.service";
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceType } from "../../../enums/device-type.enum";
@@ -38,7 +39,7 @@ import { compareValues } from "../../misc/compare-values";
 import { Rc } from "../../misc/reference-counting/rc";
 import { EncryptedString } from "../../models/domain/enc-string";
 
-// A symbol that represents an overriden client that is explicitly set to undefined,
+// A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
 const UnsetClient = Symbol("UnsetClient");
 
@@ -46,10 +47,17 @@ const UnsetClient = Symbol("UnsetClient");
  * A token provider that exposes the access token to the SDK.
  */
 class JsTokenProvider implements TokenProvider {
-  constructor() {}
+  constructor(
+    private apiService: ApiService,
+    private userId?: UserId,
+  ) {}
 
   async get_access_token(): Promise<string | undefined> {
-    return undefined;
+    if (this.userId == null) {
+      return undefined;
+    }
+
+    return await this.apiService.getActiveBearerToken(this.userId);
   }
 }
 
@@ -63,7 +71,10 @@ export class DefaultSdkService implements SdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = this.toSettings(env);
-      return await this.sdkClientFactory.createSdkClient(new JsTokenProvider(), settings);
+      return await this.sdkClientFactory.createSdkClient(
+        new JsTokenProvider(this.apiService),
+        settings,
+      );
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
@@ -80,6 +91,7 @@ export class DefaultSdkService implements SdkService {
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
     private keyService: KeyService,
+    private apiService: ApiService,
     private userAgent: string | null = null,
   ) {}
 
@@ -164,7 +176,7 @@ export class DefaultSdkService implements SdkService {
 
             const settings = this.toSettings(env);
             const client = await this.sdkClientFactory.createSdkClient(
-              new JsTokenProvider(),
+              new JsTokenProvider(this.apiService, userId),
               settings,
             );
 
