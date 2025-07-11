@@ -36,6 +36,8 @@ export class DefaultCollectionService implements CollectionService {
     protected stateProvider: StateProvider,
   ) {}
 
+  private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
+
   /**
    * @returns a SingleUserState for encrypted collection data.
    */
@@ -65,7 +67,12 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   decryptedCollections$(userId: UserId): Observable<CollectionView[]> {
-    return this.decryptedState(userId).state$.pipe(
+    const cachedResult = this.collectionViewCache.get(userId);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
+    const result$ = this.decryptedState(userId).state$.pipe(
       switchMap((decryptedState) => {
         // If decrypted state is already populated, return that
         if (decryptedState !== null) {
@@ -76,9 +83,12 @@ export class DefaultCollectionService implements CollectionService {
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+
+    this.collectionViewCache.set(userId, result$);
+    return result$;
   }
 
-  private initializeDecryptedState(userId: UserId) {
+  private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
     return combineLatest([
       this.encryptedCollections$(userId),
       this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),

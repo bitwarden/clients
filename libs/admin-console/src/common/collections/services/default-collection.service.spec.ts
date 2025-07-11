@@ -181,6 +181,28 @@ describe("DefaultCollectionService", () => {
         keyService.activeUserOrgKeys$ = of(undefined);
       });
     });
+
+    it("Decrypts one time for multiple simultaneous callers", async () => {
+      const decryptedMock: CollectionView[] = [{ id: "col1" }] as CollectionView[];
+      const decryptManySpy = jest
+        .spyOn(collectionService, "decryptMany$")
+        .mockReturnValue(of(decryptedMock));
+
+      jest
+        .spyOn(collectionService as any, "encryptedCollections$")
+        .mockReturnValue(of([{ id: "enc1" }]));
+      jest.spyOn(keyService, "orgKeys$").mockReturnValue(of({ key: "fake-key" }));
+
+      // Simulate multiple subscribers
+      const sub1 = collectionService.decryptedCollections$(userId).subscribe();
+      const sub2 = collectionService.decryptedCollections$(userId).subscribe();
+      const sub3 = collectionService.decryptedCollections$(userId).subscribe();
+
+      await Promise.all([sub1, sub2, sub3]);
+
+      // Expect decryptMany$ to be called only once
+      expect(decryptManySpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("encryptedCollections$", () => {

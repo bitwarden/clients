@@ -173,7 +173,9 @@ export abstract class CoreSyncService implements SyncService {
           notification.collectionIds.length > 0
         ) {
           const collections = await firstValueFrom(
-            this.collectionService.encryptedCollections$(userId),
+            this.collectionService
+              .encryptedCollections$(userId)
+              .pipe(map((collections) => collections ?? [])),
           );
           if (collections != null) {
             for (let i = 0; i < collections.length; i++) {

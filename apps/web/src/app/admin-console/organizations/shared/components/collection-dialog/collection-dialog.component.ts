@@ -195,7 +195,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.organizationSelected.setAsyncValidators(
         freeOrgCollectionLimitValidator(
           this.organizations$,
-          this.collectionService.encryptedCollections$(userId),
+          this.collectionService
+            .encryptedCollections$(userId)
+            .pipe(map((collections) => collections ?? [])),
           this.i18nService,
         ),
       );

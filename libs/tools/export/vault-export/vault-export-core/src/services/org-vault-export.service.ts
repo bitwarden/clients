@@ -277,13 +277,12 @@ export class OrganizationVaultExportService
     await Promise.all(promises);
 
     const encCollections: Collection[] = await firstValueFrom(
-      this.collectionService
-        .encryptedCollections$(activeUserId)
-        .pipe(
-          map((collections) =>
-            collections.filter((c) => c.organizationId == organizationId && c.manage),
-          ),
+      this.collectionService.encryptedCollections$(activeUserId).pipe(
+        map((collections) => collections ?? []),
+        map((collections) =>
+          collections.filter((c) => c.organizationId == organizationId && c.manage),
         ),
+      ),
     );
 
     const restrictions = await firstValueFrom(this.restrictedItemTypesService.restricted$);
