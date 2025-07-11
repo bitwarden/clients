@@ -3342,7 +3342,7 @@
     }
   },
   "forwarderUnknownForwarder": {
-    "message": "Okänd vidarebefordrare: '$SERVICENAMN$'.",
+    "message": "Okänd vidarebefordrare: '$SERVICENAME$'.",
     "description": "Displayed when the forwarding service is not supported.",
     "placeholders": {
       "servicename": {

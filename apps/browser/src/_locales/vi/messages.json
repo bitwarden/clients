@@ -1523,7 +1523,7 @@
     "message": "Bạn đã mất quyền truy cập vào tất cả các dịch vụ xác thực 2 lớp? Sử dụng mã khôi phục để tắt tất cả các phương pháp xác thực hai lớp trong tài khoản của bạn."
   },
   "recoveryCodeTitle": {
-    "message": "Mã phục hồi"
+    "message": "Mã khôi phục"
   },
   "authenticatorAppTitle": {
     "message": "Ứng dụng xác thực"
