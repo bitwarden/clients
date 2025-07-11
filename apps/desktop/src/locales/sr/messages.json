@@ -2407,6 +2407,15 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+  },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ваша организација је онемогућила шифровање поузданог уређаја. Поставите главну лозинку за приступ вашем трезору."
   },
@@ -3143,6 +3152,12 @@
   },
   "requestAdminApproval": {
     "message": "Затражити одобрење администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "region": {
     "message": "Регион"

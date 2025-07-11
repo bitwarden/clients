@@ -92,7 +92,7 @@
     "babel-loader": "9.2.1",
     "base64-loader": "1.0.0",
     "browserslist": "4.23.2",
-    "chromatic": "11.28.2",
+    "chromatic": "13.1.2",
     "concurrently": "9.1.2",
     "copy-webpack-plugin": "13.0.0",
     "cross-env": "7.0.3",
@@ -163,7 +163,7 @@
     "@bitwarden/sdk-internal": "0.2.0-main.225",
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
-    "@koa/multer": "3.1.0",
+    "@koa/multer": "4.0.0",
     "@koa/router": "13.1.0",
     "@microsoft/signalr": "8.0.7",
     "@microsoft/signalr-protocol-msgpack": "8.0.7",
@@ -210,7 +210,7 @@
     "tldts": "7.0.1",
     "ts-node": "10.9.2",
     "utf-8-validate": "6.0.5",
-    "zone.js": "0.15.0",
+    "zone.js": "0.15.1",
     "zxcvbn": "4.4.2"
   },
   "overrides": {
