@@ -1,3 +1,4 @@
+import { SerializableWrappedUserSigningKeyPair } from "../../../key-management/keys/models/signing-key";
 import { UserKey } from "../../../types/key";
 import { EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
@@ -25,3 +26,9 @@ export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey",
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
 });
+
+export const USER_KEY_ENCRYPTED_SIGNING_KEY =
+  new UserKeyDefinition<SerializableWrappedUserSigningKeyPair>(CRYPTO_DISK, "userSigningKey", {
+    deserializer: (obj) => SerializableWrappedUserSigningKeyPair.fromJson(obj),
+    clearOn: ["logout"],
+  });

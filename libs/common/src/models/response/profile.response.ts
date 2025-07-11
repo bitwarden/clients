@@ -1,3 +1,5 @@
+import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/response/private-keys.response";
+
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
@@ -18,7 +20,10 @@ export class ProfileResponse extends BaseResponse {
   key?: EncString;
   avatarColor: string;
   creationDate: string;
+  // Cleanup: Can be removed after moving to accountKeys
   privateKey: string;
+  // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
+  accountKeys: PrivateKeysResponseModel | null = null;
   securityStamp: string;
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;
@@ -37,10 +42,16 @@ export class ProfileResponse extends BaseResponse {
     this.premiumFromOrganization = this.getResponseProperty("PremiumFromOrganization");
     this.culture = this.getResponseProperty("Culture");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
+
     const key = this.getResponseProperty("Key");
     if (key) {
       this.key = new EncString(key);
     }
+    // Cleanup: This should be non-optional after the server has been released for a while https://bitwarden.atlassian.net/browse/PM-21768
+    if (this.getResponseProperty("AccountKeys") != null) {
+      this.accountKeys = new PrivateKeysResponseModel(this.getResponseProperty("AccountKeys"));
+    }
+
     this.avatarColor = this.getResponseProperty("AvatarColor");
     this.creationDate = this.getResponseProperty("CreationDate");
     this.privateKey = this.getResponseProperty("PrivateKey");
