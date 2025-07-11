@@ -2408,13 +2408,13 @@
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Nakon promjene lozinke, moraš se prijaviti s novom lozinkom. Aktivne sesije na drugim uređajima bit će odjavljene u roku od jednog sata."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Promijeni svoju glavnu lozinku za dovršetak oporavka računa."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Tvoja glavna lozinka ne ispunjava zahtjeve ove organizacije. Promijeni glavnu lozinku za nastavak."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Tvoja je organizacija onemogućila šifriranje pouzdanog uređaja. Postavi glavnu lozinku za pristup svom trezoru."

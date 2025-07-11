@@ -2414,7 +2414,7 @@
     "message": "Change your master password to complete account recovery."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Your master password does not meet this organisation’s requirements. Change your master password to continue."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Your organisation has disabled trusted device encryption. Please set a master password to access your vault."
