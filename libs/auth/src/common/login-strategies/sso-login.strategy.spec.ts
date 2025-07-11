@@ -34,8 +34,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KdfType, KeyService } from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,
@@ -527,15 +527,25 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
+      tokenResponse.key = undefined;
+      tokenResponse.kdf = KdfType.Argon2id;
+      tokenResponse.kdfIterations = 10;
+      tokenResponse.kdfMemory = 64;
+      tokenResponse.kdfParallelism = 4;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
+        {
+          organizationId: ssoOrgId,
+          keyConnectorUrl: keyConnectorUrl,
+          kdf: KdfType.Argon2id,
+          kdfIterations: 10,
+          kdfMemory: 64,
+          kdfParallelism: 4,
+        },
         userId,
       );
     });
@@ -583,15 +593,25 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
+      tokenResponse.key = undefined;
+      tokenResponse.kdf = KdfType.Argon2id;
+      tokenResponse.kdfIterations = 10;
+      tokenResponse.kdfMemory = 64;
+      tokenResponse.kdfParallelism = 4;
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
+        {
+          organizationId: ssoOrgId,
+          keyConnectorUrl: keyConnectorUrl,
+          kdf: KdfType.Argon2id,
+          kdfIterations: 10,
+          kdfMemory: 64,
+          kdfParallelism: 4,
+        },
         userId,
       );
     });

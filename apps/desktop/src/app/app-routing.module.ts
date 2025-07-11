@@ -42,7 +42,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -350,6 +350,16 @@ const routes: Routes = [
           canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
           authGuard,
         ],
+      },
+      {
+        path: "confirm-key-connector-domain",
+        component: ConfirmKeyConnectorDomainComponent,
+        canActivate: [],
+        data: {
+          pageTitle: {
+            key: "confirmKeyConnectorDomain",
+          },
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
     ],
   },

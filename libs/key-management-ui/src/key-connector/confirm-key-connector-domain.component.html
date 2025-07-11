@@ -1,0 +1,24 @@
+@if (loading) {
+  <div class="tw-text-center">
+    <i
+      class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
+      title="{{ 'loading' | i18n }}"
+      aria-hidden="true"
+    ></i>
+    <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  </div>
+} @else {
+  <div class="tw-mb-4">
+    <p class="tw-mb-1 tw-text-sm tw-font-semibold">{{ "keyConnectorDomain" | i18n }}:</p>
+    <p class="tw-text-muted tw-break-all">{{ keyConnectorUrl }}</p>
+  </div>
+
+  <div class="tw-flex tw-flex-col tw-gap-2">
+    <button bitButton type="button" buttonType="primary" [bitAction]="confirm" [block]="true">
+      {{ "confirm" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" [bitAction]="cancel" [block]="true">
+      {{ "cancel" | i18n }}
+    </button>
+  </div>
+}

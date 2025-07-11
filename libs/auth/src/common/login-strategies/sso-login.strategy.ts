@@ -126,9 +126,16 @@ export class SsoLoginStrategy extends LoginStrategy {
       // The presence of a masterKeyEncryptedUserKey indicates that the user has already been provisioned in Key Connector.
       const newSsoUser = tokenResponse.key == null;
       if (newSsoUser) {
-        await this.keyConnectorService.convertNewSsoUserToKeyConnector(
-          tokenResponse,
-          this.cache.value.orgId,
+        // Store Key Connector domain confirmation data in state instead of AuthResult
+        await this.keyConnectorService.setNewSsoUserKeyConnectorConversionData(
+          {
+            kdf: tokenResponse.kdf,
+            kdfIterations: tokenResponse.kdfIterations,
+            kdfMemory: tokenResponse.kdfMemory,
+            kdfParallelism: tokenResponse.kdfParallelism,
+            keyConnectorUrl: this.getKeyConnectorUrl(tokenResponse),
+            organizationId: this.cache.value.orgId,
+          },
           userId,
         );
       } else {
@@ -215,7 +222,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       this.getKeyConnectorUrl(tokenResponse) != null
     ) {
       // Key connector enabled for user
-      await this.trySetUserKeyWithMasterKey(userId);
+      await this.trySetUserKeyWithMasterKey(tokenResponse, userId);
     }
 
     // Note: In the traditional SSO flow with MP without key connector, the lock component
@@ -325,7 +332,17 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
   }
 
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
+  private async trySetUserKeyWithMasterKey(
+    tokenResponse: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
+    const newSsoUser = tokenResponse.key == null;
+    // For new users with Key Connector, we will not have a master key yet, since Key Connector
+    // domain have to be confirmed first.
+    if (newSsoUser) {
+      return;
+    }
+
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
 
     // There is a scenario in which the master key is not set here. That will occur if the user
