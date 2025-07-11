@@ -114,6 +114,10 @@ import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
+import {
+  ChromeBrowserExtensionAuthRequestApprovalService,
+  AuthRequestLoginApprovalAbstraction,
+} from "@bitwarden/common/auth/services/loginAuthRequestApprovalService/chrome-browser-extension-auth-request-approval.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
 import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
@@ -254,6 +258,9 @@ import { StateEventRunnerService } from "@bitwarden/common/platform/state/state-
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
+// eslint-disable-next-line no-restricted-imports -- Needed for DI
+import { UnsupportedSystemNotificationService } from "@bitwarden/common/platform/system-notifications/internal";
+import { SystemNotificationServiceAbstraction } from "@bitwarden/common/platform/system-notifications/system-notification-service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -945,6 +952,16 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: SystemNotificationServiceAbstraction,
+    useClass: UnsupportedSystemNotificationService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: AuthRequestLoginApprovalAbstraction,
+    useClass: ChromeBrowserExtensionAuthRequestApprovalService,
+    deps: [PlatformUtilsServiceAbstraction, LogService, SystemNotificationServiceAbstraction],
+  }),
+  safeProvider({
     provide: NotificationsService,
     useClass: devFlagEnabled("noopNotifications")
       ? NoopNotificationsService
@@ -960,6 +977,7 @@ const safeProviders: SafeProvider[] = [
       SignalRConnectionService,
       AuthServiceAbstraction,
       WebPushConnectionService,
+      AuthRequestLoginApprovalAbstraction,
     ],
   }),
   safeProvider({
