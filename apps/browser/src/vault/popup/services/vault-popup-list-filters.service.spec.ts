@@ -5,12 +5,14 @@ import { BehaviorSubject, skipWhile } from "rxjs";
 
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
+import * as vaultFilterSvc from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -30,6 +32,14 @@ import {
   MY_VAULT_ID,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
+
+const configService = {
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
+} as unknown as ConfigService;
+
+jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
+  sortDefaultCollections: jest.fn(),
+}));
 
 describe("VaultPopupListFiltersService", () => {
   let service: VaultPopupListFiltersService;
@@ -76,6 +86,7 @@ describe("VaultPopupListFiltersService", () => {
 
   const restrictedItemTypesService = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   };
 
   beforeEach(() => {
@@ -136,6 +147,10 @@ describe("VaultPopupListFiltersService", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: restrictedItemTypesService,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     });
@@ -227,10 +242,10 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    describe("PersonalOwnership policy", () => {
-      it('calls policyAppliesToUser$ with "PersonalOwnership"', () => {
+    describe("OrganizationDataOwnership policy", () => {
+      it('calls policyAppliesToUser$ with "OrganizationDataOwnership"', () => {
         expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
-          PolicyType.PersonalOwnership,
+          PolicyType.OrganizationDataOwnership,
           "userId",
         );
       });
@@ -398,6 +413,29 @@ describe("VaultPopupListFiltersService", () => {
         done();
       });
     });
+
+    it("calls vaultFilterService.sortDefaultCollections", (done) => {
+      const collections = [
+        { id: "1234", name: "Default Collection", organizationId: "org1" },
+        { id: "5678", name: "Shared Collection", organizationId: "org2" },
+      ] as CollectionView[];
+
+      const orgs = [
+        { id: "org1", name: "Organization 1" },
+        { id: "org2", name: "Organization 2" },
+      ] as Organization[];
+
+      createSeededVaultPopupListFiltersService(orgs, collections, [], {});
+
+      service.collections$.subscribe(() => {
+        expect(vaultFilterSvc.sortDefaultCollections).toHaveBeenCalledWith(
+          collections,
+          orgs,
+          i18nService.collator,
+        );
+        done();
+      });
+    });
   });
 
   describe("folders$", () => {
@@ -484,10 +522,6 @@ describe("VaultPopupListFiltersService", () => {
       { type: CipherType.Identity, collectionIds: [], folderId: "5432", organizationId: null },
       { type: CipherType.SecureNote, collectionIds: [], organizationId: null },
     ] as CipherView[];
-
-    beforeEach(() => {
-      restrictedItemTypesService.restricted$.next([]);
-    });
 
     it("filters by cipherType", (done) => {
       service.filterFunction$.subscribe((filterFunction) => {
@@ -576,6 +610,8 @@ describe("VaultPopupListFiltersService", () => {
 
       const seededOrganizations: Organization[] = [
         { id: MY_VAULT_ID, name: "Test Org" } as Organization,
+        { id: "org1", name: "Default User Collection Org 1" } as Organization,
+        { id: "org2", name: "Default User Collection Org 2" } as Organization,
       ];
       const seededCollections: CollectionView[] = [
         {
@@ -729,6 +765,7 @@ function createSeededVaultPopupListFiltersService(
   const accountServiceMock = mockAccountServiceWith("userId" as UserId);
   const restrictedItemTypesServiceMock = {
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
+    isCipherRestricted: jest.fn().mockReturnValue(false),
   } as any;
   const formBuilderInstance = new FormBuilder();
 
@@ -754,6 +791,7 @@ function createSeededVaultPopupListFiltersService(
       accountServiceMock,
       viewCacheServiceMock,
       restrictedItemTypesServiceMock,
+      configService,
     );
   });
 

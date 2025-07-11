@@ -19,6 +19,7 @@ import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { NudgeStatus, NudgesService } from "@bitwarden/angular/vault";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -57,7 +58,7 @@ const defaultConfig: CipherFormConfig = {
   mode: "add",
   cipherType: CipherType.Login,
   admin: false,
-  allowPersonalOwnership: true,
+  organizationDataOwnershipDisabled: true,
   collections: [
     {
       id: "col1",
@@ -243,6 +244,7 @@ export default {
           provide: ConfigService,
           useValue: {
             getFeatureFlag: () => Promise.resolve(false),
+            getFeatureFlag$: () => new BehaviorSubject(false),
           },
         },
         {
@@ -251,6 +253,12 @@ export default {
             snapshot: {
               queryParams: {},
             },
+          },
+        },
+        {
+          provide: PolicyService,
+          useValue: {
+            policiesByType$: new BehaviorSubject([]),
           },
         },
       ],
@@ -354,13 +362,13 @@ export const WithSubmitButton: Story = {
   },
 };
 
-export const NoPersonalOwnership: Story = {
+export const OrganizationDataOwnershipEnabled: Story = {
   ...Add,
   args: {
     config: {
       ...defaultConfig,
       mode: "add",
-      allowPersonalOwnership: false,
+      organizationDataOwnershipDisabled: false,
       originalCipher: defaultConfig.originalCipher,
       organizations: defaultConfig.organizations!,
     },

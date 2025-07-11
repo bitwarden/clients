@@ -10,7 +10,6 @@ import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-a
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { makeStaticByteArray, makeSymmetricCryptoKey } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
-import { SearchService } from "../../abstractions/search.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
@@ -29,6 +28,7 @@ import { CipherKey, OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
+import { SearchService } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
