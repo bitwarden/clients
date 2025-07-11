@@ -170,6 +170,10 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import {
+  SendPasswordService,
+  DefaultSendPasswordService,
+} from "@bitwarden/common/key-management/sends";
+import {
   DefaultVaultTimeoutService,
   DefaultVaultTimeoutSettingsService,
   VaultTimeoutService,
@@ -1501,6 +1505,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherAuthorizationService,
     useClass: DefaultCipherAuthorizationService,
     deps: [CollectionService, OrganizationServiceAbstraction, AccountServiceAbstraction],
+  }),
+  safeProvider({
+    provide: SendPasswordService,
+    useClass: DefaultSendPasswordService,
+    deps: [CryptoFunctionServiceAbstraction],
   }),
   safeProvider({
     provide: LoginApprovalComponentServiceAbstraction,
