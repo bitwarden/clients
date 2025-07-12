@@ -43,34 +43,34 @@ export class ChangePasswordComponent
   characterMinimumMessage = "";
 
   constructor(
-    i18nService: I18nService,
-    keyService: KeyService,
-    messagingService: MessagingService,
-    platformUtilsService: PlatformUtilsService,
-    policyService: PolicyService,
     private auditService: AuditService,
     private cipherService: CipherService,
-    private syncService: SyncService,
+    private keyRotationService: UserKeyRotationService,
     private masterPasswordApiService: MasterPasswordApiService,
     private router: Router,
-    dialogService: DialogService,
+    private syncService: SyncService,
     private userVerificationService: UserVerificationService,
-    private keyRotationService: UserKeyRotationService,
-    kdfConfigService: KdfConfigService,
+    protected accountService: AccountService,
+    protected dialogService: DialogService,
+    protected i18nService: I18nService,
+    protected kdfConfigService: KdfConfigService,
+    protected keyService: KeyService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    accountService: AccountService,
-    toastService: ToastService,
+    protected messagingService: MessagingService,
+    protected platformUtilsService: PlatformUtilsService,
+    protected policyService: PolicyService,
+    protected toastService: ToastService,
   ) {
     super(
+      accountService,
+      dialogService,
       i18nService,
+      kdfConfigService,
       keyService,
+      masterPasswordService,
       messagingService,
       platformUtilsService,
       policyService,
-      dialogService,
-      kdfConfigService,
-      masterPasswordService,
-      accountService,
       toastService,
     );
   }
@@ -244,8 +244,7 @@ export class ChangePasswordComponent
       await this.masterPasswordApiService.postPassword(request);
       this.toastService.showToast({
         variant: "success",
-        title: this.i18nService.t("masterPasswordChanged"),
-        message: this.i18nService.t("masterPasswordChangedDesc"),
+        message: this.i18nService.t("masterPasswordChanged"),
       });
       this.messagingService.send("logout");
     } catch {
