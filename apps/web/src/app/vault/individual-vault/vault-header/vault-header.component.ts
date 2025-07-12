@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
@@ -74,10 +72,10 @@ export class VaultHeaderComponent {
    * Boolean to determine the loading state of the header.
    * Shows a loading spinner if set to true
    */
-  @Input() loading: boolean;
+  @Input() loading: boolean = true;
 
   /** Current active filter */
-  @Input() filter: RoutedVaultFilterModel;
+  @Input() filter: RoutedVaultFilterModel | undefined;
 
   /** All organizations that can be shown */
   @Input() organizations: Organization[] = [];
@@ -86,7 +84,7 @@ export class VaultHeaderComponent {
   @Input() collection?: TreeNode<CollectionView>;
 
   /** Whether 'Collection' option is shown in the 'New' dropdown */
-  @Input() canCreateCollections: boolean;
+  @Input() canCreateCollections: boolean = false;
 
   /** Emits an event when the new item button is clicked in the header */
   @Output() onAddCipher = new EventEmitter<CipherType | undefined>();
@@ -121,8 +119,8 @@ export class VaultHeaderComponent {
       return this.collection.node.organizationId;
     }
 
-    if (this.filter.organizationId !== undefined) {
-      return this.filter.organizationId;
+    if (this.filter?.organizationId !== undefined) {
+      return this.filter?.organizationId;
     }
 
     return undefined;
@@ -134,11 +132,11 @@ export class VaultHeaderComponent {
   }
 
   protected get showBreadcrumbs() {
-    return this.filter.collectionId !== undefined && this.filter.collectionId !== All;
+    return this.filter?.collectionId !== undefined && this.filter.collectionId !== All;
   }
 
   protected get title() {
-    if (this.filter.collectionId === Unassigned) {
+    if (this.filter?.collectionId === Unassigned) {
       return this.i18nService.t("unassigned");
     }
 
@@ -146,7 +144,7 @@ export class VaultHeaderComponent {
       return this.collection.node.name;
     }
 
-    if (this.filter.organizationId === Unassigned) {
+    if (this.filter?.organizationId === Unassigned) {
       return this.i18nService.t("myVault");
     }
 
@@ -159,7 +157,7 @@ export class VaultHeaderComponent {
   }
 
   protected get icon() {
-    return this.filter.collectionId && this.filter.collectionId !== All
+    return this.filter?.collectionId && this.filter.collectionId !== All
       ? "bwi-collection-shared"
       : "";
   }
@@ -213,6 +211,14 @@ export class VaultHeaderComponent {
     );
 
     return this.collection.node.canDelete(organization);
+  }
+
+  get showMenu(): boolean {
+    if (this.collection?.node.defaultCollection) {
+      return false;
+    }
+
+    return this.canEditCollection || this.canEditCollection;
   }
 
   deleteCollection() {

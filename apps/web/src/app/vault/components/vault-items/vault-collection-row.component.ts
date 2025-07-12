@@ -106,10 +106,18 @@ export class VaultCollectionRowComponent {
   }
 
   protected get showCheckbox() {
-    if (this.collection?.id === Unassigned) {
-      return false; // Never show checkbox for Unassigned
+    if (this.collection?.id === Unassigned || this.collection.defaultCollection) {
+      return false; // Never show checkbox for Unassigned or the default user collection
     }
 
     return this.canEditCollection || this.canDeleteCollection;
+  }
+
+  protected get showMenu() {
+    if (this.collection.defaultCollection) {
+      return false;
+    }
+
+    return this.canEditCollection || this.canDeleteCollection || this.canViewCollectionInfo;
   }
 }
