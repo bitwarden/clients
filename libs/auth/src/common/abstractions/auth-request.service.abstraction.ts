@@ -48,6 +48,12 @@ export abstract class AuthRequestServiceAbstraction {
    */
   abstract getPendingAuthRequests$(): Observable<Array<AuthRequestResponse>>;
   /**
+   * Get the most recent AuthRequest for the logged in user
+   * @returns An observable of an auth request. If there are no auth requests
+   * the result will be null.
+   */
+  abstract getLatestPendingAuthRequest$(): Observable<AuthRequestResponse> | null;
+  /**
    * Approve or deny an auth request.
    * @param approve True to approve, false to deny.
    * @param authRequest The auth request to approve or deny, must have an id and key.
