@@ -102,6 +102,7 @@ import {
 } from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItem } from "../components/vault-items/vault-item";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
+import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
 import {
@@ -150,6 +151,7 @@ const SearchTextDebounceInterval = 200;
 })
 export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
+  @ViewChild("vaultItems", { static: false }) vaultItemsComponent: VaultItemsComponent; // Add this
 
   trashCleanupWarning: string = null;
   kdfIterations: number;
@@ -599,6 +601,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     } finally {
       this.processingEvent = false;
+      if (["assignToCollections", "delete", "restore", "moveToFolder"].includes(event.type)) {
+        this.vaultItemsComponent?.clearSelection();
+      }
     }
   }
 
