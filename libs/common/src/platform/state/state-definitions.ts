@@ -95,6 +95,8 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
   web: "disk-local",
 });
 
+export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
+
 // Components
 
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
