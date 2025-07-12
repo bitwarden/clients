@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, map, of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -155,7 +156,9 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.CipherKeyEncryption)
+        .mockResolvedValue(false);
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
@@ -270,6 +273,55 @@ describe("Cipher Service", () => {
       jest.spyOn(cipherService as any, "getAutofillOnPageLoadDefault").mockResolvedValue(true);
     });
 
+    it("should call encrypt method of CipherEncryptionService when feature flag is true", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(true);
+      cipherEncryptionService.encrypt.mockResolvedValue(encryptionContext);
+
+      const result = await cipherService.encrypt(cipherView, userId);
+
+      expect(result).toEqual(encryptionContext);
+      expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(cipherView, userId);
+    });
+
+    it("should call legacy encrypt when feature flag is false", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(false);
+
+      jest.spyOn(cipherService as any, "encryptCipher").mockResolvedValue(encryptionContext.cipher);
+
+      const result = await cipherService.encrypt(cipherView, userId);
+
+      expect(result).toEqual(encryptionContext);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+    });
+
+    it("should call legacy encrypt when keys are provided", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(true);
+
+      jest.spyOn(cipherService as any, "encryptCipher").mockResolvedValue(encryptionContext.cipher);
+
+      const encryptKey = new SymmetricCryptoKey(new Uint8Array(32));
+      const decryptKey = new SymmetricCryptoKey(new Uint8Array(32));
+
+      let result = await cipherService.encrypt(cipherView, userId, encryptKey);
+
+      expect(result).toEqual(encryptionContext);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+
+      result = await cipherService.encrypt(cipherView, userId, undefined, decryptKey);
+      expect(result).toEqual(encryptionContext);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+
+      result = await cipherService.encrypt(cipherView, userId, encryptKey, decryptKey);
+      expect(result).toEqual(encryptionContext);
+      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
+    });
+
     it("should return the encrypting user id", async () => {
       keyService.getOrgKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
@@ -310,7 +362,9 @@ describe("Cipher Service", () => {
       });
 
       it("is null when feature flag is false", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.CipherKeyEncryption)
+          .mockResolvedValue(false);
         const { cipher } = await cipherService.encrypt(cipherView, userId);
 
         expect(cipher.key).toBeNull();
@@ -318,7 +372,9 @@ describe("Cipher Service", () => {
 
       describe("when feature flag is true", () => {
         beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(true);
+          configService.getFeatureFlag
+            .calledWith(FeatureFlag.CipherKeyEncryption)
+            .mockResolvedValue(true);
         });
 
         it("is null when the cipher is not viewPassword", async () => {
@@ -348,7 +404,9 @@ describe("Cipher Service", () => {
       });
 
       it("is not called when feature flag is false", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.CipherKeyEncryption)
+          .mockResolvedValue(false);
 
         await cipherService.encrypt(cipherView, userId);
 
@@ -357,7 +415,9 @@ describe("Cipher Service", () => {
 
       describe("when feature flag is true", () => {
         beforeEach(() => {
-          configService.getFeatureFlag.mockResolvedValue(true);
+          configService.getFeatureFlag
+            .calledWith(FeatureFlag.CipherKeyEncryption)
+            .mockResolvedValue(true);
         });
 
         it("is called when cipher viewPassword is true", async () => {
@@ -401,7 +461,9 @@ describe("Cipher Service", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.CipherKeyEncryption)
+        .mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
       searchService.indexedEntityId$.mockReturnValue(of(null));
@@ -474,7 +536,9 @@ describe("Cipher Service", () => {
 
   describe("decrypt", () => {
     it("should call decrypt method of CipherEncryptionService when feature flag is true", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(true);
       cipherEncryptionService.decrypt.mockResolvedValue(new CipherView(encryptionContext.cipher));
 
       const result = await cipherService.decrypt(encryptionContext.cipher, userId);
@@ -488,7 +552,9 @@ describe("Cipher Service", () => {
 
     it("should call legacy decrypt when feature flag is false", async () => {
       const mockUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(false);
       cipherService.getKeyForCipherKeyDecryption = jest.fn().mockResolvedValue(mockUserKey);
       encryptService.decryptToBytes.mockResolvedValue(new Uint8Array(32));
       jest
@@ -509,7 +575,9 @@ describe("Cipher Service", () => {
     it("should use SDK when feature flag is enabled", async () => {
       const cipher = new Cipher(cipherData);
       const attachment = new AttachmentView(cipher.attachments![0]);
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(true);
 
       jest.spyOn(cipherService, "ciphers$").mockReturnValue(of({ [cipher.id]: cipherData }));
       cipherEncryptionService.decryptAttachmentContent.mockResolvedValue(mockDecryptedContent);
@@ -534,7 +602,9 @@ describe("Cipher Service", () => {
     });
 
     it("should use legacy decryption when feature flag is enabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
+        .mockResolvedValue(false);
       const cipher = new Cipher(cipherData);
       const attachment = new AttachmentView(cipher.attachments![0]);
       attachment.key = makeSymmetricCryptoKey(64);
