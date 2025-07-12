@@ -306,7 +306,15 @@ export class Main {
         process.platform === "win32",
       ),
     );
-    this.mainDesktopAutotypeService.init();
+
+    app
+      .whenReady()
+      .then(() => {
+        this.mainDesktopAutotypeService.init();
+      })
+      .catch((reason) => {
+        this.logService.error("Error initializing autotype", reason);
+      });
   }
 
   bootstrap() {
