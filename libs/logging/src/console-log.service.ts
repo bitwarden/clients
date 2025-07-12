@@ -54,4 +54,43 @@ export class ConsoleLogService implements LogService {
         break;
     }
   }
+
+  measure(
+    start: DOMHighResTimeStamp,
+    trackGroup: string,
+    track: string,
+    name?: string,
+    properties?: [string, any][],
+  ): PerformanceMeasure {
+    const measureName = `[${track}]: ${name}`;
+
+    const measure = performance.measure(measureName, {
+      start: start,
+      detail: {
+        devtools: {
+          dataType: "track-entry",
+          track,
+          trackGroup,
+          properties,
+        },
+      },
+    });
+
+    this.info(`${measureName} took ${measure.duration}`, properties);
+    return measure;
+  }
+
+  mark(name: string): PerformanceMark {
+    const mark = performance.mark(name, {
+      detail: {
+        devtools: {
+          dataType: "marker",
+        },
+      },
+    });
+
+    this.info(mark.name, new Date().toISOString());
+
+    return mark;
+  }
 }
