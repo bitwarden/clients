@@ -884,3 +884,15 @@ pub mod logging {
         fn flush(&self) {}
     }
 }
+
+#[napi]
+pub mod autotype {
+    #[napi]
+    pub fn get_foreground_window_title() -> napi::Result<String, napi::Status> {
+        autotype::get_foreground_window_title().map_err(|_| {
+            napi::Error::from_reason(format!(
+                "Autotype Error: faild to get foreground window title"
+            ))
+        })
+    }
+}
