@@ -1,10 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CdkTrapFocus } from "@angular/cdk/a11y";
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, HostBinding, Input, inject, viewChild } from "@angular/core";
+import { Component, HostBinding, inject, viewChild, input, booleanAttribute } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -40,39 +37,32 @@ export class DialogComponent {
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
 
   /** Background color */
-  @Input()
-  background: "default" | "alt" = "default";
+  readonly background = input<"default" | "alt">("default");
 
   /**
    * Dialog size, more complex dialogs should use large, otherwise default is fine.
    */
-  @Input() dialogSize: "small" | "default" | "large" = "default";
+  readonly dialogSize = input<"small" | "default" | "large">("default");
 
   /**
    * Title to show in the dialog's header
    */
-  @Input() title: string;
+  readonly title = input<string>();
 
   /**
    * Subtitle to show in the dialog's header
    */
-  @Input() subtitle: string;
+  readonly subtitle = input<string>();
 
-  private _disablePadding = false;
   /**
    * Disable the built-in padding on the dialog, for use with tabbed dialogs.
    */
-  @Input() set disablePadding(value: boolean | "") {
-    this._disablePadding = coerceBooleanProperty(value);
-  }
-  get disablePadding() {
-    return this._disablePadding;
-  }
+  readonly disablePadding = input(false, { transform: booleanAttribute });
 
   /**
    * Mark the dialog as loading which replaces the content with a spinner.
    */
-  @Input() loading = false;
+  readonly loading = input(false);
 
   @HostBinding("class") get classes() {
     // `tw-max-h-[90vh]` is needed to prevent dialogs from overlapping the desktop header
@@ -94,7 +84,7 @@ export class DialogComponent {
   }
 
   get width() {
-    switch (this.dialogSize) {
+    switch (this.dialogSize()) {
       case "small": {
         return "md:tw-max-w-sm";
       }

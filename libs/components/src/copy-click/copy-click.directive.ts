@@ -1,4 +1,12 @@
-import { Directive, HostListener, Input, InjectionToken, Inject, Optional } from "@angular/core";
+import {
+  Directive,
+  HostListener,
+  Input,
+  InjectionToken,
+  Inject,
+  Optional,
+  input,
+} from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -28,13 +36,13 @@ export class CopyClickDirective {
     @Optional() @Inject(COPY_CLICK_LISTENER) private copyListener?: CopyClickListener,
   ) {}
 
-  @Input("appCopyClick") valueToCopy = "";
+  readonly valueToCopy = input("", { alias: "appCopyClick" });
 
   /**
    * When set, the toast displayed will show `<valueLabel> copied`
    * instead of the default messaging.
    */
-  @Input() valueLabel?: string;
+  readonly valueLabel = input<string>();
 
   /**
    * When set without a value, a success toast will be shown when the value is copied
@@ -49,6 +57,8 @@ export class CopyClickDirective {
    *  <app-component [appCopyClick]="value to copy" showToast="info"/></app-component>
    * ```
    */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input() set showToast(value: ToastVariant | "") {
     // When the `showToast` is set without a value, an empty string will be passed
     if (value === "") {
@@ -60,15 +70,17 @@ export class CopyClickDirective {
   }
 
   @HostListener("click") onClick() {
-    this.platformUtilsService.copyToClipboard(this.valueToCopy);
+    const valueToCopy = this.valueToCopy();
+    this.platformUtilsService.copyToClipboard(valueToCopy);
 
     if (this.copyListener) {
-      this.copyListener.onCopy(this.valueToCopy);
+      this.copyListener.onCopy(valueToCopy);
     }
 
     if (this._showToast) {
-      const message = this.valueLabel
-        ? this.i18nService.t("valueCopied", this.valueLabel)
+      const valueLabel = this.valueLabel();
+      const message = valueLabel
+        ? this.i18nService.t("valueCopied", valueLabel)
         : this.i18nService.t("copySuccessful");
 
       this.toastService.showToast({

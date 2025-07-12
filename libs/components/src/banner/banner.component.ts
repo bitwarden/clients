@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, input, model } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,19 +29,22 @@ const defaultIcon: Record<BannerType, string> = {
   imports: [CommonModule, IconButtonModule, I18nPipe],
 })
 export class BannerComponent implements OnInit {
-  @Input("bannerType") bannerType: BannerType = "info";
-  @Input() icon: string;
-  @Input() useAlertRole = true;
-  @Input() showClose = true;
+  readonly bannerType = input<BannerType>("info");
+
+  readonly icon = model<string>();
+  readonly useAlertRole = input(true);
+  readonly showClose = input(true);
 
   @Output() onClose = new EventEmitter<void>();
 
   ngOnInit(): void {
-    this.icon ??= defaultIcon[this.bannerType];
+    if (!this.icon()) {
+      this.icon.set(defaultIcon[this.bannerType()]);
+    }
   }
 
   get bannerClass() {
-    switch (this.bannerType) {
+    switch (this.bannerType()) {
       case "danger":
         return "tw-bg-danger-100 tw-border-b-danger-700";
       case "info":

@@ -112,7 +112,7 @@ describe("VaultBannersComponent", () => {
       fixture.detectChanges();
 
       const banner = fixture.debugElement.query(By.directive(BannerComponent));
-      expect(banner.componentInstance.bannerType).toBe("premium");
+      expect(banner.componentInstance.bannerType()).toBe("premium");
     });
 
     it("dismisses premium banner", async () => {

@@ -30,31 +30,31 @@ describe("Callout", () => {
 
   describe("default state", () => {
     it("success", () => {
-      component.type = "success";
+      fixture.componentRef.setInput("type", "success");
       fixture.detectChanges();
-      expect(component.title).toBeUndefined();
-      expect(component.icon).toBe("bwi-check-circle");
+      expect(component.titleComputed()).toBeUndefined();
+      expect(component.iconComputed()).toBe("bwi-check-circle");
     });
 
     it("info", () => {
-      component.type = "info";
+      fixture.componentRef.setInput("type", "info");
       fixture.detectChanges();
-      expect(component.title).toBeUndefined();
-      expect(component.icon).toBe("bwi-info-circle");
+      expect(component.titleComputed()).toBeUndefined();
+      expect(component.iconComputed()).toBe("bwi-info-circle");
     });
 
     it("warning", () => {
-      component.type = "warning";
+      fixture.componentRef.setInput("type", "warning");
       fixture.detectChanges();
-      expect(component.title).toBe("Warning");
-      expect(component.icon).toBe("bwi-exclamation-triangle");
+      expect(component.titleComputed()).toBe("Warning");
+      expect(component.iconComputed()).toBe("bwi-exclamation-triangle");
     });
 
     it("danger", () => {
-      component.type = "danger";
+      fixture.componentRef.setInput("type", "danger");
       fixture.detectChanges();
-      expect(component.title).toBe("Error");
-      expect(component.icon).toBe("bwi-error");
+      expect(component.titleComputed()).toBe("Error");
+      expect(component.iconComputed()).toBe("bwi-error");
     });
   });
 });
