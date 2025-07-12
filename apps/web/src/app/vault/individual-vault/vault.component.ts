@@ -16,6 +16,7 @@ import {
   catchError,
   concatMap,
   debounceTime,
+  distinctUntilChanged,
   filter,
   first,
   map,
@@ -334,7 +335,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
+      .pipe(
+        debounceTime(SearchTextDebounceInterval),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
       .subscribe((searchText) =>
         this.router.navigate([], {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
