@@ -510,7 +510,7 @@ export class VaultItemsComponent {
 
   private compareNames(a: VaultItem, b: VaultItem): number {
     const getName = (item: VaultItem) => item.collection?.name || item.cipher?.name;
-    return getName(a).localeCompare(getName(b));
+    return getName(a)?.localeCompare(getName(b)) ?? -1;
   }
 
   /**
