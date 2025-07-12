@@ -18,6 +18,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
   VaultTimeoutAction,
+  VaultTimeout,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -70,6 +71,8 @@ describe("SettingsComponent", () => {
   const dialogService = mock<DialogService>();
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     originalIpc = (global as any).ipc;
     (global as any).ipc = {
       auth: {
@@ -589,6 +592,95 @@ describe("SettingsComponent", () => {
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
+    });
+  });
+
+  describe("saveVaultTimeout", () => {
+    const DEFAULT_VAULT_TIMEOUT: VaultTimeout = 123;
+    const DEFAULT_VAULT_TIMEOUT_ACTION = VaultTimeoutAction.Lock;
+
+    beforeEach(() => {
+      component["form"].controls.vaultTimeout.setValue(DEFAULT_VAULT_TIMEOUT, { emitEvent: false });
+      component["form"].controls.vaultTimeoutAction.setValue(DEFAULT_VAULT_TIMEOUT_ACTION, {
+        emitEvent: false,
+      });
+      component["previousVaultTimeout"] = DEFAULT_VAULT_TIMEOUT;
+    });
+
+    it.each([
+      null,
+      [VaultTimeoutStringType.Never],
+      [VaultTimeoutStringType.OnRestart],
+      [VaultTimeoutStringType.OnLocked],
+      [VaultTimeoutStringType.OnSleep],
+      [VaultTimeoutStringType.OnIdle],
+      [42],
+    ])("should save vault timeout", async (vaultTimeout: VaultTimeout) => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await component.saveVaultTimeout(vaultTimeout);
+
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+        mockUserId,
+        vaultTimeout,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
+      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+    });
+
+    it("should save vault timeout when vault timeout action is disabled", async () => {
+      component["form"].controls.vaultTimeoutAction.setValue(VaultTimeoutAction.LogOut, {
+        emitEvent: false,
+      });
+      component["form"].controls.vaultTimeoutAction.disable({ emitEvent: false });
+
+      await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT);
+
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).toHaveBeenCalledWith(
+        mockUserId,
+        DEFAULT_VAULT_TIMEOUT,
+        VaultTimeoutAction.LogOut,
+      );
+      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+    });
+
+    it("should not save vault timeout when vault timeout is 'never' and dialog is cancelled", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await component.saveVaultTimeout(VaultTimeoutStringType.Never);
+
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "warning" },
+        content: { key: "neverLockWarning" },
+        type: "warning",
+      });
+    });
+
+    it("should not save vault timeout when vault timeout is 0", async () => {
+      component["form"].controls.vaultTimeout.setValue(0, { emitEvent: false });
+      await component.saveVaultTimeout(0);
+
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(component["form"].getRawValue().vaultTimeout).toEqual(0);
+      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+    });
+
+    it("should not save vault timeout when vault timeout is invalid", async () => {
+      i18nService.t.mockReturnValue("Number too large test error");
+      component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
+      await component.saveVaultTimeout(999_999_999);
+
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(component["previousVaultTimeout"]).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(platformUtilsService.showToast).toHaveBeenCalledWith(
+        "error",
+        null,
+        "Number too large test error",
+      );
     });
   });
 });

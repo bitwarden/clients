@@ -449,7 +449,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       activeAccount.id,
       newValue,
-      this.form.value.vaultTimeoutAction,
+      this.form.getRawValue().vaultTimeoutAction,
     );
   }
 
