@@ -1336,7 +1336,7 @@ export class CipherService implements CipherServiceAbstraction {
    * No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
-  async restoreManyWithServer(ids: string[], userId: UserId, orgId: string = null): Promise<void> {
+  async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     let response;
 
     if (orgId) {
