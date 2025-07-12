@@ -15,6 +15,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   protected inputClasses = [
     "tw-appearance-none",
     "tw-outline-none",
+    "tw-box-border",
     "tw-relative",
     "tw-transition",
     "tw-cursor-pointer",
@@ -37,6 +38,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "before:tw-border",
     "before:tw-border-solid",
     "before:tw-border-secondary-500",
+    "before:tw-box-border",
 
     "after:tw-content-['']",
     "after:tw-block",
@@ -44,6 +46,7 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "after:tw-inset-0",
     "after:tw-h-[1.12rem]",
     "after:tw-w-[1.12rem]",
+    "after:tw-box-border",
 
     "hover:before:tw-border-2",
     "[&>label]:before:tw-border-2",
