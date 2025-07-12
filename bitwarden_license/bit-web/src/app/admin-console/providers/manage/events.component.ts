@@ -11,6 +11,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
 import { EventService } from "@bitwarden/web-vault/app/core";
@@ -22,6 +23,8 @@ import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export"
   standalone: false,
 })
 export class EventsComponent extends BaseEventsComponent implements OnInit {
+  organizationId: OrganizationId;
+  userId: UserId;
   exportFileName = "provider-events";
   providerId: string;
 
