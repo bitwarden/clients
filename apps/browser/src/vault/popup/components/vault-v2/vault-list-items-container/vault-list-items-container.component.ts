@@ -44,6 +44,7 @@ import {
   TypographyModule,
   MenuModule,
   ScrollLayoutDirective,
+  FocusVisibleWithinDirective,
 } from "@bitwarden/components";
 import {
   CopyCipherFieldDirective,
@@ -59,6 +60,8 @@ import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherView } from "../../../views/popup-cipher.view";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+
+import { VaultItemGroupNavigationDialogService } from "./navigation-dialog/vault-item-group-navigation-dialog.service";
 
 @Component({
   imports: [
@@ -80,6 +83,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     MenuModule,
     CopyCipherFieldDirective,
     ScrollLayoutDirective,
+    FocusVisibleWithinDirective,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
@@ -88,6 +92,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
+  private vaultItemGroupNavigationDialogService = inject(VaultItemGroupNavigationDialogService);
   protected copyButtonsService = inject(VaultPopupCopyButtonsService);
 
   protected CipherType = CipherType;
@@ -306,6 +311,10 @@ export class VaultListItemsContainerComponent implements OnInit, AfterViewInit {
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }
+  }
+
+  async handleItemGroupFocusVisibleWithin() {
+    await this.vaultItemGroupNavigationDialogService.openOnce();
   }
 
   async primaryActionOnSelect(cipher: CipherView) {

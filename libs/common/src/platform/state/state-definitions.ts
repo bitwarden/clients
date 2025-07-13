@@ -200,3 +200,7 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_ITEM_GROUP_NAVIGATION_DIALOG = new StateDefinition(
+  "vaultItemGroupNavigationDialog",
+  "disk",
+);

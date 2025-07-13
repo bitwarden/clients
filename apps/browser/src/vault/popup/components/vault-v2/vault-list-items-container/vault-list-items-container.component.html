@@ -33,9 +33,7 @@
 
 <ng-template #sectionHeader>
   <bit-section-header class="tw-p-0.5 -tw-mx-0.5">
-    <h2 bitTypography="h6">
-      {{ title }}
-    </h2>
+    <h2 bitTypography="h6">foobar</h2>
     <button
       *ngIf="showRefresh"
       bitIconButton="bwi-refresh"
@@ -89,7 +87,7 @@
     </ng-container>
 
     <cdk-virtual-scroll-viewport [itemSize]="itemHeight$ | async" bitScrollLayout>
-      <bit-item-group>
+      <bit-item-group (bitFocusVisibleWithin)="handleItemGroupFocusVisibleWithin()">
         <bit-item *cdkVirtualFor="let cipher of group.ciphers">
           <button
             bit-item-content
