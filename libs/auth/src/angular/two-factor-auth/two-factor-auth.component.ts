@@ -17,7 +17,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
-  LoginEmailServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
@@ -32,9 +31,7 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -156,7 +153,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private logService: LogService,
     private twoFactorService: TwoFactorService,
-    private loginEmailService: LoginEmailServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -171,7 +167,6 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -507,19 +502,15 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
 
     // TODO: PM-22663 use the new service to handle routing.
-    if (
-      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
-    ) {
-      const forceSetPasswordReason = await firstValueFrom(
-        this.masterPasswordService.forceSetPasswordReason$(userId),
-      );
+    const forceSetPasswordReason = await firstValueFrom(
+      this.masterPasswordService.forceSetPasswordReason$(userId),
+    );
 
-      if (
-        forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
-        forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
-      ) {
-        return "change-password";
-      }
+    if (
+      forceSetPasswordReason === ForceSetPasswordReason.WeakMasterPassword ||
+      forceSetPasswordReason === ForceSetPasswordReason.AdminForcePasswordReset
+    ) {
+      return "change-password";
     }
 
     return "vault";
@@ -575,11 +566,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private async handleChangePasswordRequired(orgIdentifier: string | undefined) {
-    const isSetInitialPasswordRefactorFlagOn = await this.configService.getFeatureFlag(
-      FeatureFlag.PM16117_SetInitialPasswordRefactor,
-    );
-    const route = isSetInitialPasswordRefactorFlagOn ? "set-initial-password" : "set-password";
-
+    const route = "set-initial-password";
     await this.router.navigate([route], {
       queryParams: {
         identifier: orgIdentifier,

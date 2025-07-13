@@ -15,8 +15,6 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
-import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   LoginComponent,
   LoginSecondaryContentComponent,
@@ -28,7 +26,6 @@ import {
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   RegistrationUserAddIcon,
-  SetPasswordJitComponent,
   UserLockIcon,
   VaultIcon,
   LoginDecryptionOptionsComponent,
@@ -40,13 +37,10 @@ import {
   NewDeviceVerificationComponent,
   DeviceVerificationIcon,
 } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
 
@@ -105,24 +99,10 @@ const routes: Routes = [
     component: VaultV2Component,
     canActivate: [authGuard],
   },
-  { path: "set-password", component: SetPasswordComponent },
   {
     path: "send",
     component: SendComponent,
     canActivate: [authGuard],
-  },
-  {
-    path: "update-temp-password",
-    component: UpdateTempPasswordComponent,
-    canActivate: [
-      canAccessFeature(
-        FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
-        false,
-        `/change-password`,
-        false,
-      ),
-      authGuard,
-    ],
   },
   {
     path: "remove-password",
@@ -309,26 +289,6 @@ const routes: Routes = [
         ],
       },
       {
-        path: "set-password-jit",
-        component: SetPasswordJitComponent,
-        data: {
-          pageTitle: {
-            key: "joinOrganization",
-          },
-          pageSubtitle: {
-            key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-          },
-        } satisfies AnonLayoutWrapperData,
-      },
-      {
-        path: "set-initial-password",
-        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor), authGuard],
-        component: SetInitialPasswordComponent,
-        data: {
-          maxWidth: "lg",
-        } satisfies AnonLayoutWrapperData,
-      },
-      {
         path: "2fa",
         canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
         children: [
@@ -346,10 +306,7 @@ const routes: Routes = [
       {
         path: "change-password",
         component: ChangePasswordComponent,
-        canActivate: [
-          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
-          authGuard,
-        ],
+        canActivate: [authGuard],
       },
     ],
   },

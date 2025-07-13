@@ -267,54 +267,16 @@ describe("TwoFactorAuthComponent", () => {
             selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPassword);
           });
 
-          describe("Given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
-            it("navigates to the /set-initial-password route when user doesn't have a MP and key connector isn't enabled", async () => {
-              // Arrange
-              mockConfigService.getFeatureFlag.mockResolvedValue(true);
-
-              // Act
-              await component.submit("testToken");
-
-              // Assert
-              expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-              expect(mockRouter.navigate).toHaveBeenCalledWith(["set-initial-password"], {
-                queryParams: {
-                  identifier: component.orgSsoIdentifier,
-                },
-              });
-            });
-          });
-
-          describe("Given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
-            it("navigates to the /set-password route when user doesn't have a MP and key connector isn't enabled", async () => {
-              // Arrange
-              mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
-              // Act
-              await component.submit("testToken");
-
-              // Assert
-              expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-              expect(mockRouter.navigate).toHaveBeenCalledWith(["set-password"], {
-                queryParams: {
-                  identifier: component.orgSsoIdentifier,
-                },
-              });
-            });
-          });
-        });
-
-        describe("Given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
-          it("does not navigate to the /set-initial-password route when the user has key connector even if user has no master password", async () => {
+          it("navigates to the /set-initial-password route when user doesn't have a MP and key connector isn't enabled", async () => {
+            // Arrange
             mockConfigService.getFeatureFlag.mockResolvedValue(true);
 
-            selectedUserDecryptionOptions.next(
-              mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
-            );
+            // Act
+            await component.submit("testToken");
 
-            await component.submit(token, remember);
-
-            expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-initial-password"], {
+            // Assert
+            expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+            expect(mockRouter.navigate).toHaveBeenCalledWith(["set-initial-password"], {
               queryParams: {
                 identifier: component.orgSsoIdentifier,
               },
@@ -322,21 +284,19 @@ describe("TwoFactorAuthComponent", () => {
           });
         });
 
-        describe("Given the PM16117_SetInitialPasswordRefactor feature flag is OFF", () => {
-          it("does not navigate to the /set-password route when the user has key connector even if user has no master password", async () => {
-            mockConfigService.getFeatureFlag.mockResolvedValue(false);
+        it("does not navigate to the /set-initial-password route when the user has key connector even if user has no master password", async () => {
+          mockConfigService.getFeatureFlag.mockResolvedValue(true);
 
-            selectedUserDecryptionOptions.next(
-              mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
-            );
+          selectedUserDecryptionOptions.next(
+            mockUserDecryptionOpts.noMasterPasswordWithKeyConnector,
+          );
 
-            await component.submit(token, remember);
+          await component.submit(token, remember);
 
-            expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-password"], {
-              queryParams: {
-                identifier: component.orgSsoIdentifier,
-              },
-            });
+          expect(mockRouter.navigate).not.toHaveBeenCalledWith(["set-initial-password"], {
+            queryParams: {
+              identifier: component.orgSsoIdentifier,
+            },
           });
         });
       });

@@ -10,7 +10,6 @@ import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -211,15 +210,6 @@ describe("SsoLoginStrategy", () => {
   });
 
   describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
-    beforeEach(() => {
-      configService.getFeatureFlag.mockImplementation(async (flag) => {
-        if (flag === FeatureFlag.PM16117_SetInitialPasswordRefactor) {
-          return true;
-        }
-        return false;
-      });
-    });
-
     describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
       it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
         // Arrange
