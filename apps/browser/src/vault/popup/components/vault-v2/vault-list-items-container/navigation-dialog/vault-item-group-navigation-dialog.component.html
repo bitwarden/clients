@@ -1,11 +1,26 @@
 <bit-simple-dialog>
-  <span bitDialogTitle>foobar</span>
-  <span bitDialogContent>
-    {{ "awaitDesktopDesc" | i18n }}
-  </span>
+  <ng-container bitDialogIcon>
+    <i class="bwi bwi-info-circle tw-text-3xl tw-text-info" aria-hidden="true"></i>
+  </ng-container>
+  <ng-container bitDialogTitle>
+    {{ "keyboardNavigationBehavior" | i18n }}
+  </ng-container>
+  <ng-container bitDialogContent>
+    <ul class="!tw-mb-0 tw-text-start">
+      <li bitTypography="body1">
+        {{ "keyboardNavigationBehaviorUpDown" | i18n }}
+      </li>
+      <li bitTypography="body1">
+        {{ "keyboardNavigationBehaviorRightLeft" | i18n }}
+      </li>
+      <li bitTypography="body1">
+        {{ "keyboardNavigationBehaviorTab" | i18n }}
+      </li>
+    </ul>
+  </ng-container>
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="secondary" [bitDialogClose]="false">
-      {{ "close" | i18n }}
+    <button bitButton type="button" buttonType="primary" bitDialogClose>
+      {{ "gotIt" | i18n }}
     </button>
   </ng-container>
 </bit-simple-dialog>

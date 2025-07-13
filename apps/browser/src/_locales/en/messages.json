@@ -5419,5 +5419,17 @@
   "wasmNotSupported": {
     "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
     "description": "'WebAssembly' is a technical term and should not be translated."
+  },
+  "keyboardNavigationBehavior": {
+    "message": "Keyboard navigation behavior"
+  },
+  "keyboardNavigationBehaviorUpDown": {
+    "message": "Use up/down arrow keys (↑ ↓) to move between items"
+  },
+  "keyboardNavigationBehaviorRightLeft": {
+    "message": "Use right/left arrow keys (→ ←) to move between item actions"
+  },
+  "keyboardNavigationBehaviorTab": {
+    "message": "Use tab key (↹) to jump to the next focusable section on the page"
   }
 }
