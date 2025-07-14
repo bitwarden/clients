@@ -209,33 +209,31 @@ describe("SsoLoginStrategy", () => {
     );
   });
 
-  describe("given the PM16117_SetInitialPasswordRefactor feature flag is ON", () => {
-    describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
-      it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
-        // Arrange
-        const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
-          HasMasterPassword: false,
-          TrustedDeviceOption: null,
-          KeyConnectorOption: null,
-        };
-        const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
-        apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+  describe("given the user does not have the `trustedDeviceOption`, does not have a master password, is not using key connector, does not have a user key, but they DO have a `userKeyEncryptedPrivateKey`", () => {
+    it("should set the forceSetPasswordReason to TdeOffboardingUntrustedDevice", async () => {
+      // Arrange
+      const mockUserDecryptionOptions: IUserDecryptionOptionsServerResponse = {
+        HasMasterPassword: false,
+        TrustedDeviceOption: null,
+        KeyConnectorOption: null,
+      };
+      const tokenResponse = identityTokenResponseFactory(null, mockUserDecryptionOptions);
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
-        keyService.userEncryptedPrivateKey$.mockReturnValue(
-          of("userKeyEncryptedPrivateKey" as EncryptedString),
-        );
-        keyService.hasUserKey.mockResolvedValue(false);
+      keyService.userEncryptedPrivateKey$.mockReturnValue(
+        of("userKeyEncryptedPrivateKey" as EncryptedString),
+      );
+      keyService.hasUserKey.mockResolvedValue(false);
 
-        // Act
-        await ssoLoginStrategy.logIn(credentials);
+      // Act
+      await ssoLoginStrategy.logIn(credentials);
 
-        // Assert
-        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
-        expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
-          ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
-          userId,
-        );
-      });
+      // Assert
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledTimes(1);
+      expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+        ForceSetPasswordReason.TdeOffboardingUntrustedDevice,
+        userId,
+      );
     });
   });
 
