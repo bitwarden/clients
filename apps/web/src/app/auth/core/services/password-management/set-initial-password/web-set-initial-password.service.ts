@@ -9,12 +9,12 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { AcceptOrganizationInviteService } from "@bitwarden/web-vault/app/auth/organization-invite/accept-organization.service";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 export class WebSetInitialPasswordService
@@ -32,7 +32,7 @@ export class WebSetInitialPasswordService
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private organizationInviteService: OrganizationInviteService,
     private routerService: RouterService,
   ) {
     super(
@@ -78,6 +78,6 @@ export class WebSetInitialPasswordService
      * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
      */
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.acceptOrganizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvitation();
   }
 }

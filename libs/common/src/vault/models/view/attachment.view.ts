@@ -45,7 +45,8 @@ export class AttachmentView implements View {
 
   static fromJSON(obj: Partial<Jsonify<AttachmentView>>): AttachmentView {
     const key = obj.key == null ? null : SymmetricCryptoKey.fromJSON(obj.key);
-    return Object.assign(new AttachmentView(), obj, { key: key });
+    const encryptedKey = obj.encryptedKey == null ? undefined : new EncString(obj.encryptedKey);
+    return Object.assign(new AttachmentView(), obj, { key: key, encryptedKey: encryptedKey });
   }
 
   /**
@@ -59,6 +60,8 @@ export class AttachmentView implements View {
       sizeName: this.sizeName,
       fileName: this.fileName,
       key: this.encryptedKey?.toJSON(),
+      // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
+      decryptedKey: this.key ? this.key.toBase64() : null,
     };
   }
 
@@ -76,6 +79,8 @@ export class AttachmentView implements View {
     view.size = obj.size ?? null;
     view.sizeName = obj.sizeName ?? null;
     view.fileName = obj.fileName ?? null;
+    // TODO: PM-23005 - Temporary field, should be removed when encrypted migration is complete
+    view.key = obj.key ? SymmetricCryptoKey.fromString(obj.decryptedKey) : null;
     view.encryptedKey = new EncString(obj.key);
 
     return view;
