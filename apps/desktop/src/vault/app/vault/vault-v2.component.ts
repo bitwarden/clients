@@ -308,10 +308,11 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const browserLoginApprovalFeatureFlag = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
-    );
-    if (browserLoginApprovalFeatureFlag === true) {
+    if (
+      (await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+      )) === true
+    ) {
       const authRequests = await firstValueFrom(
         this.authRequestService.getLatestPendingAuthRequest$(),
       );
