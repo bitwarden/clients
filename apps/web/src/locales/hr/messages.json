@@ -8938,6 +8938,14 @@
     "message": "Više o otkrivanju podudaranja",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
+  "uriAdvancedOption": {
+    "message": "Napredne mogućnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Upozorenje",
+    "description": "Warning (should maintain locale-relevant capitalization)"
+  },
   "maintainYourSubscription": {
     "message": "Za održavanje svoje pretplate za $ORG$, ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",

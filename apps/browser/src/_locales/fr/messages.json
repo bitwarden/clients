@@ -3804,7 +3804,7 @@
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
-    "message": "Désactivez la resaisie du mot de passe maître pour éditer ce champ",
+    "message": "Désactivez la ressaisie du mot de passe principal pour modifier ce champ",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
@@ -4844,10 +4844,10 @@
     "message": "Entrez l'identifiant html, le nom, l'étiquette aria ou l'espace réservé du champ."
   },
   "editField": {
-    "message": "Éditer le champ"
+    "message": "Modifier le champ"
   },
   "editFieldLabel": {
-    "message": "Éditer $LABEL$",
+    "message": "Modifier $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
