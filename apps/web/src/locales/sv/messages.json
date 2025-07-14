@@ -3,7 +3,7 @@
     "message": "Alla applikationer"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwardens logotyp"
   },
   "criticalApplications": {
     "message": "Kritiska applikationer"
@@ -36,10 +36,10 @@
     "message": "Notified members"
   },
   "revokeMembers": {
-    "message": "Revoke members"
+    "message": "Återkalla medlemmar"
   },
   "restoreMembers": {
-    "message": "Restore members"
+    "message": "Återställ medlemmar"
   },
   "cannotRestoreAccessError": {
     "message": "Cannot restore organization access"
@@ -235,19 +235,19 @@
     "message": "Inloggningsuppgifter"
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Personliga uppgifter"
   },
   "identification": {
     "message": "Identifikation"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Kontaktuppgifter"
   },
   "cardDetails": {
-    "message": "Card details"
+    "message": "Kortinformation"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "$BRAND$ detaljer",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -278,7 +278,7 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Webbplats tillagd"
   },
   "addWebsite": {
     "message": "Lägg till webbplats"
@@ -330,7 +330,7 @@
     "message": "Säkerhetskod (CVV)"
   },
   "securityCodeSlashCVV": {
-    "message": "Security code / CVV"
+    "message": "Säkerhetskod / CVV"
   },
   "identityName": {
     "message": "Identitetsnamn"
@@ -408,10 +408,10 @@
     "message": "Dr"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "Utgånget kort"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Om du har förnyat kortet ska du uppdatera kortinformationen"
   },
   "expirationMonth": {
     "message": "Utgångsmånad"
@@ -423,10 +423,10 @@
     "message": "Autentiseringsnyckel (TOTP)"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Gör tvåstegsverifiering sömlös"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden kan lagra och fylla tvåstegsverifieringskoder. Kopiera och klistra in nyckeln i detta fält."
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
@@ -450,7 +450,7 @@
     "message": "Booleskt värde"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Kryssruta"
   },
   "cfTypeLinked": {
     "message": "Länkad",
@@ -483,7 +483,7 @@
     "message": "Redigera mapp"
   },
   "editWithName": {
-    "message": "Edit $ITEM$: $NAME$",
+    "message": "Redigera $ITEM$: $NAME$",
     "placeholders": {
       "item": {
         "content": "$1",
@@ -496,16 +496,16 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Ny mapp"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Mappnamn"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Är du säker på att du vill radera den här mappen permanent?"
   },
   "baseDomain": {
     "message": "Basdomän",
@@ -789,7 +789,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopiering lyckades"
   },
   "copyValue": {
     "message": "Kopiera värde",
@@ -856,13 +856,16 @@
     "message": "Kopiera passnummer"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Kopiera licensnummer"
   },
   "copyName": {
     "message": "Kopiera namn"
   },
   "me": {
     "message": "Jag"
+  },
+  "myItems": {
+    "message": "Mina objekt"
   },
   "myVault": {
     "message": "Mitt valv"
@@ -938,7 +941,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Objekt flyttade till $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -947,7 +950,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Objekt flyttade till $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -1013,13 +1016,13 @@
     "message": "Din inloggningssession har upphört."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Starta om registrering"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Utgången länk"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Starta om registreringen eller försök att logga in."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "Du kanske redan har ett konto"
@@ -1040,7 +1043,7 @@
     "message": "Nej"
   },
   "location": {
-    "message": "Location"
+    "message": "Plats"
   },
   "loginOrCreateNewAccount": {
     "message": "Logga in eller skapa ett nytt konto för att komma åt ditt valv."
@@ -1184,7 +1187,7 @@
     "message": "Enter the code from your authenticator app"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Tryck på din YubiKey för att autentisera"
   },
   "authenticationTimeout": {
     "message": "Authentication timeout"
@@ -1193,16 +1196,16 @@
     "message": "The authentication session timed out. Please restart the login process."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Verifiera din identitet"
   },
   "weDontRecognizeThisDevice": {
     "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Fortsätt logga in"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Vad är en enhet?"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -1211,7 +1214,7 @@
     "message": "Inloggning påbörjad"
   },
   "logInRequestSent": {
-    "message": "Request sent"
+    "message": "Begäran skickades"
   },
   "submit": {
     "message": "Skicka"
@@ -1397,10 +1400,10 @@
     "message": "En avisering har skickats till din enhet."
   },
   "notificationSentDevicePart1": {
-    "message": "Unlock Bitwarden on your device or on the "
+    "message": "Lås upp Bitwarden på din enhet eller på "
   },
   "areYouTryingToAccessYourAccount": {
-    "message": "Are you trying to access your account?"
+    "message": "Försöker du komma åt ditt konto?"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -1412,13 +1415,13 @@
     }
   },
   "confirmAccess": {
-    "message": "Confirm access"
+    "message": "Bekräfta åtkomst"
   },
   "denyAccess": {
-    "message": "Deny access"
+    "message": "Neka åtkomst"
   },
   "notificationSentDeviceAnchor": {
-    "message": "web app"
+    "message": "webbapp"
   },
   "notificationSentDevicePart2": {
     "message": "Make sure the Fingerprint phrase matches the one below before approving."
@@ -1427,7 +1430,7 @@
     "message": "Unlock Bitwarden on your device. Make sure the Fingerprint phrase matches the one below before approving."
   },
   "aNotificationWasSentToYourDevice": {
-    "message": "A notification was sent to your device"
+    "message": "Ett meddelande har skickats till din enhet"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1448,14 +1451,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Fråga inte igen på denna enhet kommande 30 dagar"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Välj en annan metod",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Använd din återställningskod"
   },
   "insertU2f": {
     "message": "Sätt in din säkerhetsnyckel i din dators USB-port. Om den har en knapp, tryck på den."
@@ -1473,7 +1476,7 @@
     "message": "Alternativ för tvåstegsverifiering"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Välj metod för tvåstegsinloggning"
   },
   "recoveryCodeDesc": {
     "message": "Förlorat åtkomst till alla dina metoder för tvåstegsverifiering? Använd din återställningskod för att inaktivera tvåstegsverifiering på ditt konto."
@@ -1518,7 +1521,7 @@
     "message": "(Migrerad från FIDO)"
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Öppna i ny flik"
   },
   "emailTitle": {
     "message": "E-post"
@@ -1742,10 +1745,10 @@
     "message": "Det finns inga lösenord att visa."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "Töm historik"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "Ingenting att visa"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
@@ -1781,6 +1784,9 @@
   "loggedOutWarning": {
     "message": "Om du fortsätter kommer du loggas ut från sin nuvarande session vilket kräver att du loggar in igen. Aktiva sessioner på andra enheter kan fortsätta vara aktiva i upp till en timme."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
   "emailChanged": {
     "message": "E-postadressen redigerades"
   },
@@ -1788,10 +1794,10 @@
     "message": "Vänligen logga in igen."
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Aktuell session"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Begäran väntar"
   },
   "logBackInOthersToo": {
     "message": "Vänligen logga in igen. Om du använder andra Bitwarden-applikationer, logga ut och in igen i dem också."
@@ -1843,13 +1849,13 @@
     "description": "Memory refers to computer memory (RAM). MB is short for megabytes."
   },
   "argon2Warning": {
-    "message": "Setting your KDF iterations, memory, and parallelism too high could result in poor performance when logging into (and unlocking) Bitwarden on slower or older devices. We recommend changing these individually in small increments and then test all of your devices."
+    "message": "Att ställa in dina KDF-iterationer, minne och parallellism för högt kan resultera i dålig prestanda när du loggar in (och låser upp) Bitwarden på långsammare eller äldre enheter. Vi rekommenderar att du ändrar dessa individuellt i små steg och sedan testar alla dina enheter."
   },
   "kdfParallelism": {
     "message": "KDF-parallellism"
   },
   "argon2Desc": {
-    "message": "Higher KDF iterations, memory, and parallelism can help protect your master password from being brute forced by an attacker."
+    "message": "Högre KDF-iterationer, minne och parallellism kan hjälpa till att skydda ditt huvudlösenord från att bli brutalt tvingad av en angripare."
   },
   "changeKdf": {
     "message": "Ändra KDF"
@@ -1870,13 +1876,13 @@
     "message": "Om du fortsätter kommer du loggas ut från sin nuvarande session vilket kräver att du loggar in igen. Du kommer även behöva verifiera med tvåstegsverifiering om det är aktiverat. Aktiva sessioner på andra enheter kan fortsätta vara aktiva i upp till en timme."
   },
   "newDeviceLoginProtection": {
-    "message": "New device login"
+    "message": "Ny enhetsinloggning"
   },
   "turnOffNewDeviceLoginProtection": {
-    "message": "Turn off new device login protection"
+    "message": "Inaktivera inloggningsskydd för nya enheter"
   },
   "turnOnNewDeviceLoginProtection": {
-    "message": "Turn on new device login protection"
+    "message": "Aktivera inloggningsskydd för nya enheter"
   },
   "turnOffNewDeviceLoginProtectionModalDesc": {
     "message": "Proceed below to turn off the verification emails bitwarden sends when you login from a new device."
@@ -1894,7 +1900,7 @@
     "message": "Alla sessioner avauktoriserades"
   },
   "accountIsOwnedMessage": {
-    "message": "This account is owned by $ORGANIZATIONNAME$",
+    "message": "Detta konto ägs av $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -1939,7 +1945,7 @@
     "message": "Ditt konto har stängts och all tillhörande data har raderats."
   },
   "deleteOrganizationWarning": {
-    "message": "Deleting your organization is permanent. It cannot be undone."
+    "message": "Att ta bort din organisation är permanent. Det går inte att ångra."
   },
   "myAccount": {
     "message": "Mitt konto"
@@ -1967,7 +1973,7 @@
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
   },
   "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "message": " istället. Du kan behöva vänta tills administratören bekräftar ditt medlemskap i organisationen.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -2207,19 +2213,19 @@
     "message": "Hantera"
   },
   "manageCollection": {
-    "message": "Manage collection"
+    "message": "Hantera samling"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Visa objekt"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Visa objekt, dolda lösenord"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Redigera objekt"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Redigera objekt, dolda lösenord"
   },
   "disable": {
     "message": "Stäng av"
@@ -2231,7 +2237,7 @@
     "message": "Återkalla åtkomst"
   },
   "revoke": {
-    "message": "Revoke"
+    "message": "Återkalla"
   },
   "twoStepLoginProviderEnabled": {
     "message": "Denna metod för tvåstegsverifiering är aktiverad på ditt konto."
@@ -2261,7 +2267,7 @@
     }
   },
   "continueToExternalUrlDesc": {
-    "message": "You are leaving Bitwarden and launching an external website in a new window."
+    "message": "Du lämnar Bitwarden och startar en extern webbplats i ett nytt fönster."
   },
   "twoStepContinueToBitwardenUrlTitle": {
     "message": "Fortsätt till bitwarden.com?"
@@ -2363,7 +2369,7 @@
     "message": "Klient-ID"
   },
   "twoFactorDuoClientSecret": {
-    "message": "Client Secret"
+    "message": "Klienthemlighet"
   },
   "twoFactorDuoApiHostname": {
     "message": "API-värdnamn"
@@ -3222,7 +3228,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "message": "Tack för att du registrerar dig för Bitwarden hemlighetshanterare för $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -3274,9 +3280,6 @@
   },
   "defaultCollection": {
     "message": "Standardsamling"
-  },
-  "myItems": {
-    "message": "My Items"
   },
   "getHelp": {
     "message": "Få hjälp"
@@ -3907,22 +3910,22 @@
     "message": "Enhet"
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Inloggningsstatus"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Första inloggningen"
   },
   "trusted": {
     "message": "Trusted"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Behöver godkännande"
   },
   "areYouTryingtoLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Försöker du logga in?"
   },
   "logInAttemptBy": {
-    "message": "Login attempt by $EMAIL$",
+    "message": "Inloggningsförsök av $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3931,22 +3934,22 @@
     }
   },
   "deviceType": {
-    "message": "Device Type"
+    "message": "Enhetstyp"
   },
   "ipAddress": {
-    "message": "IP Address"
+    "message": "IP-adress"
   },
   "confirmLogIn": {
-    "message": "Confirm login"
+    "message": "Bekräfta inloggning"
   },
   "denyLogIn": {
-    "message": "Deny login"
+    "message": "Neka inloggning"
   },
   "thisRequestIsNoLongerValid": {
-    "message": "This request is no longer valid."
+    "message": "Denna begäran är inte längre giltig."
   },
   "logInConfirmedForEmailOnDevice": {
-    "message": "Login confirmed for $EMAIL$ on $DEVICE$",
+    "message": "Inloggning bekräftad för $EMAIL$ på $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3959,16 +3962,16 @@
     }
   },
   "youDeniedALogInAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
+    "message": "Du nekade ett inloggningsförsök från en annan enhet. Om detta verkligen var du, försök att logga in med enheten igen."
   },
   "loginRequestHasAlreadyExpired": {
-    "message": "Login request has already expired."
+    "message": "Inloggningsbegäran har redan löpt ut."
   },
   "justNow": {
-    "message": "Just now"
+    "message": "Just nu"
   },
   "requestedXMinutesAgo": {
-    "message": "Requested $MINUTES$ minutes ago",
+    "message": "Begärd för $MINUTES$ minuter sedan",
     "placeholders": {
       "minutes": {
         "content": "$1",
@@ -4079,7 +4082,7 @@
     "message": "E-postadressen har verifierats"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "E-post verifierad"
   },
   "emailVerifiedFailed": {
     "message": "Det gick inte att verifiera din e-postadress. Prova att skicka ett nytt verifieringsmeddelande."
@@ -4100,7 +4103,7 @@
     "message": "Du använder en webbläsare som inte stöds. Webbvalvet kanske inte fungerar som det ska."
   },
   "youHaveAPendingLoginRequest": {
-    "message": "You have a pending login request from another device."
+    "message": "Du har en väntande inloggningsbegäran från en annan enhet."
   },
   "reviewLoginRequest": {
     "message": "Review login request"
@@ -4149,16 +4152,16 @@
     }
   },
   "freeTrialEndingTodayWithoutOrgName": {
-    "message": "Your free trial ends today."
+    "message": "Din kostnadsfria provperiod slutar idag."
   },
   "clickHereToAddPaymentMethod": {
-    "message": "Click here to add a payment method."
+    "message": "Klicka här för att lägga till en betalningsmetod."
   },
   "joinOrganization": {
     "message": "Gå med i organisation"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Gå med i $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -4434,7 +4437,7 @@
     }
   },
   "subscriptionUpgrade": {
-    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
+    "message": "Du kan inte bjuda in fler än $COUNT$ användare utan att uppgradera din plan.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4491,7 +4494,7 @@
     }
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Redigera $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4549,7 +4552,7 @@
     "message": "Any account restricted exports you have saved will become invalid."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Äldre kryptering stöds inte längre. Kontakta support för att återställa ditt konto."
   },
   "subscription": {
     "message": "Prenumeration"
@@ -4582,13 +4585,13 @@
     "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Avsluta prenumeration"
   },
   "atAnyTime": {
     "message": "när som helst."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "Genom att fortsätta samtycker du till"
   },
   "and": {
     "message": "och"
@@ -4597,7 +4600,7 @@
     "message": "Genom att kryssa i denna ruta godkänner du följande:"
   },
   "acceptPoliciesRequired": {
-    "message": "Terms of Service and Privacy Policy have not been acknowledged."
+    "message": "Användarvillkoren och Integritetspolicyn har inte accepterats."
   },
   "termsOfService": {
     "message": "Användarvillkor"
@@ -4612,13 +4615,13 @@
     "message": "Valvets tidsgräns"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Tidsgräns"
   },
   "vaultTimeoutDesc": {
     "message": "Välj när valvets tidsgräns överskrids och den valda åtgärden utförs."
   },
   "vaultTimeoutLogoutDesc": {
-    "message": "Choose when your vault will be logged out."
+    "message": "Välj när ditt valv loggas ut."
   },
   "oneMinute": {
     "message": "1 minut"
@@ -4681,7 +4684,7 @@
     "message": "Markerade"
   },
   "recommended": {
-    "message": "Recommended"
+    "message": "Rekommenderas"
   },
   "ownership": {
     "message": "Ägarskap"
@@ -5112,7 +5115,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Text att dela"
   },
   "sendTypeFile": {
     "message": "Fil"
@@ -5206,7 +5209,7 @@
     "message": "Väntar på radering"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Dölj text som standard"
   },
   "expired": {
     "message": "Utgången"
@@ -5593,13 +5596,13 @@
     "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
   },
   "tryItNow": {
-    "message": "Try it now"
+    "message": "Prova det nu"
   },
   "sendRequest": {
-    "message": "Send request"
+    "message": "Skicka begäran"
   },
   "addANote": {
-    "message": "Add a note"
+    "message": "Lägg till en anteckning"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -5617,7 +5620,7 @@
     "message": "Access request for secrets manager email sent to admins."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+    "message": "Hej, \n\nJag vill prenumerera på Bitwarden Secrets Manager för vårt team. Er hjälp skulle betyda mycket för oss!\n\nBitwarden Secrets Manager är en helt krypterad lösning för hantering av hemlig information som gör det möjligt att säkert lagra, dela och distribuera maskinuppgifter som API-nycklar, databaslösenord och autentiseringscertifikat. \n\nSecrets Manager hjälper oss att: \n\n- förbättra säkerheten \n- effektivisera verksamheten \n- förhindra kostsamma läckor av hemlig information.\n\nFör att begära en kostnadsfri testversion för vårt team, vänligen kontakta Bitwarden. \n\nTack för er hjälp!"
   },
   "giveMembersAccess": {
     "message": "Give members access:"
@@ -6007,7 +6010,7 @@
     "message": "Lägg till ny organisation"
   },
   "myProvider": {
-    "message": "My Provider"
+    "message": "Min leverantör"
   },
   "addOrganizationConfirmation": {
     "message": "Are you sure you want to add $ORGANIZATION$ as a client to $PROVIDER$?",
@@ -6072,6 +6075,12 @@
   },
   "updateMasterPassword": {
     "message": "Uppdatera huvudlösenord"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
+  "updateMasterPasswordSubtitle": {
+    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
   },
   "updateMasterPasswordWarning": {
     "message": "Ditt huvudlösenord ändrades nyligen av en administratör i din organisation. För att få tillgång till valvet måste du uppdatera ditt huvudlösenord nu. Om du fortsätter kommer du att loggas ut från din nuvarande session, vilket kräver att du loggar in igen. Aktiva sessioner på andra enheter kan komma att vara aktiva i upp till en timme."
@@ -8453,6 +8462,12 @@
   "requestAdminApproval": {
     "message": "Request admin approval"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
@@ -10745,15 +10760,15 @@
   },
   "gettingStartedWithBitwardenPart1": {
     "message": "For tips on getting started with Bitwarden visit the",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
     "message": "Learning Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
     "message": "Help Center",
-    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'."
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "setupExtensionContentAlt": {
     "message": "With the Bitwarden browser extension you can easily create new logins, access your saved logins directly from your browser toolbar, and sign in to accounts quickly using Bitwarden autofill."
@@ -10783,5 +10798,53 @@
   "billingAddressRequiredToAddCredit": {
     "message": "Billing address required to add credit.",
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
+  },
+  "billingAddress": {
+    "message": "Billing address"
+  },
+  "addBillingAddress": {
+    "message": "Add billing address"
+  },
+  "editBillingAddress": {
+    "message": "Edit billing address"
+  },
+  "noBillingAddress": {
+    "message": "No address on file."
+  },
+  "billingAddressUpdated": {
+    "message": "Your billing address has been updated."
+  },
+  "paymentDetails": {
+    "message": "Payment details"
+  },
+  "paymentMethodUpdated": {
+    "message": "Your payment method has been updated."
+  },
+  "bankAccountVerified": {
+    "message": "Your bank account has been verified."
+  },
+  "availableCreditAppliedToInvoice": {
+    "message": "Any available credit will be automatically applied towards invoices generated for this account."
+  },
+  "mustBePositiveNumber": {
+    "message": "Must be a positive number"
+  },
+  "cardSecurityCode": {
+    "message": "Card security code"
+  },
+  "cardSecurityCodeDescription": {
+    "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
+  },
+  "verifyBankAccountWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "taxId": {
+    "message": "Tax ID: $TAX_ID$",
+    "placeholders": {
+      "tax_id": {
+        "content": "$1",
+        "example": "12-3456789"
+      }
+    }
   }
 }
