@@ -1,8 +1,10 @@
 import { AsyncPipe } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Observable } from "rxjs";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { AnchorLinkDirective, BannerComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -37,16 +39,28 @@ import { OrganizationFreeTrialWarning } from "../types";
   `,
   imports: [AnchorLinkDirective, AsyncPipe, BannerComponent, I18nPipe],
 })
-export class OrganizationFreeTrialWarningComponent implements OnInit {
+export class OrganizationFreeTrialWarningComponent implements OnInit, OnDestroy {
   @Input({ required: true }) organization!: Organization;
   @Output() clicked = new EventEmitter<void>();
 
   warning$!: Observable<OrganizationFreeTrialWarning>;
+  private destroy$ = new Subject<void>();
 
   constructor(private organizationWarningsService: OrganizationWarningsService) {}
 
   ngOnInit() {
     this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(this.organization);
+    this.organizationWarningsService
+      .refreshWarningsForOrganization$(this.organization.id as OrganizationId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.refresh();
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   refresh = () => {
