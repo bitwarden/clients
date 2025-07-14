@@ -383,7 +383,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
       await this.reindexCiphers(userId);
-      return await this.getDecryptedCiphers(userId);
+      return decCiphers;
     }
 
     const decrypted = await this.decryptCiphers(await this.getAll(userId), userId);
