@@ -17,16 +17,16 @@
         <ng-template #anchorAndButtonContent>
           <div
             [title]="text"
-            class="tw-truncate tw-gap-2 tw-items-center tw-font-bold"
+            class="tw-gap-2 tw-items-center tw-font-bold tw-h-full tw-content-center"
             [ngClass]="{ 'tw-text-center': !open, 'tw-flex': open }"
           >
             <i
-              class="!tw-m-0 tw-w-4 bwi bwi-fw tw-text-alt2 {{ icon }}"
+              class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw tw-text-alt2 {{ icon }}"
               [attr.aria-hidden]="open"
               [attr.aria-label]="text"
             ></i>
             @if (open) {
-              <span>{{ text }}</span>
+              <span class="tw-truncate">{{ text }}</span>
             }
           </div>
         </ng-template>
@@ -36,7 +36,7 @@
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin$` -->
           <!-- The following `class` field should match the `#isButton` class field below -->
           <a
-            class="tw-w-full tw-px-3 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+            class="tw-size-full tw-px-3 tw-block tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
             data-fvw
             [routerLink]="route"
             [relativeTo]="relativeTo"
@@ -56,7 +56,7 @@
           <!-- Class field should match `#isAnchor` class field above -->
           <button
             type="button"
-            class="tw-w-full tw-px-3 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
+            class="tw-size-full tw-px-3 tw-truncate tw-border-none tw-bg-transparent tw-text-start !tw-text-alt2 hover:tw-text-alt2 hover:tw-no-underline focus:tw-outline-none"
             data-fvw
             (click)="mainContentClicked.emit()"
           >
