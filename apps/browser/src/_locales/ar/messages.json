@@ -1173,6 +1173,12 @@
     "message": "أوه لا! لم نتمكن من حفظ هذا. حاول إدخال التفاصيل يدويا.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "اسأل عن تحديث تسجيل الدخول الحالي"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "كلمة المرور الرئيسية مكشوفة"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "طلب موافقة المدير"
+  },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."

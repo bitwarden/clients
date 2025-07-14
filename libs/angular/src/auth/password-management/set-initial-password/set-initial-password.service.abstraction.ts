@@ -22,9 +22,15 @@ export const _SetInitialPasswordUserType = {
 
   /**
    * A user in an org that offboarded from trusted device encryption and is now a
-   * master-password-encryption org
+   * master-password-encryption org. User is on a trusted device.
    */
   OFFBOARDED_TDE_ORG_USER: "offboarded_tde_org_user",
+
+  /**
+   * A user in an org that offboarded from trusted device encryption and is now a
+   * master-password-encryption org. User is on an untrusted device.
+   */
+  OFFBOARDED_TDE_ORG_USER_UNTRUSTED_DEVICE: "offboarded_tde_org_user_untrusted_device",
 } as const;
 
 type _SetInitialPasswordUserType = typeof _SetInitialPasswordUserType;
