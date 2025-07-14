@@ -18,7 +18,6 @@ import { DangerZoneComponent } from "../auth/settings/account/danger-zone.compon
 import { EmergencyAccessConfirmComponent } from "../auth/settings/emergency-access/confirm/emergency-access-confirm.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessComponent } from "../auth/settings/emergency-access/emergency-access.component";
-import { EmergencyAccessTakeoverComponent } from "../auth/settings/emergency-access/takeover/emergency-access-takeover.component";
 import { EmergencyAccessViewComponent } from "../auth/settings/emergency-access/view/emergency-access-view.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -71,7 +70,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     OrgEventsComponent,
@@ -98,7 +96,6 @@ import { SharedModule } from "./shared.module";
     EmergencyAccessAddEditComponent,
     EmergencyAccessComponent,
     EmergencyAccessConfirmComponent,
-    EmergencyAccessTakeoverComponent,
     EmergencyAccessViewComponent,
     FolderAddEditComponent,
     OrganizationLayoutComponent,

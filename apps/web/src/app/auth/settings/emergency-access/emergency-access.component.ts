@@ -35,9 +35,9 @@ import {
   EmergencyAccessAddEditDialogResult,
 } from "./emergency-access-add-edit.component";
 import {
-  EmergencyAccessTakeoverComponent,
-  EmergencyAccessTakeoverResultType,
-} from "./takeover/emergency-access-takeover.component";
+  EmergencyAccessTakeoverDialogComponent,
+  EmergencyAccessTakeoverDialogResultType,
+} from "./takeover/emergency-access-takeover-dialog.component";
 
 @Component({
   selector: "emergency-access",
@@ -296,21 +296,25 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
-    const dialogRef = EmergencyAccessTakeoverComponent.open(this.dialogService, {
+    const grantorName = this.userNamePipe.transform(details);
+
+    const dialogRef = EmergencyAccessTakeoverDialogComponent.open(this.dialogService, {
       data: {
-        name: this.userNamePipe.transform(details),
-        email: details.email,
-        emergencyAccessId: details.id ?? null,
+        grantorName,
+        grantorEmail: details.email,
+        emergencyAccessId: details.id,
       },
     });
     const result = await lastValueFrom(dialogRef.closed);
-    if (result === EmergencyAccessTakeoverResultType.Done) {
+    if (result === EmergencyAccessTakeoverDialogResultType.Done) {
       this.toastService.showToast({
         variant: "success",
-        title: null,
-        message: this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details)),
+        title: "",
+        message: this.i18nService.t("passwordResetFor", grantorName),
       });
     }
+
+    return;
   };
 
   private removeGrantee(details: GranteeEmergencyAccess) {

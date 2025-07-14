@@ -13,8 +13,6 @@ import { AssignCollectionsComponent } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { LoginModule } from "../auth/login/login.module";
-import { SetPasswordComponent } from "../auth/set-password.component";
-import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
@@ -57,9 +55,7 @@ import { SharedModule } from "./shared/shared.module";
     PremiumComponent,
     RemovePasswordComponent,
     SearchComponent,
-    SetPasswordComponent,
     SettingsComponent,
-    UpdateTempPasswordComponent,
     VaultTimeoutInputComponent,
   ],
   providers: [SshAgentService],
