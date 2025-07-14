@@ -1174,10 +1174,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
   },
   "enableChangedPasswordNotification": {
     "message": "Запитувати про оновлення запису"
@@ -3461,7 +3461,7 @@
     "message": "Запит надіслано"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Головний пароль збережено"
   },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
@@ -3578,10 +3578,10 @@
     "message": "Запит підтвердження адміністратора"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Не вдалося завершити вхід"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
   },
   "ssoIdentifierRequired": {
     "message": "Потрібен SSO-ідентифікатор організації."

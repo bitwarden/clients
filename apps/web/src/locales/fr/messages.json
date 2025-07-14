@@ -2169,7 +2169,7 @@
     "message": "Impossible d'importer les types de l'élément de la carte"
   },
   "restrictCardTypeImportDesc": {
-    "message": "Une politique de sécurité définie par 1 organisation ou plus vous empêche d'importer des cartes dans vos coffres."
+    "message": "Une politique de sécurité définie par une organisation ou plus vous empêche d'importer des cartes dans vos coffres."
   },
   "yourSingleUseRecoveryCode": {
     "message": "Votre code de récupération à usage unique peut être utilisé pour désactiver la connexion en deux étapes si vous perdez l'accès à votre fournisseur de connexion en deux étapes. Bitwarden vous recommande d'écrire le code de récupération et de le conserver dans un endroit sûr."
@@ -5088,7 +5088,7 @@
     "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
   },
   "requireSsoPolicyReqError": {
-    "message": "La politique \"Organisation Unique\" n'est pas activée."
+    "message": "La politique « Organisation Unique » n'est pas activée."
   },
   "requireSsoExemption": {
     "message": "Les propriétaires et les administrateurs de l'organisation sont exonérés de l'application de cette politique."
@@ -8923,7 +8923,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "La détection de correspondance d'URL est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
+    "message": "La détection de correspondance d'URI est la façon dont Bitwarden identifie les suggestions de remplissage automatique.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -8937,6 +8937,14 @@
   "uriMatchWarningDialogLink": {
     "message": "En savoir plus sur la détection de correspondance",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Options avancées",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Avertissement",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "Afin de maintenir votre abonnement pour $ORG$, ",
