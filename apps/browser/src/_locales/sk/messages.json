@@ -1173,6 +1173,12 @@
     "message": "Ale nie! Nepodarilo sa nám to uložiť. Skúste zadať údaje manuálne.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
+  },
   "enableChangedPasswordNotification": {
     "message": "Požiadať o aktualizáciu existujúceho prihlasovania"
   },
@@ -2902,7 +2908,7 @@
     "message": "Skryť moju e-mailovú adresu pri zobrazení."
   },
   "passwordPrompt": {
-    "message": "Znova zadajte hlavné heslo"
+    "message": "Vyzvať na zadanie hesla"
   },
   "passwordConfirmation": {
     "message": "Potvrdenie hlavného hesla"
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Požiadavka bola odoslaná"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nepodarilo sa dokončiť prihlásenie"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
   },
   "ssoIdentifierRequired": {
     "message": "Pole identifikátora SSO je povinné."
