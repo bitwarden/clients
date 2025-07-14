@@ -232,7 +232,7 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
       ForceSetPasswordReason.WeakMasterPassword,
       userId,
     );
@@ -295,8 +295,15 @@ describe("PasswordLoginStrategy", () => {
 
   it("forces the user to update their master password on successful login when it does not meet master password policy requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
-    policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      enforceOnLogin: true,
+    });
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+    policyService.evaluateMasterPassword.mockReturnValue(false);
 
     await passwordLoginStrategy.logIn(credentials);
 
