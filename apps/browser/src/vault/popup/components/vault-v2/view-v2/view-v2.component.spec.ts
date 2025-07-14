@@ -297,6 +297,37 @@ describe("ViewV2Component", () => {
       expect(component.cipher).toBeUndefined();
     }));
 
+    it.each([COPY_PASSWORD_ID, COPY_VERIFICATION_CODE_ID])(
+      "does not set cipher when copy fails for %s",
+      fakeAsync((action: string) => {
+        let promptPromise: (val?: unknown) => void;
+        mockCipherService.decrypt.mockImplementationOnce(() =>
+          Promise.resolve({
+            ...mockCipher,
+            reprompt: CipherRepromptType.Password,
+          }),
+        );
+        copy.mockImplementationOnce(() => {
+          return new Promise((resolve) => {
+            // store the promise resolver to manually trigger the promise resolve
+            promptPromise = resolve;
+          });
+        });
+
+        params$.next({ action });
+
+        flush(); // Flush all pending actions
+
+        expect(component.cipher).toBeUndefined();
+        expect(copy).toHaveBeenCalled();
+
+        promptPromise!(false); // resolve the password prompt
+
+        flush();
+        expect(component.cipher).toBeUndefined();
+      }),
+    );
+
     it("closes the popout after a load action", fakeAsync(() => {
       jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);

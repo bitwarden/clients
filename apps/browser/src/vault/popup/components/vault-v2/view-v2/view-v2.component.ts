@@ -153,11 +153,13 @@ export class ViewV2Component {
           if (this.loadAction) {
             const success = await this._handleLoadAction(this.loadAction, cipher, this.senderTabId);
 
-            // When the autofill action is not successful and the cipher has a reprompt enabled,
+            // When the action is not successful and the cipher has a reprompt enabled,
             // The cipher details can flash on the screen before the popout closes,
             // pass `null` to prevent this.
             if (
-              this.loadAction === AUTOFILL_ID &&
+              [AUTOFILL_ID, COPY_PASSWORD_ID, COPY_VERIFICATION_CODE_ID].includes(
+                this.loadAction,
+              ) &&
               success === false &&
               cipher.reprompt !== CipherRepromptType.None
             ) {
