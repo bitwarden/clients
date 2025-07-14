@@ -14,6 +14,7 @@ import {
   redirectGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
+  unlockedGuard,
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
@@ -447,6 +448,7 @@ const routes: Routes = [
       },
       {
         path: "login-with-device",
+        canActivate: [unlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -495,6 +497,7 @@ const routes: Routes = [
       },
       {
         path: "admin-approval-requested",
+        canActivate: [unlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
