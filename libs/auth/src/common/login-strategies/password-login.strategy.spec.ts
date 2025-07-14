@@ -12,7 +12,6 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
@@ -241,12 +240,6 @@ describe("PasswordLoginStrategy", () => {
     } as any);
     policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
-
-    jest
-      .spyOn(configService, "getFeatureFlag")
-      .mockImplementation((flag: FeatureFlag) =>
-        Promise.resolve(flag === FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
-      );
 
     credentials.masterPasswordPoliciesFromOrgInvite = Object.assign(
       new MasterPasswordPolicyOptions(),
