@@ -1818,7 +1818,7 @@
     "message": "Be om Windows Hello vid appstart"
   },
   "autoPromptPolkit": {
-    "message": "Be om systemautentisering vid lansering"
+    "message": "Be om systemautentisering vid start"
   },
   "autoPromptTouchId": {
     "message": "Be om Touch ID vid appstart"
@@ -3103,7 +3103,7 @@
     "message": "Viktigt:"
   },
   "accessing": {
-    "message": "Tillgång"
+    "message": "Åtkomst via"
   },
   "accessTokenUnableToBeDecrypted": {
     "message": "Du har blivit utloggad eftersom din access token inte kunde dekrypteras. Vänligen logga in igen för att lösa problemet."
@@ -3565,6 +3565,14 @@
   "uriMatchWarningDialogLink": {
     "message": "Mer om matchdetektering",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Avancerade alternativ",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "Varning",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
     "message": "Lyckades"
