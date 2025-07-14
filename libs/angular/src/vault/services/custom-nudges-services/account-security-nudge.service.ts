@@ -9,7 +9,6 @@ import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService } from "@bitwarden/key-management";
@@ -24,7 +23,6 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
   private vaultProfileService = inject(VaultProfileService);
   private logService = inject(LogService);
   private pinService = inject(PinServiceAbstraction);
-  private vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private biometricStateService = inject(BiometricStateService);
   private policyService = inject(PolicyService);
   private organizationService = inject(OrganizationService);
