@@ -410,7 +410,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector
     // - UserKey is not set after successful login -- because automatic decryption is not available
     // - userKeyEncryptedPrivateKey is set after successful login -- this is the key differentiator between a TDE org user logging into an untrusted device and MP encryption JIT provisioned user logging in for the first time.
-
+    //     Why is that the case?  Because we set the userKeyEncryptedPrivateKey when we create the userKey, and this is serving as a proxy to tell us that the userKey has been created already (when enrolling in TDE).
     const hasUserKeyEncryptedPrivateKey = await firstValueFrom(
       this.keyService.userEncryptedPrivateKey$(userId),
     );

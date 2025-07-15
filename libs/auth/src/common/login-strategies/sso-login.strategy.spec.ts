@@ -162,6 +162,10 @@ describe("SsoLoginStrategy", () => {
 
   it("sends SSO information to server", async () => {
     apiService.postIdentityToken.mockResolvedValue(identityTokenResponseFactory());
+    keyService.userEncryptedPrivateKey$.mockReturnValue(
+      of("userKeyEncryptedPrivateKey" as EncryptedString),
+    );
+    keyService.hasUserKey.mockResolvedValue(true);
 
     await ssoLoginStrategy.logIn(credentials);
 
