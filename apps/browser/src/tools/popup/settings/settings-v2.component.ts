@@ -50,7 +50,7 @@ export class SettingsV2Component implements OnInit {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  showAcctSecurityNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+  protected showAcctSecurityNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
     switchMap((account) =>
       this.nudgesService.showNudgeBadge$(NudgeType.AccountSecurity, account.id),
     ),
