@@ -21,7 +21,14 @@ describe("AddExtensionVideosComponent", () => {
   HTMLMediaElement.prototype.play = play;
 
   beforeEach(async () => {
-    window.matchMedia = jest.fn().mockReturnValue(false);
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: false,
+        addListener() {},
+        removeListener() {},
+      })),
+    });
     play.mockClear();
 
     await TestBed.configureTestingModule({
@@ -118,6 +125,8 @@ describe("AddExtensionVideosComponent", () => {
     let thirdVideo: HTMLVideoElement;
 
     beforeEach(() => {
+      jest.useFakeTimers();
+
       component["numberOfLoadedVideos"] = 2;
       component["onVideoLoad"]();
 
@@ -126,45 +135,50 @@ describe("AddExtensionVideosComponent", () => {
       thirdVideo = component["videoElements"].get(2)!.nativeElement;
     });
 
-    it("starts the video sequence when all videos are loaded", fakeAsync(() => {
-      tick();
+    afterEach(() => {
+      jest.clearAllTimers();
+    });
+
+    it("starts the video sequence when all videos are loaded", async () => {
+      await jest.advanceTimersByTimeAsync(500);
 
       expect(firstVideo.play).toHaveBeenCalled();
-    }));
+    });
 
-    it("plays videos in sequence", fakeAsync(() => {
-      tick(); // let first video play
+    it("plays videos in sequence", async () => {
+      await jest.advanceTimersByTimeAsync(500);
 
       play.mockClear();
       firstVideo.onended!(new Event("ended")); // trigger next video
 
-      tick();
+      await jest.advanceTimersByTimeAsync(500);
 
       expect(secondVideo.play).toHaveBeenCalledTimes(1);
 
       play.mockClear();
       secondVideo.onended!(new Event("ended")); // trigger next video
 
-      tick();
+      await jest.advanceTimersByTimeAsync(500);
 
       expect(thirdVideo.play).toHaveBeenCalledTimes(1);
-    }));
+    });
 
-    it("doesn't play videos again when the user prefers no motion", fakeAsync(() => {
+    it("doesn't play videos again when the user prefers no motion", async () => {
       component["prefersReducedMotion"] = true;
 
-      tick();
+      await jest.runAllTimersAsync();
       firstVideo.onended!(new Event("ended"));
-      tick();
+      await jest.runAllTimersAsync();
+
       secondVideo.onended!(new Event("ended"));
-      tick();
+      await jest.runAllTimersAsync();
 
       play.mockClear();
 
       thirdVideo.onended!(new Event("ended")); // trigger first video again
 
-      tick();
+      await jest.runAllTimersAsync();
       expect(play).toHaveBeenCalledTimes(0);
-    }));
+    });
   });
 });
