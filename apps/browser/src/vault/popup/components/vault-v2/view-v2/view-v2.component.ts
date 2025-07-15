@@ -232,6 +232,7 @@ export class ViewV2Component {
       title: null,
       message: this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
     });
+    await BrowserApi.sendMessage("deletedCipher");
 
     return true;
   };
