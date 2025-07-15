@@ -15,6 +15,7 @@ import { filter, map, take } from "rxjs/operators";
 import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,7 +24,9 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -194,6 +197,8 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private folderService: FolderService,
+    private configService: ConfigService,
+    private authRequestService: AuthRequestServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -303,11 +308,26 @@ export class VaultV2Component implements OnInit, OnDestroy, CopyClickListener {
     this.searchBarService.setEnabled(true);
     this.searchBarService.setPlaceholderText(this.i18nService.t("searchVault"));
 
-    const authRequest = await this.apiService.getLastAuthRequest().catch(() => null);
-    if (authRequest != null) {
-      this.messagingService.send("openLoginApproval", {
-        notificationId: authRequest.id,
-      });
+    if (
+      (await firstValueFrom(
+        this.configService.getFeatureFlag$(FeatureFlag.PM14938_BrowserExtensionLoginApproval),
+      )) === true
+    ) {
+      const authRequests = await firstValueFrom(
+        this.authRequestService.getLatestPendingAuthRequest$(),
+      );
+      if (authRequests != null) {
+        this.messagingService.send("openLoginApproval", {
+          notificationId: authRequests.id,
+        });
+      }
+    } else {
+      const authRequest = await this.apiService.getLastAuthRequest();
+      if (authRequest != null) {
+        this.messagingService.send("openLoginApproval", {
+          notificationId: authRequest.id,
+        });
+      }
     }
 
     this.activeUserId = await firstValueFrom(
