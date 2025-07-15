@@ -17,6 +17,11 @@ export class AddExtensionVideosComponent {
 
   private document = inject(DOCUMENT);
 
+  /** CSS variable name tied to the video overlay */
+  private cssOverlayVariable = "--overlay-opacity";
+  /** CSS variable name tied to the video border */
+  private cssBorderVariable = "--border-opacity";
+
   /** Current viewport size */
   protected variant: "mobile" | "desktop" = "desktop";
 
@@ -25,6 +30,13 @@ export class AddExtensionVideosComponent {
 
   /** True when the user prefers reduced motion */
   protected prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /** CSS classes for the video container, pulled into the class only for readability. */
+  protected videoContainerClass = [
+    "tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807]",
+    `[${this.cssOverlayVariable}:0.7] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-content-[''] after:tw-rounded-lg after:tw-opacity-[${this.cssOverlayVariable}]`,
+    `[${this.cssBorderVariable}:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2  before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[${this.cssBorderVariable}]`,
+  ].join(" ");
 
   /** Returns true when all videos are loaded */
   get allVideosLoaded(): boolean {
@@ -161,8 +173,8 @@ export class AddExtensionVideosComponent {
       const overlayOpacity = 0.7 * (percentComplete / 100);
       // The border opacity transitions from 1 to 0 based on the percent complete.
       const borderOpacity = (100 - percentComplete) / 100;
-      parentElement.style.setProperty("--border-opacity", borderOpacity.toString());
-      parentElement.style.setProperty("--overlay-opacity", overlayOpacity.toString());
+      parentElement.style.setProperty(this.cssBorderVariable, borderOpacity.toString());
+      parentElement.style.setProperty(this.cssOverlayVariable, overlayOpacity.toString());
     });
   }
 
@@ -181,8 +193,8 @@ export class AddExtensionVideosComponent {
       const overlayOpacity = 0.7 * (1 - percentComplete / 100);
       // The border opacity transitions from 0 to 1 based on the percent complete.
       const borderOpacity = percentComplete / 100;
-      parentElement.style.setProperty("--overlay-opacity", overlayOpacity.toString());
-      parentElement.style.setProperty("--border-opacity", borderOpacity.toString());
+      parentElement.style.setProperty(this.cssOverlayVariable, overlayOpacity.toString());
+      parentElement.style.setProperty(this.cssBorderVariable, borderOpacity.toString());
     });
   }
 

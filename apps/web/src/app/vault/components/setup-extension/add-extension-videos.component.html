@@ -49,9 +49,7 @@
   class="tw-mx-auto tw-w-[15rem] tw-mb-8 tw-relative md:tw-grid md:tw-gap-10 md:tw-w-auto md:tw-grid-rows-1 md:tw-grid-cols-3 md:tw-justify-center md:tw-justify-items-center"
   [attr.aria-label]="'setupExtensionContentAlt' | i18n"
 >
-  <div
-    class="tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807] after:tw-absolute [--overlay-opacity:0.7] [--border-opacity:0] after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-opacity-[--overlay-opacity] after:tw-content-[''] after:tw-rounded-lg before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-rounded-t-lg before:tw-bg-primary-600 before:tw-content-[''] before:tw-opacity-[--border-opacity]"
-  >
+  <div [ngClass]="videoContainerClass">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
@@ -60,9 +58,7 @@
     <ng-container *ngTemplateOutlet="newLoginItem"></ng-container>
   </div>
 
-  <div
-    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807] [--overlay-opacity:0.7] [--border-opacity:0] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-opacity-[--overlay-opacity] after:tw-content-[''] after:tw-rounded-lg before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-rounded-t-lg before:tw-bg-primary-600 before:tw-content-[''] before:tw-opacity-[--border-opacity]"
-  >
+  <div [ngClass]="videoContainerClass">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
@@ -71,9 +67,7 @@
     <ng-container *ngTemplateOutlet="browserExtensionEasyAccess"></ng-container>
   </div>
 
-  <div
-    class="tw-absolute tw-left-0 tw-top-0 tw-opacity-0 md:tw-opacity-100 md:tw-relative tw-w-[15rem] tw-max-w-full tw-aspect-[0.807] [--overlay-opacity:0.7] [--border-opacity:0] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-opacity-[--overlay-opacity] after:tw-content-[''] after:tw-rounded-lg before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-rounded-t-lg before:tw-bg-primary-600 before:tw-content-[''] before:tw-opacity-[--border-opacity]"
-  >
+  <div [ngClass]="videoContainerClass">
     <div
       *ngIf="!allVideosLoaded"
       class="tw-animate-pulse tw-bg-secondary-300 tw-size-full tw-absolute tw-left-0 tw-top-0 tw-rounded-lg"
