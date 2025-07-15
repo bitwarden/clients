@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
@@ -24,8 +24,10 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -66,7 +68,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockLoginEmailService: MockProxy<LoginEmailServiceAbstraction>;
   let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let mockMasterPasswordService: FakeMasterPasswordService;
+  let mockMasterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let mockAccountService: FakeAccountService;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
@@ -107,7 +109,7 @@ describe("TwoFactorAuthComponent", () => {
     mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
     mockAccountService = mockAccountServiceWith(userId);
-    mockMasterPasswordService = new FakeMasterPasswordService();
+    mockMasterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
@@ -212,6 +214,7 @@ describe("TwoFactorAuthComponent", () => {
         },
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
       ],
     });
 
@@ -304,6 +307,9 @@ describe("TwoFactorAuthComponent", () => {
       it("navigates to the component's defined success route (vault is default) when the login is successful", async () => {
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
         mockAuthService.activeAccountStatus$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+        mockMasterPasswordService.forceSetPasswordReason$.mockReturnValue(
+          of(ForceSetPasswordReason.None),
+        );
 
         // Act
         await component.submit("testToken");
@@ -369,7 +375,7 @@ describe("TwoFactorAuthComponent", () => {
             await component.submit(token, remember);
 
             // Assert
-            expect(mockMasterPasswordService.mock.setForceSetPasswordReason).toHaveBeenCalledWith(
+            expect(mockMasterPasswordService.setForceSetPasswordReason).toHaveBeenCalledWith(
               ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
               userId,
             );
