@@ -198,25 +198,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return userKey;
   }
 
-  async hasUserKey(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      return false;
-    }
-    return await this.hasUserKeyInMemory(userId);
-  }
-
-  async hasUserKeyInMemory(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async hasUserKey(userId: UserId): Promise<boolean> {
     if (userId == null) {
       return false;
     }
 
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
-  }
-
-  async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
-    return (await this.getKeyFromStorage(keySuffix, userId)) != null;
   }
 
   async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {

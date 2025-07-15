@@ -37,15 +37,15 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
   protected destroy$ = new Subject<void>();
 
   constructor(
+    protected accountService: AccountService,
+    protected dialogService: DialogService,
     protected i18nService: I18nService,
+    protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected messagingService: MessagingService,
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
-    protected dialogService: DialogService,
-    protected kdfConfigService: KdfConfigService,
-    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    protected accountService: AccountService,
     protected toastService: ToastService,
   ) {}
 

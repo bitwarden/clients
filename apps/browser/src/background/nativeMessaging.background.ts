@@ -105,6 +105,16 @@ export class NativeMessagingBackground {
   }
 
   async connect() {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      this.logService.warning(
+        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
+      );
+      return;
+    }
+    if (this.connected || this.connecting) {
+      return;
+    }
+
     this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
     const appId = await this.appIdService.getAppId();
     this.appId = appId;
