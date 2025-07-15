@@ -8,8 +8,9 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 /**
  * Redirects the user to `/vault` if they are `Unlocked`. Otherwise, it allows access to the route.
+ * See ./redirect-to-vault-if-unlocked/README.md for more details.
  */
-export function unlockedGuard(): CanActivateFn {
+export function redirectToVaultIfUnlockedGuard(): CanActivateFn {
   return async () => {
     const accountService = inject(AccountService);
     const authService = inject(AuthService);

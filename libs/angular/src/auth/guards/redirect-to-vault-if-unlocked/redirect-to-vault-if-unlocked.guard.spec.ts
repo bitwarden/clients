@@ -9,9 +9,9 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { unlockedGuard } from "./unlocked.guard";
+import { redirectToVaultIfUnlockedGuard } from "./redirect-to-vault-if-unlocked.guard";
 
-describe("unlockedGuard", () => {
+describe("redirectToVaultIfUnlockedGuard", () => {
   const activeUser: Account = {
     id: "userId" as UserId,
     email: "test@email.com",
@@ -36,7 +36,7 @@ describe("unlockedGuard", () => {
           {
             path: "guarded-route",
             component: EmptyComponent,
-            canActivate: [unlockedGuard()],
+            canActivate: [redirectToVaultIfUnlockedGuard()],
           },
         ]),
       ],
