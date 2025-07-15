@@ -8,12 +8,12 @@ import { Opaque } from "type-fest";
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { KeyGenerationService } from "../../key-management/crypto/abstractions/key-generation.service";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
-import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
