@@ -1,4 +1,21 @@
+import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
+
 import { DeviceDisplayData } from "./device-management.component";
+
+export function clearAuthRequestAndResortDevices(
+  devices: DeviceDisplayData[],
+  pendingAuthRequest: DevicePendingAuthRequest,
+): DeviceDisplayData[] {
+  return devices
+    .map((device) => {
+      if (device.pendingAuthRequest?.id === pendingAuthRequest.id) {
+        device.pendingAuthRequest = null;
+        device.loginStatus = "";
+      }
+      return device;
+    })
+    .sort(resortDevices);
+}
 
 /**
  * After a device is approved/denied, it will still be at the beginning of the array,
@@ -6,7 +23,7 @@ import { DeviceDisplayData } from "./device-management.component";
  *
  * This is a helper function that gets passed to the `Array.sort()` method
  */
-export function deviceReSort(deviceA: DeviceDisplayData, deviceB: DeviceDisplayData) {
+function resortDevices(deviceA: DeviceDisplayData, deviceB: DeviceDisplayData) {
   // Devices with a pending auth request should be first
   if (deviceA.pendingAuthRequest) {
     return -1;

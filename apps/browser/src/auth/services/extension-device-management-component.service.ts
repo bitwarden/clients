@@ -1,4 +1,4 @@
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/auth/common";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/components/device-management/device-management-component.service.abstraction";
 
 /**
  * Browser extension implementation of the device management component service

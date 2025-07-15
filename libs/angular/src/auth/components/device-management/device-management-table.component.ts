@@ -18,7 +18,7 @@ import {
 } from "@bitwarden/components";
 
 import { DeviceDisplayData } from "./device-management.component";
-import { deviceReSort } from "./device-re-sort.helper";
+import { clearAuthRequestAndResortDevices } from "./resort-devices.helper";
 
 /** Displays user devices in a sortable table view */
 @Component({
@@ -77,15 +77,10 @@ export class DeviceManagementTableComponent implements OnChanges {
     if (result !== undefined && typeof result === "boolean") {
       // Auth request was approved or denied, so clear the
       // pending auth request and re-sort the device array
-      this.tableDataSource.data = this.devices
-        .map((device) => {
-          if (device.pendingAuthRequest?.id === pendingAuthRequest.id) {
-            device.pendingAuthRequest = null;
-            device.loginStatus = "";
-          }
-          return device;
-        })
-        .sort(deviceReSort);
+      this.tableDataSource.data = clearAuthRequestAndResortDevices(
+        this.devices,
+        pendingAuthRequest,
+      );
     }
   }
 }
