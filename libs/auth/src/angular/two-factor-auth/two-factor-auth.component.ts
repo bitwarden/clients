@@ -33,6 +33,7 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -172,6 +173,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
     private configService: ConfigService,
+    private keyConnectorService: KeyConnectorService,
   ) {}
 
   async ngOnInit() {
@@ -459,6 +461,15 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
         this.orgSsoIdentifier,
         userId,
       );
+    }
+
+    if (
+      (await firstValueFrom(
+        this.keyConnectorService.requiresDomainConfirmation$(authResult.userId),
+      )) != null
+    ) {
+      await this.router.navigate(["confirm-key-connector-domain"]);
+      return;
     }
 
     const userDecryptionOpts = await firstValueFrom(

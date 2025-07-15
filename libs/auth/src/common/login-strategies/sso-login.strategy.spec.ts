@@ -34,8 +34,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import {
   AuthRequestServiceAbstraction,
@@ -527,15 +527,19 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
+      tokenResponse.key = undefined;
+      tokenResponse.kdfConfig = new Argon2KdfConfig(10, 64, 4);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
+        {
+          kdfConfig: new Argon2KdfConfig(10, 64, 4),
+          keyConnectorUrl: keyConnectorUrl,
+          organizationId: ssoOrgId,
+        },
         userId,
       );
     });
@@ -583,15 +587,19 @@ describe("SsoLoginStrategy", () => {
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {
-      tokenResponse.key = null;
+      tokenResponse.key = undefined;
+      tokenResponse.kdfConfig = new Argon2KdfConfig(10, 64, 4);
 
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
       await ssoLoginStrategy.logIn(credentials);
 
-      expect(keyConnectorService.convertNewSsoUserToKeyConnector).toHaveBeenCalledWith(
-        tokenResponse,
-        ssoOrgId,
+      expect(keyConnectorService.setNewSsoUserKeyConnectorConversionData).toHaveBeenCalledWith(
+        {
+          kdfConfig: new Argon2KdfConfig(10, 64, 4),
+          keyConnectorUrl: keyConnectorUrl,
+          organizationId: ssoOrgId,
+        },
         userId,
       );
     });

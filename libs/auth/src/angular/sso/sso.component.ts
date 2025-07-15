@@ -25,6 +25,7 @@ import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/s
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -119,6 +120,7 @@ export class SsoComponent implements OnInit {
     private ssoComponentService: SsoComponentService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private configService: ConfigService,
+    private keyConnectorService: KeyConnectorService,
   ) {
     environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
@@ -446,6 +448,15 @@ export class SsoComponent implements OnInit {
         orgSsoIdentifier,
         authResult.userId,
       );
+
+      if (
+        (await firstValueFrom(
+          this.keyConnectorService.requiresDomainConfirmation$(authResult.userId),
+        )) != null
+      ) {
+        await this.router.navigate(["confirm-key-connector-domain"]);
+        return;
+      }
 
       // must come after 2fa check since user decryption options aren't available if 2fa is required
       const userDecryptionOpts = await firstValueFrom(
