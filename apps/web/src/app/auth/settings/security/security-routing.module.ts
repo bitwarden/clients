@@ -14,7 +14,7 @@ import { PasswordSettingsComponent } from "./password-settings/password-settings
 import { SecurityKeysComponent } from "./security-keys.component";
 import { SecurityComponent } from "./security.component";
 
-export const routes: Routes = [
+const routes: Routes = [
   {
     path: "",
     component: SecurityComponent,
