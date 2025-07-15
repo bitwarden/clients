@@ -125,8 +125,6 @@ describe("AddExtensionVideosComponent", () => {
     let thirdVideo: HTMLVideoElement;
 
     beforeEach(() => {
-      jest.useFakeTimers();
-
       component["numberOfLoadedVideos"] = 2;
       component["onVideoLoad"]();
 
@@ -135,49 +133,33 @@ describe("AddExtensionVideosComponent", () => {
       thirdVideo = component["videoElements"].get(2)!.nativeElement;
     });
 
-    afterEach(() => {
-      jest.clearAllTimers();
-    });
-
-    it("starts the video sequence when all videos are loaded", async () => {
-      await jest.advanceTimersByTimeAsync(500);
-
+    it("starts the video sequence when all videos are loaded", () => {
       expect(firstVideo.play).toHaveBeenCalled();
     });
 
-    it("plays videos in sequence", async () => {
-      await jest.advanceTimersByTimeAsync(500);
-
+    it("plays videos in sequence", () => {
       play.mockClear();
       firstVideo.onended!(new Event("ended")); // trigger next video
-
-      await jest.advanceTimersByTimeAsync(500);
 
       expect(secondVideo.play).toHaveBeenCalledTimes(1);
 
       play.mockClear();
       secondVideo.onended!(new Event("ended")); // trigger next video
 
-      await jest.advanceTimersByTimeAsync(500);
-
       expect(thirdVideo.play).toHaveBeenCalledTimes(1);
     });
 
-    it("doesn't play videos again when the user prefers no motion", async () => {
+    it("doesn't play videos again when the user prefers no motion", () => {
       component["prefersReducedMotion"] = true;
 
-      await jest.runAllTimersAsync();
       firstVideo.onended!(new Event("ended"));
-      await jest.runAllTimersAsync();
 
       secondVideo.onended!(new Event("ended"));
-      await jest.runAllTimersAsync();
 
       play.mockClear();
 
       thirdVideo.onended!(new Event("ended")); // trigger first video again
 
-      await jest.runAllTimersAsync();
       expect(play).toHaveBeenCalledTimes(0);
     });
   });

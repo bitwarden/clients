@@ -35,7 +35,9 @@ export class AddExtensionVideosComponent {
   protected videoContainerClass = [
     "tw-absolute tw-left-0 tw-top-0 tw-w-[15rem] tw-opacity-0 md:tw-opacity-100 md:tw-relative lg:tw-w-[17rem] tw-max-w-full tw-aspect-[0.807]",
     `[${this.cssOverlayVariable}:0.7] after:tw-absolute after:tw-top-0 after:tw-left-0 after:tw-size-full after:tw-bg-primary-100 after:tw-content-[''] after:tw-rounded-lg after:tw-opacity-[--overlay-opacity]`,
-    `[${this.cssBorderVariable}:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2  before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[--border-opacity]`,
+    `[${this.cssBorderVariable}:0] before:tw-absolute before:tw-top-0 before:tw-left-0 before:tw-w-full before:tw-h-2 before:tw-bg-primary-600 before:tw-content-[''] before:tw-rounded-t-lg before:tw-opacity-[--border-opacity]`,
+    "after:tw-transition-opacity after:tw-duration-400 after:tw-ease-linear",
+    "before:tw-transition-opacity before:tw-duration-400 before:tw-ease-linear",
   ].join(" ");
 
   /** Returns true when all videos are loaded */
@@ -116,7 +118,7 @@ export class AddExtensionVideosComponent {
 
     // Browsers are not respecting autoplay consistently with just the HTML attribute, set via JavaScript as well.
     video.muted = true;
-    await this.addPlayingStyles(video);
+    this.addPlayingStyles(video);
     await video.play();
   }
 
@@ -162,66 +164,31 @@ export class AddExtensionVideosComponent {
    * Add styles to the video that is moving to the paused/completed state.
    * Fade in the overlay and fade out the border.
    */
-  private addPausedStyles(video: HTMLVideoElement): Promise<void> {
+  private addPausedStyles(video: HTMLVideoElement): void {
     const parentElement = video.parentElement;
     if (!parentElement) {
-      return Promise.resolve();
+      return;
     }
 
-    return this.transitionInterval((percentComplete) => {
-      // The opacity transitions from 0 to 0.7 based on the percent complete.
-      const overlayOpacity = 0.7 * (percentComplete / 100);
-      // The border opacity transitions from 1 to 0 based on the percent complete.
-      const borderOpacity = (100 - percentComplete) / 100;
-      parentElement.style.setProperty(this.cssBorderVariable, borderOpacity.toString());
-      parentElement.style.setProperty(this.cssOverlayVariable, overlayOpacity.toString());
-    });
+    // The border opacity transitions from 1 to 0 based on the percent complete.
+    parentElement.style.setProperty(this.cssBorderVariable, "0");
+    // The opacity transitions from 0 to 0.7 based on the percent complete.
+    parentElement.style.setProperty(this.cssOverlayVariable, "0.7");
   }
 
   /**
    * Add styles to the video that is moving to the playing state.
    * Fade out the overlay and fade in the border.
    */
-  private addPlayingStyles(video: HTMLVideoElement): Promise<void> {
+  private addPlayingStyles(video: HTMLVideoElement): void {
     const parentElement = video.parentElement;
     if (!parentElement) {
-      return Promise.resolve();
+      return;
     }
 
-    return this.transitionInterval((percentComplete) => {
-      // The opacity transitions from 0.7 to 0 based on the percent complete.
-      const overlayOpacity = 0.7 * (1 - percentComplete / 100);
-      // The border opacity transitions from 0 to 1 based on the percent complete.
-      const borderOpacity = percentComplete / 100;
-      parentElement.style.setProperty(this.cssOverlayVariable, overlayOpacity.toString());
-      parentElement.style.setProperty(this.cssBorderVariable, borderOpacity.toString());
-    });
-  }
-
-  /** Invokes the provided callback at regular intervals. When the promise resolves all intervals have completed. */
-  private transitionInterval(callback: (percentComplete: number) => void): Promise<void> {
-    // When the user prefers reduced motion, skip the transitions.
-    if (this.prefersReducedMotion) {
-      callback(100);
-      return Promise.resolve();
-    }
-
-    const intervals = 8;
-    const transitionTimeMs = 400; // Duration of the transition in milliseconds
-    const intervalDuration = transitionTimeMs / intervals;
-
-    let percentComplete = 0;
-
-    return new Promise((resolve) => {
-      const intervalId = window.setInterval(() => {
-        callback(percentComplete);
-        percentComplete += 100 / intervals;
-
-        if (percentComplete > 100) {
-          clearInterval(intervalId);
-          resolve();
-        }
-      }, intervalDuration);
-    });
+    // The border opacity transitions from 0 to 1 based on the percent complete.
+    parentElement.style.setProperty(this.cssBorderVariable, "1");
+    // The opacity transitions from 0.7 to 0 based on the percent complete.
+    parentElement.style.setProperty(this.cssOverlayVariable, "0");
   }
 }
