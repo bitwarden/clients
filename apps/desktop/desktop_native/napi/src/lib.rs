@@ -166,6 +166,7 @@ pub mod clipboards {
 pub mod sshagent {
     use std::sync::Arc;
 
+    use desktop_core::ssh_agent::BitwardenSshKey;
     use napi::{
         bindgen_prelude::Promise,
         threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction},
@@ -174,7 +175,7 @@ pub mod sshagent {
 
     #[napi]
     pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
+        state: desktop_core::ssh_agent::BitwardenDesktopAgent<BitwardenSshKey>,
     }
 
     #[napi(object)]
@@ -794,25 +795,6 @@ pub mod autofill {
                 // NAPI doesn't support u64 or usize, so we need to convert to u32
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }
-    }
-}
-
-#[napi]
-pub mod crypto {
-    use napi::bindgen_prelude::Buffer;
-
-    #[napi]
-    pub async fn argon2(
-        secret: Buffer,
-        salt: Buffer,
-        iterations: u32,
-        memory: u32,
-        parallelism: u32,
-    ) -> napi::Result<Buffer> {
-        desktop_core::crypto::argon2(&secret, &salt, iterations, memory, parallelism)
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|v| v.to_vec())
-            .map(Buffer::from)
     }
 }
 

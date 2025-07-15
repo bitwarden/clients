@@ -223,6 +223,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.showLogo = null;
     this.maxWidth = null;
     this.hideFooter = null;
+    this.hideIcon = null;
     this.hideCardWrapper = null;
   }
 
