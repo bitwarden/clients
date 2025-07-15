@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { DeviceManagementComponent } from "@bitwarden/angular/auth/components/device-management/device-management.component";
+import { DeviceManagementComponent } from "@bitwarden/angular/auth/device-management/device-management.component";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";

@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { DeviceManagementComponent } from "@bitwarden/angular/auth/components/device-management/device-management.component";
+import { DeviceManagementComponent } from "@bitwarden/angular/auth/device-management/device-management.component";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
