@@ -1,6 +1,8 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
+
 import { PaymentMethodComponent } from "../shared";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
@@ -29,6 +31,11 @@ const routes: Routes = [
         path: "payment-method",
         component: PaymentMethodComponent,
         data: { titleId: "paymentMethod" },
+      },
+      {
+        path: "payment-details",
+        component: AccountPaymentDetailsComponent,
+        data: { titleId: "paymentDetails" },
       },
       {
         path: "billing-history",

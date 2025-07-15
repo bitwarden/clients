@@ -11,18 +11,21 @@ import {
 } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { RouterService } from "../../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
 @Injectable()
 export class WebLoginComponentService
@@ -30,7 +33,7 @@ export class WebLoginComponentService
   implements LoginComponentService
 {
   constructor(
-    protected acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    protected organizationInviteService: OrganizationInviteService,
     protected logService: LogService,
     protected policyApiService: PolicyApiServiceAbstraction,
     protected policyService: InternalPolicyService,
@@ -42,6 +45,7 @@ export class WebLoginComponentService
     ssoLoginService: SsoLoginServiceAbstraction,
     private router: Router,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     super(
       cryptoFunctionService,
@@ -66,8 +70,8 @@ export class WebLoginComponentService
     return;
   }
 
-  async getOrgPoliciesFromOrgInvite(): Promise<PasswordPolicies | null> {
-    const orgInvite = await this.acceptOrganizationInviteService.getOrganizationInvite();
+  async getOrgPoliciesFromOrgInvite(): Promise<PasswordPolicies | undefined> {
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
 
     if (orgInvite != null) {
       let policies: Policy[];
@@ -84,7 +88,7 @@ export class WebLoginComponentService
       }
 
       if (policies == null) {
-        return;
+        return undefined;
       }
 
       const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
@@ -95,12 +99,23 @@ export class WebLoginComponentService
       const isPolicyAndAutoEnrollEnabled =
         resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
-      const enforcedPasswordPolicyOptions = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          getUserId,
-          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
-        ),
-      );
+      let enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
+
+      if (
+        await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+      ) {
+        enforcedPasswordPolicyOptions =
+          this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
+      } else {
+        enforcedPasswordPolicyOptions = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            getUserId,
+            switchMap((userId) =>
+              this.policyService.masterPasswordPolicyOptions$(userId, policies),
+            ),
+          ),
+        );
+      }
 
       return {
         policies,
