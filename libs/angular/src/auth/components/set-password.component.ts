@@ -14,7 +14,6 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -58,38 +57,37 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
   ForceSetPasswordReason = ForceSetPasswordReason;
 
   constructor(
-    accountService: AccountService,
-    masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    i18nService: I18nService,
-    keyService: KeyService,
-    messagingService: MessagingService,
-    platformUtilsService: PlatformUtilsService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    policyService: PolicyService,
+    protected accountService: AccountService,
+    protected dialogService: DialogService,
+    protected encryptService: EncryptService,
+    protected i18nService: I18nService,
+    protected kdfConfigService: KdfConfigService,
+    protected keyService: KeyService,
+    protected masterPasswordApiService: MasterPasswordApiService,
+    protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    protected messagingService: MessagingService,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
+    protected organizationUserApiService: OrganizationUserApiService,
+    protected platformUtilsService: PlatformUtilsService,
+    protected policyApiService: PolicyApiServiceAbstraction,
+    protected policyService: PolicyService,
+    protected route: ActivatedRoute,
     protected router: Router,
-    private masterPasswordApiService: MasterPasswordApiService,
-    private apiService: ApiService,
-    private syncService: SyncService,
-    private route: ActivatedRoute,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationUserApiService: OrganizationUserApiService,
-    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    private ssoLoginService: SsoLoginServiceAbstraction,
-    dialogService: DialogService,
-    kdfConfigService: KdfConfigService,
-    private encryptService: EncryptService,
+    protected ssoLoginService: SsoLoginServiceAbstraction,
+    protected syncService: SyncService,
     protected toastService: ToastService,
+    protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
   ) {
     super(
+      accountService,
+      dialogService,
       i18nService,
+      kdfConfigService,
       keyService,
+      masterPasswordService,
       messagingService,
       platformUtilsService,
       policyService,
-      dialogService,
-      kdfConfigService,
-      masterPasswordService,
-      accountService,
       toastService,
     );
   }

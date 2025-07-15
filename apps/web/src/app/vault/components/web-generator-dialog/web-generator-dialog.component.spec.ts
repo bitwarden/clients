@@ -70,10 +70,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.valueGenerated.emit("test-password");
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(false);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe(undefined);
   });
 
   it("should disable the button if no value has been generated", () => {
@@ -84,10 +82,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.algorithmSelected.emit({ useGeneratedValue: "Use Password" } as any);
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(true);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe("true");
   });
 
   it("should disable the button if no algorithm is selected", () => {
@@ -98,10 +94,8 @@ describe("WebVaultGeneratorDialogComponent", () => {
     generator.valueGenerated.emit("test-password");
     fixture.detectChanges();
 
-    const button = fixture.debugElement.query(
-      By.css("[data-testid='select-button']"),
-    ).nativeElement;
-    expect(button.disabled).toBe(true);
+    const button = fixture.debugElement.query(By.css("[data-testid='select-button']"));
+    expect(button.attributes["aria-disabled"]).toBe("true");
   });
 
   it("should close with selected value when confirmed", () => {

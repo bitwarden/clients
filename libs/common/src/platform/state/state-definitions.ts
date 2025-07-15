@@ -106,6 +106,9 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
   web: "disk-local",
 });
+export const BADGE_MEMORY = new StateDefinition("badge", "memory", {
+  browser: "memory-large-object",
+});
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
@@ -155,6 +158,7 @@ export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
 export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
   browser: "memory-large-object",
 });
+export const SEND_ACCESS_AUTH_MEMORY = new StateDefinition("sendAccessAuth", "memory");
 
 // Vault
 

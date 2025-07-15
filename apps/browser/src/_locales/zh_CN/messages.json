@@ -1173,6 +1173,12 @@
     "message": "哦不！我们无法保存它。请尝试手动输入详细信息。",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "更改密码后，您需要使用新密码登录。 在其他设备上的活动会话将在一小时内注销。"
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "更改您的主密码以完成账户恢复。"
+  },
   "enableChangedPasswordNotification": {
     "message": "询问更新现有的登录"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "请求已发送"
   },
+  "masterPasswordChanged": {
+    "message": "主密码已保存"
+  },
   "exposedMasterPassword": {
     "message": "已暴露的主密码"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "请求管理员批准"
+  },
+  "unableToCompleteLogin": {
+    "message": "无法完成登录"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
   },
   "ssoIdentifierRequired": {
     "message": "必须填写组织 SSO 标识符。"
@@ -4264,7 +4279,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "高级选项",
     "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
