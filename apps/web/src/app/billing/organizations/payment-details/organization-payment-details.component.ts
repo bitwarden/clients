@@ -156,13 +156,7 @@ export class OrganizationPaymentDetailsComponent implements OnInit {
     });
     const result = await lastValueFrom(dialogRef.closed);
     if (result?.type === "success") {
-      this.setPaymentMethod(result.paymentMethod);
-      if (!view.billingAddress && result.paymentMethod.type !== "payPal") {
-        const billingAddress = await this.billingClient.getBillingAddress(view.organization);
-        if (billingAddress) {
-          this.setBillingAddress(billingAddress);
-        }
-      }
+      await this.setPaymentMethod(result.paymentMethod);
       this.organizationFreeTrialWarningComponent.refresh();
     }
   };
@@ -176,11 +170,16 @@ export class OrganizationPaymentDetailsComponent implements OnInit {
     }
   };
 
-  setPaymentMethod = (paymentMethod: MaskedPaymentMethod) => {
+  setPaymentMethod = async (paymentMethod: MaskedPaymentMethod) => {
     if (this.viewState$.value) {
+      const billingAddress =
+        this.viewState$.value.billingAddress ??
+        (await this.billingClient.getBillingAddress(this.viewState$.value.organization));
+
       this.viewState$.next({
         ...this.viewState$.value,
         paymentMethod,
+        billingAddress,
       });
     }
   };
