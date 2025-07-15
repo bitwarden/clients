@@ -132,7 +132,7 @@ export class DeviceManagementComponent implements OnInit {
         }
 
         return {
-          displayName: this.getReadableDeviceTypeName(device.type),
+          displayName: this.devicesService.getReadableDeviceTypeName(device.type),
           firstLogin: device.creationDate ? new Date(device.creationDate) : new Date(),
           icon: this.getDeviceIcon(device.type),
           id: device.id || "",
@@ -153,7 +153,9 @@ export class DeviceManagementComponent implements OnInit {
     }
 
     const upsertDevice: DeviceDisplayData = {
-      displayName: this.getReadableDeviceTypeName(authRequestResponse.requestDeviceTypeValue),
+      displayName: this.devicesService.getReadableDeviceTypeName(
+        authRequestResponse.requestDeviceTypeValue,
+      ),
       firstLogin: new Date(authRequestResponse.creationDate),
       icon: this.getDeviceIcon(authRequestResponse.requestDeviceTypeValue),
       id: "",
@@ -226,21 +228,5 @@ export class DeviceManagementComponent implements OnInit {
 
     const metadata = DeviceTypeMetadata[type];
     return metadata ? (categoryIconMap[metadata.category] ?? defaultIcon) : defaultIcon;
-  }
-
-  getReadableDeviceTypeName(type: DeviceType): string {
-    if (type === undefined) {
-      return this.i18nService.t("unknownDevice");
-    }
-
-    const metadata = DeviceTypeMetadata[type];
-    if (!metadata) {
-      return this.i18nService.t("unknownDevice");
-    }
-
-    const platform =
-      metadata.platform === "Unknown" ? this.i18nService.t("unknown") : metadata.platform;
-    const category = this.i18nService.t(metadata.category);
-    return platform ? `${category} - ${platform}` : category;
   }
 }

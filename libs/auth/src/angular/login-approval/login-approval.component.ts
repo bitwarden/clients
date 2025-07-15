@@ -11,11 +11,9 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
-import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
-import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -29,7 +27,6 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
 
 const RequestTimeOut = 60000 * 15; //15 Minutes
 const RequestTimeUpdate = 60000 * 5; //5 Minutes
@@ -53,21 +50,20 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
   email: string;
   fingerprintPhrase: string;
   authRequestResponse: AuthRequestResponse;
+  readableDeviceTypeName: string;
   interval: NodeJS.Timeout;
   requestTimeText: string;
 
   constructor(
     @Inject(DIALOG_DATA) private params: LoginApprovalDialogParams,
-    protected authRequestService: AuthRequestServiceAbstraction,
-    protected accountService: AccountService,
-    protected platformUtilsService: PlatformUtilsService,
-    protected i18nService: I18nService,
-    protected apiService: ApiService,
-    protected appIdService: AppIdService,
-    protected keyService: KeyService,
+    private accountService: AccountService,
+    private apiService: ApiService,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private devicesService: DevicesServiceAbstraction,
     private dialogRef: DialogRef,
-    private toastService: ToastService,
+    private i18nService: I18nService,
     private loginApprovalComponentService: LoginApprovalComponentService,
+    private toastService: ToastService,
     private validationService: ValidationService,
   ) {
     this.notificationId = params.notificationId;
@@ -88,13 +84,20 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       }
 
       const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
+
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
       );
+
       this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
         this.email,
         publicKey,
       );
+
+      this.readableDeviceTypeName = this.devicesService.getReadableDeviceTypeName(
+        this.authRequestResponse.requestDeviceTypeValue,
+      );
+
       this.updateTimeText();
 
       this.interval = setInterval(() => {
@@ -153,7 +156,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         message: this.i18nService.t(
           "loginRequestApprovedForEmailOnDevice",
           this.email,
-          this.formatDeviceTypeName(loginResponse.requestDeviceTypeValue),
+          this.devicesService.getReadableDeviceTypeName(loginResponse.requestDeviceTypeValue),
         ),
       });
     } else {
@@ -163,22 +166,6 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         message: this.i18nService.t("youDeniedLoginAttemptFromAnotherDevice"),
       });
     }
-  }
-
-  formatDeviceTypeName(type: DeviceType): string {
-    if (type === undefined) {
-      return this.i18nService.t("unknownDevice");
-    }
-
-    const metadata = DeviceTypeMetadata[type];
-    if (!metadata) {
-      return this.i18nService.t("unknownDevice");
-    }
-
-    const platform =
-      metadata.platform === "Unknown" ? this.i18nService.t("unknown") : metadata.platform;
-    const category = this.i18nService.t(metadata.category);
-    return platform ? `${category} - ${platform}` : category;
   }
 
   updateTimeText() {
