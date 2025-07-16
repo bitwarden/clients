@@ -877,12 +877,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
       this.refresh();
     } else if (result.action === CollectionDialogAction.Deleted) {
+      const parent = this.selectedCollection?.parent;
+      // Navigate away if we deleted the collection we were viewing
+      const navigateAway = this.selectedCollection && this.selectedCollection.node.id === c.id;
       await this.collectionService.delete([result.collection?.id as CollectionId], activeUserId);
       this.refresh();
-      // Navigate away if we deleted the collection we were viewing
-      if (this.selectedCollection?.node.id === c?.id) {
+      if (navigateAway) {
         await this.router.navigate([], {
-          queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
+          queryParams: { collectionId: parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
         });
@@ -908,6 +910,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
     try {
       const parent = this.selectedCollection?.parent;
+      // Navigate away if we deleted the collection we were viewing
+      const navigateAway =
+        this.selectedCollection && this.selectedCollection.node.id === collection.id;
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.collectionService.delete([collection.id as CollectionId], activeUserId);
@@ -917,8 +922,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         title: null,
         message: this.i18nService.t("deletedCollectionId", collection.name),
       });
-      // Navigate away if we deleted the collection we were viewing
-      if (!this.selectedCollection || this.selectedCollection.node.id === collection.id) {
+      if (navigateAway) {
         await this.router.navigate([], {
           queryParams: { collectionId: parent?.node.id ?? null },
           queryParamsHandling: "merge",
