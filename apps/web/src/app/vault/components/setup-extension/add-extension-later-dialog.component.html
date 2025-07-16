@@ -18,7 +18,13 @@
     >
       {{ "getTheExtension" | i18n }}
     </a>
-    <a bitButton buttonType="secondary" routerLink="/vault" bitDialogClose>
+    <a
+      bitButton
+      buttonType="secondary"
+      routerLink="/vault"
+      bitDialogClose
+      (click)="dismissExtensionPage()"
+    >
       {{ "skipToWebApp" | i18n }}
     </a>
   </ng-container>
