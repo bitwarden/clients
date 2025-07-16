@@ -45,7 +45,7 @@ describe("Folder", () => {
   });
 
   describe("fromJSON", () => {
-    jest.mock("../../../platform/models/domain/enc-string");
+    jest.mock("../../../key-management/crypto/models/enc-string");
     jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
     it("initializes nested objects", () => {
