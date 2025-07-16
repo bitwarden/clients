@@ -21,7 +21,7 @@
           <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
           {{ "accountRecovery" | i18n }}
         </li>
-        <li>
+        <li *ngIf="!organization?.canAccessSecretsManager">
           <i class="bwi bwi-check tw-text-muted bwi-li" aria-hidden="true"></i>
           {{ "customRoles" | i18n }}
         </li>
