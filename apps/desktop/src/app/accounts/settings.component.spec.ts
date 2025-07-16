@@ -665,8 +665,11 @@ describe("SettingsComponent", () => {
 
       await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, VaultTimeoutStringType.Never);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
-      expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        VaultTimeoutStringType.Never,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "warning" },
         content: { key: "neverLockWarning" },
@@ -678,7 +681,11 @@ describe("SettingsComponent", () => {
       component["form"].controls.vaultTimeout.setValue(0, { emitEvent: false });
       await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 0);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        0,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(0);
     });
 
@@ -687,7 +694,11 @@ describe("SettingsComponent", () => {
       component["form"].controls.vaultTimeout.setErrors({}, { emitEvent: false });
       await component.saveVaultTimeout(DEFAULT_VAULT_TIMEOUT, 999_999_999);
 
-      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalled();
+      expect(vaultTimeoutSettingsService.setVaultTimeoutOptions).not.toHaveBeenCalledWith(
+        mockUserId,
+        999_999_999,
+        DEFAULT_VAULT_TIMEOUT_ACTION,
+      );
       expect(component["form"].getRawValue().vaultTimeout).toEqual(DEFAULT_VAULT_TIMEOUT);
       expect(platformUtilsService.showToast).toHaveBeenCalledWith(
         "error",
