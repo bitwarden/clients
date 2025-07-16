@@ -8463,7 +8463,7 @@
     "message": "请求管理员批准"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "无法完成登录"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
@@ -8937,6 +8937,14 @@
   "uriMatchWarningDialogLink": {
     "message": "更多关于匹配检测",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "高级选项",
+    "description": "Advanced option placeholder for uri option component"
+  },
+  "warningCapitalized": {
+    "message": "警告",
+    "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
     "message": "要保留 $ORG$ 的订阅，",

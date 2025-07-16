@@ -833,7 +833,7 @@
     "message": "Nie można zastosować autouzupełnienia na tej stronie. Skopiuj i wklej informacje ręcznie."
   },
   "totpCaptureError": {
-    "message": "Nie można zeskanować kodu QR z bieżącej strony"
+    "message": "Nie można zeskanować kodu QR z obecnej strony"
   },
   "totpCaptureSuccess": {
     "message": "Klucz uwierzytelniający został dodany"
@@ -851,7 +851,7 @@
     "message": "Bitwarden może przechowywać i uzupełniać kody weryfikacyjne. Wybierz ikonę aparatu, aby zrobić zrzut ekranu z kodem QR lub skopiuj i wklej klucz do tego pola."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Dowiedz się więcej o uwierzytelniaczach"
+    "message": "Dowiedz się więcej o uwierzytelnianiu"
   },
   "copyTOTP": {
     "message": "Kopiuj klucz uwierzytelniający (TOTP)"
@@ -1019,10 +1019,10 @@
     "message": "Opcje zapisywania w sejfie"
   },
   "addLoginNotificationDesc": {
-    "message": "\"Dodaj powiadomienia logowania\" automatycznie wyświetla monit o zapisanie nowych danych logowania do sejfu przy każdym pierwszym logowaniu."
+    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Poproś o dodanie elementu, jeśli nie zostanie znaleziony w Twoim sejfie. Dotyczy wszystkich zalogowanych kont."
+    "message": "Proponuj dodanie elementu, jeśli nie ma go w sejfie. Dotyczy wszystkich zalogowanych kont."
   },
   "showCardsInVaultViewV2": {
     "message": "Pokazuj zawsze karty w sugestiach autouzupełniania"
@@ -1141,7 +1141,7 @@
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Świetna robota! Podjęto kroki mające na celu zwiększenie bezpieczeństwa Twojego oraz $ORGANIZATION$.",
+    "message": "Dobra robota! Twoje konto i organizacja $ORGANIZATION$ jest bezpieczniejsza.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1174,7 +1174,7 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Po zmianie hasła musisz się zalogować przy użyciu nowego hasła. Aktywne sesje na innych urządzeniach zostaną wylogowane w ciągu jednej godziny."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
     "message": "Zmień hasło główne, aby zakończyć odzyskiwanie konta."
@@ -1183,10 +1183,10 @@
     "message": "Proponuj aktualizuję obecnych danych logowania"
   },
   "changedPasswordNotificationDesc": {
-    "message": "Poproś o aktualizację hasła danych logowania po wykryciu zmiany w witrynie."
+    "message": "Proponuj aktualizację hasła po wykryciu zmiany na stronie internetowej."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Poproś o aktualizację hasła, gdy zmiana zostanie wykryta na stronie. Dotyczy wszystkich zalogowanych kont."
+    "message": "Proponuj aktualizację hasła po wykryciu zmiany na stronie internetowej. Dotyczy wszystkich zalogowanych kont."
   },
   "enableUsePasskeys": {
     "message": "Proponuj zapisywanie i używanie kluczy dostępu"
@@ -2126,7 +2126,7 @@
     "message": "Właściciel"
   },
   "whoOwnsThisItem": {
-    "message": "Kto jest właścicielem tego elementu?"
+    "message": "Kto jest właścicielem elementu?"
   },
   "strong": {
     "message": "Silne",
@@ -2984,10 +2984,10 @@
     "message": "Minuty"
   },
   "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Wymagania polityki przedsiębiorstwa zostały zastosowane do twoich opcji przekrocznia limitu czasu"
+    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Zasady organizacji mają wpływ czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
+    "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3013,7 +3013,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Limit czasu przekracza ograniczenie ustawione przez Twoją organizację: $HOURS$ godzin(y) i $MINUTES$ minut(y) maksymalnie",
+    "message": "Czas blokowania sejfu przekracza zasady organizacji. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3043,7 +3043,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "Zasady organizacji ustawiły czas blokowania sejfu na $ACTION$.",
+    "message": "Zasady organizacji wymuszają sposób blokowania sejfu na $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -3052,7 +3052,7 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "Czas blokowania sejfu przekracza limit określony przez organizację."
+    "message": "Czas blokowania aplikacji przekracza limit określony przez organizację."
   },
   "vaultExportDisabled": {
     "message": "Eksportowanie sejfu jest niedostępne"
@@ -3302,7 +3302,7 @@
     }
   },
   "forwarderNoAccountId": {
-    "message": "Nie można uzyskać ID maskowanego konta e-mail dla $SERVICENAME$.",
+    "message": "Nie można uzyskać identyfikatora konta e-mail $SERVICENAME$.",
     "description": "Displayed when the forwarding service fails to return an account ID.",
     "placeholders": {
       "servicename": {
@@ -5104,7 +5104,7 @@
     "message": "Odblokuj sejf w kilka sekund"
   },
   "unlockVaultDesc": {
-    "message": "Możesz dostosować ustawienia odblokowania i limitu czasu, aby szybciej uzyskać dostęp do sejfu."
+    "message": "Możesz dostosować sposób i czas blokowania sejfu, aby uzyskać szybszy dostęp do sejfu."
   },
   "unlockPinSet": {
     "message": "Kod PIN został ustawiony"
