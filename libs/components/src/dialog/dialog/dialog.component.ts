@@ -102,7 +102,7 @@ export class DialogComponent {
         this.width,
         this.dialogRef?.isDrawer
           ? ["tw-min-h-screen", "md:tw-w-[23rem]"]
-          : ["tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
+          : ["md:tw-p-4", "tw-w-screen", "tw-max-h-[90vh]"],
       )
       .flat();
   }
