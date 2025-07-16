@@ -92,11 +92,7 @@
         </h2>
       </div>
       <ul id="organization-filters" *ngIf="!isCollapsed" class="filter-options no-margin">
-        <li
-          *ngIf="!(hideMyVaultFilter$ | async)"
-          class="filter-option"
-          [ngClass]="{ active: activeFilter.myVaultOnly }"
-        >
+        <li class="filter-option" [ngClass]="{ active: activeFilter.myVaultOnly }">
           <span class="filter-buttons">
             <button
               type="button"
