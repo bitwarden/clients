@@ -109,7 +109,9 @@ export class VaultPopupItemsService {
           waitUntilSync(this.syncService),
           switchMap(() =>
             combineLatest([
-              this.cipherService.cipherListViews$(userId),
+              this.cipherService
+                .cipherListViews$(userId)
+                .pipe(filter((ciphers) => ciphers != null)),
               this.cipherService.failedToDecryptCiphers$(userId),
               this.restrictedItemTypesService.restricted$.pipe(startWith([])),
             ]),
