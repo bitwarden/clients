@@ -9,21 +9,20 @@ export enum AuthenticationStatus {
   /**
    * User is not authenticated
    *  - The user does not have an active account userId and/or an access token in state
-   *  - Which means: the user does not have their encrypted vault data in state
    */
   LoggedOut = 0,
 
   /**
    * User is authenticated but not decrypted
    *  - The user has an access token, but no user key in state
-   *  - Which means: the user has their encrypted vault data in state, but has not decrypted it
+   *  - Vault data cannot be decrypted (because there is no user key)
    */
   Locked = 1,
 
   /**
    * User is authenticated and decrypted
    *  - The user has an access token and a user key in state
-   *  - Which means: the user has their decrypted vault data in state
+   *  - Vault data can be decrypted (via user key)
    */
   Unlocked = 2,
 }
