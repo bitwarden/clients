@@ -5,6 +5,7 @@ import {
   firstValueFrom,
   from,
   map,
+  NEVER,
   Observable,
   of,
   shareReplay,
@@ -79,7 +80,7 @@ export class DefaultCollectionService implements CollectionService {
           return of(decryptedState ?? []);
         }
 
-        return this.initializeDecryptedState(userId);
+        return this.initializeDecryptedState(userId).pipe(switchMap(() => NEVER));
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );

@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import { first, firstValueFrom, merge, of, ReplaySubject, takeWhile } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -194,11 +194,11 @@ describe("DefaultCollectionService", () => {
       jest.spyOn(keyService, "orgKeys$").mockReturnValue(of({ key: "fake-key" }));
 
       // Simulate multiple subscribers
-      const sub1 = collectionService.decryptedCollections$(userId).subscribe();
-      const sub2 = collectionService.decryptedCollections$(userId).subscribe();
-      const sub3 = collectionService.decryptedCollections$(userId).subscribe();
+      const obs1 = collectionService.decryptedCollections$(userId);
+      const obs2 = collectionService.decryptedCollections$(userId);
+      const obs3 = collectionService.decryptedCollections$(userId);
 
-      await Promise.all([sub1, sub2, sub3]);
+      await firstValueFrom(merge(obs1, obs2, obs3));
 
       // Expect decryptMany$ to be called only once
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
