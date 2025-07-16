@@ -38,7 +38,7 @@ describe("WebBrowserInteractionService", () => {
         expect(installed).toBe(false);
       });
 
-      tick(1500);
+      tick(150);
     }));
 
     it("returns true when the extension is installed", (done) => {
@@ -58,7 +58,7 @@ describe("WebBrowserInteractionService", () => {
       });
 
       // initial timeout, should emit false
-      tick(1500);
+      tick(150);
       expect(results[0]).toBe(false);
 
       tick(2500);
