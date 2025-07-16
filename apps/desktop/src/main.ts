@@ -32,8 +32,10 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "./autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
@@ -44,6 +46,7 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { SlimConfigService } from "./platform/config/slim-config.service";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -85,6 +88,7 @@ export class Main {
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
   versionMain: VersionMain;
   sshAgentService: MainSshAgentService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
 
   constructor() {
     // Set paths for portable builds
@@ -293,6 +297,15 @@ export class Main {
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
+
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      new DesktopAutotypeService(
+        new SlimConfigService(this.environmentService, globalStateProvider),
+        globalStateProvider,
+        process.platform === "win32",
+      ),
+    );
+    this.mainDesktopAutotypeService.init();
   }
 
   bootstrap() {
