@@ -1,12 +1,4 @@
-import {
-  Input,
-  HostBinding,
-  Directive,
-  inject,
-  ElementRef,
-  input,
-  booleanAttribute,
-} from "@angular/core";
+import { HostBinding, Directive, inject, ElementRef, input, booleanAttribute } from "@angular/core";
 
 import { ariaDisableElement } from "../utils";
 
@@ -77,8 +69,7 @@ const commonStyles = [
 
 @Directive()
 abstract class LinkDirective {
-  @Input()
-  linkType: LinkType = "primary";
+  readonly linkType = input<LinkType>("primary");
 }
 
 /**
@@ -96,7 +87,7 @@ export class AnchorLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.125rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 }
 
@@ -111,7 +102,7 @@ export class ButtonLinkDirective extends LinkDirective {
   @HostBinding("class") get classList() {
     return ["before:-tw-inset-y-[0.25rem]"]
       .concat(commonStyles)
-      .concat(linkStyles[this.linkType] ?? []);
+      .concat(linkStyles[this.linkType()] ?? []);
   }
 
   constructor() {

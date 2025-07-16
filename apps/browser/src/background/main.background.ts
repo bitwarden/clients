@@ -752,11 +752,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.autofillSettingsService = new AutofillSettingsService(
-      this.stateProvider,
-      this.policyService,
-      this.accountService,
-    );
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
@@ -844,16 +839,6 @@ export default class MainBackground {
       this.tokenService,
     );
 
-    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
-      this.stateProvider,
-      this.platformUtilsService,
-      this.apiService,
-    );
-
-    this.ssoLoginService = new SsoLoginService(this.stateProvider, this.logService);
-
-    this.userVerificationApiService = new UserVerificationApiService(this.apiService);
-
     this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
 
     this.configService = new DefaultConfigService(
@@ -863,6 +848,30 @@ export default class MainBackground {
       this.stateProvider,
       this.authService,
     );
+
+    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
+      this.stateProvider,
+      this.platformUtilsService,
+      this.apiService,
+    );
+
+    this.restrictedItemTypesService = new RestrictedItemTypesService(
+      this.configService,
+      this.accountService,
+      this.organizationService,
+      this.policyService,
+    );
+
+    this.autofillSettingsService = new AutofillSettingsService(
+      this.stateProvider,
+      this.policyService,
+      this.accountService,
+      this.restrictedItemTypesService,
+    );
+
+    this.ssoLoginService = new SsoLoginService(this.stateProvider, this.logService);
+
+    this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
@@ -928,7 +937,10 @@ export default class MainBackground {
       this.i18nService,
     );
 
-    this.vaultSettingsService = new VaultSettingsService(this.stateProvider);
+    this.vaultSettingsService = new VaultSettingsService(
+      this.stateProvider,
+      this.restrictedItemTypesService,
+    );
 
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
@@ -1313,13 +1325,6 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.stateProvider,
-    );
-
-    this.restrictedItemTypesService = new RestrictedItemTypesService(
-      this.configService,
-      this.accountService,
-      this.organizationService,
-      this.policyService,
     );
 
     this.mainContextMenuHandler = new MainContextMenuHandler(

@@ -15,6 +15,7 @@ import { DomainSettingsService } from "../../autofill/services/domain-settings.s
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
@@ -25,7 +26,6 @@ import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
@@ -1336,7 +1336,7 @@ export class CipherService implements CipherServiceAbstraction {
    * No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
-  async restoreManyWithServer(ids: string[], userId: UserId, orgId: string = null): Promise<void> {
+  async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     let response;
 
     if (orgId) {

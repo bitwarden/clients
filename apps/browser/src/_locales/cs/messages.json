@@ -1173,6 +1173,12 @@
     "message": "Ale ne! Nemohli jsme to uložit. Zkuste zadat podrobnosti ručně.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Po změně hesla se budete muset přihlásit pomocí svého nového hesla. Aktivní relace na jiných zařízeních budou odhlášeny do jedné hodiny."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Pro dokončení obnovy účtu změňte hlavní heslo."
+  },
   "enableChangedPasswordNotification": {
     "message": "Zeptat se na aktualizaci existujícího přihlášení"
   },
@@ -3454,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Požadavek odeslán"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavní heslo bylo uloženo"
+  },
   "exposedMasterPassword": {
     "message": "Odhalené hlavní heslo"
   },
@@ -3567,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Žádost o schválení správcem"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nelze dokončit přihlášení"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte se přihlásit na důvěryhodném zařízení nebo požádat správce, aby Vám přiřadil heslo."
   },
   "ssoIdentifierRequired": {
     "message": "Je vyžadován SSO identifikátor organizace."

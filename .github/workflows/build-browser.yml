@@ -163,10 +163,6 @@ jobs:
           FILES=$(find . -maxdepth 1 -type f)
           for FILE in $FILES; do cp "$FILE" browser-source/; done
 
-          # Copy patches to the Browser source directory
-          mkdir -p browser-source/patches
-          cp -r patches/* browser-source/patches
-
           # Copy apps/browser to the Browser source directory
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
