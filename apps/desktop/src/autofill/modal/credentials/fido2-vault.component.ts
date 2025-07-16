@@ -85,7 +85,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
         title: { key: "unexpectedErrorShort" },
         content: { key: "closeThisBitwardenWindow" },
         type: "danger",
-        acceptButtonText: { key: "closeBitwarden" },
+        acceptButtonText: { key: "closeThisWindow" },
         cancelButtonText: null,
       });
       await this.closeModal();

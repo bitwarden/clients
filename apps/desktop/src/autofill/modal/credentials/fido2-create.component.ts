@@ -35,28 +35,6 @@ import {
 import { BitwardenShield } from "./bitwarden-shield.icon";
 import { Fido2PasskeyExistsIcon } from "./fido2-passkey-exists-icon";
 
-const DIALOG_MESSAGES = {
-  unexpectedErrorShort: {
-    title: { key: "unexpectedErrorShort" },
-    content: { key: "closeThisBitwardenWindow" },
-    type: "danger",
-    acceptButtonText: { key: "closeBitwarden" },
-    cancelButtonText: null as null,
-  },
-  unableToSavePasskey: {
-    title: { key: "unableToSavePasskey" },
-    content: { key: "closeThisBitwardenWindow" },
-    type: "danger",
-    acceptButtonText: { key: "closeBitwarden" },
-    cancelButtonText: null as null,
-  },
-  overwritePasskey: {
-    title: { key: "overwritePasskey" },
-    content: { key: "alreadyContainsPasskey" },
-    type: "warning",
-  },
-} as const satisfies Record<string, SimpleDialogOptions>;
-
 @Component({
   standalone: true,
   imports: [
@@ -81,6 +59,32 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   readonly Icons = { BitwardenShield };
   protected fido2PasskeyExistsIcon = Fido2PasskeyExistsIcon;
 
+  private get DIALOG_MESSAGES() {
+    return {
+      unexpectedErrorShort: {
+        title: { key: "unexpectedErrorShort" },
+        content: { key: "closeThisBitwardenWindow" },
+        type: "danger",
+        acceptButtonText: { key: "closeThisWindow" },
+        cancelButtonText: null as null,
+        acceptAction: async () => this.dialogService.closeAll(),
+      },
+      unableToSavePasskey: {
+        title: { key: "unableToSavePasskey" },
+        content: { key: "closeThisBitwardenWindow" },
+        type: "danger",
+        acceptButtonText: { key: "closeThisWindow" },
+        cancelButtonText: null as null,
+        acceptAction: async () => this.dialogService.closeAll(),
+      },
+      overwritePasskey: {
+        title: { key: "overwritePasskey" },
+        content: { key: "alreadyContainsPasskey" },
+        type: "warning",
+      },
+    } as const satisfies Record<string, SimpleDialogOptions>;
+  }
+
   constructor(
     private readonly desktopSettingsService: DesktopSettingsService,
     private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
@@ -98,7 +102,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     const rpid = await this.session?.getRpId();
 
     if (!this.session) {
-      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
       return;
     }
 
@@ -119,7 +123,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
       this.session.notifyConfirmCreateCredential(isConfirmed, cipher);
     } catch {
-      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
       return;
     }
 
@@ -134,7 +138,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
       this.session.notifyConfirmCreateCredential(true);
     } catch {
-      await this.showErrorDialog(DIALOG_MESSAGES.unableToSavePasskey);
+      await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
     }
 
     await this.closeModal();
@@ -179,7 +183,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
               !cipher.deletedDate,
           );
         } catch {
-          await this.showErrorDialog(DIALOG_MESSAGES.unexpectedErrorShort);
+          await this.showErrorDialog(this.DIALOG_MESSAGES.unexpectedErrorShort);
           return [];
         }
       }),
@@ -189,7 +193,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   private async validateCipherAccess(cipher: CipherView): Promise<boolean> {
     if (cipher.login.hasFido2Credentials) {
       const overwriteConfirmed = await this.dialogService.openSimpleDialog(
-        DIALOG_MESSAGES.overwritePasskey,
+        this.DIALOG_MESSAGES.overwritePasskey,
       );
 
       if (!overwriteConfirmed) {
