@@ -27,6 +27,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -186,6 +187,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private pinService: PinServiceAbstraction,
     private logService: LogService,
     private nativeMessagingManifestService: NativeMessagingManifestService,
+    private configService: ConfigService,
     private validationService: ValidationService,
     private changeDetectorRef: ChangeDetectorRef,
     private toastService: ToastService,
