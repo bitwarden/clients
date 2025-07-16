@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   DefaultLoginComponentService,
@@ -11,13 +10,10 @@ import {
 } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -99,23 +95,8 @@ export class WebLoginComponentService
       const isPolicyAndAutoEnrollEnabled =
         resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
 
-      let enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
-
-      if (
-        await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
-      ) {
-        enforcedPasswordPolicyOptions =
-          this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
-      } else {
-        enforcedPasswordPolicyOptions = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.policyService.masterPasswordPolicyOptions$(userId, policies),
-            ),
-          ),
-        );
-      }
+      const enforcedPasswordPolicyOptions =
+        this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
 
       return {
         policies,

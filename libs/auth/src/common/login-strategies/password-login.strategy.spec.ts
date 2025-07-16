@@ -12,7 +12,6 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
 import { MasterPasswordPolicyResponse } from "@bitwarden/common/auth/models/response/master-password-policy.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
@@ -221,7 +220,10 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(policyService.evaluateMasterPassword).not.toHaveBeenCalled();
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
+      ForceSetPasswordReason.WeakMasterPassword,
+      userId,
+    );
   });
 
   it("does not force the user to update their master password when it meets requirements", async () => {
@@ -230,7 +232,10 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(policyService.evaluateMasterPassword).toHaveBeenCalled();
+    expect(masterPasswordService.mock.setForceSetPasswordReason).not.toHaveBeenCalledWith(
+      ForceSetPasswordReason.WeakMasterPassword,
+      userId,
+    );
   });
 
   it("when given master password policies as part of the login credentials from an org invite, it combines them with the token response policies to evaluate the user's password as weak", async () => {
@@ -241,12 +246,6 @@ describe("PasswordLoginStrategy", () => {
     } as any);
     policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
-
-    jest
-      .spyOn(configService, "getFeatureFlag")
-      .mockImplementation((flag: FeatureFlag) =>
-        Promise.resolve(flag === FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
-      );
 
     credentials.masterPasswordPoliciesFromOrgInvite = Object.assign(
       new MasterPasswordPolicyOptions(),
@@ -296,8 +295,15 @@ describe("PasswordLoginStrategy", () => {
 
   it("forces the user to update their master password on successful login when it does not meet master password policy requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
-    policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      enforceOnLogin: true,
+    });
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+    policyService.evaluateMasterPassword.mockReturnValue(false);
 
     await passwordLoginStrategy.logIn(credentials);
 
@@ -330,8 +336,15 @@ describe("PasswordLoginStrategy", () => {
 
   it("forces the user to update their master password on successful 2FA login when it does not meet master password policy requirements", async () => {
     passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 0 } as any);
-    policyService.evaluateMasterPassword.mockReturnValue(false);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
+
+    const combinedMasterPasswordPolicyOptions = Object.assign(new MasterPasswordPolicyOptions(), {
+      enforceOnLogin: true,
+    });
+    policyService.combineMasterPasswordPolicyOptions.mockReturnValue(
+      combinedMasterPasswordPolicyOptions,
+    );
+    policyService.evaluateMasterPassword.mockReturnValue(false);
 
     const token2FAResponse = new IdentityTwoFactorResponse({
       TwoFactorProviders: ["0"],

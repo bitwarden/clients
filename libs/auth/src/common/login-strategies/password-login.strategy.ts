@@ -12,7 +12,6 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -171,35 +170,22 @@ export class PasswordLoginStrategy extends LoginStrategy {
       return;
     }
 
-    // The identity result can contain master password policies for the user's organizations
-    let masterPasswordPolicyOptions: MasterPasswordPolicyOptions | undefined;
+    // The identity result can contain master password policies for the user's organizations.
+    // Get the master password policy options from both the org invite and the identity response.
+    const masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
+      credentials.masterPasswordPoliciesFromOrgInvite,
+      this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
+    );
 
+    // We deliberately do not check enforceOnLogin as existing users who are logging
+    // in after getting an org invite should always be forced to set a password that
+    // meets the org's policy. Org Invite -> Registration also works this way for
+    // new BW users as well.
     if (
-      await this.configService.getFeatureFlag(FeatureFlag.PM16117_ChangeExistingPasswordRefactor)
+      !credentials.masterPasswordPoliciesFromOrgInvite &&
+      !masterPasswordPolicyOptions?.enforceOnLogin
     ) {
-      // Get the master password policy options from both the org invite and the identity response.
-      masterPasswordPolicyOptions = this.policyService.combineMasterPasswordPolicyOptions(
-        credentials.masterPasswordPoliciesFromOrgInvite,
-        this.getMasterPasswordPolicyOptionsFromResponse(identityResponse),
-      );
-
-      // We deliberately do not check enforceOnLogin as existing users who are logging
-      // in after getting an org invite should always be forced to set a password that
-      // meets the org's policy. Org Invite -> Registration also works this way for
-      // new BW users as well.
-      if (
-        !credentials.masterPasswordPoliciesFromOrgInvite &&
-        !masterPasswordPolicyOptions?.enforceOnLogin
-      ) {
-        return;
-      }
-    } else {
-      masterPasswordPolicyOptions =
-        this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
-
-      if (!masterPasswordPolicyOptions?.enforceOnLogin) {
-        return;
-      }
+      return;
     }
 
     // If there is a policy active, evaluate the supplied password before its no longer in memory
