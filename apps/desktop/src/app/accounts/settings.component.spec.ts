@@ -39,6 +39,7 @@ import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -69,6 +70,7 @@ describe("SettingsComponent", () => {
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
+  const desktopAutotypeService = mock<DesktopAutotypeService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -124,6 +126,7 @@ describe("SettingsComponent", () => {
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
+        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -160,6 +163,7 @@ describe("SettingsComponent", () => {
     themeStateService.selectedTheme$ = of(ThemeType.System);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
+    desktopAutotypeService.autotypeEnabled$ = of(false);
   });
 
   afterEach(() => {

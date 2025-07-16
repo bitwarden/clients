@@ -25,6 +25,7 @@ export enum FeatureFlag {
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -44,6 +45,7 @@ export enum FeatureFlag {
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
+  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -85,6 +87,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
   /* Data Insights and Reporting */
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
@@ -121,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
+  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

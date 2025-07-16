@@ -87,12 +87,16 @@ export abstract class EncryptService {
    * Decrypts an EncString to a string
    * @param encString - The EncString containing the encrypted string.
    * @param key - The key to decrypt the value with
+   * @returns The decrypted string
+   * @throws Error if decryption fails
    */
   abstract decryptString(encString: EncString, key: SymmetricCryptoKey): Promise<string>;
   /**
    * Decrypts an EncString to a Uint8Array
    * @param encString - The EncString containing the encrypted bytes.
    * @param key - The key to decrypt the value with
+   * @returns The decrypted bytes as a Uint8Array
+   * @throws Error if decryption fails
    * @deprecated Bytes are not the right abstraction to encrypt in. Use e.g. key wrapping or file encryption instead
    */
   abstract decryptBytes(encString: EncString, key: SymmetricCryptoKey): Promise<Uint8Array>;
@@ -100,6 +104,8 @@ export abstract class EncryptService {
    * Decrypts an EncArrayBuffer to a Uint8Array
    * @param encBuffer - The EncArrayBuffer containing the encrypted file bytes.
    * @param key - The key to decrypt the value with
+   * @returns The decrypted file bytes as a Uint8Array
+   * @throws Error if decryption fails
    */
   abstract decryptFileData(encBuffer: EncArrayBuffer, key: SymmetricCryptoKey): Promise<Uint8Array>;
 
@@ -139,6 +145,8 @@ export abstract class EncryptService {
    * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param decapsulationKeyPcks8 - The private key in PKCS8 format
    * @param wrappingKey - The symmetric key to wrap the private key with
+   * @returns The unwrapped private key as a Uint8Array
+   * @throws Error if unwrapping fails
    */
   abstract unwrapDecapsulationKey(
     wrappedDecapsulationKey: EncString,
@@ -149,6 +157,8 @@ export abstract class EncryptService {
    * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param encapsulationKeySpki - The public key in SPKI format
    * @param wrappingKey - The symmetric key to wrap the public key with
+   * @returns The unwrapped public key as a Uint8Array
+   * @throws Error if unwrapping fails
    */
   abstract unwrapEncapsulationKey(
     wrappedEncapsulationKey: EncString,
@@ -159,6 +169,8 @@ export abstract class EncryptService {
    * @see {@link https://en.wikipedia.org/wiki/Key_wrap}
    * @param keyToBeWrapped - The symmetric key to wrap
    * @param wrappingKey - The symmetric key to wrap the encapsulated key with
+   * @returns The unwrapped symmetric key as a SymmetricCryptoKey
+   * @throws Error if unwrapping fails
    */
   abstract unwrapSymmetricKey(
     keyToBeUnwrapped: EncString,
@@ -182,6 +194,8 @@ export abstract class EncryptService {
    * @see {@link https://en.wikipedia.org/wiki/Key_encapsulation_mechanism}
    * @param encryptedSharedKey - The encrypted shared symmetric key
    * @param decapsulationKey - The key to decapsulate with (private key)
+   * @return The decapsulated symmetric key
+   * @throws Error if decapsulation fails
    */
   abstract decapsulateKeyUnsigned(
     encryptedSharedKey: EncString,
