@@ -13,6 +13,7 @@ import {
   Observable,
   shareReplay,
   switchMap,
+  tap,
 } from "rxjs";
 
 import {
@@ -259,10 +260,12 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
           !separateCustomRolePermissionsEnabled || organization.canManageUsers,
       ),
     );
-
-    this.organizationWarningsService
-      .showInactiveSubscriptionDialog$(this.organization)
-      .pipe(takeUntilDestroyed())
+    organization$
+      .pipe(
+        takeUntilDestroyed(),
+        tap((org) => (this.organization = org)),
+        switchMap((org) => this.organizationWarningsService.showInactiveSubscriptionDialog$(org)),
+      )
       .subscribe();
   }
 
