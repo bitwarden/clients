@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SdkRecordMapper } from "@bitwarden/common/platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
@@ -12,6 +14,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { ENCRYPTED_CIPHERS } from "../../services/key-state/ciphers.state";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
@@ -407,5 +410,19 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
 
     return sdkCipher;
+  }
+}
+
+export class CipherRecordMapper implements SdkRecordMapper<CipherData, SdkCipher> {
+  userKeyDefinition(): UserKeyDefinition<Record<string, CipherData>> {
+    return ENCRYPTED_CIPHERS;
+  }
+
+  toSdk(value: CipherData): SdkCipher {
+    return new Cipher(value).toSdkCipher();
+  }
+
+  fromSdk(value: SdkCipher): CipherData {
+    throw new Error("Cipher.fromSdk is not implemented yet");
   }
 }
