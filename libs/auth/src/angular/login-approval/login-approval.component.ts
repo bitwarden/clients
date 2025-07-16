@@ -85,6 +85,7 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
       } catch (error) {
         this.validationService.showError(error);
       }
+
       const publicKey = Utils.fromB64ToArray(this.authRequestResponse.publicKey);
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
