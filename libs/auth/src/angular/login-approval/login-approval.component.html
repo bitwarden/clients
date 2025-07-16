@@ -1,5 +1,5 @@
 <bit-dialog>
-  <span bitDialogTitle>{{ "loginRequest" | i18n }}</span>
+  <span bitDialogTitle>{{ "areYouTryingToAccessYourAccount" | i18n }}</span>
   <ng-container bitDialogContent>
     <ng-container *ngIf="loading">
       <div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
@@ -15,7 +15,7 @@
       </div>
       <div>
         <b>{{ "deviceType" | i18n }}</b>
-        <p>{{ readableDeviceTypeName }}</p>
+        <p>{{ authRequestResponse?.requestDeviceType }}</p>
       </div>
       <div>
         <b>{{ "location" | i18n }}</b>

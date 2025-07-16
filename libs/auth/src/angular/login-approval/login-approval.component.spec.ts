@@ -8,14 +8,16 @@ import {
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { LoginApprovalComponent } from "./login-approval.component";
 
@@ -23,12 +25,11 @@ describe("LoginApprovalComponent", () => {
   let component: LoginApprovalComponent;
   let fixture: ComponentFixture<LoginApprovalComponent>;
 
+  let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
   let accountService: MockProxy<AccountService>;
   let apiService: MockProxy<ApiService>;
-  let authRequestService: MockProxy<AuthRequestServiceAbstraction>;
-  let devicesService: MockProxy<DevicesServiceAbstraction>;
-  let dialogRef: MockProxy<DialogRef>;
   let i18nService: MockProxy<I18nService>;
+  let dialogRef: MockProxy<DialogRef>;
   let toastService: MockProxy<ToastService>;
   let validationService: MockProxy<ValidationService>;
 
@@ -37,12 +38,11 @@ describe("LoginApprovalComponent", () => {
   const testPublicKey = "test-public-key";
 
   beforeEach(async () => {
+    authRequestService = mock<AuthRequestServiceAbstraction>();
     accountService = mock<AccountService>();
     apiService = mock<ApiService>();
-    authRequestService = mock<AuthRequestServiceAbstraction>();
-    devicesService = mock<DevicesServiceAbstraction>();
-    dialogRef = mock<DialogRef>();
     i18nService = mock<I18nService>();
+    dialogRef = mock<DialogRef>();
     toastService = mock<ToastService>();
     validationService = mock<ValidationService>();
 
@@ -57,11 +57,13 @@ describe("LoginApprovalComponent", () => {
       imports: [LoginApprovalComponent],
       providers: [
         { provide: DIALOG_DATA, useValue: { notificationId: testNotificationId } },
-        { provide: AccountService, useValue: accountService },
-        { provide: ApiService, useValue: apiService },
         { provide: AuthRequestServiceAbstraction, useValue: authRequestService },
-        { provide: DevicesServiceAbstraction, useValue: devicesService },
+        { provide: AccountService, useValue: accountService },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: I18nService, useValue: i18nService },
+        { provide: ApiService, useValue: apiService },
+        { provide: AppIdService, useValue: mock<AppIdService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogRef, useValue: dialogRef },
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
@@ -117,7 +119,7 @@ describe("LoginApprovalComponent", () => {
       expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(false, response);
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "info",
-        title: "",
+        title: null,
         message: "denied message",
       });
     });
