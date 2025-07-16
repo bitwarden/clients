@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  SeparateCustomRolePermissions = "pm-19917-separate-custom-role-permissions",
   CreateDefaultLocation = "pm-19467-create-default-location",
 
   /* Auth */
@@ -78,7 +77,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.SeparateCustomRolePermissions]: FALSE,
   [FeatureFlag.CreateDefaultLocation]: FALSE,
 
   /* Autofill */
