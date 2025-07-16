@@ -1,6 +1,6 @@
 <ng-container *ngIf="show">
   <ng-container [ngSwitch]="displayMode">
-    <ng-container *ngSwitchCase="'personalOwnershipPolicy'">
+    <ng-container *ngSwitchCase="'organizationDataOwnershipPolicy'">
       <div class="filter-heading" [ngClass]="{ active: !hasActiveFilter }">
         <button
           type="button"
@@ -92,7 +92,11 @@
         </h2>
       </div>
       <ul id="organization-filters" *ngIf="!isCollapsed" class="filter-options no-margin">
-        <li class="filter-option" [ngClass]="{ active: activeFilter.myVaultOnly }">
+        <li
+          *ngIf="!(hideMyVaultFilter$ | async)"
+          class="filter-option"
+          [ngClass]="{ active: activeFilter.myVaultOnly }"
+        >
           <span class="filter-buttons">
             <button
               type="button"
