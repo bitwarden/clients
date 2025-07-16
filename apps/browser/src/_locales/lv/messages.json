@@ -1173,6 +1173,12 @@
     "message": "Ak nē! Mēs nevarējā šo saglabāt. Jāmēģina pašrocīgi ievadīt informāciju.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Pēc savas paroles nomainīšanas būs nepieciešams pieteikties ar jauno paroli. Spēkā esošajās sesijās citās ierīcēs stundas laikā notiks atteikšanās."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Jānomaina sava galvenā'parole, lai pabeigtu konta atkopi."
+  },
   "enableChangedPasswordNotification": {
     "message": "Vaicāt atjaunināt esošu pieteikšanās vienumu"
   },
@@ -1922,6 +1928,9 @@
   "typeSshKey": {
     "message": "SSH atslēga"
   },
+  "typeNote": {
+    "message": "Piezīme"
+  },
   "newItemHeader": {
     "message": "Jauns/a $TYPE$",
     "placeholders": {
@@ -2484,6 +2493,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Apvienības nosacījums neļauj ievietot ārējos vienumus savā personīgajā glabātavā."
   },
+  "restrictCardTypeImport": {
+    "message": "Nevar ievietot karšu vienumu veidus"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Pamatnostādne, ko ir iestatījusi viena vai vairākas apvienības, liedz karšu ievietošanu savās glabātavās."
+  },
   "domainsTitle": {
     "message": "Domēna vārdi",
     "description": "A category title describing the concept of web domains"
@@ -2909,6 +2924,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Ir nepieciešams apliecināt savu e-pasta adresi, lai būtu iespējams izmantot šo iespēju. To var izdarīt tīmekļa glabātavā."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Galvenā parole sekmīgi iestatīta"
   },
   "updatedMasterPassword": {
     "message": "Galvenā parole atjaunināta"
@@ -3442,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Pieprasījums nosūtīts"
   },
+  "masterPasswordChanged": {
+    "message": "Galvenā parole saglabāta"
+  },
   "exposedMasterPassword": {
     "message": "Noplūdusi galvenā parole"
   },
@@ -3555,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Pieprasīt pārvaldītāja apstiprinājumu"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nevar pabeigt pieteikšanos"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Nepieciešams pieteikties uzticamā ierīcē vai vaicāt pārvaldītājam, lai piešķir paroli."
   },
   "ssoIdentifierRequired": {
     "message": "Ir nepieciešams apvienības SSO identifikators."
@@ -4234,6 +4261,26 @@
   "commonImportFormats": {
     "message": "Izplatīti veidoli",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI atbilstības noteikšana ir veids, kā Bitwarden atpazīst automātiskās aizpildes ieteikumus.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulārā izteiksme\" ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Sākas ar' ir lietpratējiem paredzēta iespēja ar paaugstinātu piekļuves datu atklāšanas bīstamību.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Vairāk par atbilstības noteikšanu",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Papildu iespējas",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Pāriet uz pārlūka iestatījumiem?",
@@ -5062,6 +5109,9 @@
   "unlockPinSet": {
     "message": "Atslēgšanas PIN iestatīts"
   },
+  "unlockWithBiometricSet": {
+    "message": "Atslēgt ar biometriju"
+  },
   "authenticating": {
     "message": "Autentificē"
   },
@@ -5403,5 +5453,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nav atļaujas apskatīt šo lapu. Jāmēģina pieteikties ar citu kontu."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly šajā pārlūkā netiek atbalstīts vai nav iespējots. WebAssebly ir nepieciešams, lai izmantotu Bitwarden lietotni.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

@@ -159,7 +159,12 @@ export class NudgesService {
    */
   hasActiveBadges$(userId: UserId): Observable<boolean> {
     // Add more nudge types here if they have the settings badge feature
-    const nudgeTypes = [NudgeType.EmptyVaultNudge, NudgeType.DownloadBitwarden];
+    const nudgeTypes = [
+      NudgeType.AccountSecurity,
+      NudgeType.EmptyVaultNudge,
+      NudgeType.DownloadBitwarden,
+      NudgeType.AutofillNudge,
+    ];
 
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)

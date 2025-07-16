@@ -16,6 +16,7 @@ import {
   catchError,
   concatMap,
   debounceTime,
+  distinctUntilChanged,
   filter,
   first,
   map,
@@ -36,7 +37,6 @@ import {
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -49,7 +49,6 @@ import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -60,12 +59,14 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, Icons, ToastService } from "@bitwarden/components";
 import {
@@ -79,13 +80,11 @@ import {
   DecryptionFailureDialogComponent,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
-  RestrictedItemTypesService,
 } from "@bitwarden/vault";
 
 import {
   getNestedCollectionTree,
   getFlatCollectionTree,
-  getNestedCollectionTree_vNext,
 } from "../../admin-console/organizations/collections";
 import {
   CollectionDialogAction,
@@ -331,19 +330,16 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const filter$ = this.routedVaultFilterService.filter$;
     const allCollections$ = this.collectionService.decryptedCollections$;
-    const nestedCollections$ = combineLatest([
-      allCollections$,
-      this.configService.getFeatureFlag$(FeatureFlag.OptimizeNestedTraverseTypescript),
-    ]).pipe(
-      map(([collections, shouldOptimize]) =>
-        shouldOptimize
-          ? getNestedCollectionTree_vNext(collections)
-          : getNestedCollectionTree(collections),
-      ),
+    const nestedCollections$ = allCollections$.pipe(
+      map((collections) => getNestedCollectionTree(collections)),
     );
 
     this.searchText$
-      .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))
+      .pipe(
+        debounceTime(SearchTextDebounceInterval),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
       .subscribe((searchText) =>
         this.router.navigate([], {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
@@ -354,17 +350,26 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
-    const ciphers$ = combineLatest([
+    /**
+     * This observable filters the ciphers based on the active user ID and the restricted item types.
+     */
+    const allowedCiphers$ = combineLatest([
       this.cipherService.cipherViews$(activeUserId).pipe(filter((c) => c !== null)),
-      filter$,
-      this.currentSearchText$,
       this.restrictedItemTypesService.restricted$,
     ]).pipe(
+      map(([ciphers, restrictedTypes]) =>
+        ciphers.filter(
+          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes),
+        ),
+      ),
+    );
+
+    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, restrictedTypes]) => {
+      concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter, restrictedTypes);
+        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
@@ -1029,7 +1034,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.cipherService.restoreManyWithServer(selectedCipherIds);
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.restoreManyWithServer(selectedCipherIds, activeUserId);
     this.toastService.showToast({
       variant: "success",
       title: null,

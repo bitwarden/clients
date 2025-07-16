@@ -16,7 +16,6 @@ import {
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AnonLayoutWrapperDataService } from "@bitwarden/auth/angular";
 import { LogoutService, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -42,6 +41,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   AsyncActionsModule,
+  AnonLayoutWrapperDataService,
   ButtonModule,
   DialogService,
   FormFieldModule,
@@ -249,7 +249,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async handleActiveAccountChange(activeAccount: Account) {
     // this account may be unlocked, prevent any prompts so we can redirect to vault
-    if (await this.keyService.hasUserKeyInMemory(activeAccount.id)) {
+    if (await this.keyService.hasUserKey(activeAccount.id)) {
       return;
     }
 

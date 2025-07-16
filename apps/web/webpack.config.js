@@ -90,11 +90,6 @@ const moduleRules = [
     test: /\.[jt]sx?$/,
     loader: "@ngtools/webpack",
   },
-  {
-    test: /argon2(-simd)?\.wasm$/,
-    loader: "base64-loader",
-    type: "javascript/auto",
-  },
 ];
 
 const plugins = [
@@ -268,6 +263,9 @@ const devServer =
                   https://www.paypalobjects.com
                   https://q.stripe.com
                   https://haveibeenpwned.com
+                ;media-src
+                  'self'
+                  https://assets.bitwarden.com
                 ;child-src
                   'self'
                   https://js.stripe.com
@@ -401,7 +399,6 @@ const webpackConfig = {
     clean: true,
   },
   module: {
-    noParse: /argon2(-simd)?\.wasm$/,
     rules: moduleRules,
   },
   experiments: {

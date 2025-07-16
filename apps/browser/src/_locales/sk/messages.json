@@ -1173,6 +1173,12 @@
     "message": "Ale nie! Nepodarilo sa nám to uložiť. Skúste zadať údaje manuálne.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Po zmene hesla sa musíte prihlásiť pomocou nového hesla. Aktívne relácie na iných zariadeniach budú do jednej hodiny odhlásené."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Zmeňte hlavné heslo, aby ste dokončili obnovenie účtu."
+  },
   "enableChangedPasswordNotification": {
     "message": "Požiadať o aktualizáciu existujúceho prihlasovania"
   },
@@ -1213,11 +1219,11 @@
     "message": "Sekundárnym kliknutím získate prístup k vygenerovaniu hesiel a zodpovedajúcim prihláseniam pre webovú stránku. Platí pre všetky prihlásené účty."
   },
   "defaultUriMatchDetection": {
-    "message": "Predvolené mapovanie",
+    "message": "Predvolený spôsob zisťovania zhody URI",
     "description": "Default URI match detection for autofill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Vyberte si predvolený spôsob mapovania, ktorý bude použitý pre prihlasovacie údaje pri využití funkcí ako je napríklad automatické vypĺňanie hesiel."
+    "message": "Vyberte predvolený spôsob zisťovania zhody, ktorý bude použitý pre prihlasovacie údaje pri využití funkcií, ako je napríklad automatické vypĺňanie hesiel."
   },
   "theme": {
     "message": "Motív"
@@ -1922,6 +1928,9 @@
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
+  "typeNote": {
+    "message": "Poznámka"
+  },
   "newItemHeader": {
     "message": "Nové $TYPE$",
     "placeholders": {
@@ -2046,11 +2055,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Spôsob mapovania",
+    "message": "Zisťovanie zhody",
     "description": "URI match detection for autofill."
   },
   "defaultMatchDetection": {
-    "message": "Predvolené mapovanie",
+    "message": "Predvolené zisťovanie zhody",
     "description": "Default URI match detection for autofill."
   },
   "toggleOptions": {
@@ -2484,6 +2493,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Zásady organizácie zablokovali importovanie položiek do vášho osobného trezoru."
   },
+  "restrictCardTypeImport": {
+    "message": "Položky typu karta sa nedajú importovať"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Politika nastavená 1 alebo viacerými organizáciami vám bráni v importovaní kariet do vašich trezorov."
+  },
   "domainsTitle": {
     "message": "Domény",
     "description": "A category title describing the concept of web domains"
@@ -2893,7 +2908,7 @@
     "message": "Skryť moju e-mailovú adresu pri zobrazení."
   },
   "passwordPrompt": {
-    "message": "Znova zadajte hlavné heslo"
+    "message": "Vyzvať na zadanie hesla"
   },
   "passwordConfirmation": {
     "message": "Potvrdenie hlavného hesla"
@@ -2909,6 +2924,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Na použitie tejto funkcie musíte overiť svoj e-mail. Svoj e-mail môžete overiť vo webovom trezore."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Hlavné heslo bolo úspešne nastavené"
   },
   "updatedMasterPassword": {
     "message": "Hlavné heslo aktualizované"
@@ -3442,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Požiadavka bola odoslaná"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavné heslo uložené"
+  },
   "exposedMasterPassword": {
     "message": "Odhalené hlavné heslo"
   },
@@ -3555,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Žiadosť o schválenie správcom"
+  },
+  "unableToCompleteLogin": {
+    "message": "Nepodarilo sa dokončiť prihlásenie"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Musíte sa prihlásiť na dôveryhodnom zariadení alebo požiadať správcu o priradenie hesla."
   },
   "ssoIdentifierRequired": {
     "message": "Pole identifikátora SSO je povinné."
@@ -4235,6 +4262,26 @@
     "message": "Bežné formáty",
     "description": "Label indicating the most common import formats"
   },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Zisťovanie zhody URI je spôsob, akým Bitwarden identifikuje návrhy na automatické vypĺňanie.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regulárny výraz\" je pokročilá možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Začína na\" je rozšírená možnosť so zvýšeným rizikom odhalenia prihlasovacích údajov.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Viac informácií o zisťovaní zhody",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Rozšírené možnosti",
+    "description": "Advanced option placeholder for uri option component"
+  },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Pokračovať do nastavení prehliadača?",
     "description": "Title for dialog which asks if the user wants to proceed to a relevant browser settings page"
@@ -4436,7 +4483,7 @@
     "message": "Nie je čo kopírovať"
   },
   "assignToCollections": {
-    "message": "Prideliť k zbierkam"
+    "message": "Priradiť ku zbierkam"
   },
   "copyEmail": {
     "message": "Skopírovať e-mail"
@@ -4683,7 +4730,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Zobraziť spôsob mapovania $WEBSITE$",
+    "message": "Zobraziť zisťovanie zhody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4692,7 +4739,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Skryť spôsob mapovania $WEBSITE$",
+    "message": "Skryť spôsob zisťovania zhody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -4758,7 +4805,7 @@
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "Vybrali ste $TOTAL_COUNT$ položky. Nemôžete aktualizovať $READONLY_COUNT$ položky(-iek), pretože nemáte oprávnenie na úpravu.",
+    "message": "Vybrali ste položky ($TOTAL_COUNT$). Nemôžete aktualizovať $READONLY_COUNT$ položky(-iek), pretože nemáte oprávnenie na úpravu.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5061,6 +5108,9 @@
   },
   "unlockPinSet": {
     "message": "PIN na odomknutie nastavený"
+  },
+  "unlockWithBiometricSet": {
+    "message": "Odomknutie biometrickými údajmi nastavené"
   },
   "authenticating": {
     "message": "Overuje sa"
@@ -5403,5 +5453,9 @@
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnenie na zobrazenie tejto stránky. Skúste sa prihlásiť pomocou iného účtu."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly nie je vo vašom prehliadači podporovaný alebo nie je povolený. Na používanie Bitwardenu sa vyžaduje WebAssembly.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

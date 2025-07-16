@@ -1,0 +1,27 @@
+<bit-simple-dialog>
+  <i
+    bitDialogIcon
+    class="bwi tw-text-3xl bwi-exclamation-triangle tw-text-warning"
+    aria-hidden="true"
+  ></i>
+  <span bitDialogTitle>
+    {{ "warningCapitalized" | i18n }}
+  </span>
+  <div bitDialogContent class="tw-mb-1">
+    <p class="tw-mb-1 tw-hyphens-none">
+      {{ contentKey | i18n }}
+      <br />
+      <button bitLink type="button" linkType="primary" (click)="openLink($event)">
+        {{ "uriMatchWarningDialogLink" | i18n }}
+      </button>
+    </p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="onContinue()">
+      {{ "continue" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" (click)="onCancel()">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

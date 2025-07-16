@@ -1,7 +1,7 @@
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
 import { mockFromJson } from "../../../../spec";
-import { EncString } from "../../../platform/models/domain/enc-string";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { AttachmentView } from "./attachment.view";
@@ -26,6 +26,8 @@ describe("AttachmentView", () => {
     });
 
     it("should return an AttachmentView from an SdkAttachmentView", () => {
+      jest.spyOn(SymmetricCryptoKey, "fromString").mockReturnValue("mockKey" as any);
+
       const sdkAttachmentView = {
         id: "id",
         url: "url",
@@ -33,6 +35,7 @@ describe("AttachmentView", () => {
         sizeName: "sizeName",
         fileName: "fileName",
         key: "encKeyB64_fromString",
+        decryptedKey: "decryptedKey_B64",
       } as SdkAttachmentView;
 
       const result = AttachmentView.fromSdkAttachmentView(sdkAttachmentView);
@@ -43,14 +46,20 @@ describe("AttachmentView", () => {
         size: "size",
         sizeName: "sizeName",
         fileName: "fileName",
-        key: null,
+        key: "mockKey",
         encryptedKey: new EncString(sdkAttachmentView.key as string),
       });
+
+      expect(SymmetricCryptoKey.fromString).toHaveBeenCalledWith("decryptedKey_B64");
     });
   });
 
   describe("toSdkAttachmentView", () => {
     it("should convert AttachmentView to SdkAttachmentView", () => {
+      const mockKey = {
+        toBase64: jest.fn().mockReturnValue("keyB64"),
+      } as any;
+
       const attachmentView = new AttachmentView();
       attachmentView.id = "id";
       attachmentView.url = "url";
@@ -58,8 +67,10 @@ describe("AttachmentView", () => {
       attachmentView.sizeName = "sizeName";
       attachmentView.fileName = "fileName";
       attachmentView.encryptedKey = new EncString("encKeyB64");
+      attachmentView.key = mockKey;
 
       const result = attachmentView.toSdkAttachmentView();
+
       expect(result).toEqual({
         id: "id",
         url: "url",
@@ -67,6 +78,7 @@ describe("AttachmentView", () => {
         sizeName: "sizeName",
         fileName: "fileName",
         key: "encKeyB64",
+        decryptedKey: "keyB64",
       });
     });
   });

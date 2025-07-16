@@ -1173,6 +1173,12 @@
     "message": "На жаль, не вдається зберегти. Введіть дані вручну.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "Після зміни пароля потрібно буде ввійти в систему з новим паролем. Активні сеанси на інших пристроях буде завершено протягом години."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Змініть свій головний пароль, щоб завершити відновлення облікового запису."
+  },
   "enableChangedPasswordNotification": {
     "message": "Запитувати про оновлення запису"
   },
@@ -1922,6 +1928,9 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeNote": {
+    "message": "Нотатка"
+  },
   "newItemHeader": {
     "message": "Новий $TYPE$",
     "placeholders": {
@@ -2042,7 +2051,7 @@
     "message": "Починається з"
   },
   "regEx": {
-    "message": "Звичайний вираз",
+    "message": "Регулярний вираз",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
@@ -2154,7 +2163,7 @@
     "message": "Встановіть PIN-код для розблокування Bitwarden. Налаштування PIN-коду будуть скинуті, якщо ви коли-небудь повністю вийдете з програми."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "Ви можете використовувати цей PIN-код для розблокування Bitwarden. PIN-код буде скинуто, якщо ви вийдете з програми."
   },
   "pinRequired": {
     "message": "Необхідний PIN-код."
@@ -2484,6 +2493,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
+  "restrictCardTypeImport": {
+    "message": "Не вдається імпортувати записи карток"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "Політика принаймні однієї організації не дозволяє вам імпортувати записи карток до сховища."
+  },
   "domainsTitle": {
     "message": "Домени",
     "description": "A category title describing the concept of web domains"
@@ -2516,7 +2531,7 @@
     "message": "Змінити"
   },
   "changePassword": {
-    "message": "Change password",
+    "message": "Змінити пароль",
     "description": "Change password button for browser at risk notification on login."
   },
   "changeButtonTitle": {
@@ -2529,7 +2544,7 @@
     }
   },
   "atRiskPassword": {
-    "message": "At-risk password"
+    "message": "Ризикований пароль"
   },
   "atRiskPasswords": {
     "message": "Ризиковані паролі"
@@ -2566,7 +2581,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "message": "Пароль для цього сайту ризикований. Організація $ORGANIZATION$ попросила вас змінити його.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2576,7 +2591,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "message": "$ORGANIZATION$ хоче, щоб ви змінили цей пароль, тому що він ризикований. Перейдіть до налаштувань облікового запису, щоб змінити пароль.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2909,6 +2924,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Для використання цієї функції необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Головний пароль успішно встановлено"
   },
   "updatedMasterPassword": {
     "message": "Головний пароль оновлено"
@@ -3442,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Запит надіслано"
   },
+  "masterPasswordChanged": {
+    "message": "Головний пароль збережено"
+  },
   "exposedMasterPassword": {
     "message": "Головний пароль викрито"
   },
@@ -3555,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Запит підтвердження адміністратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не вдалося завершити вхід"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Ви повинні ввійти до системи на довіреному пристрої або попросити адміністратора призначити вам пароль."
   },
   "ssoIdentifierRequired": {
     "message": "Потрібен SSO-ідентифікатор організації."
@@ -4234,6 +4261,26 @@
   "commonImportFormats": {
     "message": "Поширені формати",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Виявлення збігів URI – це спосіб ідентифікації пропозицій автозаповнення Bitwarden.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "Регулярний вираз – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Починається з\" – це функція, що має підвищений ризик розкриття облікових даних, призначена для досвідчених користувачів.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Докладніше про виявлення збігів",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Додаткові налаштування",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Відкрити налаштування браузера?",
@@ -5062,6 +5109,9 @@
   "unlockPinSet": {
     "message": "Розблокування PIN-кодом встановлено"
   },
+  "unlockWithBiometricSet": {
+    "message": "Біометричне розблокування налаштовано"
+  },
   "authenticating": {
     "message": "Аутентифікація"
   },
@@ -5403,5 +5453,9 @@
   },
   "noPermissionsViewPage": {
     "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly не підтримується або не ввімкнено у вашому браузері. WebAssembly є обов'язковою вимогою для програми Bitwarden.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

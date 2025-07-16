@@ -22,10 +22,8 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  AnonLayoutWrapperDataService,
   LoginComponentService,
   TwoFactorAuthComponentService,
-  TwoFactorAuthEmailComponentService,
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
   SsoComponentService,
@@ -120,8 +118,14 @@ import {
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import { CompactModeService, DialogService, ToastService } from "@bitwarden/components";
+import {
+  AnonLayoutWrapperDataService,
+  CompactModeService,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
   BiometricsService,
@@ -138,13 +142,11 @@ import {
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
 import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
-import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
-import { ExtensionTwoFactorAuthEmailComponentService } from "../../auth/services/extension-two-factor-auth-email-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
@@ -181,6 +183,7 @@ import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-u
 import { Fido2UserVerificationService } from "../../vault/services/fido2-user-verification.service";
 import { VaultBrowserStateService } from "../../vault/services/vault-browser-state.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
+import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
@@ -400,6 +403,8 @@ const safeProviders: SafeProvider[] = [
       PolicyService,
       StateProvider,
       AccountServiceAbstraction,
+      ConfigService,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -482,7 +487,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
     useClass: AutofillSettingsService,
-    deps: [StateProvider, PolicyService, AccountService],
+    deps: [StateProvider, PolicyService, AccountService, RestrictedItemTypesService],
   }),
   safeProvider({
     provide: UserNotificationSettingsServiceAbstraction,
@@ -553,11 +558,6 @@ const safeProviders: SafeProvider[] = [
     provide: TwoFactorAuthComponentService,
     useClass: ExtensionTwoFactorAuthComponentService,
     deps: [WINDOW],
-  }),
-  safeProvider({
-    provide: TwoFactorAuthEmailComponentService,
-    useClass: ExtensionTwoFactorAuthEmailComponentService,
-    deps: [DialogService, WINDOW, ConfigService],
   }),
   safeProvider({
     provide: TwoFactorAuthWebAuthnComponentService,

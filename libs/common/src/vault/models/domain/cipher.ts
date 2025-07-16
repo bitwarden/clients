@@ -4,10 +4,10 @@ import { Jsonify } from "type-fest";
 
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -145,14 +145,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
 
-      const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
-      if (cipherKey == null) {
+      try {
+        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
+        encKey = cipherKey;
+        bypassValidation = false;
+      } catch {
         model.name = "[error: cannot decrypt]";
         model.decryptionFailure = true;
         return model;
       }
-      encKey = cipherKey;
-      bypassValidation = false;
     }
 
     await this.decryptObj<Cipher, CipherView>(
@@ -352,14 +353,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       type: this.type,
       favorite: this.favorite ?? false,
       organizationUseTotp: this.organizationUseTotp ?? false,
-      edit: this.edit,
+      edit: this.edit ?? true,
       permissions: this.permissions
         ? {
             delete: this.permissions.delete,
             restore: this.permissions.restore,
           }
         : undefined,
-      viewPassword: this.viewPassword,
+      viewPassword: this.viewPassword ?? true,
       localData: this.localData
         ? {
             lastUsedDate: this.localData.lastUsedDate

@@ -14,8 +14,8 @@ import {
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { UserId } from "../../../types/guid";
@@ -66,6 +66,68 @@ describe("Cipher DTO", () => {
       key: null,
       permissions: undefined,
     });
+  });
+
+  it("Decrypt should handle cipher key error", async () => {
+    const cipher = new Cipher();
+    cipher.id = "id";
+    cipher.organizationId = "orgId";
+    cipher.folderId = "folderId";
+    cipher.edit = true;
+    cipher.viewPassword = true;
+    cipher.organizationUseTotp = true;
+    cipher.favorite = false;
+    cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+    cipher.type = CipherType.Login;
+    cipher.name = mockEnc("EncryptedString");
+    cipher.notes = mockEnc("EncryptedString");
+    cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
+    cipher.deletedDate = null;
+    cipher.reprompt = CipherRepromptType.None;
+    cipher.key = mockEnc("EncKey");
+    cipher.permissions = new CipherPermissionsApi();
+
+    const loginView = new LoginView();
+    loginView.username = "username";
+    loginView.password = "password";
+
+    const login = mock<Login>();
+    login.decrypt.mockResolvedValue(loginView);
+    cipher.login = login;
+
+    const keyService = mock<KeyService>();
+    const encryptService = mock<EncryptService>();
+    const cipherService = mock<CipherService>();
+
+    encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
+
+    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+
+    const cipherView = await cipher.decrypt(
+      await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
+    );
+
+    expect(cipherView).toMatchObject({
+      id: "id",
+      organizationId: "orgId",
+      folderId: "folderId",
+      name: "[error: cannot decrypt]",
+      type: 1,
+      favorite: false,
+      organizationUseTotp: true,
+      edit: true,
+      viewPassword: true,
+      decryptionFailure: true,
+      collectionIds: undefined,
+      revisionDate: new Date("2022-01-31T12:00:00.000Z"),
+      creationDate: new Date("2022-01-01T12:00:00.000Z"),
+      deletedDate: null,
+      reprompt: 0,
+      localData: undefined,
+      permissions: new CipherPermissionsApi(),
+    });
+
+    expect(login.decrypt).not.toHaveBeenCalled();
   });
 
   describe("LoginCipher", () => {
