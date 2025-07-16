@@ -9,7 +9,6 @@ import {
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -31,12 +30,11 @@ import {
 
 export class DefaultSetPasswordJitService implements SetPasswordJitService {
   constructor(
-    protected apiService: ApiService,
-    protected masterPasswordApiService: MasterPasswordApiService,
-    protected keyService: KeyService,
     protected encryptService: EncryptService,
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
+    protected keyService: KeyService,
+    protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
     protected organizationUserApiService: OrganizationUserApiService,

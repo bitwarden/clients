@@ -296,10 +296,18 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
+  /**
+   * Decrypts the access token using the provided access token key.
+   *
+   * @param accessTokenKey - the key used to decrypt the access token
+   * @param encryptedAccessToken - the encrypted access token to decrypt
+   * @returns the decrypted access token
+   * @throws Error if the access token key is not provided or the decryption fails
+   */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
-  ): Promise<string | null> {
+  ): Promise<string> {
     if (!accessTokenKey) {
       throw new Error(
         "decryptAccessToken: Access token key required. Cannot decrypt access token.",

@@ -383,7 +383,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
       await this.reindexCiphers(userId);
-      return await this.getDecryptedCiphers(userId);
+      return decCiphers;
     }
 
     const decrypted = await this.decryptCiphers(await this.getAll(userId), userId);
@@ -1336,7 +1336,7 @@ export class CipherService implements CipherServiceAbstraction {
    * No longer using an asAdmin Param. Org Vault bulkRestore will assess if an item is unassigned or editable
    * The Org Vault will pass those ids an array as well as the orgId when calling bulkRestore
    */
-  async restoreManyWithServer(ids: string[], userId: UserId, orgId: string = null): Promise<void> {
+  async restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void> {
     let response;
 
     if (orgId) {

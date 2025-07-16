@@ -17,7 +17,6 @@ export enum FeatureFlag {
   /* Auth */
   PM16117_SetInitialPasswordRefactor = "pm-16117-set-initial-password-refactor",
   PM16117_ChangeExistingPasswordRefactor = "pm-16117-change-existing-password-refactor",
-  PM9115_TwoFactorExtensionDataPersistence = "pm-9115-two-factor-extension-data-persistence",
   PM14938_BrowserExtensionLoginApproval = "pm-14938-browser-extension-login-approvals",
 
   /* Autofill */
@@ -26,6 +25,7 @@ export enum FeatureFlag {
   NotificationRefresh = "notification-refresh",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   MacOsNativeCredentialSync = "macos-native-credential-sync",
+  WindowsDesktopAutotype = "windows-desktop-autotype",
 
   /* Billing */
   TrialPaymentOptional = "PM-8163-trial-payment",
@@ -33,6 +33,8 @@ export enum FeatureFlag {
   PM17772_AdminInitiatedSponsorships = "pm-17772-admin-initiated-sponsorships",
   PM19956_RequireProviderPaymentMethodDuringSetup = "pm-19956-require-provider-payment-method-during-setup",
   UseOrganizationWarningsService = "use-organization-warnings-service",
+  AllowTrialLengthZero = "pm-20322-allow-trial-length-0",
+  PM21881_ManagePaymentDetailsOutsideCheckout = "pm-21881-manage-payment-details-outside-checkout",
 
   /* Data Insights and Reporting */
   EnableRiskInsightsNotifications = "enable-risk-insights-notifications",
@@ -43,6 +45,7 @@ export enum FeatureFlag {
   UseSDKForDecryption = "use-sdk-for-decryption",
   PM17987_BlockType0 = "pm-17987-block-type-0",
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
+  ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
 
   /* Tools */
   DesktopSendUIRefresh = "desktop-send-ui-refresh",
@@ -52,7 +55,6 @@ export enum FeatureFlag {
   PM9111ExtensionPersistAddEditForm = "pm-9111-extension-persist-add-edit-form",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   CipherKeyEncryption = "cipher-key-encryption",
-  PM18520_UpdateDesktopCipherForm = "pm-18520-desktop-cipher-forms",
   EndUserNotifications = "pm-10609-end-user-notifications",
   RemoveCardItemTypePolicy = "pm-16442-remove-card-item-type-policy",
   PM19315EndUserActivationMvp = "pm-19315-end-user-activation-mvp",
@@ -85,6 +87,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationRefresh]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
+  [FeatureFlag.WindowsDesktopAutotype]: FALSE,
 
   /* Data Insights and Reporting */
   [FeatureFlag.EnableRiskInsightsNotifications]: FALSE,
@@ -96,7 +99,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM8851_BrowserOnboardingNudge]: FALSE,
   [FeatureFlag.PM9111ExtensionPersistAddEditForm]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM18520_UpdateDesktopCipherForm]: FALSE,
   [FeatureFlag.EndUserNotifications]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.RemoveCardItemTypePolicy]: FALSE,
@@ -105,7 +107,6 @@ export const DefaultFeatureFlagValue = {
   /* Auth */
   [FeatureFlag.PM16117_SetInitialPasswordRefactor]: FALSE,
   [FeatureFlag.PM16117_ChangeExistingPasswordRefactor]: FALSE,
-  [FeatureFlag.PM9115_TwoFactorExtensionDataPersistence]: FALSE,
   [FeatureFlag.PM14938_BrowserExtensionLoginApproval]: FALSE,
 
   /* Billing */
@@ -114,6 +115,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM17772_AdminInitiatedSponsorships]: FALSE,
   [FeatureFlag.PM19956_RequireProviderPaymentMethodDuringSetup]: FALSE,
   [FeatureFlag.UseOrganizationWarningsService]: FALSE,
+  [FeatureFlag.AllowTrialLengthZero]: FALSE,
+  [FeatureFlag.PM21881_ManagePaymentDetailsOutsideCheckout]: FALSE,
 
   /* Key Management */
   [FeatureFlag.PrivateKeyRegeneration]: FALSE,
@@ -121,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSDKForDecryption]: FALSE,
   [FeatureFlag.PM17987_BlockType0]: FALSE,
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
+  [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
 
   /* Platform */
   [FeatureFlag.IpcChannelFramework]: FALSE,

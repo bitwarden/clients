@@ -105,6 +105,21 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     );
   }
 
+  getLatestPendingAuthRequest$(): Observable<AuthRequestResponse | null> {
+    return this.getPendingAuthRequests$().pipe(
+      map((authRequests: Array<AuthRequestResponse>) => {
+        if (authRequests.length === 0) {
+          return null;
+        }
+        return authRequests.sort((a, b) => {
+          const dateA = new Date(a.creationDate).getTime();
+          const dateB = new Date(b.creationDate).getTime();
+          return dateB - dateA; // Sort in descending order
+        })[0];
+      }),
+    );
+  }
+
   async approveOrDenyAuthRequest(
     approve: boolean,
     authRequest: AuthRequestResponse,
