@@ -22,9 +22,9 @@ export abstract class CipherEncryptionService {
   /**
    * Move the cipher to the specified organization by re-encrypting its keys with the organization's key.
    * The cipher.organizationId will be updated to the new organizationId.
-   * @param model
-   * @param organizationId
-   * @param userId
+   * @param model The cipher view to move to the organization
+   * @param organizationId The ID of the organization to move the cipher to
+   * @param userId The user ID to initialize the SDK client with
    */
   abstract moveToOrganization(
     model: CipherView,
