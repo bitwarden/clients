@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { first, firstValueFrom, merge, of, ReplaySubject, takeWhile } from "rxjs";
+import { combineLatest, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -198,7 +198,7 @@ describe("DefaultCollectionService", () => {
       const obs2 = collectionService.decryptedCollections$(userId);
       const obs3 = collectionService.decryptedCollections$(userId);
 
-      await firstValueFrom(merge(obs1, obs2, obs3));
+      await firstValueFrom(combineLatest([obs1, obs2, obs3]));
 
       // Expect decryptMany$ to be called only once
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
