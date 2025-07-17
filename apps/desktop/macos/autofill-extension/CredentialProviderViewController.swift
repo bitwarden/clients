@@ -13,6 +13,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger: Logger
     
     @IBOutlet weak var statusLabel: NSTextField!
+    @IBOutlet weak var logoImageView: NSImageView!
     
     // There is something a bit strange about the initialization/deinitialization in this class.
     // Sometimes deinit won't be called after a request has successfully finished,
@@ -170,14 +171,30 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             self?.extensionContext.completeExtensionConfigurationRequest()
         }
     }
-       
+    
+    /*
+     In order to implement this method, we need to query the state of the vault to be unlocked and have one and only one matching credential so that it doesn't need to show ui.
+     If we do show UI, it's going to fail and disconnect after the platform timeout which is 3s.
+     For now we just claim to always need UI displayed.
+     */
     override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
+       let error = ASExtensionError(.userInteractionRequired)
+       self.extensionContext.cancelRequest(withError: error)
+       return
+    }
+    
+    /*
+     Implement this method if provideCredentialWithoutUserInteraction(for:) can fail with
+     ASExtensionError.userInteractionRequired. In this case, the system may present your extension's
+     UI and call this method. Show appropriate UI for authenticating the user then provide the password
+     by completing the extension request with the associated ASPasswordCredential.
+     */
+    override func prepareInterfaceToProvideCredential(for credentialRequest: ASCredentialRequest) {
         let timeoutTimer = createTimer()
-
         if let request = credentialRequest as? ASPasskeyCredentialRequest {
             if let passkeyIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
-                
-                logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2(passkey) called \(request)")
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (passkey) called \(request)")
                 
                 class CallbackImpl: PreparePasskeyAssertionCallback {
                     let ctx: ASCredentialProviderExtensionContext
@@ -217,6 +234,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     UserVerification.discouraged
                 }
                 
+                /*
+                    We're still using the old request type here, because we're sending the same data, we're expecting a single credential to be used
+                */
                 let req = PasskeyAssertionWithoutUserInterfaceRequest(
                     rpId: passkeyIdentity.relyingPartyIdentifier,
                     credentialId: passkeyIdentity.credentialID,
@@ -238,16 +258,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2 called wrong")
         self.extensionContext.cancelRequest(withError: BitwardenError.Internal("Invalid authentication request"))
     }
-    
-    /*
-     Implement this method if provideCredentialWithoutUserInteraction(for:) can fail with
-     ASExtensionError.userInteractionRequired. In this case, the system may present your extension's
-     UI and call this method. Show appropriate UI for authenticating the user then provide the password
-     by completing the extension request with the associated ASPasswordCredential.
      
-     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-     }
-     */
 
     private func createTimer() -> DispatchWorkItem {
         // Create a timer for 600 second timeout
