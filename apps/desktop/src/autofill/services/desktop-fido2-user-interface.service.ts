@@ -263,13 +263,13 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private async showUi(
     route: string,
     position?: { x: number; y: number },
-    showTrafficButtons?: boolean,
+    showTrafficButtons: boolean = false,
     disableRedirect?: boolean,
   ): Promise<void> {
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
     await this.centerOffscreenPopup();
-    await this.accountService.setShowHeader(false);
+    await this.accountService.setShowHeader(showTrafficButtons);
     await this.router.navigate([
       route,
       {
