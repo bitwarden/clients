@@ -419,11 +419,13 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]] | null> {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
-      const decryptStartTime = new Date().getTime();
+      const decryptStartTime = performance.now();
       const decrypted = await this.decryptCiphersWithSdk(ciphers, userId);
-      this.logService.info(
-        `[CipherService] Decrypting ${decrypted.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-      );
+
+      this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
+        ["Items", ciphers.length],
+      ]);
+
       // With SDK, failed ciphers are not returned
       return [decrypted, []];
     }
@@ -442,7 +444,7 @@ export class CipherService implements CipherServiceAbstraction {
       },
       {} as Record<string, Cipher[]>,
     );
-    const decryptStartTime = new Date().getTime();
+    const decryptStartTime = performance.now();
     const allCipherViews = (
       await Promise.all(
         Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
@@ -462,9 +464,11 @@ export class CipherService implements CipherServiceAbstraction {
     )
       .flat()
       .sort(this.getLocaleSortingFunction());
-    this.logService.info(
-      `[CipherService] Decrypting ${allCipherViews.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-    );
+
+    this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
+      ["Items", ciphers.length],
+    ]);
+
     // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
     return allCipherViews.reduce(
       (acc, c) => {
