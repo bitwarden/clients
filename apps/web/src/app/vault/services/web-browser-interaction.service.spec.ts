@@ -58,13 +58,13 @@ describe("WebBrowserInteractionService", () => {
       });
 
       // initial timeout, should emit false
-      tick(150);
+      tick(26);
       expect(results[0]).toBe(false);
 
       tick(2500);
       // then emit `HasBwInstalled`
       dispatchEvent(VaultMessages.HasBwInstalled);
-      tick();
+      tick(26);
       expect(results[1]).toBe(true);
     }));
   });

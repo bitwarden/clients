@@ -33,7 +33,7 @@ const OPEN_RESPONSE_TIMEOUT_MS = 1500;
  * A shorter timeout is used to avoid waiting for too long for the extension. The listener for
  * checking the installation runs in the background scripts so the response should be relatively quick.
  */
-const CHECK_FOR_EXTENSION_TIMEOUT_MS = 100;
+const CHECK_FOR_EXTENSION_TIMEOUT_MS = 25;
 
 @Injectable({
   providedIn: "root",
