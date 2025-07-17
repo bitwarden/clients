@@ -1,8 +1,8 @@
-<ng-container *ngIf="showNewItemSpotlight$ | async">
+@if (showNewItemSpotlight$ | async) {
   <bit-spotlight
     [title]="nudgeTitle"
     [subtitle]="nudgeBody"
     (onDismiss)="dismissNewItemSpotlight()"
   >
   </bit-spotlight>
-</ng-container>
+}

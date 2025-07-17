@@ -24,6 +24,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -48,6 +49,7 @@ import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -72,6 +74,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
+  showEnableAutotype = false;
   showOpenAtLoginOption = false;
   isWindows: boolean;
   isLinux: boolean;
@@ -133,6 +136,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
+    enableAutotype: false,
     theme: [null as Theme | null],
     locale: [null as string | null],
   });
@@ -156,6 +160,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
+    private desktopAutotypeService: DesktopAutotypeService,
     private biometricStateService: BiometricStateService,
     private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
@@ -236,9 +241,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
 
-    if (activeAccount == null || activeAccount.id == null) {
-      return;
-    }
+    // Autotype is for Windows initially
+    const isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
+    const windowsDesktopAutotypeFeatureFlag = await this.configService.getFeatureFlag(
+      FeatureFlag.WindowsDesktopAutotype,
+    );
+    this.showEnableAutotype = isWindows && windowsDesktopAutotypeFeatureFlag;
 
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
@@ -333,6 +341,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
+      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabled$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -851,6 +860,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.form.controls.allowScreenshots.setValue(true, { emitEvent: false });
       }
     }
+  }
+
+  async saveEnableAutotype() {
+    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
   }
 
   private async generateVaultTimeoutOptions(): Promise<VaultTimeoutOption[]> {
