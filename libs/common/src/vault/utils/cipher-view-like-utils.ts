@@ -162,7 +162,7 @@ export class CipherViewLikeUtils {
       return undefined;
     }
 
-    return login.uris?.map((u) => toLoginUriView(u)).find((uri) => uri.canLaunch)?.uri;
+    return login.uris?.map((u) => toLoginUriView(u)).find((uri) => uri.canLaunch)?.launchUri;
   };
 
   /**

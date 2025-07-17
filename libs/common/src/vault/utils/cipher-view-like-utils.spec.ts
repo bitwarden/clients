@@ -379,6 +379,16 @@ describe("CipherViewLikeUtils", () => {
 
         expect(CipherViewLikeUtils.getLaunchUri(cipherView)).toBeUndefined();
       });
+
+      it("appends protocol when there are none", () => {
+        const cipherView = createCipherView(CipherType.Login);
+        cipherView.login = new LoginView();
+        const uriView = new LoginUriView();
+        uriView.uri = "bitwarden.com";
+        cipherView.login.uris = [uriView];
+
+        expect(CipherViewLikeUtils.getLaunchUri(cipherView)).toBe("http://bitwarden.com");
+      });
     });
 
     describe("CipherListView", () => {
