@@ -317,8 +317,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
             // - Admin console: user has no ciphers of that type in the selected org
             // - Individual vault view: user has no ciphers of that type in any allowed org
             return !ciphers?.some((c) => {
-              if (c.type !== r.cipherType) {
-                return false; // Not the type we're checking
+              if (c.deletedDate || c.type !== r.cipherType) {
+                return false;
               }
               // If the cipher doesn't belong to an org it is automatically restricted
               if (!c.organizationId) {
