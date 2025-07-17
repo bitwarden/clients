@@ -295,32 +295,46 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return orgFilterSection;
   }
 
-  protected async addTypeFilter(excludeTypes: CipherStatus[] = []): Promise<VaultFilterSection> {
+  protected async addTypeFilter(
+    excludeTypes: CipherStatus[] = [],
+    organizationId?: string,
+  ): Promise<VaultFilterSection> {
     const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
 
     const userId = await firstValueFrom(this.activeUserId$);
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      this.cipherService.getAllDecrypted(userId),
+      this.cipherService.cipherViews$(userId),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
-        // list of restricted cipher types that satisfy either:
-        // - all orgs restrict the type
-        // OR
-        // - the user doesn't have a cipher of that type for any of the orgs which allow it
         const restrictedForUser = restrictedTypes
-          .filter(
-            (r) =>
-              r.allowViewOrgIds.length === 0 ||
-              !ciphers.some(
-                (c) =>
-                  c.type === r.cipherType &&
-                  c.organizationId &&
-                  r.allowViewOrgIds.includes(c.organizationId),
-              ),
-          )
+          .filter((r) => {
+            // - All orgs restrict the type
+            if (r.allowViewOrgIds.length === 0) {
+              return true;
+            }
+            // - Admin console: user has no ciphers of that type in the selected org
+            // - Individual vault view: user has no ciphers of that type in any allowed org
+            return !ciphers?.some((c) => {
+              if (c.type !== r.cipherType) {
+                return false; // Not the type we're checking
+              }
+              // If the cipher doesn't belong to an org it is automatically restricted
+              if (!c.organizationId) {
+                return false;
+              }
+              if (organizationId) {
+                return (
+                  c.organizationId === organizationId &&
+                  r.allowViewOrgIds.includes(c.organizationId)
+                );
+              }
+              return r.allowViewOrgIds.includes(c.organizationId);
+            });
+          })
           .map((r) => r.cipherType);
+
         const toExclude = [...excludeTypes, ...restrictedForUser];
         return this.allTypeFilters.filter(
           (f) => typeof f.type === "string" || !toExclude.includes(f.type),

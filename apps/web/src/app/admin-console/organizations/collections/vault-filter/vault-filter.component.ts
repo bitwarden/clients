@@ -134,7 +134,7 @@ export class VaultFilterComponent
 
   async buildAllFilters(): Promise<VaultFilterList> {
     const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"]);
+    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this._organization?.id);
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
