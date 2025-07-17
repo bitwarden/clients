@@ -109,7 +109,6 @@ import { SharedModule } from "./shared.module";
     VerifyRecoverDeleteComponent,
     HeaderModule,
     DangerZoneComponent,
-    PremiumBadgeComponent,
   ],
 })
 export class LooseComponentsModule {}
