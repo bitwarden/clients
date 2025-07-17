@@ -534,6 +534,26 @@ describe("Cipher Service", () => {
         cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId),
       ).rejects.toThrow("Cannot rotate ciphers when decryption failures are present");
     });
+
+    it("uses the sdk to re-encrypt ciphers when feature flag is enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(true);
+
+      cipherEncryptionService.encryptWithKey.mockResolvedValue({
+        cipher: encryptionContext.cipher,
+        encryptedFor: mockUserId,
+      });
+
+      const result = await cipherService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      expect(result).toHaveLength(2);
+      expect(cipherEncryptionService.encryptWithKey).toHaveBeenCalledWith(
+        expect.any(CipherView),
+        mockUserId,
+        newUserKey,
+      );
+    });
   });
 
   describe("decrypt", () => {
