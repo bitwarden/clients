@@ -8,6 +8,7 @@ import { Opaque } from "type-fest";
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,
@@ -18,7 +19,6 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
-import { EncString, EncryptedString } from "../../platform/models/domain/enc-string";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
@@ -296,10 +296,18 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.encryptService.encryptString(accessToken, accessTokenKey);
   }
 
+  /**
+   * Decrypts the access token using the provided access token key.
+   *
+   * @param accessTokenKey - the key used to decrypt the access token
+   * @param encryptedAccessToken - the encrypted access token to decrypt
+   * @returns the decrypted access token
+   * @throws Error if the access token key is not provided or the decryption fails
+   */
   private async decryptAccessToken(
     accessTokenKey: AccessTokenKey,
     encryptedAccessToken: EncString,
-  ): Promise<string | null> {
+  ): Promise<string> {
     if (!accessTokenKey) {
       throw new Error(
         "decryptAccessToken: Access token key required. Cannot decrypt access token.",
