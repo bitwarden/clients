@@ -6,6 +6,7 @@ import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-pro
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   SETUP_EXTENSION_DISMISSED_DISK,
   StateProvider,
@@ -31,11 +32,15 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   const stateProvider = inject(StateProvider);
   const webBrowserInteractionService = inject(WebBrowserInteractionService);
 
+  const isMobile = Utils.isMobileBrowser;
+
   const endUserFeatureEnabled = await configService.getFeatureFlag(
     FeatureFlag.PM19315EndUserActivationMvp,
   );
 
-  if (!endUserFeatureEnabled) {
+  // The extension page isn't applicable for mobile users, do not redirect them.
+  // Include before any other checks to avoid unnecessary processing.
+  if (!endUserFeatureEnabled || isMobile) {
     return true;
   }
 
