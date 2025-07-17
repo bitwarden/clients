@@ -3,6 +3,7 @@ import { BehaviorSubject, map, of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
@@ -24,7 +25,7 @@ import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
-import { CipherId, UserId } from "../../types/guid";
+import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
 import { CipherKey, OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
@@ -109,6 +110,7 @@ describe("Cipher Service", () => {
   const cipherEncryptionService = mock<CipherEncryptionService>();
 
   const userId = "TestUserId" as UserId;
+  const orgId = "4ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b2" as OrganizationId;
 
   let cipherService: CipherService;
   let encryptionContext: EncryptionContext;
@@ -625,6 +627,79 @@ describe("Cipher Service", () => {
 
       expect(result).toEqual(mockDecryptedContent);
       expect(encryptService.decryptFileData).toHaveBeenCalledWith(mockEncBuf, attachment.key);
+    });
+  });
+
+  describe("shareWithServer()", () => {
+    it("should use cipherEncryptionService to move the cipher when feature flag enabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(true);
+
+      apiService.putShareCipher.mockResolvedValue(new CipherResponse(cipherData));
+
+      const expectedCipher = new Cipher(cipherData);
+      expectedCipher.organizationId = orgId;
+      const cipherView = new CipherView(expectedCipher);
+      const collectionIds = ["collection1", "collection2"] as CollectionId[];
+
+      cipherView.organizationId = undefined; // Ensure organizationId is undefined for this test
+
+      cipherEncryptionService.moveToOrganization.mockResolvedValue({
+        cipher: expectedCipher,
+        encryptedFor: userId,
+      });
+
+      await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
+
+      // Expect SDK usage
+      expect(cipherEncryptionService.moveToOrganization).toHaveBeenCalledWith(
+        cipherView,
+        orgId,
+        userId,
+      );
+      // Expect collectionIds to be assigned
+      expect(apiService.putShareCipher).toHaveBeenCalledWith(
+        cipherView.id,
+        expect.objectContaining({
+          cipher: expect.objectContaining({ organizationId: orgId }),
+          collectionIds: collectionIds,
+        }),
+      );
+    });
+
+    it("should use legacy encryption when feature flag disabled", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM22136_SdkCipherEncryption)
+        .mockResolvedValue(false);
+
+      apiService.putShareCipher.mockResolvedValue(new CipherResponse(cipherData));
+
+      const expectedCipher = new Cipher(cipherData);
+      expectedCipher.organizationId = orgId;
+      const cipherView = new CipherView(expectedCipher);
+      const collectionIds = ["collection1", "collection2"] as CollectionId[];
+
+      cipherView.organizationId = undefined; // Ensure organizationId is undefined for this test
+
+      const oldEncryptSharedSpy = jest
+        .spyOn(cipherService as any, "encryptSharedCipher")
+        .mockResolvedValue({
+          cipher: expectedCipher,
+          encryptedFor: userId,
+        });
+
+      await cipherService.shareWithServer(cipherView, orgId, collectionIds, userId);
+
+      // Expect no SDK usage
+      expect(cipherEncryptionService.moveToOrganization).not.toHaveBeenCalled();
+      expect(oldEncryptSharedSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          organizationId: orgId,
+          collectionIds: collectionIds,
+        } as unknown as CipherView),
+        userId,
+      );
     });
   });
 });
