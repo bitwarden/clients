@@ -6,7 +6,7 @@
   }"
 >
   <a
-    *ngIf="!hideLogo"
+    *ngIf="!hideLogo()"
     [routerLink]="['/']"
     class="tw-w-[128px] tw-block tw-mb-12 [&>*]:tw-align-top"
   >
@@ -14,29 +14,29 @@
   </a>
 
   <div class="tw-text-center tw-mb-4 sm:tw-mb-6 tw-mx-auto" [ngClass]="maxWidthClass">
-    <div *ngIf="!hideIcon" class="tw-w-24 sm:tw-w-28 md:tw-w-32 tw-mx-auto">
-      <bit-icon [icon]="icon"></bit-icon>
+    <div *ngIf="!hideIcon()" class="tw-w-24 sm:tw-w-28 md:tw-w-32 tw-mx-auto">
+      <bit-icon [icon]="icon()"></bit-icon>
     </div>
 
-    <ng-container *ngIf="title">
+    <ng-container *ngIf="title()">
       <!-- Small screens -->
       <h1 bitTypography="h3" class="tw-mt-2 sm:tw-hidden">
-        {{ title }}
+        {{ title() }}
       </h1>
       <!-- Medium to Larger screens -->
       <h1 bitTypography="h2" class="tw-mt-2 tw-hidden sm:tw-block">
-        {{ title }}
+        {{ title() }}
       </h1>
     </ng-container>
 
-    <div *ngIf="subtitle" class="tw-text-sm sm:tw-text-base">{{ subtitle }}</div>
+    <div *ngIf="subtitle()" class="tw-text-sm sm:tw-text-base">{{ subtitle() }}</div>
   </div>
 
   <div
     class="tw-grow tw-w-full tw-mx-auto tw-flex tw-flex-col tw-items-center sm:tw-min-w-[28rem]"
     [ngClass]="maxWidthClass"
   >
-    @if (hideCardWrapper) {
+    @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
@@ -50,11 +50,11 @@
     <ng-content select="[slot=secondary]"></ng-content>
   </div>
 
-  <footer *ngIf="!hideFooter" class="tw-text-center tw-mt-4 sm:tw-mt-6">
-    <div *ngIf="showReadonlyHostname" bitTypography="body2">
+  <footer *ngIf="!hideFooter()" class="tw-text-center tw-mt-4 sm:tw-mt-6">
+    <div *ngIf="showReadonlyHostname()" bitTypography="body2">
       {{ "accessing" | i18n }} {{ hostname }}
     </div>
-    <ng-container *ngIf="!showReadonlyHostname">
+    <ng-container *ngIf="!showReadonlyHostname()">
       <ng-content select="[slot=environment-selector]"></ng-content>
     </ng-container>
     <ng-container *ngIf="!hideYearAndVersion">

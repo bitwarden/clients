@@ -8,12 +8,12 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import {
   AUTH_REQUEST_DISK_LOCAL,
@@ -101,6 +101,21 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
         return authRequestResponses.data.map((authRequestResponse: AuthRequestResponse) => {
           return new AuthRequestResponse(authRequestResponse);
         });
+      }),
+    );
+  }
+
+  getLatestPendingAuthRequest$(): Observable<AuthRequestResponse | null> {
+    return this.getPendingAuthRequests$().pipe(
+      map((authRequests: Array<AuthRequestResponse>) => {
+        if (authRequests.length === 0) {
+          return null;
+        }
+        return authRequests.sort((a, b) => {
+          const dateA = new Date(a.creationDate).getTime();
+          const dateB = new Date(b.creationDate).getTime();
+          return dateB - dateA; // Sort in descending order
+        })[0];
       }),
     );
   }

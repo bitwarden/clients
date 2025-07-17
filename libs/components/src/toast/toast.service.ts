@@ -11,7 +11,10 @@ export type ToastOptions = {
    * The duration the toast will persist in milliseconds
    **/
   timeout?: number;
-} & Pick<ToastComponent, "message" | "variant" | "title">;
+  message: ReturnType<ToastComponent["message"]>;
+  variant?: ReturnType<ToastComponent["variant"]>;
+  title?: ReturnType<ToastComponent["title"]>;
+};
 
 /**
  * Presents toast notifications

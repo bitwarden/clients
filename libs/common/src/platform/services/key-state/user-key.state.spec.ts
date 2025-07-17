@@ -1,6 +1,6 @@
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncryptionType } from "../../enums";
 import { Utils } from "../../misc/utils";
-import { EncString } from "../../models/domain/enc-string";
 
 import { USER_ENCRYPTED_PRIVATE_KEY, USER_EVER_HAD_USER_KEY } from "./user-key.state";
 

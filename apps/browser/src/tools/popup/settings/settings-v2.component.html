@@ -10,7 +10,16 @@
     <bit-item>
       <a bit-item-content routerLink="/account-security">
         <i slot="start" class="bwi bwi-lock" aria-hidden="true"></i>
-        {{ "accountSecurity" | i18n }}
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <p class="tw-pr-2">{{ "accountSecurity" | i18n }}</p>
+          <span
+            *ngIf="showAcctSecurityNudge$ | async"
+            bitBadge
+            variant="notification"
+            [attr.aria-label]="'nudgeBadgeAria' | i18n"
+            >1</span
+          >
+        </div>
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>

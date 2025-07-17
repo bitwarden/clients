@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   makeEncString,
   trackEmissions,

@@ -2,12 +2,11 @@
 // @ts-strict-ignore
 import { Jsonify, Opaque } from "type-fest";
 
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
-import { Encrypted } from "../../interfaces/encrypted";
-import { Utils } from "../../misc/utils";
-
-import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../platform/enums";
+import { Encrypted } from "../../../platform/interfaces/encrypted";
+import { Utils } from "../../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { EncryptService } from "../abstractions/encrypt.service";
 
 export const DECRYPT_ERROR = "[error: cannot decrypt]";
 

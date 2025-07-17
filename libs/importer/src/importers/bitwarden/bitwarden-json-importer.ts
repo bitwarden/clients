@@ -8,13 +8,13 @@ import { CollectionView } from "@bitwarden/admin-console/common";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherWithIdExport,
   CollectionWithIdExport,
   FolderWithIdExport,
 } from "@bitwarden/common/models/export";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -74,11 +74,9 @@ export class BitwardenJsonImporter extends BaseImporter implements Importer {
         keyForDecryption = await this.keyService.getUserKey();
       }
       const encKeyValidation = new EncString(results.encKeyValidation_DO_NOT_EDIT);
-      const encKeyValidationDecrypt = await this.encryptService.decryptString(
-        encKeyValidation,
-        keyForDecryption,
-      );
-      if (encKeyValidationDecrypt === null) {
+      try {
+        await this.encryptService.decryptString(encKeyValidation, keyForDecryption);
+      } catch {
         this.result.success = false;
         this.result.errorMessage = this.i18nService.t("importEncKeyError");
         return;

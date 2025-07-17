@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, HostListener, Input, OnDestroy, Optional } from "@angular/core";
+import { Directive, HostListener, model, OnDestroy, Optional } from "@angular/core";
 import { BehaviorSubject, finalize, Subject, takeUntil, tap } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -38,7 +38,7 @@ export class BitActionDirective implements OnDestroy {
 
   disabled = false;
 
-  @Input("bitAction") handler: FunctionReturningAwaitable;
+  readonly handler = model<FunctionReturningAwaitable>(undefined, { alias: "bitAction" });
 
   constructor(
     private buttonComponent: ButtonLikeAbstraction,
@@ -48,12 +48,12 @@ export class BitActionDirective implements OnDestroy {
 
   @HostListener("click")
   protected async onClick() {
-    if (!this.handler || this.loading || this.disabled || this.buttonComponent.disabled()) {
+    if (!this.handler() || this.loading || this.disabled || this.buttonComponent.disabled()) {
       return;
     }
 
     this.loading = true;
-    functionToObservable(this.handler)
+    functionToObservable(this.handler())
       .pipe(
         tap({
           error: (err: unknown) => {

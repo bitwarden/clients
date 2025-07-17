@@ -21,7 +21,14 @@ describe("AddExtensionVideosComponent", () => {
   HTMLMediaElement.prototype.play = play;
 
   beforeEach(async () => {
-    window.matchMedia = jest.fn().mockReturnValue(false);
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: false,
+        addListener() {},
+        removeListener() {},
+      })),
+    });
     play.mockClear();
 
     await TestBed.configureTestingModule({
@@ -126,45 +133,34 @@ describe("AddExtensionVideosComponent", () => {
       thirdVideo = component["videoElements"].get(2)!.nativeElement;
     });
 
-    it("starts the video sequence when all videos are loaded", fakeAsync(() => {
-      tick();
-
+    it("starts the video sequence when all videos are loaded", () => {
       expect(firstVideo.play).toHaveBeenCalled();
-    }));
+    });
 
-    it("plays videos in sequence", fakeAsync(() => {
-      tick(); // let first video play
-
+    it("plays videos in sequence", () => {
       play.mockClear();
       firstVideo.onended!(new Event("ended")); // trigger next video
-
-      tick();
 
       expect(secondVideo.play).toHaveBeenCalledTimes(1);
 
       play.mockClear();
       secondVideo.onended!(new Event("ended")); // trigger next video
 
-      tick();
-
       expect(thirdVideo.play).toHaveBeenCalledTimes(1);
-    }));
+    });
 
-    it("doesn't play videos again when the user prefers no motion", fakeAsync(() => {
+    it("doesn't play videos again when the user prefers no motion", () => {
       component["prefersReducedMotion"] = true;
 
-      tick();
       firstVideo.onended!(new Event("ended"));
-      tick();
+
       secondVideo.onended!(new Event("ended"));
-      tick();
 
       play.mockClear();
 
       thirdVideo.onended!(new Event("ended")); // trigger first video again
 
-      tick();
       expect(play).toHaveBeenCalledTimes(0);
-    }));
+    });
   });
 });

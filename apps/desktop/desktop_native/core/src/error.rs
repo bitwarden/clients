@@ -9,8 +9,6 @@ pub enum Error {
 
     #[error("Cryptography Error, {0}")]
     Crypto(#[from] CryptoError),
-    #[error("KDF Parameter Error, {0}")]
-    KdfParam(#[from] KdfParamError),
 }
 
 #[derive(Debug, Error)]

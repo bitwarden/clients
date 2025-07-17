@@ -10,9 +10,9 @@ import {
   FakeGlobalState,
   FakeSingleUserState,
   FakeStateProvider,
+  awaitAsync,
   mockAccountServiceWith,
 } from "../../../../spec";
-import { Matrix } from "../../../../spec/matrix";
 import { subscribeTo } from "../../../../spec/observable-tracker";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -74,8 +74,7 @@ describe("ConfigService", () => {
     });
 
     beforeEach(() => {
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
-      environmentService.globalEnvironment$ = environmentSubject;
+      environmentService.environment$ = environmentSubject;
       sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -99,17 +98,19 @@ describe("ConfigService", () => {
             : serverConfigFactory(activeApiUrl + userId, tooOld);
         const globalStored =
           configStateDescription === "missing"
-            ? {
-                [activeApiUrl]: null,
-              }
+            ? {}
             : {
                 [activeApiUrl]: serverConfigFactory(activeApiUrl, tooOld),
-                [activeApiUrl + "0"]: serverConfigFactory(activeApiUrl + userId, tooOld),
               };
 
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
           userState.nextState(userStored);
+        });
+
+        // sanity check
+        test("authed and unauthorized state are different", () => {
+          expect(globalStored[activeApiUrl]).not.toEqual(userStored);
         });
 
         describe("fail to fetch", () => {
@@ -177,7 +178,6 @@ describe("ConfigService", () => {
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
           userState.nextState(userStored);
-          Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
         });
         it("does not fetch from server", async () => {
           await firstValueFrom(sut.serverConfig$);
@@ -189,13 +189,21 @@ describe("ConfigService", () => {
           const actual = await firstValueFrom(sut.serverConfig$);
           expect(actual).toEqual(activeUserId ? userStored : globalStored[activeApiUrl]);
         });
+
+        it("does not complete after emit", async () => {
+          const emissions = [];
+          const subscription = sut.serverConfig$.subscribe((v) => emissions.push(v));
+          await awaitAsync();
+          expect(emissions.length).toBe(1);
+          expect(subscription.closed).toBe(false);
+        });
       });
     });
   });
 
   it("gets global config when there is an locked active user", async () => {
     await accountService.switchAccount(userId);
-    environmentService.globalEnvironment$ = of(environmentFactory(activeApiUrl));
+    environmentService.environment$ = of(environmentFactory(activeApiUrl));
 
     globalState.stateSubject.next({
       [activeApiUrl]: serverConfigFactory(activeApiUrl + "global"),
@@ -228,8 +236,7 @@ describe("ConfigService", () => {
 
     beforeEach(() => {
       environmentSubject = new Subject<Environment>();
-      environmentService.globalEnvironment$ = environmentSubject;
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.environment$ = environmentSubject;
       sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -320,8 +327,7 @@ describe("ConfigService", () => {
 
     beforeEach(async () => {
       const config = serverConfigFactory("existing-data", tooOld);
-      environmentService.globalEnvironment$ = environmentSubject;
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      environmentService.environment$ = environmentSubject;
 
       globalState.stateSubject.next({ [apiUrl(0)]: config });
       userState.stateSubject.next({

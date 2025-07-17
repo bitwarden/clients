@@ -134,17 +134,11 @@
                       type="checkbox"
                       bitCheckbox
                       formControlName="manageUsers"
-                      (change)="handleDependentPermissions()"
                     />
                     <bit-label>{{ "manageUsers" | i18n }}</bit-label>
                   </bit-form-control>
                   <bit-form-control>
-                    <input
-                      type="checkbox"
-                      bitCheckbox
-                      formControlName="manageResetPassword"
-                      (change)="handleDependentPermissions()"
-                    />
+                    <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
                     <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
                   </bit-form-control>
                 </div>
