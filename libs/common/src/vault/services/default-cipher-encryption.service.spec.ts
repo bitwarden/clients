@@ -1,6 +1,9 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { Fido2Credential } from "@bitwarden/common/vault/models/domain/fido2-credential";
 import {
   Fido2Credential as SdkFido2Credential,
@@ -91,6 +94,7 @@ describe("DefaultCipherEncryptionService", () => {
     vault: jest.fn().mockReturnValue({
       ciphers: jest.fn().mockReturnValue({
         encrypt: jest.fn(),
+        encrypt_with_key: jest.fn(),
         set_fido2_credentials: jest.fn(),
         decrypt: jest.fn(),
         decrypt_list: jest.fn(),
@@ -243,6 +247,31 @@ describe("DefaultCipherEncryptionService", () => {
           id: cipherId,
           login: { fido2Credentials: [{ credentialId: "encrypted-credentialId" }] },
         }),
+      );
+    });
+  });
+
+  describe("encryptWithKey", () => {
+    it("should call the sdk method to encrypt the cipher with a new key", async () => {
+      mockSdkClient.vault().ciphers().encrypt_with_key.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+      });
+
+      const newUserKey: UserKey = new SymmetricCryptoKey(
+        Utils.fromUtf8ToArray("00000000000000000000000000000000"),
+      ) as UserKey;
+
+      const result = await cipherEncryptionService.encryptWithKey(
+        cipherViewObj,
+        userId,
+        newUserKey,
+      );
+
+      expect(result).toBeDefined();
+      expect(mockSdkClient.vault().ciphers().encrypt_with_key).toHaveBeenCalledWith(
+        expect.objectContaining({ id: cipherId }),
+        newUserKey.toBase64(),
       );
     });
   });
