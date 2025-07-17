@@ -189,7 +189,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
-    deletedCipher: () => this.updateOverlayCiphers(),
+    deletedCipher: () => this.updateOverlayCiphers(true),
     bgSaveCipher: () => this.updateOverlayCiphers(),
     fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender.tab.id),
   };
