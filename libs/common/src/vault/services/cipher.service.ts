@@ -15,6 +15,7 @@ import { DomainSettingsService } from "../../autofill/services/domain-settings.s
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { BulkEncryptService } from "../../key-management/crypto/abstractions/bulk-encrypt.service";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
@@ -25,7 +26,6 @@ import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
@@ -457,11 +457,13 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<[CipherView[], CipherView[]] | null> {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
-      const decryptStartTime = new Date().getTime();
+      const decryptStartTime = performance.now();
       const decrypted = await this.decryptCiphersWithSdk(ciphers, userId);
-      this.logService.info(
-        `[CipherService] Decrypting ${decrypted.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-      );
+
+      this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
+        ["Items", ciphers.length],
+      ]);
+
       // With SDK, failed ciphers are not returned
       return [decrypted, []];
     }
@@ -480,7 +482,7 @@ export class CipherService implements CipherServiceAbstraction {
       },
       {} as Record<string, Cipher[]>,
     );
-    const decryptStartTime = new Date().getTime();
+    const decryptStartTime = performance.now();
     const allCipherViews = (
       await Promise.all(
         Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
@@ -500,9 +502,11 @@ export class CipherService implements CipherServiceAbstraction {
     )
       .flat()
       .sort(this.getLocaleSortingFunction());
-    this.logService.info(
-      `[CipherService] Decrypting ${allCipherViews.length} ciphers took ${new Date().getTime() - decryptStartTime}ms`,
-    );
+
+    this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
+      ["Items", ciphers.length],
+    ]);
+
     // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
     return allCipherViews.reduce(
       (acc, c) => {

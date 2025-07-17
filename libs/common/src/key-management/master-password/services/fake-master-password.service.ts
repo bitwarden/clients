@@ -4,9 +4,9 @@ import { mock } from "jest-mock-extended";
 import { ReplaySubject, Observable } from "rxjs";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
+import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 
 export class FakeMasterPasswordService implements InternalMasterPasswordServiceAbstraction {

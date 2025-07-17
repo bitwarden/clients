@@ -515,7 +515,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   private compareNames(a: VaultItem<C>, b: VaultItem<C>): number {
     const getName = (item: VaultItem<C>) => item.collection?.name || item.cipher?.name;
-    return getName(a).localeCompare(getName(b));
+    return getName(a)?.localeCompare(getName(b)) ?? -1;
   }
 
   /**
