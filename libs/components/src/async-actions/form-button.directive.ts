@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Directive, Input, OnDestroy, Optional } from "@angular/core";
+import { Directive, OnDestroy, Optional, input } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
@@ -29,8 +29,8 @@ import { BitSubmitDirective } from "./bit-submit.directive";
 export class BitFormButtonDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
 
-  @Input() type: string;
-  @Input() disabled?: boolean;
+  readonly type = input<string>();
+  readonly disabled = input<boolean>();
 
   constructor(
     buttonComponent: ButtonLikeAbstraction,
@@ -39,16 +39,17 @@ export class BitFormButtonDirective implements OnDestroy {
   ) {
     if (submitDirective && buttonComponent) {
       submitDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-        if (this.type === "submit") {
+        if (this.type() === "submit") {
           buttonComponent.loading.set(loading);
         } else {
-          buttonComponent.disabled.set(this.disabled || loading);
+          buttonComponent.disabled.set(this.disabled() || loading);
         }
       });
 
       submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-        if (this.disabled !== false) {
-          buttonComponent.disabled.set(this.disabled || disabled);
+        const disabledValue = this.disabled();
+        if (disabledValue !== false) {
+          buttonComponent.disabled.set(disabledValue || disabled);
         }
       });
     }
