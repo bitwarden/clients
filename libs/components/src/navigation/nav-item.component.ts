@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, HostListener, Input, Optional } from "@angular/core";
+import { Component, HostListener, Optional, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject, map } from "rxjs";
 
@@ -17,12 +17,11 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  standalone: true,
   imports: [CommonModule, IconButtonModule, RouterModule],
 })
 export class NavItemComponent extends NavBaseComponent {
   /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
-  @Input() forceActiveStyles? = false;
+  readonly forceActiveStyles = input<boolean>(false);
 
   /**
    * Is `true` if `to` matches the current route
@@ -35,7 +34,7 @@ export class NavItemComponent extends NavBaseComponent {
     }
   }
   protected get showActiveStyles() {
-    return this.forceActiveStyles || (this._isActive && !this.hideActiveStyles);
+    return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
   }
 
   /**

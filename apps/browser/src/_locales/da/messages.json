@@ -1173,6 +1173,12 @@
     "message": "Oh no! We couldn't save this. Try entering the details manually.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Change your master password to complete account recovery."
+  },
   "enableChangedPasswordNotification": {
     "message": "Bed om at opdatere eksisterende login"
   },
@@ -1365,8 +1371,8 @@
   "featureUnavailable": {
     "message": "Funktion ikke tilgængelig"
   },
-  "encryptionKeyMigrationRequired": {
-    "message": "Krypteringsnøglemigrering nødvendig. Log ind gennem web-boksen for at opdatere krypteringsnøglen."
+  "legacyEncryptionUnsupported": {
+    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
   },
   "premiumMembership": {
     "message": "Premium-medlemskab"
@@ -1922,6 +1928,9 @@
   "typeSshKey": {
     "message": "SSH-nøgle"
   },
+  "typeNote": {
+    "message": "Note"
+  },
   "newItemHeader": {
     "message": "Ny $TYPE$",
     "placeholders": {
@@ -2153,8 +2162,8 @@
   "setYourPinCode": {
     "message": "Indstil din pinkode til at låse Bitwarden op. Dine pin-indstillinger nulstilles, hvis du nogensinde logger helt ud af programmet."
   },
-  "setYourPinCode1": {
-    "message": "PIN-koden vil blive brugt til oplåsning af Bitwarden i stedet for hovedadgangskoden. PIN-koden nulstilles, hvis man logger helt ud af Bitwarden."
+  "setPinCode": {
+    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
   },
   "pinRequired": {
     "message": "Pinkode er påkrævet."
@@ -2203,6 +2212,9 @@
   },
   "useThisPassword": {
     "message": "Anvend denne adgangskode"
+  },
+  "useThisPassphrase": {
+    "message": "Use this passphrase"
   },
   "useThisUsername": {
     "message": "Anvend dette brugernavn"
@@ -2481,6 +2493,12 @@
   "personalOwnershipPolicyInEffectImports": {
     "message": "En organisationspolitik hindrer import af emner til den individuelle boks."
   },
+  "restrictCardTypeImport": {
+    "message": "Cannot import card item types"
+  },
+  "restrictCardTypeImportDesc": {
+    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+  },
   "domainsTitle": {
     "message": "Domæner",
     "description": "A category title describing the concept of web domains"
@@ -2512,6 +2530,10 @@
   "change": {
     "message": "Change"
   },
+  "changePassword": {
+    "message": "Change password",
+    "description": "Change password button for browser at risk notification on login."
+  },
   "changeButtonTitle": {
     "message": "Change password - $ITEMNAME$",
     "placeholders": {
@@ -2520,6 +2542,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "atRiskPassword": {
+    "message": "At-risk password"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -2554,6 +2579,26 @@
         "example": "2"
       }
     }
+  },
+  "atRiskChangePrompt": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
+  },
+  "atRiskNavigatePrompt": {
+    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    },
+    "description": "Notification body when a login triggers an at-risk password change request and no change password domain is provided."
   },
   "reviewAndChangeAtRiskPassword": {
     "message": "Review and change one at-risk password"
@@ -2673,6 +2718,10 @@
   "allSends": {
     "message": "Alle Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "maxAccessCountReached": {
+    "message": "Max access count reached",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
     "message": "Skjul tekst som standard"
@@ -2875,6 +2924,9 @@
   },
   "emailVerificationRequiredDesc": {
     "message": "Du skal bekræfte din e-mail for at bruge denne funktion. Du kan bekræfte din e-mail i web-boksen."
+  },
+  "masterPasswordSuccessfullySet": {
+    "message": "Master password successfully set"
   },
   "updatedMasterPassword": {
     "message": "Hovedadgangskode opdateret"
@@ -3408,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Request sent"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "exposedMasterPassword": {
     "message": "Kompromitteret hovedadgangskode"
   },
@@ -3522,6 +3577,12 @@
   "requestAdminApproval": {
     "message": "Anmod om admin-godkendelse"
   },
+  "unableToCompleteLogin": {
+    "message": "Unable to complete login"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+  },
   "ssoIdentifierRequired": {
     "message": "Organisations SSO-identifikator kræves."
   },
@@ -3606,14 +3667,6 @@
   },
   "trustUser": {
     "message": "Trust user"
-  },
-  "sendsNoItemsTitle": {
-    "message": "Ingen aktive Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendsNoItemsMessage": {
-    "message": "Brug Send til at dele krypterede oplysninger sikkert med nogen.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoItems": {
     "message": "Send sensitive information safely",
@@ -4208,6 +4261,26 @@
   "commonImportFormats": {
     "message": "Almindelige formater",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "URI match detection is how Bitwarden identifies autofill suggestions.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "More about match detection",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Advanced options",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Fortsæt til Browserindstillinger?",
@@ -5036,6 +5109,9 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
+  "unlockWithBiometricSet": {
+    "message": "Unlock with biometrics set"
+  },
   "authenticating": {
     "message": "Godkender"
   },
@@ -5377,5 +5453,9 @@
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
+  },
+  "wasmNotSupported": {
+    "message": "WebAssembly is not supported on your browser or is not enabled. WebAssembly is required to use the Bitwarden app.",
+    "description": "'WebAssembly' is a technical term and should not be translated."
   }
 }

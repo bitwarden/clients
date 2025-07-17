@@ -11,7 +11,6 @@ import { enableAccountSwitching } from "../flags";
 @Component({
   selector: "app-header",
   templateUrl: "header.component.html",
-  standalone: true,
   imports: [CommonModule, CurrentAccountComponent],
 })
 export class HeaderComponent {

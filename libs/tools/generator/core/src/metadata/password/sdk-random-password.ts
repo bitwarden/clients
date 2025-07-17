@@ -6,17 +6,14 @@ import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkPasswordRandomizer } from "../../engine";
 import { DynamicPasswordPolicyConstraints, passwordLeastPrivilege } from "../../policies";
-import {
-  CredentialGenerator,
-  GeneratorDependencyProvider,
-  PasswordGeneratorSettings,
-} from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { CredentialGenerator, PasswordGeneratorSettings } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
 
 const sdkPassword: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
   id: Algorithm.sdkPassword,
-  category: Type.password,
+  type: Type.password,
   weight: 120,
   i18nKeys: {
     name: "password",
@@ -34,7 +31,7 @@ const sdkPassword: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     create(
       dependencies: GeneratorDependencyProvider,
     ): CredentialGenerator<PasswordGeneratorSettings> {
-      return new SdkPasswordRandomizer(new BitwardenClient(), Date.now); // @TODO hook up a real SDK client
+      return new SdkPasswordRandomizer(new BitwardenClient(null), Date.now); // @TODO hook up a real SDK client
     },
   },
   profiles: {

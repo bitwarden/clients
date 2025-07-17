@@ -6,10 +6,11 @@ import { distinctUntilChanged } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { MenuModule } from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -17,7 +18,6 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
-  standalone: true,
   imports: [MenuModule, CommonModule, JslibModule, ScrollingModule],
 })
 export class VaultItemsV2Component extends BaseVaultItemsComponent {
@@ -26,8 +26,9 @@ export class VaultItemsV2Component extends BaseVaultItemsComponent {
     private readonly searchBarService: SearchBarService,
     cipherService: CipherService,
     accountService: AccountService,
+    restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(searchService, cipherService, accountService);
+    super(searchService, cipherService, accountService, restrictedItemTypesService);
 
     this.searchBarService.searchText$
       .pipe(distinctUntilChanged(), takeUntilDestroyed())

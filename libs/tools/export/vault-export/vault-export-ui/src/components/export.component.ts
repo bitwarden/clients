@@ -57,7 +57,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
-import { CredentialGeneratorService, GenerateRequest, Generators } from "@bitwarden/generator-core";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { ExportedVault, VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { EncryptedExportType } from "../enums/encrypted-export-type.enum";
@@ -67,7 +67,6 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
 @Component({
   selector: "tools-export",
   templateUrl: "export.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -154,7 +153,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   disablePersonalVaultExportPolicy$: Observable<boolean>;
-  disablePersonalOwnershipPolicy$: Observable<boolean>;
+  organizationDataOwnershipPolicy$: Observable<boolean>;
 
   exportForm = this.formBuilder.group({
     vaultSelector: [
@@ -210,10 +209,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       ),
     );
 
-    this.disablePersonalOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
+    this.organizationDataOwnershipPolicy$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policyAppliesToUser$(PolicyType.PersonalOwnership, userId),
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
       ),
     );
 
@@ -248,7 +247,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       }),
     );
     this.generatorService
-      .generate$(Generators.password, { on$: this.onGenerate$, account$ })
+      .generate$({ on$: this.onGenerate$, account$ })
       .pipe(takeUntil(this.destroy$))
       .subscribe((generated) => {
         this.exportForm.patchValue({
@@ -295,21 +294,21 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
     combineLatest([
       this.disablePersonalVaultExportPolicy$,
-      this.disablePersonalOwnershipPolicy$,
+      this.organizationDataOwnershipPolicy$,
       this.organizations$,
     ])
       .pipe(
-        tap(([disablePersonalVaultExport, disablePersonalOwnership, organizations]) => {
+        tap(([disablePersonalVaultExport, organizationDataOwnership, organizations]) => {
           this._disabledByPolicy = disablePersonalVaultExport;
 
-          // When personalOwnership is disabled and we have orgs, set the first org as the selected vault
-          if (disablePersonalOwnership && organizations.length > 0) {
+          // When organizationDataOwnership is enabled and we have orgs, set the first org as the selected vault
+          if (organizationDataOwnership && organizations.length > 0) {
             this.exportForm.enable();
             this.exportForm.controls.vaultSelector.setValue(organizations[0].id);
           }
 
-          // When personalOwnership is disabled and we have no orgs, disable the form
-          if (disablePersonalOwnership && organizations.length === 0) {
+          // When organizationDataOwnership is enabled and we have no orgs, disable the form
+          if (organizationDataOwnership && organizations.length === 0) {
             this.exportForm.disable();
           }
 
@@ -319,7 +318,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
           }
 
           // When neither policy is enabled, enable the form and set the default vault to "myVault"
-          if (!disablePersonalVaultExport && !disablePersonalOwnership) {
+          if (!disablePersonalVaultExport && !organizationDataOwnership) {
             this.exportForm.controls.vaultSelector.setValue("myVault");
           }
         }),
@@ -379,7 +378,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   generatePassword = async () => {
-    this.onGenerate$.next({ source: "export" });
+    this.onGenerate$.next({ source: "export", type: Type.password });
   };
 
   submit = async () => {

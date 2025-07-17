@@ -128,6 +128,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendService,
           this.serviceContainer.environmentService,
           this.serviceContainer.searchService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(options);
         this.processResponse(response);
@@ -153,6 +154,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.eventCollectionService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
+          this.serviceContainer.cliRestrictedItemTypesService,
         );
         const response = await cmd.run("template", object, null);
         this.processResponse(response);
@@ -192,6 +194,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.accountService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -252,6 +255,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.searchService,
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
+          this.serviceContainer.accountService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,

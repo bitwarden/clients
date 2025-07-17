@@ -1,62 +1,84 @@
+@let isDrawer = dialogRef?.isDrawer;
 <section
-  class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-rounded-xl tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-text-main"
-  [ngClass]="width"
+  class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-text-main"
+  [ngClass]="[width, isDrawer ? 'tw-h-screen tw-border-t-0' : 'tw-rounded-xl']"
   @fadeIn
+  cdkTrapFocus
+  cdkTrapFocusAutoCapture
 >
+  @let showHeaderBorder = !isDrawer || background() === "alt" || bodyHasScrolledFrom().top;
   <header
-    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-p-4"
+    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid"
+    [ngClass]="{
+      'tw-p-4': !isDrawer,
+      'tw-p-6 tw-pb-4': isDrawer,
+      'tw-border-secondary-300': showHeaderBorder,
+      'tw-border-transparent': !showHeaderBorder,
+    }"
   >
-    <h1
+    <h2
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
       class="tw-text-main tw-mb-0 tw-truncate"
     >
-      {{ title }}
-      @if (subtitle) {
+      {{ title() }}
+      @if (subtitle(); as subtitleText) {
         <span class="tw-text-muted tw-font-normal tw-text-sm">
-          {{ subtitle }}
+          {{ subtitleText }}
         </span>
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
-    </h1>
-    <button
-      type="button"
-      bitIconButton="bwi-close"
-      buttonType="main"
-      size="default"
-      bitDialogClose
-      [attr.title]="'close' | i18n"
-      [attr.aria-label]="'close' | i18n"
-    ></button>
+    </h2>
+    @if (!this.dialogRef?.disableClose) {
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="main"
+        size="default"
+        bitDialogClose
+        [attr.title]="'close' | i18n"
+        [attr.aria-label]="'close' | i18n"
+      ></button>
+    }
   </header>
 
   <div
-    class="tw-relative tw-flex tw-flex-col tw-overflow-hidden"
+    class="tw-relative tw-flex-1 tw-flex tw-flex-col tw-overflow-hidden"
     [ngClass]="{
-      'tw-min-h-60': loading,
+      'tw-min-h-60': loading(),
+      'tw-bg-background': background() === 'default',
+      'tw-bg-background-alt': background() === 'alt',
     }"
   >
-    @if (loading) {
+    @if (loading()) {
       <div class="tw-absolute tw-flex tw-size-full tw-items-center tw-justify-center">
         <i class="bwi bwi-spinner bwi-spin bwi-lg" [attr.aria-label]="'loading' | i18n"></i>
       </div>
     }
     <div
+      cdkScrollable
       [ngClass]="{
-        'tw-p-4': !disablePadding,
-        'tw-overflow-y-auto': !loading,
-        'tw-invisible tw-overflow-y-hidden': loading,
-        'tw-bg-background': background === 'default',
-        'tw-bg-background-alt': background === 'alt',
+        'tw-p-4': !disablePadding() && !isDrawer,
+        'tw-px-6 tw-py-4': !disablePadding() && isDrawer,
+        'tw-overflow-y-auto': !loading(),
+        'tw-invisible tw-overflow-y-hidden': loading(),
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
     </div>
   </div>
 
+  @let showFooterBorder = !isDrawer || background() === "alt" || bodyHasScrolledFrom().bottom;
   <footer
-    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-4"
+    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-border-0 tw-border-t tw-border-solid tw-border-secondary-300 tw-bg-background"
+    [ngClass]="[isDrawer ? 'tw-px-6 tw-py-4' : 'tw-p-4']"
+    [ngClass]="{
+      'tw-px-6 tw-py-4': isDrawer,
+      'tw-p-4': !isDrawer,
+      'tw-border-secondary-300': showFooterBorder,
+      'tw-border-transparent': !showFooterBorder,
+    }"
   >
     <ng-content select="[bitDialogFooter]"></ng-content>
   </footer>

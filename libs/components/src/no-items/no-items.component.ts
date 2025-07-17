@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 import { Icons } from "..";
 import { BitIconComponent } from "../icon/icon.component";
@@ -9,9 +9,8 @@ import { BitIconComponent } from "../icon/icon.component";
 @Component({
   selector: "bit-no-items",
   templateUrl: "./no-items.component.html",
-  standalone: true,
   imports: [BitIconComponent],
 })
 export class NoItemsComponent {
-  @Input() icon = Icons.Search;
+  readonly icon = input(Icons.Search);
 }

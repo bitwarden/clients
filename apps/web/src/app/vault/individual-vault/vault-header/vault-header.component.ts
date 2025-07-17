@@ -1,14 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -31,6 +24,7 @@ import {
   MenuModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { NewCipherMenuComponent } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -42,7 +36,6 @@ import {
 } from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
-  standalone: true,
   selector: "app-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [
@@ -53,10 +46,11 @@ import {
     HeaderModule,
     PipesModule,
     JslibModule,
+    NewCipherMenuComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent implements OnInit {
+export class VaultHeaderComponent {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
@@ -102,8 +96,6 @@ export class VaultHeaderComponent implements OnInit {
     private router: Router,
     private configService: ConfigService,
   ) {}
-
-  async ngOnInit() {}
 
   /**
    * The id of the organization that is currently being filtered on.

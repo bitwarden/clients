@@ -2,12 +2,12 @@
 // @ts-strict-ignore
 import { Observable } from "rxjs";
 
-import { DeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
+import { OtherDeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
 
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
+import { EncString } from "../../crypto/models/enc-string";
 
 export abstract class DeviceTrustServiceAbstraction {
   /**
@@ -61,5 +61,5 @@ export abstract class DeviceTrustServiceAbstraction {
     oldUserKey: UserKey,
     newUserKey: UserKey,
     userId: UserId,
-  ) => Promise<DeviceKeysUpdateRequest[]>;
+  ) => Promise<OtherDeviceKeysUpdateRequest[]>;
 }

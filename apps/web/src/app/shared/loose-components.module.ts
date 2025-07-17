@@ -21,6 +21,7 @@ import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "../auth/verify-recover-delete.component";
+import { FreeBitwardenFamiliesComponent } from "../billing/members/free-bitwarden-families.component";
 import { SponsoredFamiliesComponent } from "../billing/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../billing/settings/sponsoring-org-row.component";
 // eslint-disable-next-line no-restricted-imports -- Temporarily disabled until DIRT refactors these out of this module
@@ -36,12 +37,9 @@ import { WeakPasswordsReportComponent as OrgWeakPasswordsReportComponent } from 
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
 import { HeaderModule } from "../layouts/header/header.module";
 import { PremiumBadgeComponent } from "../vault/components/premium-badge.component";
-import { FolderAddEditComponent } from "../vault/individual-vault/folder-add-edit.component";
 import { OrganizationBadgeModule } from "../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../vault/individual-vault/pipes/pipes.module";
-import { PurgeVaultComponent } from "../vault/settings/purge-vault.component";
 
-import { FreeBitwardenFamiliesComponent } from "./../billing/members/free-bitwarden-families.component";
 import { AccountFingerprintComponent } from "./components/account-fingerprint/account-fingerprint.component";
 import { SharedModule } from "./shared.module";
 
@@ -67,7 +65,6 @@ import { SharedModule } from "./shared.module";
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
-    FolderAddEditComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
     OrgInactiveTwoFactorReportComponent,
@@ -75,7 +72,6 @@ import { SharedModule } from "./shared.module";
     OrgUnsecuredWebsitesReportComponent,
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,
@@ -91,7 +87,6 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    FolderAddEditComponent,
     OrganizationLayoutComponent,
     OrgEventsComponent,
     OrgExposedPasswordsReportComponent,
@@ -101,7 +96,6 @@ import { SharedModule } from "./shared.module";
     OrgUserConfirmComponent,
     OrgWeakPasswordsReportComponent,
     PremiumBadgeComponent,
-    PurgeVaultComponent,
     RecoverDeleteComponent,
     RecoverTwoFactorComponent,
     RemovePasswordComponent,

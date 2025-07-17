@@ -6,10 +6,13 @@ import { firstValueFrom } from "rxjs";
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncryptedString,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
 
@@ -188,13 +191,10 @@ export class DuckDuckGoMessageHandlerService {
     }
 
     try {
-      let decryptedResult = await this.encryptService.decryptString(
+      const decryptedResult = await this.decryptDuckDuckGoEncString(
         message.encryptedCommand as EncString,
         this.duckduckgoSharedSecret,
       );
-
-      decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
-
       return JSON.parse(decryptedResult);
     } catch {
       this.sendResponse({
@@ -237,7 +237,46 @@ export class DuckDuckGoMessageHandlerService {
     ipc.platform.nativeMessaging.sendReply(response);
   }
 
-  // Trim all null bytes padded at the end of messages. This happens with C encryption libraries.
+  /*
+   * Bitwarden type 2 (AES256-CBC-HMAC256) uses PKCS7 padding.
+   * DuckDuckGo does not use PKCS7 padding; and instead fills the last CBC block with null bytes.
+   * ref: https://github.com/duckduckgo/apple-browsers/blob/04d678b447869c3a640714718a466b36407db8b6/macOS/DuckDuckGo/PasswordManager/Bitwarden/Services/BWEncryption.m#L141
+   *
+   * This is incompatible which means the default encryptService cannot be used to decrypt the message,
+   * a custom EncString decrypt operation is needed.
+   *
+   * This function also trims null characters that are a result of the null-padding from the end of the message.
+   */
+  private async decryptDuckDuckGoEncString(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+  ): Promise<string> {
+    const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
+      encString.data,
+      encString.iv,
+      encString.mac,
+      key,
+    );
+
+    const computedMac = await this.cryptoFunctionService.hmacFast(
+      fastParams.macData,
+      fastParams.macKey,
+      "sha256",
+    );
+    const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
+    if (!macsEqual) {
+      return null;
+    }
+    const decryptedPaddedString = await this.cryptoFunctionService.aesDecryptFast({
+      mode: "cbc",
+      parameters: fastParams,
+    });
+    return this.trimNullCharsFromMessage(decryptedPaddedString);
+  }
+
+  // DuckDuckGo does not use PKCS7 padding, but instead leaves the values as null,
+  // so null characters need to be trimmed from the end of the message for the last
+  // CBC-block.
   private trimNullCharsFromMessage(message: string): string {
     const charNull = 0;
     const charRightCurlyBrace = 125;

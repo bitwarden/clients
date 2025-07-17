@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   Component,
@@ -12,6 +11,9 @@ import {
   HostBinding,
   Optional,
   Self,
+  input,
+  model,
+  booleanAttribute,
 } from "@angular/core";
 import {
   ControlValueAccessor,
@@ -37,8 +39,10 @@ let nextId = 0;
   selector: "bit-multi-select",
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
-  standalone: true,
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule, BadgeModule, I18nPipe],
+  host: {
+    "[id]": "this.id()",
+  },
 })
 /**
  * This component has been implemented to only support Multi-select list events
@@ -47,12 +51,14 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
-  @Input() baseItems: SelectItemView[];
+  readonly baseItems = model<SelectItemView[]>();
   // Defaults to native ng-select behavior - set to "true" to clear selected items on dropdown close
-  @Input() removeSelectedItems = false;
-  @Input() placeholder: string;
-  @Input() loading = false;
-  @Input({ transform: coerceBooleanProperty }) disabled?: boolean;
+  readonly removeSelectedItems = input(false);
+  readonly placeholder = model<string>();
+  readonly loading = input(false);
+  // TODO: Skipped for signal migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input({ transform: booleanAttribute }) disabled?: boolean;
 
   // Internal tracking of selected items
   protected selectedItems: SelectItemView[];
@@ -80,7 +86,9 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
 
   ngOnInit(): void {
     // Default Text Values
-    this.placeholder = this.placeholder ?? this.i18nService.t("multiSelectPlaceholder");
+    this.placeholder.update(
+      (placeholder) => placeholder ?? this.i18nService.t("multiSelectPlaceholder"),
+    );
     this.loadingText = this.i18nService.t("multiSelectLoading");
   }
 
@@ -120,15 +128,15 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     this.onItemsConfirmed.emit(this.selectedItems);
 
     // Remove selected items from base list based on input property
-    if (this.removeSelectedItems) {
-      let updatedBaseItems = this.baseItems;
+    if (this.removeSelectedItems()) {
+      let updatedBaseItems = this.baseItems();
       this.selectedItems.forEach((selectedItem) => {
         updatedBaseItems = updatedBaseItems.filter((item) => selectedItem.id !== item.id);
       });
 
       // Reset Lists
       this.selectedItems = null;
-      this.baseItems = updatedBaseItems;
+      this.baseItems.set(updatedBaseItems);
     }
   }
 
@@ -187,9 +195,11 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
 
   /**Implemented as part of BitFormFieldControl */
-  @HostBinding() @Input() id = `bit-multi-select-${nextId++}`;
+  readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @HostBinding("attr.required")
   @Input()
   get required() {

@@ -15,12 +15,12 @@ import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -64,15 +64,15 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent imp
     toastService: ToastService,
   ) {
     super(
+      accountService,
+      dialogService,
       i18nService,
+      kdfConfigService,
       keyService,
+      masterPasswordService,
       messagingService,
       platformUtilsService,
       policyService,
-      dialogService,
-      kdfConfigService,
-      masterPasswordService,
-      accountService,
       toastService,
     );
   }

@@ -21,6 +21,10 @@ import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import {
+  EncString,
+  EncryptedString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
@@ -32,7 +36,6 @@ import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
-import { EncString, EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
@@ -41,7 +44,7 @@ import {
   USER_EVER_HAD_USER_KEY,
   USER_KEY,
 } from "@bitwarden/common/platform/services/key-state/user-key.state";
-import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -63,10 +66,6 @@ import {
 import { KdfConfig } from "./models/kdf-config";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
-  private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
-
-  readonly everHadUserKey$: Observable<boolean>;
-
   readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
 
   constructor(
@@ -82,10 +81,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateProvider: StateProvider,
     protected kdfConfigService: KdfConfigService,
   ) {
-    // User Key
-    this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
-    this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
-
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
     ) as Observable<Record<OrganizationId, OrgKey>>;
@@ -130,15 +125,23 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.setPrivateKey(encPrivateKey, userId);
   }
 
-  async refreshAdditionalKeys(): Promise<void> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-
-    if (activeUserId == null) {
-      throw new Error("Can only refresh keys while there is an active user.");
+  async refreshAdditionalKeys(userId: UserId): Promise<void> {
+    if (userId == null) {
+      throw new Error("UserId is required.");
     }
 
-    const key = await this.getUserKey(activeUserId);
-    await this.setUserKey(key, activeUserId);
+    const key = await firstValueFrom(this.userKey$(userId));
+    if (key == null) {
+      throw new Error("No user key found for: " + userId);
+    }
+
+    await this.setUserKey(key, userId);
+  }
+
+  everHadUserKey$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EVER_HAD_USER_KEY)
+      .state$.pipe(map((x) => x ?? false));
   }
 
   getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey> {
@@ -180,11 +183,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
 
   async getUserKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: UserId,
+    userId: UserId,
   ): Promise<UserKey | null> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
     const userKey = await this.getKeyFromStorage(keySuffix, userId);
@@ -199,25 +201,12 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return userKey;
   }
 
-  async hasUserKey(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      return false;
-    }
-    return await this.hasUserKeyInMemory(userId);
-  }
-
-  async hasUserKeyInMemory(userId?: UserId): Promise<boolean> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async hasUserKey(userId: UserId): Promise<boolean> {
     if (userId == null) {
       return false;
     }
 
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
-  }
-
-  async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
-    return (await this.getKeyFromStorage(keySuffix, userId)) != null;
   }
 
   async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
@@ -251,28 +240,17 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     await this.clearAllStoredUserKeys(userId);
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    }
-    if (keySuffix === KeySuffixOptions.Pin && userId != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
-    }
-  }
-
-  async setMasterKeyEncryptedUserKey(userKeyMasterKey: string, userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<void> {
     if (userId == null) {
-      throw new Error("No active user id found.");
+      throw new Error("UserId is required");
     }
 
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
-      new EncString(userKeyMasterKey),
-      userId,
-    );
+    if (keySuffix === KeySuffixOptions.Auto) {
+      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
+    }
+    if (keySuffix === KeySuffixOptions.Pin) {
+      await this.pinService.clearPinKeyEncryptedUserKeyEphemeral(userId);
+    }
   }
 
   // TODO: Move to MasterPasswordService

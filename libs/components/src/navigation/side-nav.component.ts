@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, ElementRef, ViewChild, input } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -16,11 +16,10 @@ export type SideNavVariant = "primary" | "secondary";
 @Component({
   selector: "bit-side-nav",
   templateUrl: "side-nav.component.html",
-  standalone: true,
   imports: [CommonModule, CdkTrapFocus, NavDividerComponent, BitIconButtonComponent, I18nPipe],
 })
 export class SideNavComponent {
-  @Input() variant: SideNavVariant = "primary";
+  readonly variant = input<SideNavVariant>("primary");
 
   @ViewChild("toggleButton", { read: ElementRef, static: true })
   private toggleButton: ElementRef<HTMLButtonElement>;

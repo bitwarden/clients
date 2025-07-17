@@ -117,7 +117,6 @@ export enum CollectionDialogAction {
 
 @Component({
   templateUrl: "collection-dialog.component.html",
-  standalone: true,
   imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
@@ -592,5 +591,5 @@ export function openCollectionDialog(
   dialogService: DialogService,
   config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
 ) {
-  return dialogService.open(CollectionDialogComponent, config);
+  return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }

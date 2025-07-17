@@ -9,7 +9,6 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 /** Navigate the browser popup to the previous page when the component is clicked. */
 @Directive({
   selector: "[popupBackAction]",
-  standalone: true,
 })
 export class PopupBackBrowserDirective extends BitActionDirective {
   constructor(
@@ -21,6 +20,6 @@ export class PopupBackBrowserDirective extends BitActionDirective {
     super(buttonComponent, validationService, logService);
 
     // override `bitAction` input; the parent handles the rest
-    this.handler = () => this.router.back();
+    this.handler.set(() => this.router.back());
   }
 }

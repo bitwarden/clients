@@ -25,6 +25,7 @@ import {
   SearchModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
+import { NewCipherMenuComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
@@ -35,7 +36,6 @@ import {
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
 @Component({
-  standalone: true,
   selector: "app-org-vault-header",
   templateUrl: "./vault-header.component.html",
   imports: [
@@ -46,6 +46,7 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     HeaderModule,
     SearchModule,
     JslibModule,
+    NewCipherMenuComponent,
   ],
 })
 export class VaultHeaderComponent {

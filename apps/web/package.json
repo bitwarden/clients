@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/web-vault",
-  "version": "2025.5.1",
+  "version": "2025.7.1",
   "scripts": {
     "build:oss": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack",
     "build:bit": "cross-env NODE_OPTIONS=\"--max-old-space-size=8192\" webpack -c ../../bitwarden_license/bit-web/webpack.config.js",

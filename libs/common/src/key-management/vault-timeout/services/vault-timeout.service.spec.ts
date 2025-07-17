@@ -14,7 +14,6 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { BiometricsService } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
-import { SearchService } from "../../../abstractions/search.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -28,6 +27,7 @@ import { StateEventRunnerService } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
+import { SearchService } from "../../../vault/abstractions/search.service";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { VaultTimeout, VaultTimeoutStringType } from "../types/vault-timeout.type";
@@ -417,16 +417,12 @@ describe("VaultTimeoutService", () => {
       expect(stateEventRunnerService.handleEvent).toHaveBeenCalledWith("lock", "user1");
     });
 
-    it("should call locked callback if no user passed into lock", async () => {
+    it("should call locked callback with the locking user if no userID is passed in.", async () => {
       setupLock();
 
       await vaultTimeoutService.lock();
 
-      // Currently these pass `undefined` (or what they were given) as the userId back
-      // but we could change this to give the user that was locked (active) to these methods
-      // so they don't have to get it their own way, but that is a behavioral change that needs
-      // to be tested.
-      expect(lockedCallback).toHaveBeenCalledWith(undefined);
+      expect(lockedCallback).toHaveBeenCalledWith("user1");
     });
 
     it("should call state event runner with user passed into lock", async () => {

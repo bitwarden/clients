@@ -6,7 +6,6 @@ import { Component, ElementRef, HostBinding, Input } from "@angular/core";
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
-  standalone: true,
   imports: [NgClass],
 })
 export class MenuItemDirective implements FocusableOption {
@@ -21,7 +20,7 @@ export class MenuItemDirective implements FocusableOption {
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-primary-100",
+    "hover:tw-bg-hover-default",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
@@ -40,6 +39,9 @@ export class MenuItemDirective implements FocusableOption {
     return this.disabled || null; // native disabled attr must be null when false
   }
 
+  // TODO: Skipped for signal migration because:
+  //  This input overrides a field from a superclass, while the superclass field
+  //  is not migrated.
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
   constructor(public elementRef: ElementRef<HTMLButtonElement>) {}

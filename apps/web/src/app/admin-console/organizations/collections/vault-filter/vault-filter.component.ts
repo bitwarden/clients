@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
@@ -51,6 +52,7 @@ export class VaultFilterComponent
     protected dialogService: DialogService,
     protected configService: ConfigService,
     protected accountService: AccountService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
   ) {
     super(
       vaultFilterService,
@@ -62,6 +64,7 @@ export class VaultFilterComponent
       dialogService,
       configService,
       accountService,
+      restrictedItemTypesService,
     );
   }
 

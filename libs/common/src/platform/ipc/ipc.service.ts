@@ -4,7 +4,7 @@ import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-inte
 
 export abstract class IpcService {
   private _client?: IpcClient;
-  protected get client(): IpcClient {
+  get client(): IpcClient {
     if (!this._client) {
       throw new Error("IpcService not initialized");
     }
@@ -23,6 +23,8 @@ export abstract class IpcService {
 
   protected async initWithClient(client: IpcClient): Promise<void> {
     this._client = client;
+    await this._client.start();
+
     this._messages$ = new Observable<IncomingMessage>((subscriber) => {
       let isSubscribed = true;
       const receiveLoop = async () => {

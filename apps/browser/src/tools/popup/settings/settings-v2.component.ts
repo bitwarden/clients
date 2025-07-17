@@ -28,7 +28,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 
 @Component({
   templateUrl: "settings-v2.component.html",
-  standalone: true,
   imports: [
     CommonModule,
     JslibModule,
@@ -49,6 +48,12 @@ export class SettingsV2Component implements OnInit {
   private authenticatedAccount$: Observable<Account> = this.accountService.activeAccount$.pipe(
     filter((account): account is Account => account !== null),
     shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  protected showAcctSecurityNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(
+    switchMap((account) =>
+      this.nudgesService.showNudgeBadge$(NudgeType.AccountSecurity, account.id),
+    ),
   );
 
   showDownloadBitwardenNudge$: Observable<boolean> = this.authenticatedAccount$.pipe(

@@ -13,7 +13,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { ButtonModule, IconModule, ToastService } from "@bitwarden/components";
-import { SendCreatedIcon } from "@bitwarden/send-ui";
+import { ActiveSendIcon } from "@bitwarden/send-ui";
 
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
@@ -23,7 +23,6 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 @Component({
   selector: "app-send-created",
   templateUrl: "./send-created.component.html",
-  standalone: true,
   imports: [
     ButtonModule,
     CommonModule,
@@ -37,7 +36,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
   ],
 })
 export class SendCreatedComponent {
-  protected sendCreatedIcon = SendCreatedIcon;
+  protected sendCreatedIcon = ActiveSendIcon;
   protected send: SendView;
   protected daysAvailable = 0;
   protected hoursAvailable = 0;

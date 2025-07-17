@@ -22,7 +22,6 @@ import { PaymentLabelComponent } from "./payment-label.component";
 @Component({
   selector: "app-payment",
   templateUrl: "./payment.component.html",
-  standalone: true,
   imports: [BillingServicesModule, SharedModule, PaymentLabelComponent],
 })
 export class PaymentComponent implements OnInit, OnDestroy {

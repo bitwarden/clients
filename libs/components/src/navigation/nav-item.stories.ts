@@ -68,6 +68,13 @@ export const WithoutIcon: Story = {
   },
 };
 
+export const WithLongText: Story = {
+  ...Default,
+  args: {
+    text: "Hello World This Is a Cool Item",
+  },
+};
+
 export const WithoutRoute: Story = {
   render: () => ({
     template: `
@@ -80,10 +87,10 @@ export const WithChildButtons: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-nav-item text="Hello World" [route]="['']" icon="bwi-collection-shared">
+      <bit-nav-item text="Hello World Very Cool World" [route]="['']" icon="bwi-collection-shared">
         <button
           slot="end"
-          class="tw-ml-auto"
+          class="tw-ms-auto"
           [bitIconButton]="'bwi-pencil-square'"
           [buttonType]="'light'"
           size="small"
@@ -91,7 +98,7 @@ export const WithChildButtons: Story = {
         ></button>
         <button
           slot="end"
-          class="tw-ml-auto"
+          class="tw-ms-auto"
           [bitIconButton]="'bwi-check'"
           [buttonType]="'light'"
           size="small"
@@ -106,8 +113,8 @@ export const MultipleItemsWithDivider: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
-      <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
+      <bit-nav-item text="Hello World"></bit-nav-item>
+      <bit-nav-item text="Hello World Long Text Long"></bit-nav-item>
       <bit-nav-divider></bit-nav-divider>
       <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>
       <bit-nav-item text="Hello World" icon="bwi-collection-shared"></bit-nav-item>

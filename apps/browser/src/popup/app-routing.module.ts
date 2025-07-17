@@ -15,11 +15,11 @@ import {
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
+import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
-  AnonLayoutWrapperComponent,
-  AnonLayoutWrapperData,
   DevicesIcon,
-  LockIcon,
   LoginComponent,
   LoginDecryptionOptionsComponent,
   LoginSecondaryContentComponent,
@@ -41,14 +41,12 @@ import {
   UserLockIcon,
   VaultIcon,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AnonLayoutWrapperComponent, AnonLayoutWrapperData, Icons } from "@bitwarden/components";
 import { LockComponent } from "@bitwarden/key-management-ui";
 
-import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
-import {
-  ExtensionAnonLayoutWrapperComponent,
-  ExtensionAnonLayoutWrapperData,
-} from "../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
+import { fido2AuthGuard } from "../auth/popup/guards/fido2-auth.guard";
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
@@ -59,7 +57,7 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumV2Component } from "../billing/popup/settings/premium-v2.component";
 import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
-import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
+import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { popupRouterCacheGuard } from "../platform/popup/view-cache/popup-router-cache.service";
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
@@ -70,9 +68,6 @@ import { AboutPageV2Component } from "../tools/popup/settings/about-page/about-p
 import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-browser-v2.component";
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
-import { canAccessAtRiskPasswords } from "../vault/guards/at-risk-passwords.guard";
-import { clearVaultStateGuard } from "../vault/guards/clear-vault-state.guard";
-import { IntroCarouselGuard } from "../vault/guards/intro-carousel.guard";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/add-edit-v2.component";
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
@@ -81,6 +76,9 @@ import { IntroCarouselComponent } from "../vault/popup/components/vault-v2/intro
 import { PasswordHistoryV2Component } from "../vault/popup/components/vault-v2/vault-password-history-v2/vault-password-history-v2.component";
 import { VaultV2Component } from "../vault/popup/components/vault-v2/vault-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
+import { canAccessAtRiskPasswords } from "../vault/popup/guards/at-risk-passwords.guard";
+import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
+import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
 import { DownloadBitwardenComponent } from "../vault/popup/settings/download-bitwarden.component";
 import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
@@ -89,6 +87,10 @@ import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 
 import { RouteElevation } from "./app-routing.animations";
+import {
+  ExtensionAnonLayoutWrapperComponent,
+  ExtensionAnonLayoutWrapperData,
+} from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 
@@ -330,7 +332,15 @@ const routes: Routes = [
   {
     path: "update-temp-password",
     component: UpdateTempPasswordComponent,
-    canActivate: [authGuard],
+    canActivate: [
+      canAccessFeature(
+        FeatureFlag.PM16117_ChangeExistingPasswordRefactor,
+        false,
+        `/change-password`,
+        false,
+      ),
+      authGuard,
+    ],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -377,6 +387,14 @@ const routes: Routes = [
             component: RegistrationFinishComponent,
           },
         ],
+      },
+      {
+        path: "set-initial-password",
+        canActivate: [canAccessFeature(FeatureFlag.PM16117_SetInitialPasswordRefactor), authGuard],
+        component: SetInitialPasswordComponent,
+        data: {
+          elevation: 1,
+        } satisfies RouteDataProperties,
       },
       {
         path: "login",
@@ -496,14 +514,15 @@ const routes: Routes = [
         canActivate: [tdeDecryptionRequiredGuard()],
         data: {
           pageIcon: DevicesIcon,
-        },
+          showAcctSwitcher: true,
+        } satisfies ExtensionAnonLayoutWrapperData,
         children: [{ path: "", component: LoginDecryptionOptionsComponent }],
       },
       {
         path: "lock",
         canActivate: [lockGuard()],
         data: {
-          pageIcon: LockIcon,
+          pageIcon: Icons.LockIcon,
           pageTitle: {
             key: "yourVaultIsLockedV2",
           },
@@ -544,6 +563,23 @@ const routes: Routes = [
           },
           showBackButton: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+      },
+      {
+        path: "change-password",
+        data: {
+          elevation: 1,
+          hideFooter: true,
+        } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+        ],
+        canActivate: [
+          canAccessFeature(FeatureFlag.PM16117_ChangeExistingPasswordRefactor),
+          authGuard,
+        ],
       },
     ],
   },

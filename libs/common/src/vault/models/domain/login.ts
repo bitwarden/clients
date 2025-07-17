@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { Login as SdkLogin } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { LoginData } from "../data/login.data";
 import { LoginView } from "../view/login.view";
@@ -159,7 +159,7 @@ export class Login extends Domain {
       password: this.password?.toJSON(),
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
       totp: this.totp?.toJSON(),
-      autofillOnPageLoad: this.autofillOnPageLoad,
+      autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       fido2Credentials: this.fido2Credentials?.map((f) => f.toSdkFido2Credential()),
     };
   }

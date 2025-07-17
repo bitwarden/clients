@@ -4,6 +4,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { KdfType } from "@bitwarden/key-management";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
@@ -16,8 +17,8 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   resetMasterPassword: boolean;
-  privateKey: string;
-  key: string;
+  privateKey: string; // userKeyEncryptedPrivateKey
+  key?: EncString; // masterKeyEncryptedUserKey
   twoFactorToken: string;
   kdf: KdfType;
   kdfIterations: number;
@@ -39,7 +40,10 @@ export class IdentityTokenResponse extends BaseResponse {
 
     this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
-    this.key = this.getResponseProperty("Key");
+    const key = this.getResponseProperty("Key");
+    if (key) {
+      this.key = new EncString(key);
+    }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
     this.kdf = this.getResponseProperty("Kdf");
     this.kdfIterations = this.getResponseProperty("KdfIterations");
@@ -57,5 +61,9 @@ export class IdentityTokenResponse extends BaseResponse {
         this.getResponseProperty("UserDecryptionOptions"),
       );
     }
+  }
+
+  hasMasterKeyEncryptedUserKey(): boolean {
+    return Boolean(this.key);
   }
 }

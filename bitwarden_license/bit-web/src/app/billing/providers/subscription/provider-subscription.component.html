@@ -62,49 +62,51 @@
         </bit-table>
       </div>
     </ng-container>
-    <!-- Account Credit -->
-    <bit-section>
-      <h2 bitTypography="h2">
-        {{ "accountCredit" | i18n }}
-      </h2>
-      <p class="tw-text-lg tw-font-bold">{{ subscription.accountCredit | currency: "$" }}</p>
-      <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
-    </bit-section>
-    <!-- Payment Method -->
-    <bit-section *ngIf="allowProviderPaymentMethod$ | async">
-      <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
-      <p *ngIf="!subscription.paymentSource" bitTypography="body1">
-        {{ "noPaymentMethod" | i18n }}
-      </p>
-      <ng-container *ngIf="subscription.paymentSource">
-        <app-verify-bank-account
-          *ngIf="subscription.paymentSource.needsVerification"
-          [onSubmit]="verifyBankAccount"
-          (submitted)="load()"
-        >
-        </app-verify-bank-account>
-        <p>
-          <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
-          {{ subscription.paymentSource.description }}
-          <span *ngIf="subscription.paymentSource.needsVerification"
-            >- {{ "unverified" | i18n }}</span
-          >
+    @if (!managePaymentDetailsOutsideCheckout) {
+      <!-- Account Credit -->
+      <bit-section>
+        <h2 bitTypography="h2">
+          {{ "accountCredit" | i18n }}
+        </h2>
+        <p class="tw-text-lg tw-font-bold">{{ subscription.accountCredit | currency: "$" }}</p>
+        <p bitTypography="body1">{{ "creditAppliedDesc" | i18n }}</p>
+      </bit-section>
+      <!-- Payment Method -->
+      <bit-section>
+        <h2 bitTypography="h2">{{ "paymentMethod" | i18n }}</h2>
+        <p *ngIf="!subscription.paymentSource" bitTypography="body1">
+          {{ "noPaymentMethod" | i18n }}
         </p>
-      </ng-container>
-      <button type="button" bitButton buttonType="secondary" [bitAction]="updatePaymentMethod">
-        {{ updatePaymentSourceButtonText }}
-      </button>
-    </bit-section>
-    <!-- Tax Information -->
-    <bit-section>
-      <h2 bitTypography="h2" class="tw-mt-16">{{ "taxInformation" | i18n }}</h2>
-      <p>{{ "taxInformationDesc" | i18n }}</p>
-      <app-manage-tax-information
-        *ngIf="subscription.taxInformation"
-        [startWith]="TaxInformation.from(subscription.taxInformation)"
-        [onSubmit]="updateTaxInformation"
-        (taxInformationUpdated)="load()"
-      />
-    </bit-section>
+        <ng-container *ngIf="subscription.paymentSource">
+          <app-verify-bank-account
+            *ngIf="subscription.paymentSource.needsVerification"
+            [onSubmit]="verifyBankAccount"
+            (submitted)="load()"
+          >
+          </app-verify-bank-account>
+          <p>
+            <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
+            {{ subscription.paymentSource.description }}
+            <span *ngIf="subscription.paymentSource.needsVerification"
+              >- {{ "unverified" | i18n }}</span
+            >
+          </p>
+        </ng-container>
+        <button type="button" bitButton buttonType="secondary" [bitAction]="updatePaymentMethod">
+          {{ updatePaymentSourceButtonText }}
+        </button>
+      </bit-section>
+      <!-- Tax Information -->
+      <bit-section>
+        <h2 bitTypography="h2" class="tw-mt-16">{{ "taxInformation" | i18n }}</h2>
+        <p>{{ "taxInformationDesc" | i18n }}</p>
+        <app-manage-tax-information
+          *ngIf="subscription.taxInformation"
+          [startWith]="TaxInformation.from(subscription.taxInformation)"
+          [onSubmit]="updateTaxInformation"
+          (taxInformationUpdated)="load()"
+        />
+      </bit-section>
+    }
   </ng-container>
 </bit-container>

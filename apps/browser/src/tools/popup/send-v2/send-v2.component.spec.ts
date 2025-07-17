@@ -6,8 +6,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { NudgesService } from "@bitwarden/angular/vault";
-import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -22,6 +20,7 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { ButtonModule, NoItemsModule } from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
@@ -122,7 +121,6 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: PolicyService, useValue: policyService },
-        { provide: NudgesService, useValue: mock<NudgesService>() },
       ],
     }).compileComponents();
 

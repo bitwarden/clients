@@ -1,7 +1,13 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
 import { Observable, map, tap } from "rxjs";
 
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -12,11 +18,10 @@ import { TypographyModule } from "@bitwarden/components";
 @Component({
   selector: "[bitTotpCountdown]",
   templateUrl: "totp-countdown.component.html",
-  standalone: true,
   imports: [CommonModule, TypographyModule],
 })
-export class BitTotpCountdownComponent implements OnInit {
-  @Input() cipher: CipherView;
+export class BitTotpCountdownComponent implements OnInit, OnChanges {
+  @Input({ required: true }) cipher!: CipherView;
   @Output() sendCopyCode = new EventEmitter();
 
   /**
@@ -27,6 +32,16 @@ export class BitTotpCountdownComponent implements OnInit {
   constructor(protected totpService: TotpService) {}
 
   async ngOnInit() {
+    this.setTotpInfo();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["cipher"]) {
+      this.setTotpInfo();
+    }
+  }
+
+  private setTotpInfo(): void {
     this.totpInfo$ = this.cipher?.login?.totp
       ? this.totpService.getCode$(this.cipher.login.totp).pipe(
           map((response) => {

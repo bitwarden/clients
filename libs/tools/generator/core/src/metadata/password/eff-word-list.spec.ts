@@ -5,7 +5,8 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
 import { PasswordRandomizer } from "../../engine";
 import { PassphrasePolicyConstraints } from "../../policies";
-import { PassphraseGenerationOptions, GeneratorDependencyProvider } from "../../types";
+import { GeneratorDependencyProvider } from "../../providers";
+import { PassphraseGenerationOptions } from "../../types";
 import { Profile } from "../data";
 import { CoreProfileMetadata } from "../profile-metadata";
 import { isCoreProfile } from "../util";

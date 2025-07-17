@@ -7,16 +7,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   signal,
   ViewChild,
+  input,
 } from "@angular/core";
 
 import { TypographyModule } from "../typography";
 
 @Component({
   selector: "bit-item-content, [bit-item-content]",
-  standalone: true,
   imports: [TypographyModule, NgClass],
   templateUrl: `item-content.component.html`,
   host: {
@@ -40,7 +39,7 @@ export class ItemContentComponent implements AfterContentChecked {
    *
    * Default behavior is truncation.
    */
-  @Input() truncate = true;
+  readonly truncate = input(true);
 
   ngAfterContentChecked(): void {
     this.endSlotHasChildren.set(this.endSlot?.nativeElement.childElementCount > 0);
