@@ -215,4 +215,8 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
   }
+
+  openPopupToPath(url: string): Promise<void> {
+    return Promise.resolve(undefined);
+  }
 }
