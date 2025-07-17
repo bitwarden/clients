@@ -20,7 +20,7 @@ import {
 import { SharedModule } from "../../../shared";
 import { VaultBannersService } from "../../../vault/individual-vault/vault-banners/services/vault-banners.service";
 
-import { DeviceManagementComponent } from "./device-management.component";
+import { DeviceManagementOldComponent } from "./device-management-old.component";
 
 class MockResizeObserver {
   observe = jest.fn();
@@ -35,8 +35,8 @@ interface Message {
   notificationId?: string;
 }
 
-describe("DeviceManagementComponent", () => {
-  let fixture: ComponentFixture<DeviceManagementComponent>;
+describe("DeviceManagementOldComponent", () => {
+  let fixture: ComponentFixture<DeviceManagementOldComponent>;
   let messageSubject: Subject<Message>;
   let mockDevices: DeviceView[];
   let vaultBannersService: VaultBannersService;
@@ -66,7 +66,7 @@ describe("DeviceManagementComponent", () => {
         SharedModule,
         TableModule,
         PopoverModule,
-        DeviceManagementComponent,
+        DeviceManagementOldComponent,
       ],
       providers: [
         {
@@ -130,7 +130,7 @@ describe("DeviceManagementComponent", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DeviceManagementComponent);
+    fixture = TestBed.createComponent(DeviceManagementOldComponent);
 
     vaultBannersService = TestBed.inject(VaultBannersService);
   });

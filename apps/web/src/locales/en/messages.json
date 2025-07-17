@@ -3489,6 +3489,9 @@
   "webVault": {
     "message": "Web vault"
   },
+  "webApp": {
+    "message": "Web app"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3971,6 +3974,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "You denied a login attempt from another device. If this really was you, try to log in with the device again."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Login request has already expired."
   },
@@ -4114,6 +4133,9 @@
   },
   "reviewLoginRequest": {
     "message": "Review login request"
+  },
+  "loginRequest": {
+    "message": "Login request"
   },
   "freeTrialEndPromptCount": {
     "message": "Your free trial ends in $COUNT$ days.",
