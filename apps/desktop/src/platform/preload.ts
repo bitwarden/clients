@@ -1,8 +1,8 @@
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
   EncryptedMessageResponse,
@@ -96,17 +96,6 @@ const nativeMessaging = {
     generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
       ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
   },
-};
-
-const crypto = {
-  argon2: (
-    password: Uint8Array,
-    salt: Uint8Array,
-    iterations: number,
-    memory: number,
-    parallelism: number,
-  ): Promise<Uint8Array> =>
-    ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
 };
 
 const ephemeralStore = {

@@ -4,7 +4,7 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
 
 import { PasswordRepromptComponent } from "../components/password-reprompt.component";
@@ -28,7 +28,7 @@ export class PasswordRepromptService {
     return ["TOTP", "Password", "H_Field", "Card Number", "Security Code"];
   }
 
-  async passwordRepromptCheck(cipher: CipherView) {
+  async passwordRepromptCheck(cipher: CipherViewLike) {
     if (cipher.reprompt === CipherRepromptType.None) {
       return true;
     }
