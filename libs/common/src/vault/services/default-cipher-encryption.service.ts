@@ -1,5 +1,6 @@
 import { EMPTY, catchError, firstValueFrom, map } from "rxjs";
 
+import { UserKey } from "@bitwarden/common/types/key";
 import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   CipherListView,
@@ -78,6 +79,39 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to move cipher to organization: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async encryptWithKey(
+    model: CipherView,
+    userId: UserId,
+    newKey: UserKey,
+  ): Promise<EncryptionContext | undefined> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        map((sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          const sdkCipherView = this.toSdkCipherView(model, ref.value);
+
+          const encryptionContext = ref.value
+            .vault()
+            .ciphers()
+            .encrypt_with_key(sdkCipherView, newKey.toBase64());
+
+          return {
+            cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
+            encryptedFor: asUuid<UserId>(encryptionContext.encryptedFor),
+          };
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to rotate cipher data: ${error}`);
           return EMPTY;
         }),
       ),
