@@ -1,5 +1,5 @@
 import { NgClass } from "@angular/common";
-import { input, HostBinding, Component, model, computed, input } from "@angular/core";
+import { input, HostBinding, Component, model, computed, booleanAttribute } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounce, interval } from "rxjs";
 
