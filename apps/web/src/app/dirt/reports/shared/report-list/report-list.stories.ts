@@ -18,8 +18,8 @@ export default {
   component: ReportListComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule],
-      declarations: [PremiumBadgeComponent, ReportCardComponent],
+      imports: [JslibModule, BadgeModule, RouterTestingModule, IconModule, PremiumBadgeComponent],
+      declarations: [ReportCardComponent],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

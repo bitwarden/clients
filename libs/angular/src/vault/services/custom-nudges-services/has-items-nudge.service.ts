@@ -44,7 +44,11 @@ export class HasItemsNudgeService extends DefaultSingleNudgeService {
           return cipher.deletedDate == null;
         });
 
-        if (profileOlderThanCutoff && filteredCiphers.length > 0) {
+        if (
+          profileOlderThanCutoff &&
+          filteredCiphers.length > 0 &&
+          !nudgeStatus.hasSpotlightDismissed
+        ) {
           const dismissedStatus = {
             hasSpotlightDismissed: true,
             hasBadgeDismissed: true,
