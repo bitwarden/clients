@@ -23,7 +23,7 @@ import { AnonLayoutBitwardenShield } from "../icon/logos";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
 
-export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl";
+export type AnonLayoutMaxWidth = "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
 @Component({
   selector: "auth-anon-layout",
@@ -74,6 +74,8 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
         return "tw-max-w-2xl";
       case "3xl":
         return "tw-max-w-3xl";
+      case "4xl":
+        return "tw-max-w-4xl";
     }
   }
 
