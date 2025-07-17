@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import { NgClass } from "@angular/common";
-import { Component, HostBinding, Input, OnInit } from "@angular/core";
+import { Component, HostBinding, OnInit, input } from "@angular/core";
 
 import type { SortDirection, SortFn } from "./table-data-source";
 import { TableComponent } from "./table.component";
@@ -26,19 +26,17 @@ export class SortableComponent implements OnInit {
   /**
    * Mark the column as sortable and specify the key to sort by
    */
-  @Input() bitSortable: string;
+  readonly bitSortable = input<string>();
 
-  private _default: SortDirection | boolean = false;
-  /**
-   * Mark the column as the default sort column
-   */
-  @Input() set default(value: SortDirection | boolean | "") {
-    if (value === "desc" || value === "asc") {
-      this._default = value;
-    } else {
-      this._default = coerceBooleanProperty(value) ? "asc" : false;
-    }
-  }
+  readonly default = input(false, {
+    transform: (value: SortDirection | boolean | "") => {
+      if (value === "desc" || value === "asc") {
+        return value as SortDirection;
+      } else {
+        return coerceBooleanProperty(value) ? ("asc" as SortDirection) : false;
+      }
+    },
+  });
 
   /**
    * Custom sorting function
@@ -51,12 +49,12 @@ export class SortableComponent implements OnInit {
    *  return direction === 'asc' ? result : -result;
    * }
    */
-  @Input() fn: SortFn;
+  readonly fn = input<SortFn>();
 
   constructor(private table: TableComponent) {}
 
   ngOnInit(): void {
-    if (this._default && !this.isActive) {
+    if (this.default() && !this.isActive) {
       this.setActive();
     }
   }
@@ -69,28 +67,29 @@ export class SortableComponent implements OnInit {
   }
 
   protected setActive() {
-    if (this.table.dataSource) {
-      const defaultDirection = this._default === "desc" ? "desc" : "asc";
+    const dataSource = this.table.dataSource();
+    if (dataSource) {
+      const defaultDirection = this.default() === "desc" ? "desc" : "asc";
       const direction = this.isActive
         ? this.direction === "asc"
           ? "desc"
           : "asc"
         : defaultDirection;
 
-      this.table.dataSource.sort = {
-        column: this.bitSortable,
+      dataSource.sort = {
+        column: this.bitSortable(),
         direction: direction,
-        fn: this.fn,
+        fn: this.fn(),
       };
     }
   }
 
   private get sort() {
-    return this.table.dataSource?.sort;
+    return this.table.dataSource()?.sort;
   }
 
   get isActive() {
-    return this.sort?.column === this.bitSortable;
+    return this.sort?.column === this.bitSortable();
   }
 
   get direction() {
