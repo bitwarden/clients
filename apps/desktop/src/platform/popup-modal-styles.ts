@@ -39,6 +39,7 @@ function positionWindow(window: BrowserWindow, position?: Position) {
     const centeredY = position.y - popupHeight / 2;
     window.setPosition(centeredX, centeredY);
   } else {
+    this.logService.warning("No position provided, centering window");
     window.center();
   }
 }

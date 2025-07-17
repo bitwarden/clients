@@ -268,7 +268,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   ): Promise<void> {
     // Load the UI:
     await this.desktopSettingsService.setModalMode(true, showTrafficButtons, position);
-    await this.centerOffscreenPopup();
     await this.accountService.setShowHeader(false);
     await this.router.navigate([
       route,
@@ -347,7 +346,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
     const status = await firstValueFrom(this.authService.activeAccountStatus$);
     if (status !== AuthenticationStatus.Unlocked) {
-      await this.showUi("/lock", undefined, true, true);
+      await this.showUi("/lock", this.windowObject.windowXy, true, true);
 
       let status2: AuthenticationStatus;
       try {
@@ -375,26 +374,5 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async close() {
     this.logService.warning("close");
-  }
-
-  private async centerOffscreenPopup() {
-    if (!this.windowObject.windowXy) {
-      return;
-    }
-
-    const popupWidth = 600;
-    const popupHeight = 600;
-
-    const window = await firstValueFrom(this.desktopSettingsService.window$);
-    const { width, height } = window.displayBounds;
-    const { x, y } = this.windowObject.windowXy;
-
-    if (x < popupWidth || x > width - popupWidth || y < popupHeight || y > height - popupHeight) {
-      const popupHeightOffset = 300;
-      const { width, height } = window.displayBounds;
-      const centeredX = width / 2;
-      const centeredY = (height - popupHeightOffset) / 2;
-      this.windowObject.windowXy = { x: centeredX, y: centeredY };
-    }
   }
 }
