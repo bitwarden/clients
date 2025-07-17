@@ -4,8 +4,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
   TwoFactorAuthComponentCache,
@@ -40,13 +38,11 @@ describe("TwoFactorAuthCache", () => {
 describe("TwoFactorAuthComponentCacheService", () => {
   let service: TwoFactorAuthComponentCacheService;
   let mockViewCacheService: MockProxy<ViewCacheService>;
-  let mockConfigService: MockProxy<ConfigService>;
   let cacheData: BehaviorSubject<TwoFactorAuthComponentCache | null>;
   let mockSignal: any;
 
   beforeEach(() => {
     mockViewCacheService = mock<ViewCacheService>();
-    mockConfigService = mock<ConfigService>();
     cacheData = new BehaviorSubject<TwoFactorAuthComponentCache | null>(null);
     mockSignal = jest.fn(() => cacheData.getValue());
     mockSignal.set = jest.fn((value: TwoFactorAuthComponentCache | null) => cacheData.next(value));
@@ -56,7 +52,6 @@ describe("TwoFactorAuthComponentCacheService", () => {
       providers: [
         TwoFactorAuthComponentCacheService,
         { provide: ViewCacheService, useValue: mockViewCacheService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -67,41 +62,8 @@ describe("TwoFactorAuthComponentCacheService", () => {
     expect(service).toBeTruthy();
   });
 
-  describe("init", () => {
-    it("sets featureEnabled to true when flag is enabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ token: "123456" });
-      expect(mockSignal.set).toHaveBeenCalled();
-    });
-
-    it("sets featureEnabled to false when flag is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
-      await service.init();
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.PM9115_TwoFactorExtensionDataPersistence,
-      );
-
-      service.cacheData({ token: "123456" });
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
-  });
-
   describe("cacheData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("caches complete data when feature is enabled", () => {
+    it("caches complete data", () => {
       const testData: TwoFactorAuthComponentData = {
         token: "123456",
         remember: true,
@@ -117,7 +79,7 @@ describe("TwoFactorAuthComponentCacheService", () => {
       });
     });
 
-    it("caches partial data when feature is enabled", () => {
+    it("caches partial data", () => {
       service.cacheData({ token: "123456" });
 
       expect(mockSignal.set).toHaveBeenCalledWith({
@@ -126,46 +88,18 @@ describe("TwoFactorAuthComponentCacheService", () => {
         selectedProviderType: undefined,
       });
     });
-
-    it("does not cache data when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      service.cacheData({ token: "123456" });
-
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
   });
 
   describe("clearCachedData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("clears cached data when feature is enabled", () => {
+    it("clears cached data", () => {
       service.clearCachedData();
 
       expect(mockSignal.set).toHaveBeenCalledWith(null);
     });
-
-    it("does not clear cached data when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      service.clearCachedData();
-
-      expect(mockSignal.set).not.toHaveBeenCalled();
-    });
   });
 
   describe("getCachedData", () => {
-    beforeEach(async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      await service.init();
-    });
-
-    it("returns cached data when feature is enabled", () => {
+    it("returns cached data", () => {
       const testData = new TwoFactorAuthComponentCache();
       testData.token = "123456";
       testData.remember = true;
@@ -176,16 +110,6 @@ describe("TwoFactorAuthComponentCacheService", () => {
 
       expect(result).toEqual(testData);
       expect(mockSignal).toHaveBeenCalled();
-    });
-
-    it("returns null when feature is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      await service.init();
-
-      const result = service.getCachedData();
-
-      expect(result).toBeNull();
-      expect(mockSignal).not.toHaveBeenCalled();
     });
   });
 });

@@ -7,11 +7,11 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -199,14 +199,14 @@ export class SendService implements InternalSendServiceAbstraction {
     return response;
   }
 
-  async getAllDecryptedFromState(): Promise<SendView[]> {
+  async getAllDecryptedFromState(userId: UserId): Promise<SendView[]> {
     let decSends = await this.stateProvider.getDecryptedSends();
     if (decSends != null) {
       return decSends;
     }
 
     decSends = [];
-    const hasKey = await this.keyService.hasUserKey();
+    const hasKey = await this.keyService.hasUserKey(userId);
     if (!hasKey) {
       throw new Error("No user key found.");
     }

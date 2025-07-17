@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { Component, Input } from "@angular/core";
+import { Component, input } from "@angular/core";
 import { AbstractControl, UntypedFormGroup } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -18,11 +18,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [I18nPipe],
 })
 export class BitErrorSummary {
-  @Input()
-  formGroup: UntypedFormGroup;
+  readonly formGroup = input<UntypedFormGroup>();
 
   get errorCount(): number {
-    return this.getErrorCount(this.formGroup);
+    return this.getErrorCount(this.formGroup());
   }
 
   get errorString() {

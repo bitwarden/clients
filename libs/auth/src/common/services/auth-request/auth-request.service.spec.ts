@@ -1,13 +1,15 @@
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -120,6 +122,7 @@ describe("AuthRequestService", () => {
       );
     });
   });
+
   describe("setUserKeyAfterDecryptingSharedUserKey", () => {
     it("decrypts and sets user key when given valid auth request response and private key", async () => {
       // Arrange
@@ -237,4 +240,99 @@ describe("AuthRequestService", () => {
       expect(phrase).toEqual(phraseUpperCase);
     });
   });
+
+  describe("getLatestAuthRequest", () => {
+    it("returns newest authRequest from list of authRequests", async () => {
+      const now = minutesAgo(0);
+      const fiveMinutesAgo = minutesAgo(5);
+      const tenMinutesAgo = minutesAgo(10);
+
+      const newerAuthRequest = createMockAuthRequest(
+        "now-request",
+        false,
+        false,
+        now.toISOString(), // newer request
+        "1fda13f4-5134-4157-90e3-b4e3fb2d855z",
+      );
+      const olderAuthRequest = createMockAuthRequest(
+        "5-minute-old-request",
+        false,
+        false,
+        fiveMinutesAgo.toISOString(), // older request
+        "1fda13f4-5134-4157-90e3-b4e3fb2d855c",
+      );
+      const oldestAuthRequest = createMockAuthRequest(
+        "10-minute-old-request",
+        false,
+        false,
+        tenMinutesAgo.toISOString(), // oldest request
+        "1fda13f4-5134-4157-90e3-b4e3fb2d855a",
+      );
+
+      const listResponse = new ListResponse(
+        { Data: [oldestAuthRequest, olderAuthRequest, newerAuthRequest] },
+        AuthRequestResponse,
+      );
+
+      // Ensure the mock is properly set up to return the list response
+      authRequestApiService.getPendingAuthRequests.mockResolvedValue(listResponse);
+
+      // Act
+      const sutReturnValue = await firstValueFrom(sut.getLatestPendingAuthRequest$());
+
+      // Assert
+      // Verify the mock was called
+      expect(authRequestApiService.getPendingAuthRequests).toHaveBeenCalledTimes(1);
+      expect(sutReturnValue.creationDate).toEqual(newerAuthRequest.creationDate);
+      expect(sutReturnValue.id).toEqual(newerAuthRequest.id);
+    });
+  });
+
+  it("returns null from empty list of authRequests", async () => {
+    const listResponse = new ListResponse({ Data: [] }, AuthRequestResponse);
+
+    // Ensure the mock is properly set up to return the list response
+    authRequestApiService.getPendingAuthRequests.mockResolvedValue(listResponse);
+
+    // Act
+    const sutReturnValue = await firstValueFrom(sut.getLatestPendingAuthRequest$());
+
+    // Assert
+    // Verify the mock was called
+    expect(authRequestApiService.getPendingAuthRequests).toHaveBeenCalledTimes(1);
+    expect(sutReturnValue).toBeNull();
+  });
 });
+
+function createMockAuthRequest(
+  id: string,
+  isAnswered: boolean,
+  isExpired: boolean,
+  creationDate: string,
+  deviceId?: string,
+): AuthRequestResponse {
+  const authRequestResponse = new AuthRequestResponse({
+    id: id,
+    publicKey:
+      "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+AIKUBDf4exqE9JDzGJegDzIoaZcNkUeewovgwSJuKuya0mP4CPP00ajmi9GEu6z3VWfB+yzx1O4gxHV/T5s620wnMYm6nAv2gDS+kEaXou4MOt7QMidq4kVhM7aixN2klKivH/E8GFPiMUzNQv0lMQthsVLLWFuMRxYfChe9Cxn9EWp7TYy4rAmi+jSTxzIGj+RC7f2qu2qdPSsKHLXtW7NA0SWhIntWbmc9QxD2nQ4qHgk/qUwvHoUhwKGNCcIDkXqMJ7ChN3v5tX1sFpwhQQrmlwiVC4+sBScfAgyYylfTPnuBd6b3UrC3D34GvHMgDvLjz7LwlBrkSXoF7xWZwIDAQAB",
+    requestDeviceIdentifier: "1fda13f4-5134-4157-90e3-b4e3fb2d855c",
+    requestDeviceTypeValue: 10,
+    requestDeviceType: "Firefox",
+    requestIpAddress: "2a04:4e40:9400:0:bb4:3591:d601:f5cc",
+    requestCountryName: "united states",
+    key: null,
+    masterPasswordHash: null,
+    creationDate: creationDate, // ISO 8601 date string : "2025-07-11T19:11:17.9866667Z"
+    responseDate: null,
+    requestApproved: false,
+    isAnswered: isAnswered,
+    isExpired: isExpired,
+    deviceId: deviceId,
+  });
+
+  return authRequestResponse;
+}
+
+function minutesAgo(minutes: number): Date {
+  return new Date(Date.now() - minutes * 60_000);
+}
