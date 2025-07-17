@@ -127,7 +127,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * @param organizationId The Id of the organization to move the cipher to
    * @param collectionIds The collection Ids to assign the cipher to in the organization
    * @param userId The Id of the user performing the operation
-   * @param originalCipher Optional original cipher that will be used to compoare/update password history
+   * @param originalCipher Optional original cipher that will be used to compare/update password history
    */
   abstract shareWithServer(
     cipher: CipherView,
