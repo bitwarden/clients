@@ -1173,6 +1173,12 @@
     "message": "О нет! Мы не смогли сохранить это. Попробуйте ввести данные вручную.",
     "description": "Detailed error message shown when saving login details fails."
   },
+  "changePasswordWarning": {
+    "message": "После смены пароля потребуется авторизоваться с новым паролем. Активные сессии на других устройствах будут завершены в течение одного часа."
+  },
+  "accountRecoveryUpdateMasterPasswordSubtitle": {
+    "message": "Измените мастер-пароль, чтобы завершить восстановление аккаунта."
+  },
   "enableChangedPasswordNotification": {
     "message": "Спрашивать при обновлении существующего логина"
   },
@@ -2919,6 +2925,9 @@
   "emailVerificationRequiredDesc": {
     "message": "Для использования этой функции необходимо подтвердить ваш email. Вы можете это сделать в веб-хранилище."
   },
+  "masterPasswordSuccessfullySet": {
+    "message": "Мастер-пароль успешно установлен"
+  },
   "updatedMasterPassword": {
     "message": "Мастер-пароль обновлен"
   },
@@ -3451,6 +3460,9 @@
   "logInRequestSent": {
     "message": "Запрос отправлен"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "exposedMasterPassword": {
     "message": "Мастер-пароль скомпрометирован"
   },
@@ -3564,6 +3576,12 @@
   },
   "requestAdminApproval": {
     "message": "Запросить одобрение администратора"
+  },
+  "unableToCompleteLogin": {
+    "message": "Не удалось завершить вход"
+  },
+  "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
+    "message": "Вам необходимо авторизоваться с доверенного устройства или попросить вашего администратора назначить вам пароль."
   },
   "ssoIdentifierRequired": {
     "message": "Требуется идентификатор SSO организации."
@@ -4243,6 +4261,26 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "uriMatchDefaultStrategyHint": {
+    "message": "Обнаружение совпадения URI - это способ, с помощью которого Bitwarden идентифицирует предложения по автозаполнению.",
+    "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
+  },
+  "regExAdvancedOptionWarning": {
+    "message": "\"Регулярное выражение\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
+  },
+  "startsWithAdvancedOptionWarning": {
+    "message": "\"Начинается с\" - это расширенный вариант с повышенным риском раскрытия учетных данных.",
+    "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
+  },
+  "uriMatchWarningDialogLink": {
+    "message": "Подробнее об обнаружении совпадений",
+    "description": "Link to match detection docs on warning dialog for advance match strategy"
+  },
+  "uriAdvancedOption": {
+    "message": "Расширенные настройки",
+    "description": "Advanced option placeholder for uri option component"
   },
   "confirmContinueToBrowserSettingsTitle": {
     "message": "Перейти к настройкам браузера?",

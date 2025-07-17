@@ -4,8 +4,8 @@ import { Jsonify } from "type-fest";
 
 import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";

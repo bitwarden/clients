@@ -12,12 +12,12 @@
     bitInput
     [type]="inputType"
     [id]="id"
-    [placeholder]="placeholder ?? ('search' | i18n)"
+    [placeholder]="placeholder() ?? ('search' | i18n)"
     class="tw-ps-9"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
     (blur)="onTouch()"
-    [disabled]="disabled"
-    [attr.autocomplete]="autocomplete"
+    [disabled]="disabled()"
+    [attr.autocomplete]="autocomplete()"
   />
 </div>

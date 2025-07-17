@@ -152,7 +152,7 @@ export class DefaultTaskService implements TaskService {
     return this.notificationService.notifications$.pipe(
       filter(
         ([notification, userId]) =>
-          notification.type === NotificationType.PendingSecurityTasks &&
+          notification.type === NotificationType.RefreshSecurityTasks &&
           filterByUserIds.includes(userId),
       ),
       map(([, userId]) => userId),
