@@ -88,7 +88,6 @@ export default {
         SectionComponent,
         TextFieldModule,
         BadgeModule,
-        A11yTitleDirective,
       ],
       providers: [
         {

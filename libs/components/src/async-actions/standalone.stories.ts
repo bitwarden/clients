@@ -38,7 +38,6 @@ class PromiseExampleComponent {
 @Component({
   template,
   selector: "app-action-resolves-quickly",
-  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ActionResolvesQuicklyComponent {
   statusEmoji = "🟡";
@@ -56,7 +55,6 @@ class ActionResolvesQuicklyComponent {
 @Component({
   template,
   selector: "app-observable-example",
-  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class ObservableExampleComponent {
   action = () => {
@@ -67,7 +65,6 @@ class ObservableExampleComponent {
 @Component({
   template,
   selector: "app-rejected-promise-example",
-  imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
 })
 class RejectedPromiseExampleComponent {
   action = async () => {
@@ -81,15 +78,13 @@ export default {
   title: "Component Library/Async Actions/Standalone",
   decorators: [
     moduleMetadata({
-      imports: [
-        ButtonModule,
-        IconButtonModule,
-        BitActionDirective,
+      declarations: [
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
         ActionResolvesQuicklyComponent,
       ],
+      imports: [ButtonModule, IconButtonModule, BitActionDirective],
       providers: [
         {
           provide: ValidationService,
