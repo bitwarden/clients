@@ -27,7 +27,6 @@ type EmergencyAccessConfirmDialogData = {
 };
 @Component({
   templateUrl: "emergency-access-confirm.component.html",
-  standalone: true,
   imports: [SharedModule],
 })
 export class EmergencyAccessConfirmComponent implements OnInit {

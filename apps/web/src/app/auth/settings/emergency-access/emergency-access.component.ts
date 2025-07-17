@@ -50,7 +50,6 @@ import {
 
 @Component({
   templateUrl: "emergency-access.component.html",
-  standalone: true,
   imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessComponent implements OnInit {

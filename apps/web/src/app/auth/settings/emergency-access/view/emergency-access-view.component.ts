@@ -15,7 +15,6 @@ import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component"
 @Component({
   templateUrl: "emergency-access-view.component.html",
   providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
-  standalone: true,
   imports: [SharedModule],
 })
 export class EmergencyAccessViewComponent implements OnInit {

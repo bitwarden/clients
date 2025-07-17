@@ -37,7 +37,6 @@ export enum EmergencyAccessAddEditDialogResult {
 }
 @Component({
   templateUrl: "emergency-access-add-edit.component.html",
-  standalone: true,
   imports: [SharedModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessAddEditComponent implements OnInit {

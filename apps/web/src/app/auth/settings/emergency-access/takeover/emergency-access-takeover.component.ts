@@ -41,7 +41,6 @@ type EmergencyAccessTakeoverDialogData = {
 };
 @Component({
   templateUrl: "emergency-access-takeover.component.html",
-  standalone: true,
   imports: [SharedModule, PasswordCalloutComponent],
 })
 export class EmergencyAccessTakeoverComponent
