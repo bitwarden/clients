@@ -25,7 +25,7 @@ async function run(context) {
     fse.moveSync(oldBin, newBin);
     console.log("Moved binary to bitwarden-app");
 
-    const wrapperScript = path.join(__dirname, "../resources/memory-dump-wrapper.sh");
+    const wrapperScript = path.join(__dirname, "../resources/linux-wrapper.sh");
     const wrapperBin = path.join(appOutDir, context.packager.executableName);
     fse.copyFileSync(wrapperScript, wrapperBin);
     fse.chmodSync(wrapperBin, "755");

@@ -1188,7 +1188,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DevicesServiceAbstraction,
     useClass: DevicesServiceImplementation,
-    deps: [DevicesApiServiceAbstraction, AppIdServiceAbstraction],
+    deps: [AppIdServiceAbstraction, DevicesApiServiceAbstraction, I18nServiceAbstraction],
   }),
   safeProvider({
     provide: AuthRequestApiServiceAbstraction,

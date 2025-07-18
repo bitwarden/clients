@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Output, input } from "@angular/core";
 
 import { IconButtonModule } from "../icon-button";
 import { SharedModule } from "../shared";
@@ -31,36 +31,36 @@ const variants: Record<ToastVariant, { icon: string; bgColor: string }> = {
   imports: [SharedModule, IconButtonModule, TypographyModule],
 })
 export class ToastComponent {
-  @Input() variant: ToastVariant = "info";
+  readonly variant = input<ToastVariant>("info");
 
   /**
    * The message to display
    *
    * Pass an array to render multiple paragraphs.
    **/
-  @Input({ required: true })
-  message!: string | string[];
+  readonly message = input.required<string | string[]>();
 
   /** An optional title to display over the message. */
-  @Input() title?: string;
+  readonly title = input<string>();
 
   /**
    * The percent width of the progress bar, from 0-100
    **/
-  @Input() progressWidth = 0;
+  readonly progressWidth = input(0);
 
   /** Emits when the user presses the close button */
   @Output() onClose = new EventEmitter<void>();
 
   protected get iconClass(): string {
-    return variants[this.variant].icon;
+    return variants[this.variant()].icon;
   }
 
   protected get bgColor(): string {
-    return variants[this.variant].bgColor;
+    return variants[this.variant()].bgColor;
   }
 
   protected get messageArray(): string[] {
-    return Array.isArray(this.message) ? this.message : [this.message];
+    const message = this.message();
+    return Array.isArray(message) ? message : [message];
   }
 }

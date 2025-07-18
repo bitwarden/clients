@@ -31,7 +31,7 @@ const template = /*html*/ `
 @Component({
   selector: "app-example",
   template,
-  imports: [CheckboxModule, FormFieldModule, ReactiveFormsModule],
+  imports: [FormControlModule, CheckboxModule, FormsModule, FormFieldModule, ReactiveFormsModule],
 })
 class ExampleComponent {
   protected formObj = this.formBuilder.group({

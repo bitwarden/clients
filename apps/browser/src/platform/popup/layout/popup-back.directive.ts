@@ -20,6 +20,6 @@ export class PopupBackBrowserDirective extends BitActionDirective {
     super(buttonComponent, validationService, logService);
 
     // override `bitAction` input; the parent handles the rest
-    this.handler = () => this.router.back();
+    this.handler.set(() => this.router.back());
   }
 }
