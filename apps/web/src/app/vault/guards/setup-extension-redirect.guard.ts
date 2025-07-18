@@ -1,9 +1,9 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -44,8 +44,7 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
     return true;
   }
 
-  const currentAcct$: Observable<Account | null> = accountService.activeAccount$;
-  const currentAcct = await firstValueFrom(currentAcct$);
+  const currentAcct = await firstValueFrom(accountService.activeAccount$);
 
   if (!currentAcct) {
     return router.createUrlTree(["/login"]);
