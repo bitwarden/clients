@@ -249,7 +249,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   private async setFormStatus() {
     if (
-      !this.itemDetailsForm.value.organizationId &&
+      !this.itemDetailsForm.controls.organizationId.value &&
       (await this.organizationDataOwnershipPolicyAppliesToUser())
     ) {
       this.disableForm();
