@@ -30,7 +30,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { PopupCipherView } from "../../views/popup-cipher.view";
+import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 @Component({
   selector: "app-trash-list-items-container",
@@ -54,7 +54,7 @@ export class TrashListItemsContainerComponent {
    * The list of trashed items to display.
    */
   @Input()
-  ciphers: PopupCipherView[] = [];
+  ciphers: PopupCipherViewLike[] = [];
 
   @Input()
   headerText: string;
@@ -73,12 +73,12 @@ export class TrashListItemsContainerComponent {
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.
    */
-  orgIconTooltip(cipher: PopupCipherView) {
-    if (cipher.collectionIds.length > 1) {
-      return this.i18nService.t("nCollections", cipher.collectionIds.length);
+  orgIconTooltip({ collections, collectionIds }: PopupCipherViewLike) {
+    if (collectionIds.length > 1) {
+      return this.i18nService.t("nCollections", collectionIds.length);
     }
 
-    return cipher.collections[0]?.name;
+    return collections[0]?.name;
   }
 
   async restore(cipher: CipherView) {

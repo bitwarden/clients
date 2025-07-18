@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -20,6 +21,7 @@ import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
+import { CipherViewLike } from "../utils/cipher-view-like-utils";
 
 export type EncryptionContext = {
   cipher: Cipher;
@@ -29,6 +31,7 @@ export type EncryptionContext = {
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
+  abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
   /**
@@ -65,12 +68,12 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
   ): Promise<CipherView[]>;
-  abstract filterCiphersForUrl(
-    ciphers: CipherView[],
+  abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
+    ciphers: C[],
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
-  ): Promise<CipherView[]>;
+  ): Promise<C[]>;
   abstract getAllFromApiForOrganization(organizationId: string): Promise<CipherView[]>;
   /**
    * Gets ciphers belonging to the specified organization that the user has explicit collection level access to.
@@ -198,9 +201,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     admin: boolean,
   ): Promise<CipherData>;
-  abstract sortCiphersByLastUsed(a: CipherView, b: CipherView): number;
-  abstract sortCiphersByLastUsedThenName(a: CipherView, b: CipherView): number;
-  abstract getLocaleSortingFunction(): (a: CipherView, b: CipherView) => number;
+  abstract sortCiphersByLastUsed(a: CipherViewLike, b: CipherViewLike): number;
+  abstract sortCiphersByLastUsedThenName(a: CipherViewLike, b: CipherViewLike): number;
+  abstract getLocaleSortingFunction(): (a: CipherViewLike, b: CipherViewLike) => number;
   abstract softDelete(id: string | string[], userId: UserId): Promise<any>;
   abstract softDeleteWithServer(id: string, userId: UserId, asAdmin?: boolean): Promise<any>;
   abstract softDeleteManyWithServer(ids: string[], userId: UserId, asAdmin?: boolean): Promise<any>;
@@ -251,4 +254,10 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     response: Response,
     userId: UserId,
   ): Promise<Uint8Array | null>;
+
+  /**
+   * Decrypts the full `CipherView` for a given `CipherViewLike`.
+   * When a `CipherView` instance is passed, it returns it as is.
+   */
+  abstract getFullCipherView(c: CipherViewLike): Promise<CipherView>;
 }

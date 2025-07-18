@@ -1,4 +1,4 @@
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 
 export abstract class UserAsymmetricKeysRegenerationApiService {
   abstract regenerateUserAsymmetricKeys(
