@@ -428,10 +428,8 @@ export class LoginCommand {
       );
 
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
-        currentPassword,
-        await this.keyService.getOrDeriveMasterKey(currentPassword, userId),
-      );
+      const masterKey = await this.keyService.getOrDeriveMasterKey(currentPassword, userId);
+      request.masterPasswordHash = await this.keyService.hashMasterKey(currentPassword, masterKey);
       request.masterPasswordHint = hint;
       request.newMasterPasswordHash = newPasswordHash;
       request.key = newUserKey[1].encryptedString;

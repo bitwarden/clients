@@ -837,7 +837,7 @@ describe("keyService", () => {
 
       const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
 
-      //Check does this work?
+      expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalledWith(mockUserId);
       expect(result).toEqual(masterKey);
     });
 
@@ -864,6 +864,7 @@ describe("keyService", () => {
 
       const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
 
+      expect(kdfConfigService.getKdfConfig$).toHaveBeenCalledWith(mockUserId);
       expect(keyGenerationService.deriveKeyFromPassword).toHaveBeenCalledWith(
         "password",
         "email",
