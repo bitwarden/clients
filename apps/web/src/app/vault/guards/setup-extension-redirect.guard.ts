@@ -63,6 +63,10 @@ export const setupExtensionRedirectGuard: CanActivateFn = async () => {
   const isProfileOlderThan30Days = await profileIsOlderThan30Days(
     vaultProfileService,
     currentAcct.id,
+  ).catch(
+    () =>
+      // If the call for the profile fails for any reason, do not block the user
+      true,
   );
 
   if (dismissedExtensionPage || isProfileOlderThan30Days) {

@@ -75,6 +75,12 @@ describe("setupExtensionRedirectGuard", () => {
     expect(await setupExtensionGuard()).toBe(true);
   });
 
+  it("returns `true` when the profile check fails", async () => {
+    getProfileCreationDate.mockRejectedValueOnce(new Error("Profile check failed"));
+
+    expect(await setupExtensionGuard()).toBe(true);
+  });
+
   it("returns `true` when the feature flag is disabled", async () => {
     getFeatureFlag.mockResolvedValueOnce(false);
 
