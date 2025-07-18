@@ -40,7 +40,7 @@ jobs:
           
           ${changedFiles.map(file => `- \`${file}\``).join('\n')}
           
-          Please run the DuckDuckGo native messaging test runner from this branch [these instructions](https://contributing.bitwarden.com/getting-started/clients/desktop/native-messaging-test-runner) and ensure it functions properly.`;
+          Please run the DuckDuckGo native messaging test runner from this branch using [these instructions](https://contributing.bitwarden.com/getting-started/clients/desktop/native-messaging-test-runner) and ensure it functions properly.`;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
