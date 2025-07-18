@@ -2,11 +2,14 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -59,6 +62,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   @Input() addAccessToggle: boolean;
   @Input() activeCollection: CollectionView | undefined;
 
+  private checkRestrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
+
   private _ciphers?: C[] = [];
   @Input() get ciphers(): C[] {
     return this._ciphers;
@@ -86,7 +91,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
 
-  constructor(protected cipherAuthorizationService: CipherAuthorizationService) {
+  constructor(
+    protected cipherAuthorizationService: CipherAuthorizationService,
+    protected restrictedItemTypesService: RestrictedItemTypesService,
+  ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -267,6 +275,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
   protected canClone(vaultItem: VaultItem<C>) {
+    // If the user belongs to any orgs that have the restricted card policy enabled, don't allow cloning for card items
+    const isCardRestricted = this.checkRestrictedPolicies().some(
+      (rt) => rt.cipherType === CipherType.Card,
+    );
+    if (isCardRestricted && vaultItem.cipher.type === CipherType.Card) {
+      return false;
+    }
+
     if (vaultItem.cipher.organizationId == null) {
       return true;
     }

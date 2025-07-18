@@ -4,7 +4,6 @@ import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
 import { BehaviorSubject, combineLatest, firstValueFrom, map, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -68,11 +68,22 @@ export class ItemMoreOptionsComponent {
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
+   * Checks if user has any org with the restricted item types policy enabled,
    * @protected
    */
-  protected canClone$ = this._cipher$.pipe(
-    filter((c) => c != null),
-    switchMap((c) => this.cipherAuthorizationService.canCloneCipher$(c)),
+  protected canClone$ = combineLatest(
+    this._cipher$,
+    this.restrictedItemTypesService.restricted$,
+  ).pipe(
+    switchMap(([c, restrictedCard]) => {
+      const restrictedCardCheck = restrictedCard.some(
+        (restrictType) => restrictType.cipherType === CipherType.Card && c.type === CipherType.Card,
+      );
+      if (c != null && !restrictedCardCheck) {
+        return this.cipherAuthorizationService.canCloneCipher$(c);
+      }
+      return new BehaviorSubject(false);
+    }),
   );
 
   /** Observable Boolean dependent on the current user having access to an organization and editable collections */
@@ -103,6 +114,7 @@ export class ItemMoreOptionsComponent {
     private organizationService: OrganizationService,
     private cipherAuthorizationService: CipherAuthorizationService,
     private collectionService: CollectionService,
+    private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
 
   get canEdit() {
