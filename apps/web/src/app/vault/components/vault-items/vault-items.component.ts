@@ -150,6 +150,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     );
   }
 
+  clearSelection() {
+    this.selection.clear();
+  }
+
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }
