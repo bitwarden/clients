@@ -3,10 +3,12 @@ import {
   NEVER,
   Observable,
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   forkJoin,
   map,
   of,
+  shareReplay,
   switchMap,
 } from "rxjs";
 
@@ -80,6 +82,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
   }
 
