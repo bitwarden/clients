@@ -68,7 +68,6 @@ export class ItemMoreOptionsComponent {
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
-   * Checks if user has any org with the restricted item types policy enabled,
    * @protected
    */
   protected canClone$ = combineLatest(
@@ -76,6 +75,7 @@ export class ItemMoreOptionsComponent {
     this.restrictedItemTypesService.restricted$,
   ).pipe(
     switchMap(([c, restrictedCard]) => {
+      // If user belongs to any org with Restricted Card Policy enabled do not allow cloning of cards
       const restrictedCardCheck = restrictedCard.some(
         (restrictType) => restrictType.cipherType === CipherType.Card && c.type === CipherType.Card,
       );
