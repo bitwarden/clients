@@ -237,7 +237,7 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id)) {
+            if (filters.collection && !cipher.collectionIds?.includes(filters.collection.id!)) {
               return false;
             }
 

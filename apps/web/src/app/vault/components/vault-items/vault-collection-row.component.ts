@@ -105,12 +105,4 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   protected deleteCollection() {
     this.onEvent.next({ type: "delete", items: [{ collection: this.collection }] });
   }
-
-  protected get showCheckbox() {
-    if (this.collection?.id === Unassigned) {
-      return false; // Never show checkbox for Unassigned
-    }
-
-    return this.canEditCollection || this.canDeleteCollection;
-  }
 }
