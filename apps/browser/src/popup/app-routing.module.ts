@@ -12,6 +12,7 @@ import {
   authGuard,
   lockGuard,
   redirectGuard,
+  redirectToVaultIfUnlockedGuard,
   tdeDecryptionRequiredGuard,
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
@@ -454,6 +455,7 @@ const routes: Routes = [
       },
       {
         path: "login-with-device",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -502,6 +504,7 @@ const routes: Routes = [
       },
       {
         path: "admin-approval-requested",
+        canActivate: [redirectToVaultIfUnlockedGuard()],
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
