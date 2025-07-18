@@ -6,14 +6,14 @@
   class="tw-px-2 tw-pt-5"
 >
   <a
-    [routerLink]="route"
+    [routerLink]="route()"
     class="tw-p-3 tw-block tw-rounded-md tw-bg-background-alt3 tw-outline-none focus-visible:tw-ring focus-visible:tw-ring-inset focus-visible:tw-ring-text-alt2 hover:tw-bg-hover-contrast [&_path]:tw-fill-text-alt2"
     [ngClass]="{ '[&_svg]:tw-w-[1.687rem]': !sideNavService.open }"
-    [attr.aria-label]="label"
-    [title]="label"
+    [attr.aria-label]="label()"
+    [title]="label()"
     routerLinkActive
     [ariaCurrentWhenActive]="'page'"
   >
-    <bit-icon [icon]="sideNavService.open ? openIcon : closedIcon"></bit-icon>
+    <bit-icon [icon]="sideNavService.open ? openIcon() : closedIcon()"></bit-icon>
   </a>
 </div>

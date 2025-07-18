@@ -16,8 +16,7 @@ export default {
   component: ReportCardComponent,
   decorators: [
     moduleMetadata({
-      imports: [JslibModule, BadgeModule, IconModule, RouterTestingModule],
-      declarations: [PremiumBadgeComponent],
+      imports: [JslibModule, BadgeModule, IconModule, RouterTestingModule, PremiumBadgeComponent],
     }),
     applicationConfig({
       providers: [importProvidersFrom(PreloadedEnglishI18nModule)],

@@ -42,6 +42,8 @@ export class StepperComponent extends CdkStepper {
   private initialOrientation: StepperOrientation | undefined = undefined;
 
   // overriding CdkStepper orientation input so we can default to vertical
+  // TODO: Skipped for signal migration because:
+  //  Accessor inputs cannot be migrated as they are too complex.
   @Input()
   override get orientation() {
     return this.internalOrientation || "vertical";

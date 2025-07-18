@@ -22,7 +22,6 @@ const template = /*html*/ `
   template,
   selector: "app-promise-example",
   imports: [AsyncActionsModule, ButtonModule, IconButtonModule],
-  standalone: true,
 })
 class PromiseExampleComponent {
   statusEmoji = "🟡";
