@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Verifizierungscode (TOTP) kopieren"
   },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Länge"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Sicherheitscode kopieren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "Kartennummer"
   },
   "premiumMembership": {
     "message": "Premium-Mitgliedschaft"
@@ -2411,7 +2428,7 @@
     "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
   },
   "updateMasterPasswordSubtitle": {
     "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
@@ -3154,7 +3171,7 @@
     "message": "Admin-Genehmigung anfragen"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Anmeldung kann nicht abgeschlossen werden"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
@@ -3563,7 +3580,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -3571,7 +3588,7 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Warnung",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "success": {
@@ -3997,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Enable autotype shortcut"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   }
 }

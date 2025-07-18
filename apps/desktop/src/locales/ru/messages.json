@@ -572,6 +572,20 @@
   "copyVerificationCodeTotp": {
     "message": "Скопировать код подтверждения (TOTP)"
   },
+  "copyFieldCipherName": {
+    "message": "Копировать $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
+  },
   "length": {
     "message": "Длина"
   },
@@ -1424,6 +1438,9 @@
   "copySecurityCode": {
     "message": "Скопировать код безопасности",
     "description": "Copy credit card security code (CVV)"
+  },
+  "cardNumber": {
+    "message": "номер карты"
   },
   "premiumMembership": {
     "message": "Премиум"
@@ -3997,5 +4014,11 @@
         }
       }
     }
+  },
+  "enableAutotype": {
+    "message": "Включить автоввод ярлыка"
+  },
+  "enableAutotypeDescription": {
+    "message": "Bitwarden не проверяет местоположение ввода, поэтому, прежде чем использовать ярлык, убедитесь, что вы находитесь в нужном окне и поле."
   }
 }
