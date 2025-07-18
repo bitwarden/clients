@@ -19,7 +19,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CardComponent,
@@ -80,11 +80,21 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   protected organizations: Organization[] = [];
 
+  protected userId: UserId;
+
   @Input({ required: true })
   config: CipherFormConfig;
 
   @Input()
   originalCipherView: CipherView;
+
+  @Input()
+  disableForm: () => void;
+
+  @Input()
+  enableForm: () => void;
+
+  formEnabled: boolean = false;
 
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
@@ -197,6 +207,8 @@ export class ItemDetailsSectionComponent implements OnInit {
       Utils.getSortFunction(this.i18nService, "name"),
     );
 
+    this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (!this.organizationDataOwnershipDisabled && this.organizations.length === 0) {
       throw new Error("No organizations available for ownership.");
     }
@@ -219,12 +231,45 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (!this.allowOwnershipChange) {
       this.itemDetailsForm.controls.organizationId.disable();
     }
+    await this.setFormStatus();
     this.itemDetailsForm.controls.organizationId.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        concatMap(async () => await this.updateCollectionOptions()),
+        concatMap(async () => {
+          await this.updateCollectionOptions();
+          // Prevent infinite loop if the form is already enabled as enabling the form causes valueChanges to emit
+          if (this.formEnabled) {
+            return;
+          }
+          await this.setFormStatus();
+        }),
       )
       .subscribe();
+  }
+
+  private async setFormStatus() {
+    if (
+      !this.itemDetailsForm.value.organizationId &&
+      (await this.organizationDataOwnershipPolicyAppliesToUser())
+    ) {
+      this.disableForm();
+      this.itemDetailsForm.controls.organizationId.enable();
+    } else {
+      this.enableForm();
+      this.formEnabled = true;
+    }
+  }
+
+  private async organizationDataOwnershipPolicyAppliesToUser() {
+    const isFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CreateDefaultLocation,
+    );
+    if (!isFeatureEnabled) {
+      return;
+    }
+    return await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, this.userId),
+    );
   }
 
   /**
@@ -238,21 +283,21 @@ export class ItemDetailsSectionComponent implements OnInit {
     if (!orgId) {
       return;
     }
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
-    if (!isFeatureEnabled) {
+
+    if (!(await this.organizationDataOwnershipPolicyAppliesToUser())) {
       return;
     }
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const selectedOrgHasPolicyEnabled = (
       await firstValueFrom(
-        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId),
+        this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, this.userId),
       )
     ).find((p) => p.organizationId);
+
     if (!selectedOrgHasPolicyEnabled) {
       return;
     }
+
     const defaultUserCollection = this.collections.find(
       (c) => c.organizationId === orgId && c.type === CollectionTypes.DefaultUserCollection,
     );
