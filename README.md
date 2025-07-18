@@ -1,3 +1,5 @@
+<p>test</p>
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/bitwarden/brand/main/screenshots/apps-combo-logo.png" alt="Bitwarden" />
 </p>
