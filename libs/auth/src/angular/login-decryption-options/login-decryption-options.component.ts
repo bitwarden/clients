@@ -249,7 +249,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
 
     try {
-      const { publicKey, privateKey } = await this.keyService.initAccount();
+      const { publicKey, privateKey } = await this.keyService.initAccount(this.activeAccountId);
       const keysRequest = new KeysRequest(publicKey, privateKey.encryptedString);
       await this.apiService.postAccountKeys(keysRequest);
 
