@@ -4,6 +4,7 @@ import {
   Observable,
   combineLatest,
   distinctUntilChanged,
+  filter,
   firstValueFrom,
   forkJoin,
   map,
@@ -85,6 +86,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
+      filter((orgKeys) => orgKeys != null),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: false }),
     ) as Observable<Record<OrganizationId, OrgKey>>;
@@ -406,12 +408,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey | null> {
-    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (activeUserId == null) {
-      throw new Error("A user must be active to retrieve an org key");
-    }
-    const orgKeys = await firstValueFrom(this.orgKeys$(activeUserId));
-    return orgKeys?.[orgId] ?? null;
+    return await firstValueFrom(
+      this.activeUserOrgKeys$.pipe(map((orgKeys) => orgKeys[orgId] ?? null)),
+    );
   }
 
   async makeDataEncKey<T extends OrgKey | UserKey>(
