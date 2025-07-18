@@ -120,7 +120,11 @@ export class TrialPaymentDialogComponent implements OnInit {
     }
     this.organization = organization;
 
-    const planCards = await this.planCardService.getCadenceCards(this.currentPlan, this.sub);
+    const planCards = await this.planCardService.getCadenceCards(
+      this.currentPlan,
+      this.sub,
+      this.isSecretsManagerTrial(),
+    );
 
     this.planCards.set(planCards);
 

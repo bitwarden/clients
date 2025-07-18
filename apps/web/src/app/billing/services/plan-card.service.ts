@@ -8,7 +8,11 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 export class PlanCardService {
   constructor(private apiService: ApiService) {}
 
-  async getCadenceCards(currentPlan: PlanResponse, subscription: OrganizationSubscriptionResponse) {
+  async getCadenceCards(
+    currentPlan: PlanResponse,
+    subscription: OrganizationSubscriptionResponse,
+    isSecretsManagerTrial: boolean,
+  ) {
     const plans = await this.apiService.getPlans();
 
     const filteredPlans = plans.data.filter((plan) => !!plan.PasswordManager);
@@ -27,15 +31,17 @@ export class PlanCardService {
           ? plan.PasswordManager.basePrice / 12
           : plan.PasswordManager.basePrice;
       } else if (!plan.PasswordManager.basePrice && plan.PasswordManager.hasAdditionalSeatsOption) {
-        costPerMember =
-          ((subscription.useSecretsManager ? plan.SecretsManager.seatPrice : 0) +
-            plan.PasswordManager.seatPrice) /
-          (plan.isAnnual ? 12 : 1);
+        const secretsManagerCost = subscription.useSecretsManager
+          ? plan.SecretsManager.seatPrice
+          : 0;
+        const passwordManagerCost = isSecretsManagerTrial ? 0 : plan.PasswordManager.seatPrice;
+        costPerMember = (secretsManagerCost + passwordManagerCost) / (plan.isAnnual ? 12 : 1);
       }
 
       const percentOff = subscription.customerDiscount?.percentOff ?? 0;
 
-      const discount = percentOff === 0 && plan.isAnnual ? 20 : percentOff;
+      const discount =
+        (percentOff === 0 && plan.isAnnual) || isSecretsManagerTrial ? 20 : percentOff;
 
       return {
         title: plan.isAnnual ? "Annually" : "Monthly",
