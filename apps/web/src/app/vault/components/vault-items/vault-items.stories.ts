@@ -36,6 +36,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LayoutComponent } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -158,7 +159,7 @@ export default {
   argTypes: { onEvent: { action: "onEvent" } },
 } as Meta;
 
-type Story = StoryObj<VaultItemsComponent>;
+type Story = StoryObj<VaultItemsComponent<CipherViewLike>>;
 
 export const Individual: Story = {
   args: {

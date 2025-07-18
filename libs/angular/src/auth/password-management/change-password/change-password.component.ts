@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
@@ -41,7 +42,7 @@ import { ChangePasswordService } from "./change-password.service.abstraction";
 @Component({
   selector: "auth-change-password",
   templateUrl: "change-password.component.html",
-  imports: [InputPasswordComponent, I18nPipe, CalloutComponent],
+  imports: [InputPasswordComponent, I18nPipe, CalloutComponent, CommonModule],
 })
 export class ChangePasswordComponent implements OnInit {
   @Input() inputPasswordFlow: InputPasswordFlow = InputPasswordFlow.ChangePassword;

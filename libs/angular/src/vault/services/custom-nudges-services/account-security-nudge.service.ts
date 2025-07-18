@@ -74,7 +74,10 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
             hasSpotlightDismissed: status.hasSpotlightDismissed || hideNudge,
           };
 
-          if (isPinSet || biometricUnlockEnabled || hasOrgWithRemovePinPolicyOn) {
+          if (
+            (isPinSet || biometricUnlockEnabled || hasOrgWithRemovePinPolicyOn) &&
+            !status.hasSpotlightDismissed
+          ) {
             await this.setNudgeStatus(nudgeType, acctSecurityNudgeStatus, userId);
           }
           return acctSecurityNudgeStatus;
