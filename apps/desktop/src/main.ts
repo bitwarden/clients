@@ -298,13 +298,7 @@ export class Main {
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
 
-    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
-      new DesktopAutotypeService(
-        new SlimConfigService(this.environmentService, globalStateProvider),
-        globalStateProvider,
-        process.platform === "win32",
-      ),
-    );
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(this.logService, this.windowMain);
 
     app
       .whenReady()

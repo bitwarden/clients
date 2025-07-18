@@ -472,17 +472,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopAutotypeService,
-    useFactory: (
-      configService: ConfigService,
-      globalStateProvider: GlobalStateProvider,
-      platformUtilsService: PlatformUtilsServiceAbstraction,
-    ) =>
-      new DesktopAutotypeService(
-        configService,
-        globalStateProvider,
-        platformUtilsService.getDevice() === DeviceType.WindowsDesktop,
-      ),
-    deps: [ConfigService, GlobalStateProvider, PlatformUtilsServiceAbstraction],
+    useClass: DesktopAutotypeService,
+    deps: [AccountService, CipherServiceAbstraction, ConfigService, GlobalStateProvider, PlatformUtilsServiceAbstraction],
   }),
 ];
 

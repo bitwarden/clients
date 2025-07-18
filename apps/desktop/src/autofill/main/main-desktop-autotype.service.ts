@@ -1,21 +1,40 @@
+import { ipcMain } from "electron";
+
 import { globalShortcut } from "electron";
 
 import { autotype } from "@bitwarden/desktop-napi";
 
-import { DesktopAutotypeService } from "../services/desktop-autotype.service";
+import { WindowMain } from "../../main/window.main";
+import { LogService } from "@bitwarden/logging";
 
 export class MainDesktopAutotypeService {
   keySequence: string = "Alt+CommandOrControl+I";
 
-  constructor(private desktopAutotypeService: DesktopAutotypeService) {}
+  constructor(private logService: LogService, private windowMain: WindowMain,) {}
 
   init() {
-    this.desktopAutotypeService.autotypeEnabled$.subscribe((enabled) => {
-      if (enabled) {
+    // this.desktopAutotypeService.autotypeEnabled$.subscribe((enabled) => {
+    //   if (enabled) {
+    //     this.enableAutotype();
+    //   } else {
+    //     this.disableAutotype();
+    //   }
+    // });
+
+    ipcMain.on("autofill.configureAutotype", (event, data) => {
+      if (data.enabled) {
         this.enableAutotype();
       } else {
         this.disableAutotype();
       }
+    });
+
+    ipcMain.on("autofill.completeAutotypeRequest", (event, data) => {
+      const { username, password } = data;
+      console.log("username: " + username + "\npassword: " + password);
+
+      let inputString = "";
+      autotype.typeInput(new Array<number>());
     });
   }
 
@@ -37,14 +56,20 @@ export class MainDesktopAutotypeService {
   }
 
   private doAutotype() {
-    const window_title = autotype.getForegroundWindowTitle();
+    const windowTitle = autotype.getForegroundWindowTitle();
     // eslint-disable-next-line no-console
-    console.log("Window Title: " + window_title);
+    console.log("Window Title: " + windowTitle);
+
+    this.windowMain.win.webContents.send("autofill.listenAutotypeRequest", {
+      windowTitle,
+    });
 
     // --------------------------------------------------
+    // 1. ipc main <-> render
+    // 2. encoding to utf16 for Array<number>
 
-    const result = autotype.typeInput(new Array<number>());
+    //const result = autotype.typeInput(new Array<number>());
     // eslint-disable-next-line no-console
-    console.log("Window Title: " + result);
+    //console.log("Type Input: " + result);
   }
 }

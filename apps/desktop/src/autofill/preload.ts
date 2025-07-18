@@ -127,4 +127,28 @@ export default {
       },
     );
   },
+  configureAutotype: (
+    enabled: boolean,
+  ) => {
+    ipcRenderer.send("autofill.configureAutotype", { enabled });
+  },
+  listenAutotypeRequest: (
+    fn: (
+      windowTitle: string,
+    ) => Promise<{ username?: string, password?: string }>,
+  ) => {
+    ipcRenderer.on(
+      "autofill.listenAutotypeRequest",
+      async (
+        event,
+        data: {
+          windowTitle: string;
+        },
+      ) => {
+        const result = await fn(data.windowTitle);
+
+        ipcRenderer.send("autofill.completeAutotypeRequest", result);
+      },
+    );
+  },
 };
