@@ -1,7 +1,7 @@
 /**
- * Abstraction for the LoginApprovalComponent service.
+ * Abstraction for the LoginApprovalDialogComponent service.
  */
-export abstract class LoginApprovalComponentServiceAbstraction {
+export abstract class LoginApprovalDialogComponentServiceAbstraction {
   /**
    * Shows a login requested alert if the window is not visible.
    */
