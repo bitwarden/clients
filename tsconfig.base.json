@@ -45,6 +45,7 @@
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
       "@bitwarden/send-ui": ["./libs/tools/send/send-ui/src"],
+      "@bitwarden/serialization": ["libs/serialization/src/index.ts"],
       "@bitwarden/storage-core": ["libs/storage-core/src/index.ts"],
       "@bitwarden/storage-test-utils": ["libs/storage-test-utils/src/index.ts"],
       "@bitwarden/ui-common": ["./libs/ui/common/src"],

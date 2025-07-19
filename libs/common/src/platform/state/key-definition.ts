@@ -2,9 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { array, record } from "@bitwarden/serialization";
+
 import { StorageKey } from "../../types/state";
 
-import { array, record } from "./deserialization-helpers";
 import { StateDefinition } from "./state-definition";
 
 export type DebugOptions = {
