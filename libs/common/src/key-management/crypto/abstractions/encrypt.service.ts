@@ -9,20 +9,6 @@ import { EncString } from "../models/enc-string";
 export abstract class EncryptService {
   /**
    * @deprecated
-   * Encrypts a string or Uint8Array to an EncString
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
-   */
-  abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
-  /**
-   * @deprecated
-   * Encrypts a value to a Uint8Array
-   * @param plainValue - The value to encrypt
-   * @param key - The key to encrypt the value with
-   */
-  abstract encryptToBytes(plainValue: Uint8Array, key: SymmetricCryptoKey): Promise<EncArrayBuffer>;
-  /**
-   * @deprecated
    * Decrypts an EncString to a string
    * @param encString - The EncString to decrypt
    * @param key - The key to decrypt the EncString with
