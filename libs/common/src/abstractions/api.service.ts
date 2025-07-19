@@ -147,7 +147,7 @@ export abstract class ApiService {
   ) => Promise<
     IdentityTokenResponse | IdentityTwoFactorResponse | IdentityDeviceVerificationResponse
   >;
-  refreshIdentityToken: () => Promise<any>;
+  refreshIdentityToken: (userId?: UserId) => Promise<any>;
 
   getProfile: () => Promise<ProfileResponse>;
   getUserSubscription: () => Promise<SubscriptionResponse>;
@@ -443,7 +443,7 @@ export abstract class ApiService {
   postBitPayInvoice: (request: BitPayInvoiceRequest) => Promise<string>;
   postSetupPayment: () => Promise<string>;
 
-  getActiveBearerToken: () => Promise<string>;
+  getActiveBearerToken: (userId?: UserId) => Promise<string>;
   fetch: (request: Request) => Promise<Response>;
   nativeFetch: (request: Request) => Promise<Response>;
 
