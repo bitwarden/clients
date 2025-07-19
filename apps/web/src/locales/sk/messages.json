@@ -865,10 +865,10 @@
     "message": "Kopírovať meno"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "číslo karty"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Webový trezor"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Webová aplikácia"
   },
   "cli": {
     "message": "CLI"
@@ -3988,7 +3988,7 @@
     "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli naozaj vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Potvrdené prihlásenie pre $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Odmietli ste pokus o prihlásenie z iného zariadenia. Ak ste to boli vy, skúste sa prihlásiť pomocou zariadenia znova."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Platnosť žiadosti o prihlásenie už vypršala."
@@ -4148,7 +4148,7 @@
     "message": "Skontrolovať požiadavku o prihlásenie"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Žiadosť o prihlásenie"
   },
   "freeTrialEndPromptCount": {
     "message": "Vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dní.",

@@ -648,7 +648,7 @@
     "message": "Güvənli qeyd"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Not"
   },
   "typeSshKey": {
     "message": "SSH açarı"
@@ -865,10 +865,10 @@
     "message": "Adı kopyala"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kart nömrəsi"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Veb seyf"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Veb tətbiq"
   },
   "cli": {
     "message": "CLI"
@@ -3988,7 +3988,7 @@
     "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu həqiqətən siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$DEVICE$ cihazında $EMAIL$ üçün giriş tələbi təsdiqləndi",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Başqa bir cihazdan giriş cəhdinə rədd cavabı verdiniz. Bu siz idinizsə, cihazla yenidən giriş etməyə çalışın."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Giriş tələbinin müddəti artıq bitib."
@@ -4148,7 +4148,7 @@
     "message": "Giriş tələbini incələ"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Giriş tələbi"
   },
   "freeTrialEndPromptCount": {
     "message": "Ödənişsiz sınaq müddətiniz $COUNT$ günə bitir.",

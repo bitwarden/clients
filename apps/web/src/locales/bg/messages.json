@@ -865,10 +865,10 @@
     "message": "Копиране на името"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "номер на карта"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Копиране на $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Трезор по уеб"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Приложение по уеб"
   },
   "cli": {
     "message": "ИКР"
@@ -3988,7 +3988,7 @@
     "message": "Вие отказахте опит за вписване от друго устройство. Ако това наистина сте били Вие, опитайте да се впишете от устройството отново."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Заявката за вписване за $EMAIL$ на $DEVICE$ е одобрена",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Вие отказахте опит за вписване от друго устройство. Ако това сте били Вие, опитайте да се впишете от устройството отново."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Заявката за вписване вече е изтекла."
@@ -4148,7 +4148,7 @@
     "message": "Преглед на заявката за вписване"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Заявка за вписване"
   },
   "freeTrialEndPromptCount": {
     "message": "Вашият безплатен пробен период приключва след $COUNT$ дни.",

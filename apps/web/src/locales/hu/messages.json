@@ -865,10 +865,10 @@
     "message": "Név másolása"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kártya szám"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "$FIELD$, $CIPHERNAME$ másolása",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Webes széf"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Webalkalmazás"
   },
   "cli": {
     "message": "CLI"
@@ -3988,7 +3988,7 @@
     "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "A bejelentkezési kérelem jóváhagyásra került: $EMAIL$ - $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Megtagadásra került egy bejelentkezési kísérletet egy másik eszközről. Ha valóban mi voltunk, próbáljunk meg újra bejelentkezni az eszközzel."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "A bejelentkezési kérés már lejárt."
@@ -4148,7 +4148,7 @@
     "message": "Bejelentkezési kérés áttekintése"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Bejelentkezés kérés"
   },
   "freeTrialEndPromptCount": {
     "message": "Az ingyenes próbaidőszak $COUNT$ nap múlva ér véget.",

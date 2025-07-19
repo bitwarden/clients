@@ -648,7 +648,7 @@
     "message": "Bezpieczna notatka"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Notatka"
   },
   "typeSshKey": {
     "message": "Klucz SSH"
@@ -865,10 +865,10 @@
     "message": "Skopiuj nazwę"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "numer karty"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Kopiuj $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Sejf internetowy"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Aplikacja internetowa"
   },
   "cli": {
     "message": "CLI"
@@ -3988,7 +3988,7 @@
     "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Logowanie potwierdzone dla $EMAIL$ na $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Odrzucono próby logowania z innego urządzenia. Jeśli to naprawdę Ty, spróbuj ponownie zalogować się za pomocą urządzenia."
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Prośba logowania wygasła."
@@ -4148,7 +4148,7 @@
     "message": "Przejrzyj żądanie logowania"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Żądanie logowania"
   },
   "freeTrialEndPromptCount": {
     "message": "Twój okres próbny kończy się za $COUNT$ dni.",

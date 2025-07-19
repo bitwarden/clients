@@ -865,10 +865,10 @@
     "message": "Ievietot nosaukumu starpliktuvē"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "kartes numurs"
   },
   "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "message": "Ievietot starpliktuvē $FIELD$, $CIPHERNAME$",
     "description": "Title for a button that copies a field value to the clipboard.",
     "placeholders": {
       "field": {
@@ -3503,7 +3503,7 @@
     "message": "Tīmekļa glabātava"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Tīmekļa lietotne"
   },
   "cli": {
     "message": "CLI"
@@ -3988,7 +3988,7 @@
     "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas tiešām biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$EMAIL$ pieteikšanās pieprasījums apstiprināts $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4001,7 +4001,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Tu noraidīji pieteikšanās mēģinājumu no citas ierīces. Ja tas biji Tu, mēģini pieteikties no ierīces vēlreiz!"
   },
   "loginRequestHasAlreadyExpired": {
     "message": "Pieteikšanās pieprasījuma derīgums jau ir beidzies."
@@ -4148,7 +4148,7 @@
     "message": "Izskatīt pieteikšanās pieprasījumu"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Pieteikšanās pieprasījums"
   },
   "freeTrialEndPromptCount": {
     "message": "Bezmaksas izmēģinājums beigsies pēc $COUNT$ dienām.",

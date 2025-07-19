@@ -6702,7 +6702,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -8919,7 +8919,7 @@
     "message": "Instalar a extensão do navegador"
   },
   "installBrowserExtensionDetails": {
-    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação Web."
+    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação web."
   },
   "projectAccessUpdated": {
     "message": "Acesso ao projeto atualizado"
@@ -9050,7 +9050,7 @@
     "message": "Gratuito durante 1 ano"
   },
   "newWebApp": {
-    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+    "message": "Bem-vindo à nova e melhorada aplicação web. Saiba mais sobre o que mudou."
   },
   "releaseBlog": {
     "message": "Ler o blogue de lançamento"
@@ -10797,7 +10797,7 @@
     "message": "Tem a certeza de que não pretende adicionar a extensão agora?"
   },
   "skipToWebApp": {
-    "message": "Saltar para a Web app"
+    "message": "Saltar para a aplicação web"
   },
   "bitwardenExtensionInstalled": {
     "message": "Extensão Bitwarden instalada!"
