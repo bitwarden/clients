@@ -146,7 +146,9 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     }
     const collection = new CollectionRequest();
     collection.externalId = model.externalId;
-    collection.name = (await this.encryptService.encryptString(model.name, key)).encryptedString;
+    if (collection.name) {
+      collection.name = (await this.encryptService.encryptString(model.name, key)).encryptedString;
+    }
     collection.groups = model.groups.map(
       (group) =>
         new SelectionReadOnlyRequest(group.id, group.readOnly, group.hidePasswords, group.manage),
