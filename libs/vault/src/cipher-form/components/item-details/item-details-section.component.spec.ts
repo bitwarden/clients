@@ -79,6 +79,7 @@ describe("ItemDetailsSectionComponent", () => {
     mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
     mockPolicyService = mock<PolicyService>();
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
+    mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -98,6 +99,8 @@ describe("ItemDetailsSectionComponent", () => {
       organizations: [],
       folders: [],
     } as CipherFormConfig;
+    component.enableForm = jest.fn();
+    component.disableForm = jest.fn();
   });
 
   afterEach(() => {

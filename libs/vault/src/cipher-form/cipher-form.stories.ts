@@ -259,6 +259,7 @@ export default {
           provide: PolicyService,
           useValue: {
             policiesByType$: new BehaviorSubject([]),
+            policyAppliesToUser$: () => new BehaviorSubject(true),
           },
         },
       ],
