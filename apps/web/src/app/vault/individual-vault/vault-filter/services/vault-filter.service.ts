@@ -4,7 +4,6 @@ import { Injectable } from "@angular/core";
 import {
   BehaviorSubject,
   combineLatest,
-  combineLatestWith,
   filter,
   firstValueFrom,
   map,
@@ -100,13 +99,13 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     map((folders) => this.buildFolderTree(folders)),
   );
 
-  filteredCollections$: Observable<CollectionView[]> =
-    this.collectionService.decryptedCollections$.pipe(
-      combineLatestWith(this._organizationFilter),
-      switchMap(([collections, org]) => {
-        return this.filterCollections(collections, org);
-      }),
-    );
+  filteredCollections$: Observable<CollectionView[]> = combineLatest([
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    ),
+    this._organizationFilter,
+  ]).pipe(switchMap(([collections, org]) => this.filterCollections(collections, org)));
 
   collectionTree$: Observable<TreeNode<CollectionFilter>> = combineLatest([
     this.filteredCollections$,

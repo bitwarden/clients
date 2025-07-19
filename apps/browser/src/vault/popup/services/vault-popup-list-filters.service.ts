@@ -6,7 +6,6 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  from,
   map,
   Observable,
   shareReplay,
@@ -446,7 +445,7 @@ export class VaultPopupListFiltersService {
           this.filters$.pipe(
             distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
           ),
-          this.collectionService.decryptedCollections$,
+          this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
           this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation),
         ]),
@@ -463,16 +462,11 @@ export class VaultPopupListFiltersService {
         }
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
       }),
-      switchMap((collections) => {
-        return from(this.collectionService.getAllNested(collections)).pipe(
-          map(
-            (nested) =>
-              new DynamicTreeNode<CollectionView>({
-                fullList: collections,
-                nestedList: nested,
-              }),
-          ),
-        );
+      map((fullList) => {
+        return new DynamicTreeNode<CollectionView>({
+          fullList,
+          nestedList: this.collectionService.getAllNested(fullList),
+        });
       }),
       map((tree) =>
         tree.nestedList.map((c) => this.convertToChipSelectOption(c, "bwi-collection-shared")),

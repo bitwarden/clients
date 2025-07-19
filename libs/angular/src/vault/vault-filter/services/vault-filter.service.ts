@@ -109,7 +109,12 @@ export class VaultFilterService implements DeprecatedVaultFilterServiceAbstracti
   }
 
   async buildCollections(organizationId?: string): Promise<DynamicTreeNode<CollectionView>> {
-    const storedCollections = await this.collectionService.getAllDecrypted();
+    const storedCollections = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    );
     const orgs = await this.buildOrganizations();
     const defaulCollectionsFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.CreateDefaultLocation,

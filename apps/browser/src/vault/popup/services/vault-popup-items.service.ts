@@ -72,6 +72,11 @@ export class VaultPopupItemsService {
   private organizations$ = this.activeUserId$.pipe(
     switchMap((userId) => this.organizationService.organizations$(userId)),
   );
+
+  private decryptedCollections$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+  );
+
   /**
    * Observable that contains the list of other cipher types that should be shown
    * in the autofill section of the Vault tab. Depends on vault settings.
@@ -130,7 +135,7 @@ export class VaultPopupItemsService {
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
+      combineLatest([this.organizations$, this.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
@@ -291,7 +296,7 @@ export class VaultPopupItemsService {
    */
   deletedCiphers$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([this.organizations$, this.collectionService.decryptedCollections$]).pipe(
+      combineLatest([this.organizations$, this.decryptedCollections$]).pipe(
         map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));

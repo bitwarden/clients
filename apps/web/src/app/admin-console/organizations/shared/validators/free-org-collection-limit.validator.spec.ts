@@ -18,7 +18,7 @@ describe("freeOrgCollectionLimitValidator", () => {
 
   it("returns null if organization is not found", async () => {
     const orgs: Organization[] = [];
-    const validator = freeOrgCollectionLimitValidator(of(orgs), [], i18nService);
+    const validator = freeOrgCollectionLimitValidator(of(orgs), of([]), i18nService);
     const control = new FormControl("org-id");
 
     const result: Observable<ValidationErrors> = validator(control) as Observable<ValidationErrors>;
@@ -28,7 +28,7 @@ describe("freeOrgCollectionLimitValidator", () => {
   });
 
   it("returns null if control is not an instance of FormControl", async () => {
-    const validator = freeOrgCollectionLimitValidator(of([]), [], i18nService);
+    const validator = freeOrgCollectionLimitValidator(of([]), of([]), i18nService);
     const control = {} as AbstractControl;
 
     const result: Observable<ValidationErrors | null> = validator(
@@ -40,7 +40,7 @@ describe("freeOrgCollectionLimitValidator", () => {
   });
 
   it("returns null if control is not provided", async () => {
-    const validator = freeOrgCollectionLimitValidator(of([]), [], i18nService);
+    const validator = freeOrgCollectionLimitValidator(of([]), of([]), i18nService);
 
     const result: Observable<ValidationErrors | null> = validator(
       undefined as any,
@@ -53,7 +53,7 @@ describe("freeOrgCollectionLimitValidator", () => {
   it("returns null if organization has not reached collection limit (Observable)", async () => {
     const org = { id: "org-id", maxCollections: 2 } as Organization;
     const collections = [{ organizationId: "org-id" } as Collection];
-    const validator = freeOrgCollectionLimitValidator(of([org]), collections, i18nService);
+    const validator = freeOrgCollectionLimitValidator(of([org]), of(collections), i18nService);
     const control = new FormControl("org-id");
 
     const result$ = validator(control) as Observable<ValidationErrors | null>;
@@ -65,7 +65,7 @@ describe("freeOrgCollectionLimitValidator", () => {
   it("returns error if organization has reached collection limit (Observable)", async () => {
     const org = { id: "org-id", maxCollections: 1 } as Organization;
     const collections = [{ organizationId: "org-id" } as Collection];
-    const validator = freeOrgCollectionLimitValidator(of([org]), collections, i18nService);
+    const validator = freeOrgCollectionLimitValidator(of([org]), of(collections), i18nService);
     const control = new FormControl("org-id");
 
     const result$ = validator(control) as Observable<ValidationErrors | null>;

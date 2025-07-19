@@ -393,7 +393,7 @@ export class ImportService implements ImportServiceAbstraction {
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;
-        const c = await this.collectionService.encrypt(importResult.collections[i]);
+        const c = await this.collectionService.encrypt(importResult.collections[i], activeUserId);
         request.collections.push(new CollectionWithIdRequest(c));
       }
     }

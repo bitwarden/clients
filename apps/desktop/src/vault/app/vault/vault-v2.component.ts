@@ -30,8 +30,9 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { getByIds } from "@bitwarden/common/platform/misc";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -360,7 +361,12 @@ export class VaultV2Component<C extends CipherViewLike>
       this.allOrganizations = orgs;
     });
 
-    this.collectionService.decryptedCollections$
+    if (!this.activeUserId) {
+      throw new Error("No user found.");
+    }
+
+    this.collectionService
+      .decryptedCollections$(this.activeUserId)
       .pipe(takeUntil(this.componentIsDestroyed$))
       .subscribe((collections) => {
         this.allCollections = collections;
@@ -701,9 +707,17 @@ export class VaultV2Component<C extends CipherViewLike>
     this.cipherId = null;
     this.action = "view";
     await this.vaultItemsComponent?.refresh().catch(() => {});
+
+    if (!this.activeUserId) {
+      throw new Error("No userId provided.");
+    }
+
     this.collections = await firstValueFrom(
-      this.collectionService.decryptedCollectionViews$(cipher.collectionIds as CollectionId[]),
+      this.collectionService
+        .decryptedCollections$(this.activeUserId)
+        .pipe(getByIds(cipher.collectionIds)),
     );
+
     this.cipherId = cipher.id;
     this.cipher = cipher;
     if (this.activeUserId) {
