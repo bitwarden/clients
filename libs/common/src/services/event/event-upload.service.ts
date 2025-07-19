@@ -71,21 +71,39 @@ export class EventUploadService implements EventUploadServiceAbstraction {
     if (eventCollection == null || eventCollection.length === 0) {
       return;
     }
-    const request = eventCollection.map((e) => {
-      const req = new EventRequest();
-      req.type = e.type;
-      req.cipherId = e.cipherId;
-      req.date = e.date;
-      req.organizationId = e.organizationId;
-      return req;
+    const eventRequests = eventCollection.map((e) => {
+      return this.eventDataToEventRequest(e);
     });
+
+    let failedEvents: EventRequest[];
     try {
-      await this.apiService.postEventsCollect(request, userId);
+      failedEvents = await this.apiService.postEventsCollect(eventRequests, userId);
     } catch (e) {
       this.logService.error(e);
-      // Add the events back to state if there was an error and they were not uploaded.
-      await this.stateProvider.setUserState(EVENT_COLLECTION, eventCollection, userId);
+      failedEvents = eventRequests;
     }
+
+    // Add any events that failed to upload back to state.
+    if (failedEvents && failedEvents.length > 0) {
+      const failedEventData = failedEvents.map((e) => {
+        const eventData = new EventData();
+        eventData.type = e.type;
+        eventData.cipherId = e.cipherId;
+        eventData.date = e.date;
+        eventData.organizationId = e.organizationId;
+        return eventData;
+      });
+      await this.stateProvider.setUserState(EVENT_COLLECTION, failedEventData, userId);
+    }
+  }
+
+  eventDataToEventRequest(event: EventData): EventRequest {
+    const req = new EventRequest();
+    req.type = event.type;
+    req.cipherId = event.cipherId;
+    req.date = event.date;
+    req.organizationId = event.organizationId;
+    return req;
   }
 
   /** Return user's events and then clear them from state

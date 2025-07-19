@@ -1344,7 +1344,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+  async postEventsCollect(requests: EventRequest[], userId?: UserId): Promise<EventRequest[]> {
     const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
@@ -1355,18 +1355,36 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
     const env = await firstValueFrom(this.environmentService.environment$);
-    const response = await this.fetch(
-      this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
-        cache: "no-store",
-        credentials: await this.getCredentials(),
-        method: "POST",
-        body: JSON.stringify(request),
-        headers: headers,
-      }),
-    );
-    if (response.status !== 200) {
-      return Promise.reject("Event post failed.");
-    }
+
+    // Break uploads into chunks of 100 events
+    let bail = false;
+    const failedRequests: EventRequest[] = [];
+    Utils.chunkArray(requests, 300).forEach(async (eventRequests) => {
+      // We only fail once per set of uploads
+      if (bail) {
+        failedRequests.push(...eventRequests);
+        return;
+      }
+
+      try {
+        const response = await this.fetch(
+          this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
+            cache: "no-store",
+            credentials: await this.getCredentials(),
+            method: "POST",
+            body: JSON.stringify(eventRequests),
+            headers: headers,
+          }),
+        );
+        if (response.status !== 200) {
+          throw new Error("Event post failed.");
+        }
+      } catch {
+        bail = true;
+        failedRequests.push(...eventRequests);
+      }
+    });
+    return failedRequests;
   }
 
   // User APIs

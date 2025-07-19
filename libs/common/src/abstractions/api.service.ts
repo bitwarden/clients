@@ -430,8 +430,9 @@ export abstract class ApiService {
    * Posts events for a user
    * @param request The array of events to upload
    * @param userId The optional user id the events belong to. If no user id is provided the active user id is used.
+   * @returns The list of events that failed to upload, or an empty array if all events were uploaded successfully.
    */
-  postEventsCollect: (request: EventRequest[], userId?: UserId) => Promise<any>;
+  postEventsCollect: (request: EventRequest[], userId?: UserId) => Promise<EventRequest[]>;
 
   deleteSsoUser: (organizationId: string) => Promise<void>;
   getSsoUserIdentifier: () => Promise<string>;
