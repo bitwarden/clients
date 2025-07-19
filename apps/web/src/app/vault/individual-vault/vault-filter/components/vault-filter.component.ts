@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import {
+  combineLatest,
   distinctUntilChanged,
   firstValueFrom,
   map,
@@ -20,6 +21,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -155,6 +157,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected configService: ConfigService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
+    protected cipherService: CipherService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -292,16 +295,47 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return orgFilterSection;
   }
 
-  protected async addTypeFilter(excludeTypes: CipherStatus[] = []): Promise<VaultFilterSection> {
+  protected async addTypeFilter(
+    excludeTypes: CipherStatus[] = [],
+    organizationId?: string,
+  ): Promise<VaultFilterSection> {
     const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
 
-    const data$ = this.restrictedItemTypesService.restricted$.pipe(
-      map((restricted) => {
-        // List of types restricted by all orgs
-        const restrictedByAll = restricted
-          .filter((r) => r.allowViewOrgIds.length === 0)
+    const userId = await firstValueFrom(this.activeUserId$);
+
+    const data$ = combineLatest([
+      this.restrictedItemTypesService.restricted$,
+      this.cipherService.cipherViews$(userId),
+    ]).pipe(
+      map(([restrictedTypes, ciphers]) => {
+        const restrictedForUser = restrictedTypes
+          .filter((r) => {
+            // - All orgs restrict the type
+            if (r.allowViewOrgIds.length === 0) {
+              return true;
+            }
+            // - Admin console: user has no ciphers of that type in the selected org
+            // - Individual vault view: user has no ciphers of that type in any allowed org
+            return !ciphers?.some((c) => {
+              if (c.deletedDate || c.type !== r.cipherType) {
+                return false;
+              }
+              // If the cipher doesn't belong to an org it is automatically restricted
+              if (!c.organizationId) {
+                return false;
+              }
+              if (organizationId) {
+                return (
+                  c.organizationId === organizationId &&
+                  r.allowViewOrgIds.includes(c.organizationId)
+                );
+              }
+              return r.allowViewOrgIds.includes(c.organizationId);
+            });
+          })
           .map((r) => r.cipherType);
-        const toExclude = [...excludeTypes, ...restrictedByAll];
+
+        const toExclude = [...excludeTypes, ...restrictedForUser];
         return this.allTypeFilters.filter(
           (f) => typeof f.type === "string" || !toExclude.includes(f.type),
         );
