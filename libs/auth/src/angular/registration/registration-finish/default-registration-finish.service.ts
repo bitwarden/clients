@@ -28,10 +28,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     return null;
   }
 
-  determineLoginSuccessRoute(): Promise<string> {
-    return Promise.resolve("/vault");
-  }
-
   async finishRegistration(
     email: string,
     passwordInputResult: PasswordInputResult,

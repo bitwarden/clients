@@ -204,8 +204,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
 
       await this.loginSuccessHandlerService.run(authenticationResult.userId);
 
-      const successRoute = await this.registrationFinishService.determineLoginSuccessRoute();
-      await this.router.navigate([successRoute]);
+      await this.router.navigate(["/vault"]);
     } catch (e) {
       // If login errors, redirect to login page per product. Don't show error
       this.logService.error("Error logging in after registration: ", e.message);

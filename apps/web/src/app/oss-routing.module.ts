@@ -83,6 +83,7 @@ import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
 import { BrowserExtensionPromptComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt.component";
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
+import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -628,6 +629,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
+        canActivate: [setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
