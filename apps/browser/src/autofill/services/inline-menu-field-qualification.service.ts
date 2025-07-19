@@ -152,6 +152,20 @@ export class InlineMenuFieldQualificationService
   private totpFieldAutocompleteValue = "one-time-code";
   private premiumEnabled = false;
 
+  private isExplicitIdentityEmailField(field: AutofillField): boolean {
+    return field.htmlID === "new-email";
+  }
+
+  private isNewsletterForm(parentForm: any): boolean {
+    return !!(
+      parentForm &&
+      ((typeof parentForm.htmlID === "string" &&
+        parentForm.htmlID.toLowerCase().includes("newsletter")) ||
+        (typeof parentForm.htmlName === "string" &&
+          parentForm.htmlName.toLowerCase().includes("newsletter")))
+    );
+  }
+
   constructor() {
     void Promise.all([
       sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag"),
@@ -300,7 +314,11 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    return this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues);
+    return (
+      // Recognize explicit identity email fields (like id="new-email")
+      this.isFieldForIdentityEmail(field) ||
+      this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)
+    );
   }
 
   /**
@@ -397,6 +415,12 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
+
+    // Exclude non-login email field from being treated as a login username field
+    if (this.isExplicitIdentityEmailField(field)) {
+      return false;
+    }
+
     if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(
         (field) => field.viewable && this.isNewPasswordField(field),
@@ -414,6 +438,10 @@ export class InlineMenuFieldQualificationService
     // the field based on the other fields that are present on the page.
     const parentForm = pageDetails.forms[field.form];
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
+
+    if (this.isNewsletterForm(parentForm)) {
+      return false;
+    }
 
     // If the field is not structured within a form, we need to identify if the field is used in conjunction
     // with a password field. If that's the case, then we should assume that it is a form field element.
@@ -822,9 +850,14 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForIdentityEmail = (field: AutofillField): boolean => {
+    if (this.isExplicitIdentityEmailField(field)) {
+      return true;
+    }
+
     if (
       this.fieldContainsAutocompleteValues(field, this.emailAutocompleteValue) ||
-      field.type === "email"
+      field.type === "email" ||
+      field.htmlName === "email"
     ) {
       return true;
     }
