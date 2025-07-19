@@ -4,6 +4,8 @@ import { firstValueFrom } from "rxjs";
 
 import { CollectionRequest } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -36,6 +38,7 @@ export class EditCommand {
     private folderApiService: FolderApiServiceAbstraction,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {}
 
   async run(
@@ -102,6 +105,33 @@ export class EditCommand {
       await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
     if (isCipherRestricted) {
       return Response.error("Editing this item type is restricted by organizational policy.");
+    }
+
+    const isPersonalVaultItem = cipherView.organizationId == null;
+
+    const policyApplies = await firstValueFrom(
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, activeUserId),
+    );
+
+    if (isPersonalVaultItem && policyApplies) {
+      // we need a fresh copy of the cipher from the server to compare
+      const fetchedCipher = await this.cipherService.get(id, activeUserId);
+      const fetchedCipherView = await this.cipherService.decrypt(fetchedCipher, activeUserId);
+      const updatedCipherView = CipherExport.toView(req, cipherView);
+      const modifiedFields = Object.entries(updatedCipherView)
+        .filter(([key, value]) => {
+          const originalValue = (fetchedCipherView as any)[key];
+          return JSON.stringify(originalValue) !== JSON.stringify(value);
+        })
+        .map(([key]) => key);
+
+      const hasIllegalEdit = modifiedFields.some((field) => field !== "organizationId");
+
+      if (hasIllegalEdit) {
+        return Response.error(
+          "Due to organizational policy, you may only change the owner (organization) of this item.",
+        );
+      }
     }
 
     const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
