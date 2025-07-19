@@ -10900,5 +10900,11 @@
         "example": "12-3456789"
       }
     }
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
   }
 }
