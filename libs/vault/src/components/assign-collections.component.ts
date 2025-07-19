@@ -49,7 +49,7 @@ import {
   DialogModule,
   FormFieldModule,
   MultiSelectModule,
-  SelectItemView,
+  SelectCollectionView,
   SelectModule,
   ToastService,
 } from "@bitwarden/components";
@@ -125,7 +125,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
 
   formGroup = this.formBuilder.group({
     selectedOrg: [null],
-    collections: [<SelectItemView[]>[], [Validators.required]],
+    collections: [<SelectCollectionView[]>[], [Validators.required]],
   });
 
   /**
@@ -138,7 +138,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   protected editableItemCount: number;
   protected readonlyItemCount: number;
   protected personalItemsCount: number;
-  protected availableCollections: SelectItemView[] = [];
+  protected availableCollections: SelectCollectionView[] = [];
   protected orgName: string;
   protected showOrgSelector: boolean = false;
 
@@ -240,8 +240,8 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     this.destroy$.complete();
   }
 
-  selectCollections(items: SelectItemView[]) {
-    const currentCollections = this.formGroup.controls.collections.value as SelectItemView[];
+  selectCollections(items: SelectCollectionView[]) {
+    const currentCollections = this.formGroup.controls.collections.value as SelectCollectionView[];
     const updatedCollections = [...currentCollections, ...items].sort(this.sortItems);
     this.formGroup.patchValue({ collections: updatedCollections });
   }
@@ -288,7 +288,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     this.onCollectionAssign.emit(CollectionAssignmentResult.Saved);
   };
 
-  private sortItems = (a: SelectItemView, b: SelectItemView) =>
+  private sortItems = (a: SelectCollectionView, b: SelectCollectionView) =>
     this.i18nService.collator.compare(a.labelName, b.labelName);
 
   private async handleOrganizationCiphers(organizationId: OrganizationId) {
@@ -415,7 +415,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           this.formGroup.controls.collections.setValue([], { emitEvent: false });
         }),
         switchMap((orgId) => {
-          return this.getCollectionsForOrganization(orgId as OrganizationId);
+          return this.getCollectionsForOrganization(orgId);
         }),
         takeUntil(this.destroy$),
       )
@@ -482,7 +482,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         this.selectedOrgId,
         userId,
         cipherIds,
-        this.formGroup.controls.collections.value.map((i) => i.id as CollectionId),
+        this.formGroup.controls.collections.value.map((i) => i.id),
         false,
       );
     }

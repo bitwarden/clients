@@ -12,6 +12,7 @@ import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -115,7 +116,7 @@ export class EditCommand {
     }
   }
 
-  private async editCipherCollections(id: string, req: string[]) {
+  private async editCipherCollections(id: string, req: CollectionId[]) {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const cipher = await this.cipherService.get(id, activeUserId);

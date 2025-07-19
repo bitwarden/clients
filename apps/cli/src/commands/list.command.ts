@@ -16,6 +16,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -277,8 +278,8 @@ export class ListCommand {
 }
 
 class Options {
-  organizationId: string;
-  collectionId: string;
+  organizationId: OrganizationId;
+  collectionId: CollectionId;
   folderId: string;
   search: string;
   url: string;

@@ -1,4 +1,5 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { testData as TestData } from "../spec-data/keeper-json/testdata.json";
 
@@ -93,7 +94,7 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should create collections if part of an organization", async () => {
-    importer.organizationId = Utils.newGuid();
+    importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await importer.parse(testDataJson);
     expect(result != null).toBe(true);
 

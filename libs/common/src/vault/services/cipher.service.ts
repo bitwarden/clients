@@ -546,7 +546,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getAllDecryptedForGrouping(
-    groupingId: string,
+    groupingId: string | CollectionId, // may be a FolderId or a CollectionId
     userId: UserId,
     folder = true,
   ): Promise<CipherView[]> {
@@ -561,7 +561,7 @@ export class CipherService implements CipherServiceAbstraction {
       } else if (
         !folder &&
         cipher.collectionIds != null &&
-        cipher.collectionIds.indexOf(groupingId) > -1
+        cipher.collectionIds.indexOf(groupingId as CollectionId) > -1
       ) {
         return true;
       }
@@ -851,8 +851,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   async shareWithServer(
     cipher: CipherView,
-    organizationId: string,
-    collectionIds: string[],
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
     userId: UserId,
   ): Promise<Cipher> {
     const attachmentPromises: Promise<any>[] = [];
@@ -879,8 +879,8 @@ export class CipherService implements CipherServiceAbstraction {
 
   async shareManyWithServer(
     ciphers: CipherView[],
-    organizationId: string,
-    collectionIds: string[],
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
     userId: UserId,
   ) {
     const promises: Promise<any>[] = [];

@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { CollectionId, OrganizationId } from "../../types/guid";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
@@ -43,10 +44,12 @@ export class CipherExport {
     view.type = req.type;
     view.folderId = req.folderId;
     if (view.organizationId == null) {
-      view.organizationId = req.organizationId;
+      view.organizationId = req.organizationId as OrganizationId;
     }
     if (view.collectionIds || req.collectionIds) {
-      const set = new Set((view.collectionIds ?? []).concat(req.collectionIds ?? []));
+      const set = new Set(
+        (view.collectionIds ?? []).concat((req.collectionIds as CollectionId[]) ?? []),
+      );
       view.collectionIds = Array.from(set.values());
     }
     view.name = req.name;
@@ -90,7 +93,7 @@ export class CipherExport {
     domain.type = req.type;
     domain.folderId = req.folderId;
     if (domain.organizationId == null) {
-      domain.organizationId = req.organizationId;
+      domain.organizationId = req.organizationId as OrganizationId;
     }
     domain.name = req.name != null ? new EncString(req.name) : null;
     domain.notes = req.notes != null ? new EncString(req.notes) : null;

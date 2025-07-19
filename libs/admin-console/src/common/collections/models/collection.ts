@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { CollectionData } from "./collection.data";
@@ -15,8 +16,8 @@ export const CollectionTypes = {
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
 
 export class Collection extends Domain {
-  id: string;
-  organizationId: string;
+  id: CollectionId;
+  organizationId: OrganizationId;
   name: EncString;
   externalId: string;
   readOnly: boolean;

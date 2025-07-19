@@ -1,3 +1,4 @@
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -119,14 +120,14 @@ describe("VaultFilter", () => {
 
     describe("given an organizational cipher (with organization and collections)", () => {
       const cipher = createCipher({
-        organizationId: "organizationId",
-        collectionIds: ["collectionId", "anotherId"],
+        organizationId: "organizationId" as OrganizationId,
+        collectionIds: ["collectionId", "anotherId"] as CollectionId[],
       });
 
       it("should return true when filter matches collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "collectionId",
+          selectedCollectionId: "collectionId" as CollectionId,
         });
 
         const result = filterFunction(cipher);
@@ -137,7 +138,7 @@ describe("VaultFilter", () => {
       it("should return false when filter does not match collection id", () => {
         const filterFunction = createFilterFunction({
           selectedCollection: true,
-          selectedCollectionId: "nonMatchingId",
+          selectedCollectionId: "nonMatchingId" as CollectionId,
         });
 
         const result = filterFunction(cipher);
@@ -167,7 +168,10 @@ describe("VaultFilter", () => {
     });
 
     describe("given an unassigned organizational cipher (with organization, without collection)", () => {
-      const cipher = createCipher({ organizationId: "organizationId", collectionIds: [] });
+      const cipher = createCipher({
+        organizationId: "organizationId" as OrganizationId,
+        collectionIds: [],
+      });
 
       it("should return true when filtering for unassigned collection", () => {
         const filterFunction = createFilterFunction({

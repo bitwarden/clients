@@ -11,7 +11,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ObservableTracker, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -188,8 +188,8 @@ describe("VaultPopupItemsService", () => {
 
   it("should merge cipher views with collections and organization", (done) => {
     const cipherList = Object.values(allCiphers);
-    cipherList[0].organizationId = "org1";
-    cipherList[0].collectionIds = ["col1", "col2"];
+    cipherList[0].organizationId = "org1" as OrganizationId;
+    cipherList[0].collectionIds = ["col1", "col2"] as CollectionId[];
 
     service.autoFillCiphers$.subscribe((ciphers) => {
       expect(ciphers[0].organization).toEqual(mockOrg);

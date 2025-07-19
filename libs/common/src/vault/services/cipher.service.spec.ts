@@ -23,7 +23,7 @@ import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
-import { CipherId, UserId } from "../../types/guid";
+import { CipherId, CollectionId, UserId } from "../../types/guid";
 import { CipherKey, OrgKey, UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
@@ -190,7 +190,7 @@ describe("Cipher Service", () => {
     });
 
     it("should call apiService.postCipherCreate if collectionsIds != null", async () => {
-      encryptionContext.cipher.collectionIds = ["123"];
+      encryptionContext.cipher.collectionIds = ["123"] as CollectionId[];
       const spy = jest
         .spyOn(apiService, "postCipherCreate")
         .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));

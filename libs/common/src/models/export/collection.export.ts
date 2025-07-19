@@ -5,6 +5,7 @@
 import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
 
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { OrganizationId } from "../../types/guid";
 
 import { safeGetString } from "./utils";
 
@@ -21,7 +22,7 @@ export class CollectionExport {
     view.name = req.name;
     view.externalId = req.externalId;
     if (view.organizationId == null) {
-      view.organizationId = req.organizationId;
+      view.organizationId = req.organizationId as OrganizationId;
     }
     return view;
   }
@@ -30,7 +31,7 @@ export class CollectionExport {
     domain.name = req.name != null ? new EncString(req.name) : null;
     domain.externalId = req.externalId;
     if (domain.organizationId == null) {
-      domain.organizationId = req.organizationId;
+      domain.organizationId = req.organizationId as OrganizationId;
     }
     return domain;
   }

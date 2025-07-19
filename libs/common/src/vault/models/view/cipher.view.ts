@@ -6,6 +6,7 @@ import { View } from "../../../models/view/view";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 import { CipherType, LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -25,7 +26,7 @@ export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
   id: string = null;
-  organizationId: string | undefined = null;
+  organizationId: OrganizationId | undefined = null;
   folderId: string = null;
   name: string = null;
   notes: string = null;
@@ -44,7 +45,7 @@ export class CipherView implements View, InitializerMetadata {
   attachments: AttachmentView[] = null;
   fields: FieldView[] = null;
   passwordHistory: PasswordHistoryView[] = null;
-  collectionIds: string[] = null;
+  collectionIds: CollectionId[] = null;
   revisionDate: Date = null;
   creationDate: Date = null;
   deletedDate: Date = null;
@@ -237,7 +238,7 @@ export class CipherView implements View, InitializerMetadata {
 
     const cipherView = new CipherView();
     cipherView.id = obj.id ?? null;
-    cipherView.organizationId = obj.organizationId ?? null;
+    cipherView.organizationId = (obj.organizationId as OrganizationId) ?? null;
     cipherView.folderId = obj.folderId ?? null;
     cipherView.name = obj.name;
     cipherView.notes = obj.notes ?? null;
@@ -262,7 +263,7 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.fields = obj.fields?.map((f) => FieldView.fromSdkFieldView(f)) ?? null;
     cipherView.passwordHistory =
       obj.passwordHistory?.map((ph) => PasswordHistoryView.fromSdkPasswordHistoryView(ph)) ?? null;
-    cipherView.collectionIds = obj.collectionIds ?? null;
+    cipherView.collectionIds = (obj.collectionIds as CollectionId[]) ?? null;
     cipherView.revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
     cipherView.creationDate = obj.creationDate == null ? null : new Date(obj.creationDate);
     cipherView.deletedDate = obj.deletedDate == null ? null : new Date(obj.deletedDate);

@@ -10,6 +10,7 @@ import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
@@ -33,7 +34,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
   id: string;
-  organizationId: string;
+  organizationId: OrganizationId;
   folderId: string;
   name: EncString;
   notes: EncString;
@@ -53,7 +54,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   attachments: Attachment[];
   fields: Field[];
   passwordHistory: Password[];
-  collectionIds: string[];
+  collectionIds: CollectionId[];
   creationDate: Date;
   deletedDate: Date;
   reprompt: CipherRepromptType;
@@ -90,7 +91,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
     this.permissions = obj.permissions;
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
-    this.collectionIds = obj.collectionIds;
+    this.collectionIds = obj.collectionIds as CollectionId[];
     this.localData = localData;
     this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
     this.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : null;
