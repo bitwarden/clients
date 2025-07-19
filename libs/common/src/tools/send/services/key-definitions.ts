@@ -7,7 +7,7 @@ export const SEND_USER_ENCRYPTED = UserKeyDefinition.record<SendData>(
   SEND_DISK,
   "sendUserEncrypted",
   {
-    deserializer: (obj: SendData) => obj,
+    deserializer: (obj) => obj,
     clearOn: ["logout"],
   },
 );

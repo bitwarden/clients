@@ -1,5 +1,4 @@
 import { map } from "rxjs";
-import { Jsonify } from "type-fest";
 
 import {
   ORGANIZATION_MANAGEMENT_PREFERENCES_DISK,
@@ -20,7 +19,7 @@ import {
  */
 function buildKeyDefinition<T>(key: string): UserKeyDefinition<T> {
   return new UserKeyDefinition<T>(ORGANIZATION_MANAGEMENT_PREFERENCES_DISK, key, {
-    deserializer: (obj: Jsonify<T>) => obj as T,
+    deserializer: (obj) => obj as T | null,
     clearOn: ["logout"],
   });
 }

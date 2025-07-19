@@ -103,6 +103,6 @@ export const LAST_PROCESS_RELOAD = new KeyDefinition<Date>(
   BIOMETRIC_SETTINGS_DISK,
   "lastProcessReload",
   {
-    deserializer: (obj) => new Date(obj),
+    deserializer: (obj) => new Date(obj!),
   },
 );

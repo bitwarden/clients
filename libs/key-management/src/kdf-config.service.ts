@@ -13,7 +13,7 @@ import { KdfType } from "./enums/kdf-type.enum";
 import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "./models/kdf-config";
 
 export const KDF_CONFIG = new UserKeyDefinition<KdfConfig>(KDF_CONFIG_DISK, "kdfConfig", {
-  deserializer: (kdfConfig: Jsonify<KdfConfig>) => {
+  deserializer: (kdfConfig: Jsonify<KdfConfig> | null) => {
     if (kdfConfig == null) {
       return null;
     }

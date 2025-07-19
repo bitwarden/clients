@@ -1,5 +1,3 @@
-import { Jsonify } from "type-fest";
-
 import { ORGANIZATIONS_DISK, UserKeyDefinition } from "../../../platform/state";
 import { OrganizationData } from "../../models/data/organization.data";
 
@@ -13,7 +11,7 @@ export const ORGANIZATIONS = UserKeyDefinition.record<OrganizationData>(
   ORGANIZATIONS_DISK,
   "organizations",
   {
-    deserializer: (obj: Jsonify<OrganizationData>) => OrganizationData.fromJSON(obj),
+    deserializer: (obj) => OrganizationData.fromJSON(obj!),
     clearOn: ["logout"],
   },
 );

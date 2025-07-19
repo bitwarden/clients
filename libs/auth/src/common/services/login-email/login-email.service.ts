@@ -16,11 +16,11 @@ import {
 import { LoginEmailServiceAbstraction } from "../../abstractions/login-email.service";
 
 export const LOGIN_EMAIL = new KeyDefinition<string>(LOGIN_EMAIL_MEMORY, "loginEmail", {
-  deserializer: (value: string) => value,
+  deserializer: (value: string | null) => value,
 });
 
 export const STORED_EMAIL = new KeyDefinition<string>(LOGIN_EMAIL_DISK, "storedEmail", {
-  deserializer: (value: string) => value,
+  deserializer: (value: string | null) => value,
 });
 
 export class LoginEmailService implements LoginEmailServiceAbstraction {

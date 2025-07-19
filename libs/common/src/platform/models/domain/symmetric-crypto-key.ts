@@ -122,7 +122,7 @@ export class SymmetricCryptoKey {
     return new SymmetricCryptoKey(arrayBuffer);
   }
 
-  static fromJSON(obj: Jsonify<SymmetricCryptoKey>): SymmetricCryptoKey {
+  static fromJSON(obj: Jsonify<SymmetricCryptoKey> | null): SymmetricCryptoKey {
     return SymmetricCryptoKey.fromString(obj?.keyB64);
   }
 }
