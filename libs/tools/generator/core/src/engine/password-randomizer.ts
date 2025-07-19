@@ -25,7 +25,10 @@ export class PasswordRandomizer
   /** Instantiates the password randomizer
    *  @param randomizer data source for random data
    */
-  constructor(private randomizer: Randomizer) {}
+  constructor(
+    private randomizer: Randomizer,
+    private currentTime: () => number,
+  ) {}
 
   /** create a password from ASCII codepoints
    *  @param request refines the generated password
@@ -88,7 +91,7 @@ export class PasswordRandomizer
       return new GeneratedCredential(
         password,
         Type.password,
-        Date.now(),
+        this.currentTime(),
         request.source,
         request.website,
       );
@@ -99,7 +102,7 @@ export class PasswordRandomizer
       return new GeneratedCredential(
         passphrase,
         Type.password,
-        Date.now(),
+        this.currentTime(),
         request.source,
         request.website,
       );
