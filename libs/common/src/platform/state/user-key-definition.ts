@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { array, record } from "@bitwarden/serialization";
+
 import { UserId } from "../../types/guid";
 import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
 
-import { array, record } from "./deserialization-helpers";
 import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
