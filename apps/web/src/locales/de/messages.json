@@ -647,6 +647,9 @@
   "typeSecureNote": {
     "message": "Sichere Notiz"
   },
+  "typeNote": {
+    "message": "Notiz"
+  },
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
@@ -860,6 +863,23 @@
   },
   "copyName": {
     "message": "Name kopieren"
+  },
+  "cardNumber": {
+    "message": "Kartennummer"
+  },
+  "copyFieldCipherName": {
+    "message": "Copy $FIELD$, $CIPHERNAME$",
+    "description": "Title for a button that copies a field value to the clipboard.",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Username"
+      },
+      "ciphername": {
+        "content": "$2",
+        "example": "Login Item"
+      }
+    }
   },
   "me": {
     "message": "Ich"
@@ -3482,6 +3502,9 @@
   "webVault": {
     "message": "Web-Tresor"
   },
+  "webApp": {
+    "message": "Web-App"
+  },
   "cli": {
     "message": "CLI"
   },
@@ -3964,6 +3987,22 @@
   "youDeniedALogInAttemptFromAnotherDevice": {
     "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
   },
+  "loginRequestApprovedForEmailOnDevice": {
+    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "name@example.com"
+      },
+      "device": {
+        "content": "$2",
+        "example": "Web app - Chrome"
+      }
+    }
+  },
+  "youDeniedLoginAttemptFromAnotherDevice": {
+    "message": "Du hast einen Anmeldeversuch von einem anderen Gerät abgelehnt. Wenn du das wirklich warst, versuche dich erneut mit dem Gerät anzumelden."
+  },
   "loginRequestHasAlreadyExpired": {
     "message": "Anmeldeanfrage ist bereits abgelaufen."
   },
@@ -4107,6 +4146,9 @@
   },
   "reviewLoginRequest": {
     "message": "Anmeldeanfrage überprüfen"
+  },
+  "loginRequest": {
+    "message": "Anmeldungsanfrage"
   },
   "freeTrialEndPromptCount": {
     "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen.",
@@ -6077,7 +6119,7 @@
     "message": "Master-Passwort aktualisieren"
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Ändere dein Master-Passwort, um die Kontowiederherstellung abzuschließen."
   },
   "updateMasterPasswordSubtitle": {
     "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
@@ -8463,7 +8505,7 @@
     "message": "Admin-Genehmigung anfragen"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Anmeldung kann nicht abgeschlossen werden"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
@@ -8935,7 +8977,7 @@
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
-    "message": "More about match detection",
+    "message": "Mehr über die Übereinstimmungs-Erkennung",
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
@@ -8943,7 +8985,7 @@
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Warnung",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "maintainYourSubscription": {
@@ -10758,20 +10800,20 @@
     "message": "Skip to web app"
   },
   "bitwardenExtensionInstalled": {
-    "message": "Bitwarden extension installed!"
+    "message": "Bitwarden-Erweiterung installiert!"
   },
   "openExtensionToAutofill": {
     "message": "Open the extension to log in and start autofilling."
   },
   "openBitwardenExtension": {
-    "message": "Open Bitwarden extension"
+    "message": "Bitwarden-Erweiterung öffnen"
   },
   "gettingStartedWithBitwardenPart1": {
     "message": "For tips on getting started with Bitwarden visit the",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart2": {
-    "message": "Learning Center",
+    "message": "Lernzentrum",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'For tips on getting started with Bitwarden visit the Learning Center and Help Center'"
   },
   "gettingStartedWithBitwardenPart3": {
@@ -10808,19 +10850,19 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "billingAddress": {
-    "message": "Billing address"
+    "message": "Rechnungsadresse"
   },
   "addBillingAddress": {
-    "message": "Add billing address"
+    "message": "Rechnungsadresse hinzufügen"
   },
   "editBillingAddress": {
-    "message": "Edit billing address"
+    "message": "Rechnungsadresse bearbeiten"
   },
   "noBillingAddress": {
     "message": "No address on file."
   },
   "billingAddressUpdated": {
-    "message": "Your billing address has been updated."
+    "message": "Deine Rechnungsadresse wurde aktualisiert."
   },
   "paymentDetails": {
     "message": "Payment details"
@@ -10829,7 +10871,7 @@
     "message": "Your payment method has been updated."
   },
   "bankAccountVerified": {
-    "message": "Your bank account has been verified."
+    "message": "Dein Bankkonto wurde verifiziert."
   },
   "availableCreditAppliedToInvoice": {
     "message": "Any available credit will be automatically applied towards invoices generated for this account."
