@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { isGuid } from "@bitwarden/guid";
+
 import { UserId } from "../../types/guid";
 import { StorageKey } from "../../types/state";
-import { Utils } from "../misc/utils";
 
 import { array, record } from "./deserialization-helpers";
 import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
@@ -128,7 +129,7 @@ export class UserKeyDefinition<T> {
   }
 
   buildKey(userId: UserId) {
-    if (!Utils.isGuid(userId)) {
+    if (!isGuid(userId)) {
       throw new Error(
         `You cannot build a user key without a valid UserId, building for key ${this.fullName}`,
       );
