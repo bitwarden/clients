@@ -33,6 +33,7 @@
       "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
       "@bitwarden/generator-legacy": ["./libs/tools/generator/extensions/legacy/src"],
       "@bitwarden/generator-navigation": ["./libs/tools/generator/extensions/navigation/src"],
+      "@bitwarden/guid": ["libs/guid/src/index.ts"],
       "@bitwarden/importer-core": ["./libs/importer/src"],
       "@bitwarden/importer-ui": ["./libs/importer/src/components"],
       "@bitwarden/key-management": ["./libs/key-management/src"],
