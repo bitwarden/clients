@@ -64,11 +64,17 @@ export class Fido2ExcludedCiphersComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
-    await this.router.navigate(["/"]);
+    // Clean up modal state
+    await this.desktopSettingsService.setModalMode(false);
+    await this.accountService.setShowHeader(true);
 
+    // Clean up session state
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
     }
+
+    // Navigate away
+    await this.router.navigate(["/"]);
   }
 }

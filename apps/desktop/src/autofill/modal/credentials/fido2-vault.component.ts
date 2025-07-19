@@ -100,6 +100,9 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
+    await this.desktopSettingsService.setModalMode(false);
+    await this.accountService.setShowHeader(true);
+
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);

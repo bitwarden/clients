@@ -338,8 +338,8 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     // make the cipherIds available to the UI.
     this.availableCipherIdsSubject.next(existingCipherIds);
 
+    await this.accountService.setShowHeader(false);
     await this.showUi("/fido2-excluded", this.windowObject.windowXy, false);
-    await this.accountService.setShowHeader(true);
   }
 
   async ensureUnlockedVault(): Promise<void> {
@@ -358,6 +358,10 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
             timeout(1000 * 60 * 5), // 5 minutes
           ),
         );
+
+        if (status2 === AuthenticationStatus.Unlocked) {
+          await this.router.navigate(["/"]);
+        }
       } catch (error) {
         this.logService.warning("Error while waiting for vault to unlock", error);
       }

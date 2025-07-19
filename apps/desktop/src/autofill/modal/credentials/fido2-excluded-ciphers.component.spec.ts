@@ -69,8 +69,10 @@ describe("Fido2ExcludedCiphersComponent", () => {
 
       await component.closeModal();
 
+      expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
+      expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
   });
 });
