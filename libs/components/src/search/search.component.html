@@ -1,5 +1,5 @@
 <label class="tw-sr-only" [for]="id">{{ "search" | i18n }}</label>
-<div class="tw-relative tw-flex tw-items-center">
+<div class="tw-relative tw-flex tw-items-center tw-h-10">
   <label
     [for]="id"
     aria-hidden="true"
@@ -13,7 +13,7 @@
     [type]="inputType"
     [id]="id"
     [placeholder]="placeholder() ?? ('search' | i18n)"
-    class="tw-ps-9"
+    class="tw-ps-9 tw-h-full"
     [ngModel]="searchText"
     (ngModelChange)="onChange($event)"
     (blur)="onTouch()"
