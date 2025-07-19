@@ -3,11 +3,20 @@
 import { mock } from "jest-mock-extended";
 import { ReplaySubject, Observable } from "rxjs";
 
+// FIXME: Update this file to be type safe and remove this and next line
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/key-management";
+
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../types/master-password.types";
 
 export class FakeMasterPasswordService implements InternalMasterPasswordServiceAbstraction {
   mock = mock<InternalMasterPasswordServiceAbstraction>();
@@ -70,5 +79,30 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     userKey?: EncString,
   ): Promise<UserKey> {
     return this.mock.decryptUserKeyWithMasterKey(masterKey, userId, userKey);
+  }
+
+  makeMasterPasswordAuthenticationData(
+    password: string,
+    kdf: KdfConfig,
+    salt: MasterPasswordSalt,
+    userId: UserId,
+  ): Promise<MasterPasswordAuthenticationData> {
+    return this.mock.makeMasterPasswordAuthenticationData(password, kdf, salt, userId);
+  }
+
+  makeMasterPasswordUnlockData(
+    password: string,
+    kdf: KdfConfig,
+    salt: MasterPasswordSalt,
+    userKey: UserKey,
+  ): Promise<MasterPasswordUnlockData> {
+    return this.mock.makeMasterPasswordUnlockData(password, kdf, salt, userKey);
+  }
+
+  unwrapUserKeyFromMasterPasswordUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+  ): Promise<UserKey> {
+    return this.mock.unwrapUserKeyFromMasterPasswordUnlockData(password, masterPasswordUnlockData);
   }
 }

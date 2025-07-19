@@ -209,6 +209,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return (await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId))) != null;
   }
 
+  /**
+   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
+   */
   async makeUserKey(masterKey: MasterKey | null): Promise<[UserKey, EncString]> {
     if (masterKey == null) {
       const userId = await firstValueFrom(this.stateProvider.activeUserId$);
@@ -254,6 +257,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   // TODO: Move to MasterPasswordService
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` or `makeMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   */
   async getOrDeriveMasterKey(password: string, userId?: UserId) {
     const [resolvedUserId, email] = await firstValueFrom(
       combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
@@ -281,6 +287,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   /**
    * Derive a master key from a password and email.
    *
+   * @deprecated Please use `makeMasterPasswordAuthenticationData`, `makeMasterPasswordAuthenticationData`, `unwrapUserKeyFromMasterPasswordUnlockData` in @link MasterPasswordService instead.
+   *
    * @remarks
    * Does not validate the kdf config to ensure it satisfies the minimum requirements for the given kdf type.
    * TODO: Move to MasterPasswordService
@@ -298,6 +306,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return masterKey;
   }
 
+  /**
+   * @deprecated Please use `makeMasterPasswordUnlockData` in {@link MasterPasswordService} instead.
+   */
   async encryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey?: UserKey,
@@ -307,6 +318,9 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   // TODO: move to MasterPasswordService
+  /**
+   * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
+   */
   async hashMasterKey(
     password: string,
     key: MasterKey | null,
