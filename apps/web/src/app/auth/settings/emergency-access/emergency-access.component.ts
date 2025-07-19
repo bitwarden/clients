@@ -20,6 +20,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { HeaderModule } from "../../../layouts/header/header.module";
+import { SharedModule } from "../../../shared/shared.module";
+import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessStatusType } from "../../emergency-access/enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
@@ -46,9 +49,8 @@ import {
 } from "./takeover/emergency-access-takeover.component";
 
 @Component({
-  selector: "emergency-access",
   templateUrl: "emergency-access.component.html",
-  standalone: false,
+  imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessComponent implements OnInit {
   loaded = false;

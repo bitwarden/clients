@@ -14,6 +14,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { SharedModule } from "../../../shared/shared.module";
+import { PremiumBadgeComponent } from "../../../vault/components/premium-badge.component";
 import { EmergencyAccessService } from "../../emergency-access";
 import { EmergencyAccessType } from "../../emergency-access/enums/emergency-access-type";
 
@@ -34,9 +36,8 @@ export enum EmergencyAccessAddEditDialogResult {
   Deleted = "deleted",
 }
 @Component({
-  selector: "emergency-access-add-edit",
   templateUrl: "emergency-access-add-edit.component.html",
-  standalone: false,
+  imports: [SharedModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessAddEditComponent implements OnInit {
   loading = true;
