@@ -109,11 +109,12 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     newUserKey: [UserKey, EncString],
   ) {
     try {
+      const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
       // Create Request
       const request = new PasswordRequest();
       request.masterPasswordHash = await this.keyService.hashMasterKey(
         this.currentMasterPassword,
-        await this.keyService.getOrDeriveMasterKey(this.currentMasterPassword),
+        await this.keyService.getOrDeriveMasterKey(this.currentMasterPassword, userId),
       );
       request.newMasterPasswordHash = newMasterKeyHash;
       request.key = newUserKey[1].encryptedString;
